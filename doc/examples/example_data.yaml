@@ -1,0 +1,256 @@
+datafile_formats:
+  nexus:
+    description: A common data format for neutron, x-ray and muon science
+    facility: example_facility
+    name: NeXus
+    version: 4.3.0
+  raw_data:
+    description: Raw data
+    facility: example_facility
+    name: raw
+    version: N/A
+dataset_types:
+  generic:
+    description: generic data set
+    facility: example_facility
+    name: generic
+facilities:
+  example_facility:
+    description: ESNF is an example facility
+    fullName: Example Synchrotron and Neutron Facility
+    name: ESNF
+    url: http://www.esnf.example.org/
+instruments:
+  e2:
+    description: >
+      A 3-dimensional part of the reciprocal space can be scanned in
+      less then five steps by combining the "off-plane
+      Bragg-scattering" and the flat-cone layer concept while using a
+      new computer-controlled tilting axis of the detector bank.
+    facility: example_facility
+    fullName: E2 - Flat-Cone Diffractometer 
+    instrumentscientist: acord
+    name: E2
+    type: null
+  eddi:
+    description: >
+      The experimental station EDDI (Energy Dispersive Diffraction) is
+      a fixed station at the 7T-MPW-EDDI beamline.  The beamline
+      provides the direct white photon beam emitted by the 7T
+      multipole wiggler and is operated in the energy-dispersive mode
+      of diffraction.  For the experiments two diffractometers with
+      Eularian cradle segments (GE Inspection Technologies) are at the
+      disposal for light and heavy weight samples.  For the
+      acquisition of the diffraction patterns as well as the
+      fluorescence signals two Germanium solid state detectors
+      (Canberra) are available.
+    facility: example_facility
+    fullName: EDDI - Energy Dispersive Diffraction
+    instrumentscientist: acord
+    name: EDDI
+    type: null
+  hike:
+    description: >
+      The system is designed for hard X-ray high kinetic energy
+      photoelectron spectroscopy (HAXPES or HIKE) experiments in the
+      excitation energy range from 2 keV to 12 keV with an optimized
+      recorded kinetic energy range from 150 eV to 10000 eV.  The
+      typical experiments running on the HIKE end station are
+      investigations of bulk electronic properties – core levels and
+      valence band, buried interfaces and x-ray standing waves.
+    facility: example_facility
+    fullName: HIKE - High Kinetic Energy Photoelectron Spectroscopy
+    instrumentscientist: acord
+    name: HIKE
+    type: null
+investigation_types:
+  calibration:
+    description: null
+    facility: example_facility
+    name: Calibration
+  commercial_experiment:
+    description: null
+    facility: example_facility
+    name: Commercial experiment
+  engineering:
+    description: null
+    facility: example_facility
+    name: Engineering
+  experiment:
+    description: null
+    facility: example_facility
+    name: Experiment
+  simulation:
+    description: null
+    facility: example_facility
+    name: Simulation
+investigations:
+  2008-HIKE-0255-1:
+    addinstuser: true
+    datasets:
+    - complete: true
+      datafiles:
+      - createTime: '2008-06-18T09:31:11+02:00'
+        fileSize: 368368864
+        format: nexus
+        location: /data/2008/05/e201215.nxs
+        modTime: '2008-06-18T09:31:11+02:00'
+        name: e201215.nxs
+      endDate: null
+      name: e201215
+      startDate: '2008-03-13T11:39:42+01:00'
+      type: generic
+    endDate: null
+    facility: example_facility
+    instrument: hike
+    invcol:
+    - nbour
+    - rbeck
+    invguest:
+    - jdoe
+    invpi: jbotu
+    keywords:
+    - Durol
+    name: 2008-HIKE-0255-1
+    sample:
+      name: Durol SC
+      type: durol
+    startDate: '2008-03-13T11:39:42+01:00'
+    title: Durol single crystal
+    type: experiment
+    visitId: 1
+  2010-E2-0489-1:
+    addinstuser: true
+    datasets:
+    - complete: true
+      datafiles:
+      - createTime: '2010-10-01T08:17:48+02:00'
+        fileSize: 445952
+        format: raw_data
+        location: /data/2010/10/e208339.dat
+        modTime: '2010-10-01T08:17:48+02:00'
+        name: e208339.dat
+      - createTime: '2010-10-01T08:52:22+02:00'
+        fileSize: 73427714
+        format: nexus
+        location: /data/2010/10/e208339.nxs
+        modTime: '2010-10-01T08:52:22+02:00'
+        name: e208339.nxs
+      endDate: '2010-10-01T08:17:48+02:00'
+      name: e208339
+      startDate: '2010-09-30T12:27:24+02:00'
+      type: generic
+    - complete: true
+      datafiles:
+      - createTime: '2010-10-05T10:32:21+02:00'
+        fileSize: 394240
+        format: raw_data
+        location: /data/2010/10/e208341.dat
+        modTime: '2010-10-05T10:32:21+02:00'
+        name: e208341.dat
+      - createTime: '2010-10-05T11:31:53+02:00'
+        fileSize: 52856502
+        format: nexus
+        location: /data/2010/10/e208341.nxs
+        modTime: '2010-10-05T11:31:53+02:00'
+        name: e208341.nxs
+      endDate: '2010-10-05T10:32:21+02:00'
+      name: e208341
+      startDate: '2010-10-02T04:00:21+02:00'
+      type: generic
+    endDate: '2010-10-05T10:32:21+02:00'
+    facility: example_facility
+    instrument: e2
+    invcol: []
+    invguest:
+    - jbotu
+    - jdoe
+    - nbour
+    invpi: ahau
+    keywords:
+    - NiMnGa
+    - Nickel
+    - Manganese
+    - Gallium
+    name: 2010-E2-0489-1
+    sample:
+      name: NiMnGa 991027
+      type: nimnga
+    startDate: '2010-09-30T12:27:24+02:00'
+    title: Ni-Mn-Ga flat cone
+    type: experiment
+    visitId: 1
+  2012-EDDI-0390-1:
+    addinstuser: false
+    datasets:
+    - complete: false
+      datafiles:
+      - createTime: '2012-07-30T03:10:08+02:00'
+        fileSize: 459264
+        format: raw_data
+        location: /data/2012/07/e208945.dat
+        modTime: '2012-07-30T03:10:08+02:00'
+        name: e208945.dat
+      - createTime: '2013-06-03T12:22:43+02:00'
+        fileSize: 396430442
+        format: nexus
+        location: /data/2012/07/e208945.nxs
+        modTime: '2013-06-03T12:22:43+02:00'
+        name: e208945.nxs
+      endDate: '2012-07-30T03:10:08+02:00'
+      name: e208945
+      startDate: '2012-07-26T17:44:24+02:00'
+      type: generic
+    endDate: '2012-07-30T03:10:08+02:00'
+    facility: example_facility
+    instrument: eddi
+    invcol: []
+    invguest:
+    - rbeck
+    invpi: nbour
+    keywords:
+    - NiO
+    - Nickel oxide
+    - Nickel
+    - oxide
+    name: 2012-EDDI-0390-1
+    sample:
+      name: Nickel(II) oxide SC
+      type: nio
+    startDate: '2012-07-26T17:44:24+02:00'
+    title: NiO SC OF1 JUH HHL
+    type: experiment
+    visitId: 1
+sample_types:
+  durol:
+    facility: example_facility
+    molecularFormula: C10H14
+    name: Durol SC
+  nimnga:
+    facility: example_facility
+    molecularFormula: NiMnGa
+    name: NiMnGa
+  nio:
+    facility: example_facility
+    molecularFormula: NiO
+    name: Nickel(II) oxide SC
+users:
+  acord:
+    fullName: Aelius Cordus
+    name: acord
+  ahau:
+    fullName: Arnold Hau
+    name: ahau
+  jbotu:
+    fullName: Jean-Baptiste Botul
+    name: jbotu
+  jdoe:
+    fullName: John Doe
+    name: jdoe
+  nbour:
+    fullName: Nicolas Bourbaki
+    name: nbour
+  rbeck:
+    fullName: Rudolph Beck-Dülmen
+    name: rbeck
+

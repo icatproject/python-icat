@@ -1,0 +1,18 @@
+      python-icat - A library for writing ICAT clients in Python
+      ==========================================================
+
+This package provides a collection of modules for writing Python
+programs that access an ICAT[1] service using the SOAP interface.  It
+is based on Suds[2] and extends it with ICAT specific features.
+
+
+
+References
+----------
+
+[1]: http://www.icatproject.org/
+[2]: https://fedorahosted.org/suds/
+
+# Local Variables:
+# mode: text
+# End:
