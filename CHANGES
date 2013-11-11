@@ -3,6 +3,9 @@
 
 * Version 0.2.0 (not yet released)
 
+ + Bugfix: Config required a password to be set even if prompt for
+   password was requested.
+
 * Version 0.1.0 (released 2013-11-01)
 
  + Initial version

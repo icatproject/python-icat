@@ -15,6 +15,17 @@ class ConfigError(Exception):
     pass
 
 
+class ConfigField(object):
+    """Describe a configuration variable.
+
+    This is a helper class, designed for the internal use in Config.
+    The user of this module might not need it.
+    """
+    def __init__(self, name, optional):
+        self.name = name
+        self.optional = optional
+
+
 class Config(object):
     """Parse command line arguments and read a configuration file.
 
@@ -27,30 +38,41 @@ class Config(object):
 
     def __init__(self, needlogin=True):
         super(Config, self).__init__()
-        argparser = argparse.ArgumentParser()
-        argparser.add_argument("-c", "--configfile", 
-                               help="config file")
-        argparser.add_argument("-s", "--configsection", 
-                               help="section in the config file", 
-                               metavar='SECTION',
-                               dest='config', default=defaultsection)
-        argparser.add_argument("-w", "--url", 
-                               help="URL to the web service description")
-        if needlogin:
-            argparser.add_argument("-a", "--auth", help="authentication plugin")
-            argparser.add_argument("-u", "--user", help="username", 
-                                   dest='username')
-            argparser.add_argument("-p", "--pass", help="password", 
-                                   dest='password')
-            argparser.add_argument("-P", "--prompt-pass", 
-                                   help="prompt for the password", 
-                                   action='store_true')
-            self.conffields = ('url', 'auth', 'username', 'password', 
-                               'credentials')
-        else:
-            self.conffields = ('url',)
-        self.argparser = argparser
+        self.defaultFiles = [os.path.join(basedir, filename), filename]
+        self.defaultSection = defaultsection
+        self.needlogin = needlogin
+        self.conffields = []
+
+        self.argparser = argparse.ArgumentParser()
+        self.add_field('configFile', ("-c", "--configfile"), 
+                       dict(help="config file"),
+                       optional=True)
+        self.add_field('configSection', ("-s", "--configsection"), 
+                       dict(help="section in the config file", 
+                            metavar='SECTION',
+                            default=defaultsection), 
+                       optional=True)
+        self.add_field('url', ("-w", "--url"), 
+                       dict(help="URL to the web service description"))
+        if self.needlogin:
+            self.add_field('auth', ("-a", "--auth"), 
+                           dict(help="authentication plugin"))
+            self.add_field('username', ("-u", "--user"), dict(help="username"))
+            self.add_field('password', ("-p", "--pass"), dict(help="password"), 
+                           optional=True)
+            self.add_field('promptPass', ("-P", "--prompt-pass"), 
+                           dict(help="prompt for the password", 
+                                action='store_true'), 
+                           optional=True)
         self.args = None
+
+    def add_field(self, name, arg_opts=(), arg_kws=dict(), optional=False):
+        if hasattr(self, name):
+            raise ValueError("Config field name '%s' is reserved." % name)
+        if arg_opts:
+            arg_kws['dest'] = name
+            self.argparser.add_argument(*arg_opts, **arg_kws)
+        self.conffields.append(ConfigField(name, optional))
 
     def parse_args(self):
         self.args = self.argparser.parse_args()
@@ -61,28 +83,59 @@ class Config(object):
         if self.args is None:
             self.parse_args()
         args = self.args
-
         config = ConfigParser.ConfigParser()
-        fname = getattr(args, 'configfile', None)
-        if fname:
-            if not config.read(fname):
-                raise ConfigError("could not read config file '%s'." % fname)
-        else:
-            config.read([os.path.join(basedir, filename), filename])
-        section = getattr(args, 'config', None)
-        if section and not config.has_section(section):
-            raise ConfigError("could not read config section '%s'." % section)
+        section = None
 
-        for f in self.conffields:
-            if f != 'credentials':
+        # this code relies on the fact, that the first two fields in
+        # self.conffields are 'configFile' and 'configSection' in that
+        # order.
+
+        for field in self.conffields:
+
+            value = getattr(args, field.name, None)
+
+            if value is None and section:
                 try:
-                    v = getattr(args, f, None) or config.get(section, f)
+                    value = config.get(section, field.name)
                 except ConfigParser.NoOptionError:
-                    raise ConfigError("config option '%s' not given." % f)
-                setattr(self, f, v)
+                    value = None
 
-        if 'credentials' in self.conffields:
-            if ((args.username and not args.password) or args.prompt_pass):
+            if value is None and not field.optional:
+                raise ConfigError("Config option '%s' not given." % field.name)
+
+            setattr(self, field.name, value)
+
+            if field.name == 'configFile':
+
+                if self.configFile:
+                    if not config.read(self.configFile):
+                        raise ConfigError("Could not read config file '%s'." % 
+                                          self.configFile)
+                elif self.configFile is None:
+                    self.configFile = config.read(self.defaultFiles)
+
+            elif field.name == 'configSection':
+
+                section = self.configSection
+                if section and not config.has_section(section):
+                    raise ConfigError("Could not read config section '%s'." % 
+                                      section)
+
+        if self.needlogin:
+            # special rule: if the username was given in the command
+            # line and password not, this always implies promptPass.
+            if (args.username and not args.password) or not self.password:
+                self.promptPass = True
+            if self.promptPass:
                 self.password = getpass.getpass()
             self.credentials = { 'username':self.username, 
                                  'password':self.password }
+
+    def __str__(self):
+        typename = type(self).__name__
+        arg_strings = []
+        for field in self.conffields:
+            arg_strings.append('%s=%r' % (field.name, getattr(self, field.name)))
+        if self.needlogin:
+            arg_strings.append('%s=%r' % ('credentials', self.credentials))
+        return '%s(%s)' % (typename, ', '.join(arg_strings))
