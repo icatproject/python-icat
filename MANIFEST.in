@@ -1,3 +1,4 @@
+include CHANGES
 include doc/api/*
 include doc/examples/*.py
 include doc/examples/icat.cfg
