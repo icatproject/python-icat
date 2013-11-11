@@ -70,7 +70,16 @@ class Config(object):
         if hasattr(self, name):
             raise ValueError("Config field name '%s' is reserved." % name)
         if arg_opts:
-            arg_kws['dest'] = name
+            prefix = self.argparser.prefix_chars
+            if len(arg_opts) == 1 and arg_opts[0][0] not in prefix:
+                # positional argument
+                if arg_opts[0] != name:
+                    raise ValueError("Config field name '%s' must be equal to "
+                                     "argument name for positional argument." % 
+                                     name)
+            else:
+                # optional argument
+                arg_kws['dest'] = name
             self.argparser.add_argument(*arg_opts, **arg_kws)
         self.conffields.append(ConfigField(name, optional))
 
