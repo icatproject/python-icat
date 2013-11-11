@@ -19,13 +19,13 @@ logging.basicConfig(level=logging.INFO)
 
 icat.config.defaultsection = "hzb"
 conf = icat.config.Config()
-conf.argparser.add_argument("datafile", metavar="inputdata.yaml", 
-                            help="name of the input datafile")
-conf.argparser.add_argument("investigationname", 
-                            help="name of the investigation to add")
+conf.add_field('datafile', ("datafile",), 
+               dict(metavar="inputdata.yaml", 
+                    help="name of the input datafile"))
+conf.add_field('investigationname', ("investigationname",), 
+               dict(help="name of the investigation to add"))
 conf.getconfig()
-datafile = conf.args.datafile
-investigationname = conf.args.investigationname
+investigationname = conf.investigationname
 
 client = Client(conf.url)
 client.login(conf.auth, conf.credentials)
@@ -36,10 +36,10 @@ client.login(conf.auth, conf.credentials)
 # ------------------------------------------------------------
 
 try:
-    if datafile == "-":
+    if conf.datafile == "-":
         f = sys.stdin
     else:
-        f = open(datafile, 'r')
+        f = open(conf.datafile, 'r')
     try:
         data = yaml.load(f)
     finally:

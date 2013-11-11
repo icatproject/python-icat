@@ -20,11 +20,10 @@ ldapfilter = '(uid=*)'
 
 icat.config.defaultsection = "hzb"
 conf = icat.config.Config()
-conf.argparser.add_argument("-l", "--ldapuri", 
-                            help="URL of the LDAP server")
-conf.argparser.add_argument("-b", "--ldapbase", 
-                            help="base DN for searching the LDAP server")
-conf.conffields += ('ldapuri', 'ldapbase')
+conf.add_field('ldapuri', ("-l", "--ldapuri"), 
+               dict(help="URL of the LDAP server"))
+conf.add_field('ldapbase', ("-b", "--ldapbase"), 
+               dict(help="base DN for searching the LDAP server"))
 conf.getconfig()
 
 

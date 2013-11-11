@@ -12,12 +12,12 @@ logging.basicConfig(level=logging.INFO)
 
 icat.config.defaultsection = "hzb"
 conf = icat.config.Config(needlogin=False)
-conf.argparser.add_argument("-t", "--test", 
-                            help="test consistency of the ICAT client "
-                            "with the server", action='store_true')
-conf.argparser.add_argument("-p", "--python", 
-                            help="Generate Python source code that "
-                            "match the server", action='store_true')
+conf.add_field('test', ("-t", "--test"), 
+               dict(help="test consistency of the ICAT client with the server", 
+                    action='store_true'))
+conf.add_field('python', ("-p", "--python"), 
+               dict(help="Generate Python source code that match the server", 
+                    action='store_true'))
 conf.getconfig()
 
 client = Client(conf.url)
@@ -25,13 +25,13 @@ checker = ICATChecker(client)
 
 retcode = 0
 
-if conf.args.test:
+if conf.test:
     nwarn = checker.check()
     if nwarn:
         logging.warning("%d warnings", nwarn)
         retcode = 1
 
-if conf.args.python:
+if conf.python:
     genealogyrules=[(r'.*Parameter$', 'parameter'), (r'','entityBaseBean')]
     print checker.pythonsrc(genealogyrules)
 
