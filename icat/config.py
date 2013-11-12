@@ -17,13 +17,79 @@ class ConfigError(Exception):
 
 class ConfigField(object):
     """Describe a configuration variable.
-
-    This is a helper class, designed for the internal use in Config.
-    The user of this module might not need it.
     """
-    def __init__(self, name, optional):
+    def __init__(self, name, optional, default):
         self.name = name
         self.optional = optional
+        self.default = default
+
+
+class ConfigSource(object):
+    """A configuration source.
+
+    This is the base class for all configuration sources, such as
+    command line arguments, configuration files, and environment
+    variables.
+    """
+    def get(self, field):
+        raise NotImplementedError
+
+
+class ConfigSourceCmdArgs(ConfigSource):
+    """Get configuration from command line arguments.
+    """
+    def __init__(self, argumentparser):
+        super(ConfigSourceCmdArgs, self).__init__()
+        self.argparser = argumentparser
+
+    def get(self, field):
+        return getattr(self.argparser, field.name, None)
+
+
+class ConfigSourceFile(ConfigSource):
+    """Get configuration from a configuration file.
+    """
+    def __init__(self, configparser, defaultFiles):
+        super(ConfigSourceFile, self).__init__()
+        self.confparser = configparser
+        self.defaultFiles = defaultFiles
+        self.section = None
+
+    def read(self, filename):
+        if filename:
+            readfile = self.confparser.read(filename)
+            if not readfile:
+                raise ConfigError("Could not read config file '%s'." % filename)
+        elif filename is None:
+            readfile = self.confparser.read(self.defaultFiles)
+        else:
+            readfile = filename
+        return readfile
+
+    def setsection(self, section):
+        if section and not self.confparser.has_section(section):
+            raise ConfigError("Could not read config section '%s'." % section)
+        self.section = section
+        return section
+
+    def get(self, field):
+        value = None
+        if self.section:
+            try:
+                value = self.confparser.get(self.section, field.name)
+            except ConfigParser.NoOptionError:
+                pass
+        return value
+
+
+class ConfigSourceDefault(ConfigSource):
+    """Handle the case that some field is not set from any source.
+    """
+    def get(self, field):
+        value = field.default
+        if value is None and not field.optional:
+            raise ConfigError("Config option '%s' not given." % field.name)
+        return value
 
 
 class Config(object):
@@ -39,7 +105,6 @@ class Config(object):
     def __init__(self, needlogin=True):
         super(Config, self).__init__()
         self.defaultFiles = [os.path.join(basedir, filename), filename]
-        self.defaultSection = defaultsection
         self.needlogin = needlogin
         self.conffields = []
 
@@ -49,9 +114,8 @@ class Config(object):
                        optional=True)
         self.add_field('configSection', ("-s", "--configsection"), 
                        dict(help="section in the config file", 
-                            metavar='SECTION',
-                            default=defaultsection), 
-                       optional=True)
+                            metavar='SECTION'), 
+                       optional=True, default=defaultsection)
         self.add_field('url', ("-w", "--url"), 
                        dict(help="URL to the web service description"))
         if self.needlogin:
@@ -66,7 +130,8 @@ class Config(object):
                            optional=True)
         self.args = None
 
-    def add_field(self, name, arg_opts=(), arg_kws=dict(), optional=False):
+    def add_field(self, name, arg_opts=(), arg_kws=dict(), 
+                  optional=False, default=None):
         if hasattr(self, name):
             raise ValueError("Config field name '%s' is reserved." % name)
         if arg_opts:
@@ -81,7 +146,7 @@ class Config(object):
                 # optional argument
                 arg_kws['dest'] = name
             self.argparser.add_argument(*arg_opts, **arg_kws)
-        self.conffields.append(ConfigField(name, optional))
+        self.conffields.append(ConfigField(name, optional, default))
 
     def parse_args(self):
         self.args = self.argparser.parse_args()
@@ -91,9 +156,10 @@ class Config(object):
 
         if self.args is None:
             self.parse_args()
-        args = self.args
-        config = ConfigParser.ConfigParser()
-        section = None
+        args = ConfigSourceCmdArgs(self.args)
+        config = ConfigSourceFile(ConfigParser.ConfigParser(), 
+                                  self.defaultFiles)
+        defaults = ConfigSourceDefault()
 
         # this code relies on the fact, that the first two fields in
         # self.conffields are 'configFile' and 'configSection' in that
@@ -101,39 +167,24 @@ class Config(object):
 
         for field in self.conffields:
 
-            value = getattr(args, field.name, None)
-
-            if value is None and section:
-                try:
-                    value = config.get(section, field.name)
-                except ConfigParser.NoOptionError:
-                    value = None
-
-            if value is None and not field.optional:
-                raise ConfigError("Config option '%s' not given." % field.name)
+            for source in [ args, config, defaults ]:
+                value = source.get(field)
+                if value is not None: 
+                    break
 
             setattr(self, field.name, value)
 
             if field.name == 'configFile':
-
-                if self.configFile:
-                    if not config.read(self.configFile):
-                        raise ConfigError("Could not read config file '%s'." % 
-                                          self.configFile)
-                elif self.configFile is None:
-                    self.configFile = config.read(self.defaultFiles)
+                self.configFile = config.read(self.configFile)
 
             elif field.name == 'configSection':
-
-                section = self.configSection
-                if section and not config.has_section(section):
-                    raise ConfigError("Could not read config section '%s'." % 
-                                      section)
+                config.setsection(self.configSection)
 
         if self.needlogin:
             # special rule: if the username was given in the command
             # line and password not, this always implies promptPass.
-            if (args.username and not args.password) or not self.password:
+            if ((args.argparser.username and not args.argparser.password) 
+                or not self.password):
                 self.promptPass = True
             if self.promptPass:
                 self.password = getpass.getpass()
