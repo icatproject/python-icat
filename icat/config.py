@@ -18,8 +18,9 @@ class ConfigError(Exception):
 class ConfigField(object):
     """Describe a configuration variable.
     """
-    def __init__(self, name, optional, default):
+    def __init__(self, name, envvar, optional, default):
         self.name = name
+        self.envvar = envvar
         self.optional = optional
         self.default = default
 
@@ -44,6 +45,16 @@ class ConfigSourceCmdArgs(ConfigSource):
 
     def get(self, field):
         return getattr(self.argparser, field.name, None)
+
+
+class ConfigSourceEnvironment(ConfigSource):
+    """Get configuration from environment variables.
+    """
+    def get(self, field):
+        if field.envvar:
+            return os.environ.get(field.envvar, None)
+        else:
+            return None
 
 
 class ConfigSourceFile(ConfigSource):
@@ -111,17 +122,21 @@ class Config(object):
         self.argparser = argparse.ArgumentParser()
         self.add_field('configFile', ("-c", "--configfile"), 
                        dict(help="config file"),
-                       optional=True)
+                       envvar='ICAT_CFG', optional=True)
         self.add_field('configSection', ("-s", "--configsection"), 
                        dict(help="section in the config file", 
                             metavar='SECTION'), 
-                       optional=True, default=defaultsection)
+                       envvar='ICAT_CFG_SECTION', optional=True, 
+                       default=defaultsection)
         self.add_field('url', ("-w", "--url"), 
-                       dict(help="URL to the web service description"))
+                       dict(help="URL to the web service description"),
+                       envvar='ICAT_SERVICE')
         if self.needlogin:
             self.add_field('auth', ("-a", "--auth"), 
-                           dict(help="authentication plugin"))
-            self.add_field('username', ("-u", "--user"), dict(help="username"))
+                           dict(help="authentication plugin"),
+                           envvar='ICAT_AUTH')
+            self.add_field('username', ("-u", "--user"), dict(help="username"),
+                           envvar='ICAT_USER')
             self.add_field('password', ("-p", "--pass"), dict(help="password"), 
                            optional=True)
             self.add_field('promptPass', ("-P", "--prompt-pass"), 
@@ -131,7 +146,7 @@ class Config(object):
         self.args = None
 
     def add_field(self, name, arg_opts=(), arg_kws=dict(), 
-                  optional=False, default=None):
+                   envvar=None, optional=False, default=None):
         if hasattr(self, name):
             raise ValueError("Config field name '%s' is reserved." % name)
         if arg_opts:
@@ -146,7 +161,7 @@ class Config(object):
                 # optional argument
                 arg_kws['dest'] = name
             self.argparser.add_argument(*arg_opts, **arg_kws)
-        self.conffields.append(ConfigField(name, optional, default))
+        self.conffields.append(ConfigField(name, envvar, optional, default))
 
     def parse_args(self):
         self.args = self.argparser.parse_args()
@@ -157,6 +172,7 @@ class Config(object):
         if self.args is None:
             self.parse_args()
         args = ConfigSourceCmdArgs(self.args)
+        environ = ConfigSourceEnvironment()
         config = ConfigSourceFile(ConfigParser.ConfigParser(), 
                                   self.defaultFiles)
         defaults = ConfigSourceDefault()
@@ -167,7 +183,7 @@ class Config(object):
 
         for field in self.conffields:
 
-            for source in [ args, config, defaults ]:
+            for source in [ args, environ, config, defaults ]:
                 value = source.get(field)
                 if value is not None: 
                     break

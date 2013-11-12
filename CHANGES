@@ -3,8 +3,10 @@
 
 * Version 0.2.0 (not yet released)
 
+ + Rework internals of icat.config.
  + Bugfix: Config required a password to be set even if prompt for
    password was requested.
+ + Add support for configuration via environment variables.
 
 * Version 0.1.0 (released 2013-11-01)
 
