@@ -15,15 +15,17 @@ import re
 
 logging.basicConfig(level=logging.INFO)
 
-# the LDAP search filter is hard wired by now
-ldapfilter = '(uid=*)'
-
 icat.config.defaultsection = "hzb"
 conf = icat.config.Config()
-conf.add_field('ldapuri', ("-l", "--ldapuri"), 
-               dict(help="URL of the LDAP server"))
-conf.add_field('ldapbase', ("-b", "--ldapbase"), 
-               dict(help="base DN for searching the LDAP server"))
+conf.add_field('ldap_uri', ("-l", "--ldap-uri"), 
+               dict(help="URL of the LDAP server"),
+               envvar='LDAP_URI')
+conf.add_field('ldap_base', ("-b", "--ldap-base"), 
+               dict(help="base DN for searching the LDAP server"),
+               envvar='LDAP_BASE')
+conf.add_field('ldap_filter', ("-f", "--ldap-filter"), 
+               dict(help="search filter to select the user entries"),
+               default='(uid=*)')
 conf.getconfig()
 
 
@@ -33,8 +35,8 @@ client.login(conf.auth, conf.credentials)
 icatuser = { u.name:u for u in client.search("User") }
 
 
-ldapclient = ldap.initialize(conf.ldapuri)
-msgid = ldapclient.search(conf.ldapbase, ldap.SCOPE_SUBTREE, ldapfilter,
+ldapclient = ldap.initialize(conf.ldap_uri)
+msgid = ldapclient.search(conf.ldap_base, ldap.SCOPE_SUBTREE, conf.ldap_filter,
                           ('uid', 'displayName', 'givenName', 'sn', 'cn'))
 
 while True:
