@@ -27,7 +27,7 @@ conf.add_field('investigationname', ("investigationname",),
 conf.getconfig()
 investigationname = conf.investigationname
 
-client = Client(conf.url)
+client = Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 

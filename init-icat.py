@@ -27,7 +27,7 @@ conf.add_field('datafile', ("datafile",),
                     help="name of the input datafile"))
 conf.getconfig()
 
-client = Client(conf.url)
+client = Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 

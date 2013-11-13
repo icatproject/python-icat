@@ -11,7 +11,7 @@ icat.config.defaultsection = "hzb"
 conf = icat.config.Config()
 conf.getconfig()
 
-client = Client(conf.url)
+client = Client(conf.url, **conf.client_kwargs)
 sessionId = client.login(conf.auth, conf.credentials)
 
 print "Login to", conf.url, "was successful."

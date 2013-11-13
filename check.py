@@ -20,7 +20,7 @@ conf.add_field('python', ("-p", "--python"),
                     action='store_true'))
 conf.getconfig()
 
-client = Client(conf.url)
+client = Client(conf.url, **conf.client_kwargs)
 checker = ICATChecker(client)
 
 retcode = 0

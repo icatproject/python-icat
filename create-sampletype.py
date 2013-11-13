@@ -23,7 +23,7 @@ conf.add_field('sampletypename', ("sampletypename",),
                dict(help="name of the sample type to add"))
 conf.getconfig()
 
-client = Client(conf.url)
+client = Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 

@@ -27,7 +27,7 @@ conf.add_field('ldapbase', ("-b", "--ldapbase"),
 conf.getconfig()
 
 
-client = Client(conf.url)
+client = Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 icatuser = { u.name:u for u in client.search("User") }

@@ -23,7 +23,7 @@ conf.add_field('investigationname', ("investigationname",),
                dict(help="name of the investigation to add"))
 conf.getconfig()
 
-client = Client(conf.url)
+client = Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 

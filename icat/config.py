@@ -131,6 +131,12 @@ class Config(object):
         self.add_field('url', ("-w", "--url"), 
                        dict(help="URL to the web service description"),
                        envvar='ICAT_SERVICE')
+        self.add_field('http_proxy', ("--http-proxy",), 
+                       dict(help="proxy to use for http requests"),
+                       envvar='http_proxy', optional=True)
+        self.add_field('https_proxy', ("--https-proxy",), 
+                       dict(help="proxy to use for https requests"),
+                       envvar='https_proxy', optional=True)
         if self.needlogin:
             self.add_field('auth', ("-a", "--auth"), 
                            dict(help="authentication plugin"),
@@ -207,6 +213,15 @@ class Config(object):
             self.credentials = { 'username':self.username, 
                                  'password':self.password }
 
+        self.client_kwargs = {}
+        if self.http_proxy or self.https_proxy:
+            proxy={}
+            if self.http_proxy:
+                proxy['http'] = self.http_proxy
+            if self.https_proxy:
+                proxy['https'] = self.https_proxy
+            self.client_kwargs['proxy'] = proxy
+
     def __str__(self):
         typename = type(self).__name__
         arg_strings = []
@@ -214,4 +229,5 @@ class Config(object):
             arg_strings.append('%s=%r' % (field.name, getattr(self, field.name)))
         if self.needlogin:
             arg_strings.append('%s=%r' % ('credentials', self.credentials))
+        arg_strings.append('%s=%r' % ('client_kwargs', self.client_kwargs))
         return '%s(%s)' % (typename, ', '.join(arg_strings))
