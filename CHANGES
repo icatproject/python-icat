@@ -7,6 +7,7 @@
  + Bugfix: Config required a password to be set even if prompt for
    password was requested.
  + Add support for configuration via environment variables.
+ + Add support of HTTP proxy settings.  [Suggested by Alistair Mills]
 
 * Version 0.1.0 (released 2013-11-01)
 
