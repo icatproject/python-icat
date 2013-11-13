@@ -103,6 +103,24 @@ class ConfigSourceDefault(ConfigSource):
         return value
 
 
+class Configuration(object):
+    """Define a name space to store the configuration.
+    """
+    def __init__(self, config):
+        super(Configuration, self).__init__()
+        self._config = config
+
+    def __str__(self):
+        typename = type(self).__name__
+        arg_strings = []
+        fields = [field.name for field in self._config.conffields] \
+            + self._config.ReservedFields
+        for f in fields:
+            if hasattr(self, f):
+                arg_strings.append('%s=%r' % (f, getattr(self, f)))
+        return '%s(%s)' % (typename, ', '.join(arg_strings))
+
+
 class Config(object):
     """Parse command line arguments and read a configuration file.
 
@@ -113,11 +131,15 @@ class Config(object):
     variables not found in the command line.
     """
 
+    ReservedFields = ['credentials', 'client_kwargs']
+    """Reserved names of configuration fields."""
+
     def __init__(self, needlogin=True):
         super(Config, self).__init__()
         self.defaultFiles = [os.path.join(basedir, filename), filename]
         self.needlogin = needlogin
         self.conffields = []
+        self.conffield = {}
 
         self.argparser = argparse.ArgumentParser()
         self.add_field('configFile', ("-c", "--configfile"), 
@@ -153,8 +175,10 @@ class Config(object):
 
     def add_field(self, name, arg_opts=(), arg_kws=dict(), 
                    envvar=None, optional=False, default=None):
-        if hasattr(self, name):
+        if name in self.ReservedFields or name[0] == '_':
             raise ValueError("Config field name '%s' is reserved." % name)
+        if name in self.conffield:
+            raise ValueError("Config field '%s' is already defined." % name)
         if arg_opts:
             prefix = self.argparser.prefix_chars
             if len(arg_opts) == 1 and arg_opts[0][0] not in prefix:
@@ -167,7 +191,8 @@ class Config(object):
                 # optional argument
                 arg_kws['dest'] = name
             self.argparser.add_argument(*arg_opts, **arg_kws)
-        self.conffields.append(ConfigField(name, envvar, optional, default))
+        self.conffield[name] = ConfigField(name, envvar, optional, default)
+        self.conffields.append(self.conffield[name])
 
     def parse_args(self):
         self.args = self.argparser.parse_args()
@@ -179,55 +204,47 @@ class Config(object):
             self.parse_args()
         args = ConfigSourceCmdArgs(self.args)
         environ = ConfigSourceEnvironment()
-        config = ConfigSourceFile(ConfigParser.ConfigParser(), 
-                                  self.defaultFiles)
+        file = ConfigSourceFile(ConfigParser.ConfigParser(), self.defaultFiles)
         defaults = ConfigSourceDefault()
 
         # this code relies on the fact, that the first two fields in
         # self.conffields are 'configFile' and 'configSection' in that
         # order.
 
+        config = Configuration(self)
         for field in self.conffields:
 
-            for source in [ args, environ, config, defaults ]:
+            for source in [ args, environ, file, defaults ]:
                 value = source.get(field)
                 if value is not None: 
                     break
 
-            setattr(self, field.name, value)
+            setattr(config, field.name, value)
 
             if field.name == 'configFile':
-                self.configFile = config.read(self.configFile)
+                config.configFile = file.read(config.configFile)
 
             elif field.name == 'configSection':
-                config.setsection(self.configSection)
+                file.setsection(config.configSection)
 
         if self.needlogin:
             # special rule: if the username was given in the command
             # line and password not, this always implies promptPass.
             if ((args.argparser.username and not args.argparser.password) 
-                or not self.password):
-                self.promptPass = True
-            if self.promptPass:
-                self.password = getpass.getpass()
-            self.credentials = { 'username':self.username, 
-                                 'password':self.password }
+                or not config.password):
+                config.promptPass = True
+            if config.promptPass:
+                config.password = getpass.getpass()
+            config.credentials = { 'username':config.username, 
+                                   'password':config.password }
 
-        self.client_kwargs = {}
-        if self.http_proxy or self.https_proxy:
+        config.client_kwargs = {}
+        if config.http_proxy or config.https_proxy:
             proxy={}
-            if self.http_proxy:
-                proxy['http'] = self.http_proxy
-            if self.https_proxy:
-                proxy['https'] = self.https_proxy
-            self.client_kwargs['proxy'] = proxy
+            if config.http_proxy:
+                proxy['http'] = config.http_proxy
+            if config.https_proxy:
+                proxy['https'] = config.https_proxy
+            config.client_kwargs['proxy'] = proxy
 
-    def __str__(self):
-        typename = type(self).__name__
-        arg_strings = []
-        for field in self.conffields:
-            arg_strings.append('%s=%r' % (field.name, getattr(self, field.name)))
-        if self.needlogin:
-            arg_strings.append('%s=%r' % ('credentials', self.credentials))
-        arg_strings.append('%s=%r' % ('client_kwargs', self.client_kwargs))
-        return '%s(%s)' % (typename, ', '.join(arg_strings))
+        return config

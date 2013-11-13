@@ -18,13 +18,13 @@ logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 icat.config.defaultsection = "hzb"
-conf = icat.config.Config()
-conf.add_field('datafile', ("datafile",), 
-               dict(metavar="inputdata.yaml", 
-                    help="name of the input datafile"))
-conf.add_field('investigationname', ("investigationname",), 
-               dict(help="name of the investigation to add"))
-conf.getconfig()
+config = icat.config.Config()
+config.add_field('datafile', ("datafile",), 
+                 dict(metavar="inputdata.yaml", 
+                      help="name of the input datafile"))
+config.add_field('investigationname', ("investigationname",), 
+                 dict(help="name of the investigation to add"))
+conf = config.getconfig()
 investigationname = conf.investigationname
 
 client = Client(conf.url, **conf.client_kwargs)

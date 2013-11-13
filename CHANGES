@@ -4,10 +4,29 @@
 * Version 0.2.0 (not yet released)
 
  + Rework internals of icat.config.
+
  + Bugfix: Config required a password to be set even if prompt for
    password was requested.
+
  + Add support for configuration via environment variables.
+
  + Add support of HTTP proxy settings.  [Suggested by Alistair Mills]
+
+ + WARNING, incompatible change!
+   The configuration read by icat.config is not stored as attributes
+   on the Config object itself, but rather getconf() returns an object
+   with these attributes set.  This keeps the configuration values
+   cleanly separated from the attributes of the Config object.
+
+   In the client code, replace:
+
+   conf = icat.config.Config()
+   conf.getconfig()
+
+   by
+
+   config = icat.config.Config()
+   conf = config.getconfig()
 
 * Version 0.1.0 (released 2013-11-01)
 

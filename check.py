@@ -11,14 +11,14 @@ logging.basicConfig(level=logging.INFO)
 #logging.getLogger('icat.icatcheck').setLevel(logging.DEBUG)
 
 icat.config.defaultsection = "hzb"
-conf = icat.config.Config(needlogin=False)
-conf.add_field('test', ("-t", "--test"), 
-               dict(help="test consistency of the ICAT client with the server", 
-                    action='store_true'))
-conf.add_field('python', ("-p", "--python"), 
-               dict(help="Generate Python source code that match the server", 
-                    action='store_true'))
-conf.getconfig()
+config = icat.config.Config(needlogin=False)
+config.add_field('test', ("-t", "--test"), 
+                 dict(help="test consistency of the ICAT client with the server", 
+                      action='store_true'))
+config.add_field('python', ("-p", "--python"), 
+                 dict(help="Generate Python source code that match the server", 
+                      action='store_true'))
+conf = config.getconfig()
 
 client = Client(conf.url, **conf.client_kwargs)
 checker = ICATChecker(client)
