@@ -11,11 +11,11 @@
 # rootUserNames property.
 #
 
-from icat.client import Client
-import logging
 import sys
-import icat.config
+import logging
 import yaml
+import icat
+import icat.config
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -27,7 +27,7 @@ config.add_field('datafile', ("datafile",),
                       help="name of the input datafile"))
 conf = config.getconfig()
 
-client = Client(conf.url, **conf.client_kwargs)
+client = icat.Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 

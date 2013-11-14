@@ -1,11 +1,11 @@
 #! /usr/bin/python
 
 import cgi
-import yaml
 import re
-import icat.cgi
-import icat.exception
 import ConfigParser
+import yaml
+import icat.cgi
+from icat.exception import *
 
 date = "$Date$"
 lastupdate = re.search(r'\((.*)\)',date).group(1)
@@ -37,7 +37,7 @@ if "username" in form and "password" in form:
     # of if session.isActive() below.
     try:
         session.login(auth, form["username"].value, form["password"].value)
-    except icat.exception.ICATSessionError as error:
+    except ICATSessionError as error:
         pass
 
     if session.isActive():

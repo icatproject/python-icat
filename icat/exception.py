@@ -3,6 +3,20 @@
 
 import suds
 
+__all__ = [
+    # Exceptions thrown by the ICAT server
+    'ICATError', 'ICATParameterError', 'ICATInternalError', 
+    'ICATPrivilegesError', 'ICATNoObjectError', 'ICATObjectExistsError', 
+    'ICATSessionError', 'ICATValidationError', 
+    'translateError', 
+    # icat.client
+    'ClientVersionWarning', 'VersionMethodError', 
+    # icat.config
+    'ConfigError', 
+    # icat.icatcheck
+    'GenealogyError',
+    ]
+
 
 # ========== Exceptions thrown by the ICAT server ==========
 

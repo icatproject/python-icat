@@ -3,9 +3,9 @@
 # Create some parameter types, (actually just one for testing atm).
 #
 
-from icat.client import Client
-import logging
 import sys
+import logging
+import icat
 import icat.config
 
 logging.basicConfig(level=logging.INFO)
@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 icat.config.defaultsection = "hzb"
 conf = icat.config.Config().getconfig()
 
-client = Client(conf.url, **conf.client_kwargs)
+client = icat.Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 

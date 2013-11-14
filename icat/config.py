@@ -1,11 +1,14 @@
 """Provide the Config class.
 """
 
-import argparse
-import getpass
 import os
+import getpass
+import argparse
 import ConfigParser
-from icat.exception import ConfigError
+from icat.exception import *
+
+__all__ = ['Configuration', 'Config']
+
 
 basedir = os.path.expanduser("~/.icat")
 filename = "icat.cfg"

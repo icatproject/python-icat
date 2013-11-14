@@ -1,8 +1,8 @@
 """Provide the ListProxy class.
 """
 
-import doctest
 from collections import MutableSequence
+import doctest
 
 class ListProxy(MutableSequence):
     """A list that acts as a proxy to another list.

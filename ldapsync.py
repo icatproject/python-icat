@@ -8,10 +8,10 @@
 #
 
 import ldap
-from icat.client import Client
 import logging
-import icat.config
 import re
+import icat
+import icat.config
 
 logging.basicConfig(level=logging.INFO)
 
@@ -29,7 +29,7 @@ config.add_field('ldap_filter', ("-f", "--ldap-filter"),
 conf = config.getconfig()
 
 
-client = Client(conf.url, **conf.client_kwargs)
+client = icat.Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 icatuser = { u.name:u for u in client.search("User") }

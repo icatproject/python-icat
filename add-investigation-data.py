@@ -8,11 +8,11 @@
 # e.g. a user that is in the writer group of the given investigation.
 #
 
-from icat.client import Client
-import logging
 import sys
-import icat.config
+import logging
 import yaml
+import icat
+import icat.config
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -27,7 +27,7 @@ config.add_field('investigationname', ("investigationname",),
 conf = config.getconfig()
 investigationname = conf.investigationname
 
-client = Client(conf.url, **conf.client_kwargs)
+client = icat.Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 

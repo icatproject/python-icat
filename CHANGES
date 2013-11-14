@@ -32,6 +32,9 @@
 
  + Move GenealogyError from icat.icatcheck to icat.exception.
 
+ + Review export of symbols.  Most client programs should only need to
+   import icat and icat.config.
+
 * Version 0.1.0 (released 2013-11-01)
 
  + Initial version

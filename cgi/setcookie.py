@@ -3,10 +3,10 @@
 # Set a cookie with a given sessionId.  Only useful for testing.
 
 import cgi
-import yaml
 import re
-import icat.cgi
 import ConfigParser
+import yaml
+import icat.cgi
 
 date = "$Date$"
 lastupdate = re.search(r'\((.*)\)',date).group(1)

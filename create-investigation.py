@@ -5,11 +5,11 @@
 # This script should be run by the ICAT user useroffice.
 #
 
-from icat.client import Client
-import logging
 import sys
-import icat.config
+import logging
 import yaml
+import icat
+import icat.config
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -23,7 +23,7 @@ config.add_field('investigationname', ("investigationname",),
                  dict(help="name of the investigation to add"))
 conf = config.getconfig()
 
-client = Client(conf.url, **conf.client_kwargs)
+client = icat.Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 

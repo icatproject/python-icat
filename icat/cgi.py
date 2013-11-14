@@ -7,7 +7,7 @@ from Cookie import SimpleCookie
 import os
 import re
 import icat.client
-from icat.exception import ICATError, ICATSessionError
+from icat.exception import *
 
 
 class SessionCookie(SimpleCookie):

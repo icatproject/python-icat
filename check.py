@@ -1,10 +1,10 @@
 #! /usr/bin/python
 
-from icat.client import Client
-from icat.icatcheck import ICATChecker
-import logging
 import sys
+import logging
+import icat
 import icat.config
+from icat.icatcheck import *
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -20,7 +20,7 @@ config.add_field('python', ("-p", "--python"),
                       action='store_true'))
 conf = config.getconfig()
 
-client = Client(conf.url, **conf.client_kwargs)
+client = icat.Client(conf.url, **conf.client_kwargs)
 checker = ICATChecker(client)
 
 retcode = 0

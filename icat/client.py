@@ -3,20 +3,24 @@
 This is the only module that needs to be imported to use the icat.
 """
 
-import suds
-import suds.client
-import suds.sudsobject
-from icat.entity import Entity
-import icat.entities
-from icat.exception import *
-from logging import getLogger
 from warnings import warn
+import logging
 from distutils.version import StrictVersion as Version
 import atexit
 import shutil
 
-log = getLogger(__name__)
+import suds
+import suds.client
+import suds.sudsobject
 
+from icat.entity import Entity
+import icat.entities
+from icat.exception import *
+
+__all__ = ['Client']
+
+
+log = logging.getLogger(__name__)
 
 TypeMap42 = {
     'entityBaseBean': Entity,

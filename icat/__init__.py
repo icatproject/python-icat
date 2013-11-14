@@ -44,4 +44,6 @@ __version__   = "0.2.0a1"
 # Default import
 #
 
-import client
+from client import *
+from exception import *
+

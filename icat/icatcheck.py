@@ -8,7 +8,9 @@ useful for the package maintainer.
 import re
 import logging
 from icat.entity import Entity
-from icat.exception import ICATError, GenealogyError
+from icat.exception import *
+
+__all__ = ['ICATChecker']
 
 log = logging.getLogger(__name__)
 

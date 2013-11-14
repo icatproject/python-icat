@@ -1,10 +1,10 @@
 #! /usr/bin/python
 
 import cgi
-import yaml
 import re
-import icat.cgi
 import ConfigParser
+import yaml
+import icat.cgi
 
 date = "$Date$"
 lastupdate = re.search(r'\((.*)\)',date).group(1)
