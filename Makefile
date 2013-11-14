@@ -15,10 +15,22 @@ EXAMPLE_CGI_FILES = cgi/login.py cgi/logout.py cgi/session-status.py	\
 sdist: sdist_prepare
 	./setup.py sdist
 
-sdist_prepare:
-	rm -rf $(APIDOC_DIR)
+clean:
+	rm -f *~ icat/*.pyc
+
+distclean: clean apidoc_clean example_clean
+
+sdist_prepare: apidoc copy_examples
+
+apidoc: apidoc_clean
 	epydoc --html --output=$(APIDOC_DIR) icat
-	mkdir -p $(EXAMPLE_DIR)
+
+apidoc_clean:
+	rm -rf $(APIDOC_DIR)
+
+copy_examples:
 	cp -p $(EXAMPLE_FILES) $(EXAMPLE_DIR)
-	mkdir -p $(EXAMPLE_CGI_DIR)
 	cp -p $(EXAMPLE_CGI_FILES) $(EXAMPLE_CGI_DIR)
+
+example_clean:
+	(cd $(EXAMPLE_DIR); rm -f $(EXAMPLE_FILES) $(EXAMPLE_CGI_FILES))
