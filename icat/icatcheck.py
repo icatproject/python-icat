@@ -8,16 +8,12 @@ useful for the package maintainer.
 import re
 import logging
 from icat.entity import Entity
-from icat.exception import ICATError
+from icat.exception import ICATError, GenealogyError
 
 log = logging.getLogger(__name__)
 
 # FIXME: check also that icat.exception.IcatExceptionTypeMap is in
 # sync with the "IcatException" as defined in the WSDL.
-
-class GenealogyError(Exception):
-    """Error in the genealogy of entity types."""
-    pass
 
 
 class EntityInfo(object):

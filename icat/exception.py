@@ -3,6 +3,7 @@
 
 import suds
 
+
 # ========== Exceptions thrown by the ICAT server ==========
 
 class ICATError(Exception):
@@ -76,7 +77,8 @@ def translateError(error):
     else:
         raise TypeError("Invalid argument type '%s'." % type(error))
 
-# ========== Exceprions raised in icat.client ==========
+
+# ========== Exceptions raised in icat.client ==========
 
 class ClientVersionWarning(Warning):
     """Warn that the version of the ICAT server is not supported by
@@ -93,7 +95,7 @@ class ClientVersionWarning(Warning):
         else:
             msg = ("%s is not supported (%s), "
                    "expect problems and weird behavior!" % (icatstr, comment))
-        super(Warning, self).__init__(msg)
+        super(ClientVersionWarning, self).__init__(msg)
 
 class VersionMethodError(Exception):
     """Call of an ICAT API method that is not supported in the version
@@ -108,3 +110,15 @@ class VersionMethodError(Exception):
         super(VersionMethodError, self).__init__(msg)
 
 
+# ========== Exceptions raised in icat.config ==========
+
+class ConfigError(Exception):
+    """Error getting configuration options."""
+    pass
+
+
+# ========== Exceptions raised in icat.icatcheck ==========
+
+class GenealogyError(Exception):
+    """Error in the genealogy of entity types."""
+    pass

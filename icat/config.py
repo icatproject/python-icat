@@ -5,14 +5,11 @@ import argparse
 import getpass
 import os
 import ConfigParser
+from icat.exception import ConfigError
 
 basedir = os.path.expanduser("~/.icat")
 filename = "icat.cfg"
 defaultsection = None
-
-class ConfigError(Exception):
-    """Error getting configuration options from files or command line."""
-    pass
 
 
 class ConfigField(object):

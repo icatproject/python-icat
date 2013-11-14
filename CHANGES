@@ -28,6 +28,10 @@
    config = icat.config.Config()
    conf = config.getconfig()
 
+ + Move ConfigError from icat.config to icat.exception.
+
+ + Move GenealogyError from icat.icatcheck to icat.exception.
+
 * Version 0.1.0 (released 2013-11-01)
 
  + Initial version
