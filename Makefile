@@ -16,9 +16,10 @@ sdist: sdist_prepare
 	./setup.py sdist
 
 clean:
-	rm -f *~ icat/*.pyc
+	rm -f *~
 
-distclean: clean apidoc_clean example_clean
+distclean: apidoc_clean example_clean clean
+	rm -f icat/*.pyc
 
 sdist_prepare: apidoc copy_examples
 
