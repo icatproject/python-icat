@@ -24,7 +24,7 @@ distclean: apidoc_clean example_clean clean
 sdist_prepare: apidoc copy_examples
 
 apidoc: apidoc_clean
-	epydoc --html --output=$(APIDOC_DIR) icat
+	epydoc --html --docformat=restructuredtext --output=$(APIDOC_DIR) icat
 
 apidoc_clean:
 	rm -rf $(APIDOC_DIR)

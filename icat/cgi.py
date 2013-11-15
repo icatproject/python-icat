@@ -13,7 +13,7 @@ from icat.exception import *
 class SessionCookie(SimpleCookie):
     """A cookie to store an ICAT session id.
 
-    Extend C{SimpleCookie} by the attribute C{sessionId}.  Setting
+    Extend ``SimpleCookie`` by the attribute ``sessionId``.  Setting
     this attribute will set the session id in the cookie, getting it
     will retrieve its value from the cookie.
     """
@@ -61,7 +61,7 @@ class Session(object):
     """A persisting ICAT session.
 
     Manage an ICAT session that persist over the life time of the
-    script.  The session id is stored in a L{SessionCookie}.
+    script.  The session id is stored in a `SessionCookie`.
     """
 
     def __init__(self, url, 
@@ -69,7 +69,7 @@ class Session(object):
         """Initialize the instance.
 
         Connect to the ICAT service at the given URL.  Get the status
-        of the session from the L{SessionCookie}.
+        of the session from the `SessionCookie`.
         """
         super(Session, self).__init__()
         self.client = icat.client.Client(url)

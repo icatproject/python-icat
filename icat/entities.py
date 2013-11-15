@@ -1,17 +1,18 @@
 """Provide the classes corresponding to the entities in the ICAT schema.
 
 Entity classes defined in this module are derived from the abstract
-base class Entity from module icat.entity.  They override the class
-variables BeanName, InstAttr, InstRel, and InstMRel as appropriate.
+base class `Entity` from module `icat.entity`.  They override the
+class variables ``BeanName``, ``InstAttr``, ``InstRel``, and
+``InstMRel`` as appropriate.
 """
 
 from icat.entity import Entity
 
 
 class Parameter(Entity):
-    """Abstract base class for DatafileParameter, DatasetParameter,
-    InvestigationParameter, SampleParameter, and
-    DataCollectionParameter."""
+    """Abstract base class for ``DatafileParameter``,
+    ``DatasetParameter``, ``InvestigationParameter``,
+    ``SampleParameter``, and ``DataCollectionParameter``."""
     InstAttr = frozenset(['id', 'numericValue', 'dateTimeValue', 'stringValue', 
                           'rangeBottom', 'rangeTop', 'error'])
     InstRel = frozenset(['type'])

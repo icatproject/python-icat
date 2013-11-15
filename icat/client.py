@@ -116,7 +116,7 @@ class Client(suds.client.Client):
     its behavior.  It adds methods for the instantiation of ICAT
     entities and implementations of the ICAT API methods.
 
-    @group ICAT API methods: login, logout, create, createMany,
+    :group ICAT API methods: login, logout, create, createMany,
         delete, deleteMany, get, getApiVersion, getEntityInfo,
         getEntityNames, getProperties, getRemainingMinutes,
         getUserName, isAccessAllowed, luceneClear, luceneCommit,
@@ -131,7 +131,7 @@ class Client(suds.client.Client):
     def cleanupall(cls):
         """Cleanup all class instances.
 
-        Call L{cleanup} on all registered class instances, e.g. on all
+        Call `cleanup` on all registered class instances, e.g. on all
         clients that have not yet been cleaned up.
         """
         cl = list(cls.Register.values())
@@ -145,10 +145,10 @@ class Client(suds.client.Client):
         Extend the inherited constructor.  Query the API version from
         the ICAT server and initialize the typemap accordingly.
 
-        @param url: The URL for the WSDL.
-        @type url: str
-        @param kwargs: keyword arguments.
-        @see: C{suds.options.Options} for the keyword arguments.
+        :param url: The URL for the WSDL.
+        :type url: str
+        :param kwargs: keyword arguments.
+        :see: ``suds.options.Options`` for the keyword arguments.
         """
 
         super(Client, self).__init__(url, **kwargs)
@@ -176,14 +176,14 @@ class Client(suds.client.Client):
         self.Register[id(self)] = self
 
     def __del__(self):
-        """Call L{cleanup}."""
+        """Call `cleanup`."""
         self.cleanup()
 
     def cleanup(self):
 
         """Release resources allocated by the client.
 
-        Logout from the active ICAT session (if C{self.autoLogout} is
+        Logout from the active ICAT session (if ``self.autoLogout`` is
         True) and delete the temporary cache directory.  The client
         should not be used any more after calling this method.
         """
@@ -206,23 +206,23 @@ class Client(suds.client.Client):
 
     def new(self, obj, **kwargs):
 
-        """Instantiate a new L{Entity} object.
+        """Instantiate a new `Entity` object.
 
         If obj is a string, take it as the name of an instance type.
         Create a new instance object of this type and lookup the class
-        for the C{Entity} object in the C{typemap} using this type
+        for the ``Entity`` object in the ``typemap`` using this type
         name.  If obj is an instance object, look up its class name in
-        the C{typemap} to determine the class for the C{Entity}
-        object.  If obj is C{None}, do nothing and return C{None}.
+        the ``typemap`` to determine the class for the ``Entity``
+        object.  If obj is ``None``, do nothing and return ``None``.
         
-        @param obj: either a Suds instance object, a name of an
-            instance type, or C{None}.
-        @type obj: C{suds.sudsobject.Object}, C{str}, or C{NoneType}
-        @param kwargs: attributes passed to the constructor
-            L{Entity.__init__} of the entity class.
-        @return: the new entity object or C{None}.
-        @rtype: C{Entity} or C{NoneType}
-        @raise TypeError: if obj is neither a valid instance object,
+        :param obj: either a Suds instance object, a name of an
+            instance type, or ``None``.
+        :type obj: ``suds.sudsobject.Object``, ``str``, or ``NoneType``
+        :param kwargs: attributes passed to the constructor
+            `Entity.__init__` of the entity class.
+        :return: the new entity object or ``None``.
+        :rtype: ``Entity`` or ``NoneType``
+        :raise TypeError: if obj is neither a valid instance object,
             nor a valid name of an entity type, nor None.
         """
 
@@ -257,15 +257,15 @@ class Client(suds.client.Client):
         return Class(self, instance, **kwargs)
 
     def getEntity(self, obj):
-        """Get the corresponding L{Entity} for an object.
+        """Get the corresponding `Entity` for an object.
 
-        If obj is a Suds instance object, create a new C{Entity}
-        object with L{new}.  Otherwise return obj unchanged.
+        If obj is a Suds instance object, create a new ``Entity``
+        object with `new`.  Otherwise return obj unchanged.
         
-        @param obj: either a Suds instance object or anything.
-        @type obj: C{suds.sudsobject.Object} or any type
-        @return: the new entity object or obj.
-        @rtype: C{Entity} or any type
+        :param obj: either a Suds instance object or anything.
+        :type obj: ``suds.sudsobject.Object`` or any type
+        :return: the new entity object or obj.
+        :rtype: ``Entity`` or any type
         """
         if isinstance(obj, suds.sudsobject.Object):
             return self.new(obj)
@@ -471,16 +471,16 @@ class Client(suds.client.Client):
     def createUser(self, name, search=False, **kwargs):
         """Search a user by name or Create a new user.
 
-        If search is C{True} search a user by the given name.  If
-        search is C{False} or no user is found, create a new user.
+        If search is ``True`` search a user by the given name.  If
+        search is ``False`` or no user is found, create a new user.
 
-        @param name: username.
-        @type name: C{str}
-        @param search: flag wether a user should be searched first.
-        @type search: C{bool}
-        @param kwargs: attributes of the user passed to L{new}.
-        @return: the user.
-        @rtype: C{Entity}
+        :param name: username.
+        :type name: ``str``
+        :param search: flag wether a user should be searched first.
+        :type search: ``bool``
+        :param kwargs: attributes of the user passed to `new`.
+        :return: the user.
+        :rtype: ``Entity``
         """
         if search:
             users = self.search("User[name='%s']" % name)
@@ -496,12 +496,12 @@ class Client(suds.client.Client):
     def createGroup(self, name, users=[]):
         """Create a group and add users to it.
 
-        @param name: the name of the group.
-        @type name: C{str}
-        @param users: a list of users.
-        @type users: C{list} of C{Entity}
-        @return: the group.
-        @rtype: C{Entity}
+        :param name: the name of the group.
+        :type name: ``str``
+        :param users: a list of users.
+        :type users: ``list`` of ``Entity``
+        :return: the group.
+        :rtype: ``Entity``
         """
         log.info("Group: creating '%s'", name)
         if self.apiversion < '4.3':
@@ -515,15 +515,15 @@ class Client(suds.client.Client):
     def createRules(self, group, crudFlags, what):
         """Create access rules.
 
-        @param group: the group that should be granted access of
-        C{None} for everybody.
-        @type group: C{Entity} or C{NoneType}
-        @param crudFlags: access mode.
-        @type crudFlags: C{str}
-        @param what: list of items subject to the rule.
-        @type what: C{list} of C{str}
-        @return: list of the ids of the created rules.
-        @rtype: C{list} of C{long}
+        :param group: the group that should be granted access of
+            ``None`` for everybody.
+        :type group: ``Entity`` or ``NoneType``
+        :param crudFlags: access mode.
+        :type crudFlags: ``str``
+        :param what: list of items subject to the rule.
+        :type what: ``list`` of ``str``
+        :return: list of the ids of the created rules.
+        :rtype: ``list`` of ``long``
         """
         if group:
             log.info("Rule: adding %s permissions for group '%s'", 

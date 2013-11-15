@@ -267,7 +267,7 @@ class ICATChecker(object):
         The Python classes are created as a hierarchy.  It is assumed
         that there is one abstract base type which is the root of the
         genealogy tree.  In the case of the ICAT 4.2.* schema, this
-        assumptions holds, the base is entityBaseBean.
+        assumptions holds, the base is ``entityBaseBean``.
 
         The parameter genealogyrules defines the rules for the tree.
         It must be a list of tupels, each having two elements, a
@@ -275,11 +275,11 @@ class ICATChecker(object):
         matching the regular expression is assumed to be derived from
         the parent.  The first match in the list wins.  The last
         element in the list should be a default rule of the form
-        (r'','base'), where base is the name of the root.
+        ``(r'','base')``, where base is the name of the root.
 
         Entity classes having children in the hierarchy are assumed to
-        be abstract.  In this case the attribut 'BeanName' is set to
-        None.
+        be abstract.  In this case the attribut ``BeanName`` is set to
+        ``None``.
 
         The parameter baseclassname is the name for the base class at
         the root of the tree used in the Python output.

@@ -7,22 +7,22 @@ from icat.listproxy import ListProxy
 class Entity(object):
     """The base of the classes representing the entities in the ICAT schema.
 
-    C{Entity} is the abstract base for a hierarchy of classes
+    ``Entity`` is the abstract base for a hierarchy of classes
     representing the entities in the ICAT schema.  It implements the
     basic behavior of these classes.
 
-    Each C{Entity} object is connected to an instance of the
-    C{suds.sudsobject.Object} class, named I{instance} in the
+    Each ``Entity`` object is connected to an instance of the
+    ``suds.sudsobject.Object`` class, named *instance* in the
     following.  Instances are created by Suds based on the ICAT WSDL
-    schema.  C{Entity} objects mimic the behavior of the corresponding
+    schema.  ``Entity`` objects mimic the behavior of the corresponding
     instance.  Attribute accesses are proxied to the instance.  A
-    transparent conversion between C{Entity} objects and Suds
+    transparent conversion between ``Entity`` objects and Suds
     instances is performed where appropriate.
     """
     BeanName = None
-    """Name of the entity in the ICAT schema, C{None} for abstract classes."""
+    """Name of the entity in the ICAT schema, ``None`` for abstract classes."""
     SelfAttr = frozenset(['client', 'instance'])
-    """Attributes stored in the C{Entity} object itself."""
+    """Attributes stored in the ``Entity`` object itself."""
     InstAttr = frozenset(['id'])
     """Attributes of the entity in the ICAT schema, stored in the instance."""
     MetaAttr = frozenset(['createId', 'createTime', 'modId', 'modTime'])
@@ -114,17 +114,17 @@ class Entity(object):
 
 
     def create(self):
-        """Call the C{create} client API method to create the object
+        """Call the ``create`` client API method to create the object
         in the ICAT.""" 
         self.id = self.client.create(self.instance)
 
     def update(self):
-        """Call the C{update} client API method to update the object
+        """Call the ``update`` client API method to update the object
         in the ICAT.""" 
         self.client.update(self.instance)
 
     def get(self, query=None):
-        """Call the C{get} client API method to get the object from
+        """Call the ``get`` client API method to get the object from
         the ICAT.""" 
         if self.BeanName is None:
             raise TypeError("Cannot get an object of abstract type '%s'." % 
@@ -142,10 +142,10 @@ class Entity(object):
 class EntityList(ListProxy):
     """A list of Entity objects.
 
-    It actually is a proxy to a list of suds.sudsobject instances.
-    List items are converted on the fly: Entity objects are converted
-    to sudsobjects when stored into the list and converted back to
-    Entity objects when retrieved.
+    It actually is a proxy to a list of ``suds.sudsobject`` instances.
+    List items are converted on the fly: `Entity` objects are
+    converted to ``sudsobjects`` when stored into the list and
+    converted back to ``Entity`` objects when retrieved.
     """
 
     def __init__(self, client, instancelist):
