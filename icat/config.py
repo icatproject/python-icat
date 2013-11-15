@@ -39,12 +39,12 @@ class ConfigSource(object):
 class ConfigSourceCmdArgs(ConfigSource):
     """Get configuration from command line arguments.
     """
-    def __init__(self, argumentparser):
+    def __init__(self, argparser):
         super(ConfigSourceCmdArgs, self).__init__()
-        self.argparser = argumentparser
+        self.args = argparser.parse_args()
 
     def get(self, field):
-        return getattr(self.argparser, field.name, None)
+        return getattr(self.args, field.name, None)
 
 
 class ConfigSourceEnvironment(ConfigSource):
@@ -60,9 +60,9 @@ class ConfigSourceEnvironment(ConfigSource):
 class ConfigSourceFile(ConfigSource):
     """Get configuration from a configuration file.
     """
-    def __init__(self, configparser, defaultFiles):
+    def __init__(self, defaultFiles):
         super(ConfigSourceFile, self).__init__()
-        self.confparser = configparser
+        self.confparser = ConfigParser.ConfigParser()
         self.defaultFiles = defaultFiles
         self.section = None
 
@@ -171,7 +171,6 @@ class Config(object):
                            dict(help="prompt for the password", 
                                 action='store_true'), 
                            optional=True)
-        self.args = None
 
     def add_field(self, name, arg_opts=(), arg_kws=dict(), 
                    envvar=None, optional=False, default=None):
@@ -196,11 +195,11 @@ class Config(object):
 
     def getconfig(self):
 
-        self.args = self.argparser.parse_args()
-        args = ConfigSourceCmdArgs(self.args)
-        environ = ConfigSourceEnvironment()
-        file = ConfigSourceFile(ConfigParser.ConfigParser(), self.defaultFiles)
-        defaults = ConfigSourceDefault()
+        self.args = ConfigSourceCmdArgs(self.argparser)
+        self.environ = ConfigSourceEnvironment()
+        self.file = ConfigSourceFile(self.defaultFiles)
+        self.defaults = ConfigSourceDefault()
+        self.sources = [ self.args, self.environ, self.file, self.defaults ]
 
         # this code relies on the fact, that the first two fields in
         # self.conffields are 'configFile' and 'configSection' in that
@@ -209,7 +208,7 @@ class Config(object):
         config = Configuration(self)
         for field in self.conffields:
 
-            for source in [ args, environ, file, defaults ]:
+            for source in self.sources:
                 value = source.get(field)
                 if value is not None: 
                     break
@@ -217,14 +216,14 @@ class Config(object):
             setattr(config, field.name, value)
 
             if field.name == 'configFile':
-                config.configFile = file.read(config.configFile)
+                config.configFile = self.file.read(config.configFile)
             elif field.name == 'configSection':
-                file.setsection(config.configSection)
+                self.file.setsection(config.configSection)
 
         if self.needlogin:
             # special rule: if the username was given in the command
             # line and password not, this always implies promptPass.
-            if ((args.argparser.username and not args.argparser.password) 
+            if ((self.args.args.username and not self.args.args.password) 
                 or not config.password):
                 config.promptPass = True
             if config.promptPass:
