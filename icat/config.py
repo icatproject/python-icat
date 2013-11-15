@@ -194,14 +194,9 @@ class Config(object):
         self.conffield[name] = ConfigField(name, envvar, optional, default)
         self.conffields.append(self.conffield[name])
 
-    def parse_args(self):
-        self.args = self.argparser.parse_args()
-        return self.args
-
     def getconfig(self):
 
-        if self.args is None:
-            self.parse_args()
+        self.args = self.argparser.parse_args()
         args = ConfigSourceCmdArgs(self.args)
         environ = ConfigSourceEnvironment()
         file = ConfigSourceFile(ConfigParser.ConfigParser(), self.defaultFiles)
@@ -223,7 +218,6 @@ class Config(object):
 
             if field.name == 'configFile':
                 config.configFile = file.read(config.configFile)
-
             elif field.name == 'configSection':
                 file.setsection(config.configSection)
 
