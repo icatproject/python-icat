@@ -217,11 +217,11 @@ class Client(suds.client.Client):
         
         :param obj: either a Suds instance object, a name of an
             instance type, or ``None``.
-        :type obj: ``suds.sudsobject.Object``, ``str``, or ``NoneType``
+        :type obj: ``suds.sudsobject.Object`` or ``str``
         :param kwargs: attributes passed to the constructor
             `Entity.__init__` of the entity class.
         :return: the new entity object or ``None``.
-        :rtype: ``Entity`` or ``NoneType``
+        :rtype: ``Entity``
         :raise TypeError: if obj is neither a valid instance object,
             nor a valid name of an entity type, nor None.
         """
@@ -260,7 +260,8 @@ class Client(suds.client.Client):
         """Get the corresponding `Entity` for an object.
 
         If obj is a Suds instance object, create a new ``Entity``
-        object with `new`.  Otherwise return obj unchanged.
+        object with `new`.  Otherwise do nothing and return obj
+        unchanged.
         
         :param obj: either a Suds instance object or anything.
         :type obj: ``suds.sudsobject.Object`` or any type
@@ -515,9 +516,9 @@ class Client(suds.client.Client):
     def createRules(self, group, crudFlags, what):
         """Create access rules.
 
-        :param group: the group that should be granted access of
+        :param group: the group that should be granted access or
             ``None`` for everybody.
-        :type group: ``Entity`` or ``NoneType``
+        :type group: ``Entity``
         :param crudFlags: access mode.
         :type crudFlags: ``str``
         :param what: list of items subject to the rule.

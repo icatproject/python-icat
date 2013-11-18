@@ -104,7 +104,10 @@ class ConfigSourceDefault(ConfigSource):
 
 
 class Configuration(object):
-    """Define a name space to store the configuration.
+    """Provide a name space to store the configuration.
+
+    `Config.getconfig` returns a ``Configuration`` object having the
+    configuration values stored in the respective attributes.
     """
     def __init__(self, config):
         super(Configuration, self).__init__()
@@ -122,19 +125,132 @@ class Configuration(object):
 
 
 class Config(object):
-    """Parse command line arguments and read a configuration file.
+    """Set configuration variables.
 
-    Setup an argument parser for the common set of configuration
-    arguments that a ICAT client typically needs: the url of the ICAT
-    service, the name of the authentication plugin, the username, and
-    password.  Read a configuration file and get the configuration
-    variables not found in the command line.
+    Allow configuration variables to be set via command line
+    arguments, environment variables, configuration files, and default
+    values, in this order.  The first value found will be taken.
+    Command line arguments and configuration files are read using the
+    standard Python library modules ``argparse`` and ``ConfigParser``
+    respectively, see the documentation of these modules for details
+    on how to setup custom arguments or for the format of the
+    configuration files.
+
+    The following set of configuration configuration variables that an
+    ICAT client typically needs is predefined:
+
+      ``configFile``
+        Name of the configuration file to read.
+
+        =========================  ==================================
+        command line               ``-c``, ``--configfile``
+        environment                ``ICAT_CFG``
+        default                    ``~/.icat/icat.cfg``, ``icat.cfg``
+        mandatory                  no
+        =========================  ==================================
+
+      ``configSection``
+        Name of the section in the configuration file to apply.  If
+        not set, no values will be read from the configuration file.
+
+        =========================  ==================================
+        command line               ``-s``, ``--configsection``
+        environment                ``ICAT_CFG_SECTION``
+        default                    ``None``
+        mandatory                  no
+        =========================  ==================================
+
+      ``url``
+        URL to the web service description of the ICAT server.
+
+        =========================  ==================================
+        command line               ``-w``, ``--url``
+        environment                ``ICAT_SERVICE``
+        mandatory                  yes
+        =========================  ==================================
+
+      ``http_proxy``
+        Proxy to use for http requests.
+
+        =========================  ==================================
+        command line               ``--http-proxy``
+        environment                ``http_proxy``
+        default                    ``None``
+        mandatory                  no
+        =========================  ==================================
+
+      ``https_proxy``
+        Proxy to use for https requests.
+
+        =========================  ==================================
+        command line               ``--https-proxy``
+        environment                ``https_proxy``
+        default                    ``None``
+        mandatory                  no
+        =========================  ==================================
+
+      ``auth``
+        Name of the authentication plugin to use for login.
+
+        =========================  ==================================
+        command line               ``-a``, ``--auth``
+        environment                ``ICAT_AUTH``
+        mandatory                  yes
+        =========================  ==================================
+
+      ``username``
+        The ICAT user name.
+
+        =========================  ==================================
+        command line               ``-u``, ``--user``
+        environment                ``ICAT_USER``
+        mandatory                  yes
+        =========================  ==================================
+
+      ``password``
+        The user's password.  Will prompt for the password if not set.
+
+        =========================  ==================================
+        command line               ``-p``, ``--pass``
+        default                    ``None``
+        mandatory                  no
+        =========================  ==================================
+
+      ``promptPass``
+        Prompt for the password.
+
+        =========================  ==================================
+        command line               ``-P``, ``--prompt-pass``
+        default                    ``False``
+        mandatory                  no
+        =========================  ==================================
+
+    Mandatory means that an error will be raised if no value is found
+    for the configuration variable in question.
+
+    Two further derived variables are set in ``getconfig``:
+
+      ``client_kwargs``
+        contains the proxy settings and should be passed as the
+        keyword arguments to the constructor `Client.__init__` of the
+        client.
+
+      ``credentials``
+        contains username and password suitable to be passed to
+        `Client.login`.
     """
 
-    ReservedVariables = ['credentials', 'client_kwargs']
+    ReservedVariables = ['client_kwargs', 'credentials']
     """Reserved names of configuration variables."""
 
     def __init__(self, needlogin=True):
+        """Initialize the object.
+
+        Setup the predefined configuration variables.  If
+        ``needlogin`` is set to ``False``, the configuration variables
+        ``auth``, ``username``, ``password``, ``promptPass``, and
+        ``credentials`` will be left out.
+        """
         super(Config, self).__init__()
         self.defaultFiles = [os.path.join(basedir, filename), filename]
         self.needlogin = needlogin
@@ -176,6 +292,39 @@ class Config(object):
 
     def add_variable(self, name, arg_opts=(), arg_kws=dict(), 
                    envvar=None, optional=False, default=None):
+        """Defines a new configuration variable.
+
+        Call ``ArgumentParser.add_argument`` to add a new command line
+        argument if ``arg_opts`` is set.
+
+        :param name: the name of the variable.  This will be used as
+            the name of the attribute of the `Configuration` returned
+            by `getconfig` and as the name of the option to be looked
+            for in the configuration file.  The name must be unique
+            and not in `ReservedVariables`.  If ``arg_opts``
+            corresponds to a positional argument, the name must be
+            equal to this argument name.
+        :type name: ``str``
+        :param arg_opts: command line flags associated with this
+            variable.  This will be passed as ``name or flags`` to
+            ``ArgumentParser.add_argument``.
+        :type arg_opts: ``tuple`` of ``str``
+        :param arg_kws: keyword arguments to be passed to
+            ``ArgumentParser.add_argument``.
+        :type arg_kws: ``dict``
+        :param envvar: name of the environment variable or ``None``.
+            If set, the value for the variable may be set from the
+            respective environment variable.
+        :type envvar: ``str``
+        :param optional: flag wether the configuration variable as
+            optional.  If set to ``False`` and ``default`` is ``None``
+            the variable is mandatory.
+        :type optional: ``bool``
+        :param default: default value.
+        :raise ValueError: if the name is not valid.
+        :see: the documentation of the ``argparse`` standard library
+            module for details on ``arg_opts`` and ``arg_kws``.
+        """
         if name in self.ReservedVariables or name[0] == '_':
             raise ValueError("Config variable name '%s' is reserved." % name)
         if name in self.confvariable:
@@ -197,7 +346,23 @@ class Config(object):
         self.confvariables.append(var)
 
     def getconfig(self):
+        """Get the configuration.
 
+        Parse the command line arguments, evaluate environment
+        variables, read the configuration file, and apply default
+        values (in this order) to get the value for each defined
+        configuration variable.  The first defined value found will be
+        taken.
+
+        :return: an object having the configuration values set as
+            attributes.
+        :rtype: ``Configuration``
+        :raise ConfigError: if ``configFile`` is defined but the file
+            by this name can not be read, if ``configSection`` is
+            defined but no section by this name could be found in the
+            configuration file, or if a mandatory variable is not
+            defined.
+        """
         self.args = ConfigSourceCmdArgs(self.argparser)
         self.environ = ConfigSourceEnvironment()
         self.file = ConfigSourceFile(self.defaultFiles)
