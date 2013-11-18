@@ -17,15 +17,15 @@ logging.basicConfig(level=logging.INFO)
 
 icat.config.defaultsection = "hzb"
 config = icat.config.Config()
-config.add_field('ldap_uri', ("-l", "--ldap-uri"), 
-                 dict(help="URL of the LDAP server"),
-                 envvar='LDAP_URI')
-config.add_field('ldap_base', ("-b", "--ldap-base"), 
-                 dict(help="base DN for searching the LDAP server"),
-                 envvar='LDAP_BASE')
-config.add_field('ldap_filter', ("-f", "--ldap-filter"), 
-                 dict(help="search filter to select the user entries"),
-                 default='(uid=*)')
+config.add_variable('ldap_uri', ("-l", "--ldap-uri"), 
+                    dict(help="URL of the LDAP server"),
+                    envvar='LDAP_URI')
+config.add_variable('ldap_base', ("-b", "--ldap-base"), 
+                    dict(help="base DN for searching the LDAP server"),
+                    envvar='LDAP_BASE')
+config.add_variable('ldap_filter', ("-f", "--ldap-filter"), 
+                    dict(help="search filter to select the user entries"),
+                    default='(uid=*)')
 conf = config.getconfig()
 
 

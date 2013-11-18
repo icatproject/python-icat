@@ -19,11 +19,11 @@ logging.basicConfig(level=logging.INFO)
 
 icat.config.defaultsection = "hzb"
 config = icat.config.Config()
-config.add_field('datafile', ("datafile",), 
-                 dict(metavar="inputdata.yaml", 
-                      help="name of the input datafile"))
-config.add_field('investigationname', ("investigationname",), 
-                 dict(help="name of the investigation to add"))
+config.add_variable('datafile', ("datafile",), 
+                    dict(metavar="inputdata.yaml", 
+                         help="name of the input datafile"))
+config.add_variable('investigationname', ("investigationname",), 
+                    dict(help="name of the investigation to add"))
 conf = config.getconfig()
 investigationname = conf.investigationname
 

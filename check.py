@@ -12,12 +12,12 @@ logging.basicConfig(level=logging.INFO)
 
 icat.config.defaultsection = "hzb"
 config = icat.config.Config(needlogin=False)
-config.add_field('test', ("-t", "--test"), 
-                 dict(help="test consistency of the ICAT client with the server", 
-                      action='store_true'))
-config.add_field('python', ("-p", "--python"), 
-                 dict(help="Generate Python source code that match the server", 
-                      action='store_true'))
+config.add_variable('test', ("-t", "--test"), 
+                    dict(help="test consistency of the ICAT client with the server", 
+                         action='store_true'))
+config.add_variable('python', ("-p", "--python"), 
+                    dict(help="Generate Python source code that match the server", 
+                         action='store_true'))
 conf = config.getconfig()
 
 client = icat.Client(conf.url, **conf.client_kwargs)

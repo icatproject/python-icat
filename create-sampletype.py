@@ -16,11 +16,11 @@ logging.basicConfig(level=logging.INFO)
 
 icat.config.defaultsection = "hzb"
 config = icat.config.Config()
-config.add_field('datafile', ("datafile",), 
-                 dict(metavar="inputdata.yaml", 
-                      help="name of the input datafile"))
-config.add_field('sampletypename', ("sampletypename",), 
-                 dict(help="name of the sample type to add"))
+config.add_variable('datafile', ("datafile",), 
+                    dict(metavar="inputdata.yaml", 
+                         help="name of the input datafile"))
+config.add_variable('sampletypename', ("sampletypename",), 
+                    dict(help="name of the sample type to add"))
 conf = config.getconfig()
 
 client = icat.Client(conf.url, **conf.client_kwargs)
