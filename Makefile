@@ -17,9 +17,12 @@ sdist: sdist_prepare
 
 clean:
 	rm -f *~
+	rm -rf build
 
 distclean: apidoc_clean example_clean clean
+	rm -f MANIFEST
 	rm -f icat/*.pyc
+	rm -rf dist
 
 sdist_prepare: apidoc copy_examples
 
