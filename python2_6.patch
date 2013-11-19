@@ -1,0 +1,26 @@
+Index: icat/icatcheck.py
+===================================================================
+--- icat/icatcheck.py	(revision 141)
++++ icat/icatcheck.py	(working copy)
+@@ -223,7 +223,9 @@
+     def _genealogy(self, rules):
+         """Set up the genealogy of entity types."""
+ 
+-        tree = { t:{'level':0, 'base':None} for t in self.schema.keys() }
++        tree = {}
++        for t in self.schema.keys():
++            tree[t] = {'level':0, 'base':None} 
+         for t in tree:
+             log.debug("checking ancestors of %s ...", t)
+             for r in rules:
+@@ -290,7 +292,9 @@
+         except GenealogyError as e:
+             log.error("%s Dropping class genealogy in Python output.", 
+                       e.args[0])
+-            tree = { t:{'level':0, 'base':None} for t in self.schema.keys() }
++            tree = {}
++            for t in self.schema.keys():
++                tree[t] = {'level':0, 'base':None} 
+         else:
+             base = [t for t in tree if tree[t]['base'] is None][0]
+             self.schema[base].classname = baseclassname
