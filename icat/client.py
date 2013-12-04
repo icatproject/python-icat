@@ -541,5 +541,34 @@ class Client(suds.client.Client):
             rules.append(r)
         return self.createMany(rules)
 
+    def assertedSearch(self, query, assertmin=1, assertmax=1):
+        """Search with an assertion on the result.
+
+        Perform a search and verify that the number of items found
+        lies with the bounds of assertmin and assertmax.  Raise an
+        error if this assertion fails.
+
+        :param query: the search query string.
+        :type query: ``str``
+        :param assertmin: minimum number of expected results.
+        :type assertmin: ``int``
+        :param assertmax: maximum number of expected results.
+        :type assertmax: ``int``
+        :return: search result.
+        :rtype: ``list``
+        :raise ValueError: in case of inconsistent arguments.
+        :raise SearchResultError: if the assertion on the number of
+            results fails.
+        """
+        if assertmin > assertmax:
+            raise ValueError("Minimum (%d) is larger then maximum (%d)."
+                             % (assertmin, assertmax))
+        result = self.search(query)
+        num = len(result)
+        if num >= assertmin and num <= assertmax:
+            return result
+        else:
+            raise SearchResultError(query, assertmin, assertmax, num)
+
 
 atexit.register(Client.cleanupall)

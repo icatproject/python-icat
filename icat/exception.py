@@ -10,7 +10,7 @@ __all__ = [
     'ICATSessionError', 'ICATValidationError', 
     'translateError', 
     # icat.client
-    'ClientVersionWarning', 'VersionMethodError', 
+    'ClientVersionWarning', 'VersionMethodError', 'SearchResultError', 
     # icat.config
     'ConfigError', 
     # icat.icatcheck
@@ -122,6 +122,28 @@ class VersionMethodError(Exception):
             icatstr = "ICAT version %s" % version
         msg = ("%s is not supported in %s." % (method, icatstr))
         super(VersionMethodError, self).__init__(msg)
+
+class SearchResultError(Exception):
+    """A search result does not conform to an assertion.
+
+    This exception is thrown when the number of objects found on a
+    search does not lie within the bounds of an assertion.
+    """
+    def __init__(self, query, assertmin, assertmax, num):
+        # The most common case will be assertmin > 0 and num = 0.
+        # Formulate a convenient message for this case and a generic
+        # one for all other cases.
+        if num == 0:
+            msg = 'Nothing found on query: "%s"' % query
+        else:
+            msg = ('Number of objects found (%d) is not within '
+                   'the expected bounds between %d and %d on query: "%s"'
+                   % (num, assertmin, assertmax, query))
+        super(SearchResultError, self).__init__(msg)
+        self.query = query
+        self.assertmin = assertmin
+        self.assertmax = assertmax
+        self.num = num
 
 
 # ========== Exceptions raised in icat.config ==========
