@@ -171,6 +171,15 @@ class Group(Entity):
             uids.add(u.id)
         self.client.createMany(ugs)
 
+    def getUsers(self, attribute=None):
+        if attribute is not None:
+            query = ("User.%s <-> UserGroup <-> %s [id=%d]" 
+                     % (attribute, self.BeanName, self.id))
+        else:
+            query = ("User <-> UserGroup <-> %s [id=%d]" 
+                     % (self.BeanName, self.id))
+        return self.client.search(query)
+
 
 class Group43(Group):
     """A group of users.  Valid for ICAT 4.3.*."""
@@ -202,6 +211,15 @@ class Instrument(Entity):
                                   instrument=self, user=user)
         instsci.create()
         return user
+
+    def getInstrumentScientists(self, attribute=None):
+        if attribute is not None:
+            query = ("User.%s <-> InstrumentScientist <-> Instrument [id=%d]" 
+                     % (attribute, self.id))
+        else:
+            query = ("User <-> InstrumentScientist <-> Instrument [id=%d]" 
+                     % (self.id))
+        return self.client.search(query)
 
 
 class Instrument43(Instrument):
