@@ -1,4 +1,5 @@
 include CHANGES
+include python2_6.patch
 include doc/api/*
 include doc/examples/*.py
 include doc/examples/icat.cfg
