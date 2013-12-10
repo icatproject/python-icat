@@ -1,6 +1,34 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.3.0 (not yet released)
+
+ + Add a client method assertedSearch().
+
+ + Add entity methods Group.getUsers() and
+   Instrument.getInstrumentScientists().
+
+ + WARNING, incompatible change!
+   Changed entity methods Instrument.addInstrumentScientist() and
+   Investigation.addInvestigationUser() to not to create the
+   respective user any more, but rather expect a list of existing
+   users as argument.  Renamed Group.addUser(),
+   Instrument.addInstrumentScientist(), and
+   Investigation.addInvestigationUser() to addUsers(),
+   addInstrumentScientists(), and addInvestigationUsers() (note the
+   plural "s") respectively.
+
+   In the client code, replace:
+
+   pi = investigation.addInvestigationUser(uid, fullName=userName, 
+                                           search=True, 
+                                           role="Principal Investigator")
+
+   by
+
+   pi = client.createUser(uid, fullName=userName, search=True)
+   investigation.addInvestigationUsers([pi], role="Principal Investigator")
+
 * Version 0.2.0 (2013-11-18)
 
  + Rework internals of icat.config.
@@ -35,7 +63,7 @@
  + Review export of symbols.  Most client programs should only need to
    import icat and icat.config.
 
-* Version 0.1.0 (released 2013-11-01)
+* Version 0.1.0 (2013-11-01)
 
  + Initial version
 
