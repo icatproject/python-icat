@@ -513,7 +513,7 @@ class Client(suds.client.Client):
         else:
             g = self.new("grouping", name=name)
         g.create()
-        g.addUser(users)
+        g.addUsers(users)
         return g
 
     def createRules(self, group, crudFlags, what):

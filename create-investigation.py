@@ -121,20 +121,20 @@ investigationwriter = []
 
 # Principal Investigator
 user = data['users'][investigationdata['invpi']]
-userpi = investigation.addInvestigationUser(user['name'], 
-                                            fullName=user['fullName'], 
-                                            search=True, 
-                                            role="Principal Investigator")
+userpi = client.createUser(user['name'], fullName=user['fullName'], 
+                           search=True)
+investigation.addInvestigationUsers([userpi], role="Principal Investigator")
 investigationowner.append(userpi)
 investigationwriter.append(userpi)
 
 # Additional Investigators
+usercols = []
 for u in investigationdata['invcol']:
     user = data['users'][u]
-    usercol = investigation.addInvestigationUser(user['name'], 
-                                                 fullName=user['fullName'], 
-                                                 search=True)
-    investigationwriter.append(usercol)
+    usercols.append(client.createUser(user['name'], fullName=user['fullName'], 
+                                      search=True))
+investigation.addInvestigationUsers(usercols)
+investigationwriter.extend(usercols)
 
 # More users that will get read permissions
 for u in investigationdata['invguest']:
@@ -145,10 +145,7 @@ for u in investigationdata['invguest']:
 
 # Add InstrumentScientists to the writers
 if investigationdata['addinstuser']:
-    instrumentscientists = client.search("User <-> InstrumentScientist "
-                                         "<-> Instrument[id=%d]" 
-                                         % instrument.id)
-    investigationwriter.extend(instrumentscientists)
+    investigationwriter.extend(instrument.getInstrumentScientists())
 
 owngroupname = "investigation_%d_owner" % investigation.id
 writegroupname = "investigation_%d_writer" % investigation.id

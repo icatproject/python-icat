@@ -150,11 +150,12 @@ for k in data['instruments'].keys():
     inst.facility = facilities[data['instruments'][k]['facility']]
     inst.create()
     ud = data['users'][data['instruments'][k]['instrumentscientist']]
-    instuser = inst.addInstrumentScientist(ud['name'], search=True, 
-                                           fullName=ud['fullName'])
+    instuser = client.createUser(ud['name'], fullName=ud['fullName'], 
+                                 search=True)
+    inst.addInstrumentScientists([instuser])
     instusers.append(instuser)
 # As a default rule, instrument scientists are SampleType writers
-st_writers.addUser([ instuser ])
+st_writers.addUsers(instusers)
 
 
 # ------------------------------------------------------------

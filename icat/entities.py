@@ -158,7 +158,7 @@ class Group(Entity):
     InstAttr = frozenset(['id', 'name'])
     InstMRel = frozenset(['userGroups', 'rules'])
 
-    def addUser(self, users):
+    def addUsers(self, users):
         ugs = []
         uids = set()
         for u in users:
@@ -169,7 +169,8 @@ class Group(Entity):
             else:
                 ugs.append(self.client.new('userGroup', user=u, grouping=self))
             uids.add(u.id)
-        self.client.createMany(ugs)
+        if ugs:
+            self.client.createMany(ugs)
 
     def getUsers(self, attribute=None):
         if attribute is not None:
@@ -205,12 +206,13 @@ class Instrument(Entity):
     InstRel = frozenset(['facility'])
     InstMRel = frozenset(['instrumentScientists', 'investigations'])
 
-    def addInstrumentScientist(self, name, search=False, **kwargs):
-        user = self.client.createUser(name, search, **kwargs)
-        instsci = self.client.new('instrumentScientist', 
-                                  instrument=self, user=user)
-        instsci.create()
-        return user
+    def addInstrumentScientists(self, users):
+        iss = []
+        for u in users:
+            iss.append(self.client.new('instrumentScientist', 
+                                       instrument=self, user=u))
+        if iss:
+            self.client.createMany(iss)
 
     def getInstrumentScientists(self, attribute=None):
         if attribute is not None:
@@ -255,15 +257,16 @@ class Investigation(Entity):
         kws = []
         for k in keywords:
             kws.append(self.client.new('keyword', name=k, investigation=self))
-        self.client.createMany(kws)
+        if kws:
+            self.client.createMany(kws)
 
-    def addInvestigationUser(self, name, role='Investigator', search=False, 
-                             **kwargs):
-        user = self.client.createUser(name, search, **kwargs)
-        iu = self.client.new('investigationUser', 
-                             investigation=self, user=user, role=role)
-        iu.create()
-        return user
+    def addInvestigationUsers(self, users, role='Investigator'):
+        ius = []
+        for u in users:
+            ius.append(self.client.new('investigationUser', 
+                                       investigation=self, user=u, role=role))
+        if ius:
+            self.client.createMany(ius)
 
 
 class Investigation43(Investigation):
