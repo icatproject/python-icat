@@ -122,6 +122,9 @@ class Client(suds.client.Client):
         getUserName, isAccessAllowed, luceneClear, luceneCommit,
         lucenePopulate, luceneSearch, refresh, search, searchText,
         update
+
+    :group custom API methods: createUser, createGroup, createRules,
+        assertedSearch
     """
 
     Register = {}
@@ -467,7 +470,7 @@ class Client(suds.client.Client):
             raise translateError(e)
 
 
-    # ================== convenience methods ===================
+    # =================== custom API methods ===================
 
     def createUser(self, name, search=False, **kwargs):
         """Search a user by name or Create a new user.
@@ -545,7 +548,7 @@ class Client(suds.client.Client):
         """Search with an assertion on the result.
 
         Perform a search and verify that the number of items found
-        lies with the bounds of assertmin and assertmax.  Raise an
+        lies within the bounds of assertmin and assertmax.  Raise an
         error if this assertion fails.
 
         :param query: the search query string.
@@ -559,6 +562,8 @@ class Client(suds.client.Client):
         :raise ValueError: in case of inconsistent arguments.
         :raise SearchResultError: if the assertion on the number of
             results fails.
+        :raise ICATError: in case of exceptions raised by the ICAT
+            server.
         """
         if assertmin > assertmax:
             raise ValueError("Minimum (%d) is larger then maximum (%d)."
