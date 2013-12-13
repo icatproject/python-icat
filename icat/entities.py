@@ -39,6 +39,18 @@ class DataCollection(Entity):
     InstMRel = frozenset(['dataCollectionDatafiles', 'dataCollectionDatasets', 
                           'dataCollectionParameters', 'jobsAsInput', 
                           'jobsAsOutput'])
+    MRelAlias = {'parameters':'dataCollectionParameters'}
+
+
+class DataCollection431(DataCollection):
+    """A set of Datafiles and Datasets which can span investigations
+    and facilities.  Note that it has no constraint fields.  It is
+    expected that a DataCollection would be identified by its
+    DataCollectionParameters or its relationship to a Job.  Valid for
+    ICAT 4.3.1"""
+    InstMRel = frozenset(['dataCollectionDatafiles', 'dataCollectionDatasets', 
+                          'parameters', 'jobsAsInput', 'jobsAsOutput'])
+    MRelAlias = {}
 
 
 class DataCollectionDatafile(Entity):
