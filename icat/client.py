@@ -108,49 +108,9 @@ TypeMap43 = {
     }
 """Map instance types defined in the WSDL to Python classes (ICAT 4.3.0)."""
 
-TypeMap431 = {
-    'entityBaseBean': Entity,
-    'application': icat.entities.Application43,
-    'dataCollection': icat.entities.DataCollection431,
-    'dataCollectionDatafile': icat.entities.DataCollectionDatafile,
-    'dataCollectionDataset': icat.entities.DataCollectionDataset,
-    'dataCollectionParameter': icat.entities.DataCollectionParameter,
-    'datafile': icat.entities.Datafile43,
-    'datafileFormat': icat.entities.DatafileFormat,
-    'datafileParameter': icat.entities.DatafileParameter,
-    'dataset': icat.entities.Dataset43,
-    'datasetParameter': icat.entities.DatasetParameter,
-    'datasetType': icat.entities.DatasetType,
-    'facility': icat.entities.Facility43,
-    'facilityCycle': icat.entities.FacilityCycle43,
-    'grouping': icat.entities.Group43,
-    'instrument': icat.entities.Instrument43,
-    'instrumentScientist': icat.entities.InstrumentScientist,
-    'investigation': icat.entities.Investigation43,
-    'investigationInstrument': icat.entities.InvestigationInstrument,
-    'investigationParameter': icat.entities.InvestigationParameter,
-    'investigationType': icat.entities.InvestigationType,
-    'investigationUser': icat.entities.InvestigationUser,
-    'job': icat.entities.Job43,
-    'keyword': icat.entities.Keyword,
-    'log': icat.entities.Log,
-    'parameter': icat.entities.Parameter,
-    'parameterType': icat.entities.ParameterType43,
-    'permissibleStringValue': icat.entities.PermissibleStringValue,
-    'publicStep': icat.entities.PublicStep,
-    'publication': icat.entities.Publication,
-    'relatedDatafile': icat.entities.RelatedDatafile,
-    'rule': icat.entities.Rule43,
-    'sample': icat.entities.Sample,
-    'sampleParameter': icat.entities.SampleParameter,
-    'sampleType': icat.entities.SampleType,
-    'shift': icat.entities.Shift,
-    'study': icat.entities.Study,
-    'studyInvestigation': icat.entities.StudyInvestigation,
-    'user': icat.entities.User,
-    'userGroup': icat.entities.UserGroup43,
-    }
+TypeMap431 = TypeMap43.copy()
 """Map instance types defined in the WSDL to Python classes (ICAT 4.3.1)."""
+TypeMap431.update( dataCollection = icat.entities.DataCollection431 )
 
 class Client(suds.client.Client):
  
