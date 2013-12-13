@@ -164,10 +164,7 @@ class Group(Entity):
         for u in users:
             if u.id in uids:
                 continue
-            if self.client.apiversion < '4.3':
-                ugs.append(self.client.new('userGroup', user=u, group=self))
-            else:
-                ugs.append(self.client.new('userGroup', user=u, grouping=self))
+            ugs.append(self.client.new('userGroup', user=u, grouping=self))
             uids.add(u.id)
         if ugs:
             self.client.createMany(ugs)
@@ -424,11 +421,13 @@ class Rule(Entity):
     BeanName = 'Rule'
     InstAttr = frozenset(['id', 'what', 'crudFlags'])
     InstRel = frozenset(['group'])
+    AttrAlias = {'grouping':'group'}
 
 
 class Rule43(Rule):
     """An authorization rule.  Valid for ICAT 4.3.*."""
     InstRel = frozenset(['grouping'])
+    AttrAlias = {}
 
 
 class Sample(Entity):
@@ -487,11 +486,13 @@ class UserGroup(Entity):
     """Many to many relationship between user and group."""
     BeanName = 'UserGroup'
     InstRel = frozenset(['user', 'group'])
+    AttrAlias = {'grouping':'group'}
 
 
 class UserGroup43(UserGroup):
     """Many to many relationship between user and group.  Valid for
     ICAT 4.3.*."""
     InstRel = frozenset(['user', 'grouping'])
+    AttrAlias = {}
 
 

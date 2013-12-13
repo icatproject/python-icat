@@ -31,6 +31,10 @@ class Entity(object):
     """Many to one relationships in the ICAT schema."""
     InstMRel = frozenset([])
     """One to many relationships in the ICAT schema."""
+    AttrAlias = {}
+    """Map of alias names for attributes and many to one relationships."""
+    MRelAlias = {}
+    """Map of alias names for one to many relationships."""
 
 
     @classmethod
@@ -78,6 +82,10 @@ class Entity(object):
             return l
         elif attr == 'instancetype':
             return self.instance.__class__.__name__
+        elif attr in self.AttrAlias:
+            return self.__getattr__(self.AttrAlias[attr])
+        elif attr in self.MRelAlias:
+            return self.__getattr__(self.MRelAlias[attr])
         else:
             raise AttributeError("%s object has no attribute %s" % 
                                  (type(self).__name__, attr))
@@ -89,6 +97,8 @@ class Entity(object):
             setattr(self.instance, attr, value)
         elif attr in self.InstRel:
             setattr(self.instance, attr, self.getInstance(value))
+        elif attr in self.AttrAlias:
+            setattr(self, self.AttrAlias[attr], value)
         else:
             raise AttributeError("%s object cannot set attribute '%s'" %
                                  (type(self).__name__, attr))

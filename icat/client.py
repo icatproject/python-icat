@@ -537,10 +537,7 @@ class Client(suds.client.Client):
 
         rules = []
         for w in what:
-            if self.apiversion < '4.3':
-                r = self.new("rule", crudFlags=crudFlags, what=w, group=group)
-            else:
-                r = self.new("rule", crudFlags=crudFlags, what=w, grouping=group)
+            r = self.new("rule", crudFlags=crudFlags, what=w, grouping=group)
             rules.append(r)
         return self.createMany(rules)
 
