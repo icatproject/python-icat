@@ -124,8 +124,8 @@ class Client(suds.client.Client):
         delete, deleteMany, get, getApiVersion, getEntityInfo,
         getEntityNames, getProperties, getRemainingMinutes,
         getUserName, isAccessAllowed, luceneClear, luceneCommit,
-        lucenePopulate, luceneSearch, refresh, search, searchText,
-        update
+        luceneGetPopulating, lucenePopulate, luceneSearch, refresh,
+        search, searchText, update
 
     :group custom API methods: createUser, createGroup, createRules,
         assertedSearch
