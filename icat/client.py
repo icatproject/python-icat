@@ -416,6 +416,17 @@ class Client(suds.client.Client):
             else:
                 raise
 
+    def luceneGetPopulating(self):
+        try:
+            return self.service.luceneGetPopulating(self.sessionId)
+        except suds.WebFault as e:
+            raise translateError(e)
+        except suds.MethodNotFound as e:
+            if self.apiversion < '4.3.1':
+                raise VersionMethodError("luceneGetPopulating", self.apiversion)
+            else:
+                raise
+
     def lucenePopulate(self, entityName):
         try:
             self.service.lucenePopulate(self.sessionId, entityName)
