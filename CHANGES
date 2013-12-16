@@ -3,6 +3,13 @@
 
 * Version 0.3.0 (not yet released)
 
+ + Add support for ICAT 4.3.1.
+
+ + Implement alias names for entity attributes.  This facilitates
+   compatibility of client programs to different ICAT versions.
+   E.g. a client program may use rule.grouping regardless of the ICAT
+   version, for ICAT 4.2.* this is aliased to rule.group.
+
  + Add a client method assertedSearch().
 
  + Add entity methods Group.getUsers() and
