@@ -21,6 +21,8 @@ class Entity(object):
     """
     BeanName = None
     """Name of the entity in the ICAT schema, ``None`` for abstract classes."""
+    Constraint = ('id',)
+    """Attribute or relation names that form a uniqueness constraint."""
     SelfAttr = frozenset(['client', 'instance'])
     """Attributes stored in the ``Entity`` object itself."""
     InstAttr = frozenset(['id'])

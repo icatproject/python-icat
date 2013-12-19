@@ -37,6 +37,14 @@ class EntityInfo(object):
         t = self.name
         return t[0].upper() + t[1:]
 
+    def getconstraint(self):
+        """Return the constraint."""
+        try:
+            cl = [str(f) for f in self.info.constraints[0].fieldNames]
+        except AttributeError:
+            cl = ['id']
+        return tuple(cl)
+
     def getfieldnames(self, relType=None):
         """Return the names of certain fields in the entity info."""
         if relType is None:
@@ -55,7 +63,7 @@ class EntityInfo(object):
         return self.getfieldnames('ONE')
 
     def getmanyrelations(self):
-        """Return the one to many relations (relType = MANY)."""
+        """Return the one to many relations (relType == MANY)."""
         return self.getfieldnames('MANY')
 
     def _cmpattrs(self, infoattrs, entityattrs, cname, typestr):
@@ -95,6 +103,12 @@ class EntityInfo(object):
                         cname, entity.BeanName, beanname)
             nwarn += 1
 
+        constraint = self.getconstraint()
+        if entity.Constraint != constraint:
+            log.warning("%s: wrong Constraint '%s', should be '%s'", 
+                        cname, entity.Constraint, constraint)
+            nwarn += 1
+
         nwarn += self._cmpattrs(self.getattrs(), entity.InstAttr, 
                                 cname, "attributes")
         nwarn += self._cmpattrs(self.getrelations(), entity.InstRel, 
@@ -113,6 +127,7 @@ class EntityInfo(object):
         classcomment = getattr(self.info, 'classComment', None)
         beanname = self.beanname
         addbeanname = True
+        constraint = self.getconstraint()
         attrs = self.getattrs()
         rels = self.getrelations()
         mrels = self.getmanyrelations()
@@ -121,6 +136,8 @@ class EntityInfo(object):
             baseclassname = baseclass.classname
             if beanname == baseclass.beanname:
                 addbeanname = False
+            if constraint == baseclass.getconstraint():
+                constraint = None
             if attrs == baseclass.getattrs():
                 attrs = None
             if rels == baseclass.getrelations():
@@ -133,6 +150,8 @@ class EntityInfo(object):
             src += "    \"\"\"%s\"\"\"\n" % (classcomment)
         if addbeanname:
             src += "    BeanName = %s\n" % (repr(beanname))
+        if constraint is not None:
+            src += "    Constraint = %s\n" % (repr(constraint))
         if attrs is not None:
             src += "    InstAttr = %s\n" % (attrs)
         if rels is not None:
