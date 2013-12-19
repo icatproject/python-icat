@@ -125,6 +125,41 @@ class Entity(object):
         return str(self)
 
 
+    def getUniqueKey(self, autoget=False):
+        """Return a unique kay.
+
+        The key is a string that is guaranteed to be unique for all
+        entities in the ICAT.  All attributes that form the uniqueness
+        constraint must be set.  A ``search`` or ``get`` with the
+        appropriate INCLUDE statement may be required before calling
+        this method.  If autoget is ``True`` the method will call
+        ``get`` with appropriate arguments if necessary.
+        """
+
+        if autoget:
+            inclattr = [a for a in self.Constraint if a in self.InstRel]
+            if inclattr:
+                info = self.client.getEntityInfo(self.BeanName)
+                incltypes = [f.type for f in info.fields if f.name in inclattr]
+                self.get("%s INCLUDE %s" 
+                         % (self.BeanName, ", ".join(incltypes)))
+
+        key = self.BeanName
+        for c in self.Constraint:
+            if c in self.InstAttr:
+                key += "_%s:%s" % (c, getattr(self, c, None))
+            elif c in self.InstRel:
+                e = getattr(self, c, None)
+                if e:
+                    key += "_%s:(%s)" % (c, e.getUniqueKey(autoget))
+                else:
+                    key += "_%s:(%s)" % (c, None)
+            else:
+                raise RuntimeError("internal error: %s: invalid constraint %s."
+                                   % (self.BeanName, c))
+        return key
+
+
     def create(self):
         """Call the ``create`` client API method to create the object
         in the ICAT.""" 
