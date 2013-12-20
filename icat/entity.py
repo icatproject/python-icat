@@ -3,6 +3,7 @@
 
 import suds.sudsobject
 from icat.listproxy import ListProxy
+from icat.exception import InternalError
 
 class Entity(object):
     """The base of the classes representing the entities in the ICAT schema.
@@ -125,16 +126,41 @@ class Entity(object):
         return str(self)
 
 
-    def getUniqueKey(self, autoget=False):
+    def getUniqueKey(self, autoget=False, addbean=True):
         """Return a unique kay.
 
         The key is a string that is guaranteed to be unique for all
         entities in the ICAT.  All attributes that form the uniqueness
         constraint must be set.  A ``search`` or ``get`` with the
         appropriate INCLUDE statement may be required before calling
-        this method.  If autoget is ``True`` the method will call
-        ``get`` with appropriate arguments if necessary.
+        this method.
+
+        If autoget is ``True`` the method will call ``get`` with the
+        appropriate arguments.  Note that this may discard information
+        on other relations currently present in the entity object.
+
+        The argument addbean has an internal purpose and should be
+        left at its default ``True``.
         """
+
+        def quote(obj):
+            """Simple quoting in quoted-printable style."""
+            esc = '='
+            hex = '0123456789ABCDEF'
+            asc = ('0123456789'
+                   'ABCDEFGHIJKLMNOPQRSTUVWXYZ''abcdefghijklmnopqrstuvwxyz')
+            try:
+                s = str(obj)
+            except UnicodeError:
+                s = obj.encode('utf-8')
+            out = []
+            for c in s:
+                if c in asc:
+                    out.append(c)
+                else:
+                    i = ord(c)
+                    out.append(esc + hex[i//16] + hex[i%16])
+            return str(''.join(out))
 
         if autoget:
             inclattr = [a for a in self.Constraint if a in self.InstRel]
@@ -143,22 +169,28 @@ class Entity(object):
                 incltypes = [f.type for f in info.fields if f.name in inclattr]
                 self.get("%s INCLUDE %s" 
                          % (self.BeanName, ", ".join(incltypes)))
+            else:
+                self.get(self.BeanName)
 
-        key = self.BeanName
+        if addbean:
+            key = self.BeanName
+        else:
+            key = ''
         for c in self.Constraint:
+            if key: key += "_"
             if c in self.InstAttr:
-                key += "_%s:%s" % (c, getattr(self, c, None))
+                key += "%s-%s" % (c, quote(getattr(self, c, None)))
             elif c in self.InstRel:
                 e = getattr(self, c, None)
                 if e:
-                    key += "_%s:(%s)" % (c, e.getUniqueKey(autoget))
+                    ek = e.getUniqueKey(autoget, addbean=False)
+                    key += "%s-(%s)" % (c, ek)
                 else:
-                    key += "_%s:(%s)" % (c, None)
+                    key += "%s-%s" % (c, None)
             else:
-                raise RuntimeError("internal error: %s: invalid constraint %s."
-                                   % (self.BeanName, c))
+                raise InternalError("Invalid constraint '%s' in %s."
+                                    % (c, self.BeanName))
         return key
-
 
     def create(self):
         """Call the ``create`` client API method to create the object
