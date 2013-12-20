@@ -4,6 +4,8 @@
 import suds
 
 __all__ = [
+    # Internal error
+    'InternalError', 
     # Exceptions thrown by the ICAT server
     'ICATError', 'ICATParameterError', 'ICATInternalError', 
     'ICATPrivilegesError', 'ICATNoObjectError', 'ICATObjectExistsError', 
@@ -18,7 +20,14 @@ __all__ = [
     ]
 
 
-# ========== Exceptions thrown by the ICAT server ==========
+# ========================= Internal error =========================
+
+class InternalError(Exception):
+    """An error that reveals a bug in python-icat.
+    """
+    pass
+
+# ============== Exceptions thrown by the ICAT server ==============
 
 class ICATError(Exception):
     """Base class for the errors raised by the ICAT server.
@@ -92,7 +101,7 @@ def translateError(error):
         raise TypeError("Invalid argument type '%s'." % type(error))
 
 
-# ========== Exceptions raised in icat.client ==========
+# ================ Exceptions raised in icat.client ================
 
 class ClientVersionWarning(Warning):
     """Warn that the version of the ICAT server is not supported by
@@ -146,14 +155,14 @@ class SearchResultError(Exception):
         self.num = num
 
 
-# ========== Exceptions raised in icat.config ==========
+# ================ Exceptions raised in icat.config ================
 
 class ConfigError(Exception):
     """Error getting configuration options."""
     pass
 
 
-# ========== Exceptions raised in icat.icatcheck ==========
+# ============== Exceptions raised in icat.icatcheck ===============
 
 class GenealogyError(Exception):
     """Error in the genealogy of entity types."""
