@@ -17,6 +17,7 @@
 # RelatedDatafile, SampleParameter, Shift, Study, StudyInvestigation.
 #
 
+import datetime
 import logging
 import yaml
 import icat
@@ -33,15 +34,17 @@ def entityattrdict(e):
         if attr == 'id':
             continue
         v = getattr(e, attr, None)
-        if isinstance(v, long) or isinstance(v, int):
-            v = int(v)
-        elif v is None:
+        if v is None:
             pass
+        elif isinstance(v, long) or isinstance(v, int):
+            v = int(v)
+        elif isinstance(v, datetime.datetime):
+            v = v.isoformat()
         else:
             try:
                 v = str(v)
             except UnicodeError:
-                v = v.encode('utf-8')
+                v = unicode(v)
         d[attr] = v
     return d
 
@@ -176,6 +179,9 @@ conf = config.getconfig()
 client = icat.Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
+# Hack: force the unique keys for rule to sort in a well defined
+# order, independent from the id.
+client.typemap['rule'].Constraint = ('grouping', 'what', 'id')
 
 entitytypes = [('User', entitydict, "User"), 
                ('Group', groupdict, "Grouping INCLUDE UserGroup, User"),
