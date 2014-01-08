@@ -5,11 +5,11 @@
 # This script should be run by the ICAT user useroffice.
 #
 
+import icat
+import icat.config
 import sys
 import logging
 import yaml
-import icat
-import icat.config
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)

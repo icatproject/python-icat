@@ -1,9 +1,9 @@
 #! /usr/bin/python
 
-import sys
-import logging
 import icat
 import icat.config
+import sys
+import logging
 from icat.icatcheck import *
 
 logging.basicConfig(level=logging.INFO)

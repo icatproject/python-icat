@@ -12,10 +12,10 @@
 # ICAT 4.3.* only.
 #
 
-import logging
-import yaml
 import icat
 import icat.config
+import logging
+import yaml
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)

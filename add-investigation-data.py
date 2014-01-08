@@ -8,11 +8,11 @@
 # e.g. a user that is in the writer group of the given investigation.
 #
 
+import icat
+import icat.config
 import sys
 import logging
 import yaml
-import icat
-import icat.config
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)

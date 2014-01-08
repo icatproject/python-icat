@@ -17,11 +17,11 @@
 # RelatedDatafile, SampleParameter, Shift, Study, StudyInvestigation.
 #
 
+import icat
+import icat.config
 import datetime
 import logging
 import yaml
-import icat
-import icat.config
 
 keyindex = {}
 dump = {}
@@ -39,7 +39,7 @@ def entityattrdict(e):
         elif isinstance(v, long) or isinstance(v, int):
             v = int(v)
         elif isinstance(v, datetime.datetime):
-            v = v.isoformat()
+            v = v.isoformat() + 'Z'
         else:
             try:
                 v = str(v)

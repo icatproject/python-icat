@@ -3,10 +3,10 @@
 # Create some parameter types, (actually just one for testing atm).
 #
 
-import sys
-import logging
 import icat
 import icat.config
+import sys
+import logging
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)

@@ -7,11 +7,11 @@
 # This script should be run by the ICAT user useroffice.
 #
 
+import icat
+import icat.config
 import ldap
 import logging
 import re
-import icat
-import icat.config
 
 logging.basicConfig(level=logging.INFO)
 
