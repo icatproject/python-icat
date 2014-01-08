@@ -49,7 +49,7 @@ __version__   = "0.3.0a1"
 # away.  The problem is that SUDS' conception of the local time is
 # flawed such that the result from this conversion is wrong.  Work
 # around this by setting the local time zone to UTC.  As a result, all
-# datetime values retrieved by the server will be in UTC, which at
+# datetime values retrieved from the server will be in UTC, which at
 # least is well defined.  The environment variable TZ must be set
 # before importing suds to be effective.
 #
