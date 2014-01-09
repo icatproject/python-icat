@@ -569,7 +569,8 @@ class Client(suds.client.Client):
         :type query: ``str``
         :param assertmin: minimum number of expected results.
         :type assertmin: ``int``
-        :param assertmax: maximum number of expected results.
+        :param assertmax: maximum number of expected results.  A value
+            of ``None`` is treated as infinity.
         :type assertmax: ``int``
         :return: search result.
         :rtype: ``list``
@@ -584,7 +585,7 @@ class Client(suds.client.Client):
                              % (assertmin, assertmax))
         result = self.search(query)
         num = len(result)
-        if num >= assertmin and num <= assertmax:
+        if num >= assertmin and (assertmax is None or num <= assertmax):
             return result
         else:
             raise SearchResultError(query, assertmin, assertmax, num)
