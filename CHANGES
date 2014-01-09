@@ -12,6 +12,8 @@
 
  + Add a client method assertedSearch().
 
+ + Add a method getUniqueKey() for all entities.
+
  + Add entity methods Group.getUsers() and
    Instrument.getInstrumentScientists().
 
@@ -35,6 +37,11 @@
 
    pi = client.createUser(uid, fullName=userName, search=True)
    investigation.addInvestigationUsers([pi], role="Principal Investigator")
+
+ + Work around a bug in the way SUDS deals with datetime values: set
+   the local time zone to UTC.
+
+ + Add example scripts icatdump.py and icatrestore.py.
 
 * Version 0.2.0 (2013-11-18)
 
