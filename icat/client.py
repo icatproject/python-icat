@@ -580,7 +580,7 @@ class Client(suds.client.Client):
         :raise ICATError: in case of exceptions raised by the ICAT
             server.
         """
-        if assertmin > assertmax:
+        if assertmax is not None and assertmin > assertmax:
             raise ValueError("Minimum (%d) is larger then maximum (%d)."
                              % (assertmin, assertmax))
         result = self.search(query)
