@@ -1,20 +1,24 @@
 #! /usr/bin/python
 #
-# Dump the content of the ICAT to a YAML output file.  The Log is
-# deliberately not included in the output.
+# Dump the content of the ICAT to a YAML document to stdout.
 #
-# NOTE: This script is NOT suitable for a real production size ICAT.
+# The following items are deliberately not included in the output:
+#  + Log objects,
+#  + the attributes id, createId, createTime, modId, and modTime.
 #
-# FIXME: version dependency.  This script currently works for
-# ICAT 4.3.* only.
-# FIXME: include some meta information in the dump, such as date, URL,
-# and version of the ICAT.
-# FIXME: serialization of the following entity types has not yet
-# been tested: Application, DataCollection, DataCollectionDatafile,
-# DataCollectionDataset, DataCollectionParameter, DatafileParameter,
-# DatasetParameter, FacilityCycle, InvestigationParameter, Job,
-# ParameterType, PermissibleStringValue, PublicStep, Publication,
-# RelatedDatafile, SampleParameter, Shift, Study, StudyInvestigation.
+# Known issues and limitations:
+#  + This script is NOT suitable for a real production size ICAT.
+#  + Version dependency.  This script currently works for ICAT 4.3.*
+#    only.
+#  + Should include some meta information in the dump, such as date,
+#    URL, and version of the ICAT.
+#  + The serialization of the following entity types has not yet been
+#    tested: Application, DataCollection, DataCollectionDatafile,
+#    DataCollectionDataset, DataCollectionParameter,
+#    DatafileParameter, DatasetParameter, FacilityCycle,
+#    InvestigationParameter, Job, ParameterType,
+#    PermissibleStringValue, PublicStep, Publication, RelatedDatafile,
+#    SampleParameter, Shift, Study, StudyInvestigation.
 #
 
 import icat
@@ -22,6 +26,17 @@ import icat.config
 import datetime
 import logging
 import yaml
+
+logging.basicConfig(level=logging.INFO)
+#logging.getLogger('suds.client').setLevel(logging.DEBUG)
+
+icat.config.defaultsection = "hzb"
+config = icat.config.Config()
+conf = config.getconfig()
+
+client = icat.Client(conf.url, **conf.client_kwargs)
+client.login(conf.auth, conf.credentials)
+
 
 keyindex = {}
 dump = {}
@@ -164,20 +179,6 @@ def datacollectiondict(e):
     except AttributeError:   # ref. ICAT issue 130
         d['dataCollectionDatafiles'] = []
     return d
-
-
-logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
-
-icat.config.defaultsection = "hzb"
-config = icat.config.Config()
-# config.add_variable('outputfile', ("outputfile",), 
-#                     dict(metavar="icatdump.yaml", 
-#                          help="name of the output file"))
-conf = config.getconfig()
-
-client = icat.Client(conf.url, **conf.client_kwargs)
-client.login(conf.auth, conf.credentials)
 
 # Hack: force the unique keys for rule to sort in a well defined
 # order, independent from the id.

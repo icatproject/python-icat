@@ -1,19 +1,28 @@
 #! /usr/bin/python
 #
-# Restore the content of the ICAT from a YAML created by icatdump.py.
+# Restore the content of the ICAT from a YAML file as created by
+# icatdump.py.
 #
-# NOTE: This script is NOT suitable for a real production size ICAT.
+# The script reads the YAML input from stdin.  It should by run by the
+# ICAT root user against an otherwise empty ICAT server.  There is no
+# collision check with data already present at the ICAT.
 #
-# The script should by run by the ICAT root user against an otherwise
-# empty ICAT server.  There is no collision check with data already
-# present at the ICAT.
-#
-# FIXME: version dependency.  This script currently works for
-# ICAT 4.3.* only.
+# Known issues and limitations:
+#  + This script is NOT suitable for a real production size ICAT.
+#  + A dump and restore of an ICAT will not preserve the attributes
+#    id, createId, createTime, modId, and modTime of any objects.
+#    This is by design and cannot be fixed.  As a consequence, access
+#    rules that are based on object ids will not work after a restore.
+#    The Log will also not be restored.
+#  + Version dependency.  This script currently works for ICAT 4.3.*
+#    only.
+#  + Restoring of several entity types has not yet been
+#    tested.  See icatdump.py for a list.
 #
 
 import icat
 import icat.config
+import sys
 import logging
 import yaml
 
@@ -23,9 +32,6 @@ log = logging.getLogger(__name__)
 
 icat.config.defaultsection = "hzb"
 config = icat.config.Config()
-config.add_variable('datafile', ("datafile",), 
-                    dict(metavar="icatdump.yaml", 
-                         help="name of the input datafile"))
 conf = config.getconfig()
 
 client = icat.Client(conf.url, **conf.client_kwargs)
@@ -35,12 +41,7 @@ client.login(conf.auth, conf.credentials)
 # Read input data
 # ------------------------------------------------------------
 
-if conf.datafile == "-":
-    f = sys.stdin
-else:
-    f = open(conf.datafile, 'r')
-data = yaml.load(f)
-f.close()
+data = yaml.load(sys.stdin)
 
 
 # ------------------------------------------------------------
