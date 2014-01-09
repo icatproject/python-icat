@@ -35,21 +35,12 @@ client.login(conf.auth, conf.credentials)
 # Read input data
 # ------------------------------------------------------------
 
-try:
-    if conf.datafile == "-":
-        f = sys.stdin
-    else:
-        f = open(conf.datafile, 'r')
-    try:
-        data = yaml.load(f)
-    finally:
-        f.close()
-except IOError as e:
-    print >> sys.stderr, e
-    sys.exit(2)
-except yaml.YAMLError:
-    print >> sys.stderr, "Parsing error in input datafile"
-    sys.exit(2)
+if conf.datafile == "-":
+    f = sys.stdin
+else:
+    f = open(conf.datafile, 'r')
+data = yaml.load(f)
+f.close()
 
 # ------------------------------------------------------------
 # Setup some basic permissions
@@ -193,6 +184,3 @@ for k in data['datafile_formats'].keys():
     fileformats.append(ff)
 client.createMany(fileformats)
 
-# ------------------------------------------------------------
-
-client.logout()

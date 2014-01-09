@@ -31,28 +31,17 @@ client.login(conf.auth, conf.credentials)
 # Read input data
 # ------------------------------------------------------------
 
-try:
-    if conf.datafile == "-":
-        f = sys.stdin
-    else:
-        f = open(conf.datafile, 'r')
-    try:
-        data = yaml.load(f)
-    finally:
-        f.close()
-except IOError as e:
-    print >> sys.stderr, e
-    sys.exit(2)
-except yaml.YAMLError:
-    print >> sys.stderr, "Parsing error in input datafile"
-    sys.exit(2)
-
+if conf.datafile == "-":
+    f = sys.stdin
+else:
+    f = open(conf.datafile, 'r')
+data = yaml.load(f)
+f.close()
 
 try:
     investigationdata = data['investigations'][conf.investigationname]
 except KeyError:
-    print >> sys.stderr, "unknown investigation", investigationname
-    sys.exit(2)
+    raise RuntimeError("unknown investigation '%s'" % conf.investigationname)
 
 
 # ------------------------------------------------------------
@@ -60,42 +49,30 @@ except KeyError:
 # ------------------------------------------------------------
 
 facilityname = data['facilities'][investigationdata['facility']]['name']
-facilities = client.search("Facility[name='%s']" % facilityname)
-if len(facilities): 
-    facility = facilities[0]
-else:
-    print "Facility '%s' not found." % facilityname
-    sys.exit(3)
+facility = client.assertedSearch("Facility[name='%s']" % facilityname)[0]
 facility_const = "AND facility.id=%d" % facility.id
 
 instrumentname = data['instruments'][investigationdata['instrument']]['name']
-instruments = client.search("Instrument[name='%s' %s]" 
-                            % (instrumentname, facility_const))
-if len(instruments): 
-    instrument = instruments[0]
-else:
-    print "Instrument '%s' not found." % instrumentname
-    sys.exit(3)
+instrsearch = "Instrument[name='%s' %s]" % (instrumentname, facility_const)
+instrument = client.assertedSearch(instrsearch)[0]
 
 typename = data['investigation_types'][investigationdata['type']]['name']
-investigation_types = client.search("InvestigationType[name='%s' %s]" 
-                                    % (typename, facility_const))
-if len(investigation_types): 
-    investigation_type = investigation_types[0]
-else:
-    print "InvestigationType '%s' not found." % typename
-    sys.exit(3)
+typesearch = "InvestigationType[name='%s' %s]" % (typename, facility_const)
+investigation_type = client.assertedSearch(typesearch)[0]
 
 
 # ------------------------------------------------------------
 # Create the investigation
 # ------------------------------------------------------------
 
-investigations = client.search("Investigation[name='%s']" 
-                               % investigationdata['name'])
-if len(investigations): 
-    print "Investigation: '%s' already exists ..." % investigationdata['name']
-    sys.exit(3)
+try:
+    invsearch = "Investigation[name='%s']" % investigationdata['name']
+    client.assertedSearch(invsearch, assertmax=None)
+except icat.exception.SearchResultError:
+    pass
+else:
+    raise RuntimeError("Investigation: '%s' already exists ..." 
+                       % investigationdata['name'])
 
 print "Investigation: creating '%s' ..." % investigationdata['name']
 investigation = client.new("investigation")
@@ -198,7 +175,3 @@ client.createRules(writegroup, "R", perm_r)
 # people in the readers group just get read access on the whole bunch
 client.createRules(readgroup, "R", perm_ru + perm_crud + perm_r)
 
-
-# ------------------------------------------------------------
-
-client.logout()

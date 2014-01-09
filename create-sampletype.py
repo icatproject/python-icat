@@ -31,28 +31,17 @@ client.login(conf.auth, conf.credentials)
 # Read input data
 # ------------------------------------------------------------
 
-try:
-    if conf.datafile == "-":
-        f = sys.stdin
-    else:
-        f = open(conf.datafile, 'r')
-    try:
-        data = yaml.load(f)
-    finally:
-        f.close()
-except IOError as e:
-    print >> sys.stderr, e
-    sys.exit(2)
-except yaml.YAMLError:
-    print >> sys.stderr, "Parsing error in input datafile"
-    sys.exit(2)
-
+if conf.datafile == "-":
+    f = sys.stdin
+else:
+    f = open(conf.datafile, 'r')
+data = yaml.load(f)
+f.close()
 
 try:
     sampletypedata = data['sample_types'][conf.sampletypename]
 except KeyError:
-    print >> sys.stderr, "unknown sample type", sampletypename
-    sys.exit(2)
+    raise RuntimeError("unknown sample type '%s'" % conf.sampletypename)
 
 
 # ------------------------------------------------------------
@@ -60,21 +49,20 @@ except KeyError:
 # ------------------------------------------------------------
 
 facilityname = data['facilities'][sampletypedata['facility']]['name']
-facilities = client.search("Facility[name='%s']" % facilityname)
-if len(facilities): 
-    facility = facilities[0]
-else:
-    print "Facility '%s' not found." % facilityname
-    sys.exit(3)
+facility = client.assertedSearch("Facility[name='%s']" % facilityname)[0]
 
 # ------------------------------------------------------------
 # Create the sample type
 # ------------------------------------------------------------
 
-sampletypes = client.search("SampleType[name='%s']" % sampletypedata['name'])
-if len(sampletypes): 
-    print "SampleType: '%s' already exists ..." % sampletypedata['name']
-    sys.exit(3)
+try:
+    searchexp = "SampleType[name='%s']" % sampletypedata['name']
+    client.assertedSearch(searchexp, assertmax=None)
+except icat.exception.SearchResultError:
+    pass
+else:
+    raise RuntimeError("SampleType: '%s' already exists." 
+                       % sampletypedata['name'])
 
 print "SampleType: creating '%s' ..." % sampletypedata['name']
 sampletype = client.new("sampleType")
@@ -84,6 +72,3 @@ sampletype.facility = facility
 sampletype.create()
 
 
-# ------------------------------------------------------------
-
-client.logout()

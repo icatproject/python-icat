@@ -25,7 +25,6 @@ config.add_variable('datafile', ("datafile",),
 config.add_variable('investigationname', ("investigationname",), 
                     dict(help="name of the investigation to add"))
 conf = config.getconfig()
-investigationname = conf.investigationname
 
 client = icat.Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
@@ -35,28 +34,17 @@ client.login(conf.auth, conf.credentials)
 # Read input data
 # ------------------------------------------------------------
 
-try:
-    if conf.datafile == "-":
-        f = sys.stdin
-    else:
-        f = open(conf.datafile, 'r')
-    try:
-        data = yaml.load(f)
-    finally:
-        f.close()
-except IOError as e:
-    print >> sys.stderr, e
-    sys.exit(2)
-except yaml.YAMLError:
-    print >> sys.stderr, "Parsing error in input datafile"
-    sys.exit(2)
-
+if conf.datafile == "-":
+    f = sys.stdin
+else:
+    f = open(conf.datafile, 'r')
+data = yaml.load(f)
+f.close()
 
 try:
-    investigationdata = data['investigations'][investigationname]
+    investigationdata = data['investigations'][conf.investigationname]
 except KeyError:
-    print >> sys.stderr, "unknown investigation", investigationname
-    sys.exit(2)
+    raise RuntimeError("unknown investigation '%s'" % conf.investigationname)
 
 
 # ------------------------------------------------------------
@@ -65,21 +53,11 @@ except KeyError:
 # ------------------------------------------------------------
 
 facilityname = data['facilities'][investigationdata['facility']]['name']
-facilities = client.search("Facility[name='%s']" % facilityname)
-if len(facilities): 
-    facility = facilities[0]
-else:
-    print "Facility '%s' not found." % facilityname
-    sys.exit(3)
+facility = client.assertedSearch("Facility[name='%s']" % facilityname)[0]
 facility_const = "AND facility.id=%d" % facility.id
 
-invname = investigationdata['name']
-investigations = client.search("Investigation[name='%s']" % investigationname)
-if len(investigations): 
-    investigation = investigations[0]
-else:
-    print "Investigation '%s' not found." % investigationname
-    sys.exit(3)
+invsearch = "Investigation[name='%s']" % investigationdata['name']
+investigation = client.assertedSearch(invsearch)[0]
 
 need_dataset_types = set()
 need_datafile_formats = set()
@@ -90,25 +68,15 @@ for ds in investigationdata['datasets']:
 
 dataset_types = {}
 for t in need_dataset_types:
-    dstname = data['dataset_types'][t]['name']
-    types = client.search("DatasetType[name='%s' %s]" 
-                          % (dstname, facility_const))
-    if len(types): 
-        dataset_types[t] = types[0]
-    else:
-        print "DatasetType '%s' not found." % dstname
-        sys.exit(3)
+    dstsearch = ("DatasetType[name='%s' %s]" 
+                 % (data['dataset_types'][t]['name'], facility_const))
+    dataset_types[t] = client.assertedSearch(dstsearch)[0]
 
 datafile_formats = {}
 for t in need_datafile_formats:
-    dffname = data['datafile_formats'][t]['name']
-    formats = client.search("DatafileFormat[name='%s' %s]" 
-                            % (dffname, facility_const))
-    if len(formats): 
-        datafile_formats[t] = formats[0]
-    else:
-        print "DatafileFormat '%s' not found." % dffname
-        sys.exit(3)
+    dffsearch = ("DatafileFormat[name='%s' %s]" 
+                 % (data['datafile_formats'][t]['name'], facility_const))
+    datafile_formats[t] = client.assertedSearch(dffsearch)[0]
 
 
 # ------------------------------------------------------------
@@ -117,13 +85,9 @@ for t in need_datafile_formats:
 
 sampledata = investigationdata['sample']
 
-sampletypename = data['sample_types'][sampledata['type']]['name']
-sample_types = client.search("SampleType[name='%s']" % sampletypename)
-if len(sample_types): 
-    sample_type = sample_types[0]
-else:
-    print "SampleType '%s' not found." % sampletypename
-    sys.exit(3)
+stsearch = ("SampleType[name='%s']" 
+            % data['sample_types'][sampledata['type']]['name'])
+sample_type = client.assertedSearch(stsearch)[0]
 
 print "Sample: creating '%s' ..." % sampledata['name']
 sample = client.new("sample", name=sampledata['name'], 
@@ -155,7 +119,3 @@ for datasetdata in investigationdata['datasets']:
 
     dataset.create()
 
-
-# ------------------------------------------------------------
-
-client.logout()

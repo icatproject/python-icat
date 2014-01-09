@@ -36,12 +36,7 @@ parametertype_data = [
 # Get some objects from ICAT we need later on
 # ------------------------------------------------------------
 
-facilities = client.search("Facility[name='HZB']")
-if len(facilities): 
-    hzb = facilities[0]
-else:
-    print "Facility 'HZB' not found."
-    sys.exit(3)
+hzb = client.assertedSearch("Facility[name='HZB']")[0]
 
 # ------------------------------------------------------------
 # Create the sample type
@@ -63,7 +58,3 @@ for pdata in parametertype_data:
     parametertypes.append(parametertype)
 client.createMany(parametertypes)
 
-
-# ------------------------------------------------------------
-
-client.logout()
