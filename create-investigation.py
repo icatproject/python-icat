@@ -124,9 +124,9 @@ for u in investigationdata['invguest']:
 if investigationdata['addinstuser']:
     investigationwriter.extend(instrument.getInstrumentScientists())
 
-owngroupname = "investigation_%d_owner" % investigation.id
-writegroupname = "investigation_%d_writer" % investigation.id
-readgroupname = "investigation_%d_reader" % investigation.id
+owngroupname = "investigation_%s_owner" % investigation.name
+writegroupname = "investigation_%s_writer" % investigation.name
+readgroupname = "investigation_%s_reader" % investigation.name
 owngroup = client.createGroup(owngroupname, investigationowner)
 writegroup = client.createGroup(writegroupname, investigationwriter)
 readgroup = client.createGroup(readgroupname, investigationreader)
