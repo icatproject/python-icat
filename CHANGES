@@ -1,9 +1,10 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.3.0 (not yet released)
+* Version 0.3.0 (2014-01-10)
 
- + Add support for ICAT 4.3.1.
+ + Add support for ICAT 4.3.1.  (Compatibility with ICAT 4.3.2 has
+   also been tested but did not require any changes.)
 
  + Implement alias names for entity attributes.  This facilitates
    compatibility of client programs to different ICAT versions.

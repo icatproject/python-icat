@@ -1,6 +1,5 @@
 #! /usr/bin/python
 
-import os
 from distutils.core import setup
 import icat
 import re
@@ -25,5 +24,14 @@ setup(
     license = "BSD-2-Clause",
     requires = ["suds"],
     packages = ["icat"],
+    classifiers = [
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: BSD License",
+        "Operating System :: OS Independent",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        ],
 )
 
