@@ -54,7 +54,14 @@ def entityattrdict(e):
         elif isinstance(v, long) or isinstance(v, int):
             v = int(v)
         elif isinstance(v, datetime.datetime):
-            v = v.isoformat() + 'Z'
+            if v.tzinfo is not None and v.tzinfo.utcoffset(v) is not None:
+                # v has timezone info, assume v.isoformat() to have a
+                # valid timezone suffix.
+                v = v.isoformat()
+            else:
+                # v has no timezone info, assume it to be UTC, append
+                # the corresponding timezone suffix.
+                v = v.isoformat() + 'Z'
         else:
             try:
                 v = str(v)
