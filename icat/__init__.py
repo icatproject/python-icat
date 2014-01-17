@@ -60,6 +60,6 @@ os.environ['TZ'] = 'UTC'
 # Default import
 #
 
-from client import *
-from exception import *
+from icat.client import *
+from icat.exception import *
 

@@ -22,7 +22,9 @@ clean:
 
 distclean: apidoc_clean example_clean clean
 	rm -f MANIFEST
+	rm -rf python_icat.egg-info
 	rm -f icat/*.pyc
+	rm -rf icat/__pycache__
 	rm -rf dist
 
 sdist_prepare: apidoc copy_examples
