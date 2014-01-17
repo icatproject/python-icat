@@ -146,7 +146,7 @@ else:
                       [ writegroupname, readgroupname ] ]
 
 
-investigationstr = "Investigation[id=%d]" % investigation.id
+investigationstr = "Investigation[name='%s']" % investigation.name
 # Items, that people in the writers group should get CRUD perms on.
 perm_crud = [ s % investigationstr for s in 
               [ "Sample <-> %s",
