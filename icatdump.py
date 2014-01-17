@@ -187,68 +187,96 @@ def datacollectiondict(e):
         d['dataCollectionDatafiles'] = []
     return d
 
-# Hack: force the unique keys for rule to sort in a well defined
-# order, independent from the id.
+# Entities without a constraint will use their id to form the unique
+# key as a last resort.  But we want the keys to have a well defined
+# order, independent from the id.  Enforce this by artificially adding
+# some suitable attribute values to the constraint.
+client.typemap['job'].Constraint = ('application', 'id')
 client.typemap['rule'].Constraint = ('grouping', 'what', 'id')
+client.typemap['study'].Constraint = ('name', 'id')
 
-entitytypes = [('User', entitydict, "User"), 
-               ('Group', groupdict, "Grouping INCLUDE UserGroup, User"),
-               ('Rule', entitydict, "Rule INCLUDE Grouping"),
-               ('PublicStep', entitydict, "PublicStep"),
-               ('Facility', entitydict, "Facility"),
+entitytypes = [('User', entitydict, "User", False), 
+               ('Group', groupdict, "Grouping INCLUDE UserGroup, User", False),
+               ('Rule', entitydict, "Rule INCLUDE Grouping", True),
+               ('PublicStep', entitydict, "PublicStep", False),
+               ('Facility', entitydict, "Facility", False),
                ('Instrument', instrumentdict, 
-                "Instrument INCLUDE Facility, InstrumentScientist, User"),
+                "Instrument INCLUDE Facility, InstrumentScientist, User", 
+                False),
                ('ParameterType', parametertypedict, 
-                "ParameterType INCLUDE Facility, PermissibleStringValue"),
+                "ParameterType INCLUDE Facility, PermissibleStringValue", 
+                False),
                ('InvestigationType', entitydict, 
-                "InvestigationType INCLUDE Facility"),
-               ('SampleType', entitydict, "SampleType INCLUDE Facility"),
-               ('DatasetType', entitydict, "DatasetType INCLUDE Facility"),
+                "InvestigationType INCLUDE Facility", False),
+               ('SampleType', entitydict, "SampleType INCLUDE Facility", 
+                False),
+               ('DatasetType', entitydict, "DatasetType INCLUDE Facility", 
+                False),
                ('DatafileFormat', entitydict, 
-                "DatafileFormat INCLUDE Facility"),
-               ('FacilityCycle', entitydict, "FacilityCycle INCLUDE Facility"),
-               ('Application', entitydict, "Application INCLUDE Facility"),
+                "DatafileFormat INCLUDE Facility", False),
+               ('FacilityCycle', entitydict, "FacilityCycle INCLUDE Facility", 
+                False),
+               ('Application', entitydict, "Application INCLUDE Facility", 
+                False),
                ('Investigation', investigationdict, 
                 "SELECT i FROM Investigation i "
                 "INCLUDE i.facility, i.type, "
                 "i.investigationInstruments AS ii, ii.instrument, "
                 "i.shifts, i.keywords, i.publications, "
                 "i.investigationUsers AS iu, iu.user, "
-                "i.parameters AS ip, ip.type"),
+                "i.parameters AS ip, ip.type", 
+                False),
                ('Study', studydict, 
                 "SELECT i FROM Study i INCLUDE i.user, "
-                "i.studyInvestigations AS si, si.investigation"),
+                "i.studyInvestigations AS si, si.investigation", 
+                True),
                ('Sample', entityparamdict, 
                 "SELECT i FROM Sample i "
                 "INCLUDE i.investigation, i.investigation.facility, i.type, "
-                "i.parameters AS ip, ip.type"),
+                "i.parameters AS ip, ip.type", 
+                False),
                ('Dataset', entityparamdict, 
                 "SELECT i FROM Dataset i "
                 "INCLUDE i.investigation, i.investigation.facility, "
-                "i.type, i.sample, i.parameters AS ip, ip.type"),
+                "i.type, i.sample, i.parameters AS ip, ip.type", 
+                False),
                ('Datafile', entityparamdict, 
                 "SELECT i FROM Datafile i "
                 "INCLUDE i.dataset, i.dataset.investigation, "
                 "i.dataset.investigation.facility, i.datafileFormat, "
-                "i.parameters AS ip, ip.type"),
+                "i.parameters AS ip, ip.type", 
+                False),
                ('RelatedDatafile', entitydict, 
                 "SELECT i FROM RelatedDatafile i "
-                "INCLUDE i.sourceDatafile, i.destDatafile"),
+                "INCLUDE i.sourceDatafile, i.destDatafile", 
+                False),
                ('DataCollection', datacollectiondict, 
                 "SELECT i FROM DataCollection i "
                 "INCLUDE i.dataCollectionDatasets AS ds, ds.dataset, "
                 "i.dataCollectionDatafiles AS df, df.datafile, "
-                "i.parameters AS ip, ip.type"),
+                "i.parameters AS ip, ip.type", 
+                False),
                ('Job', entitydict, 
                 "SELECT i FROM Job i INCLUDE i.application, "
-                "i.inputDataCollection, i.outputDataCollection")]
+                "i.inputDataCollection, i.outputDataCollection", 
+                True)]
 
-for (name, convert, searchexp) in entitytypes:
+for (name, convert, searchexp, reindex) in entitytypes:
     d = {}
     for e in client.search(searchexp):
         k = e.getUniqueKey(False)
         keyindex[e.id] = k
         d[k] = convert(e)
+    if reindex:
+        ds = {}
+        keys = d.keys()
+        keys.sort()
+        i = 0
+        for k in keys:
+            i += 1
+            n = "%s_%08d" % (name, i)
+            ds[n] = d[k]
+        d = ds
     dump[name] = d
 
 print yaml.dump(dump, default_flow_style=False)
