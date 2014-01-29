@@ -174,7 +174,7 @@ def studydict(e):
 
 def datacollectiondict(e):
     """Convert a data collection to a dict."""
-    d = entitydict(e)
+    d = entityparamdict(e)
     try:
         d['dataCollectionDatasets'] = [entityattrdict(i) 
                                        for i in e.dataCollectionDatasets]
@@ -194,6 +194,13 @@ def datacollectiondict(e):
 client.typemap['job'].Constraint = ('application', 'id')
 client.typemap['rule'].Constraint = ('grouping', 'what', 'id')
 client.typemap['study'].Constraint = ('name', 'id')
+
+# Compatibility ICAT 4.3.0 vs. ICAT 4.3.1 and later: name of the
+# parameters relation in DataCollection.
+if client.apiversion < '4.3.1':
+    datacolparamname = 'dataCollectionParameters'
+else:
+    datacolparamname = 'parameters'
 
 entitytypes = [('User', entitydict, "User", False), 
                ('Group', groupdict, "Grouping INCLUDE UserGroup, User", False),
@@ -254,7 +261,7 @@ entitytypes = [('User', entitydict, "User", False),
                 "SELECT i FROM DataCollection i "
                 "INCLUDE i.dataCollectionDatasets AS ds, ds.dataset, "
                 "i.dataCollectionDatafiles AS df, df.datafile, "
-                "i.parameters AS ip, ip.type", 
+                "i.%s AS ip, ip.type" % datacolparamname, 
                 False),
                ('Job', entitydict, 
                 "SELECT i FROM Job i INCLUDE i.application, "
