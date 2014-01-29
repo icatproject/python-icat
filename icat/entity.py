@@ -1,6 +1,7 @@
 """Provide the Entity class.
 """
 
+import re
 import suds.sudsobject
 from icat.listproxy import ListProxy
 from icat.exception import InternalError
@@ -126,7 +127,7 @@ class Entity(object):
         return str(self)
 
 
-    def getUniqueKey(self, autoget=False, addbean=True):
+    def getUniqueKey(self, autoget=False, keyindex=None):
         """Return a unique kay.
 
         The key is a string that is guaranteed to be unique for all
@@ -139,8 +140,11 @@ class Entity(object):
         appropriate arguments.  Note that this may discard information
         on other relations currently present in the entity object.
 
-        The argument addbean has an internal purpose and should be
-        left at its default ``True``.
+        if keyindex is not ``None``, it is used as a cache of
+        previously generated keys.  It must be a dict that maps entity
+        ids to the keys returned by previous calls of getUniqueKey()
+        on other entity objects.  The newly generated key will be
+        added to this index.
         """
 
         def quote(obj):
@@ -172,24 +176,26 @@ class Entity(object):
             else:
                 self.get(self.BeanName)
 
-        if addbean:
-            key = self.BeanName
-        else:
-            key = ''
+        key = self.BeanName
         for c in self.Constraint:
-            if key: key += "_"
+            key += "_"
             if c in self.InstAttr:
                 key += "%s-%s" % (c, quote(getattr(self, c, None)))
             elif c in self.InstRel:
                 e = getattr(self, c, None)
                 if e:
-                    ek = e.getUniqueKey(autoget, addbean=False)
-                    key += "%s-(%s)" % (c, ek)
+                    if keyindex is not None and e.id in keyindex:
+                        ek = keyindex[e.id]
+                    else:
+                        ek = e.getUniqueKey(autoget, keyindex)
+                    key += "%s-(%s)" % (c, re.sub(r'^[A-Z-a-z]+_', '', ek))
                 else:
                     key += "%s-%s" % (c, None)
             else:
                 raise InternalError("Invalid constraint '%s' in %s."
                                     % (c, self.BeanName))
+        if keyindex is not None:
+            keyindex[self.id] = key
         return key
 
     def create(self):
