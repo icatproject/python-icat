@@ -239,18 +239,17 @@ entitytypes = [('User', entitydict, "User", False),
                 True),
                ('Sample', entityparamdict, 
                 "SELECT i FROM Sample i "
-                "INCLUDE i.investigation, i.investigation.facility, i.type, "
+                "INCLUDE i.investigation, i.type, "
                 "i.parameters AS ip, ip.type", 
                 False),
                ('Dataset', entityparamdict, 
                 "SELECT i FROM Dataset i "
-                "INCLUDE i.investigation, i.investigation.facility, "
-                "i.type, i.sample, i.parameters AS ip, ip.type", 
+                "INCLUDE i.investigation, i.type, i.sample, "
+                "i.parameters AS ip, ip.type", 
                 False),
                ('Datafile', entityparamdict, 
                 "SELECT i FROM Datafile i "
-                "INCLUDE i.dataset, i.dataset.investigation, "
-                "i.dataset.investigation.facility, i.datafileFormat, "
+                "INCLUDE i.dataset, i.datafileFormat, "
                 "i.parameters AS ip, ip.type", 
                 False),
                ('RelatedDatafile', entitydict, 
@@ -271,8 +270,7 @@ entitytypes = [('User', entitydict, "User", False),
 for (name, convert, searchexp, reindex) in entitytypes:
     d = {}
     for e in client.search(searchexp):
-        k = e.getUniqueKey(False)
-        keyindex[e.id] = k
+        k = e.getUniqueKey(autoget=False, keyindex=keyindex)
         d[k] = convert(e)
     if reindex:
         ds = {}
