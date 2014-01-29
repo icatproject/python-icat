@@ -176,13 +176,13 @@ def datacollectiondict(e):
     """Convert a data collection to a dict."""
     d = entityparamdict(e)
     try:
-        d['dataCollectionDatasets'] = [entityattrdict(i) 
-                                       for i in e.dataCollectionDatasets]
+        d['dataCollectionDatasets'] = [ keyindex[i.dataset.id] 
+                                        for i in e.dataCollectionDatasets ]
     except AttributeError:   # ref. ICAT issue 130
         d['dataCollectionDatasets'] = []
     try:
-        d['dataCollectionDatafiles'] = [entityattrdict(i) 
-                                        for i in e.dataCollectionDatafiles]
+        d['dataCollectionDatafiles'] = [ keyindex[i.datafile.id] 
+                                         for i in e.dataCollectionDatafiles ]
     except AttributeError:   # ref. ICAT issue 130
         d['dataCollectionDatafiles'] = []
     return d

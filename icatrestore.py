@@ -220,12 +220,10 @@ for id, d in data['DataCollection'].iteritems():
     log.info("create DataCollection %s ...", d['name'])
     obj = client.new('dataCollection')
     for r in d['dataCollectionDatafiles']:
-        substkeys(r, ['datafile'])
-        o = client.new('dataCollectionDatafile', **r)
+        o = client.new('dataCollectionDatafile', datafile=keyindex[r])
         obj.dataCollectionDatafiles.append(o)
     for r in d['dataCollectionDatasets']:
-        substkeys(r, ['dataset'])
-        o = client.new('dataCollectionDataset', **r)
+        o = client.new('dataCollectionDataset', dataset=keyindex[r])
         obj.dataCollectionDatasets.append(o)
     for r in d['parameters']:
         substkeys(r, ['type'])
