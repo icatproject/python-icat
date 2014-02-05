@@ -575,7 +575,7 @@ class Client(suds.client.Client):
         :return: search result.
         :rtype: ``list``
         :raise ValueError: in case of inconsistent arguments.
-        :raise SearchResultError: if the assertion on the number of
+        :raise SearchAssertionError: if the assertion on the number of
             results fails.
         :raise ICATError: in case of exceptions raised by the ICAT
             server.
@@ -588,7 +588,7 @@ class Client(suds.client.Client):
         if num >= assertmin and (assertmax is None or num <= assertmax):
             return result
         else:
-            raise SearchResultError(query, assertmin, assertmax, num)
+            raise SearchAssertionError(query, assertmin, assertmax, num)
 
 
 atexit.register(Client.cleanupall)

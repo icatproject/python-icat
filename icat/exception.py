@@ -13,6 +13,7 @@ __all__ = [
     'translateError', 
     # icat.client
     'ClientVersionWarning', 'VersionMethodError', 'SearchResultError', 
+    'SearchAssertionError', 
     # icat.config
     'ConfigError', 
     # icat.icatcheck
@@ -133,6 +134,11 @@ class VersionMethodError(Exception):
         super(VersionMethodError, self).__init__(msg)
 
 class SearchResultError(Exception):
+    """A search result does not conform to what should have been expected.
+    """
+    pass
+
+class SearchAssertionError(SearchResultError):
     """A search result does not conform to an assertion.
 
     This exception is thrown when the number of objects found on a
@@ -153,7 +159,7 @@ class SearchResultError(Exception):
             msg = ('Number of objects found (%d) is not within '
                    'the expected bounds between %d and %d on query: "%s"'
                    % (num, assertmin, assertmax, query))
-        super(SearchResultError, self).__init__(msg)
+        super(SearchAssertionError, self).__init__(msg)
         self.query = query
         self.assertmin = assertmin
         self.assertmax = assertmax
