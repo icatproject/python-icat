@@ -16,6 +16,7 @@ import suds.sudsobject
 from icat.entity import Entity
 import icat.entities
 from icat.exception import *
+from icat.helper import simpleqp_unquote, parse_attr_val
 
 __all__ = ['Client']
 
@@ -537,87 +538,6 @@ class Client(suds.client.Client):
         :raise ValueError: if the key is not well formed.
         """
 
-        def unquote(qs):
-            """Simple unquote from quoted-printable style."""
-            esc = '='
-            hex = '0123456789ABCDEF'
-            out = []
-            i = iter(qs)
-            while True:
-                try:
-                    c = i.next()
-                except StopIteration:
-                    break
-                if c == esc:
-                    try:
-                        hh = i.next()
-                        hl = i.next()
-                    except StopIteration:
-                        raise ValueError("Invalid quoted string '%s'" % qs)
-                    vh = hex.index(hh)
-                    vl = hex.index(hl)
-                    out.append(chr(16*vh+vl))
-                else:
-                    out.append(c)
-            return str(''.join(out)).decode('utf-8')
-
-        def parse_attr_val(avs):
-            """Parse an attribute value list string.
-
-            Parse a string representing a list of attribute and
-            value pairs in the form::
-
-              attrvaluestring ::= attrvalue 
-                              |   attrvalue '_' attrvaluestring
-              attrvalue       ::= attr '-' value
-              value           ::= simplevalue 
-                              |   '(' attrvaluestring ')'
-              attr            ::= [A-Za-z]+
-              simplevalue     ::= [0-9A-Za-z=]+
-
-            Return a dict with the attributes as keys.
-
-            This might be easier to implement using pyparsing, but
-            this module is not in the standard library and I don't
-            want to depend on external packages for this.
-            """
-
-            res = {}
-            while len(avs) > 0:
-                hyphen = avs.index('-')
-                if hyphen == 0 or hyphen == len(avs)-1:
-                    raise ValueError("malformed '%s'" % s)
-                attr = avs[:hyphen]
-                if avs[hyphen+1] == '(':
-                    # Need to find the matching ')'
-                    op = 0
-                    for i in range(hyphen+1,len(avs)):
-                        if avs[i] == '(':
-                            op += 1
-                        elif avs[i] == ')':
-                            op -= 1
-                            if op == 0:
-                                break
-                    if op > 0:
-                        raise ValueError("malformed '%s'" % s)
-                    value = avs[hyphen+2:i]
-                    if i == len(avs) - 1:
-                        avs = ""
-                    elif avs[i+1] == '_':
-                        avs = avs[i+2:]
-                    else:
-                        raise ValueError("malformed '%s'" % s)
-                else:
-                    us = avs.find('_', hyphen+1)
-                    if us >= 0:
-                        value = avs[hyphen+1:us]
-                        avs = avs[us+1:]
-                    else:
-                        value = avs[hyphen+1:]
-                        avs = ""
-                res[attr] = value
-            return res
-
         us = key.index('_')
         beanname = key[:us]
         av = parse_attr_val(key[us+1:])
@@ -628,7 +548,8 @@ class Client(suds.client.Client):
             if f.name in av.keys():
                 attr = f.name
                 if f.relType == "ATTRIBUTE":
-                    query += " %s e.%s = '%s'" % (op, attr, unquote(av[attr]))
+                    query += " %s e.%s = '%s'" % (op, attr, 
+                                                  simpleqp_unquote(av[attr]))
                 elif f.relType == "ONE":
                     rk = "%s_%s" % (f.type, av[attr])
                     ro = self.searchUniqueKey(rk)

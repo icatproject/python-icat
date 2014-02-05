@@ -5,6 +5,7 @@ import re
 import suds.sudsobject
 from icat.listproxy import ListProxy
 from icat.exception import InternalError
+from icat.helper import simpleqp_quote
 
 class Entity(object):
     """The base of the classes representing the entities in the ICAT schema.
@@ -155,25 +156,6 @@ class Entity(object):
         :rtype: ``str``
         """
 
-        def quote(obj):
-            """Simple quote in quoted-printable style."""
-            esc = '='
-            hex = '0123456789ABCDEF'
-            asc = ('0123456789'
-                   'ABCDEFGHIJKLMNOPQRSTUVWXYZ''abcdefghijklmnopqrstuvwxyz')
-            try:
-                s = str(obj)
-            except UnicodeError:
-                s = obj.encode('utf-8')
-            out = []
-            for c in s:
-                if c in asc:
-                    out.append(c)
-                else:
-                    i = ord(c)
-                    out.append(esc + hex[i//16] + hex[i%16])
-            return str(''.join(out))
-
         if autoget:
             inclattr = [a for a in self.Constraint if a in self.InstRel]
             if inclattr:
@@ -188,7 +170,7 @@ class Entity(object):
         for c in self.Constraint:
             key += "_"
             if c in self.InstAttr:
-                key += "%s-%s" % (c, quote(getattr(self, c, None)))
+                key += "%s-%s" % (c, simpleqp_quote(getattr(self, c, None)))
             elif c in self.InstRel:
                 e = getattr(self, c, None)
                 if e:
