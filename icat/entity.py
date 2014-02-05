@@ -145,10 +145,18 @@ class Entity(object):
         ids to the keys returned by previous calls of getUniqueKey()
         on other entity objects.  The newly generated key will be
         added to this index.
+
+        :param autoget: flag whether ``get`` shall be called in order
+            to have all needed attributes set.
+        :type autoget: ``bool``
+        :param keyindex: cache of generated keys.
+        :type keyindex: ``dict``
+        :return: a unique key.
+        :rtype: ``str``
         """
 
         def quote(obj):
-            """Simple quoting in quoted-printable style."""
+            """Simple quote in quoted-printable style."""
             esc = '='
             hex = '0123456789ABCDEF'
             asc = ('0123456789'
