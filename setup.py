@@ -6,12 +6,9 @@ from warnings import warn
 import icat
 import re
 
-if sys.version_info < (2, 5):
+if sys.version_info < (2, 6):
     raise RuntimeError("Sorry, this Python version (%s) is too old to use "
                        "this package." % sys.version)
-elif sys.version_info < (2, 6):
-    warn("This package has not been tested with this Python version (%s). "
-         "It may or may not work." % sys.version)
 
 DOCLINES         = icat.__doc__.split("\n")
 DESCRIPTION      = DOCLINES[0]
@@ -37,10 +34,9 @@ setup(
     license = "BSD-2-Clause",
     requires = ["suds"],
     packages = ["icat"],
-    # It may be that the package also works with other Python
-    # versions.  In particular 3.0 and 3.1 should work, I guess.  But
-    # these are the versions I have access to and I tested the package
-    # with.  Python 3 requires the jurko fork of Suds.
+    # Minimum required Python version is 2.6.  Python 3.* should work,
+    # I guess, but I only tested 3.2.  Python 3 requires the jurko
+    # fork of Suds.
     classifiers = [
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",

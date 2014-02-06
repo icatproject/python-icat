@@ -11,8 +11,7 @@ System Requirements
 
  + Python 2.7 or newer.
    Python 2.6 will do but requires patching the sources, see below.
-   Python 2.5 has not been tested and may or may not work.
-   Python 2.4 is too old and will not work.
+   Python 2.5 is too old and will not work.
 
  + Suds, either the original version[2] or the jurko fork[3].
    The latter is recommended as the original version is not maintained
