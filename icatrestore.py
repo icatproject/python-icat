@@ -8,7 +8,8 @@
 # collision check with data already present at the ICAT.
 #
 # Known issues and limitations:
-#  + This script is NOT suitable for a real production size ICAT.
+#  + It is assumed that the dump file contains appropriate rules that
+#    gives the ICAT root user CRUD permission on all entity types.
 #  + A dump and restore of an ICAT will not preserve the attributes
 #    id, createId, createTime, modId, and modTime of any objects.
 #    This is by design and cannot be fixed.  As a consequence, access
@@ -38,204 +39,241 @@ client = icat.Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 # ------------------------------------------------------------
-# Read input data
+# Helper function
 # ------------------------------------------------------------
 
-data = yaml.load(sys.stdin)
+def substkeys(d, keys, objindex):
+    """Substitude unique keys by the corresponding objects in the
+    values of the dict d corresponding to keys.
+    """
+    for k in keys:
+        if d[k] is not None:
+            d[k] = client.searchUniqueKey(d[k], objindex)
 
+# ------------------------------------------------------------
+# Creator functions
+# ------------------------------------------------------------
+
+def createObjs(data, insttype, subst, objindex):
+    """Create objects, generic method."""
+    bean = client.typemap[insttype].BeanName
+    for key, d in data.iteritems():
+        log.info("create %s %s ...", bean, d['name'])
+        substkeys(d, subst, objindex)
+        obj = client.new(insttype, **d)
+        obj.create()
+        objindex[key] = obj
+
+def createBulkObjs(data, insttype, subst, objindex):
+    """Create objects, bulk method: use createMany, do not add them to
+    the objindex."""
+    bean = client.typemap[insttype].BeanName
+    objs = []
+    for d in data.itervalues():
+        substkeys(d, subst, objindex)
+        objs.append(client.new(insttype, **d))
+    log.info("create %d %ss ...", len(objs), bean)
+    client.createMany(objs)
+
+def createGroups(data, insttype, subst, objindex):
+    for key, d in data.iteritems():
+        log.info("create Group %s ...", d['name'])
+        users = [ client.searchUniqueKey(u, objindex) for u in d['users'] ]
+        obj = client.createGroup(d['name'], users)
+        objindex[key] = obj
+
+def createInstruments(data, insttype, subst, objindex):
+    bean = client.typemap[insttype].BeanName
+    for key, d in data.iteritems():
+        log.info("create %s %s ...", bean, d['name'])
+        instrsci = [ client.searchUniqueKey(u, objindex) 
+                     for u in d['instrumentScientists'] ]
+        del d['instrumentScientists']
+        substkeys(d, subst, objindex)
+        obj = client.new(insttype, **d)
+        obj.create()
+        obj.addInstrumentScientists(instrsci)
+        objindex[key] = obj
+
+def createParameterTypes(data, insttype, subst, objindex):
+    bean = client.typemap[insttype].BeanName
+    for key, d in data.iteritems():
+        log.info("create %s %s ...", bean, d['name'])
+        permissibleStringValues = d['permissibleStringValues']
+        del d['permissibleStringValues']
+        substkeys(d, subst, objindex)
+        obj = client.new(insttype, **d)
+        for v in permissibleStringValues:
+            o = client.new('permissibleStringValue', **v)
+            obj.permissibleStringValues.append(o)
+        obj.create()
+        objindex[key] = obj
+
+def createInvestigations(data, insttype, subst, objindex):
+    bean = client.typemap[insttype].BeanName
+    for key, d in data.iteritems():
+        log.info("create %s %s ...", bean, d['name'])
+        r = {}
+        for t in ['instruments', 'investigationUsers', 'parameters', 
+                  'shifts', 'keywords', 'publications']:
+            r[t] = d[t]
+            del d[t]
+        substkeys(d, subst, objindex)
+        obj = client.new(insttype, **d)
+        for s in r['investigationUsers']:
+            substkeys(s, ['user'], objindex)
+            o = client.new('investigationUser', **s)
+            obj.investigationUsers.append(o)
+        for s in r['parameters']:
+            substkeys(s, ['type'], objindex)
+            o = client.new('investigationParameter', **s)
+            obj.parameters.append(o)
+        for s in r['shifts']:
+            obj.shifts.append(client.new('shift', **s))
+        for s in r['keywords']:
+            obj.keywords.append(client.new('keyword', **s))
+        for s in r['publications']:
+            obj.publications.append(client.new('publication', **s))
+        obj.create()
+        for s in r['instruments']:
+            instrument = client.searchUniqueKey(s, objindex)
+            obj.addInstrument(instrument)
+        objindex[key] = obj
+
+def createStudies(data, insttype, subst, objindex):
+    bean = client.typemap[insttype].BeanName
+    for key, d in data.iteritems():
+        log.info("create %s %s ...", bean, d['name'])
+        studyInvestigations = d['studyInvestigations']
+        del d['studyInvestigations']
+        substkeys(d, subst, objindex)
+        obj = client.new(insttype, **d)
+        for s in studyInvestigations:
+            substkeys(s, ['investigation'], objindex)
+            o = client.new('studyInvestigation', **s)
+            obj.studyInvestigations.append(o)
+        obj.create()
+        objindex[key] = obj
+
+def createSamples(data, insttype, subst, objindex):
+    bean = client.typemap[insttype].BeanName
+    for key, d in data.iteritems():
+        log.info("create %s %s ...", bean, d['name'])
+        parameters = d['parameters']
+        del d['parameters']
+        substkeys(d, subst, objindex)
+        obj = client.new(insttype, **d)
+        for p in parameters:
+            substkeys(p, ['type'])
+            obj.parameters.append(client.new('sampleParameter', **p))
+        obj.create()
+        objindex[key] = obj
+
+def createDatasets(data, insttype, subst, objindex):
+    bean = client.typemap[insttype].BeanName
+    for key, d in data.iteritems():
+        log.info("create %s %s ...", bean, d['name'])
+        parameters = d['parameters']
+        del d['parameters']
+        substkeys(d, subst, objindex)
+        obj = client.new(insttype, **d)
+        for p in parameters:
+            substkeys(p, ['type'])
+            obj.parameters.append(client.new('datasetParameter', **p))
+        obj.create()
+        objindex[key] = obj
+
+def createDatafiles(data, insttype, subst, objindex):
+    bean = client.typemap[insttype].BeanName
+    for key, d in data.iteritems():
+        log.info("create %s %s ...", bean, d['name'])
+        parameters = d['parameters']
+        del d['parameters']
+        substkeys(d, subst, objindex)
+        obj = client.new(insttype, **d)
+        for p in parameters:
+            substkeys(p, ['type'])
+            obj.parameters.append(client.new('datafileParameter', **p))
+        obj.create()
+        objindex[key] = obj
+
+def createDataCollections(data, insttype, subst, objindex):
+    bean = client.typemap[insttype].BeanName
+    for key, d in data.iteritems():
+        log.info("create %s %s ...", bean, d['name'])
+        obj = client.new(insttype)
+        for r in d['dataCollectionDatafiles']:
+            datafile = client.searchUniqueKey(r, objindex) 
+            o = client.new('dataCollectionDatafile', datafile=datafile)
+            obj.dataCollectionDatafiles.append(o)
+        for r in d['dataCollectionDatasets']:
+            dataset = client.searchUniqueKey(r, objindex) 
+            o = client.new('dataCollectionDataset', dataset=dataset)
+            obj.dataCollectionDatasets.append(o)
+        for r in d['parameters']:
+            substkeys(r, ['type'], objindex)
+            o = client.new('dataCollectionParameter', **r)
+            obj.parameters.append(o)
+        obj.create()
+        objindex[key] = obj
 
 # ------------------------------------------------------------
 # Create data at the ICAT server
 # ------------------------------------------------------------
 
-keyindex = {}
+entitytypes = [
+    ('User', 'user', createObjs, []),
+    ('Group', 'grouping', createGroups, []),
+    ('Rule', 'rule', createBulkObjs, ['grouping']),
+    ('PublicStep', 'publicStep', createBulkObjs, []),
+    ('Facility', 'facility', createObjs, []),
+    ('Instrument', 'instrument', createInstruments, ['facility']),
+    ('ParameterType', 'parameterType', createParameterTypes, ['facility']),
+    ('InvestigationType', 'investigationType', createObjs, ['facility']),
+    ('SampleType', 'sampleType', createObjs, ['facility']),
+    ('DatasetType', 'datasetType', createObjs, ['facility']),
+    ('DatafileFormat', 'datafileFormat', createObjs, ['facility']),
+    ('FacilityCycle', 'facilityCycle', createObjs, ['facility']),
+    ('Application', 'application', createObjs, ['facility']),
+    ('Investigation', 'investigation', createInvestigations, 
+     ['facility', 'type']),
+    ('Study', 'study', createStudies, ['user']),
+    ('Sample', 'sample', createSamples, ['type', 'investigation']),
+    ('Dataset', 'dataset', createDatasets, ['type', 'investigation', 'sample']),
+    ('Datafile', 'datafile', createDatafiles, ['datafileFormat', 'dataset']),
+    ('RelatedDatafile', 'relatedDatafile', createBulkObjs, 
+     ['sourceDatafile', 'destDatafile']),
+    ('DataCollection', 'dataCollection', createDataCollections, []),
+    ('Job', 'job', createBulkObjs, 
+     ['application', 'inputDataCollection', 'outputDataCollection']),
+]
 
-def substkeys(d, keys):
-    for k in keys:
-        if d[k] is not None:
-            d[k] = keyindex[d[k]]
+# We read the data in chunks (or documents in YAML terminology).  This
+# way we can avoid having the whole file, e.g. the complete inventory
+# of the ICAT, at once in memory.  The problem is that some objects
+# contain references to other objects (e.g. Datafiles refer to
+# Datasets, the latter refer to Investigations, and so forth).  We
+# need to resolve these references before we can create the objects.
+# To this end, we keep an index of the objects.  But there is a memory
+# versus time tradeoff: we cannot keep all the objects in the index,
+# that would again mean the complete inventory of the ICAT.  And we
+# can't know beforehand which object is going to be referenced later
+# on, so we don't know which to keep and which to discard from the
+# index.  Fortunately we can query objects we discarded back from the
+# ICAT server with client.searchUniqueKey().  But this is expensive.
+# So the strategy is as follows: keep all objects from the current
+# chunk in the index and discard the complete index each time a chunk
+# has been processed.  This will work fine if objects are mostly
+# referencing other objects from the same chunk.  It is in the
+# responsibility of the creator of the dumpfile to create the chunks
+# in this manner.
 
-# Users
-for id, d in data['User'].iteritems():
-    log.info("create User %s ...", d['name'])
-    obj = client.new('user', **d)
-    obj.create()
-    keyindex[id] = obj
-
-# Groups
-for id, d in data['Group'].iteritems():
-    log.info("create Group %s ...", d['name'])
-    obj = client.createGroup(d['name'], [ keyindex[u] for u in d['users'] ])
-    keyindex[id] = obj
-
-# Rules
-objs = []
-for d in data['Rule'].itervalues():
-    substkeys(d, ['grouping'])
-    objs.append(client.new('rule', **d))
-log.info("create %d Rules ...", len(objs))
-client.createMany(objs)
-
-# PublicSteps
-objs = []
-for d in data['PublicStep'].itervalues():
-    objs.append(client.new('publicStep', **d))
-log.info("create %d PublicSteps ...", len(objs))
-client.createMany(objs)
-
-# Facilities
-for id, d in data['Facility'].iteritems():
-    log.info("create Facility %s ...", d['name'])
-    obj = client.new('facility', **d)
-    obj.create()
-    keyindex[id] = obj
-
-# Instruments
-for id, d in data['Instrument'].iteritems():
-    log.info("create Instrument %s ...", d['name'])
-    instrsci = [keyindex[u] for u in d['instrumentScientists']]
-    del d['instrumentScientists']
-    substkeys(d, ['facility'])
-    obj = client.new('instrument', **d)
-    obj.create()
-    obj.addInstrumentScientists(instrsci)
-    keyindex[id] = obj
-
-# ParameterTypes
-for id, d in data['ParameterType'].iteritems():
-    log.info("create ParameterType %s ...", d['name'])
-    permissibleStringValues = d['permissibleStringValues']
-    del d['permissibleStringValues']
-    substkeys(d, ['facility'])
-    obj = client.new('parameterType', **d)
-    for v in permissibleStringValues:
-        o = client.new('permissibleStringValue', **v)
-        obj.permissibleStringValues.append(o)
-    obj.create()
-    keyindex[id] = obj
-
-# InvestigationTypes, SampleTypes, DatasetTypes, DatafileFormats,
-# FacilityCycles, Applications
-for t in ['investigationType', 'sampleType', 'datasetType', 'datafileFormat', 
-          'facilityCycle', 'application']:
-    bean = client.typemap[t].BeanName
-    for id, d in data[bean].iteritems():
-        log.info("create %s %s ...", bean, d['name'])
-        substkeys(d, ['facility'])
-        obj = client.new(t, **d)
-        obj.create()
-        keyindex[id] = obj
-
-# Investigations
-for id, d in data['Investigation'].iteritems():
-    log.info("create Investigation %s ...", d['name'])
-    r = {}
-    for t in ['instruments', 'investigationUsers', 'parameters', 
-              'shifts', 'keywords', 'publications']:
-        r[t] = d[t]
-        del d[t]
-    substkeys(d, ['facility', 'type'])
-    obj = client.new('investigation', **d)
-    for s in r['instruments']:
-        o = client.new('investigationInstrument', instrument=keyindex[s])
-        obj.investigationInstruments.append(o)
-    for s in r['investigationUsers']:
-        substkeys(s, ['user'])
-        o = client.new('investigationUser', **s)
-        obj.investigationUsers.append(o)
-    for s in r['parameters']:
-        substkeys(d, ['type'])
-        obj.parameters.append(client.new('investigationParameter', **s))
-    for s in r['shifts']:
-        obj.shifts.append(client.new('shift', **s))
-    for s in r['keywords']:
-        obj.keywords.append(client.new('keyword', **s))
-    for s in r['publications']:
-        obj.publications.append(client.new('publication', **s))
-    obj.create()
-    keyindex[id] = obj
-
-# Studies
-for id, d in data['Study'].iteritems():
-    log.info("create Study %s ...", d['name'])
-    studyInvestigations = d['studyInvestigations']
-    del d['studyInvestigations']
-    substkeys(d, ['user'])
-    obj = client.new('study', **d)
-    for s in studyInvestigations:
-        substkeys(s, ['investigation'])
-        obj.parameters.append(client.new('studyInvestigation', **s))
-    obj.create()
-    keyindex[id] = obj
-
-# Samples
-for id, d in data['Sample'].iteritems():
-    log.info("create Sample %s ...", d['name'])
-    parameters = d['parameters']
-    del d['parameters']
-    substkeys(d, ['type', 'investigation'])
-    obj = client.new('sample', **d)
-    for p in parameters:
-        substkeys(p, ['type'])
-        obj.parameters.append(client.new('sampleParameter', **p))
-    obj.create()
-    keyindex[id] = obj
-
-# Datasets
-for id, d in data['Dataset'].iteritems():
-    log.info("create Dataset %s ...", d['name'])
-    parameters = d['parameters']
-    del d['parameters']
-    substkeys(d, ['type', 'investigation', 'sample'])
-    obj = client.new('dataset', **d)
-    for p in parameters:
-        substkeys(p, ['type'])
-        obj.parameters.append(client.new('datasetParameter', **p))
-    obj.create()
-    keyindex[id] = obj
-
-# Datafiles
-for id, d in data['Datafile'].iteritems():
-    log.info("create Datafile %s ...", d['name'])
-    parameters = d['parameters']
-    del d['parameters']
-    substkeys(d, ['datafileFormat', 'dataset'])
-    obj = client.new('datafile', **d)
-    for p in parameters:
-        substkeys(p, ['type'])
-        obj.parameters.append(client.new('datafileParameter', **p))
-    obj.create()
-    keyindex[id] = obj
-
-# RelatedDatafiles
-objs = []
-for d in data['RelatedDatafile'].itervalues():
-    substkeys(d, ['sourceDatafile', 'destDatafile'])
-    objs.append(client.new('relatedDatafile', **d))
-log.info("create %d RelatedDatafiles ...", len(objs))
-client.createMany(objs)
-
-# DataCollections
-for id, d in data['DataCollection'].iteritems():
-    log.info("create DataCollection %s ...", d['name'])
-    obj = client.new('dataCollection')
-    for r in d['dataCollectionDatafiles']:
-        o = client.new('dataCollectionDatafile', datafile=keyindex[r])
-        obj.dataCollectionDatafiles.append(o)
-    for r in d['dataCollectionDatasets']:
-        o = client.new('dataCollectionDataset', dataset=keyindex[r])
-        obj.dataCollectionDatasets.append(o)
-    for r in d['parameters']:
-        substkeys(r, ['type'])
-        o = client.new('dataCollectionParameter', **r)
-        obj.parameters.append(o)
-    obj.create()
-    keyindex[id] = obj
-
-# Jobs
-objs = []
-for d in data['Job'].itervalues():
-    substkeys(d, ['application', 'inputDataCollection', 'outputDataCollection'])
-    objs.append(client.new('job', **d))
-log.info("create %d Jobs ...", len(objs))
-client.createMany(objs)
+# yaml.load_all() returns a generator that yield one chunk (YAML
+# document) from the file in each iteration.
+for data in yaml.load_all(sys.stdin):
+    objindex = {}
+    # We need to create the objects in order so that objects are
+    # processed before those referencing the former.
+    for name, insttype, creator, subst in entitytypes:
+        if name in data:
+            creator(data[name], insttype, subst, objindex)
