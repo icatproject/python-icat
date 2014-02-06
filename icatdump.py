@@ -302,14 +302,12 @@ print """%YAML 1.1"""
 
 dump = {}
 for name, convert, searchexp, reindex in authtypes:
-    d = getobjs(name, convert, searchexp, reindex)
-    dump[name] = d
+    dump[name] = getobjs(name, convert, searchexp, reindex)
 yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
 
 dump = {}
 for name, convert, searchexp, reindex in statictypes:
-    d = getobjs(name, convert, searchexp, reindex)
-    dump[name] = d
+    dump[name] = getobjs(name, convert, searchexp, reindex)
 yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
 
 # Dump the investigations each in their own document
@@ -320,13 +318,11 @@ investigations.sort()
 for inv in investigations:
     dump = {}
     for name, convert, searchexp, reindex in investtypes:
-        d = getobjs(name, convert, searchexp % inv, reindex)
-        dump[name] = d
+        dump[name] = getobjs(name, convert, searchexp % inv, reindex)
     yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
 
 dump = {}
 for name, convert, searchexp, reindex in othertypes:
-    d = getobjs(name, convert, searchexp, reindex)
-    dump[name] = d
+    dump[name] = getobjs(name, convert, searchexp, reindex)
 yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
 
