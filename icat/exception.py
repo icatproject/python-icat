@@ -37,9 +37,14 @@ class ICATError(Exception):
         super(ICATError, self).__init__(str(webfault))
         self.fault = webfault.fault
         self.document = webfault.document
-        self.message = webfault.fault.detail.IcatException.message
-        self.offset = webfault.fault.detail.IcatException.offset
-        self.type = webfault.fault.detail.IcatException.type
+        try:
+            icatexception = webfault.fault.detail.IcatException
+        except AttributeError:
+            pass
+        else:
+            self.message = getattr(icatexception, 'message', None)
+            self.offset = getattr(icatexception, 'offset', None)
+            self.type = getattr(icatexception, 'type', None)
 
 class ICATParameterError(ICATError):
     """Generally indicates a problem with the arguments made to a
@@ -96,7 +101,10 @@ IcatExceptionTypeMap = {
 def translateError(error):
     """Translate a suds.WebFault into the corresponding ICATError."""
     if isinstance(error, suds.WebFault):
-        Class = IcatExceptionTypeMap[error.fault.detail.IcatException.type]
+        try:
+            Class = IcatExceptionTypeMap[error.fault.detail.IcatException.type]
+        except AttributeError:
+            Class = ICATError
         return Class(error)
     else:
         raise TypeError("Invalid argument type '%s'." % type(error))
