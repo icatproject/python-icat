@@ -7,7 +7,6 @@
 #  + the attributes id, createId, createTime, modId, and modTime.
 #
 # Known issues and limitations:
-#  + This script is NOT suitable for a real production size ICAT.
 #  + Version dependency.  This script currently works for ICAT 4.3.*
 #    only.
 #  + Should include some meta information in the dump, such as date,
@@ -21,6 +20,7 @@
 #    SampleParameter, Shift, Study, StudyInvestigation.
 #
 
+import sys
 import icat
 import icat.config
 import datetime
@@ -39,7 +39,6 @@ client.login(conf.auth, conf.credentials)
 
 
 keyindex = {}
-dump = {}
 
 
 def entityattrdict(e):
@@ -187,6 +186,23 @@ def datacollectiondict(e):
         d['dataCollectionDatafiles'] = []
     return d
 
+def getobjs(name, convert, searchexp, reindex):
+    d = {}
+    for e in client.search(searchexp):
+        k = e.getUniqueKey(autoget=False, keyindex=keyindex)
+        d[k] = convert(e)
+    if reindex:
+        ds = {}
+        keys = d.keys()
+        keys.sort()
+        i = 0
+        for k in keys:
+            i += 1
+            n = "%s_%08d" % (name, i)
+            ds[n] = d[k]
+        d = ds
+    return d
+
 # Entities without a constraint will use their id to form the unique
 # key as a last resort.  But we want the keys to have a well defined
 # order, independent from the id.  Enforce this by artificially adding
@@ -202,11 +218,11 @@ if client.apiversion < '4.3.1':
 else:
     datacolparamname = 'parameters'
 
-entitytypes = [('User', entitydict, "User", False), 
-               ('Group', groupdict, "Grouping INCLUDE UserGroup, User", False),
-               ('Rule', entitydict, "Rule INCLUDE Grouping", True),
-               ('PublicStep', entitydict, "PublicStep", False),
-               ('Facility', entitydict, "Facility", False),
+authtypes = [('User', entitydict, "User", False), 
+             ('Group', groupdict, "Grouping INCLUDE UserGroup, User", False),
+             ('Rule', entitydict, "Rule INCLUDE Grouping", True),
+             ('PublicStep', entitydict, "PublicStep", False)]
+statictypes = [('Facility', entitydict, "Facility", False),
                ('Instrument', instrumentdict, 
                 "Instrument INCLUDE Facility, InstrumentScientist, User", 
                 False),
@@ -224,9 +240,11 @@ entitytypes = [('User', entitydict, "User", False),
                ('FacilityCycle', entitydict, "FacilityCycle INCLUDE Facility", 
                 False),
                ('Application', entitydict, "Application INCLUDE Facility", 
-                False),
-               ('Investigation', investigationdict, 
+                False)]
+investtypes = [('Investigation', investigationdict, 
                 "SELECT i FROM Investigation i "
+                "WHERE i.facility.id = %d AND i.name = '%s' "
+                "AND i.visitId = '%s' "
                 "INCLUDE i.facility, i.type, "
                 "i.investigationInstruments AS ii, ii.instrument, "
                 "i.shifts, i.keywords, i.publications, "
@@ -234,54 +252,81 @@ entitytypes = [('User', entitydict, "User", False),
                 "i.parameters AS ip, ip.type", 
                 False),
                ('Study', studydict, 
-                "SELECT i FROM Study i INCLUDE i.user, "
-                "i.studyInvestigations AS si, si.investigation", 
+                "SELECT o FROM Study o "
+                "JOIN o.studyInvestigations si JOIN si.investigation i "
+                "WHERE i.facility.id = %d AND i.name = '%s' "
+                "AND i.visitId = '%s' "
+                "INCLUDE o.user, "
+                "o.studyInvestigations AS si, si.investigation", 
                 True),
                ('Sample', entityparamdict, 
-                "SELECT i FROM Sample i "
-                "INCLUDE i.investigation, i.type, "
-                "i.parameters AS ip, ip.type", 
+                "SELECT o FROM Sample o "
+                "JOIN o.investigation i "
+                "WHERE i.facility.id = %d AND i.name = '%s' "
+                "AND i.visitId = '%s' "
+                "INCLUDE o.investigation, o.type, "
+                "o.parameters AS op, op.type", 
                 False),
                ('Dataset', entityparamdict, 
-                "SELECT i FROM Dataset i "
-                "INCLUDE i.investigation, i.type, i.sample, "
-                "i.parameters AS ip, ip.type", 
+                "SELECT o FROM Dataset o "
+                "JOIN o.investigation i "
+                "WHERE i.facility.id = %d AND i.name = '%s' "
+                "AND i.visitId = '%s' "
+                "INCLUDE o.investigation, o.type, o.sample, "
+                "o.parameters AS op, op.type", 
                 False),
                ('Datafile', entityparamdict, 
-                "SELECT i FROM Datafile i "
-                "INCLUDE i.dataset, i.datafileFormat, "
-                "i.parameters AS ip, ip.type", 
-                False),
-               ('RelatedDatafile', entitydict, 
-                "SELECT i FROM RelatedDatafile i "
-                "INCLUDE i.sourceDatafile, i.destDatafile", 
-                False),
-               ('DataCollection', datacollectiondict, 
-                "SELECT i FROM DataCollection i "
-                "INCLUDE i.dataCollectionDatasets AS ds, ds.dataset, "
-                "i.dataCollectionDatafiles AS df, df.datafile, "
-                "i.%s AS ip, ip.type" % datacolparamname, 
-                False),
-               ('Job', entitydict, 
-                "SELECT i FROM Job i INCLUDE i.application, "
-                "i.inputDataCollection, i.outputDataCollection", 
-                True)]
+                "SELECT o FROM Datafile o "
+                "JOIN o.dataset ds JOIN ds.investigation i "
+                "WHERE i.facility.id = %d AND i.name = '%s' "
+                "AND i.visitId = '%s' "
+                "INCLUDE o.dataset, o.datafileFormat, "
+                "o.parameters AS op, op.type", 
+                False)]
+othertypes = [('RelatedDatafile', entitydict, 
+               "SELECT o FROM RelatedDatafile o "
+               "INCLUDE o.sourceDatafile, o.destDatafile", 
+               False),
+              ('DataCollection', datacollectiondict, 
+               "SELECT o FROM DataCollection o "
+               "INCLUDE o.dataCollectionDatasets AS ds, ds.dataset, "
+               "o.dataCollectionDatafiles AS df, df.datafile, "
+               "o.%s AS op, op.type" % datacolparamname, 
+               False),
+              ('Job', entitydict, 
+               "SELECT o FROM Job o INCLUDE o.application, "
+               "o.inputDataCollection, o.outputDataCollection", 
+               True)]
 
-for (name, convert, searchexp, reindex) in entitytypes:
-    d = {}
-    for e in client.search(searchexp):
-        k = e.getUniqueKey(autoget=False, keyindex=keyindex)
-        d[k] = convert(e)
-    if reindex:
-        ds = {}
-        keys = d.keys()
-        keys.sort()
-        i = 0
-        for k in keys:
-            i += 1
-            n = "%s_%08d" % (name, i)
-            ds[n] = d[k]
-        d = ds
+print """%YAML 1.1"""
+
+dump = {}
+for name, convert, searchexp, reindex in authtypes:
+    d = getobjs(name, convert, searchexp, reindex)
     dump[name] = d
+yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
 
-print yaml.dump(dump, default_flow_style=False)
+dump = {}
+for name, convert, searchexp, reindex in statictypes:
+    d = getobjs(name, convert, searchexp, reindex)
+    dump[name] = d
+yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
+
+# Dump the investigations each in their own document
+investsearch = "SELECT i FROM Investigation i INCLUDE i.facility"
+investigations = [(i.facility.id, i.name, i.visitId) 
+                  for i in client.search(investsearch)]
+investigations.sort()
+for inv in investigations:
+    dump = {}
+    for name, convert, searchexp, reindex in investtypes:
+        d = getobjs(name, convert, searchexp % inv, reindex)
+        dump[name] = d
+    yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
+
+dump = {}
+for name, convert, searchexp, reindex in othertypes:
+    d = getobjs(name, convert, searchexp, reindex)
+    dump[name] = d
+yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
+
