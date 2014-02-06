@@ -2,8 +2,16 @@
 
 import sys
 from setuptools import setup
+from warnings import warn
 import icat
 import re
+
+if sys.version_info < (2, 5):
+    raise RuntimeError("Sorry, this Python version (%s) is too old to use "
+                       "this package." % sys.version)
+elif sys.version_info < (2, 6):
+    warn("This package has not been tested with this Python version (%s). "
+         "It may or may not work." % sys.version)
 
 DOCLINES         = icat.__doc__.split("\n")
 DESCRIPTION      = DOCLINES[0]
