@@ -3,22 +3,26 @@
 
 This package provides a collection of modules for writing Python
 programs that access an ICAT[1] service using the SOAP interface.  It
-is based on Suds[2] and extends it with ICAT specific features.
+is based on Suds and extends it with ICAT specific features.
 
 
 System Requirements
 -------------------
 
- + Python 2.7
+ + Python 2.7 or newer.
    Python 2.6 will do but requires patching the sources, see below.
+   Python 2.5 has not been tested and may or may not work.
+   Python 2.4 is too old and will not work.
 
- + Suds 0.4
+ + Suds, either the original version[2] or the jurko fork[3].
+   The latter is recommended as the original version is not maintained
+   any more and contains bugs.  Python 3 requires the jurko fork.
 
- + PyYAML[3]
+ + PyYAML[4]
    Only needed to run the example scripts.  Not required to install or
    use python-icat itself.
 
- + argparse[4]
+ + argparse[5]
    Only if you are using Python 2.6 or older, argparse became part of
    the Python standard library in 2.7.
 
@@ -28,7 +32,7 @@ Installation
 
 python-icat follows the standard Python conventions of packaging
 source distributions.  See the documentation on Installing Python
-Modules [5] for details or to customize the install process.
+Modules [6] for details or to customize the install process.
 
   1. Download the sources, unpack, and change into the source
      directory.
@@ -58,9 +62,10 @@ References
 
 [1]: http://www.icatproject.org/
 [2]: https://fedorahosted.org/suds/
-[3]: http://pyyaml.org/wiki/PyYAML
-[4]: http://code.google.com/p/argparse/
-[5]: http://docs.python.org/2.7/install/
+[3]: https://bitbucket.org/jurko/suds/
+[4]: http://pyyaml.org/wiki/PyYAML
+[5]: http://code.google.com/p/argparse/
+[6]: http://docs.python.org/2.7/install/
 
 # Local Variables:
 # mode: text
