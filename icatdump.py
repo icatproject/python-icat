@@ -9,8 +9,6 @@
 # Known issues and limitations:
 #  + Version dependency.  This script currently works for ICAT 4.3.*
 #    only.
-#  + Should include some meta information in the dump, such as date,
-#    URL, and version of the ICAT.
 #  + The serialization of the following entity types has not yet been
 #    tested: Application, DataCollection, DataCollectionDatafile,
 #    DataCollectionDataset, DataCollectionParameter,
@@ -298,7 +296,13 @@ othertypes = [('RelatedDatafile', entitydict,
                "o.inputDataCollection, o.outputDataCollection", 
                True)]
 
-print """%YAML 1.1"""
+date = datetime.datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S +0000")
+print """%%YAML 1.1
+# Date: %s
+# Service: %s
+# ICAT-API: %s
+# Generator: icatdump (python-icat %s)""" % (date, conf.url, client.apiversion,
+                                             icat.__version__)
 
 dump = {}
 for name, convert, searchexp, reindex in authtypes:
