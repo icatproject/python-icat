@@ -164,6 +164,9 @@ class Entity(object):
             constraint is not set.
         """
 
+        if keyindex is not None and self.id in keyindex:
+            return keyindex[self.id]
+
         if autoget:
             inclattr = [a for a in self.Constraint if a in self.InstRel]
             if inclattr:
@@ -182,10 +185,7 @@ class Entity(object):
             elif c in self.InstRel:
                 e = getattr(self, c, None)
                 if e:
-                    if keyindex is not None and e.id in keyindex:
-                        ek = keyindex[e.id]
-                    else:
-                        ek = e.getUniqueKey(autoget, keyindex)
+                    ek = e.getUniqueKey(autoget, keyindex)
                     key += "%s-(%s)" % (c, re.sub(r'^[A-Z-a-z]+_', '', ek))
                 else:
                     raise DataConsistencyError("Required relation '%s' "

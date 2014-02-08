@@ -78,7 +78,7 @@ def entitydict(e):
     for attr in e.InstRel:
         o = getattr(e, attr, None)
         if o is not None:
-            d[attr] = keyindex[o.id]
+            d[attr] = o.getUniqueKey(keyindex=keyindex)
         else:
             d[attr] = None
     return d
@@ -94,7 +94,7 @@ def entityparamdict(e):
     else:
         for i in parameters:
             p = entityattrdict(i)
-            p['type'] = keyindex[i.type.id]
+            p['type'] = i.type.getUniqueKey(keyindex=keyindex)
             d['parameters'].append(p)
     return d
 
@@ -102,7 +102,8 @@ def groupdict(e):
     """Convert a group including its users to a dict."""
     d = entitydict(e)
     try:
-        d['users'] = [keyindex[ug.user.id] for ug in e.userGroups]
+        d['users'] = [ ug.user.getUniqueKey(keyindex=keyindex) 
+                       for ug in e.userGroups ]
     except AttributeError:   # ref. ICAT issue 130
         d['users'] = []
     return d
@@ -111,8 +112,8 @@ def instrumentdict(e):
     """Convert an instrument including its instrument scientists to a dict."""
     d = entitydict(e)
     try:
-        d['instrumentScientists'] = [keyindex[uis.user.id] 
-                                     for uis in e.instrumentScientists]
+        d['instrumentScientists'] = [ uis.user.getUniqueKey(keyindex=keyindex) 
+                                      for uis in e.instrumentScientists ]
     except AttributeError:   # ref. ICAT issue 130
         d['instrumentScientists'] = []
     return d
@@ -134,8 +135,8 @@ def investigationdict(e):
     dict."""
     d = entityparamdict(e)
     try:
-        d['instruments'] = [keyindex[i.instrument.id] 
-                            for i in e.investigationInstruments]
+        d['instruments'] = [ i.instrument.getUniqueKey(keyindex=keyindex) 
+                             for i in e.investigationInstruments ]
     except AttributeError:   # ref. ICAT issue 130
         d['instruments'] = []
     try:
@@ -159,7 +160,7 @@ def investigationdict(e):
     else:
         for i in investigationUsers:
             u = entityattrdict(i)
-            u['user'] = keyindex[i.user.id]
+            u['user'] = i.user.getUniqueKey(keyindex=keyindex)
             d['investigationUsers'].append(u)
 
     return d
@@ -168,8 +169,9 @@ def studydict(e):
     """Convert a study to a dict."""
     d = entitydict(e)
     try:
-        d['studyInvestigations'] = [keyindex[si.investigation.id] 
-                                    for si in e.studyInvestigations]
+        inv = [ si.investigation.getUniqueKey(keyindex=keyindex) 
+                for si in e.studyInvestigations ]
+        d['studyInvestigations'] = inv
     except AttributeError:   # ref. ICAT issue 130
         d['studyInvestigations'] = []
     return d
@@ -178,13 +180,15 @@ def datacollectiondict(e):
     """Convert a data collection to a dict."""
     d = entityparamdict(e)
     try:
-        d['dataCollectionDatasets'] = [ keyindex[i.dataset.id] 
-                                        for i in e.dataCollectionDatasets ]
+        ds = [ i.dataset.getUniqueKey(keyindex=keyindex) 
+               for i in e.dataCollectionDatasets ]
+        d['dataCollectionDatasets'] = ds
     except AttributeError:   # ref. ICAT issue 130
         d['dataCollectionDatasets'] = []
     try:
-        d['dataCollectionDatafiles'] = [ keyindex[i.datafile.id] 
-                                         for i in e.dataCollectionDatafiles ]
+        df = [ i.datafile.getUniqueKey(keyindex=keyindex) 
+               for i in e.dataCollectionDatafiles ]
+        d['dataCollectionDatafiles'] = df
     except AttributeError:   # ref. ICAT issue 130
         d['dataCollectionDatafiles'] = []
     return d
