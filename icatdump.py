@@ -18,8 +18,9 @@
 #  + The data in the ICAT server must not be modified while this
 #    script is retrieving it.  Otherwise the script may fail or the
 #    dumpfile be inconsistent.  There is not too much that can be done
-#    about this.  A database dump is a snapshot after all.  If the
-#    subject moves too fast, the picture will be blurred.
+#    about this.  A database dump is a snapshot after all.  The
+#    picture will be blurred if the subject is moving while we take
+#    it.
 #
 
 import sys
@@ -196,7 +197,7 @@ def getobjs(name, convert, searchexp, reindex):
     if reindex:
         ds = {}
         keys = d.keys()
-        keys.sort()
+        keys.sort(key = lambda k: [d[k][a] for a in reindex]+[k])
         i = 0
         for k in keys:
             i += 1
@@ -223,14 +224,6 @@ def getobjs(name, convert, searchexp, reindex):
 #  4. One last chunk with all remaining stuff (RelatedDatafile,
 #     DataCollection, Job).
 
-# Entities without a constraint will use their id to form the unique
-# key as a last resort.  But we want the keys to have a well defined
-# order, independent from the id.  Enforce this by artificially adding
-# some suitable attribute values to the constraint.
-client.typemap['job'].Constraint = ('application', 'id')
-client.typemap['rule'].Constraint = ('grouping', 'what', 'id')
-client.typemap['study'].Constraint = ('name', 'id')
-
 # Compatibility ICAT 4.3.0 vs. ICAT 4.3.1 and later: name of the
 # parameters relation in DataCollection.
 if client.apiversion < '4.3.1':
@@ -240,7 +233,8 @@ else:
 
 authtypes = [('User', entitydict, "User", False), 
              ('Group', groupdict, "Grouping INCLUDE UserGroup, User", False),
-             ('Rule', entitydict, "Rule INCLUDE Grouping", True),
+             ('Rule', entitydict, "Rule INCLUDE Grouping", 
+              ['grouping', 'what']),
              ('PublicStep', entitydict, "PublicStep", False)]
 statictypes = [('Facility', entitydict, "Facility", False),
                ('Instrument', instrumentdict, 
@@ -278,7 +272,7 @@ investtypes = [('Investigation', investigationdict,
                 "AND i.visitId = '%s' "
                 "INCLUDE o.user, "
                 "o.studyInvestigations AS si, si.investigation", 
-                True),
+                ['name']),
                ('Sample', entityparamdict, 
                 "SELECT o FROM Sample o "
                 "JOIN o.investigation i "
@@ -316,7 +310,7 @@ othertypes = [('RelatedDatafile', entitydict,
               ('Job', entitydict, 
                "SELECT o FROM Job o INCLUDE o.application, "
                "o.inputDataCollection, o.outputDataCollection", 
-               True)]
+               ['application', 'arguments'])]
 
 date = datetime.datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S +0000")
 print """%%YAML 1.1
