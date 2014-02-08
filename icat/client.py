@@ -535,6 +535,9 @@ class Client(suds.client.Client):
         keys to Entity objects.  The newly object retrieved by this
         method call will be added to this index.
 
+        This method uses the JPQL inspired query syntax introduced
+        with ICAT 4.3.0.  It won't work with older ICAT servers.
+
         :param key: the unique key of the object to search for.
         :type key: ``str``
         :param objindex: cache of Entity objects.
@@ -543,8 +546,12 @@ class Client(suds.client.Client):
         :rtype: ``Entity``
         :raise SearchResultError: if the object have not been found.
         :raise ValueError: if the key is not well formed.
+        :raise VersionMethodError: if connected to an ICAT server
+            older then 4.3.0.
         """
 
+        if self.apiversion < '4.3':
+            raise VersionMethodError("searchUniqueKey", self.apiversion)
         if objindex is not None and key in objindex:
             return objindex[key]
         us = key.index('_')
