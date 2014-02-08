@@ -11,9 +11,9 @@ __all__ = [
     'ICATPrivilegesError', 'ICATNoObjectError', 'ICATObjectExistsError', 
     'ICATSessionError', 'ICATValidationError', 
     'translateError', 
-    # icat.client
+    # icat.client, icat.entity
     'ClientVersionWarning', 'VersionMethodError', 'SearchResultError', 
-    'SearchAssertionError', 
+    'SearchAssertionError', 'DataConsistencyError', 
     # icat.config
     'ConfigError', 
     # icat.icatcheck
@@ -110,7 +110,7 @@ def translateError(error):
         raise TypeError("Invalid argument type '%s'." % type(error))
 
 
-# ================ Exceptions raised in icat.client ================
+# ======== Exceptions raised in icat.client and icat.entity ========
 
 class ClientVersionWarning(Warning):
     """Warn that the version of the ICAT server is not supported by
@@ -173,13 +173,15 @@ class SearchAssertionError(SearchResultError):
         self.assertmax = assertmax
         self.num = num
 
+class DataConsistencyError(Exception):
+    """Some data is not consistent with rules or constraints."""
+    pass
 
 # ================ Exceptions raised in icat.config ================
 
 class ConfigError(Exception):
     """Error getting configuration options."""
     pass
-
 
 # ============== Exceptions raised in icat.icatcheck ===============
 

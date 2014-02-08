@@ -4,7 +4,7 @@
 import re
 import suds.sudsobject
 from icat.listproxy import ListProxy
-from icat.exception import InternalError
+from icat.exception import InternalError, DataConsistencyError
 from icat.helper import simpleqp_quote
 
 class Entity(object):
@@ -135,11 +135,17 @@ class Entity(object):
         entities in the ICAT.  All attributes that form the uniqueness
         constraint must be set.  A ``search`` or ``get`` with the
         appropriate INCLUDE statement may be required before calling
-        this method.
+        this method.  Note that this may be a problem with ICAT
+        versions older then 4.3.0, because in these versions, the
+        schema did allow constraint attributes and relations to be
+        NULL in some cases.  That means, it may happen that this
+        method fails to create a unique key when connected to an old
+        server.
 
         If autoget is ``True`` the method will call ``get`` with the
-        appropriate arguments.  Note that this may discard information
-        on other relations currently present in the entity object.
+        appropriate arguments to fill the relations needed for the
+        constraint.  Note that this may discard information on other
+        relations currently present in the entity object.
 
         if keyindex is not ``None``, it is used as a cache of
         previously generated keys.  It must be a dict that maps entity
@@ -154,6 +160,8 @@ class Entity(object):
         :type keyindex: ``dict``
         :return: a unique key.
         :rtype: ``str``
+        :raise DataConsistencyError: if a relation required in a
+            constraint is not set.
         """
 
         if autoget:
@@ -180,7 +188,9 @@ class Entity(object):
                         ek = e.getUniqueKey(autoget, keyindex)
                     key += "%s-(%s)" % (c, re.sub(r'^[A-Z-a-z]+_', '', ek))
                 else:
-                    key += "%s-%s" % (c, None)
+                    raise DataConsistencyError("Required relation '%s' "
+                                               "not present in %s"
+                                               % (c, self.BeanName))
             else:
                 raise InternalError("Invalid constraint '%s' in %s."
                                     % (c, self.BeanName))
