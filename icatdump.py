@@ -194,7 +194,14 @@ def getobjs(name, convert, searchexp, reindex):
     for e in client.search(searchexp):
         k = e.getUniqueKey(autoget=False, keyindex=keyindex)
         d[k] = convert(e)
+
+    # Entities without a constraint will use their id to form the
+    # unique key as a last resort.  But we want the keys to have a
+    # well defined order, independent from the id.  For the concerned
+    # entities, reindex is set to the list of attributes that shall
+    # dertermine the sort order.
     if reindex:
+        idindex = { i:k for k,i in keyindex.iteritems() }
         ds = {}
         keys = d.keys()
         keys.sort(key = lambda k: [d[k][a] for a in reindex]+[k])
@@ -203,6 +210,7 @@ def getobjs(name, convert, searchexp, reindex):
             i += 1
             n = "%s_%08d" % (name, i)
             ds[n] = d[k]
+            keyindex[idindex[k]] = n
         d = ds
     return d
 
@@ -306,7 +314,7 @@ othertypes = [('RelatedDatafile', entitydict,
                "INCLUDE o.dataCollectionDatasets AS ds, ds.dataset, "
                "o.dataCollectionDatafiles AS df, df.datafile, "
                "o.%s AS op, op.type" % datacolparamname, 
-               False),
+               ['dataCollectionDatasets', 'dataCollectionDatafiles']),
               ('Job', entitydict, 
                "SELECT o FROM Job o INCLUDE o.application, "
                "o.inputDataCollection, o.outputDataCollection", 
