@@ -10,13 +10,14 @@
 # Known issues and limitations:
 #  + It is assumed that the dump file contains appropriate rules that
 #    gives the ICAT root user CRUD permission on all entity types.
+#    These rules and corresponding user and group objects must be in
+#    the first chunk (see below) of the file.
+#  + This script requires ICAT 4.3.0 or newer.
 #  + A dump and restore of an ICAT will not preserve the attributes
 #    id, createId, createTime, modId, and modTime of any objects.
 #    This is by design and cannot be fixed.  As a consequence, access
 #    rules that are based on object ids will not work after a restore.
 #    The Log will also not be restored.
-#  + Version dependency.  This script currently works for ICAT 4.3.*
-#    only.
 #  + Restoring of several entity types has not yet been
 #    tested.  See icatdump.py for a list.
 #

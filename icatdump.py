@@ -7,8 +7,7 @@
 #  + the attributes id, createId, createTime, modId, and modTime.
 #
 # Known issues and limitations:
-#  + Version dependency.  This script currently works for ICAT 4.3.*
-#    only.
+#  + This script requires ICAT 4.3.0 or newer.
 #  + The serialization of the following entity types has not yet been
 #    tested: Application, DataCollection, DataCollectionDatafile,
 #    DataCollectionDataset, DataCollectionParameter,
@@ -16,6 +15,11 @@
 #    InvestigationParameter, Job, ParameterType,
 #    PermissibleStringValue, PublicStep, Publication, RelatedDatafile,
 #    SampleParameter, Shift, Study, StudyInvestigation.
+#  + The data in the ICAT server must not be modified while this
+#    script is retrieving it.  Otherwise the script may fail or the
+#    dumpfile be inconsistent.  There is not too much that can be done
+#    about this.  A database dump is a snapshot after all.  If the
+#    subject moves too fast, the picture will be blurred.
 #
 
 import sys
@@ -200,6 +204,24 @@ def getobjs(name, convert, searchexp, reindex):
             ds[n] = d[k]
         d = ds
     return d
+
+# We write the data in chunks (or documents in YAML terminology).
+# This way we can avoid having the whole file, e.g. the complete
+# inventory of the ICAT, at once in memory.  We want to keep these
+# chunks small enough, but at the same time keep as many relations
+# between objects as possible local in a chunk.  See the comment in
+# icatrestore for an explanation why this is needed.  The partition
+# used here is the following:
+#  1. One chunk with all objects that define authorization (User,
+#     Group, Rule, PublicStep).
+#  2. All static content in one chunk, e.g. all objects not related to
+#     individual investigations and that need to be present, before we
+#     can add investigations.
+#  3. The investigation data.  All content related to individual
+#     investigations.  Each investigation with all its data in one
+#     single chunk on its own.
+#  4. One last chunk with all remaining stuff (RelatedDatafile,
+#     DataCollection, Job).
 
 # Entities without a constraint will use their id to form the unique
 # key as a last resort.  But we want the keys to have a well defined
