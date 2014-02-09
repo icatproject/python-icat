@@ -7,7 +7,6 @@ from warnings import warn
 import logging
 from distutils.version import StrictVersion as Version
 import atexit
-import shutil
 
 import suds
 import suds.client
@@ -190,27 +189,15 @@ class Client(suds.client.Client):
         self.cleanup()
 
     def cleanup(self):
-
         """Release resources allocated by the client.
 
         Logout from the active ICAT session (if ``self.autoLogout`` is
-        True) and delete the temporary cache directory.  The client
-        should not be used any more after calling this method.
+        True).  The client should not be used any more after calling
+        this method.
         """
-
         if id(self) in self.Register:
             if self.autoLogout:
                 self.logout()
-
-            # Try our best to clean the temporary cache dir, but don't
-            # bother trying to recover from any errors doing so, just
-            # ignore any exceptions.
-            try:
-                if self.options.cache.location:
-                    shutil.rmtree(self.options.cache.location)
-            except:
-                pass
-
             del self.Register[id(self)]
 
 
