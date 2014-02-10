@@ -8,6 +8,7 @@ useful for the package maintainer.
 import re
 import logging
 from icat.entity import Entity
+import icat.exception
 from icat.exception import *
 
 __all__ = ['ICATChecker']
@@ -186,7 +187,7 @@ class ICATChecker(object):
 
     def gettypes(self):
         """Return a list of the types defined in the WSDL."""
-        return map(lambda t: str(self.sd.xlate(t[0])), self.sd.types)
+        return [str(self.sd.xlate(t[0])) for t in self.sd.types]
 
     def getentities(self):
         """Search for entities defined at the server.
@@ -222,6 +223,8 @@ class ICATChecker(object):
 
         nwarn = 0
 
+        # Check that the set of entity types is the same as in the
+        # schema.
         schemanames = set(self.schema.keys())
         clientnames = set(self.client.typemap.keys())
         missing = schemanames - clientnames
@@ -233,9 +236,25 @@ class ICATChecker(object):
             log.warning("spurious entities: %s", list(spurious))
             nwarn += 1
 
+        # For each entity type, check that its definition is
+        # consistent with the schema.
         for n in schemanames & clientnames:
             log.debug("checking entity type %s ...", n)
             nwarn += self.schema[n].check(self.client.typemap[n])
+
+        # Check that the ICAT exception types correspond to the
+        # icatExceptionType as defined in the schema.
+        icatExceptionType = self.client.factory.create('icatExceptionType')
+        schemaexceptions = set(icatExceptionType.__keylist__)
+        clientexceptions = set(icat.exception.IcatExceptionTypeMap.keys())
+        missing = schemaexceptions - clientexceptions
+        if missing:
+            log.warning("missing exception types: %s", list(missing))
+            nwarn += 1
+        spurious = clientexceptions - schemaexceptions
+        if spurious:
+            log.warning("spurious exception types: %s", list(spurious))
+            nwarn += 1
 
         return nwarn
 
