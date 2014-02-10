@@ -1,7 +1,7 @@
 #! /usr/bin/python
 #
 # Search the ICAT for all entity types and report the number of
-# entrities found for each type.
+# objects found for each type.
 #
 
 import icat
