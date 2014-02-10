@@ -3,8 +3,56 @@
 **Note**: This module is intended for the internal use in python-icat
 and is not considered to be part of the API.  No effort will be made
 to keep anything in here compatible between different versions.
+
+>>> name = 'rbeck'
+>>> qps = simpleqp_quote(name)
+>>> qps
+'rbeck'
+>>> s = simpleqp_unquote(qps)
+>>> s
+u'rbeck'
+>>> name == s
+True
+>>> fullName = u'Rudolph Beck-D\\xfclmen'
+>>> qps = simpleqp_quote(fullName)
+>>> qps
+'Rudolph=20Beck=2DD=C3=BClmen'
+>>> s = simpleqp_unquote(qps)
+>>> s
+u'Rudolph Beck-D\\xfclmen'
+>>> fullName == s
+True
+>>> parse_attr_val("name-jdoe")
+{'name': 'jdoe'}
+>>> facilityname = 'ESNF'
+>>> facilitykey = "%s-%s" % ("name", simpleqp_quote(facilityname))
+>>> name = 'Nickel(II) oxide SC'
+>>> molecularFormula = 'NiO'
+>>> stkey = "_".join(["%s-(%s)" % ("facility", facilitykey), "%s-%s" % ("name", simpleqp_quote(name)), "%s-%s" % ("molecularFormula", simpleqp_quote(molecularFormula))])
+>>> stkey
+'facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO'
+>>> parse_attr_val(stkey)
+{'molecularFormula': 'NiO', 'name': 'Nickel=28II=29=20oxide=20SC', 'facility': 'name-ESNF'}
+>>> invname = "2012-EDDI-0390-1"
+>>> visitid = "1"
+>>> invkey = "_".join(["%s-(%s)" % ("facility", facilitykey), "%s-%s" % ("name", simpleqp_quote(invname)), "%s-%s" % ("visitId", simpleqp_quote(visitid))])
+>>> dsname = "e208945"
+>>> dskey = "_".join(["%s-(%s)" % ("investigation", invkey), "%s-%s" % ("name", simpleqp_quote(dsname))])
+>>> dfname = "e208945.dat"
+>>> dfkey = "_".join(["%s-(%s)" % ("dataset", dskey), "%s-%s" % ("name", simpleqp_quote(dfname))])
+>>> dfkey
+'dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2Edat'
+>>> df = parse_attr_val(dfkey)
+>>> df['dataset']
+'investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945'
+>>> ds = parse_attr_val(df['dataset'])
+>>> ds
+{'investigation': 'facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1', 'name': 'e208945'}
+>>> ds['investigation'] == invkey
+True
 """
 
+import sys
 import doctest
 
 def simpleqp_quote(obj):
@@ -12,18 +60,22 @@ def simpleqp_quote(obj):
     esc = '='
     hex = '0123456789ABCDEF'
     asc = ('0123456789''ABCDEFGHIJKLMNOPQRSTUVWXYZ''abcdefghijklmnopqrstuvwxyz')
-    try:
-        s = str(obj)
-    except UnicodeError:
-        s = obj.encode('utf-8')
+    s = obj.encode('utf-8')
     out = []
-    for c in s:
+    for ch in s:
+        # under Python 2 ch is a character (e.g. a string of length 1),
+        # under Python 3 ch is an int.
+        if isinstance(ch, int):
+            i = ch
+            c = chr(ch)
+        else:
+            i = ord(ch)
+            c = ch
         if c in asc:
             out.append(c)
         else:
-            i = ord(c)
             out.append(esc + hex[i//16] + hex[i%16])
-    return str(''.join(out))
+    return ''.join(out)
 
 def simpleqp_unquote(qs):
     """Simple unquote from quoted-printable style."""
@@ -44,10 +96,17 @@ def simpleqp_unquote(qs):
                 raise ValueError("Invalid quoted string '%s'" % qs)
             vh = hex.index(hh)
             vl = hex.index(hl)
-            out.append(chr(16*vh+vl))
+            out.append(16*vh+vl)
         else:
-            out.append(c)
-    return str(''.join(out)).decode('utf-8')
+            out.append(ord(c))
+
+    # We got out as an int array.  Get an encoded string (e.g. str
+    # under Python 2 and byte under Python 3) from it.
+    if sys.version_info < (3, 0):
+        s = ''.join([chr(i) for i in out])
+    else:
+        s = bytes(out)
+    return s.decode('utf-8')
 
 def parse_attr_val(avs):
     """Parse an attribute value list string.
@@ -70,16 +129,6 @@ def parse_attr_val(avs):
     It might be easier to implement this using pyparsing, but this
     module is not in the standard library and I don't want to depend
     on external packages for this.
-
-    >>> parse_attr_val("name-jdoe")
-    {'name': 'jdoe'}
-    >>> parse_attr_val("facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO")
-    {'molecularFormula': 'NiO', 'name': 'Nickel=28II=29=20oxide=20SC', 'facility': 'name-ESNF'}
-    >>> d = parse_attr_val("dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2Edat")
-    >>> d['dataset']
-    'investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945'
-    >>> parse_attr_val(d['dataset'])
-    {'investigation': 'facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1', 'name': 'e208945'}
     """
 
     res = {}
