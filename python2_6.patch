@@ -1,8 +1,8 @@
 Index: icat/icatcheck.py
 ===================================================================
---- icat/icatcheck.py	(revision 198)
+--- icat/icatcheck.py	(revision 254)
 +++ icat/icatcheck.py	(working copy)
-@@ -242,7 +242,7 @@
+@@ -261,7 +261,7 @@
      def _genealogy(self, rules):
          """Set up the genealogy of entity types."""
  
@@ -11,7 +11,7 @@ Index: icat/icatcheck.py
          for t in tree:
              log.debug("checking ancestors of %s ...", t)
              for r in rules:
-@@ -309,7 +309,7 @@
+@@ -328,7 +328,7 @@
          except GenealogyError as e:
              log.error("%s Dropping class genealogy in Python output.", 
                        e.args[0])
@@ -20,6 +20,19 @@ Index: icat/icatcheck.py
          else:
              base = [t for t in tree if tree[t]['base'] is None][0]
              self.schema[base].classname = baseclassname
+Index: doc/examples/icatdump.py
+===================================================================
+--- doc/examples/icatdump.py	(revision 254)
++++ doc/examples/icatdump.py	(working copy)
+@@ -205,7 +205,7 @@
+     # entities, reindex is set to the list of attributes that shall
+     # dertermine the sort order.
+     if reindex:
+-        idindex = { i:k for k,i in keyindex.iteritems() }
++        idindex = dict([ (i,k) for k,i in keyindex.iteritems() ])
+         ds = {}
+         keys = d.keys()
+         keys.sort(key = lambda k: [d[k][a] for a in reindex]+[k])
 Index: doc/examples/ldapsync.py
 ===================================================================
 --- doc/examples/ldapsync.py	(revision 206)

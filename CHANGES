@@ -1,6 +1,46 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.4.0 (2014-02-10)
+
+ + Add support for the jurko fork of Suds [1] and for Python 3.
+
+ + Add a new method Client.searchUniqueKey().
+
+ + Add an optional argument keyindex to method Entity.getUniqueKey()
+   that is used as a cache of previously generated keys.  Remove the
+   argument addbean.  addbean had been documented as for internal use
+   only, so this is not considered an incompatible change.
+
+ + Add a new exception class DataConsistencyError.  Raise
+   DataConsistencyError in Entity.getUniqueKey() if a relation that is
+   required in a constraint is not set.
+
+ + Rename SearchResultError to SearchAssertionError.
+   SearchResultError was a misnomer here, as this exception class is
+   very specific to Client.assertedSearch().  Add a new generic
+   exception class SearchResultError and derive SearchAssertionError
+   from it.  This way, the change should not create any compatibility
+   problems in client programs.
+
+ + Add a check in icatcheck that the ICATErrors as defined in
+   icat.exceptions are in sync with icatExceptionType as defined in
+   the schema.
+
+ + Bugfix: The code dealing with exceptions raised by the ICAT server
+   did require all attributes in IcatException sent by the server to
+   be set, although some of these attributes are marked as optional in
+   the schema.
+
+ + Do not delete the Suds cache directory in Client.cleanup().  
+
+ + Installation: python-icat requires Python 2.6 or newer.  Raise an
+   error if setup.py is run by a too old Python version.
+
+ + Move some internal routines in a separate module icat.helper.
+
+ + Greatly improved example scripts icatdump.py and icatrestore.py.
+
 * Version 0.3.0 (2014-01-10)
 
  + Add support for ICAT 4.3.1.  (Compatibility with ICAT 4.3.2 has
@@ -81,6 +121,11 @@
 * Version 0.1.0 (2013-11-01)
 
  + Initial version
+
+* References
+
+[1] https://bitbucket.org/jurko/suds/
+
 
 # Local Variables:
 # mode: org
