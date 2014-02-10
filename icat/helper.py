@@ -34,7 +34,7 @@ True
 >>> parse_attr_val(stkey)
 {'molecularFormula': 'NiO', 'name': 'Nickel=28II=29=20oxide=20SC', 'facility': 'name-ESNF'}
 >>> invname = "2012-EDDI-0390-1"
->>> visitid = "1"
+>>> visitid = 1
 >>> invkey = "_".join(["%s-(%s)" % ("facility", facilitykey), "%s-%s" % ("name", simpleqp_quote(invname)), "%s-%s" % ("visitId", simpleqp_quote(visitid))])
 >>> dsname = "e208945"
 >>> dskey = "_".join(["%s-(%s)" % ("investigation", invkey), "%s-%s" % ("name", simpleqp_quote(dsname))])
@@ -60,6 +60,8 @@ def simpleqp_quote(obj):
     esc = '='
     hex = '0123456789ABCDEF'
     asc = ('0123456789''ABCDEFGHIJKLMNOPQRSTUVWXYZ''abcdefghijklmnopqrstuvwxyz')
+    if not isinstance(obj, basestring):
+        obj = str(obj)
     s = obj.encode('utf-8')
     out = []
     for ch in s:
