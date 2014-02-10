@@ -208,7 +208,8 @@ def getobjs(name, convert, searchexp, reindex):
         idindex = { i:k for k,i in keyindex.iteritems() }
         ds = {}
         keys = d.keys()
-        keys.sort(key = lambda k: [d[k][a] for a in reindex]+[k])
+        keys.sort(key = lambda k: [ d[k][a] if d[k][a] is not None else '\x00' 
+                                    for a in reindex ]+[k] )
         i = 0
         for k in keys:
             i += 1
