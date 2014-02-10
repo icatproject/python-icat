@@ -1,8 +1,12 @@
 #! /usr/bin/python
 
 import sys
-from setuptools import setup
-from warnings import warn
+from distutils.core import setup
+try:
+    from distutils.command.build_py import build_py_2to3 as build_py
+except ImportError:
+    # Python 2.x
+    from distutils.command.build_py import build_py
 import icat
 import re
 
@@ -18,10 +22,6 @@ AUTHOR           = icat.__author__
 URL              = "http://code.google.com/p/icatproject/wiki/PythonIcat"
 m = re.match(r"^(.*?)\s*<(.*)>$", AUTHOR)
 (AUTHOR_NAME, AUTHOR_EMAIL) = m.groups() if m else (AUTHOR, None)
-
-extra_setup_params = {}
-if sys.version_info >= (3, 0):
-    extra_setup_params["use_2to3"] = True
 
 setup(
     name = "python-icat",
@@ -50,6 +50,6 @@ setup(
         "Operating System :: OS Independent",
         "Topic :: Software Development :: Libraries :: Python Modules",
         ],
-    **extra_setup_params
+    cmdclass = {'build_py': build_py},
 )
 
