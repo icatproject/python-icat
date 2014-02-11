@@ -8,7 +8,7 @@ EXAMPLE_FILES     = getversion.py login.py init-icat.py			\
 		    create-investigation.py create-sampletype.py	\
 		    add-investigation-data.py ldapsync.py		\
 		    create-parametertypes.py check.py icatdump.py	\
-		    icatrestore.py icatsummary.py
+		    icatrestore.py icatsummary.py wipeicat.py
 EXAMPLE_CGI_DIR   = $(EXAMPLE_DIR)/cgi
 EXAMPLE_CGI_FILES = cgi/login.py cgi/logout.py cgi/session-status.py	\
 		    cgi/instruments.py cgi/setcookie.py
