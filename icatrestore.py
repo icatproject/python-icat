@@ -32,7 +32,6 @@ logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 log = logging.getLogger(__name__)
 
-icat.config.defaultsection = "hzb"
 config = icat.config.Config()
 conf = config.getconfig()
 

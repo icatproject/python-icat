@@ -15,7 +15,6 @@ import re
 
 logging.basicConfig(level=logging.INFO)
 
-icat.config.defaultsection = "hzb"
 config = icat.config.Config()
 config.add_variable('ldap_uri', ("-l", "--ldap-uri"), 
                     dict(help="URL of the LDAP server"),

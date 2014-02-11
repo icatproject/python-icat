@@ -10,7 +10,6 @@ logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 #logging.getLogger('icat.icatcheck').setLevel(logging.DEBUG)
 
-icat.config.defaultsection = "hzb"
 config = icat.config.Config(needlogin=False)
 config.add_variable('test', ("-t", "--test"), 
                     dict(help="test consistency of the ICAT client with the server", 

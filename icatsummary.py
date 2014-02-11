@@ -11,7 +11,6 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.CRITICAL)
 
-icat.config.defaultsection = "hzb"
 conf = icat.config.Config().getconfig()
 
 client = icat.Client(conf.url, **conf.client_kwargs)

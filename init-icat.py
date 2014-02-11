@@ -20,7 +20,6 @@ import yaml
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
-icat.config.defaultsection = "hzb"
 config = icat.config.Config()
 config.add_variable('datafile', ("datafile",), 
                     dict(metavar="inputdata.yaml", 
