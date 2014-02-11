@@ -13,9 +13,10 @@ System Requirements
    Python 2.6 will do but requires patching the sources, see below.
    Python 2.5 is too old and will not work.
 
- + Suds, either the original version[2] or the jurko fork[3].
-   The latter is recommended as the original version is not maintained
-   any more and contains bugs.  Python 3 requires the jurko fork.
+ + Suds, either the original version[2] or the fork by Jurko
+   Gospodnetić[3].  The latter is recommended as the original version
+   is not maintained any more and contains bugs.  Python 3 requires
+   the jurko fork.
 
  + PyYAML[4]
    Only needed to run the example scripts.  Not required to install or
