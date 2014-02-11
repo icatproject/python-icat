@@ -22,9 +22,9 @@ Index: icat/icatcheck.py
              self.schema[base].classname = baseclassname
 Index: doc/examples/icatdump.py
 ===================================================================
---- doc/examples/icatdump.py	(revision 259)
+--- doc/examples/icatdump.py	(revision 263)
 +++ doc/examples/icatdump.py	(working copy)
-@@ -205,7 +205,7 @@
+@@ -204,7 +204,7 @@
      # entities, reindex is set to the list of attributes that shall
      # dertermine the sort order.
      if reindex:
@@ -35,9 +35,9 @@ Index: doc/examples/icatdump.py
          keys.sort(key = lambda k: [ d[k][a] if d[k][a] is not None else '\x00' 
 Index: doc/examples/ldapsync.py
 ===================================================================
---- doc/examples/ldapsync.py	(revision 206)
+--- doc/examples/ldapsync.py	(revision 263)
 +++ doc/examples/ldapsync.py	(working copy)
-@@ -32,7 +32,7 @@
+@@ -31,7 +31,7 @@
  client = icat.Client(conf.url, **conf.client_kwargs)
  client.login(conf.auth, conf.credentials)
  
