@@ -28,18 +28,25 @@ True
 >>> facilitykey = "%s-%s" % ("name", simpleqp_quote(facilityname))
 >>> name = 'Nickel(II) oxide SC'
 >>> molecularFormula = 'NiO'
->>> stkey = "_".join(["%s-(%s)" % ("facility", facilitykey), "%s-%s" % ("name", simpleqp_quote(name)), "%s-%s" % ("molecularFormula", simpleqp_quote(molecularFormula))])
+>>> stkey = "_".join(["%s-(%s)" % ("facility", facilitykey), 
+...                   "%s-%s" % ("name", simpleqp_quote(name)), 
+...                   "%s-%s" % ("molecularFormula", 
+...                              simpleqp_quote(molecularFormula))])
 >>> stkey
 'facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO'
 >>> parse_attr_val(stkey)
 {'molecularFormula': 'NiO', 'name': 'Nickel=28II=29=20oxide=20SC', 'facility': 'name-ESNF'}
 >>> invname = "2012-EDDI-0390-1"
 >>> visitid = 1
->>> invkey = "_".join(["%s-(%s)" % ("facility", facilitykey), "%s-%s" % ("name", simpleqp_quote(invname)), "%s-%s" % ("visitId", simpleqp_quote(visitid))])
+>>> invkey = "_".join(["%s-(%s)" % ("facility", facilitykey), 
+...                    "%s-%s" % ("name", simpleqp_quote(invname)), 
+...                    "%s-%s" % ("visitId", simpleqp_quote(visitid))])
 >>> dsname = "e208945"
->>> dskey = "_".join(["%s-(%s)" % ("investigation", invkey), "%s-%s" % ("name", simpleqp_quote(dsname))])
+>>> dskey = "_".join(["%s-(%s)" % ("investigation", invkey), 
+...                   "%s-%s" % ("name", simpleqp_quote(dsname))])
 >>> dfname = "e208945.dat"
->>> dfkey = "_".join(["%s-(%s)" % ("dataset", dskey), "%s-%s" % ("name", simpleqp_quote(dfname))])
+>>> dfkey = "_".join(["%s-(%s)" % ("dataset", dskey), 
+...                   "%s-%s" % ("name", simpleqp_quote(dfname))])
 >>> dfkey
 'dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2Edat'
 >>> df = parse_attr_val(dfkey)
