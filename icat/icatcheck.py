@@ -15,9 +15,6 @@ __all__ = ['ICATChecker']
 
 log = logging.getLogger(__name__)
 
-# FIXME: check also that icat.exception.IcatExceptionTypeMap is in
-# sync with the "IcatException" as defined in the WSDL.
-
 
 class EntityInfo(object):
     """Provide informations on an entity defined in the server."""
