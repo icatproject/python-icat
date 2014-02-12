@@ -134,11 +134,11 @@ def parse_attr_val(avs):
     Return a dict with the attributes as keys.  In the case of an
     attrvaluestring in parenthesis, this string is set as value in the
     dict with any further processing.
-
-    It might be easier to implement this using pyparsing, but this
-    module is not in the standard library and I don't want to depend
-    on external packages for this.
     """
+
+    # It might be easier to implement this using pyparsing, but this
+    # module is not in the standard library and I don't want to depend
+    # on external packages for this.
 
     res = {}
     while len(avs) > 0:
