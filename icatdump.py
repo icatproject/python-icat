@@ -85,7 +85,7 @@ def entitydict(e):
 def entityparamdict(e):
     """Convert an entity including its parameters to a dict."""
     d = entitydict(e)
-    d['parameters'] = []
+    params = []
     try:
         parameters = e.parameters
     except AttributeError:   # ref. ICAT issue 130
@@ -94,27 +94,33 @@ def entityparamdict(e):
         for i in parameters:
             p = entityattrdict(i)
             p['type'] = i.type.getUniqueKey(keyindex=keyindex)
-            d['parameters'].append(p)
+            params.append(p)
+        params.sort(key = lambda p:p['type'])
+    d['parameters'] = params
     return d
 
 def groupdict(e):
     """Convert a group including its users to a dict."""
     d = entitydict(e)
     try:
-        d['users'] = [ ug.user.getUniqueKey(keyindex=keyindex) 
-                       for ug in e.userGroups ]
+        users = [ ug.user.getUniqueKey(keyindex=keyindex) 
+                  for ug in e.userGroups ]
     except AttributeError:   # ref. ICAT issue 130
-        d['users'] = []
+        users = []
+    users.sort()
+    d['users'] = users
     return d
 
 def instrumentdict(e):
     """Convert an instrument including its instrument scientists to a dict."""
     d = entitydict(e)
     try:
-        d['instrumentScientists'] = [ uis.user.getUniqueKey(keyindex=keyindex) 
-                                      for uis in e.instrumentScientists ]
+        users = [ uis.user.getUniqueKey(keyindex=keyindex) 
+                  for uis in e.instrumentScientists ]
     except AttributeError:   # ref. ICAT issue 130
-        d['instrumentScientists'] = []
+        users = []
+    users.sort()
+    d['instrumentScientists'] = users
     return d
 
 def parametertypedict(e):
@@ -122,10 +128,11 @@ def parametertypedict(e):
     values to a dict."""
     d = entitydict(e)
     try:
-        d['permissibleStringValues'] = [entityattrdict(i) 
-                                        for i in e.permissibleStringValues]
+        strvals = [ entityattrdict(i) for i in e.permissibleStringValues ]
     except AttributeError:   # ref. ICAT issue 130
-        d['permissibleStringValues'] = []
+        strvals = []
+    strvals.sort()
+    d['permissibleStringValues'] = strvals
     return d
 
 def investigationdict(e):
@@ -134,22 +141,30 @@ def investigationdict(e):
     dict."""
     d = entityparamdict(e)
     try:
-        d['instruments'] = [ i.instrument.getUniqueKey(keyindex=keyindex) 
-                             for i in e.investigationInstruments ]
+        instruments = [ i.instrument.getUniqueKey(keyindex=keyindex) 
+                        for i in e.investigationInstruments ]
     except AttributeError:   # ref. ICAT issue 130
-        d['instruments'] = []
+        instruments = []
+    instruments.sort()
+    d['instruments'] = instruments
     try:
-        d['shifts'] = [entityattrdict(i) for i in e.shifts]
+        shifts = [ entityattrdict(i) for i in e.shifts ]
     except AttributeError:   # ref. ICAT issue 130
-        d['shifts'] = []
+        shifts = []
+    shifts.sort( key = lambda s: (s['startDate'],s['endDate']) )
+    d['shifts'] = shifts
     try:
-        d['keywords'] = [entityattrdict(i) for i in e.keywords]
+        keywords = [ entityattrdict(i) for i in e.keywords ]
     except AttributeError:   # ref. ICAT issue 130
-        d['keywords'] = []
+        keywords = []
+    keywords.sort( key = lambda k:k['name'] )
+    d['keywords'] = keywords
     try:
-        d['publications'] = [entityattrdict(i) for i in e.publications]
+        publications = [ entityattrdict(i) for i in e.publications ]
     except AttributeError:   # ref. ICAT issue 130
-        d['publications'] = []
+        publications = []
+    publications.sort( key = lambda p:p['fullReference'] )
+    d['publications'] = publications
 
     d['investigationUsers'] = []
     try:
@@ -157,10 +172,13 @@ def investigationdict(e):
     except AttributeError:   # ref. ICAT issue 130
         pass
     else:
+        invusers = []
         for i in investigationUsers:
             u = entityattrdict(i)
             u['user'] = i.user.getUniqueKey(keyindex=keyindex)
-            d['investigationUsers'].append(u)
+            invusers.append(u)
+        invusers.sort( key = lambda u:u['user'] )
+        d['investigationUsers'] = invusers
 
     return d
 
@@ -168,28 +186,31 @@ def studydict(e):
     """Convert a study to a dict."""
     d = entitydict(e)
     try:
-        inv = [ si.investigation.getUniqueKey(keyindex=keyindex) 
-                for si in e.studyInvestigations ]
-        d['studyInvestigations'] = inv
+        studyInvest = [ si.investigation.getUniqueKey(keyindex=keyindex) 
+                        for si in e.studyInvestigations ]
     except AttributeError:   # ref. ICAT issue 130
-        d['studyInvestigations'] = []
+        studyInvest = []
+    studyInvest.sort()
+    d['studyInvestigations'] = studyInvest
     return d
 
 def datacollectiondict(e):
     """Convert a data collection to a dict."""
     d = entityparamdict(e)
     try:
-        ds = [ i.dataset.getUniqueKey(keyindex=keyindex) 
-               for i in e.dataCollectionDatasets ]
-        d['dataCollectionDatasets'] = ds
+        datasets = [ i.dataset.getUniqueKey(keyindex=keyindex) 
+                     for i in e.dataCollectionDatasets ]
     except AttributeError:   # ref. ICAT issue 130
-        d['dataCollectionDatasets'] = []
+        datasets = []
+    datasets.sort()
+    d['dataCollectionDatasets'] = datasets
     try:
-        df = [ i.datafile.getUniqueKey(keyindex=keyindex) 
-               for i in e.dataCollectionDatafiles ]
-        d['dataCollectionDatafiles'] = df
+        datafiles = [ i.datafile.getUniqueKey(keyindex=keyindex) 
+                      for i in e.dataCollectionDatafiles ]
     except AttributeError:   # ref. ICAT issue 130
-        d['dataCollectionDatafiles'] = []
+        datafiles = []
+    datafiles.sort()
+    d['dataCollectionDatafiles'] = datafiles
     return d
 
 def getobjs(name, convert, searchexp, reindex):
