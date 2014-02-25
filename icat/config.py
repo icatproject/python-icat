@@ -316,7 +316,7 @@ class Config(object):
             If set, the value for the variable may be set from the
             respective environment variable.
         :type envvar: ``str``
-        :param optional: flag wether the configuration variable as
+        :param optional: flag wether the configuration variable is
             optional.  If set to ``False`` and ``default`` is ``None``
             the variable is mandatory.
         :type optional: ``bool``
