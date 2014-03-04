@@ -73,7 +73,7 @@ else:
 
 # Permit root to read and write everything.  This gives ourselves the
 # permissions to continue this script further on.
-root = client.createUser("root", fullName="Root Account")
+root = client.createUser("root", fullName="Root")
 rootgroup = client.createGroup("root", [ root ])
 client.createRules(rootgroup, "CRUD", alltables)
 
@@ -85,6 +85,14 @@ client.createRules(None, "R", pubtables)
 # Special rule: each user gets the permission to see which groups he
 # is in.
 client.createRules(None, "R", [ "UserGroup <-> User[name=:user]" ])
+
+# Add a sepcial user to be configured as reader in ids.server.  This
+# user needs at least permission to read all datasets, datafiles,
+# investigations and facilities.  But well, then we can make live
+# simple by giving him read all permissions.
+idsreader = client.createUser("idsreader", fullName="IDS reader")
+rallgroup = client.createGroup("rall", [ idsreader ])
+client.createRules(rallgroup, "R", alltables)
 
 # Setup permissions for useroffice.  They need to create
 # Investigations and to setup access permissions for them.  Note that
