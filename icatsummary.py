@@ -26,12 +26,15 @@ print "%-*s   %s" % (entitycolwidth, "Entity", "count")
 print "-" * (entitycolwidth + 3 + 5)
 for entityname in client.getEntityNames():
     try:
-        res = client.search(entityname)
+        res = client.search("SELECT COUNT(e) FROM %s e" % entityname)[0]
     except icat.exception.ICATPrivilegesError:
         # ICAT 4.2.* raises a PrivilegesError if there are entities
         # matching the search but the user has no read permission to
         # any of them.  ICAT 4.3.* returns an empty list.  See ICAT
         # Issue 120.
-        res = []
-    print "%-*s : %d" % (entitycolwidth, entityname, len(res))
+        res = 0
+    except IndexError:
+        # ref. ICAT issue 131
+        res = 0
+    print "%-*s : %d" % (entitycolwidth, entityname, res)
 print
