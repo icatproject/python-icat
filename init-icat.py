@@ -10,6 +10,9 @@
 # This script must be run by the ICAT root user as configured in the
 # rootUserNames property.
 #
+# This script requires the new JPQL style query syntax introduced with
+# ICAT 4.3.0 to setup access rules for investigations.
+#
 
 import icat
 import icat.config
@@ -27,6 +30,9 @@ config.add_variable('datafile', ("datafile",),
 conf = config.getconfig()
 
 client = icat.Client(conf.url, **conf.client_kwargs)
+if client.apiversion < '4.3':
+    raise RuntimeError("Sorry, ICAT version %s is too old, need 4.3.0 or newer."
+                       % client.apiversion)
 client.login(conf.auth, conf.credentials)
 
 
@@ -41,6 +47,7 @@ else:
 data = yaml.load(f)
 f.close()
 
+
 # ------------------------------------------------------------
 # Setup some basic permissions
 # ------------------------------------------------------------
@@ -50,25 +57,16 @@ alltables = client.getEntityNames()
 
 # Public tables that may be read by anybody.  Basically anything thats
 # static and not related to any particular investigation.
-if client.apiversion < '4.3':
-    pubtables = [ "Application", "DatafileFormat", "DatasetType", "Facility", "FacilityCycle", "Instrument", "InstrumentScientist", "InvestigationType", "ParameterType", "PermissibleStringValue", "SampleType", "Group", "User", ]
-else:
-    pubtables = [ "Application", "DatafileFormat", "DatasetType", "Facility", "FacilityCycle", "Instrument", "InstrumentScientist", "InvestigationType", "ParameterType", "PermissibleStringValue", "SampleType", "Grouping", "User", ]
+pubtables = [ "Application", "DatafileFormat", "DatasetType", "Facility", "FacilityCycle", "Instrument", "InstrumentScientist", "InvestigationType", "ParameterType", "PermissibleStringValue", "SampleType", "Grouping", "User", ]
 
 # Tables needed to setup access permissions
-if client.apiversion < '4.3':
-    authztables = [ "Group", "Rule", "User", "UserGroup", ]
-else:
-    authztables = [ "Grouping", "Rule", "User", "UserGroup", ]
+authztables = [ "Grouping", "Rule", "User", "UserGroup", ]
 
 # Objects that useroffice might need to create.  Basically anything
 # related to a particular investigation as a whole, but not to
 # individual items created during the investigation (Datafiles and
 # Datasets).  Plus FacilityCycle and InstrumentScientist.
-if client.apiversion < '4.3':
-    uotables = [ "FacilityCycle", "InstrumentScientist", "Investigation", "InvestigationParameter", "InvestigationUser", "Keyword", "Publication", "Shift", "Study", "StudyInvestigation", ] + authztables
-else:
-    uotables = [ "FacilityCycle", "InstrumentScientist", "Investigation", "InvestigationInstrument", "InvestigationParameter", "InvestigationUser", "Keyword", "Publication", "Shift", "Study", "StudyInvestigation", ] + authztables
+uotables = [ "FacilityCycle", "InstrumentScientist", "Investigation", "InvestigationInstrument", "InvestigationParameter", "InvestigationUser", "Keyword", "Publication", "Shift", "Study", "StudyInvestigation", ] + authztables
 
 
 # Permit root to read and write everything.  This gives ourselves the
@@ -117,6 +115,83 @@ client.createRules(uogroup, "CRUD", uotables)
 # this group later.
 st_writers = client.createGroup("samplewriter")
 client.createRules(st_writers, "CRUD", [ "SampleType" ])
+
+
+# ------------------------------------------------------------
+# Setup access rules for investigations
+# ------------------------------------------------------------
+
+# For each investigation, three groups of users will be created:
+#   investigation_<name>_reader
+#   investigation_<name>_writer
+#   investigation_<name>_owner
+# where <name> is the name of the corresponding investigation.  The
+# reader and writer group gets read and write permission on the
+# investigation respectively.  The owner group gets permission to add
+# and remove users to and from the other two group and thus to grant
+# and revoke read or write permissions on the investigation.  Here, we
+# setup only the rules, the groups will be created in
+# create-investigation.py.  The rules are based on the magic names of
+# these groups.
+
+# Condition that the current user is in one of the groups
+# corresponding to investigation i
+inv_cond = ("JOIN Grouping g JOIN g.userGroups ug JOIN ug.user u "
+            "WHERE g.name = CONCAT('investigation_',i.name,'_%s') "
+            "AND u.name = :user")
+inv_writer_cond = inv_cond % "writer"
+inv_reader_cond = inv_cond % "reader"
+inv_owner_cond = inv_cond % "owner"
+
+# Items that the writers group get CRUD permissions on:
+inv_w_crud_items = [
+    "SELECT sa FROM Sample sa JOIN sa.investigation i ",
+    "SELECT ds FROM Dataset ds JOIN ds.investigation i ",
+    "SELECT df FROM Datafile df JOIN df.dataset ds JOIN ds.investigation i ",
+    "SELECT ip FROM InvestigationParameter ip JOIN ip.investigation i ",
+    "SELECT sp FROM SampleParameter sp JOIN sp.sample sa JOIN sa.investigation i ",
+    "SELECT dsp FROM DatasetParameter dsp JOIN dsp.dataset ds JOIN ds.investigation i ",
+    "SELECT dfp FROM DatafileParameter dfp JOIN dfp.datafile df JOIN df.dataset ds JOIN ds.investigation i ",
+    "SELECT sh FROM Shift sh JOIN sh.investigation i ",
+    "SELECT kw FROM Keyword kw JOIN kw.investigation i ",
+    "SELECT pb FROM Publication pb JOIN pb.investigation i ",
+    "SELECT ii FROM InvestigationInstrument ii JOIN ii.investigation i ",
+]
+
+# Items that the writers group get RU permissions on:
+inv_w_ru_items = [
+    "SELECT i FROM Investigation i ",
+]
+
+# Items that the writers group get R permissions on:
+inv_w_r_items = [
+    "SELECT iu FROM InvestigationUser iu JOIN iu.investigation i ",
+]
+
+# writers permissions
+client.createRules(None, "CRUD", 
+                   [ i + inv_writer_cond for i in inv_w_crud_items ])
+client.createRules(None, "RU", 
+                   [ i + inv_writer_cond for i in inv_w_ru_items ])
+client.createRules(None, "R", 
+                   [ i + inv_writer_cond for i in inv_w_r_items ])
+# readers just get read access on the whole bunch
+inv_r_items = inv_w_crud_items + inv_w_ru_items + inv_w_r_items
+client.createRules(None, "R", 
+                   [ i + inv_reader_cond for i in inv_r_items ])
+
+# Owner rules.  Could be done in one single expression, but it's
+# already complicated enough, so lets make two rules for readers and
+# writers respectively.
+inv_own_items = [ ("SELECT aug FROM UserGroup aug "
+                   "JOIN aug.grouping ag "
+                   "JOIN Investigation i "
+                   "JOIN Grouping g JOIN g.userGroups ug "
+                   "JOIN ug.user u "
+                   "WHERE ag.name = CONCAT('investigation_',i.name,'_%s') "
+                   "AND g.name = CONCAT('investigation_',i.name,'_owner') "
+                   "AND u.name = :user") % g for g in ["reader", "writer"] ]
+client.createRules(None, "CRUD", inv_own_items)
 
 
 # ------------------------------------------------------------
