@@ -123,13 +123,54 @@ for u in investigationdata['invguest']:
 if investigationdata['addinstuser']:
     investigationwriter.extend(instrument.getInstrumentScientists())
 
-# Create the groups.  Note that the respective permisssions are
-# already setup in init-icat.py, based on the magic names of the
-# groups.
 owngroupname = "investigation_%s_owner" % investigation.name
 writegroupname = "investigation_%s_writer" % investigation.name
 readgroupname = "investigation_%s_reader" % investigation.name
 owngroup = client.createGroup(owngroupname, investigationowner)
 writegroup = client.createGroup(writegroupname, investigationwriter)
 readgroup = client.createGroup(readgroupname, investigationreader)
+
+
+# ------------------------------------------------------------
+# Setup permissions
+# ------------------------------------------------------------
+
+# perm_own_crud: items, that the owners should get CRUD perms on.
+# perm_own_r: items, that the owners should get R perms on.
+if client.apiversion < '4.3':
+    perm_own_crud = [ "UserGroup <-> Group[name='%s']" % s for s in 
+                      [ writegroupname, readgroupname ] ]
+else:
+    perm_own_crud = [ "UserGroup <-> Grouping[name='%s']" % s for s in 
+                      [ writegroupname, readgroupname ] ]
+
+
+investigationstr = "Investigation[name='%s']" % investigation.name
+# Items, that people in the writers group should get CRUD perms on.
+perm_crud = [ s % investigationstr for s in 
+              [ "Sample <-> %s",
+                "Dataset <-> %s",
+                "Datafile <-> Dataset <-> %s",
+                "InvestigationParameter <-> %s",
+                "SampleParameter <-> Sample <-> %s",
+                "DatasetParameter <-> Dataset <-> %s",
+                "DatafileParameter <-> Datafile <-> Dataset <-> %s",
+                "Shift <-> %s",
+                "Keyword <-> %s",
+                "Publication <-> %s", ] ]
+
+# Items, that people in the writers group should get RU perms on.
+perm_ru = [ investigationstr, ]
+
+# Items, that people in the writers group should get R perms on.
+perm_r = [ "InvestigationUser <-> %s" % investigationstr, ]
+
+# owners permissions
+client.createRules(owngroup, "CRUD", perm_own_crud)
+# writers permissions
+client.createRules(writegroup, "RU", perm_ru)
+client.createRules(writegroup, "CRUD", perm_crud)
+client.createRules(writegroup, "R", perm_r)
+# people in the readers group just get read access on the whole bunch
+client.createRules(readgroup, "R", perm_ru + perm_crud + perm_r)
 
