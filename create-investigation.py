@@ -157,7 +157,8 @@ perm_crud = [ s % investigationstr for s in
                 "DatafileParameter <-> Datafile <-> Dataset <-> %s",
                 "Shift <-> %s",
                 "Keyword <-> %s",
-                "Publication <-> %s", ] ]
+                "Publication <-> %s",
+                "InvestigationInstrument <-> %s", ] ]
 
 # Items, that people in the writers group should get RU perms on.
 perm_ru = [ investigationstr, ]
