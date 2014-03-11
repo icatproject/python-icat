@@ -157,8 +157,9 @@ perm_crud = [ s % investigationstr for s in
                 "DatafileParameter <-> Datafile <-> Dataset <-> %s",
                 "Shift <-> %s",
                 "Keyword <-> %s",
-                "Publication <-> %s",
-                "InvestigationInstrument <-> %s", ] ]
+                "Publication <-> %s", ] ]
+if client.apiversion >= '4.3':
+    perm_crud.append("InvestigationInstrument <-> %s" % investigationstr)
 
 # Items, that people in the writers group should get RU perms on.
 perm_ru = [ investigationstr, ]
