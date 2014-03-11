@@ -86,27 +86,19 @@ def entityparamdict(e):
     """Convert an entity including its parameters to a dict."""
     d = entitydict(e)
     params = []
-    try:
-        parameters = e.parameters
-    except AttributeError:   # ref. ICAT issue 130
-        pass
-    else:
-        for i in parameters:
-            p = entityattrdict(i)
-            p['type'] = i.type.getUniqueKey(keyindex=keyindex)
-            params.append(p)
-        params.sort(key = lambda p:p['type'])
+    for i in e.parameters:
+        p = entityattrdict(i)
+        p['type'] = i.type.getUniqueKey(keyindex=keyindex)
+        params.append(p)
+    params.sort(key = lambda p:p['type'])
     d['parameters'] = params
     return d
 
 def groupdict(e):
     """Convert a group including its users to a dict."""
     d = entitydict(e)
-    try:
-        users = [ ug.user.getUniqueKey(keyindex=keyindex) 
-                  for ug in e.userGroups ]
-    except AttributeError:   # ref. ICAT issue 130
-        users = []
+    users = [ ug.user.getUniqueKey(keyindex=keyindex) 
+              for ug in e.userGroups ]
     users.sort()
     d['users'] = users
     return d
@@ -114,11 +106,8 @@ def groupdict(e):
 def instrumentdict(e):
     """Convert an instrument including its instrument scientists to a dict."""
     d = entitydict(e)
-    try:
-        users = [ uis.user.getUniqueKey(keyindex=keyindex) 
-                  for uis in e.instrumentScientists ]
-    except AttributeError:   # ref. ICAT issue 130
-        users = []
+    users = [ uis.user.getUniqueKey(keyindex=keyindex) 
+              for uis in e.instrumentScientists ]
     users.sort()
     d['instrumentScientists'] = users
     return d
@@ -127,10 +116,7 @@ def parametertypedict(e):
     """Convert an parameter type including its permissible string
     values to a dict."""
     d = entitydict(e)
-    try:
-        strvals = [ entityattrdict(i) for i in e.permissibleStringValues ]
-    except AttributeError:   # ref. ICAT issue 130
-        strvals = []
+    strvals = [ entityattrdict(i) for i in e.permissibleStringValues ]
     strvals.sort()
     d['permissibleStringValues'] = strvals
     return d
@@ -140,56 +126,39 @@ def investigationdict(e):
     keywords, publications, investigation users, and parameters to a
     dict."""
     d = entityparamdict(e)
-    try:
-        instruments = [ i.instrument.getUniqueKey(keyindex=keyindex) 
-                        for i in e.investigationInstruments ]
-    except AttributeError:   # ref. ICAT issue 130
-        instruments = []
+
+    instruments = [ i.instrument.getUniqueKey(keyindex=keyindex) 
+                    for i in e.investigationInstruments ]
     instruments.sort()
     d['instruments'] = instruments
-    try:
-        shifts = [ entityattrdict(i) for i in e.shifts ]
-    except AttributeError:   # ref. ICAT issue 130
-        shifts = []
+
+    shifts = [ entityattrdict(i) for i in e.shifts ]
     shifts.sort( key = lambda s: (s['startDate'],s['endDate']) )
     d['shifts'] = shifts
-    try:
-        keywords = [ entityattrdict(i) for i in e.keywords ]
-    except AttributeError:   # ref. ICAT issue 130
-        keywords = []
+
+    keywords = [ entityattrdict(i) for i in e.keywords ]
     keywords.sort( key = lambda k:k['name'] )
     d['keywords'] = keywords
-    try:
-        publications = [ entityattrdict(i) for i in e.publications ]
-    except AttributeError:   # ref. ICAT issue 130
-        publications = []
+
+    publications = [ entityattrdict(i) for i in e.publications ]
     publications.sort( key = lambda p:p['fullReference'] )
     d['publications'] = publications
 
-    d['investigationUsers'] = []
-    try:
-        investigationUsers = e.investigationUsers
-    except AttributeError:   # ref. ICAT issue 130
-        pass
-    else:
-        invusers = []
-        for i in investigationUsers:
-            u = entityattrdict(i)
-            u['user'] = i.user.getUniqueKey(keyindex=keyindex)
-            invusers.append(u)
-        invusers.sort( key = lambda u:u['user'] )
-        d['investigationUsers'] = invusers
+    invusers = []
+    for i in e.investigationUsers:
+        u = entityattrdict(i)
+        u['user'] = i.user.getUniqueKey(keyindex=keyindex)
+        invusers.append(u)
+    invusers.sort( key = lambda u:u['user'] )
+    d['investigationUsers'] = invusers
 
     return d
 
 def studydict(e):
     """Convert a study to a dict."""
     d = entitydict(e)
-    try:
-        studyInvest = [ si.investigation.getUniqueKey(keyindex=keyindex) 
-                        for si in e.studyInvestigations ]
-    except AttributeError:   # ref. ICAT issue 130
-        studyInvest = []
+    studyInvest = [ si.investigation.getUniqueKey(keyindex=keyindex) 
+                    for si in e.studyInvestigations ]
     studyInvest.sort()
     d['studyInvestigations'] = studyInvest
     return d
@@ -197,20 +166,17 @@ def studydict(e):
 def datacollectiondict(e):
     """Convert a data collection to a dict."""
     d = entityparamdict(e)
-    try:
-        datasets = [ i.dataset.getUniqueKey(keyindex=keyindex) 
-                     for i in e.dataCollectionDatasets ]
-    except AttributeError:   # ref. ICAT issue 130
-        datasets = []
+
+    datasets = [ i.dataset.getUniqueKey(keyindex=keyindex) 
+                 for i in e.dataCollectionDatasets ]
     datasets.sort()
     d['dataCollectionDatasets'] = datasets
-    try:
-        datafiles = [ i.datafile.getUniqueKey(keyindex=keyindex) 
-                      for i in e.dataCollectionDatafiles ]
-    except AttributeError:   # ref. ICAT issue 130
-        datafiles = []
+
+    datafiles = [ i.datafile.getUniqueKey(keyindex=keyindex) 
+                  for i in e.dataCollectionDatafiles ]
     datafiles.sort()
     d['dataCollectionDatafiles'] = datafiles
+
     return d
 
 def getobjs(name, convert, searchexp, reindex):
@@ -223,7 +189,7 @@ def getobjs(name, convert, searchexp, reindex):
     # unique key as a last resort.  But we want the keys to have a
     # well defined order, independent from the id.  For the concerned
     # entities, reindex is set to the list of attributes that shall
-    # dertermine the sort order.
+    # determine the sort order.
     if reindex:
         idindex = { i:k for k,i in keyindex.iteritems() }
         ds = {}

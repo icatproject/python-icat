@@ -76,13 +76,20 @@ class Entity(object):
         elif attr in self.InstRel:
             return self.client.new(getattr(self.instance, attr, None))
         elif attr in self.InstMRel:
-            instancelist = getattr(self.instance, attr, None)
-            if instancelist is None:
-                raise AttributeError("Instance list '%s' is not present. " 
-                                     "Get the object again from the server, "
-                                     "using an INCLUDE statement in the "
-                                     "search expression." % attr)
-            l = EntityList(self.client, instancelist)
+            if not hasattr(self.instance, attr):
+                # The list of objects in this one to many relation is
+                # not present in the instance object.  There are two
+                # possible causes for this: either this object does
+                # not have any related objects or this relation has
+                # not been included in the query for the object.  In
+                # the first case, setting this to the empty list is
+                # the right thing to do.  In the latter case, it might
+                # be completely wrong and we should rather raise an
+                # AttributeError.  But there is no way at the client
+                # side to know in which case we are, see ICAT Issue
+                # 130.
+                setattr(self.instance, attr, [])
+            l = EntityList(self.client, getattr(self.instance, attr))
             super(Entity, self).__setattr__(attr, l)
             return l
         elif attr == 'instancetype':
