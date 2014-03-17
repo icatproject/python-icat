@@ -38,6 +38,8 @@ class Entity(object):
     """One to many relationships in the ICAT schema."""
     AttrAlias = {}
     """Map of alias names for attributes and many to one relationships."""
+    RelAlias = {}
+    """Map of alias names for many to one relationships."""
     MRelAlias = {}
     """Map of alias names for one to many relationships."""
 
@@ -81,13 +83,13 @@ class Entity(object):
                 # not present in the instance object.  There are two
                 # possible causes for this: either this object does
                 # not have any related objects or this relation has
-                # not been included in the query for the object.  In
-                # the first case, setting this to the empty list is
-                # the right thing to do.  In the latter case, it might
-                # be completely wrong and we should rather raise an
-                # AttributeError.  But there is no way at the client
-                # side to know in which case we are, see ICAT Issue
-                # 130.
+                # not been included in the query when getting the
+                # object from the server.  In the first case, setting
+                # this to the empty list is the right thing to do.  In
+                # the latter case, it might be completely wrong and we
+                # should rather raise an AttributeError here.  But
+                # there is no way at this point to distinguish between
+                # the two cases, see ICAT Issue 130.
                 setattr(self.instance, attr, [])
             l = EntityList(self.client, getattr(self.instance, attr))
             super(Entity, self).__setattr__(attr, l)
@@ -96,6 +98,8 @@ class Entity(object):
             return self.instance.__class__.__name__
         elif attr in self.AttrAlias:
             return self.__getattr__(self.AttrAlias[attr])
+        elif attr in self.RelAlias:
+            return self.__getattr__(self.RelAlias[attr])
         elif attr in self.MRelAlias:
             return self.__getattr__(self.MRelAlias[attr])
         else:
@@ -109,10 +113,37 @@ class Entity(object):
             setattr(self.instance, attr, value)
         elif attr in self.InstRel:
             setattr(self.instance, attr, self.getInstance(value))
+        elif attr in self.InstMRel:
+            setattr(self.instance, attr, value)
+            l = EntityList(self.client, getattr(self.instance, attr))
+            super(Entity, self).__setattr__(attr, l)
         elif attr in self.AttrAlias:
             setattr(self, self.AttrAlias[attr], value)
+        elif attr in self.RelAlias:
+            setattr(self, self.RelAlias[attr], value)
+        elif attr in self.MRelAlias:
+            setattr(self, self.MRelAlias[attr], value)
         else:
             raise AttributeError("%s object cannot set attribute '%s'" %
+                                 (type(self).__name__, attr))
+
+    def __delattr__(self, attr):
+        if attr in (self.InstAttr | self.InstRel):
+            if hasattr(self.instance, attr):
+                delattr(self.instance, attr)
+        elif attr in self.InstMRel:
+            if attr in self.__dict__:
+                super(Entity, self).__delattr__(attr)
+            if hasattr(self.instance, attr):
+                delattr(self.instance, attr)
+        elif attr in self.AttrAlias:
+            delattr(self, self.AttrAlias[attr])
+        elif attr in self.RelAlias:
+            delattr(self, self.RelAlias[attr])
+        elif attr in self.MRelAlias:
+            delattr(self, self.MRelAlias[attr])
+        else:
+            raise AttributeError("%s object cannot delete attribute '%s'" %
                                  (type(self).__name__, attr))
 
 
@@ -134,6 +165,20 @@ class Entity(object):
     def __repr__(self):
         return str(self)
 
+
+    def truncateRelations(self):
+        """Delete all relationships.
+
+        Delete all attributes having relationships to other objects
+        from this object.  Note that this is a local operation on the
+        object in the client only.  It does not affect the
+        corresponding object at the ICAT server.  This is useful if
+        you only need to keep the object's attributes but not the
+        (possibly large) tree of related objects in local memory.
+        """
+        for r in (self.InstRel | self.InstMRel):
+            delattr(self, r)
+        
 
     def getUniqueKey(self, autoget=False, keyindex=None):
         """Return a unique kay.
@@ -243,7 +288,6 @@ class EntityList(ListProxy):
     def __init__(self, client, instancelist):
         super(EntityList, self).__init__(instancelist)
         self.client = client
-
 
     def __getitem__(self, index):
         item = super(EntityList, self).__getitem__(index)

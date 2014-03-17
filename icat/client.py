@@ -239,6 +239,12 @@ class Client(suds.client.Client):
             except KeyError:
                 raise TypeError("Invalid instance type '%s'." % instancetype)
             instance = self.factory.create(instancetype)
+            # The factory creates a whole tree of dummy objects for
+            # all relationships of the instance object and the
+            # relationships of the related objects and so on.  These
+            # dummy objects are of no use, discard them.
+            for r in (Class.InstRel | Class.InstMRel):
+                delattr(instance, r)
         elif obj is None:
             return None
         else:
