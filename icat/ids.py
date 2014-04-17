@@ -61,7 +61,7 @@ class IdsClient(object):
         """
         parameters = {"sessionId": sessionId}
         _fillParms(parameters, datafileIds, datasetIds, investigationIds)
-        self._process("restore", parameters, "POST").read()
+        self._process("archive", parameters, "POST").read()
       
     def isPrepared(self, preparedId):
         """
