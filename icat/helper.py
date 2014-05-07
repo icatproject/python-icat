@@ -57,6 +57,45 @@ True
 {'investigation': 'facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1', 'name': 'e208945'}
 >>> ds['investigation'] == invkey
 True
+>>> parse_attr_val("xx")
+Traceback (most recent call last):
+  ...
+ValueError: substring not found
+>>> parse_attr_val("name-jdoe_xx")
+Traceback (most recent call last):
+  ...
+ValueError: substring not found
+>>> parse_attr_val("name-jdoe_xx-")
+Traceback (most recent call last):
+  ...
+ValueError: malformed 'xx-'
+>>> parse_attr_val("name-jdoe_-xx")
+Traceback (most recent call last):
+  ...
+ValueError: malformed '-xx'
+>>> instrname = "E2"
+>>> instrkey = "_".join(["%s-(%s)" % ("facility", facilitykey), 
+...                      "%s-%s" % ("name", simpleqp_quote(instrname))])
+>>> parse_attr_val(instrkey)
+{'name': 'E2', 'facility': 'name-ESNF'}
+>>> instrkey = "_".join(["%s-((%s)" % ("facility", facilitykey), 
+...                      "%s-%s" % ("name", simpleqp_quote(instrname))])
+>>> parse_attr_val(instrkey)
+Traceback (most recent call last):
+  ...
+ValueError: malformed 'facility-((name-ESNF)_name-E2'
+>>> instrkey = "_".join(["%s-(%s))" % ("facility", facilitykey), 
+...                      "%s-%s" % ("name", simpleqp_quote(instrname))])
+>>> parse_attr_val(instrkey)
+Traceback (most recent call last):
+  ...
+ValueError: malformed 'facility-(name-ESNF))_name-E2'
+>>> instrkey = "_".join(["%s-(%s)xx" % ("facility", facilitykey), 
+...                      "%s-%s" % ("name", simpleqp_quote(instrname))])
+>>> parse_attr_val(instrkey)
+Traceback (most recent call last):
+  ...
+ValueError: malformed 'facility-(name-ESNF)xx_name-E2'
 """
 
 import sys
@@ -133,7 +172,7 @@ def parse_attr_val(avs):
 
     Return a dict with the attributes as keys.  In the case of an
     attrvaluestring in parenthesis, this string is set as value in the
-    dict with any further processing.
+    dict without any further processing.
     """
 
     # It might be easier to implement this using pyparsing, but this
@@ -144,8 +183,9 @@ def parse_attr_val(avs):
     while len(avs) > 0:
         hyphen = avs.index('-')
         if hyphen == 0 or hyphen == len(avs)-1:
-            raise ValueError("malformed '%s'" % s)
+            raise ValueError("malformed '%s'" % avs)
         attr = avs[:hyphen]
+        # FIXME: Should check that attr matches [A-Za-z]+ here.
         if avs[hyphen+1] == '(':
             # Need to find the matching ')'
             op = 0
@@ -157,14 +197,14 @@ def parse_attr_val(avs):
                     if op == 0:
                         break
             if op > 0:
-                raise ValueError("malformed '%s'" % s)
+                raise ValueError("malformed '%s'" % avs)
             value = avs[hyphen+2:i]
             if i == len(avs) - 1:
                 avs = ""
             elif avs[i+1] == '_':
                 avs = avs[i+2:]
             else:
-                raise ValueError("malformed '%s'" % s)
+                raise ValueError("malformed '%s'" % avs)
         else:
             us = avs.find('_', hyphen+1)
             if us >= 0:
@@ -173,6 +213,7 @@ def parse_attr_val(avs):
             else:
                 value = avs[hyphen+1:]
                 avs = ""
+            # FIXME: Should check that value matches [0-9A-Za-z=]+ here.
         res[attr] = value
     return res
 
