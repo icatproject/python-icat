@@ -95,8 +95,8 @@ class IdsClient(object):
         by a call to prepareData is ready.
         """
         parameters = {"preparedId": preparedId}
-        if self._process("isPrepared", parameters, "GET"): return True
-        return False
+        response = self._process("isPrepared", parameters, "GET").read()
+        return response.lower() == "true"
     
     def prepareData(self, datafileIds=[], datasetIds=[], investigationIds=[], 
                     compressFlag=False, zipFlag=False):
