@@ -8,7 +8,7 @@ author.
 .. _IDS distribution: http://code.google.com/p/icat-data-service/
 """
 
-from urllib2 import Request, build_opener
+from urllib2 import Request, ProxyHandler, build_opener
 from urllib import urlencode
 from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
 import json
@@ -16,9 +16,6 @@ import zlib
 from icat.exception import IDSServerError, IDSResponseError
 
 __all__ = ['IdsClient']
-
-default_opener = build_opener()
-chunked_opener = build_opener(ChunkedHTTPHandler, ChunkedHTTPSHandler)
 
 
 class IDSRequest(Request):
@@ -77,18 +74,26 @@ class IdsClient(object):
     from the ICAT client.
     """
 
-    def __init__(self, url, sessionId=None):
+    def __init__(self, url, sessionId=None, proxy=None):
         """Create an IdsClient.
         """
         self.url = url
         if not self.url.endswith("/"): self.url += "/"
         self.sessionId = sessionId
+        if proxy:
+            proxyhandler = ProxyHandler(proxy)
+            self.default = build_opener(proxyhandler)
+            self.chunked = build_opener(proxyhandler, 
+                                        ChunkedHTTPHandler, ChunkedHTTPSHandler)
+        else:
+            self.default = build_opener()
+            self.chunked = build_opener(ChunkedHTTPHandler, ChunkedHTTPSHandler)
 
     def ping(self):
         """Check that the server is alive and is an IDS server.
         """
         req = IDSRequest(self.url + "ping", {})
-        result = self._checkresponse(default_opener.open(req)).read()
+        result = self._checkresponse(self.default.open(req)).read()
         if result != "IdsOK": 
             raise IDSResponseError("unexpected response to ping: %s" % result)
 
@@ -101,7 +106,7 @@ class IdsClient(object):
         """
         parameters = {"sessionId": self.sessionId}
         req = IDSRequest(self.url + "getServiceStatus", parameters)
-        result = self._checkresponse(default_opener.open(req)).read()
+        result = self._checkresponse(self.default.open(req)).read()
         return json.loads(result)
     
     def getStatus(self, datafileIds=[], datasetIds=[], investigationIds=[]):
@@ -115,7 +120,7 @@ class IdsClient(object):
         parameters["sessionId"] = self.sessionId   
         self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
         req = IDSRequest(self.url + "getStatus", parameters)
-        return self._checkresponse(default_opener.open(req)).read()
+        return self._checkresponse(self.default.open(req)).read()
     
     def restore(self, datafileIds=[], datasetIds=[], investigationIds=[]):
         """Restore data.
@@ -126,7 +131,7 @@ class IdsClient(object):
         parameters = {"sessionId": self.sessionId}
         self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
         req = IDSRequest(self.url + "restore", parameters, method="POST")
-        return self._checkresponse(default_opener.open(req)).read()
+        return self._checkresponse(self.default.open(req)).read()
 
     def archive(self, datafileIds=[], datasetIds=[], investigationIds=[]):
         """Archive data.
@@ -137,7 +142,7 @@ class IdsClient(object):
         parameters = {"sessionId": self.sessionId}
         self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
         req = IDSRequest(self.url + "archive", parameters, method="POST")
-        return self._checkresponse(default_opener.open(req)).read()
+        return self._checkresponse(self.default.open(req)).read()
 
     def isPrepared(self, preparedId):
         """Check if data is ready.
@@ -147,7 +152,7 @@ class IdsClient(object):
         """
         parameters = {"preparedId": preparedId}
         req = IDSRequest(self.url + "isPrepared", parameters)
-        response = self._checkresponse(default_opener.open(req)).read()
+        response = self._checkresponse(self.default.open(req)).read()
         return response.lower() == "true"
 
     def prepareData(self, datafileIds=[], datasetIds=[], investigationIds=[], 
@@ -159,7 +164,7 @@ class IdsClient(object):
         if zipFlag:  parameters["zip"] = "true"
         if compressFlag: parameters["compress"] = "true"
         req = IDSRequest(self.url + "prepareData", parameters, method="POST")
-        return self._checkresponse(default_opener.open(req)).read()
+        return self._checkresponse(self.default.open(req)).read()
     
     def getData(self, datafileIds=[], datasetIds=[], investigationIds=[], 
                 compressFlag=False, zipFlag=False, outname=None, offset=0):
@@ -173,7 +178,7 @@ class IdsClient(object):
         req = IDSRequest(self.url + "getData", parameters)
         if offset:
             req.add_header("Range", "bytes=" + str(offset) + "-") 
-        return self._checkresponse(default_opener.open(req))
+        return self._checkresponse(self.default.open(req))
     
     def getDataUrl(self, datafileIds=[], datasetIds=[], investigationIds=[], 
                    compressFlag=False, zipFlag=False, outname=None):
@@ -195,7 +200,7 @@ class IdsClient(object):
         parameters = {"sessionId": self.sessionId}
         self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
         req = IDSRequest(self.url + "delete", parameters, method="DELETE")
-        self._checkresponse(default_opener.open(req))
+        self._checkresponse(self.default.open(req))
 
     def getPreparedData(self, preparedId, outname=None, offset=0):
         """Get prepared data.
@@ -208,7 +213,7 @@ class IdsClient(object):
         req = IDSRequest(self.url + "getData", parameters)
         if offset:
             req.add_header("Range", "bytes=" + str(offset) + "-") 
-        return self._checkresponse(default_opener.open(req))
+        return self._checkresponse(self.default.open(req))
     
     def getPreparedDataUrl(self, preparedId, outname=None):
         """Get the URL to retrieve prepared data.
@@ -247,7 +252,7 @@ class IdsClient(object):
         req.add_header('Content-Type', 'application/octet-stream')
         inputreader = ChunkedFileReader(inputStream)
         req.add_data(inputreader)
-        result = self._checkresponse(chunked_opener.open(req)).read()
+        result = self._checkresponse(self.chunked.open(req)).read()
         crc = inputreader.crc32 & 0xffffffff
         om = json.loads(result)
         if om["checksum"] != crc:
