@@ -3,16 +3,71 @@
 This module is derived from the Python IDS client from the original
 `IDS distribution`_.  Permission to include it in python-icat and to
 publish it under its license has generously been granted by its
-author, Steve Fischer.
+author.
 
 .. _IDS distribution: http://code.google.com/p/icat-data-service/
 """
 
-import urlparse
-import httplib
+from urllib2 import Request, build_opener
 from urllib import urlencode
+from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
 import json
 import zlib
+from icat.exception import IDSServerError, IDSResponseError
+
+__all__ = ['IdsClient']
+
+default_opener = build_opener()
+chunked_opener = build_opener(ChunkedHTTPHandler, ChunkedHTTPSHandler)
+
+
+class IDSRequest(Request):
+
+    def __init__(self, url, parameters, data=None, headers={}, method=None):
+
+        if parameters:
+            parameters = urlencode(parameters)
+            if method == "POST":
+                headers["Content-Type"] = "application/x-www-form-urlencoded"
+                data = parameters
+            else:
+                url += "?" + parameters
+        Request.__init__(self, url, data, headers)
+        if method:
+            self.method = method
+
+        self.add_header("Cache-Control", "no-cache")
+        self.add_header("Pragma", "no-cache")
+        self.add_header("Accept", 
+                        "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2")
+        self.add_header("Connection", "keep-alive") 
+
+    def get_method(self):
+        """Return a string indicating the HTTP request method."""
+        default_method = "POST" if self.data is not None else "GET"
+        return getattr(self, 'method', default_method)
+
+
+class ChunkedFileReader(object):
+    """An iterator that yields chunks of data read from a file.
+    As a side effect, a checksum of the read data is calulated.
+    """
+    def __init__(self, inputfile, chunksize=8192):
+        self.inputfile = inputfile
+        self.chunksize = chunksize
+        self.crc32 = 0
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        chunk = self.inputfile.read(self.chunksize)
+        if chunk:
+            self.crc32 = zlib.crc32(chunk, self.crc32)
+            return chunk
+        else:
+            raise StopIteration
+
 
 class IdsClient(object):
     
@@ -24,27 +79,19 @@ class IdsClient(object):
 
     def __init__(self, url, sessionId=None):
         """Create an IdsClient.
-
-        The url should have the scheme, hostname and optionally the
-        port.  It may also have a path if it is installed behind an
-        apache front end.
         """
-        o = urlparse.urlparse(url)
-        self.secure = o.scheme == "https"
-        self.ids_host = o.netloc
-        path = o.path
-        if not path.endswith("/"): path = path + "/"
-        self.path = path + "ids/"
+        self.url = url
+        if not self.url.endswith("/"): self.url += "/"
         self.sessionId = sessionId
 
     def ping(self):
         """Check that the server is alive and is an IDS server.
         """
-        result = self._process("ping", {}, "GET").read()
-        if not result == "IdsOK": 
-            raise IdsException("NotFoundException", 
-                               "Server gave invalid response: " + result)
-            
+        req = IDSRequest(self.url + "ping", {})
+        result = self._checkresponse(default_opener.open(req)).read()
+        if result != "IdsOK": 
+            raise IDSResponseError("unexpected response to ping: %s" % result)
+
     def getServiceStatus(self):
         """Return information about what the IDS is doing.
 
@@ -52,9 +99,9 @@ class IdsClient(object):
         user represented by the sessionId must be in the set of
         rootUserNames defined in the IDS configuration.
         """
-        parameters = {}
-        parameters["sessionId"] = self.sessionId 
-        result = self._process("getServiceStatus", parameters, "GET").read()
+        parameters = {"sessionId": self.sessionId}
+        req = IDSRequest(self.url + "getServiceStatus", parameters)
+        result = self._checkresponse(default_opener.open(req)).read()
         return json.loads(result)
     
     def getStatus(self, datafileIds=[], datasetIds=[], investigationIds=[]):
@@ -63,10 +110,12 @@ class IdsClient(object):
         The data is specified by the datafileIds datasetIds and
         investigationIds.
         """
+        parameters = {"sessionId": self.sessionId}
         parameters = {}
         parameters["sessionId"] = self.sessionId   
-        _fillParms(parameters, datafileIds, datasetIds, investigationIds)
-        return  self._process("getStatus", parameters, "GET").read()
+        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        req = IDSRequest(self.url + "getStatus", parameters)
+        return self._checkresponse(default_opener.open(req)).read()
     
     def restore(self, datafileIds=[], datasetIds=[], investigationIds=[]):
         """Restore data.
@@ -75,9 +124,10 @@ class IdsClient(object):
         investigationIds.
         """
         parameters = {"sessionId": self.sessionId}
-        _fillParms(parameters, datafileIds, datasetIds, investigationIds)
-        self._process("restore", parameters, "POST").read()
-        
+        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        req = IDSRequest(self.url + "restore", parameters, method="POST")
+        return self._checkresponse(default_opener.open(req)).read()
+
     def archive(self, datafileIds=[], datasetIds=[], investigationIds=[]):
         """Archive data.
 
@@ -85,9 +135,10 @@ class IdsClient(object):
         investigationIds.
         """
         parameters = {"sessionId": self.sessionId}
-        _fillParms(parameters, datafileIds, datasetIds, investigationIds)
-        self._process("archive", parameters, "POST").read()
-      
+        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        req = IDSRequest(self.url + "archive", parameters, method="POST")
+        return self._checkresponse(default_opener.open(req)).read()
+
     def isPrepared(self, preparedId):
         """Check if data is ready.
 
@@ -95,38 +146,41 @@ class IdsClient(object):
         by a call to prepareData is ready.
         """
         parameters = {"preparedId": preparedId}
-        response = self._process("isPrepared", parameters, "GET").read()
+        req = IDSRequest(self.url + "isPrepared", parameters)
+        response = self._checkresponse(default_opener.open(req)).read()
         return response.lower() == "true"
-    
+
     def prepareData(self, datafileIds=[], datasetIds=[], investigationIds=[], 
                     compressFlag=False, zipFlag=False):
         """Prepare data for a subsequent getPreparedData call.
         """
         parameters = {"sessionId": self.sessionId}
-        _fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
         if zipFlag:  parameters["zip"] = "true"
         if compressFlag: parameters["compress"] = "true"
-        return self._process("prepareData", parameters, "POST").read()
+        req = IDSRequest(self.url + "prepareData", parameters, method="POST")
+        return self._checkresponse(default_opener.open(req)).read()
     
     def getData(self, datafileIds=[], datasetIds=[], investigationIds=[], 
                 compressFlag=False, zipFlag=False, outname=None, offset=0):
         """Stream the requested data.
         """
         parameters = {"sessionId": self.sessionId}
-        _fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
         if zipFlag:  parameters["zip"] = "true"
         if compressFlag: parameters["compress"] = "true"
         if outname: parameters["outname"] = outname
-        if offset: headers = {"Range": "bytes=" + str(offset) + "-"} 
-        else: headers = None
-        return self._process("getData", parameters, "GET", headers=headers)
+        req = IDSRequest(self.url + "getData", parameters)
+        if offset:
+            req.add_header("Range", "bytes=" + str(offset) + "-") 
+        return self._checkresponse(default_opener.open(req))
     
     def getDataUrl(self, datafileIds=[], datasetIds=[], investigationIds=[], 
                    compressFlag=False, zipFlag=False, outname=None):
         """Get the URL to retrieve the requested data.
         """
         parameters = {"sessionId": self.sessionId}
-        _fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
         if zipFlag:  parameters["zip"] = "true"
         if compressFlag: parameters["compress"] = "true"
         if outname: parameters["outname"] = outname
@@ -139,9 +193,10 @@ class IdsClient(object):
         investigationIds.
         """
         parameters = {"sessionId": self.sessionId}
-        _fillParms(parameters, datafileIds, datasetIds, investigationIds)
-        self._process("delete", parameters, "DELETE")
-    
+        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        req = IDSRequest(self.url + "delete", parameters, method="DELETE")
+        self._checkresponse(default_opener.open(req))
+
     def getPreparedData(self, preparedId, outname=None, offset=0):
         """Get prepared data.
 
@@ -150,9 +205,10 @@ class IdsClient(object):
         """
         parameters = {"preparedId": preparedId}
         if outname: parameters["outname"] = outname
-        if offset: headers = {"Range": "bytes=" + str(offset) + "-"}
-        else: headers = None
-        return self._process("getData", parameters, "GET", headers=headers)
+        req = IDSRequest(self.url + "getData", parameters)
+        if offset:
+            req.add_header("Range", "bytes=" + str(offset) + "-") 
+        return self._checkresponse(default_opener.open(req))
     
     def getPreparedDataUrl(self, preparedId, outname=None):
         """Get the URL to retrieve prepared data.
@@ -174,8 +230,8 @@ class IdsClient(object):
         produced by the server to detect any transmission errors.
         """
         parameters = {"sessionId":self.sessionId, "name":name, 
-                      "datasetId": str(datasetId), 
-                      "datafileFormatId": str(datafileFormatId)}
+                      "datasetId":str(datasetId), 
+                      "datafileFormatId":str(datafileFormatId)}
         if description:
             parameters["description"] = description
         if doi:
@@ -185,98 +241,42 @@ class IdsClient(object):
         if datafileModTime:
             parameters["datafileModTime"] = str(datafileModTime)
         if not inputStream:
-            raise IdsException("BadRequestException", "Input stream is null")
-        
-        result, crc = self._process("put", parameters, "PUT", body=inputStream)
-        om = json.loads(result.read())
+            raise ValueError("Input stream is null")
+
+        req = IDSRequest(self.url + "put", parameters, method="PUT")
+        req.add_header('Content-Type', 'application/octet-stream')
+        inputreader = ChunkedFileReader(inputStream)
+        req.add_data(inputreader)
+        result = self._checkresponse(chunked_opener.open(req)).read()
+        crc = inputreader.crc32 & 0xffffffff
+        om = json.loads(result)
         if om["checksum"] != crc:
-            raise IdsException("InternalException",
-                               "Error uploading - the checksum was not "
-                               "as expected")
+            raise IDSResponseError("checksum error")
         return long(om["id"])
 
-    def _getDataUrl(self, parameters):
-        if self.secure:
-            url = "https://"
-        else:
-            url = "http://"
-        return (url + self.ids_host + self.path + "getData" + "?" + 
-                urlencode(parameters))
-         
-    def _process(self, relativeUrl, parameters, method, 
-                 headers=None, body=None):
-        path = self.path + relativeUrl
-        if parameters: parameters = urlencode(parameters)
-        if parameters and method != "POST":
-            path = path + "?" + parameters
-        if self.secure:
-            conn = httplib.HTTPSConnection(self.ids_host)
-        else:
-            conn = httplib.HTTPConnection(self.ids_host)
-        conn.putrequest(method, path, skip_accept_encoding=True)
-        conn.putheader("Cache-Control", "no-cache")
-        conn.putheader("Pragma", "no-cache")
-        conn.putheader("Accept", 
-                       "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2")
-        conn.putheader("Connection", "keep-alive") 
-        
-        if parameters and method == "POST":
-            conn.putheader('Content-Length', str(len(parameters)))
-        elif body:
-            conn.putheader('Transfer-Encoding', 'chunked')
-           
-        if headers:
-            for header in headers:
-                conn.putheader(header, headers[header])
-                
-        if parameters and method == "POST":
-            conn.putheader('Content-Type', 
-                           'application/x-www-form-urlencoded')       
-                
-        conn.endheaders()
-        
-        if parameters and method == "POST":
-            conn.send(parameters)
-        elif body:
-            blocksize = 8192
-            datablock = body.read(blocksize)
-            crc32 = 0
-            while datablock:
-                conn.send(hex(len(datablock))[2:] + "\r\n")
-                conn.send(datablock + "\r\n")
-                crc32 = zlib.crc32(datablock, crc32)
-                datablock = body.read(blocksize)
-            conn.send("0\r\n\r\n")
-       
-        response = conn.getresponse()
-        rc = response.status
-        if (rc / 100 != 2):
-            try:
-                responseContent = response.read()
-                om = json.loads(responseContent)
-            except Exception:
-                raise IdsException("InternalException", responseContent)
-            code = om["code"]
-            message = om["message"]
-            raise IdsException(code, message)
-        if body:
-            return response, crc32 & 0xffffffff
-        else:
-            return response
-        
-def _fillParms(parameters, dfIds, dsIds, invIds):
-    if invIds:
-        parameters["investigationIds"] = ",".join(str(x) for x in invIds)
-    if dsIds:
-        parameters["datasetIds"] = ",".join(str(x) for x in dsIds)
-    if dfIds:
-        parameters["datafileIds"] = ",".join(str(x) for x in dfIds)
+    def _fillParms(self, parameters, dfIds, dsIds, invIds):
+        if invIds:
+            parameters["investigationIds"] = ",".join(str(x) for x in invIds)
+        if dsIds:
+            parameters["datasetIds"] = ",".join(str(x) for x in dsIds)
+        if dfIds:
+            parameters["datafileIds"] = ",".join(str(x) for x in dfIds)
 
-class IdsException(Exception):
-    def __init__(self, code, message):
-        self.code = code
-        self.message = message
-        
-    def __str__(self):
-        return self.code + ": " + self.message
-     
+    def _getDataUrl(self, parameters):
+        return (self.url + "getData" + "?" + urlencode(parameters))
+
+    def _checkresponse(self, response):
+        """Check the response from the IDS, raise an error if appropriate."""
+
+        rc = response.getcode()
+        if (rc / 100 != 2):
+            responseContent = response.read()
+            try:
+                om = json.loads(responseContent)
+                code = om["code"]
+                message = om["message"]
+            except Exception:
+                raise IDSResponseError(responseContent)
+            raise IDSServerError(rc, code, message)
+
+        return response

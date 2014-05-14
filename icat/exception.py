@@ -14,6 +14,8 @@ __all__ = [
     # icat.client, icat.entity
     'ClientVersionWarning', 'VersionMethodError', 'SearchResultError', 
     'SearchAssertionError', 'DataConsistencyError', 
+    # IDS
+    'IDSError', 'IDSServerError', 'IDSResponseError', 
     # icat.config
     'ConfigError', 
     # icat.icatcheck
@@ -175,6 +177,27 @@ class SearchAssertionError(SearchResultError):
 
 class DataConsistencyError(Exception):
     """Some data is not consistent with rules or constraints."""
+    pass
+
+# ==== Exceptions raised while talking to an ICAT Data Service =====
+
+class IDSError(Exception):
+    """Base class for the errors raised while talking to IDS.
+    """
+    pass
+
+class IDSServerError(IDSError):
+    """Error raised by the by the IDS.
+    """
+    def __init__(self, status, code, message):
+        super(IDSServerError, self).__init__("%s: %s" % (code, message))
+        self.code = status
+        self.idscode = code
+        self.idsmessage = message
+
+class IDSResponseError(IDSError):
+    """The response from the IDS was not what should have been expected.
+    """
     pass
 
 # ================ Exceptions raised in icat.config ================
