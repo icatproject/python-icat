@@ -60,6 +60,9 @@ class ChunkedHTTPConnectionMixin:
             chunksize = getattr(self, 'chunksize', self.default_chunk_size)
             if isinstance(message_body, type(b'')):
                 bodyiter = stringiterator(message_body, chunksize)
+            elif isinstance(message_body, type(u'')):
+                bodyiter = stringiterator(message_body.encode('ascii'), 
+                                          chunksize)
             elif hasattr(message_body, 'read'):
                 bodyiter = fileiterator(message_body, chunksize)
             elif hasattr(message_body, '__iter__'):
