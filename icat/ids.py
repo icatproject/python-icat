@@ -66,6 +66,44 @@ class ChunkedFileReader(object):
             raise StopIteration
 
 
+class DataSelection(object):
+    """A set of data to be processed by the ICAT Data Service."""
+
+    def __init__(self, objs):
+        super(DataSelection, self).__init__()
+        if isinstance(objs, list):
+            self.invIds = []
+            self.dsIds = []
+            self.dfIds = []
+            for o in objs:
+                if o.BeanName == 'Investigation':
+                   self.invIds.append(o.id) 
+                elif o.BeanName == 'Dataset':
+                   self.dsIds.append(o.id) 
+                elif o.BeanName == 'Datafile':
+                   self.dfIds.append(o.id) 
+                else:
+                    raise ValueError("invalid object '%s'." % o.BeanName)
+        elif isinstance(objs, dict):
+            self.invIds = objs.get('investigationIds', [])
+            self.dsIds = objs.get('datasetIds', [])
+            self.dfIds = objs.get('datafileIds', [])
+        else:
+            raise TypeError("objs must either be a list of objects or "
+                            "a dict of ids.")
+
+    def __len__(self):
+        return len(self.invIds) + len(self.dsIds) + len(self.dfIds)
+
+    def fillParams(self, params):
+        if self.invIds:
+            params["investigationIds"] = ",".join(str(x) for x in self.invIds)
+        if self.dsIds:
+            params["datasetIds"] = ",".join(str(x) for x in self.dsIds)
+        if self.dfIds:
+            params["datafileIds"] = ",".join(str(x) for x in self.dfIds)
+
+
 class IDSClient(object):
     
     """A client accessing an ICAT Data Service.
@@ -109,7 +147,7 @@ class IDSClient(object):
         result = self._checkresponse(self.default.open(req)).read()
         return json.loads(result)
     
-    def getStatus(self, datafileIds=[], datasetIds=[], investigationIds=[]):
+    def getStatus(self, selection):
         """Return the status of data.
 
         The data is specified by the datafileIds datasetIds and
@@ -118,29 +156,29 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         parameters = {}
         parameters["sessionId"] = self.sessionId   
-        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        selection.fillParams(parameters)
         req = IDSRequest(self.url + "getStatus", parameters)
         return self._checkresponse(self.default.open(req)).read()
     
-    def restore(self, datafileIds=[], datasetIds=[], investigationIds=[]):
+    def restore(self, selection):
         """Restore data.
 
         The data is specified by the datafileIds datasetIds and
         investigationIds.
         """
         parameters = {"sessionId": self.sessionId}
-        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        selection.fillParams(parameters)
         req = IDSRequest(self.url + "restore", parameters, method="POST")
         return self._checkresponse(self.default.open(req)).read()
 
-    def archive(self, datafileIds=[], datasetIds=[], investigationIds=[]):
+    def archive(self, selection):
         """Archive data.
 
         The data is specified by the datafileIds datasetIds and
         investigationIds.
         """
         parameters = {"sessionId": self.sessionId}
-        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        selection.fillParams(parameters)
         req = IDSRequest(self.url + "archive", parameters, method="POST")
         return self._checkresponse(self.default.open(req)).read()
 
@@ -155,23 +193,22 @@ class IDSClient(object):
         response = self._checkresponse(self.default.open(req)).read()
         return response.lower() == "true"
 
-    def prepareData(self, datafileIds=[], datasetIds=[], investigationIds=[], 
-                    compressFlag=False, zipFlag=False):
+    def prepareData(self, selection, compressFlag=False, zipFlag=False):
         """Prepare data for a subsequent getPreparedData call.
         """
         parameters = {"sessionId": self.sessionId}
-        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        selection.fillParams(parameters)
         if zipFlag:  parameters["zip"] = "true"
         if compressFlag: parameters["compress"] = "true"
         req = IDSRequest(self.url + "prepareData", parameters, method="POST")
         return self._checkresponse(self.default.open(req)).read()
     
-    def getData(self, datafileIds=[], datasetIds=[], investigationIds=[], 
+    def getData(self, selection, 
                 compressFlag=False, zipFlag=False, outname=None, offset=0):
         """Stream the requested data.
         """
         parameters = {"sessionId": self.sessionId}
-        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        selection.fillParams(parameters)
         if zipFlag:  parameters["zip"] = "true"
         if compressFlag: parameters["compress"] = "true"
         if outname: parameters["outname"] = outname
@@ -180,25 +217,25 @@ class IDSClient(object):
             req.add_header("Range", "bytes=" + str(offset) + "-") 
         return self._checkresponse(self.default.open(req))
     
-    def getDataUrl(self, datafileIds=[], datasetIds=[], investigationIds=[], 
+    def getDataUrl(self, selection, 
                    compressFlag=False, zipFlag=False, outname=None):
         """Get the URL to retrieve the requested data.
         """
         parameters = {"sessionId": self.sessionId}
-        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        selection.fillParams(parameters)
         if zipFlag:  parameters["zip"] = "true"
         if compressFlag: parameters["compress"] = "true"
         if outname: parameters["outname"] = outname
         return self._getDataUrl(parameters)
     
-    def delete(self, datafileIds=[], datasetIds=[], investigationIds=[]):
+    def delete(self, selection):
         """Delete data.
 
         The data is identified by the datafileIds, datasetIds and
         investigationIds.
         """
         parameters = {"sessionId": self.sessionId}
-        self._fillParms(parameters, datafileIds, datasetIds, investigationIds)
+        selection.fillParams(parameters)
         req = IDSRequest(self.url + "delete", parameters, method="DELETE")
         self._checkresponse(self.default.open(req))
 
@@ -258,14 +295,6 @@ class IDSClient(object):
         if om["checksum"] != crc:
             raise IDSResponseError("checksum error")
         return long(om["id"])
-
-    def _fillParms(self, parameters, dfIds, dsIds, invIds):
-        if invIds:
-            parameters["investigationIds"] = ",".join(str(x) for x in invIds)
-        if dsIds:
-            parameters["datasetIds"] = ",".join(str(x) for x in dsIds)
-        if dfIds:
-            parameters["datafileIds"] = ",".join(str(x) for x in dfIds)
 
     def _getDataUrl(self, parameters):
         return (self.url + "getData" + "?" + urlencode(parameters))
