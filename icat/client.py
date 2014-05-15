@@ -15,7 +15,7 @@ import suds.sudsobject
 from icat.entity import Entity
 import icat.entities
 from icat.exception import *
-from icat.ids import IdsClient
+from icat.ids import IDSClient
 from icat.helper import simpleqp_unquote, parse_attr_val
 
 __all__ = ['Client']
@@ -219,7 +219,7 @@ class Client(suds.client.Client):
             idsargs['sessionId'] = self.sessionId
         if proxy:
             idsargs['proxy'] = proxy
-        self.ids = IdsClient(url, **idsargs)
+        self.ids = IDSClient(url, **idsargs)
 
     def __setattr__(self, attr, value):
         super(Client, self).__setattr__(attr, value)

@@ -1,4 +1,4 @@
-"""Provide the IdsClient class.
+"""Provide the IDSClient class.
 
 This module is derived from the Python IDS client from the original
 `IDS distribution`_.  Permission to include it in python-icat and to
@@ -15,7 +15,7 @@ import json
 import zlib
 from icat.exception import IDSServerError, IDSResponseError
 
-__all__ = ['IdsClient']
+__all__ = ['IDSClient']
 
 
 class IDSRequest(Request):
@@ -66,7 +66,7 @@ class ChunkedFileReader(object):
             raise StopIteration
 
 
-class IdsClient(object):
+class IDSClient(object):
     
     """A client accessing an ICAT Data Service.
 
@@ -75,7 +75,7 @@ class IdsClient(object):
     """
 
     def __init__(self, url, sessionId=None, proxy=None):
-        """Create an IdsClient.
+        """Create an IDSClient.
         """
         self.url = url
         if not self.url.endswith("/"): self.url += "/"
