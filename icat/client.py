@@ -15,6 +15,7 @@ import suds.sudsobject
 from icat.entity import Entity
 import icat.entities
 from icat.exception import *
+from icat.ids import IdsClient
 from icat.helper import simpleqp_unquote, parse_attr_val
 
 __all__ = ['Client']
@@ -158,6 +159,12 @@ class Client(suds.client.Client):
         :see: ``suds.options.Options`` for the keyword arguments.
         """
 
+        if 'idsurl' in kwargs:
+            idsurl = kwargs['idsurl']
+            del kwargs['idsurl']
+        else:
+            idsurl = None
+
         super(Client, self).__init__(url, **kwargs)
         self.apiversion = Version(self.getApiVersion())
         log.debug("Connect to %s, ICAT version %s", url, self.apiversion)
@@ -179,9 +186,12 @@ class Client(suds.client.Client):
             warn(ClientVersionWarning(self.apiversion, "too new"))
             self.typemap = TypeMap43.copy()
 
+        self.ids = None
         self.sessionId = None
         self.autoLogout = True
 
+        if idsurl:
+            self.add_ids(idsurl)
         self.Register[id(self)] = self
 
     def __del__(self):
@@ -199,6 +209,22 @@ class Client(suds.client.Client):
             if self.autoLogout:
                 self.logout()
             del self.Register[id(self)]
+
+    def add_ids(self, url, proxy=None):
+        """Add the URL to an ICAT Data Service."""
+        if proxy is None:
+            proxy = self.options.proxy
+        idsargs = {}
+        if self.sessionId:
+            idsargs['sessionId'] = self.sessionId
+        if proxy:
+            idsargs['proxy'] = proxy
+        self.ids = IdsClient(url, **idsargs)
+
+    def __setattr__(self, attr, value):
+        super(Client, self).__setattr__(attr, value)
+        if attr == 'sessionId' and self.ids:
+            self.ids.sessionId = self.sessionId
 
 
     def new(self, obj, **kwargs):

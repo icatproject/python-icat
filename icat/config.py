@@ -225,6 +225,15 @@ class Config(object):
         mandatory                  no
         =========================  ==================================
 
+      ``idsurl``
+        URL to the ICAT Data Service.
+
+        =========================  ==================================
+        command line               ``--idsurl``
+        environment                ``ICAT_DATA_SERVICE``
+        mandatory                  yes
+        =========================  ==================================
+
     Mandatory means that an error will be raised if no value is found
     for the configuration variable in question.
 
@@ -243,17 +252,19 @@ class Config(object):
     ReservedVariables = ['client_kwargs', 'credentials']
     """Reserved names of configuration variables."""
 
-    def __init__(self, needlogin=True):
+    def __init__(self, needlogin=True, needids=False):
         """Initialize the object.
 
         Setup the predefined configuration variables.  If
         ``needlogin`` is set to ``False``, the configuration variables
         ``auth``, ``username``, ``password``, ``promptPass``, and
-        ``credentials`` will be left out.
+        ``credentials`` will be left out.  The configuration variable
+        ``idsurl`` will only be set if ``needids`` is set to ``True``.
         """
         super(Config, self).__init__()
         self.defaultFiles = [os.path.join(basedir, filename), filename]
         self.needlogin = needlogin
+        self.needids = needids
         self.confvariables = []
         self.confvariable = {}
 
@@ -269,6 +280,10 @@ class Config(object):
         self.add_variable('url', ("-w", "--url"), 
                           dict(help="URL to the web service description"),
                           envvar='ICAT_SERVICE')
+        if self.needids:
+            self.add_variable('idsurl', ("--idsurl",), 
+                              dict(help="URL to the ICAT Data Service"),
+                              envvar='ICAT_DATA_SERVICE')
         self.add_variable('http_proxy', ("--http-proxy",), 
                           dict(help="proxy to use for http requests"),
                           envvar='http_proxy', optional=True)
@@ -407,5 +422,7 @@ class Config(object):
             if config.https_proxy:
                 proxy['https'] = config.https_proxy
             config.client_kwargs['proxy'] = proxy
+        if self.needids:
+            config.client_kwargs['idsurl'] = config.idsurl
 
         return config
