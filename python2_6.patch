@@ -20,6 +20,19 @@ Index: icat/icatcheck.py
          else:
              base = [t for t in tree if tree[t]['base'] is None][0]
              self.schema[base].classname = baseclassname
+Index: icat/chunkedhttp.py
+===================================================================
+--- icat/chunkedhttp.py	(revision 315)
++++ icat/chunkedhttp.py	(working copy)
+@@ -58,7 +58,7 @@
+ 
+         if message_body is not None:
+             chunksize = getattr(self, 'chunksize', self.default_chunk_size)
+-            if isinstance(message_body, type(b'')):
++            if isinstance(message_body, type('')):
+                 bodyiter = stringiterator(message_body, chunksize)
+             elif isinstance(message_body, type(u'')):
+                 bodyiter = stringiterator(message_body.encode('ascii'), 
 Index: doc/examples/icatdump.py
 ===================================================================
 --- doc/examples/icatdump.py	(revision 263)
