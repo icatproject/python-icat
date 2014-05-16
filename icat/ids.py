@@ -15,7 +15,7 @@ import json
 import zlib
 from icat.exception import IDSServerError, IDSResponseError
 
-__all__ = ['IDSClient']
+__all__ = ['DataSelection', 'IDSClient']
 
 
 class IDSRequest(Request):
