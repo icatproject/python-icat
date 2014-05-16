@@ -6,7 +6,8 @@ APIDOC_DIR        = doc/api
 EXAMPLE_DIR       = doc/examples
 EXAMPLE_FILES     = getversion.py login.py init-icat.py			\
 		    create-investigation.py create-sampletype.py	\
-		    add-investigation-data.py ldapsync.py		\
+		    add-investigation-data.py addfile.py		\
+		    downloaddata.py ldapsync.py				\
 		    create-parametertypes.py check.py icatdump.py	\
 		    icatrestore.py icatsummary.py wipeicat.py
 EXAMPLE_CGI_DIR   = $(EXAMPLE_DIR)/cgi
