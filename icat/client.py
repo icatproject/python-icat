@@ -3,6 +3,7 @@
 This is the only module that needs to be imported to use the icat.
 """
 
+import os
 from warnings import warn
 import logging
 from distutils.version import StrictVersion as Version
@@ -15,7 +16,7 @@ import suds.sudsobject
 from icat.entity import Entity
 import icat.entities
 from icat.exception import *
-from icat.ids import IDSClient
+from icat.ids import *
 from icat.helper import simpleqp_unquote, parse_attr_val
 
 __all__ = ['Client']
@@ -130,6 +131,10 @@ class Client(suds.client.Client):
 
     :group custom API methods: searchUniqueKey, assertedSearch,
         createUser, createGroup, createRules
+
+    :group custom IDS methods: putData, getData, getDataUrl,
+        prepareData, isDataPrepared, getPreparedData,
+        getPreparedDataUrl, deleteData
     """
 
     Register = {}
@@ -666,6 +671,105 @@ class Client(suds.client.Client):
             r = self.new("rule", crudFlags=crudFlags, what=w, grouping=group)
             rules.append(r)
         return self.createMany(rules)
+
+
+    # =================== custom IDS methods ===================
+
+    def putData(self, infile, datafile):
+        """Uploads a datafile to IDS."""
+        if not self.ids:
+            raise RuntimeError("no IDS.")
+        if not datafile.name:
+            raise ValueError("datafile.name is not set.")
+        if not datafile.dataset or not datafile.dataset.id:
+            raise ValueError("datafile.dataset is not set.")
+        if not datafile.datafileFormat or not datafile.datafileFormat.id:
+            raise ValueError("datafile.datafileFormat is not set.")
+
+        if not hasattr(infile, 'read'):
+            if isinstance(infile, basestring):
+                # We got a file name as infile.  Open the file and
+                # recursively call the method again with the open file
+                # as argument.  This is the easiest way to guarantee
+                # that the file will finally get closed also in case
+                # of errors.
+                with open(infile, 'rb') as f:
+                    return self.putData(f, datafile)
+            else:
+                raise TypeError("invalid infile type '%s': "
+                                "must either be a file or a file name." % 
+                                type(infile))
+
+        modTime = datafile.datafileModTime
+        if not modTime:
+            try:
+                # Try our best to get the mtime from the fileno, but
+                # don't bother if this doesn't work, e.g. if it cannot
+                # be fstated.  Note that fstat() yields seconds since
+                # epoch as float, while IDS expects microseconds since
+                # epoch as int.
+                modTime = int(1000*os.fstat(infile.fileno()).st_mtime)
+            except:
+                pass
+        createTime = datafile.datafileCreateTime
+        if not createTime:
+            createTime = modTime
+
+        return self.ids.put(infile, datafile.name, 
+                            datafile.dataset.id, datafile.datafileFormat.id, 
+                            datafile.description, datafile.doi, 
+                            createTime, modTime)
+
+    def getData(self, objs, compressFlag=False, zipFlag=False, outname=None, 
+                offset=0):
+        """Stream the requested data."""
+        if not self.ids:
+            raise RuntimeError("no IDS.")
+        if not isinstance(objs, DataSelection):
+            objs = DataSelection(objs)
+        return self.ids.getData(objs, compressFlag, zipFlag, outname, offset)
+
+    def getDataUrl(self, objs, compressFlag=False, zipFlag=False, outname=None):
+        """Get the URL to retrieve the requested data."""
+        if not self.ids:
+            raise RuntimeError("no IDS.")
+        if not isinstance(objs, DataSelection):
+            objs = DataSelection(objs)
+        return self.ids.getDataUrl(objs, compressFlag, zipFlag, outname)
+
+    def prepareData(self, objs, compressFlag=False, zipFlag=False):
+        """Prepare data for a subsequent getPreparedData call."""
+        if not self.ids:
+            raise RuntimeError("no IDS.")
+        if not isinstance(objs, DataSelection):
+            objs = DataSelection(objs)
+        return self.ids.prepareData(objs, compressFlag, zipFlag)
+
+    def isDataPrepared(self, preparedId):
+        """Check if data is ready."""
+        if not self.ids:
+            raise RuntimeError("no IDS.")
+        return self.ids.isPrepared(preparedId)
+
+    def getPreparedData(self, preparedId, outname=None, offset=0):
+        """Get prepared data."""
+        if not self.ids:
+            raise RuntimeError("no IDS.")
+        return self.ids.getPreparedData(preparedId, outname, offset)
+
+    def getPreparedDataUrl(self, preparedId, outname=None):
+        """Get the URL to retrieve prepared data."""
+        if not self.ids:
+            raise RuntimeError("no IDS.")
+        return self.ids.getPreparedDataUrl(preparedId, outname)
+
+    def deleteData(self, objs):
+        """Delete data."""
+        if not self.ids:
+            raise RuntimeError("no IDS.")
+        if not isinstance(objs, DataSelection):
+            objs = DataSelection(objs)
+        self.ids.delete(objs)
 
 
 atexit.register(Client.cleanupall)
