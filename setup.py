@@ -7,18 +7,18 @@ try:
 except ImportError:
     # Python 2.x
     from distutils.command.build_py import build_py
-import icat
+import icatinfo
 import re
 
 if sys.version_info < (2, 6):
     raise RuntimeError("Sorry, this Python version (%s) is too old to use "
                        "this package." % sys.version)
 
-DOCLINES         = icat.__doc__.split("\n")
+DOCLINES         = icatinfo.__doc__.split("\n")
 DESCRIPTION      = DOCLINES[0]
 LONG_DESCRIPTION = "\n".join(DOCLINES[2:])
-VERSION          = icat.__version__
-AUTHOR           = icat.__author__
+VERSION          = icatinfo.__version__
+AUTHOR           = icatinfo.__author__
 URL              = "http://code.google.com/p/icatproject/wiki/PythonIcat"
 m = re.match(r"^(.*?)\s*<(.*)>$", AUTHOR)
 (AUTHOR_NAME, AUTHOR_EMAIL) = m.groups() if m else (AUTHOR, None)

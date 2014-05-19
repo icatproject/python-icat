@@ -18,17 +18,21 @@ sdist: sdist_prepare
 	./setup.py sdist
 
 clean:
-	rm -f *~
+	rm -f *~ icat/*~
 	rm -rf build
 
 distclean: apidoc_clean example_clean clean
 	rm -f MANIFEST
 	rm -rf python_icat.egg-info
-	rm -f icat/*.pyc
-	rm -rf icat/__pycache__
+	rm -f *.pyc icat/*.pyc
+	rm -rf __pycache__ icat/__pycache__
+	rm -f icat/__init__.py
 	rm -rf dist
 
-sdist_prepare: apidoc copy_examples
+sdist_prepare: icat/__init__.py apidoc copy_examples
+
+icat/__init__.py: icatinfo.py icatinit.py
+	cat icatinfo.py icatinit.py > icat/__init__.py
 
 apidoc: apidoc_clean
 	epydoc --html --docformat=restructuredtext --output=$(APIDOC_DIR) icat
