@@ -20,6 +20,22 @@ client = icat.Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 
+def deletetype(t):
+    """Delete all objects of some type t.
+    """
+    # The search may fail if there are too many objects to return.
+    # Limit the result to 100 at a time.  This requires the JPQL
+    # syntax introduced with ICAT 4.3.  Try and hope for the best with
+    # older ICATs.
+    if client.apiversion < '4.3':
+        client.deleteMany(client.search(t))
+    else:
+        while True:
+            objs = client.search("SELECT o FROM %s o LIMIT 0, 100" % t)
+            if not objs:
+                break
+            client.deleteMany(objs)
+
 # Entity types needed for access permissions.  Must be deleted last,
 # otherwise we would take delete permission from ourselves.
 if client.apiversion < '4.3':
@@ -46,8 +62,8 @@ client.deleteMany(client.search("Facility"))
 # Datafile in ICAT 4.2.
 for t in client.getEntityNames():
     if t not in authztables:
-        client.deleteMany(client.search(t))
+        deletetype(t)
 
 # Last step, delete the authztables.
 for t in authztables:
-    client.deleteMany(client.search(t))
+    deletetype(t)
