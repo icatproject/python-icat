@@ -1,7 +1,8 @@
-<icatdump>
+<?xml version="1.0" encoding="utf-8"?>
+<icatdump xmlns="http://icatproject.org/dump/43">
 <!-- draft of a new python-icat dump file XML format -->
 <head>
-  <date>2014-05-22T06-09-55Z</date>
+  <date>2014-05-22T06:09:55Z</date>
   <service>https://localhost:8181/ICATService/ICAT?wsdl</service>
   <apiversion>4.3.2</apiversion>
   <generator>nXML (Emacs 24.2.1)</generator>

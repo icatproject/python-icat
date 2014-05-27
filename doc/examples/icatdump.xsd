@@ -1,0 +1,656 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xsd:schema targetNamespace="http://icatproject.org/dump/43"
+	    xmlns="http://icatproject.org/dump/43"
+	    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	    elementFormDefault="qualified">
+
+<xsd:annotation>
+  <xsd:documentation>
+    Schema definition for an ICAT dump file format.
+    Valid for ICAT 4.3.*.
+  </xsd:documentation>
+</xsd:annotation>
+
+<xsd:element name="icatdump" type="dumpfile"/>
+
+<xsd:complexType name="dumpfile">
+  <xsd:sequence>
+    <xsd:element name="head" type="head" minOccurs="0"/>
+    <xsd:element name="data" type="data" minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="head">
+  <xsd:sequence>
+    <xsd:element name="date" type="xsd:dateTime"/>
+    <xsd:element name="service" type="xsd:anyURI"/>
+    <xsd:element name="apiversion" type="xsd:string"/>
+    <xsd:element name="generator" type="xsd:string"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="data">
+  <!-- The data element contains the entity objects.  
+
+       Order is important, objects referenced by others in a
+       many-to-one relation must come before the referencing object.
+  -->
+  <xsd:sequence>
+    <!-- authz -->
+    <xsd:element name="user" type="user" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="grouping" type="grouping" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="userGroup" type="userGroup" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="rule" type="rule" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="publicStep" type="publicStep" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <!-- static -->
+    <xsd:element name="facility" type="facility" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="instrument" type="instrument" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="instrumentScientist" type="instrumentScientist" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="parameterType" type="parameterType" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="permissibleStringValue" type="permissibleStringValue" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="investigationType" type="investigationType" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="sampleType" type="sampleType" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datasetType" type="datasetType" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datafileFormat" type="datafileFormat" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="application" type="application" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="facilityCycle" type="facilityCycle" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <!-- investigation -->
+    <xsd:element name="investigation" type="investigation" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="investigationInstrument" type="investigationInstrument" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="investigationParameter" type="investigationParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="investigationUser" type="investigationUser" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="keyword" type="keyword" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="publication" type="publication" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="shift" type="shift" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="sample" type="sample" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="sampleParameter" type="sampleParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="dataset" type="dataset" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datasetParameter" type="datasetParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datafile" type="datafile" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datafileParameter" type="datafileParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <!-- other -->
+    <xsd:element name="study" type="study" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="studyInvestigation" type="studyInvestigation" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="relatedDatafile" type="relatedDatafile" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="dataCollection" type="dataCollection" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="dataCollectionParameter" type="dataCollectionParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="dataCollectionDataset" type="dataCollectionDataset" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="dataCollectionDatafile" type="dataCollectionDatafile" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="job" type="job" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="entityReference">
+  <xsd:attribute name="ref" type="xsd:string" use="required"/>
+</xsd:complexType>
+
+
+<!-- authz -->
+
+<xsd:complexType name="user">
+  <xsd:sequence>
+    <xsd:element name="fullName" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="instrumentScientists" type="instrumentScientist" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="investigationUsers" type="investigationUser" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="studies" type="study" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="userGroups" type="userGroup" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="grouping">
+  <xsd:sequence>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="rules" type="rule" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="userGroups" type="userGroup" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="userGroup">
+  <xsd:sequence>
+    <xsd:element name="grouping" type="entityReference" minOccurs="0"/>
+    <xsd:element name="user" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="rule">
+  <xsd:sequence>
+    <xsd:element name="crudFlags" type="xsd:string"/>
+    <xsd:element name="what" type="xsd:string"/>
+    <xsd:element name="grouping" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="publicStep">
+  <xsd:sequence>
+    <xsd:element name="field" type="xsd:string"/>
+    <xsd:element name="origin" type="xsd:string"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<!-- static -->
+
+<xsd:complexType name="facility">
+  <xsd:sequence>
+    <xsd:element name="daysUntilRelease" type="xsd:int" minOccurs="0"/>
+    <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="fullName" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="url" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="applications" type="application" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datafileFormats" type="datafileFormat" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datasetTypes" type="datasetType" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="facilityCycles" type="facilityCycle" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="instruments" type="instrument" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="investigationTypes" type="investigationType" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="investigations" type="investigation" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="parameterTypes" type="parameterType" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="sampleTypes" type="sampleType" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="instrument">
+  <xsd:sequence>
+    <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="fullName" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="type" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="url" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="facility" type="entityReference" minOccurs="0"/>
+    <xsd:element name="instrumentScientists" type="instrumentScientist" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="investigationInstruments" type="investigationInstrument" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="instrumentScientist">
+  <xsd:sequence>
+    <xsd:element name="instrument" type="entityReference" minOccurs="0"/>
+    <xsd:element name="user" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="parameterType">
+  <xsd:sequence>
+    <xsd:element name="applicableToDataCollection" type="xsd:boolean" 
+		 minOccurs="0"/>
+    <xsd:element name="applicableToDatafile" type="xsd:boolean" 
+		 minOccurs="0"/>
+    <xsd:element name="applicableToDataset" type="xsd:boolean" 
+		 minOccurs="0"/>
+    <xsd:element name="applicableToInvestigation" type="xsd:boolean" 
+		 minOccurs="0"/>
+    <xsd:element name="applicableToSample" type="xsd:boolean" 
+		 minOccurs="0"/>
+    <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="enforced" type="xsd:boolean" minOccurs="0"/>
+    <xsd:element name="maximumNumericValue" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="minimumNumericValue" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="units" type="xsd:string"/>
+    <xsd:element name="unitsFullName" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="valueType" type="parameterValueType"/>
+    <xsd:element name="verified" type="xsd:boolean" minOccurs="0"/>
+    <xsd:element name="facility" type="entityReference" minOccurs="0"/>
+    <xsd:element name="dataCollectionParameters" type="dataCollectionParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datafileParameters" type="datafileParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datasetParameters" type="datasetParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="investigationParameters" type="investigationParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="permissibleStringValues" type="permissibleStringValue" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="sampleParameters" type="sampleParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="permissibleStringValue">
+  <xsd:sequence>
+    <xsd:element name="value" type="xsd:string"/>
+    <xsd:element name="type" type="parameterType" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="investigationType">
+  <xsd:sequence>
+    <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="facility" type="entityReference" minOccurs="0"/>
+    <xsd:element name="investigations" type="investigation" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="sampleType">
+  <xsd:sequence>
+    <xsd:element name="molecularFormula" type="xsd:string"/>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="safetyInformation" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="facility" type="entityReference" minOccurs="0"/>
+    <xsd:element name="samples" type="sample" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="datasetType">
+  <xsd:sequence>
+    <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="facility" type="entityReference" minOccurs="0"/>
+    <xsd:element name="datasets" type="dataset" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="datafileFormat">
+  <xsd:sequence>
+    <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="type" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="version" type="xsd:string"/>
+    <xsd:element name="facility" type="entityReference" minOccurs="0"/>
+    <xsd:element name="datafiles" type="datafile" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="application">
+  <xsd:sequence>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="version" type="xsd:string"/>
+    <xsd:element name="facility" type="entityReference" minOccurs="0"/>
+    <xsd:element name="jobs" type="job" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="facilityCycle">
+  <xsd:sequence>
+    <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="endDate" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="startDate" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="facility" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<!-- investigation -->
+
+<xsd:complexType name="investigation">
+  <xsd:sequence>
+    <xsd:element name="doi" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="endDate" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="releaseDate" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="startDate" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="summary" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="title" type="xsd:string"/>
+    <xsd:element name="visitId" type="xsd:string"/>
+    <xsd:element name="facility" type="entityReference" minOccurs="0"/>
+    <xsd:element name="type" type="entityReference" minOccurs="0"/>
+    <xsd:element name="datasets" type="dataset" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="investigationInstruments" type="investigationInstrument" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="investigationUsers" type="investigationUser" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="keywords" type="keyword" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="parameters" type="investigationParameter"
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="publications" type="publication" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="samples" type="sample" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="shifts" type="shift" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="studyInvestigations" type="studyInvestigation" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="investigationInstrument">
+  <xsd:sequence>
+    <xsd:element name="instrument" type="entityReference" minOccurs="0"/>
+    <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="investigationParameter">
+  <xsd:sequence>
+    <xsd:element name="dateTimeValue" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="error" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="numericValue" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="rangeBottom" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="rangeTop" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="stringValue" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="type" type="entityReference" minOccurs="0"/>
+    <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="investigationUser">
+  <xsd:sequence>
+    <xsd:element name="role" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
+    <xsd:element name="user" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="keyword">
+  <xsd:sequence>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="publication">
+  <xsd:sequence>
+    <xsd:element name="doi" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="fullReference" type="xsd:string"/>
+    <xsd:element name="repository" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="repositoryId" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="url" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="shift">
+  <xsd:sequence>
+    <xsd:element name="comment" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="endDate" type="xsd:dateTime"/>
+    <xsd:element name="startDate" type="xsd:dateTime"/>
+    <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="sample">
+  <xsd:sequence>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
+    <xsd:element name="type" type="entityReference" minOccurs="0"/>
+    <xsd:element name="datasets" type="dataset" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="parameters" type="sampleParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="sampleParameter">
+  <xsd:sequence>
+    <xsd:element name="dateTimeValue" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="error" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="numericValue" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="rangeBottom" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="rangeTop" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="stringValue" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="sample" type="entityReference" minOccurs="0"/>
+    <xsd:element name="type" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="dataset">
+  <xsd:sequence>
+    <xsd:element name="complete" type="xsd:boolean"/>
+    <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="doi" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="endDate" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="location" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="startDate" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
+    <xsd:element name="sample" type="entityReference" minOccurs="0"/>
+    <xsd:element name="type" type="entityReference" minOccurs="0"/>
+    <xsd:element name="dataCollectionDatasets" type="dataCollectionDataset" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datafiles" type="datafile" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="parameters" type="datasetParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="datasetParameter">
+  <xsd:sequence>
+    <xsd:element name="dateTimeValue" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="error" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="numericValue" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="rangeBottom" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="rangeTop" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="stringValue" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="dataset" type="entityReference" minOccurs="0"/>
+    <xsd:element name="type" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="datafile">
+  <xsd:sequence>
+    <xsd:element name="checksum" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="datafileCreateTime" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="datafileModTime" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="doi" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="fileSize" type="xsd:long" minOccurs="0"/>
+    <xsd:element name="location" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="datafileFormat" type="entityReference" minOccurs="0"/>
+    <xsd:element name="dataset" type="entityReference" minOccurs="0"/>
+    <xsd:element name="dataCollectionDatafiles" type="dataCollectionDatafile" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="destDatafiles" type="relatedDatafile" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="parameters" type="datafileParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="sourceDatafiles" type="relatedDatafile" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="datafileParameter">
+  <xsd:sequence>
+    <xsd:element name="dateTimeValue" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="error" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="numericValue" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="rangeBottom" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="rangeTop" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="stringValue" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="datafile" type="entityReference" minOccurs="0"/>
+    <xsd:element name="type" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<!-- other -->
+
+<xsd:complexType name="study">
+  <xsd:sequence>
+    <xsd:element name="description" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="startDate" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="status" type="studyStatus" minOccurs="0"/>
+    <xsd:element name="user" type="entityReference" minOccurs="0"/>
+    <xsd:element name="studyInvestigations" type="studyInvestigation" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="studyInvestigation">
+  <xsd:sequence>
+    <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
+    <xsd:element name="study" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="relatedDatafile">
+  <xsd:sequence>
+    <xsd:element name="relation" type="xsd:string"/>
+    <xsd:element name="destDatafile" type="entityReference" minOccurs="0"/>
+    <xsd:element name="sourceDatafile" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="dataCollection">
+  <xsd:sequence>
+    <xsd:element name="dataCollectionDatafiles" type="dataCollectionDatafile" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="dataCollectionDatasets" type="dataCollectionDataset" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="jobsAsInput" type="job" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="jobsAsOutput" type="job" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="parameters" type="dataCollectionParameter" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="dataCollectionParameter">
+  <xsd:sequence>
+    <xsd:element name="dateTimeValue" type="xsd:dateTime" minOccurs="0"/>
+    <xsd:element name="error" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="numericValue" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="rangeBottom" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="rangeTop" type="xsd:double" minOccurs="0"/>
+    <xsd:element name="stringValue" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="dataCollection" type="entityReference" minOccurs="0"/>
+    <xsd:element name="type" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="dataCollectionDataset">
+  <xsd:sequence>
+    <xsd:element name="dataCollection" type="entityReference" minOccurs="0"/>
+    <xsd:element name="dataset" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="dataCollectionDatafile">
+  <xsd:sequence>
+    <xsd:element name="dataCollection" type="entityReference" minOccurs="0"/>
+    <xsd:element name="datafile" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="job">
+  <xsd:sequence>
+    <xsd:element name="arguments" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="application" type="entityReference" minOccurs="0"/>
+    <xsd:element name="inputDataCollection" type="entityReference" 
+		 minOccurs="0"/>
+    <xsd:element name="outputDataCollection" type="entityReference" 
+		 minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+
+<xsd:simpleType name="parameterValueType">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="DATE_AND_TIME"/>
+    <xsd:enumeration value="NUMERIC"/>
+    <xsd:enumeration value="STRING"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="studyStatus">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="NEW"/>
+    <xsd:enumeration value="IN_PROGRESS"/>
+    <xsd:enumeration value="COMPLETE"/>
+    <xsd:enumeration value="CANCELLED"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+</xsd:schema>
