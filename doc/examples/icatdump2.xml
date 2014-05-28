@@ -1,0 +1,1187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icatdump>
+<!-- draft of a new python-icat dump file XML format -->
+<head>
+  <date>2014-05-22T06:09:55Z</date>
+  <service>https://localhost:8181/ICATService/ICAT?wsdl</service>
+  <apiversion>4.3.2</apiversion>
+  <generator>nXML (Emacs 24.2.1)</generator>
+</head>
+<data>
+  <user id="User_name-acord">
+    <fullName>Aelius Cordus</fullName>
+    <name>acord</name>
+  </user>
+  <user id="User_name-ahau">
+    <fullName>Arnold Hau</fullName>
+    <name>ahau</name>
+  </user>
+  <user id="User_name-idsreader">
+    <fullName>IDS reader</fullName>
+    <name>idsreader</name>
+  </user>
+  <user id="User_name-jbotu">
+    <fullName>Jean-Baptiste Botul</fullName>
+    <name>jbotu</name>
+  </user>
+  <user id="User_name-jdoe">
+    <fullName>John Doe</fullName>
+    <name>jdoe</name>
+  </user>
+  <user id="User_name-nbour">
+    <fullName>Nicolas Bourbaki</fullName>
+    <name>nbour</name>
+  </user>
+  <user id="User_name-rbeck">
+    <fullName>Rudolph Beck-D&#252;lmen</fullName>
+    <name>rbeck</name>
+  </user>
+  <user id="User_name-root">
+    <fullName>Root</fullName>
+    <name>root</name>
+  </user>
+  <user id="User_name-useroffice">
+    <fullName>User Office</fullName>
+    <name>useroffice</name>
+  </user>
+  <grouping id="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fowner">
+    <name>investigation_2008-HIKE-0255-1_owner</name>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>UserGroup &lt;-&gt; Grouping[name=&apos;investigation_2008-HIKE-0255-1_reader&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>UserGroup &lt;-&gt; Grouping[name=&apos;investigation_2008-HIKE-0255-1_writer&apos;]</what>
+    </rules>
+    <userGroups>
+      <user ref="User_name-jbotu"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader">
+    <name>investigation_2008-HIKE-0255-1_reader</name>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationInstrument &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationParameter &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationUser &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Keyword &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Publication &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Sample &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Shift &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <userGroups>
+      <user ref="User_name-jdoe"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter">
+    <name>investigation_2008-HIKE-0255-1_writer</name>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InvestigationInstrument &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InvestigationParameter &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationUser &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>RU</crudFlags>
+      <what>Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Keyword &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Publication &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Sample &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Shift &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    </rules>
+    <userGroups>
+      <user ref="User_name-acord"/>
+    </userGroups>
+    <userGroups>
+      <user ref="User_name-jbotu"/>
+    </userGroups>
+    <userGroups>
+      <user ref="User_name-nbour"/>
+    </userGroups>
+    <userGroups>
+      <user ref="User_name-rbeck"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fowner">
+    <name>investigation_2010-E2-0489-1_owner</name>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>UserGroup &lt;-&gt; Grouping[name=&apos;investigation_2010-E2-0489-1_reader&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>UserGroup &lt;-&gt; Grouping[name=&apos;investigation_2010-E2-0489-1_writer&apos;]</what>
+    </rules>
+    <userGroups>
+      <user ref="User_name-ahau"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader">
+    <name>investigation_2010-E2-0489-1_reader</name>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationInstrument &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationParameter &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationUser &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Keyword &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Publication &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Sample &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Shift &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <userGroups>
+      <user ref="User_name-jbotu"/>
+    </userGroups>
+    <userGroups>
+      <user ref="User_name-jdoe"/>
+    </userGroups>
+    <userGroups>
+      <user ref="User_name-nbour"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter">
+    <name>investigation_2010-E2-0489-1_writer</name>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InvestigationInstrument &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InvestigationParameter &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationUser &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>RU</crudFlags>
+      <what>Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Keyword &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Publication &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Sample &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Shift &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    </rules>
+    <userGroups>
+      <user ref="User_name-acord"/>
+    </userGroups>
+    <userGroups>
+      <user ref="User_name-ahau"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fowner">
+    <name>investigation_2012-EDDI-0390-1_owner</name>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>UserGroup &lt;-&gt; Grouping[name=&apos;investigation_2012-EDDI-0390-1_reader&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>UserGroup &lt;-&gt; Grouping[name=&apos;investigation_2012-EDDI-0390-1_writer&apos;]</what>
+    </rules>
+    <userGroups>
+      <user ref="User_name-nbour"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader">
+    <name>investigation_2012-EDDI-0390-1_reader</name>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationInstrument &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationParameter &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationUser &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Keyword &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Publication &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Sample &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Shift &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <userGroups>
+      <user ref="User_name-rbeck"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter">
+    <name>investigation_2012-EDDI-0390-1_writer</name>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InvestigationInstrument &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InvestigationParameter &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationUser &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>RU</crudFlags>
+      <what>Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Keyword &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Publication &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Sample &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Shift &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    </rules>
+    <userGroups>
+      <user ref="User_name-nbour"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-rall">
+    <name>rall</name>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Application</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DataCollection</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DataCollectionDatafile</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DataCollectionDataset</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DataCollectionParameter</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Datafile</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DatafileFormat</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DatafileParameter</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Dataset</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DatasetParameter</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>DatasetType</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Facility</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>FacilityCycle</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Grouping</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Instrument</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InstrumentScientist</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Investigation</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationInstrument</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationParameter</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationType</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>InvestigationUser</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Job</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Keyword</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Log</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>PermissibleStringValue</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>ParameterType</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>PublicStep</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Publication</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>RelatedDatafile</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Rule</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Sample</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>SampleParameter</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>SampleType</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Shift</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>Study</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>StudyInvestigation</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>User</what>
+    </rules>
+    <rules>
+      <crudFlags>R</crudFlags>
+      <what>UserGroup</what>
+    </rules>
+    <userGroups>
+      <user ref="User_name-idsreader"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-root">
+    <name>root</name>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Application</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DataCollection</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DataCollectionDatafile</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DataCollectionDataset</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DataCollectionParameter</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Datafile</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DatafileFormat</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DatafileParameter</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Dataset</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DatasetParameter</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>DatasetType</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Facility</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>FacilityCycle</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Grouping</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Instrument</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InstrumentScientist</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Investigation</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InvestigationInstrument</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InvestigationParameter</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InvestigationType</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InvestigationUser</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Job</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Keyword</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Log</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>ParameterType</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>PermissibleStringValue</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>PublicStep</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Publication</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>RelatedDatafile</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Rule</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Sample</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>SampleParameter</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>SampleType</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Shift</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Study</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>StudyInvestigation</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>User</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>UserGroup</what>
+    </rules>
+    <userGroups>
+      <user ref="User_name-root"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-samplewriter">
+    <name>samplewriter</name>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>SampleType</what>
+    </rules>
+    <userGroups>
+      <user ref="User_name-acord"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-useroffice">
+    <name>useroffice</name>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>FacilityCycle</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Grouping</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InstrumentScientist</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Investigation</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InvestigationInstrument</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InvestigationParameter</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>InvestigationUser</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Keyword</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Publication</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Rule</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>Shift</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+    <what>Study</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>StudyInvestigation</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>User</what>
+    </rules>
+    <rules>
+      <crudFlags>CRUD</crudFlags>
+      <what>UserGroup</what>
+    </rules>
+    <userGroups>
+      <user ref="User_name-useroffice"/>
+    </userGroups>
+  </grouping>
+  <rule id="Rule_00000001">
+    <crudFlags>R</crudFlags>
+    <what>Application</what>
+  </rule>
+  <rule id="Rule_00000002">
+    <crudFlags>R</crudFlags>
+    <what>DatafileFormat</what>
+  </rule>
+  <rule id="Rule_00000003">
+    <crudFlags>R</crudFlags>
+    <what>DatasetType</what>
+  </rule>
+  <rule id="Rule_00000004">
+    <crudFlags>R</crudFlags>
+    <what>Facility</what>
+  </rule>
+  <rule id="Rule_00000005">
+    <crudFlags>R</crudFlags>
+    <what>FacilityCycle</what>
+  </rule>
+  <rule id="Rule_00000006">
+    <crudFlags>R</crudFlags>
+    <what>Grouping</what>
+  </rule>
+  <rule id="Rule_00000007">
+    <crudFlags>R</crudFlags>
+    <what>Instrument</what>
+  </rule>
+  <rule id="Rule_00000008">
+    <crudFlags>R</crudFlags>
+    <what>InstrumentScientist</what>
+  </rule>
+  <rule id="Rule_00000009">
+    <crudFlags>R</crudFlags>
+    <what>InvestigationType</what>
+  </rule>
+  <rule id="Rule_00000010">
+    <crudFlags>R</crudFlags>
+    <what>ParameterType</what>
+  </rule>
+  <rule id="Rule_00000011">
+    <crudFlags>R</crudFlags>
+    <what>PermissibleStringValue</what>
+  </rule>
+  <rule id="Rule_00000012">
+    <crudFlags>R</crudFlags>
+    <what>SampleType</what>
+  </rule>
+  <rule id="Rule_00000013">
+    <crudFlags>R</crudFlags>
+    <what>User</what>
+  </rule>
+  <rule id="Rule_00000014">
+    <crudFlags>R</crudFlags>
+    <what>UserGroup &lt;-&gt; User[name=:user]</what>
+  </rule>
+</data>
+<data>
+  <facility id="Facility_name-ESNF">
+    <description>ESNF is an example facility</description>
+    <fullName>Example Synchrotron and Neutron Facility</fullName>
+    <name>ESNF</name>
+    <url>http://www.esnf.example.org/</url>
+  </facility>
+  <instrument id="Instrument_facility-(name-ESNF)_name-E2">
+    <description>A 3-dimensional part of the reciprocal space can be scanned in less then five steps by combining the &quot;off-plane Bragg-scattering&quot; and the flat-cone layer concept while using a new computer-controlled tilting axis of the detector bank.</description>
+    <fullName>E2 - Flat-Cone Diffractometer</fullName>
+    <name>E2</name>
+    <facility ref="Facility_name-ESNF"/>
+    <instrumentScientists>
+      <user ref="User_name-acord"/>
+    </instrumentScientists>
+  </instrument>
+  <instrument id="Instrument_facility-(name-ESNF)_name-EDDI">
+    <description>The experimental station EDDI (Energy Dispersive Diffraction) is a fixed station at the 7T-MPW-EDDI beamline.  The beamline provides the direct white photon beam emitted by the 7T multipole wiggler and is operated in the energy-dispersive mode of diffraction.  For the experiments two diffractometers with Eularian cradle segments (GE Inspection Technologies) are at the disposal for light and heavy weight samples.  For the acquisition of the diffraction patterns as well as the fluorescence signals two Germanium solid state detectors (Canberra) are available.</description>
+    <fullName>EDDI - Energy Dispersive Diffraction</fullName>
+    <name>EDDI</name>
+    <facility ref="Facility_name-ESNF"/>
+    <instrumentScientists>
+      <user ref="User_name-acord"/>
+    </instrumentScientists>
+  </instrument>
+  <instrument id="Instrument_facility-(name-ESNF)_name-HIKE">
+    <description>The system is designed for hard X-ray high kinetic energy photoelectron spectroscopy (HAXPES or HIKE) experiments in the excitation energy range from 2 keV to 12 keV with an optimized recorded kinetic energy range from 150 eV to 10000 eV.  The typical experiments running on the HIKE end station are investigations of bulk electronic properties &#8211; core levels and valence band, buried interfaces and x-ray standing waves.</description>
+    <fullName>HIKE - High Kinetic Energy Photoelectron Spectroscopy</fullName>
+    <name>HIKE</name>
+    <facility ref="Facility_name-ESNF"/>
+    <instrumentScientists>
+      <user ref="User_name-acord"/>
+    </instrumentScientists>
+  </instrument>
+  <investigationType id="InvestigationType_name-Calibration_facility-(name-ESNF)">
+    <name>Calibration</name>
+    <facility ref="Facility_name-ESNF"/>
+  </investigationType>
+  <investigationType id="InvestigationType_name-Commercial=20experiment_facility-(name-ESNF)">
+    <name>Commercial experiment</name>
+    <facility ref="Facility_name-ESNF"/>
+  </investigationType>
+  <investigationType id="InvestigationType_name-Engineering_facility-(name-ESNF)">
+    <name>Engineering</name>
+    <facility ref="Facility_name-ESNF"/>
+  </investigationType>
+  <investigationType id="InvestigationType_name-Experiment_facility-(name-ESNF)">
+    <name>Experiment</name>
+    <facility ref="Facility_name-ESNF"/>
+  </investigationType>
+  <investigationType id="InvestigationType_name-Simulation_facility-(name-ESNF)">
+    <name>Simulation</name>
+    <facility ref="Facility_name-ESNF"/>
+  </investigationType>
+  <sampleType id="SampleType_facility-(name-ESNF)_name-Durol=20SC_molecularFormula-C10H14">
+    <molecularFormula>C10H14</molecularFormula>
+    <name>Durol SC</name>
+    <facility ref="Facility_name-ESNF"/>
+  </sampleType>
+  <sampleType id="SampleType_facility-(name-ESNF)_name-NiMnGa_molecularFormula-NiMnGa">
+    <molecularFormula>NiMnGa</molecularFormula>
+    <name>NiMnGa</name>
+    <facility ref="Facility_name-ESNF"/>
+  </sampleType>
+  <sampleType id="SampleType_facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO">
+    <molecularFormula>NiO</molecularFormula>
+    <name>Nickel(II) oxide SC</name>
+    <facility ref="Facility_name-ESNF"/>
+  </sampleType>
+  <datasetType id="DatasetType_facility-(name-ESNF)_name-generic">
+    <description>generic data set</description>
+    <name>generic</name>
+    <facility ref="Facility_name-ESNF"/>
+  </datasetType>
+  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA">
+    <description>Raw data</description>
+    <name>raw</name>
+    <version>N/A</version>
+    <facility ref="Facility_name-ESNF"/>
+  </datafileFormat>
+  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E0">
+    <description>A common data format for neutron, x-ray and muon science</description>
+    <name>NeXus</name>
+    <version>4.3.0</version>
+    <facility ref="Facility_name-ESNF"/>
+  </datafileFormat>
+</data>
+<data>
+  <investigation id="Investigation_facility-(name-ESNF)_name-2008=2DHIKE=2D0255=2D1_visitId-1">
+    <name>2008-HIKE-0255-1</name>
+    <startDate>2008-03-13T11:39:42+01:00</startDate>
+    <title>Durol single crystal</title>
+    <visitId>1</visitId>
+    <facility ref="Facility_name-ESNF"/>
+    <type ref="InvestigationType_name-Experiment_facility-(name-ESNF)"/>
+    <investigationInstruments>
+      <instrument ref="Instrument_facility-(name-ESNF)_name-HIKE"/>
+    </investigationInstruments>
+    <investigationUsers>
+      <role>Principal Investigator</role>
+      <user ref="User_name-jbotu"/>
+    </investigationUsers>
+    <investigationUsers>
+      <role>Investigator</role>
+      <user ref="User_name-nbour"/>
+    </investigationUsers>
+    <investigationUsers>
+      <role>Investigator</role>
+      <user ref="User_name-rbeck"/>
+    </investigationUsers>
+    <keywords>
+      <name>Durol</name>
+    </keywords>
+  </investigation>
+  <sample id="Sample_investigation-(facility-(name-ESNF)_name-2008=2DHIKE=2D0255=2D1_visitId-1)_name-Durol=20SC">
+    <name>Durol SC</name>
+    <investigation ref="Investigation_facility-(name-ESNF)_name-2008=2DHIKE=2D0255=2D1_visitId-1"/>
+    <type ref="SampleType_facility-(name-ESNF)_name-Durol=20SC_molecularFormula-C10H14"/>
+  </sample>
+  <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-2008=2DHIKE=2D0255=2D1_visitId-1)_name-e201215">
+    <complete>true</complete>
+    <name>e201215</name>
+    <startDate>2008-03-13T11:39:42+01:00</startDate>
+    <investigation ref="Investigation_facility-(name-ESNF)_name-2008=2DHIKE=2D0255=2D1_visitId-1"/>
+    <sample ref="Sample_investigation-(facility-(name-ESNF)_name-2008=2DHIKE=2D0255=2D1_visitId-1)_name-Durol=20SC"/>
+    <type ref="DatasetType_facility-(name-ESNF)_name-generic"/>
+    <datafiles>
+      <datafileCreateTime>2008-06-18T09:31:11+02:00</datafileCreateTime>
+      <datafileModTime>2008-06-18T09:31:11+02:00</datafileModTime>
+      <fileSize>368368864</fileSize>
+      <location>/data/2008/05/e201215.nxs</location>
+      <name>e201215.nxs</name>
+      <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E0"/>
+    </datafiles>
+  </dataset>
+</data>
+<data>
+  <investigation id="Investigation_facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1">
+    <endDate>2010-10-05T10:32:21+02:00</endDate>
+    <name>2010-E2-0489-1</name>
+    <startDate>2010-09-30T12:27:24+02:00</startDate>
+    <title>Ni-Mn-Ga flat cone</title>
+    <visitId>1</visitId>
+    <facility ref="Facility_name-ESNF"/>
+    <type ref="InvestigationType_name-Experiment_facility-(name-ESNF)"/>
+    <investigationInstruments>
+      <instrument ref="Instrument_facility-(name-ESNF)_name-E2"/>
+    </investigationInstruments>
+    <investigationUsers>
+      <role>Principal Investigator</role>
+      <user ref="User_name-ahau"/>
+    </investigationUsers>
+    <keywords>
+      <name>Gallium</name>
+    </keywords>
+    <keywords>
+      <name>Manganese</name>
+    </keywords>
+    <keywords>
+      <name>NiMnGa</name>
+    </keywords>
+    <keywords>
+      <name>Nickel</name>
+    </keywords>
+  </investigation>
+  <sample id="Sample_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-NiMnGa=20991027">
+    <name>NiMnGa 991027</name>
+    <investigation ref="Investigation_facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1"/>
+    <type ref="SampleType_facility-(name-ESNF)_name-NiMnGa_molecularFormula-NiMnGa"/>
+  </sample>
+  <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208339">
+    <complete>true</complete>
+    <endDate>2010-10-01T08:17:48+02:00</endDate>
+    <name>e208339</name>
+    <startDate>2010-09-30T12:27:24+02:00</startDate>
+    <investigation ref="Investigation_facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1"/>
+    <sample ref="Sample_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-NiMnGa=20991027"/>
+    <type ref="DatasetType_facility-(name-ESNF)_name-generic"/>
+    <datafiles>
+      <datafileCreateTime>2010-10-01T08:17:48+02:00</datafileCreateTime>
+      <datafileModTime>2010-10-01T08:17:48+02:00</datafileModTime>
+      <fileSize>445952</fileSize>
+      <location>/data/2010/10/e208339.dat</location>
+      <name>e208339.dat</name>
+      <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA"/>
+    </datafiles>
+    <datafiles>
+      <datafileCreateTime>2010-10-01T08:52:22+02:00</datafileCreateTime>
+      <datafileModTime>2010-10-01T08:52:22+02:00</datafileModTime>
+      <fileSize>73427714</fileSize>
+      <location>/data/2010/10/e208339.nxs</location>
+      <name>e208339.nxs</name>
+      <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E0"/>
+    </datafiles>
+  </dataset>
+  <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208341">
+    <complete>true</complete>
+    <endDate>2010-10-05T10:32:21+02:00</endDate>
+    <name>e208341</name>
+    <startDate>2010-10-02T04:00:21+02:00</startDate>
+    <investigation ref="Investigation_facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1"/>
+    <sample ref="Sample_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-NiMnGa=20991027"/>
+    <type ref="DatasetType_facility-(name-ESNF)_name-generic"/>
+    <datafiles>
+      <datafileCreateTime>2010-10-05T10:32:21+02:00</datafileCreateTime>
+      <datafileModTime>2010-10-05T10:32:21+02:00</datafileModTime>
+      <fileSize>394240</fileSize>
+      <location>/data/2010/10/e208341.dat</location>
+      <name>e208341.dat</name>
+      <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA"/>
+    </datafiles>
+    <datafiles>
+      <datafileCreateTime>2010-10-05T11:31:53+02:00</datafileCreateTime>
+      <datafileModTime>2010-10-05T11:31:53+02:00</datafileModTime>
+      <fileSize>52856502</fileSize>
+      <location>/data/2010/10/e208341.nxs</location>
+      <name>e208341.nxs</name>
+      <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E0"/>
+    </datafiles>
+  </dataset>
+</data>
+<data>
+  <investigation id="Investigation_facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1">
+    <endDate>2012-07-30T03:10:08+02:00</endDate>
+    <name>2012-EDDI-0390-1</name>
+    <startDate>2012-07-26T17:44:24+02:00</startDate>
+    <title>NiO SC OF1 JUH HHL</title>
+    <visitId>1</visitId>
+    <facility ref="Facility_name-ESNF"/>
+    <type ref="InvestigationType_name-Experiment_facility-(name-ESNF)"/>
+    <investigationInstruments>
+      <instrument ref="Instrument_facility-(name-ESNF)_name-EDDI"/>
+    </investigationInstruments>
+    <investigationUsers>
+      <role>Principal Investigator</role>
+      <user ref="User_name-nbour"/>
+    </investigationUsers>
+    <keywords>
+      <name>NiO</name>
+    </keywords>
+    <keywords>
+      <name>Nickel</name>
+    </keywords>
+    <keywords>
+      <name>Nickel oxide</name>
+    </keywords>
+    <keywords>
+      <name>oxide</name>
+    </keywords>
+  </investigation>
+  <sample id="Sample_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-Nickel=28II=29=20oxide=20SC">
+    <name>Nickel(II) oxide SC</name>
+    <investigation ref="Investigation_facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1"/>
+    <type ref="SampleType_facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO"/>
+  </sample>
+  <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945">
+    <complete>false</complete>
+    <endDate>2012-07-30T03:10:08+02:00</endDate>
+    <name>e208945</name>
+    <startDate>2012-07-26T17:44:24+02:00</startDate>
+    <investigation ref="Investigation_facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1"/>
+    <sample ref="Sample_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-Nickel=28II=29=20oxide=20SC"/>
+    <type ref="DatasetType_facility-(name-ESNF)_name-generic"/>
+    <datafiles>
+      <datafileCreateTime>2012-07-30T03:10:08+02:00</datafileCreateTime>
+      <datafileModTime>2012-07-30T03:10:08+02:00</datafileModTime>
+      <fileSize>459264</fileSize>
+      <location>/data/2012/07/e208945.dat</location>
+      <name>e208945.dat</name>
+      <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA"/>
+    </datafiles>
+    <datafiles>
+      <datafileCreateTime>2013-06-03T12:22:43+02:00</datafileCreateTime>
+      <datafileModTime>2013-06-03T12:22:43+02:00</datafileModTime>
+      <fileSize>396430442</fileSize>
+      <location>/data/2012/07/e208945.nxs</location>
+      <name>e208945.nxs</name>
+      <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E0"/>
+    </datafiles>
+  </dataset>
+</data>
+<data>
+</data>
+</icatdump>
