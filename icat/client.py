@@ -194,6 +194,7 @@ class Client(suds.client.Client):
         self.ids = None
         self.sessionId = None
         self.autoLogout = True
+        self.entityInfoCache = {}
 
         if idsurl:
             self.add_ids(idsurl)
@@ -368,10 +369,15 @@ class Client(suds.client.Client):
             raise translateError(e)
 
     def getEntityInfo(self, beanName):
+        if self.entityInfoCache and beanName in self.entityInfoCache:
+            return self.entityInfoCache[beanName]
         try:
-            return self.service.getEntityInfo(beanName)
+            info = self.service.getEntityInfo(beanName)
         except suds.WebFault as e:
             raise translateError(e)
+        if isinstance(self.entityInfoCache, dict):
+            self.entityInfoCache[beanName] = info
+        return info
 
     def getEntityNames(self):
         if self.apiversion < '4.3':
