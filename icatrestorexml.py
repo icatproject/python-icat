@@ -42,266 +42,43 @@ if client.apiversion < '4.3':
                        % client.apiversion)
 client.login(conf.auth, conf.credentials)
 
-# ------------------------------------------------------------
-# Helper functions
-# ------------------------------------------------------------
 
-def elem2dict(elem, objindex):
-    """Transform a XML element to a dict.
-    """
-    d = {}
-    for child in elem:
-        k = child.tag
-        ref = child.get('ref')
-        if ref is not None:
-            d[k] = client.searchUniqueKey(ref, objindex)
-        elif len(child):
-            d[k] = child
-        elif child.text is not None:
-            d[k] = child.text
-            # FIXME: must have some sort of type checking here
-            if d[k] == 'True':
-                d[k] = True
-            elif d[k] == 'False':
-                d[k] = False
-    return d
+insttypemap = { c.BeanName:t for t,c in client.typemap.iteritems() }
 
-def getstrlist(data, attr, tag):
-    """Get a list of strings from an attribute in the data.
-    """
-    if attr in data:
-        strs = [ s.text for s in data[attr].iter(tag) ]
-        del data[attr]
+def translatevalue(value):
+    """Perform translation of attribute values if necessary."""
+    if value == 'True':
+        return True
+    elif value == 'False':
+        return False
     else:
-        strs = []
-    return strs
+        return value
 
-def getobjdatalist(data, attr, objindex):
-    """Get a list of dicts with object attributes an attribute in the
-    data.
-    """
-    if attr in data:
-        objs = [ elem2dict(e, objindex) for e in data[attr] ]
-        del data[attr]
-    else:
-        objs = []
-    return objs
+def elem2obj(element, objindex, objtype=None):
+    """Create an entity object from XML element data."""
+    if objtype is None:
+        objtype = element.tag
+    obj = client.new(objtype)
+    mreltypes = None
+    for subelem in element:
+        if subelem.tag in obj.InstAttr:
+            setattr(obj, subelem.tag, translatevalue(subelem.text))
+        elif subelem.tag in obj.InstRel:
+            ref = subelem.get('ref')
+            robj = client.searchUniqueKey(ref, objindex)
+            setattr(obj, subelem.tag, robj)
+        elif subelem.tag in obj.InstMRel:
+            if mreltypes is None:
+                info = client.getEntityInfo(obj.BeanName)
+                mreltypes = { f.name:insttypemap[f.type] 
+                              for f in info.fields if f.relType == "MANY" }
+            robj = elem2obj(subelem, objindex, mreltypes[subelem.tag])
+            getattr(obj, subelem.tag).append(robj)
+        else:
+            raise ValueError("invalid subelement '%s' in '%s'" 
+                             % (subelem.tag, element.tag))
+    return obj
 
-def getreflist(data, attr, tag, objindex):
-    """Get a list of references to existing objects from an attribute
-    in the data.
-    """
-    if attr in data:
-        objs = [ client.searchUniqueKey(o.get('ref'), objindex) 
-                 for o in data[attr].iter(tag) ]
-        del data[attr]
-    else:
-        objs = []
-    return objs
-
-# ------------------------------------------------------------
-# Creator functions
-# ------------------------------------------------------------
-
-def createObjs(data, insttype, objindex):
-    """Create objects, generic method."""
-    bean = client.typemap[insttype].BeanName
-    for o in data:
-        key = o.get('id')
-        d = elem2dict(o, objindex)
-        log.info("create %s %s ...", bean, d['name'])
-        obj = client.new(insttype, **d)
-        obj.create()
-        obj.truncateRelations()
-        objindex[key] = obj
-
-def createBulkObjs(data, insttype, objindex):
-    """Create objects, bulk method: use createMany, do not add them to
-    the objindex."""
-    bean = client.typemap[insttype].BeanName
-    objs = []
-    for o in data:
-        d = elem2dict(o, objindex)
-        objs.append(client.new(insttype, **d))
-    log.info("create %d %ss ...", len(objs), bean)
-    client.createMany(objs)
-
-def createGroups(data, insttype, objindex):
-    for o in data:
-        key = o.get('id')
-        d = elem2dict(o, objindex)
-        users = getreflist(d, 'users', 'user', objindex)
-        log.info("create Group %s ...", d['name'])
-        obj = client.createGroup(d['name'], users)
-        obj.truncateRelations()
-        objindex[key] = obj
-
-def createInstruments(data, insttype, objindex):
-    bean = client.typemap[insttype].BeanName
-    for o in data:
-        key = o.get('id')
-        d = elem2dict(o, objindex)
-        instrsci = getreflist(d, 'instrumentScientists', 'user', objindex)
-        log.info("create %s %s ...", bean, d['name'])
-        obj = client.new(insttype, **d)
-        obj.create()
-        obj.addInstrumentScientists(instrsci)
-        obj.truncateRelations()
-        objindex[key] = obj
-
-def createParameterTypes(data, insttype, objindex):
-    bean = client.typemap[insttype].BeanName
-    for o in data:
-        key = o.get('id')
-        d = elem2dict(o, objindex)
-        strvals = getstrlist(d, 'permissibleStringValues', 'value')
-        log.info("create %s %s ...", bean, d['name'])
-        obj = client.new(insttype, **d)
-        for v in strvals:
-            o = client.new('permissibleStringValue', value=v)
-            obj.permissibleStringValues.append(o)
-        obj.create()
-        obj.truncateRelations()
-        objindex[key] = obj
-
-def createInvestigations(data, insttype, objindex):
-    bean = client.typemap[insttype].BeanName
-    for o in data:
-        key = o.get('id')
-        d = elem2dict(o, objindex)
-        params = getobjdatalist(d, 'parameters', objindex)
-        instruments = getreflist(d, 'instruments', 'instrument', objindex)
-        shifts = getobjdatalist(d, 'shifts', objindex)
-        keywords = getstrlist(d, 'keywords', 'name')
-        publications = getobjdatalist(d, 'publications', objindex)
-        users = getobjdatalist(d, 'investigationUsers', objindex)
-        log.info("create %s %s ...", bean, d['name'])
-        obj = client.new(insttype, **d)
-        for i in instruments:
-            ii = client.new('investigationInstrument', instrument=i)
-            obj.investigationInstruments.append(ii)
-        for s in shifts:
-            obj.shifts.append(client.new('shift', **s))
-        for n in keywords:
-            obj.keywords.append(client.new('keyword', name=n))
-        for s in publications:
-            obj.publications.append(client.new('publication', **s))
-        for s in params:
-            obj.parameters.append(client.new('investigationParameter', **s))
-        for s in users:
-            obj.investigationUsers.append(client.new('investigationUser', **s))
-        obj.create()
-        obj.truncateRelations()
-        objindex[key] = obj
-
-def createStudies(data, insttype, objindex):
-    bean = client.typemap[insttype].BeanName
-    for o in data:
-        key = o.get('id')
-        d = elem2dict(o, objindex)
-        investigations = getreflist(d, 'studyInvestigations', 'investigation', 
-                                    objindex)
-        log.info("create %s %s ...", bean, d['name'])
-        obj = client.new(insttype, **d)
-        for s in investigations:
-            o = client.new('studyInvestigation', investigation=s)
-            obj.studyInvestigations.append(o)
-        obj.create()
-        obj.truncateRelations()
-        objindex[key] = obj
-
-def createSamples(data, insttype, objindex):
-    bean = client.typemap[insttype].BeanName
-    for o in data:
-        key = o.get('id')
-        d = elem2dict(o, objindex)
-        params = getobjdatalist(d, 'parameters', objindex)
-        log.info("create %s %s ...", bean, d['name'])
-        obj = client.new(insttype, **d)
-        for s in params:
-            obj.parameters.append(client.new('sampleParameter', **s))
-        obj.create()
-        obj.truncateRelations()
-        objindex[key] = obj
-
-def createDatasets(data, insttype, objindex):
-    bean = client.typemap[insttype].BeanName
-    for o in data:
-        key = o.get('id')
-        d = elem2dict(o, objindex)
-        params = getobjdatalist(d, 'parameters', objindex)
-        log.info("create %s %s ...", bean, d['name'])
-        obj = client.new(insttype, **d)
-        for s in params:
-            obj.parameters.append(client.new('datasetParameter', **s))
-        obj.create()
-        obj.truncateRelations()
-        objindex[key] = obj
-
-def createDatafiles(data, insttype, objindex):
-    bean = client.typemap[insttype].BeanName
-    for o in data:
-        key = o.get('id')
-        d = elem2dict(o, objindex)
-        params = getobjdatalist(d, 'parameters', objindex)
-        log.info("create %s %s ...", bean, d['name'])
-        obj = client.new(insttype, **d)
-        for s in params:
-            obj.parameters.append(client.new('datafileParameter', **s))
-        obj.create()
-        obj.truncateRelations()
-        objindex[key] = obj
-
-def createDataCollections(data, insttype, objindex):
-    bean = client.typemap[insttype].BeanName
-    for o in data:
-        key = o.get('id')
-        d = elem2dict(o, objindex)
-        params = getobjdatalist(d, 'parameters', objindex)
-        datasets = getreflist(d, 'dataCollectionDatasets', 'dataset', objindex)
-        datafiles = getreflist(d, 'dataCollectionDatafiles', 'datafile', 
-                               objindex)
-        log.info("create %s %s ...", bean, d['name'])
-        obj = client.new(insttype, **d)
-        for s in params:
-            obj.parameters.append(client.new('dataCollectionParameter', **s))
-        for ds in datasets:
-            o = client.new('dataCollectionDataset', dataset=ds)
-            obj.dataCollectionDatasets.append(o)
-        for df in datafiles:
-            o = client.new('dataCollectionDatafile', datafile=df)
-            obj.dataCollectionDatafiles.append(o)
-        obj.create()
-        obj.truncateRelations()
-        objindex[key] = obj
-
-# ------------------------------------------------------------
-# Create data at the ICAT server
-# ------------------------------------------------------------
-
-entitytypes = {
-    'User': ('user', createObjs),
-    'Grouping': ('grouping', createGroups),
-    'Rule': ('rule', createBulkObjs),
-    'PublicStep': ('publicStep', createBulkObjs),
-    'Facility': ('facility', createObjs),
-    'Instrument': ('instrument', createInstruments),
-    'ParameterType': ('parameterType', createParameterTypes),
-    'InvestigationType': ('investigationType', createObjs),
-    'SampleType': ('sampleType', createObjs),
-    'DatasetType': ('datasetType', createObjs),
-    'DatafileFormat': ('datafileFormat', createObjs),
-    'FacilityCycle': ('facilityCycle', createObjs),
-    'Application': ('application', createObjs),
-    'Investigation': ('investigation', createInvestigations),
-    'Study': ('study', createStudies),
-    'Sample': ('sample', createSamples),
-    'Dataset': ('dataset', createDatasets),
-    'Datafile': ('datafile', createDatafiles),
-    'RelatedDatafile': ('relatedDatafile', createBulkObjs),
-    'DataCollection': ('dataCollection', createDataCollections),
-    'Job': ('job', createBulkObjs),
-}
 
 # We read the data in chunks (or documents in YAML terminology).  This
 # way we can avoid having the whole file, e.g. the complete inventory
@@ -323,29 +100,14 @@ entitytypes = {
 # responsibility of the creator of the dumpfile to create the chunks
 # in this manner.
 
-for event, element in etree.iterparse(sys.stdin, tag='data'):
+for event, data in etree.iterparse(sys.stdin, tag='data'):
     # Discard the old objindex when we start to process a new chunk.
     objindex = {}
-    # We need to create the objects in file order so that objects are
-    # processed before they get referenced by other objects coming
-    # later in the file.  Process them in bunches of the same class.
-    lasttag = None
-    objs = []
-    for obj in element:
-        if lasttag != obj.tag:
-            if lasttag is not None:
-                try:
-                    insttype, creator = entitytypes[lasttag]
-                except KeyError:
-                    raise RuntimeError("Unknown entity class '%s'" % lasttag)
-                creator(objs, insttype, objindex)
-            lasttag = obj.tag
-            objs = []
-        objs.append(obj)
-    if lasttag is not None:
-        try:
-            insttype, creator = entitytypes[lasttag]
-        except KeyError:
-            raise RuntimeError("Unknown entity class '%s'" % lasttag)
-        creator(objs, insttype, objindex)
-    element.clear()
+    for elem in data:
+        key = elem.get('id')
+        obj = elem2obj(elem, objindex)
+        obj.create()
+        obj.truncateRelations()
+        if key:
+            objindex[key] = obj
+    data.clear()
