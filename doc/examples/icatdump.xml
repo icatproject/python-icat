@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<icatdump xmlns="http://icatproject.org/dump/43">
+<icatdump>
 <!-- draft of a new python-icat dump file XML format -->
 <head>
   <date>2014-05-22T06:09:55Z</date>
