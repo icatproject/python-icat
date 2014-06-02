@@ -29,8 +29,10 @@
 <xsd:complexType name="data">
   <!-- The data element contains the entity objects.  
 
-       Order is important, objects referenced by others in a
-       many-to-one relation must come before the referencing object.
+       Order is important.  Objects that setup access rules MUST come
+       first in file order, at least as far as write permission for
+       the root user is concerned.  Objects referenced by others in a
+       many-to-one relation MUST come before the referencing object.
   -->
   <xsd:sequence>
     <!-- authz -->
@@ -119,6 +121,30 @@
   <xsd:attribute name="ref" type="xsd:string" use="required"/>
 </xsd:complexType>
 
+
+<!-- Entity object types.
+
+     Note that this schema is somewhat too liberal.  Additional
+     constraints that depend on context (and thus are not easy to
+     formulate in XML Schema Definition language) must be respected:
+
+     Many-to-one relations are marked as optional here.  But they are
+     in fact not.  For objects that are direct children of the data
+     element, all many-to-one relations MUST be present, unless they
+     are truly optional in the ICAT schema.  For objects that are
+     children of other objects, e.g. that are included in a
+     one-to-many relation, the many-to-one relation to the parent is
+     implied and MUST NOT be present, but all other many-to-one
+     relations MUST be present.
+
+     The id attribute is optional according to this schema.  But any
+     object that is referenced by another object in a many-to-one
+     relation MUST have the id attribute set.  These referenced
+     objects MUST be direct children of the data element.  Objects
+     that are children of other objects SHOULD NOT have the id
+     attribute set.
+
+-->
 
 <!-- authz -->
 
