@@ -41,7 +41,7 @@ class DataCollection(Entity):
     InstMRel = frozenset(['dataCollectionDatafiles', 'dataCollectionDatasets', 
                           'dataCollectionParameters', 'jobsAsInput', 
                           'jobsAsOutput'])
-    MRelAlias = {'parameters':'dataCollectionParameters'}
+    AttrAlias = {'parameters':'dataCollectionParameters'}
 
 
 class DataCollection431(DataCollection):
@@ -51,7 +51,7 @@ class DataCollection431(DataCollection):
     parameters or its relationship to a Job."""
     InstMRel = frozenset(['dataCollectionDatafiles', 'dataCollectionDatasets', 
                           'parameters', 'jobsAsInput', 'jobsAsOutput'])
-    MRelAlias = {}
+    AttrAlias = {'dataCollectionParameters':'parameters'}
 
 
 class DataCollectionDatafile(Entity):
@@ -466,7 +466,7 @@ class Rule(Entity):
 class Rule43(Rule):
     """An authorization rule."""
     InstRel = frozenset(['grouping'])
-    AttrAlias = {}
+    AttrAlias = {'group':'grouping'}
 
 
 class Sample(Entity):
@@ -549,6 +549,6 @@ class UserGroup43(UserGroup):
     """Many to many relationship between user and group."""
     Constraint = ('user', 'grouping')
     InstRel = frozenset(['user', 'grouping'])
-    AttrAlias = {}
+    AttrAlias = {'group':'grouping'}
 
 
