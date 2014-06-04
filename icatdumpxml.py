@@ -43,45 +43,9 @@ if client.apiversion < '4.3':
 client.login(conf.auth, conf.credentials)
 
 
-keyindex = {}
+sortkey = icat.entity.Entity.__sortkey__
 
-
-# Sorting of entity objects.
-#
-# In general, this is done based on the uniqueness constraint
-# attributes.  But some entity types do not have a constraint.  For
-# these cases, fall back to some other suitable set of attributes:
-SortAttrs = {
-    'DataCollection': ['dataCollectionDatasets', 'dataCollectionDatafiles'], 
-    'Job': ['application', 'arguments'], 
-    'Publication': ['investigation', 'fullReference'], 
-    'Rule': ['grouping', 'what'], 
-    'Study': ['name'], 
-}
-
-def sortkey(o):
-    """Return a sorting key for entity objects."""
-    if o.BeanName in SortAttrs:
-        sortattrs = SortAttrs[o.BeanName]
-    else:
-        sortattrs = o.Constraint
-    s = []
-    for attr in sortattrs:
-        v = getattr(o, attr, None)
-        if v is None:
-            v = ''
-        elif isinstance(v, icat.entity.Entity):
-            v = v.getUniqueKey(autoget=False, keyindex=keyindex)
-        else:
-            try:
-                v = str(v)
-            except UnicodeError:
-                v = unicode(v)
-        s.append(v)
-    return s
-
-
-def entityelem(e, tag=None):
+def entityelem(e, tag=None, keyindex=None):
     """Convert an entity object to an etree.Element."""
     if tag is None:
         tag = e.instancetype
@@ -121,11 +85,11 @@ def entityelem(e, tag=None):
 
     for attr in sorted(e.InstMRel):
         for o in sorted(getattr(e, attr), key=sortkey):
-            d.append(entityelem(o, tag=attr))
+            d.append(entityelem(o, tag=attr, keyindex=keyindex))
 
     return d
 
-def getobjs(data, searchexp):
+def getobjs(data, searchexp, keyindex=None):
     i = 0
     for obj in sorted(client.search(searchexp), key=sortkey):
         # Entities without a constraint will use their id to form the
@@ -138,7 +102,7 @@ def getobjs(data, searchexp):
             keyindex[obj.id] = k
         else:
             k = obj.getUniqueKey(autoget=False, keyindex=keyindex)
-        elem = entityelem(obj)
+        elem = entityelem(obj, keyindex=keyindex)
         elem.set('id', k)
         data.append(elem)
 
@@ -234,16 +198,17 @@ etree.SubElement(head, "generator").text = ("icatdump (python-icat %s)"
 print '<?xml version="1.0" encoding="utf-8"?>\n<icatdump>'
 print etree.tostring(head, pretty_print=True),
 
+keyindex = {}
 data = etree.Element("data")
 for searchexp in authtypes:
-    getobjs(data, searchexp)
+    getobjs(data, searchexp, keyindex=keyindex)
 if len(data) > 0:
     print etree.tostring(data, pretty_print=True),
 
 keyindex = {}
 data = etree.Element("data")
 for searchexp in statictypes:
-    getobjs(data, searchexp)
+    getobjs(data, searchexp, keyindex=keyindex)
 if len(data) > 0:
     print etree.tostring(data, pretty_print=True),
 
@@ -256,14 +221,14 @@ for inv in investigations:
     keyindex = {}
     data = etree.Element("data")
     for searchexp in investtypes:
-        getobjs(data, searchexp % inv)
+        getobjs(data, searchexp % inv, keyindex=keyindex)
     if len(data) > 0:
         print etree.tostring(data, pretty_print=True),
 
 keyindex = {}
 data = etree.Element("data")
 for searchexp in othertypes:
-    getobjs(data, searchexp)
+    getobjs(data, searchexp, keyindex=keyindex)
 if len(data) > 0:
     print etree.tostring(data, pretty_print=True),
 
