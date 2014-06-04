@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdump>
-<!-- draft of a new python-icat dump file XML format -->
 <head>
-  <date>2014-05-22T06:09:55Z</date>
+  <date>2014-06-04T13:30:05Z</date>
   <service>https://localhost:8181/ICATService/ICAT?wsdl</service>
   <apiversion>4.3.2</apiversion>
-  <generator>nXML (Emacs 24.2.1)</generator>
+  <generator>icatdump (python-icat 0.4.0.4)</generator>
 </head>
 <data>
   <user id="User_name-acord">
@@ -198,422 +197,422 @@
   </rule>
   <rule id="Rule_00000015">
     <crudFlags>CRUD</crudFlags>
-    <what>UserGroup &lt;-&gt; Grouping[name=&apos;investigation_2008-HIKE-0255-1_reader&apos;]</what>
+    <what>UserGroup &lt;-&gt; Grouping[name='investigation_2008-HIKE-0255-1_reader']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fowner"/>
   </rule>
   <rule id="Rule_00000016">
     <crudFlags>CRUD</crudFlags>
-    <what>UserGroup &lt;-&gt; Grouping[name=&apos;investigation_2008-HIKE-0255-1_writer&apos;]</what>
+    <what>UserGroup &lt;-&gt; Grouping[name='investigation_2008-HIKE-0255-1_writer']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fowner"/>
   </rule>
   <rule id="Rule_00000017">
     <crudFlags>R</crudFlags>
-    <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000018">
     <crudFlags>R</crudFlags>
-    <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000019">
     <crudFlags>R</crudFlags>
-    <what>Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Dataset &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000020">
     <crudFlags>R</crudFlags>
-    <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000021">
     <crudFlags>R</crudFlags>
-    <what>InvestigationInstrument &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>InvestigationInstrument &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000022">
     <crudFlags>R</crudFlags>
-    <what>InvestigationParameter &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>InvestigationParameter &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000023">
     <crudFlags>R</crudFlags>
-    <what>InvestigationUser &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>InvestigationUser &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000024">
     <crudFlags>R</crudFlags>
-    <what>Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000025">
     <crudFlags>R</crudFlags>
-    <what>Keyword &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Keyword &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000026">
     <crudFlags>R</crudFlags>
-    <what>Publication &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Publication &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000027">
     <crudFlags>R</crudFlags>
-    <what>Sample &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Sample &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000028">
     <crudFlags>R</crudFlags>
-    <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000029">
     <crudFlags>R</crudFlags>
-    <what>Shift &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Shift &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000030">
     <crudFlags>CRUD</crudFlags>
-    <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000031">
     <crudFlags>CRUD</crudFlags>
-    <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000032">
     <crudFlags>CRUD</crudFlags>
-    <what>Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Dataset &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000033">
     <crudFlags>CRUD</crudFlags>
-    <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000034">
     <crudFlags>CRUD</crudFlags>
-    <what>InvestigationInstrument &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>InvestigationInstrument &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000035">
     <crudFlags>CRUD</crudFlags>
-    <what>InvestigationParameter &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>InvestigationParameter &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000036">
     <crudFlags>R</crudFlags>
-    <what>InvestigationUser &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>InvestigationUser &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000037">
     <crudFlags>RU</crudFlags>
-    <what>Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000038">
     <crudFlags>CRUD</crudFlags>
-    <what>Keyword &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Keyword &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000039">
     <crudFlags>CRUD</crudFlags>
-    <what>Publication &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Publication &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000040">
     <crudFlags>CRUD</crudFlags>
-    <what>Sample &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Sample &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000041">
     <crudFlags>CRUD</crudFlags>
-    <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000042">
     <crudFlags>CRUD</crudFlags>
-    <what>Shift &lt;-&gt; Investigation[name=&apos;2008-HIKE-0255-1&apos;]</what>
+    <what>Shift &lt;-&gt; Investigation[name='2008-HIKE-0255-1']</what>
     <grouping ref="Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000043">
     <crudFlags>CRUD</crudFlags>
-    <what>UserGroup &lt;-&gt; Grouping[name=&apos;investigation_2010-E2-0489-1_reader&apos;]</what>
+    <what>UserGroup &lt;-&gt; Grouping[name='investigation_2010-E2-0489-1_reader']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fowner"/>
   </rule>
   <rule id="Rule_00000044">
     <crudFlags>CRUD</crudFlags>
-    <what>UserGroup &lt;-&gt; Grouping[name=&apos;investigation_2010-E2-0489-1_writer&apos;]</what>
+    <what>UserGroup &lt;-&gt; Grouping[name='investigation_2010-E2-0489-1_writer']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fowner"/>
   </rule>
   <rule id="Rule_00000045">
     <crudFlags>R</crudFlags>
-    <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000046">
     <crudFlags>R</crudFlags>
-    <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000047">
     <crudFlags>R</crudFlags>
-    <what>Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Dataset &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000048">
     <crudFlags>R</crudFlags>
-    <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000049">
     <crudFlags>R</crudFlags>
-    <what>InvestigationInstrument &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>InvestigationInstrument &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000050">
     <crudFlags>R</crudFlags>
-    <what>InvestigationParameter &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>InvestigationParameter &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000051">
     <crudFlags>R</crudFlags>
-    <what>InvestigationUser &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>InvestigationUser &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000052">
     <crudFlags>R</crudFlags>
-    <what>Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000053">
     <crudFlags>R</crudFlags>
-    <what>Keyword &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Keyword &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000054">
     <crudFlags>R</crudFlags>
-    <what>Publication &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Publication &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000055">
     <crudFlags>R</crudFlags>
-    <what>Sample &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Sample &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000056">
     <crudFlags>R</crudFlags>
-    <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000057">
     <crudFlags>R</crudFlags>
-    <what>Shift &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Shift &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000058">
     <crudFlags>CRUD</crudFlags>
-    <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000059">
     <crudFlags>CRUD</crudFlags>
-    <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000060">
     <crudFlags>CRUD</crudFlags>
-    <what>Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Dataset &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000061">
     <crudFlags>CRUD</crudFlags>
-    <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000062">
     <crudFlags>CRUD</crudFlags>
-    <what>InvestigationInstrument &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>InvestigationInstrument &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000063">
     <crudFlags>CRUD</crudFlags>
-    <what>InvestigationParameter &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>InvestigationParameter &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000064">
     <crudFlags>R</crudFlags>
-    <what>InvestigationUser &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>InvestigationUser &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000065">
     <crudFlags>RU</crudFlags>
-    <what>Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000066">
     <crudFlags>CRUD</crudFlags>
-    <what>Keyword &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Keyword &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000067">
     <crudFlags>CRUD</crudFlags>
-    <what>Publication &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Publication &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000068">
     <crudFlags>CRUD</crudFlags>
-    <what>Sample &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Sample &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000069">
     <crudFlags>CRUD</crudFlags>
-    <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000070">
     <crudFlags>CRUD</crudFlags>
-    <what>Shift &lt;-&gt; Investigation[name=&apos;2010-E2-0489-1&apos;]</what>
+    <what>Shift &lt;-&gt; Investigation[name='2010-E2-0489-1']</what>
     <grouping ref="Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000071">
     <crudFlags>CRUD</crudFlags>
-    <what>UserGroup &lt;-&gt; Grouping[name=&apos;investigation_2012-EDDI-0390-1_reader&apos;]</what>
+    <what>UserGroup &lt;-&gt; Grouping[name='investigation_2012-EDDI-0390-1_reader']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fowner"/>
   </rule>
   <rule id="Rule_00000072">
     <crudFlags>CRUD</crudFlags>
-    <what>UserGroup &lt;-&gt; Grouping[name=&apos;investigation_2012-EDDI-0390-1_writer&apos;]</what>
+    <what>UserGroup &lt;-&gt; Grouping[name='investigation_2012-EDDI-0390-1_writer']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fowner"/>
   </rule>
   <rule id="Rule_00000073">
     <crudFlags>R</crudFlags>
-    <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000074">
     <crudFlags>R</crudFlags>
-    <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000075">
     <crudFlags>R</crudFlags>
-    <what>Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Dataset &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000076">
     <crudFlags>R</crudFlags>
-    <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000077">
     <crudFlags>R</crudFlags>
-    <what>InvestigationInstrument &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>InvestigationInstrument &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000078">
     <crudFlags>R</crudFlags>
-    <what>InvestigationParameter &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>InvestigationParameter &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000079">
     <crudFlags>R</crudFlags>
-    <what>InvestigationUser &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>InvestigationUser &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000080">
     <crudFlags>R</crudFlags>
-    <what>Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000081">
     <crudFlags>R</crudFlags>
-    <what>Keyword &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Keyword &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000082">
     <crudFlags>R</crudFlags>
-    <what>Publication &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Publication &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000083">
     <crudFlags>R</crudFlags>
-    <what>Sample &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Sample &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000084">
     <crudFlags>R</crudFlags>
-    <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000085">
     <crudFlags>R</crudFlags>
-    <what>Shift &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Shift &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader"/>
   </rule>
   <rule id="Rule_00000086">
     <crudFlags>CRUD</crudFlags>
-    <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000087">
     <crudFlags>CRUD</crudFlags>
-    <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>DatafileParameter &lt;-&gt; Datafile &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000088">
     <crudFlags>CRUD</crudFlags>
-    <what>Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Dataset &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000089">
     <crudFlags>CRUD</crudFlags>
-    <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>DatasetParameter &lt;-&gt; Dataset &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000090">
     <crudFlags>CRUD</crudFlags>
-    <what>InvestigationInstrument &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>InvestigationInstrument &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000091">
     <crudFlags>CRUD</crudFlags>
-    <what>InvestigationParameter &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>InvestigationParameter &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000092">
     <crudFlags>R</crudFlags>
-    <what>InvestigationUser &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>InvestigationUser &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000093">
     <crudFlags>RU</crudFlags>
-    <what>Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000094">
     <crudFlags>CRUD</crudFlags>
-    <what>Keyword &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Keyword &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000095">
     <crudFlags>CRUD</crudFlags>
-    <what>Publication &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Publication &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000096">
     <crudFlags>CRUD</crudFlags>
-    <what>Sample &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Sample &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000097">
     <crudFlags>CRUD</crudFlags>
-    <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>SampleParameter &lt;-&gt; Sample &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000098">
     <crudFlags>CRUD</crudFlags>
-    <what>Shift &lt;-&gt; Investigation[name=&apos;2012-EDDI-0390-1&apos;]</what>
+    <what>Shift &lt;-&gt; Investigation[name='2012-EDDI-0390-1']</what>
     <grouping ref="Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter"/>
   </rule>
   <rule id="Rule_00000099">
@@ -738,12 +737,12 @@
   </rule>
   <rule id="Rule_00000123">
     <crudFlags>R</crudFlags>
-    <what>PermissibleStringValue</what>
+    <what>ParameterType</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000124">
     <crudFlags>R</crudFlags>
-    <what>ParameterType</what>
+    <what>PermissibleStringValue</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000125">
@@ -1085,7 +1084,7 @@
     <url>http://www.esnf.example.org/</url>
   </facility>
   <instrument id="Instrument_facility-(name-ESNF)_name-E2">
-    <description>A 3-dimensional part of the reciprocal space can be scanned in less then five steps by combining the &quot;off-plane Bragg-scattering&quot; and the flat-cone layer concept while using a new computer-controlled tilting axis of the detector bank.</description>
+    <description>A 3-dimensional part of the reciprocal space can be scanned in less then five steps by combining the "off-plane Bragg-scattering" and the flat-cone layer concept while using a new computer-controlled tilting axis of the detector bank.</description>
     <fullName>E2 - Flat-Cone Diffractometer</fullName>
     <name>E2</name>
     <facility ref="Facility_name-ESNF"/>
@@ -1151,16 +1150,16 @@
     <name>generic</name>
     <facility ref="Facility_name-ESNF"/>
   </datasetType>
-  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA">
-    <description>Raw data</description>
-    <name>raw</name>
-    <version>N/A</version>
-    <facility ref="Facility_name-ESNF"/>
-  </datafileFormat>
   <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E0">
     <description>A common data format for neutron, x-ray and muon science</description>
     <name>NeXus</name>
     <version>4.3.0</version>
+    <facility ref="Facility_name-ESNF"/>
+  </datafileFormat>
+  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA">
+    <description>Raw data</description>
+    <name>raw</name>
+    <version>N/A</version>
     <facility ref="Facility_name-ESNF"/>
   </datafileFormat>
 </data>
@@ -1364,7 +1363,5 @@
     <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E0"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945"/>
   </datafile>
-</data>
-<data>
 </data>
 </icatdump>
