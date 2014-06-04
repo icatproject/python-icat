@@ -42,6 +42,7 @@ class DataCollection(Entity):
                           'dataCollectionParameters', 'jobsAsInput', 
                           'jobsAsOutput'])
     AttrAlias = {'parameters':'dataCollectionParameters'}
+    SortAttrs = ['dataCollectionDatasets', 'dataCollectionDatafiles']
 
 
 class DataCollection431(DataCollection):
@@ -348,6 +349,7 @@ class Job(Entity):
     InstRel = frozenset(['application'])
     InstMRel = frozenset(['inputDatafiles', 'inputDatasets', 
                           'outputDatafiles', 'outputDatasets'])
+    SortAttrs = ['application']
 
 
 class Job43(Job):
@@ -356,6 +358,7 @@ class Job43(Job):
     InstRel = frozenset(['application', 'inputDataCollection', 
                          'outputDataCollection'])
     InstMRel = frozenset([])
+    SortAttrs = ['application', 'arguments']
 
 
 class Keyword(Entity):
@@ -445,6 +448,7 @@ class Publication(Entity):
     InstAttr = frozenset(['id', 'fullReference', 'url', 'doi', 'repository', 
                           'repositoryId'])
     InstRel = frozenset(['investigation'])
+    SortAttrs = ['investigation', 'fullReference']
 
 
 class RelatedDatafile(Entity):
@@ -461,12 +465,14 @@ class Rule(Entity):
     InstAttr = frozenset(['id', 'what', 'crudFlags'])
     InstRel = frozenset(['group'])
     AttrAlias = {'grouping':'group'}
+    SortAttrs = ['group', 'what']
 
 
 class Rule43(Rule):
     """An authorization rule."""
     InstRel = frozenset(['grouping'])
     AttrAlias = {'group':'grouping'}
+    SortAttrs = ['grouping', 'what']
 
 
 class Sample(Entity):
@@ -519,6 +525,7 @@ class Study(Entity):
     InstAttr = frozenset(['id', 'name', 'description', 'status', 'startDate'])
     InstRel = frozenset(['user'])
     InstMRel = frozenset(['studyInvestigations'])
+    SortAttrs = ['name']
 
 
 class StudyInvestigation(Entity):

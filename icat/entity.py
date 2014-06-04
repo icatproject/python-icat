@@ -38,6 +38,8 @@ class Entity(object):
     """One to many relationships in the ICAT schema."""
     AttrAlias = {}
     """Map of alias names for attributes and relationships."""
+    SortAttrs = None
+    """List of attributes used for sorting.  Uses Constraint if set to None."""
 
 
     @classmethod
@@ -148,6 +150,24 @@ class Entity(object):
 
     def __repr__(self):
         return str(self)
+
+    def __sortkey__(self):
+        """Return a key for sorting Entity objects."""
+        sortattrs = self.SortAttrs or self.Constraint
+        s = [ self.BeanName ]
+        for attr in sortattrs:
+            v = getattr(self, attr, None)
+            if v is None:
+                pass
+            elif isinstance(v, Entity):
+                v = v.__sortkey__()
+            else:
+                try:
+                    v = str(v)
+                except UnicodeError:
+                    v = unicode(v)
+            s.append(v)
+        return s
 
 
     def truncateRelations(self):
