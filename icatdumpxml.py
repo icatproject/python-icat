@@ -240,6 +240,7 @@ for searchexp in authtypes:
 if len(data) > 0:
     print etree.tostring(data, pretty_print=True),
 
+keyindex = {}
 data = etree.Element("data")
 for searchexp in statictypes:
     getobjs(data, searchexp)
@@ -252,12 +253,14 @@ investigations = [(i.facility.id, i.name, i.visitId)
                   for i in client.search(investsearch)]
 investigations.sort()
 for inv in investigations:
+    keyindex = {}
     data = etree.Element("data")
     for searchexp in investtypes:
         getobjs(data, searchexp % inv)
     if len(data) > 0:
         print etree.tostring(data, pretty_print=True),
 
+keyindex = {}
 data = etree.Element("data")
 for searchexp in othertypes:
     getobjs(data, searchexp)
