@@ -18,6 +18,8 @@ logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config()
+config.add_variable('skipfiles', ("--skipdatafiles",), 
+                    dict(help="skip adding Datafiles", action='store_true'))
 config.add_variable('datafile', ("datafile",), 
                     dict(metavar="inputdata.yaml", 
                          help="name of the input datafile"))
@@ -59,14 +61,24 @@ invsearch = "Investigation[name='%s']" % investigationdata['name']
 investigation = client.assertedSearch(invsearch)[0]
 
 need_dataset_types = set()
+need_datafile_formats = set()
 for ds in investigationdata['datasets']:
     need_dataset_types.add(ds['type'])
+    if not conf.skipfiles:
+        for df in ds['datafiles']:
+            need_datafile_formats.add(df['format'])
 
 dataset_types = {}
 for t in need_dataset_types:
     dstsearch = ("DatasetType[name='%s' %s]" 
                  % (data['dataset_types'][t]['name'], facility_const))
     dataset_types[t] = client.assertedSearch(dstsearch)[0]
+
+datafile_formats = {}
+for t in need_datafile_formats:
+    dffsearch = ("DatafileFormat[name='%s' %s]" 
+                 % (data['datafile_formats'][t]['name'], facility_const))
+    datafile_formats[t] = client.assertedSearch(dffsearch)[0]
 
 
 # ------------------------------------------------------------
@@ -95,5 +107,18 @@ for datasetdata in investigationdata['datasets']:
     dataset.sample = sample
     dataset.investigation = investigation
     dataset.type = dataset_types[datasetdata['type']]
+
+    if not conf.skipfiles:
+        for datafiledata in datasetdata['datafiles']:
+            print "Datafile: creating '%s' ..." % datafiledata['name']
+            datafile = client.new("datafile")
+            datafile.name = datafiledata['name']
+            datafile.location = datafiledata['location']
+            datafile.fileSize = datafiledata['fileSize']
+            datafile.datafileCreateTime = datafiledata['createTime']
+            datafile.datafileModTime = datafiledata['modTime']
+            datafile.datafileFormat = datafile_formats[datafiledata['format']]
+            dataset.datafiles.append(datafile)
+
     dataset.create()
 
