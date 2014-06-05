@@ -159,13 +159,18 @@ class Entity(object):
             v = getattr(self, attr, None)
             if v is None:
                 pass
-            elif isinstance(v, Entity):
-                v = v.__sortkey__()
-            else:
+            elif attr in self.InstAttr:
                 try:
                     v = str(v)
                 except UnicodeError:
                     v = unicode(v)
+            elif attr in self.InstRel:
+                v = v.__sortkey__()
+            elif attr in self.InstMRel:
+                v = [ r.__sortkey__() for r in v ]
+            else:
+                raise InternalError("Invalid sorting attribute '%s' in %s."
+                                    % (attr, self.BeanName))
             s.append(v)
         return s
 
