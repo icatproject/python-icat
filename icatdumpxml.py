@@ -179,12 +179,19 @@ investtypes = [("SELECT i FROM Investigation i "
                 "INCLUDE o.dataset, o.datafileFormat AS dff, dff.facility, "
                 "o.parameters AS op, op.type AS opt, opt.facility")]
 othertypes = [("SELECT o FROM RelatedDatafile o "
-               "INCLUDE o.sourceDatafile, o.destDatafile"),
+               "INCLUDE o.sourceDatafile AS sdf, sdf.dataset AS sds, "
+               "sds.investigation AS si, si.facility, "
+               "o.destDatafile AS ddf, ddf.dataset AS dds, "
+               "dds.investigation AS di, di.facility"),
               ("SELECT o FROM DataCollection o "
-               "INCLUDE o.dataCollectionDatasets AS ds, ds.dataset, "
-               "o.dataCollectionDatafiles AS df, df.datafile, "
+               "INCLUDE o.dataCollectionDatasets AS ds, ds.dataset AS dsds, "
+               "dsds.investigation AS dsi, dsi.facility, "
+               "o.dataCollectionDatafiles AS df, "
+               "df.datafile AS dfdf, dfdf.dataset AS dfds, "
+               "dfds.investigation AS dfi, dfi.facility, "
                "o.%s AS op, op.type" % datacolparamname),
-              ("SELECT o FROM Job o INCLUDE o.application, "
+              ("SELECT o FROM Job o "
+               "INCLUDE o.application AS app, app.facility, "
                "o.inputDataCollection, o.outputDataCollection")]
 
 date = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
