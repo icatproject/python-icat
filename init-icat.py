@@ -191,3 +191,12 @@ for k in data['datafile_formats'].keys():
     fileformats.append(ff)
 client.createMany(fileformats)
 
+# applications
+applications = []
+for k in data['applications'].keys():
+    app = client.new("application")
+    app.name = data['applications'][k]['name']
+    app.facility = facilities[data['applications'][k]['facility']]
+    app.version = data['applications'][k]['version']
+    applications.append(app)
+client.createMany(applications)

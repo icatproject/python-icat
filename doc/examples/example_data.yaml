@@ -1,3 +1,8 @@
+applications:
+  gnomoanalytics:
+    facility: example_facility
+    name: gnomoanalytics
+    version: 69
 datafile_formats:
   nexus:
     description: A common data format for neutron, x-ray and muon science
@@ -221,6 +226,26 @@ investigations:
     title: NiO SC OF1 JUH HHL
     type: experiment
     visitId: 1
+jobs:
+  job1:
+    application: gnomoanalytics
+    input:
+      datasets: []
+      datafiles:
+        - dataset: e208945
+          investigation: 2012-EDDI-0390-1
+          name: e208945.nxs
+    output:
+      datasets: []
+      datafiles:
+        - createTime: '2012-07-16T16:30:17+02:00'
+          dataset: e208945
+          fileSize: 2893652
+          format: nexus
+          investigation: 2012-EDDI-0390-1
+          location: /data/2012/07/e208945-2.nxs
+          modTime: '2012-07-16T16:30:17+02:00'
+          name: e208945-2.nxs
 sample_types:
   durol:
     facility: example_facility
