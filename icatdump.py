@@ -43,17 +43,19 @@ if client.apiversion < '4.3':
 client.login(conf.auth, conf.credentials)
 
 
-keyindex = {}
+sortkey = icat.entity.Entity.__sortkey__
 
-
-def entityattrdict(e):
-    """Convert an entity to a dict, not considering the relations."""
+def entitydict(e, keyindex=None):
+    """Convert an entity to a dict."""
     d = {}
+
     for attr in e.InstAttr:
         if attr == 'id':
             continue
         v = getattr(e, attr, None)
         if v is None:
+            continue
+        elif isinstance(v, bool):
             pass
         elif isinstance(v, long) or isinstance(v, int):
             v = int(v)
@@ -72,140 +74,36 @@ def entityattrdict(e):
             except UnicodeError:
                 v = unicode(v)
         d[attr] = v
-    return d
 
-def entitydict(e):
-    """Convert an entity to a dict."""
-    d = entityattrdict(e)
     for attr in e.InstRel:
         o = getattr(e, attr, None)
         if o is not None:
-            d[attr] = o.getUniqueKey(keyindex=keyindex)
-        else:
-            d[attr] = None
-    return d
+            d[attr] = o.getUniqueKey(autoget=False, keyindex=keyindex)
 
-def entityparamdict(e):
-    """Convert an entity including its parameters to a dict."""
-    d = entitydict(e)
-    params = []
-    for i in e.parameters:
-        p = entityattrdict(i)
-        p['type'] = i.type.getUniqueKey(keyindex=keyindex)
-        params.append(p)
-    params.sort(key = lambda p:p['type'])
-    d['parameters'] = params
-    return d
-
-def groupdict(e):
-    """Convert a group including its users to a dict."""
-    d = entitydict(e)
-    users = [ ug.user.getUniqueKey(keyindex=keyindex) 
-              for ug in e.userGroups ]
-    users.sort()
-    d['users'] = users
-    return d
-
-def instrumentdict(e):
-    """Convert an instrument including its instrument scientists to a dict."""
-    d = entitydict(e)
-    users = [ uis.user.getUniqueKey(keyindex=keyindex) 
-              for uis in e.instrumentScientists ]
-    users.sort()
-    d['instrumentScientists'] = users
-    return d
-
-def parametertypedict(e):
-    """Convert an parameter type including its permissible string
-    values to a dict."""
-    d = entitydict(e)
-    strvals = [ entityattrdict(i) for i in e.permissibleStringValues ]
-    strvals.sort()
-    d['permissibleStringValues'] = strvals
-    return d
-
-def investigationdict(e):
-    """Convert an investigation including its instruments, shifts,
-    keywords, publications, investigation users, and parameters to a
-    dict."""
-    d = entityparamdict(e)
-
-    instruments = [ i.instrument.getUniqueKey(keyindex=keyindex) 
-                    for i in e.investigationInstruments ]
-    instruments.sort()
-    d['instruments'] = instruments
-
-    shifts = [ entityattrdict(i) for i in e.shifts ]
-    shifts.sort( key = lambda s: (s['startDate'],s['endDate']) )
-    d['shifts'] = shifts
-
-    keywords = [ entityattrdict(i) for i in e.keywords ]
-    keywords.sort( key = lambda k:k['name'] )
-    d['keywords'] = keywords
-
-    publications = [ entityattrdict(i) for i in e.publications ]
-    publications.sort( key = lambda p:p['fullReference'] )
-    d['publications'] = publications
-
-    invusers = []
-    for i in e.investigationUsers:
-        u = entityattrdict(i)
-        u['user'] = i.user.getUniqueKey(keyindex=keyindex)
-        invusers.append(u)
-    invusers.sort( key = lambda u:u['user'] )
-    d['investigationUsers'] = invusers
+    for attr in e.InstMRel:
+        if len(getattr(e, attr)) > 0:
+            d[attr] = []
+            for o in sorted(getattr(e, attr), key=sortkey):
+                d[attr].append(entitydict(o, keyindex=keyindex))
 
     return d
 
-def studydict(e):
-    """Convert a study to a dict."""
-    d = entitydict(e)
-    studyInvest = [ si.investigation.getUniqueKey(keyindex=keyindex) 
-                    for si in e.studyInvestigations ]
-    studyInvest.sort()
-    d['studyInvestigations'] = studyInvest
-    return d
-
-def datacollectiondict(e):
-    """Convert a data collection to a dict."""
-    d = entityparamdict(e)
-
-    datasets = [ i.dataset.getUniqueKey(keyindex=keyindex) 
-                 for i in e.dataCollectionDatasets ]
-    datasets.sort()
-    d['dataCollectionDatasets'] = datasets
-
-    datafiles = [ i.datafile.getUniqueKey(keyindex=keyindex) 
-                  for i in e.dataCollectionDatafiles ]
-    datafiles.sort()
-    d['dataCollectionDatafiles'] = datafiles
-
-    return d
-
-def getobjs(name, convert, searchexp, reindex):
+def getobjs(searchexp, keyindex=None):
     d = {}
-    for e in client.search(searchexp):
-        k = e.getUniqueKey(autoget=False, keyindex=keyindex)
-        d[k] = convert(e)
-
-    # Entities without a constraint will use their id to form the
-    # unique key as a last resort.  But we want the keys to have a
-    # well defined order, independent from the id.  For the concerned
-    # entities, reindex is set to the list of attributes that shall
-    # determine the sort order.
-    if reindex:
-        idindex = { i:k for k,i in keyindex.iteritems() }
-        ds = {}
-        keys = d.keys()
-        keys.sort(key = lambda k: [ d[k][a] if d[k][a] is not None else '\x00' 
-                                    for a in reindex ]+[k] )
-        i = 0
-        for k in keys:
+    i = 0
+    for obj in sorted(client.search(searchexp), key=sortkey):
+        # Entities without a constraint will use their id to form the
+        # unique key as a last resort.  But we want the keys to have a
+        # well defined order, independent from the id.  Use a simple
+        # numbered key for the concerned entity types.
+        if 'id' in obj.Constraint:
             i += 1
-            n = "%s_%08d" % (name, i)
-            ds[n] = d[k]
-            keyindex[idindex[k]] = n
-        d = ds
+            k = "%s_%08d" % (obj.BeanName, i)
+            keyindex[obj.id] = k
+        else:
+            k = obj.getUniqueKey(autoget=False, keyindex=keyindex)
+        d[k] = entitydict(obj, keyindex=keyindex)
+
     return d
 
 # We write the data in chunks (or documents in YAML terminology).
@@ -233,86 +131,75 @@ if client.apiversion < '4.3.1':
 else:
     datacolparamname = 'parameters'
 
-authtypes = [('User', entitydict, "User", False), 
-             ('Group', groupdict, "Grouping INCLUDE UserGroup, User", False),
-             ('Rule', entitydict, "Rule INCLUDE Grouping", 
-              ['grouping', 'what']),
-             ('PublicStep', entitydict, "PublicStep", False)]
-statictypes = [('Facility', entitydict, "Facility", False),
-               ('Instrument', instrumentdict, 
-                "Instrument INCLUDE Facility, InstrumentScientist, User", 
-                False),
-               ('ParameterType', parametertypedict, 
-                "ParameterType INCLUDE Facility, PermissibleStringValue", 
-                False),
-               ('InvestigationType', entitydict, 
-                "InvestigationType INCLUDE Facility", False),
-               ('SampleType', entitydict, "SampleType INCLUDE Facility", 
-                False),
-               ('DatasetType', entitydict, "DatasetType INCLUDE Facility", 
-                False),
-               ('DatafileFormat', entitydict, 
-                "DatafileFormat INCLUDE Facility", False),
-               ('FacilityCycle', entitydict, "FacilityCycle INCLUDE Facility", 
-                False),
-               ('Application', entitydict, "Application INCLUDE Facility", 
-                False)]
-investtypes = [('Investigation', investigationdict, 
+
+authtypes = [('User', "User"), 
+             ('Grouping', "Grouping INCLUDE UserGroup, User"),
+             ('Rule', "Rule INCLUDE Grouping"),
+             ('PublicStep', "PublicStep")]
+statictypes = [('Facility', "Facility"),
+               ('Instrument', 
+                "Instrument INCLUDE Facility, InstrumentScientist, User"),
+               ('ParameterType', 
+                "ParameterType INCLUDE Facility, PermissibleStringValue"),
+               ('InvestigationType', "InvestigationType INCLUDE Facility"),
+               ('SampleType', "SampleType INCLUDE Facility"),
+               ('DatasetType', "DatasetType INCLUDE Facility"),
+               ('DatafileFormat', "DatafileFormat INCLUDE Facility"),
+               ('FacilityCycle', "FacilityCycle INCLUDE Facility"),
+               ('Application', "Application INCLUDE Facility")]
+investtypes = [('Investigation', 
                 "SELECT i FROM Investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
-                "INCLUDE i.facility, i.type, "
-                "i.investigationInstruments AS ii, ii.instrument, "
+                "INCLUDE i.facility, i.type AS it, it.facility, "
+                "i.investigationInstruments AS ii, "
+                "ii.instrument AS iii, iii.facility, "
                 "i.shifts, i.keywords, i.publications, "
                 "i.investigationUsers AS iu, iu.user, "
-                "i.parameters AS ip, ip.type", 
-                False),
-               ('Study', studydict, 
+                "i.parameters AS ip, ip.type AS ipt, ipt.facility"),
+               ('Study', 
                 "SELECT o FROM Study o "
                 "JOIN o.studyInvestigations si JOIN si.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
                 "INCLUDE o.user, "
-                "o.studyInvestigations AS si, si.investigation", 
-                ['name']),
-               ('Sample', entityparamdict, 
-                "SELECT o FROM Sample o "
-                "JOIN o.investigation i "
+                "o.studyInvestigations AS si, si.investigation"),
+               ('Sample', 
+                "SELECT o FROM Sample o JOIN o.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
-                "INCLUDE o.investigation, o.type, "
-                "o.parameters AS op, op.type", 
-                False),
-               ('Dataset', entityparamdict, 
-                "SELECT o FROM Dataset o "
-                "JOIN o.investigation i "
+                "INCLUDE o.investigation, o.type AS ot, ot.facility, "
+                "o.parameters AS op, op.type AS opt, opt.facility"),
+               ('Dataset', 
+                "SELECT o FROM Dataset o JOIN o.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
-                "INCLUDE o.investigation, o.type, o.sample, "
-                "o.parameters AS op, op.type", 
-                False),
-               ('Datafile', entityparamdict, 
-                "SELECT o FROM Datafile o "
+                "INCLUDE o.investigation, o.type AS ot, ot.facility, o.sample, "
+                "o.parameters AS op, op.type AS opt, opt.facility"),
+               ('Datafile', "SELECT o FROM Datafile o "
                 "JOIN o.dataset ds JOIN ds.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
-                "INCLUDE o.dataset, o.datafileFormat, "
-                "o.parameters AS op, op.type", 
-                False)]
-othertypes = [('RelatedDatafile', entitydict, 
+                "INCLUDE o.dataset, o.datafileFormat AS dff, dff.facility, "
+                "o.parameters AS op, op.type AS opt, opt.facility")]
+othertypes = [('RelatedDatafile', 
                "SELECT o FROM RelatedDatafile o "
-               "INCLUDE o.sourceDatafile, o.destDatafile", 
-               False),
-              ('DataCollection', datacollectiondict, 
+               "INCLUDE o.sourceDatafile AS sdf, sdf.dataset AS sds, "
+               "sds.investigation AS si, si.facility, "
+               "o.destDatafile AS ddf, ddf.dataset AS dds, "
+               "dds.investigation AS di, di.facility"),
+              ('DataCollection', 
                "SELECT o FROM DataCollection o "
-               "INCLUDE o.dataCollectionDatasets AS ds, ds.dataset, "
-               "o.dataCollectionDatafiles AS df, df.datafile, "
-               "o.%s AS op, op.type" % datacolparamname, 
-               ['dataCollectionDatasets', 'dataCollectionDatafiles']),
-              ('Job', entitydict, 
-               "SELECT o FROM Job o INCLUDE o.application, "
-               "o.inputDataCollection, o.outputDataCollection", 
-               ['application', 'arguments'])]
+               "INCLUDE o.dataCollectionDatasets AS ds, ds.dataset AS dsds, "
+               "dsds.investigation AS dsi, dsi.facility, "
+               "o.dataCollectionDatafiles AS df, "
+               "df.datafile AS dfdf, dfdf.dataset AS dfds, "
+               "dfds.investigation AS dfi, dfi.facility, "
+               "o.%s AS op, op.type" % datacolparamname),
+              ('Job', 
+               "SELECT o FROM Job o "
+               "INCLUDE o.application AS app, app.facility, "
+               "o.inputDataCollection, o.outputDataCollection")]
 
 date = datetime.datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S +0000")
 print """%%YAML 1.1
@@ -322,14 +209,16 @@ print """%%YAML 1.1
 # Generator: icatdump (python-icat %s)""" % (date, conf.url, client.apiversion,
                                              icat.__version__)
 
+keyindex = {}
 dump = {}
-for name, convert, searchexp, reindex in authtypes:
-    dump[name] = getobjs(name, convert, searchexp, reindex)
+for name, searchexp in authtypes:
+    dump[name] = getobjs(searchexp, keyindex=keyindex)
 yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
 
+keyindex = {}
 dump = {}
-for name, convert, searchexp, reindex in statictypes:
-    dump[name] = getobjs(name, convert, searchexp, reindex)
+for name, searchexp in statictypes:
+    dump[name] = getobjs(searchexp, keyindex=keyindex)
 yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
 
 # Dump the investigations each in their own document
@@ -338,13 +227,15 @@ investigations = [(i.facility.id, i.name, i.visitId)
                   for i in client.search(investsearch)]
 investigations.sort()
 for inv in investigations:
+    keyindex = {}
     dump = {}
-    for name, convert, searchexp, reindex in investtypes:
-        dump[name] = getobjs(name, convert, searchexp % inv, reindex)
+    for name, searchexp in investtypes:
+        dump[name] = getobjs(searchexp % inv, keyindex=keyindex)
     yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
 
+keyindex = {}
 dump = {}
-for name, convert, searchexp, reindex in othertypes:
-    dump[name] = getobjs(name, convert, searchexp, reindex)
+for name, searchexp in othertypes:
+    dump[name] = getobjs(searchexp, keyindex=keyindex)
 yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
 

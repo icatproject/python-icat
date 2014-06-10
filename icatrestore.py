@@ -41,214 +41,55 @@ if client.apiversion < '4.3':
                        % client.apiversion)
 client.login(conf.auth, conf.credentials)
 
-# ------------------------------------------------------------
-# Helper function
-# ------------------------------------------------------------
 
-def substkeys(d, keys, objindex):
-    """Substitude unique keys by the corresponding objects in the
-    values of the dict d corresponding to keys.
-    """
-    for k in keys:
-        if d[k] is not None:
-            d[k] = client.searchUniqueKey(d[k], objindex)
+insttypemap = { c.BeanName:t for t,c in client.typemap.iteritems() }
 
-# ------------------------------------------------------------
-# Creator functions
-# ------------------------------------------------------------
+def dict2obj(d, objtype, objindex):
+    """Create an entity object from a dict of attributes."""
+    obj = client.new(objtype)
+    mreltypes = None
+    for attr in d:
+        if attr in obj.InstAttr:
+            setattr(obj, attr, d[attr])
+        elif attr in obj.InstRel:
+            robj = client.searchUniqueKey(d[attr], objindex)
+            setattr(obj, attr, robj)
+        elif attr in obj.InstMRel:
+            if mreltypes is None:
+                info = client.getEntityInfo(obj.BeanName)
+                mreltypes = { f.name:insttypemap[f.type] 
+                              for f in info.fields if f.relType == "MANY" }
+            for rd in d[attr]:
+                robj = dict2obj(rd, mreltypes[attr], objindex)
+                getattr(obj, attr).append(robj)
+        else:
+            raise ValueError("invalid attribute '%s' in '%s'" 
+                             % (attr, objtype))
+    return obj
 
-def createObjs(data, insttype, subst, objindex):
-    """Create objects, generic method."""
-    bean = client.typemap[insttype].BeanName
-    for key, d in data.iteritems():
-        log.info("create %s %s ...", bean, d['name'])
-        substkeys(d, subst, objindex)
-        obj = client.new(insttype, **d)
-        obj.create()
-        objindex[key] = obj
-
-def createBulkObjs(data, insttype, subst, objindex):
-    """Create objects, bulk method: use createMany, do not add them to
-    the objindex."""
-    bean = client.typemap[insttype].BeanName
-    objs = []
-    for d in data.itervalues():
-        substkeys(d, subst, objindex)
-        objs.append(client.new(insttype, **d))
-    log.info("create %d %ss ...", len(objs), bean)
-    client.createMany(objs)
-
-def createGroups(data, insttype, subst, objindex):
-    for key, d in data.iteritems():
-        log.info("create Group %s ...", d['name'])
-        users = [ client.searchUniqueKey(u, objindex) for u in d['users'] ]
-        obj = client.createGroup(d['name'], users)
-        objindex[key] = obj
-
-def createInstruments(data, insttype, subst, objindex):
-    bean = client.typemap[insttype].BeanName
-    for key, d in data.iteritems():
-        log.info("create %s %s ...", bean, d['name'])
-        instrsci = [ client.searchUniqueKey(u, objindex) 
-                     for u in d['instrumentScientists'] ]
-        del d['instrumentScientists']
-        substkeys(d, subst, objindex)
-        obj = client.new(insttype, **d)
-        obj.create()
-        obj.addInstrumentScientists(instrsci)
-        objindex[key] = obj
-
-def createParameterTypes(data, insttype, subst, objindex):
-    bean = client.typemap[insttype].BeanName
-    for key, d in data.iteritems():
-        log.info("create %s %s ...", bean, d['name'])
-        permissibleStringValues = d['permissibleStringValues']
-        del d['permissibleStringValues']
-        substkeys(d, subst, objindex)
-        obj = client.new(insttype, **d)
-        for v in permissibleStringValues:
-            o = client.new('permissibleStringValue', **v)
-            obj.permissibleStringValues.append(o)
-        obj.create()
-        objindex[key] = obj
-
-def createInvestigations(data, insttype, subst, objindex):
-    bean = client.typemap[insttype].BeanName
-    for key, d in data.iteritems():
-        log.info("create %s %s ...", bean, d['name'])
-        r = {}
-        for t in ['instruments', 'investigationUsers', 'parameters', 
-                  'shifts', 'keywords', 'publications']:
-            r[t] = d[t]
-            del d[t]
-        substkeys(d, subst, objindex)
-        obj = client.new(insttype, **d)
-        for s in r['investigationUsers']:
-            substkeys(s, ['user'], objindex)
-            o = client.new('investigationUser', **s)
-            obj.investigationUsers.append(o)
-        for s in r['parameters']:
-            substkeys(s, ['type'], objindex)
-            o = client.new('investigationParameter', **s)
-            obj.parameters.append(o)
-        for s in r['shifts']:
-            obj.shifts.append(client.new('shift', **s))
-        for s in r['keywords']:
-            obj.keywords.append(client.new('keyword', **s))
-        for s in r['publications']:
-            obj.publications.append(client.new('publication', **s))
-        obj.create()
-        for s in r['instruments']:
-            instrument = client.searchUniqueKey(s, objindex)
-            obj.addInstrument(instrument)
-        objindex[key] = obj
-
-def createStudies(data, insttype, subst, objindex):
-    bean = client.typemap[insttype].BeanName
-    for key, d in data.iteritems():
-        log.info("create %s %s ...", bean, d['name'])
-        studyInvestigations = d['studyInvestigations']
-        del d['studyInvestigations']
-        substkeys(d, subst, objindex)
-        obj = client.new(insttype, **d)
-        for s in studyInvestigations:
-            substkeys(s, ['investigation'], objindex)
-            o = client.new('studyInvestigation', **s)
-            obj.studyInvestigations.append(o)
-        obj.create()
-        objindex[key] = obj
-
-def createSamples(data, insttype, subst, objindex):
-    bean = client.typemap[insttype].BeanName
-    for key, d in data.iteritems():
-        log.info("create %s %s ...", bean, d['name'])
-        parameters = d['parameters']
-        del d['parameters']
-        substkeys(d, subst, objindex)
-        obj = client.new(insttype, **d)
-        for p in parameters:
-            substkeys(p, ['type'])
-            obj.parameters.append(client.new('sampleParameter', **p))
-        obj.create()
-        objindex[key] = obj
-
-def createDatasets(data, insttype, subst, objindex):
-    bean = client.typemap[insttype].BeanName
-    for key, d in data.iteritems():
-        log.info("create %s %s ...", bean, d['name'])
-        parameters = d['parameters']
-        del d['parameters']
-        substkeys(d, subst, objindex)
-        obj = client.new(insttype, **d)
-        for p in parameters:
-            substkeys(p, ['type'])
-            obj.parameters.append(client.new('datasetParameter', **p))
-        obj.create()
-        objindex[key] = obj
-
-def createDatafiles(data, insttype, subst, objindex):
-    bean = client.typemap[insttype].BeanName
-    for key, d in data.iteritems():
-        log.info("create %s %s ...", bean, d['name'])
-        parameters = d['parameters']
-        del d['parameters']
-        substkeys(d, subst, objindex)
-        obj = client.new(insttype, **d)
-        for p in parameters:
-            substkeys(p, ['type'])
-            obj.parameters.append(client.new('datafileParameter', **p))
-        obj.create()
-        objindex[key] = obj
-
-def createDataCollections(data, insttype, subst, objindex):
-    bean = client.typemap[insttype].BeanName
-    for key, d in data.iteritems():
-        log.info("create %s %s ...", bean, d['name'])
-        obj = client.new(insttype)
-        for r in d['dataCollectionDatafiles']:
-            datafile = client.searchUniqueKey(r, objindex) 
-            o = client.new('dataCollectionDatafile', datafile=datafile)
-            obj.dataCollectionDatafiles.append(o)
-        for r in d['dataCollectionDatasets']:
-            dataset = client.searchUniqueKey(r, objindex) 
-            o = client.new('dataCollectionDataset', dataset=dataset)
-            obj.dataCollectionDatasets.append(o)
-        for r in d['parameters']:
-            substkeys(r, ['type'], objindex)
-            o = client.new('dataCollectionParameter', **r)
-            obj.parameters.append(o)
-        obj.create()
-        objindex[key] = obj
-
-# ------------------------------------------------------------
-# Create data at the ICAT server
-# ------------------------------------------------------------
 
 entitytypes = [
-    ('User', 'user', createObjs, []),
-    ('Group', 'grouping', createGroups, []),
-    ('Rule', 'rule', createBulkObjs, ['grouping']),
-    ('PublicStep', 'publicStep', createBulkObjs, []),
-    ('Facility', 'facility', createObjs, []),
-    ('Instrument', 'instrument', createInstruments, ['facility']),
-    ('ParameterType', 'parameterType', createParameterTypes, ['facility']),
-    ('InvestigationType', 'investigationType', createObjs, ['facility']),
-    ('SampleType', 'sampleType', createObjs, ['facility']),
-    ('DatasetType', 'datasetType', createObjs, ['facility']),
-    ('DatafileFormat', 'datafileFormat', createObjs, ['facility']),
-    ('FacilityCycle', 'facilityCycle', createObjs, ['facility']),
-    ('Application', 'application', createObjs, ['facility']),
-    ('Investigation', 'investigation', createInvestigations, 
-     ['facility', 'type']),
-    ('Study', 'study', createStudies, ['user']),
-    ('Sample', 'sample', createSamples, ['type', 'investigation']),
-    ('Dataset', 'dataset', createDatasets, ['type', 'investigation', 'sample']),
-    ('Datafile', 'datafile', createDatafiles, ['datafileFormat', 'dataset']),
-    ('RelatedDatafile', 'relatedDatafile', createBulkObjs, 
-     ['sourceDatafile', 'destDatafile']),
-    ('DataCollection', 'dataCollection', createDataCollections, []),
-    ('Job', 'job', createBulkObjs, 
-     ['application', 'inputDataCollection', 'outputDataCollection']),
+    ('User'),
+    ('Grouping'),
+    ('Rule'),
+    ('PublicStep'),
+    ('Facility'),
+    ('Instrument'),
+    ('ParameterType'),
+    ('InvestigationType'),
+    ('SampleType'),
+    ('DatasetType'),
+    ('DatafileFormat'),
+    ('FacilityCycle'),
+    ('Application'),
+    ('Investigation'),
+    ('Study'),
+    ('Sample'),
+    ('Dataset'),
+    ('Datafile'),
+    ('RelatedDatafile'),
+    ('DataCollection'),
+    ('Job'),
 ]
 
 # We read the data in chunks (or documents in YAML terminology).  This
@@ -277,6 +118,11 @@ for data in yaml.load_all(sys.stdin):
     objindex = {}
     # We need to create the objects in order so that objects are
     # processed before those referencing the former.
-    for name, insttype, creator, subst in entitytypes:
+    for name in entitytypes:
         if name in data:
-            creator(data[name], insttype, subst, objindex)
+            for key, d in data[name].iteritems():
+                obj = dict2obj(d, insttypemap[name], objindex)
+                obj.create()
+                obj.truncateRelations()
+                objindex[key] = obj
+
