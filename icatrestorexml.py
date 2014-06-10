@@ -45,15 +45,6 @@ client.login(conf.auth, conf.credentials)
 
 insttypemap = { c.BeanName:t for t,c in client.typemap.iteritems() }
 
-def translatevalue(value):
-    """Perform translation of attribute values if necessary."""
-    if value == 'True':
-        return True
-    elif value == 'False':
-        return False
-    else:
-        return value
-
 def elem2obj(element, objindex, objtype=None):
     """Create an entity object from XML element data."""
     if objtype is None:
@@ -62,7 +53,7 @@ def elem2obj(element, objindex, objtype=None):
     mreltypes = None
     for subelem in element:
         if subelem.tag in obj.InstAttr:
-            setattr(obj, subelem.tag, translatevalue(subelem.text))
+            setattr(obj, subelem.tag, subelem.text)
         elif subelem.tag in obj.InstRel:
             ref = subelem.get('ref')
             robj = client.searchUniqueKey(ref, objindex)
