@@ -26,7 +26,7 @@ import icat
 import icat.config
 import sys
 import logging
-import yaml
+from icat.dumpfile_yaml import YAMLDumpFileReader as DumpFileReader
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -41,56 +41,6 @@ if client.apiversion < '4.3':
                        % client.apiversion)
 client.login(conf.auth, conf.credentials)
 
-
-insttypemap = { c.BeanName:t for t,c in client.typemap.iteritems() }
-
-def dict2obj(d, objtype, objindex):
-    """Create an entity object from a dict of attributes."""
-    obj = client.new(objtype)
-    mreltypes = None
-    for attr in d:
-        if attr in obj.InstAttr:
-            setattr(obj, attr, d[attr])
-        elif attr in obj.InstRel:
-            robj = client.searchUniqueKey(d[attr], objindex)
-            setattr(obj, attr, robj)
-        elif attr in obj.InstMRel:
-            if mreltypes is None:
-                info = client.getEntityInfo(obj.BeanName)
-                mreltypes = { f.name:insttypemap[f.type] 
-                              for f in info.fields if f.relType == "MANY" }
-            for rd in d[attr]:
-                robj = dict2obj(rd, mreltypes[attr], objindex)
-                getattr(obj, attr).append(robj)
-        else:
-            raise ValueError("invalid attribute '%s' in '%s'" 
-                             % (attr, objtype))
-    return obj
-
-
-entitytypes = [
-    ('User'),
-    ('Grouping'),
-    ('Rule'),
-    ('PublicStep'),
-    ('Facility'),
-    ('Instrument'),
-    ('ParameterType'),
-    ('InvestigationType'),
-    ('SampleType'),
-    ('DatasetType'),
-    ('DatafileFormat'),
-    ('FacilityCycle'),
-    ('Application'),
-    ('Investigation'),
-    ('Study'),
-    ('Sample'),
-    ('Dataset'),
-    ('Datafile'),
-    ('RelatedDatafile'),
-    ('DataCollection'),
-    ('Job'),
-]
 
 # We read the data in chunks (or documents in YAML terminology).  This
 # way we can avoid having the whole file, e.g. the complete inventory
@@ -112,17 +62,11 @@ entitytypes = [
 # responsibility of the creator of the dumpfile to create the chunks
 # in this manner.
 
-# yaml.load_all() returns a generator that yield one chunk (YAML
-# document) from the file in each iteration.
-for data in yaml.load_all(sys.stdin):
+dumpfile = DumpFileReader(client, sys.stdin)
+for data in dumpfile.getdata():
     objindex = {}
-    # We need to create the objects in order so that objects are
-    # processed before those referencing the former.
-    for name in entitytypes:
-        if name in data:
-            for key, d in data[name].iteritems():
-                obj = dict2obj(d, insttypemap[name], objindex)
-                obj.create()
-                obj.truncateRelations()
-                objindex[key] = obj
+    for key, obj in dumpfile.getobjs(data, objindex):
+        obj.create()
+        obj.truncateRelations()
+        objindex[key] = obj
 

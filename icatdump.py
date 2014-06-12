@@ -26,9 +26,8 @@
 import sys
 import icat
 import icat.config
-import datetime
 import logging
-import yaml
+from icat.dumpfile_yaml import YAMLDumpFileWriter as DumpFileWriter
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -43,55 +42,10 @@ if client.apiversion < '4.3':
 client.login(conf.auth, conf.credentials)
 
 
-sortkey = icat.entity.Entity.__sortkey__
-
-def entitydict(e, keyindex=None):
-    """Convert an entity to a dict."""
-    d = {}
-
-    for attr in e.InstAttr:
-        if attr == 'id':
-            continue
-        v = getattr(e, attr, None)
-        if v is None:
-            continue
-        elif isinstance(v, bool):
-            pass
-        elif isinstance(v, long) or isinstance(v, int):
-            v = int(v)
-        elif isinstance(v, datetime.datetime):
-            if v.tzinfo is not None and v.tzinfo.utcoffset(v) is not None:
-                # v has timezone info, assume v.isoformat() to have a
-                # valid timezone suffix.
-                v = v.isoformat()
-            else:
-                # v has no timezone info, assume it to be UTC, append
-                # the corresponding timezone suffix.
-                v = v.isoformat() + 'Z'
-        else:
-            try:
-                v = str(v)
-            except UnicodeError:
-                v = unicode(v)
-        d[attr] = v
-
-    for attr in e.InstRel:
-        o = getattr(e, attr, None)
-        if o is not None:
-            d[attr] = o.getUniqueKey(autoget=False, keyindex=keyindex)
-
-    for attr in e.InstMRel:
-        if len(getattr(e, attr)) > 0:
-            d[attr] = []
-            for o in sorted(getattr(e, attr), key=sortkey):
-                d[attr].append(entitydict(o, keyindex=keyindex))
-
-    return d
-
-def getobjs(searchexp, keyindex=None):
-    d = {}
+def dumpobjs(dumpfile, tag, searchexp, keyindex):
     i = 0
-    for obj in sorted(client.search(searchexp), key=sortkey):
+    objs = client.search(searchexp)
+    for obj in sorted(objs, key=icat.entity.Entity.__sortkey__):
         # Entities without a constraint will use their id to form the
         # unique key as a last resort.  But we want the keys to have a
         # well defined order, independent from the id.  Use a simple
@@ -102,9 +56,8 @@ def getobjs(searchexp, keyindex=None):
             keyindex[obj.id] = k
         else:
             k = obj.getUniqueKey(autoget=False, keyindex=keyindex)
-        d[k] = entitydict(obj, keyindex=keyindex)
+        dumpfile.add(tag, k, obj, keyindex)
 
-    return d
 
 # We write the data in chunks (or documents in YAML terminology).
 # This way we can avoid having the whole file, e.g. the complete
@@ -132,22 +85,22 @@ else:
     datacolparamname = 'parameters'
 
 
-authtypes = [('User', "User"), 
-             ('Grouping', "Grouping INCLUDE UserGroup, User"),
-             ('Rule', "Rule INCLUDE Grouping"),
-             ('PublicStep', "PublicStep")]
-statictypes = [('Facility', "Facility"),
-               ('Instrument', 
+authtypes = [('user', "User"), 
+             ('grouping', "Grouping INCLUDE UserGroup, User"),
+             ('rule', "Rule INCLUDE Grouping"),
+             ('publicStep', "PublicStep")]
+statictypes = [('facility', "Facility"),
+               ('instrument', 
                 "Instrument INCLUDE Facility, InstrumentScientist, User"),
-               ('ParameterType', 
+               ('parameterType', 
                 "ParameterType INCLUDE Facility, PermissibleStringValue"),
-               ('InvestigationType', "InvestigationType INCLUDE Facility"),
-               ('SampleType', "SampleType INCLUDE Facility"),
-               ('DatasetType', "DatasetType INCLUDE Facility"),
-               ('DatafileFormat', "DatafileFormat INCLUDE Facility"),
-               ('FacilityCycle', "FacilityCycle INCLUDE Facility"),
-               ('Application', "Application INCLUDE Facility")]
-investtypes = [('Investigation', 
+               ('investigationType', "InvestigationType INCLUDE Facility"),
+               ('sampleType', "SampleType INCLUDE Facility"),
+               ('datasetType', "DatasetType INCLUDE Facility"),
+               ('datafileFormat', "DatafileFormat INCLUDE Facility"),
+               ('facilityCycle', "FacilityCycle INCLUDE Facility"),
+               ('application', "Application INCLUDE Facility")]
+investtypes = [('investigation', 
                 "SELECT i FROM Investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
@@ -157,38 +110,38 @@ investtypes = [('Investigation',
                 "i.shifts, i.keywords, i.publications, "
                 "i.investigationUsers AS iu, iu.user, "
                 "i.parameters AS ip, ip.type AS ipt, ipt.facility"),
-               ('Study', 
+               ('study', 
                 "SELECT o FROM Study o "
                 "JOIN o.studyInvestigations si JOIN si.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
                 "INCLUDE o.user, "
                 "o.studyInvestigations AS si, si.investigation"),
-               ('Sample', 
+               ('sample', 
                 "SELECT o FROM Sample o JOIN o.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
                 "INCLUDE o.investigation, o.type AS ot, ot.facility, "
                 "o.parameters AS op, op.type AS opt, opt.facility"),
-               ('Dataset', 
+               ('dataset', 
                 "SELECT o FROM Dataset o JOIN o.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
                 "INCLUDE o.investigation, o.type AS ot, ot.facility, o.sample, "
                 "o.parameters AS op, op.type AS opt, opt.facility"),
-               ('Datafile', "SELECT o FROM Datafile o "
+               ('datafile', "SELECT o FROM Datafile o "
                 "JOIN o.dataset ds JOIN ds.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
                 "INCLUDE o.dataset, o.datafileFormat AS dff, dff.facility, "
                 "o.parameters AS op, op.type AS opt, opt.facility")]
-othertypes = [('RelatedDatafile', 
+othertypes = [('relatedDatafile', 
                "SELECT o FROM RelatedDatafile o "
                "INCLUDE o.sourceDatafile AS sdf, sdf.dataset AS sds, "
                "sds.investigation AS si, si.facility, "
                "o.destDatafile AS ddf, ddf.dataset AS dds, "
                "dds.investigation AS di, di.facility"),
-              ('DataCollection', 
+              ('dataCollection', 
                "SELECT o FROM DataCollection o "
                "INCLUDE o.dataCollectionDatasets AS ds, ds.dataset AS dsds, "
                "dsds.investigation AS dsi, dsi.facility, "
@@ -196,30 +149,23 @@ othertypes = [('RelatedDatafile',
                "df.datafile AS dfdf, dfdf.dataset AS dfds, "
                "dfds.investigation AS dfi, dfi.facility, "
                "o.%s AS op, op.type" % datacolparamname),
-              ('Job', 
+              ('job', 
                "SELECT o FROM Job o "
                "INCLUDE o.application AS app, app.facility, "
                "o.inputDataCollection, o.outputDataCollection")]
 
-date = datetime.datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S +0000")
-print """%%YAML 1.1
-# Date: %s
-# Service: %s
-# ICAT-API: %s
-# Generator: icatdump (python-icat %s)""" % (date, conf.url, client.apiversion,
-                                             icat.__version__)
+dumpfile = DumpFileWriter(sys.stdout)
+dumpfile.head(conf.url, client.apiversion)
 
 keyindex = {}
-dump = {}
+dumpfile.startdata()
 for name, searchexp in authtypes:
-    dump[name] = getobjs(searchexp, keyindex=keyindex)
-yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
+    dumpobjs(dumpfile, name, searchexp, keyindex)
 
 keyindex = {}
-dump = {}
+dumpfile.startdata()
 for name, searchexp in statictypes:
-    dump[name] = getobjs(searchexp, keyindex=keyindex)
-yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
+    dumpobjs(dumpfile, name, searchexp, keyindex)
 
 # Dump the investigations each in their own document
 investsearch = "SELECT i FROM Investigation i INCLUDE i.facility"
@@ -228,14 +174,13 @@ investigations = [(i.facility.id, i.name, i.visitId)
 investigations.sort()
 for inv in investigations:
     keyindex = {}
-    dump = {}
+    dumpfile.startdata()
     for name, searchexp in investtypes:
-        dump[name] = getobjs(searchexp % inv, keyindex=keyindex)
-    yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
+        dumpobjs(dumpfile, name, searchexp % inv, keyindex)
 
 keyindex = {}
-dump = {}
+dumpfile.startdata()
 for name, searchexp in othertypes:
-    dump[name] = getobjs(searchexp, keyindex=keyindex)
-yaml.dump(dump, sys.stdout, default_flow_style=False, explicit_start=True)
+    dumpobjs(dumpfile, name, searchexp, keyindex)
 
+dumpfile.finalize()
