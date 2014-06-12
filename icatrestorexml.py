@@ -27,7 +27,7 @@ import icat
 import icat.config
 import sys
 import logging
-from lxml import etree
+from icat.dumpfile_xml import XMLDumpFileReader as DumpFileReader
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -41,34 +41,6 @@ if client.apiversion < '4.3':
     raise RuntimeError("Sorry, ICAT version %s is too old, need 4.3.0 or newer."
                        % client.apiversion)
 client.login(conf.auth, conf.credentials)
-
-
-insttypemap = { c.BeanName:t for t,c in client.typemap.iteritems() }
-
-def elem2obj(element, objindex, objtype=None):
-    """Create an entity object from XML element data."""
-    if objtype is None:
-        objtype = element.tag
-    obj = client.new(objtype)
-    mreltypes = None
-    for subelem in element:
-        if subelem.tag in obj.InstAttr:
-            setattr(obj, subelem.tag, subelem.text)
-        elif subelem.tag in obj.InstRel:
-            ref = subelem.get('ref')
-            robj = client.searchUniqueKey(ref, objindex)
-            setattr(obj, subelem.tag, robj)
-        elif subelem.tag in obj.InstMRel:
-            if mreltypes is None:
-                info = client.getEntityInfo(obj.BeanName)
-                mreltypes = { f.name:insttypemap[f.type] 
-                              for f in info.fields if f.relType == "MANY" }
-            robj = elem2obj(subelem, objindex, mreltypes[subelem.tag])
-            getattr(obj, subelem.tag).append(robj)
-        else:
-            raise ValueError("invalid subelement '%s' in '%s'" 
-                             % (subelem.tag, element.tag))
-    return obj
 
 
 # We read the data in chunks (or documents in YAML terminology).  This
@@ -91,14 +63,11 @@ def elem2obj(element, objindex, objtype=None):
 # responsibility of the creator of the dumpfile to create the chunks
 # in this manner.
 
-for event, data in etree.iterparse(sys.stdin, tag='data'):
-    # Discard the old objindex when we start to process a new chunk.
+dumpfile = DumpFileReader(client, sys.stdin)
+for data in dumpfile.getdata():
     objindex = {}
-    for elem in data:
-        key = elem.get('id')
-        obj = elem2obj(elem, objindex)
+    for key, obj in dumpfile.getobjs(data, objindex):
         obj.create()
         obj.truncateRelations()
         if key:
             objindex[key] = obj
-    data.clear()

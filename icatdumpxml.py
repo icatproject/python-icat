@@ -24,11 +24,11 @@
 #    it.
 #
 
+import sys
 import icat
 import icat.config
-import datetime
 import logging
-from lxml import etree
+from icat.dumpfile_xml import XMLDumpFileWriter as DumpFileWriter
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -43,55 +43,10 @@ if client.apiversion < '4.3':
 client.login(conf.auth, conf.credentials)
 
 
-sortkey = icat.entity.Entity.__sortkey__
-
-def entityelem(e, tag=None, keyindex=None):
-    """Convert an entity object to an etree.Element."""
-    if tag is None:
-        tag = e.instancetype
-    d = etree.Element(tag)
-
-    for attr in sorted(e.InstAttr):
-        if attr == 'id':
-            continue
-        v = getattr(e, attr, None)
-        if v is None:
-            continue
-        elif isinstance(v, bool):
-            v = str(v).lower()
-        elif isinstance(v, long) or isinstance(v, int):
-            v = str(v)
-        elif isinstance(v, datetime.datetime):
-            if v.tzinfo is not None and v.tzinfo.utcoffset(v) is not None:
-                # v has timezone info, assume v.isoformat() to have a
-                # valid timezone suffix.
-                v = v.isoformat()
-            else:
-                # v has no timezone info, assume it to be UTC, append
-                # the corresponding timezone suffix.
-                v = v.isoformat() + 'Z'
-        else:
-            try:
-                v = str(v)
-            except UnicodeError:
-                v = unicode(v)
-        etree.SubElement(d, attr).text = v
-
-    for attr in sorted(e.InstRel):
-        o = getattr(e, attr, None)
-        if o is not None:
-            k = o.getUniqueKey(autoget=False, keyindex=keyindex)
-            etree.SubElement(d, attr, ref=k)
-
-    for attr in sorted(e.InstMRel):
-        for o in sorted(getattr(e, attr), key=sortkey):
-            d.append(entityelem(o, tag=attr, keyindex=keyindex))
-
-    return d
-
-def getobjs(data, searchexp, keyindex=None):
+def dumpobjs(dumpfile, tag, searchexp, keyindex):
     i = 0
-    for obj in sorted(client.search(searchexp), key=sortkey):
+    objs = client.search(searchexp)
+    for obj in sorted(objs, key=icat.entity.Entity.__sortkey__):
         # Entities without a constraint will use their id to form the
         # unique key as a last resort.  But we want the keys to have a
         # well defined order, independent from the id.  Use a simple
@@ -102,9 +57,7 @@ def getobjs(data, searchexp, keyindex=None):
             keyindex[obj.id] = k
         else:
             k = obj.getUniqueKey(autoget=False, keyindex=keyindex)
-        elem = entityelem(obj, keyindex=keyindex)
-        elem.set('id', k)
-        data.append(elem)
+        dumpfile.add(tag, k, obj, keyindex)
 
 
 # We write the data in chunks (or documents in YAML terminology).
@@ -132,20 +85,24 @@ if client.apiversion < '4.3.1':
 else:
     datacolparamname = 'parameters'
 
-authtypes = [("User"), 
-             ("Grouping INCLUDE UserGroup, User"),
-             ("Rule INCLUDE Grouping"),
-             ("PublicStep")]
-statictypes = [("Facility"),
-               ("Instrument INCLUDE Facility, InstrumentScientist, User"),
-               ("ParameterType INCLUDE Facility, PermissibleStringValue"),
-               ("InvestigationType INCLUDE Facility"),
-               ("SampleType INCLUDE Facility"),
-               ("DatasetType INCLUDE Facility"),
-               ("DatafileFormat INCLUDE Facility"),
-               ("FacilityCycle INCLUDE Facility"),
-               ("Application INCLUDE Facility")]
-investtypes = [("SELECT i FROM Investigation i "
+
+authtypes = [('user', "User"), 
+             ('grouping', "Grouping INCLUDE UserGroup, User"),
+             ('rule', "Rule INCLUDE Grouping"),
+             ('publicStep', "PublicStep")]
+statictypes = [('facility', "Facility"),
+               ('instrument', 
+                "Instrument INCLUDE Facility, InstrumentScientist, User"),
+               ('parameterType', 
+                "ParameterType INCLUDE Facility, PermissibleStringValue"),
+               ('investigationType', "InvestigationType INCLUDE Facility"),
+               ('sampleType', "SampleType INCLUDE Facility"),
+               ('datasetType', "DatasetType INCLUDE Facility"),
+               ('datafileFormat', "DatafileFormat INCLUDE Facility"),
+               ('facilityCycle', "FacilityCycle INCLUDE Facility"),
+               ('application', "Application INCLUDE Facility")]
+investtypes = [('investigation', 
+                "SELECT i FROM Investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
                 "INCLUDE i.facility, i.type AS it, it.facility, "
@@ -154,70 +111,63 @@ investtypes = [("SELECT i FROM Investigation i "
                 "i.shifts, i.keywords, i.publications, "
                 "i.investigationUsers AS iu, iu.user, "
                 "i.parameters AS ip, ip.type AS ipt, ipt.facility"),
-               ("SELECT o FROM Study o "
+               ('study', 
+                "SELECT o FROM Study o "
                 "JOIN o.studyInvestigations si JOIN si.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
                 "INCLUDE o.user, "
                 "o.studyInvestigations AS si, si.investigation"),
-               ("SELECT o FROM Sample o "
-                "JOIN o.investigation i "
+               ('sample', 
+                "SELECT o FROM Sample o JOIN o.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
                 "INCLUDE o.investigation, o.type AS ot, ot.facility, "
                 "o.parameters AS op, op.type AS opt, opt.facility"),
-               ("SELECT o FROM Dataset o "
-                "JOIN o.investigation i "
+               ('dataset', 
+                "SELECT o FROM Dataset o JOIN o.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
                 "INCLUDE o.investigation, o.type AS ot, ot.facility, o.sample, "
                 "o.parameters AS op, op.type AS opt, opt.facility"),
-               ("SELECT o FROM Datafile o "
+               ('datafile', 
+                "SELECT o FROM Datafile o "
                 "JOIN o.dataset ds JOIN ds.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
                 "INCLUDE o.dataset, o.datafileFormat AS dff, dff.facility, "
                 "o.parameters AS op, op.type AS opt, opt.facility")]
-othertypes = [("SELECT o FROM RelatedDatafile o "
+othertypes = [('relatedDatafile', 
+               "SELECT o FROM RelatedDatafile o "
                "INCLUDE o.sourceDatafile AS sdf, sdf.dataset AS sds, "
                "sds.investigation AS si, si.facility, "
                "o.destDatafile AS ddf, ddf.dataset AS dds, "
                "dds.investigation AS di, di.facility"),
-              ("SELECT o FROM DataCollection o "
+              ('dataCollection', 
+               "SELECT o FROM DataCollection o "
                "INCLUDE o.dataCollectionDatasets AS ds, ds.dataset AS dsds, "
                "dsds.investigation AS dsi, dsi.facility, "
                "o.dataCollectionDatafiles AS df, "
                "df.datafile AS dfdf, dfdf.dataset AS dfds, "
                "dfds.investigation AS dfi, dfi.facility, "
                "o.%s AS op, op.type" % datacolparamname),
-              ("SELECT o FROM Job o "
+              ('job', 
+               "SELECT o FROM Job o "
                "INCLUDE o.application AS app, app.facility, "
                "o.inputDataCollection, o.outputDataCollection")]
 
-date = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-head = etree.Element("head")
-etree.SubElement(head, "date").text = date
-etree.SubElement(head, "service").text = conf.url
-etree.SubElement(head, "apiversion").text = str(client.apiversion)
-etree.SubElement(head, "generator").text = ("icatdump (python-icat %s)" 
-                                            % icat.__version__)
-
-print '<?xml version="1.0" encoding="utf-8"?>\n<icatdump>'
-print etree.tostring(head, pretty_print=True),
+dumpfile = DumpFileWriter(sys.stdout)
+dumpfile.head(conf.url, str(client.apiversion))
 
 keyindex = {}
-data = etree.Element("data")
-for searchexp in authtypes:
-    getobjs(data, searchexp, keyindex=keyindex)
-if len(data) > 0:
-    print etree.tostring(data, pretty_print=True),
+dumpfile.startdata()
+for name, searchexp in authtypes:
+    dumpobjs(dumpfile, name, searchexp, keyindex)
 
 keyindex = {}
-data = etree.Element("data")
-for searchexp in statictypes:
-    getobjs(data, searchexp, keyindex=keyindex)
-if len(data) > 0:
-    print etree.tostring(data, pretty_print=True),
+dumpfile.startdata()
+for name, searchexp in statictypes:
+    dumpobjs(dumpfile, name, searchexp, keyindex)
 
 # Dump the investigations each in their own document
 investsearch = "SELECT i FROM Investigation i INCLUDE i.facility"
@@ -226,17 +176,13 @@ investigations = [(i.facility.id, i.name, i.visitId)
 investigations.sort()
 for inv in investigations:
     keyindex = {}
-    data = etree.Element("data")
-    for searchexp in investtypes:
-        getobjs(data, searchexp % inv, keyindex=keyindex)
-    if len(data) > 0:
-        print etree.tostring(data, pretty_print=True),
+    dumpfile.startdata()
+    for name, searchexp in investtypes:
+        dumpobjs(dumpfile, name, searchexp % inv, keyindex)
 
 keyindex = {}
-data = etree.Element("data")
-for searchexp in othertypes:
-    getobjs(data, searchexp, keyindex=keyindex)
-if len(data) > 0:
-    print etree.tostring(data, pretty_print=True),
+dumpfile.startdata()
+for name, searchexp in othertypes:
+    dumpobjs(dumpfile, name, searchexp, keyindex)
 
-print "</icatdump>"
+dumpfile.finalize()
