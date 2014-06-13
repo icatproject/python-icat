@@ -136,8 +136,8 @@ class Config(object):
     on how to setup custom arguments or for the format of the
     configuration files.
 
-    The following set of configuration configuration variables that an
-    ICAT client typically needs is predefined:
+    The following set of configuration variables that an ICAT client
+    typically needs is predefined:
 
       ``configFile``
         Name of the configuration file to read.
@@ -231,7 +231,7 @@ class Config(object):
         =========================  ==================================
         command line               ``--idsurl``
         environment                ``ICAT_DATA_SERVICE``
-        mandatory                  yes
+        mandatory                  depends on constructor arguments
         =========================  ==================================
 
     Mandatory means that an error will be raised if no value is found
@@ -252,19 +252,21 @@ class Config(object):
     ReservedVariables = ['client_kwargs', 'credentials']
     """Reserved names of configuration variables."""
 
-    def __init__(self, needlogin=True, needids=False):
+    def __init__(self, needlogin=True, ids=False):
         """Initialize the object.
 
         Setup the predefined configuration variables.  If
         ``needlogin`` is set to ``False``, the configuration variables
         ``auth``, ``username``, ``password``, ``promptPass``, and
         ``credentials`` will be left out.  The configuration variable
-        ``idsurl`` will only be set if ``needids`` is set to ``True``.
+        ``idsurl`` will not be set up at all, or be set up as a
+        mandatory or as an optional variable, if ``ids`` is set to
+        ``False``, to "mandatory", or to "optional" respectively.
         """
         super(Config, self).__init__()
         self.defaultFiles = [os.path.join(basedir, filename), filename]
         self.needlogin = needlogin
-        self.needids = needids
+        self.ids = ids
         self.confvariables = []
         self.confvariable = {}
 
@@ -280,10 +282,17 @@ class Config(object):
         self.add_variable('url', ("-w", "--url"), 
                           dict(help="URL to the web service description"),
                           envvar='ICAT_SERVICE')
-        if self.needids:
+        if self.ids:
+            if self.ids == "mandatory":
+                idsopt = False
+            elif self.ids == "optional":
+                idsopt = True
+            else:
+                raise ValueError("invalid value '%s' for argument ids." 
+                                 % self.ids) 
             self.add_variable('idsurl', ("--idsurl",), 
                               dict(help="URL to the ICAT Data Service"),
-                              envvar='ICAT_DATA_SERVICE')
+                              envvar='ICAT_DATA_SERVICE', optional=idsopt)
         self.add_variable('http_proxy', ("--http-proxy",), 
                           dict(help="proxy to use for http requests"),
                           envvar='http_proxy', optional=True)
@@ -422,7 +431,7 @@ class Config(object):
             if config.https_proxy:
                 proxy['https'] = config.https_proxy
             config.client_kwargs['proxy'] = proxy
-        if self.needids:
+        if self.ids:
             config.client_kwargs['idsurl'] = config.idsurl
 
         return config

@@ -29,7 +29,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
-config = icat.config.Config(needids=True)
+config = icat.config.Config(ids="mandatory")
 config.add_variable('investigation', ("investigation",), 
                     dict(help="name and optionally visit id "
                          "(separated by a colon) of the investigation"))

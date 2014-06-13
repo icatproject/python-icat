@@ -10,10 +10,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
-config = icat.config.Config(needids=True)
-config.add_variable('keepids', ("--keepids",), 
-                    dict(help="do not delete data from IDS, only wipe ICAT", 
-                         action='store_true'))
+config = icat.config.Config(ids="optional")
 conf = config.getconfig()
 
 client = icat.Client(conf.url, **conf.client_kwargs)
@@ -44,10 +41,10 @@ else:
     authztables = [ "Grouping", "Rule", "User", "UserGroup", ]
 
 
-# First step, delete all Datafiles.  Do it with the IDS, not directly
-# in the ICAT, because otherwise it would leave orphan files in the
-# IDS.
-if not conf.keepids:
+# First step, delete all Datafiles.  Do it with the IDS (if an idsurl
+# has been provided), not directly in the ICAT, because otherwise it
+# would leave orphan files in the IDS.
+if client.ids:
     datafileIds = client.search("Datafile.id")
     if datafileIds:
         client.deleteData(dict(datafileIds=datafileIds))

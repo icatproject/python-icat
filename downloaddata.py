@@ -34,7 +34,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
-config = icat.config.Config(needids=True)
+config = icat.config.Config(ids="mandatory")
 config.add_variable('outputfile', ("--outputfile",), 
                     dict(help="name of the output file"), optional=True)
 config.add_variable('investigation', ("investigation",), 
