@@ -73,13 +73,14 @@ def dumpobjs(dumpfile, tag, searchexp, keyindex):
         dumpfile.add(tag, k, obj, keyindex)
 
 
-# We write the data in chunks (or documents in YAML terminology).
-# This way we can avoid having the whole file, e.g. the complete
-# inventory of the ICAT, at once in memory.  We want to keep these
-# chunks small enough, but at the same time keep as many relations
-# between objects as possible local in a chunk.  See the comment in
-# icatrestore for an explanation why this is needed.  The partition
-# used here is the following:
+# We write the data in chunks (separate YAML documents in the case of
+# a YAML dump file, content of separate data elements in the case of
+# XML).  This way we can avoid having the whole file, e.g. the
+# complete inventory of the ICAT, at once in memory.  We want to keep
+# these chunks small enough to fit into memory, but at the same time
+# large enough to keep as many relations between objects as possible
+# local in a chunk.  See the comment in icatrestore for an explanation
+# why this is needed.  The partition used here is the following:
 #  1. One chunk with all objects that define authorization (User,
 #     Group, Rule, PublicStep).
 #  2. All static content in one chunk, e.g. all objects not related to
