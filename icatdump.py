@@ -1,6 +1,6 @@
 #! /usr/bin/python
 #
-# Dump the content of the ICAT to a YAML document to stdout.
+# Dump the content of the ICAT to a file or to stdout.
 #
 # The following items are deliberately not included in the output:
 #  + Log objects,
@@ -8,6 +8,8 @@
 #
 # Known issues and limitations:
 #  + This script requires ICAT 4.3.0 or newer.
+#  + IDS is not supported: the script only dumps the meta data stored
+#    in the ICAT, not the content of the files stored in the IDS.
 #  + The serialization of the following entity types has not yet been
 #    tested: Application, DataCollection, DataCollectionDatafile,
 #    DataCollectionDataset, DataCollectionParameter,
@@ -27,13 +29,25 @@ import sys
 import icat
 import icat.config
 import logging
-from icat.dumpfile_yaml import YAMLDumpFileWriter as DumpFileWriter
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config()
+config.add_variable('file', ("-f", "--file"), 
+                    dict(help="output file name or '-' for stdout"),
+                    default='-')
+config.add_variable('format', ("-d", "--format"), 
+                    dict(help="dump file format", choices=['XML', 'YAML']),
+                    default='YAML')
 conf = config.getconfig()
+
+if conf.format == 'YAML':
+    from icat.dumpfile_yaml import YAMLDumpFileWriter as DumpFileWriter
+elif conf.format == 'XML':
+    from icat.dumpfile_xml import XMLDumpFileWriter as DumpFileWriter
+else:
+    raise icat.ConfigError("Unknown dump file format '%s'." % conf.format)
 
 client = icat.Client(conf.url, **conf.client_kwargs)
 if client.apiversion < '4.3':
@@ -129,7 +143,8 @@ investtypes = [('investigation',
                 "AND i.visitId = '%s' "
                 "INCLUDE o.investigation, o.type AS ot, ot.facility, o.sample, "
                 "o.parameters AS op, op.type AS opt, opt.facility"),
-               ('datafile', "SELECT o FROM Datafile o "
+               ('datafile', 
+                "SELECT o FROM Datafile o "
                 "JOIN o.dataset ds JOIN ds.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
@@ -154,8 +169,12 @@ othertypes = [('relatedDatafile',
                "INCLUDE o.application AS app, app.facility, "
                "o.inputDataCollection, o.outputDataCollection")]
 
-dumpfile = DumpFileWriter(sys.stdout)
-dumpfile.head(conf.url, client.apiversion)
+if conf.file == "-":
+    f = sys.stdout
+else:
+    f = open(conf.file, 'w')
+dumpfile = DumpFileWriter(f)
+dumpfile.head(conf.url, str(client.apiversion))
 
 keyindex = {}
 dumpfile.startdata()
@@ -184,3 +203,4 @@ for name, searchexp in othertypes:
     dumpobjs(dumpfile, name, searchexp, keyindex)
 
 dumpfile.finalize()
+f.close()
