@@ -1,6 +1,41 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.5.0 (2014-06-??)
+
+ + Integrate an IDS client in the ICAT client.
+
+ + Improved icatdump.py and icatrestore.py:
+
+   - Changed the logical structure of the dump file format which
+     significantly simplified the scripts.  Note that old dump files
+     are not compatible with the new versions.
+
+   - Add support for XML dump files.  A XML Schema Definition for the
+     dump file format is provided in the doc directory.
+
+   The scripts are now considered to be legitimate tools (though still
+   alpha) rather then mere examples.  Consequently, they will be
+   installed into the bin directory.
+
+ + Implicitly set a one to many relation to an empty list if it is
+   accessed but not present in an Entity object rather then raising an
+   AttributeError.  See ICAT Issue 130.
+
+ + Allow setting one to many relationship attributes and deletion of
+   attributes in Entity.  Add method truncateRelations() to Entity.
+   Truncate dummy relations set by the factory in newly created entity
+   objects.
+
+ + Cache the result from getEntityInfo() in the client.
+
+ + Add a method Entity.__sortkey__() that return a key that when used
+   as a sorting key in list.sort() allows any list of entity objects
+   to have a well defined order.  Sorting is based on the Constraint
+   attributes.  Add a class variable SortAttrs that overrides this and
+   will be set as a fall back for those entity classes that do not
+   have a suitable Constraint.
+
 * Version 0.4.0 (2014-02-11)
 
  + Add support for the jurko fork of Suds [1] and for Python 3.

@@ -34,6 +34,7 @@ setup(
     license = "BSD-2-Clause",
     requires = ["suds"],
     packages = ["icat"],
+    scripts = ["icatdump.py", "icatrestore.py"],
     # Minimum required Python version is 2.6.  Python 3.* should work,
     # I guess, but I only tested 3.2.  Python 3 requires the jurko
     # fork of Suds.
