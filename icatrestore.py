@@ -1,11 +1,11 @@
 #! /usr/bin/python
 #
-# Restore the content of the ICAT from a YAML file as created by
+# Restore the content of the ICAT from a dump file as created by
 # icatdump.py.
 #
-# The script reads the YAML input from stdin.  It should by run by the
-# ICAT root user against an otherwise empty ICAT server.  There is no
-# collision check with data already present at the ICAT.
+# The script should by run by the ICAT root user against an otherwise
+# empty ICAT server.  There is no collision check with data already
+# present at the ICAT.
 #
 # Known issues and limitations:
 #  + It is assumed that the dump file contains appropriate rules that
@@ -26,14 +26,26 @@ import icat
 import icat.config
 import sys
 import logging
-from icat.dumpfile_yaml import YAMLDumpFileReader as DumpFileReader
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 log = logging.getLogger(__name__)
 
 config = icat.config.Config()
+config.add_variable('file', ("-i", "--inputfile"), 
+                    dict(help="input file name or '-' for stdin"),
+                    default='-')
+config.add_variable('format', ("-f", "--format"), 
+                    dict(help="input file format", choices=['XML', 'YAML']),
+                    default='YAML')
 conf = config.getconfig()
+
+if conf.format == 'YAML':
+    from icat.dumpfile_yaml import YAMLDumpFileReader as DumpFileReader
+elif conf.format == 'XML':
+    from icat.dumpfile_xml import XMLDumpFileReader as DumpFileReader
+else:
+    raise icat.ConfigError("Unknown dump file format '%s'." % conf.format)
 
 client = icat.Client(conf.url, **conf.client_kwargs)
 if client.apiversion < '4.3':
@@ -62,11 +74,16 @@ client.login(conf.auth, conf.credentials)
 # responsibility of the creator of the dumpfile to create the chunks
 # in this manner.
 
-dumpfile = DumpFileReader(client, sys.stdin)
+if conf.file == "-":
+    f = sys.stdin
+else:
+    f = open(conf.file, 'r')
+dumpfile = DumpFileReader(client, f)
 for data in dumpfile.getdata():
     objindex = {}
     for key, obj in dumpfile.getobjs(data, objindex):
         obj.create()
         obj.truncateRelations()
-        objindex[key] = obj
-
+        if key:
+            objindex[key] = obj
+f.close()
