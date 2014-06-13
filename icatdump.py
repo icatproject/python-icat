@@ -34,11 +34,11 @@ logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config()
-config.add_variable('file', ("-f", "--file"), 
+config.add_variable('file', ("-o", "--outputfile"), 
                     dict(help="output file name or '-' for stdout"),
                     default='-')
-config.add_variable('format', ("-d", "--format"), 
-                    dict(help="dump file format", choices=['XML', 'YAML']),
+config.add_variable('format', ("-f", "--format"), 
+                    dict(help="output file format", choices=['XML', 'YAML']),
                     default='YAML')
 conf = config.getconfig()
 
