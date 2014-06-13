@@ -231,6 +231,7 @@ class Config(object):
         =========================  ==================================
         command line               ``--idsurl``
         environment                ``ICAT_DATA_SERVICE``
+        default                    ``None``
         mandatory                  depends on constructor arguments
         =========================  ==================================
 
