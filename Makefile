@@ -32,8 +32,13 @@ distclean: apidoc_clean example_clean clean
 
 sdist_prepare: icat/__init__.py apidoc copy_examples
 
-icat/__init__.py: icatinfo.py icatinit.py
-	cat icatinfo.py icatinit.py > icat/__init__.py
+icat/__init__.py: icatinfo.py icatinit.py svnversion
+	(cat icatinfo.py; \
+	echo "__revision__  = \"`svnversion`\""; \
+	cat icatinit.py) > icat/__init__.py
+
+# Dummy target to force icat/__init__.py
+svnversion:
 
 apidoc: apidoc_clean
 	epydoc --html --docformat=restructuredtext --output=$(APIDOC_DIR) icat
