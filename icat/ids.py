@@ -26,7 +26,7 @@ class IDSRequest(Request):
             parameters = urlencode(parameters)
             if method == "POST":
                 headers["Content-Type"] = "application/x-www-form-urlencoded"
-                data = parameters
+                data = parameters.encode('ascii')
             else:
                 url += "?" + parameters
         Request.__init__(self, url, data, headers)
@@ -131,7 +131,7 @@ class IDSClient(object):
         """Check that the server is alive and is an IDS server.
         """
         req = IDSRequest(self.url + "ping", {})
-        result = self._checkresponse(self.default.open(req)).read()
+        result = self._checkResponseContent(self.default.open(req))
         if result != "IdsOK": 
             raise IDSResponseError("unexpected response to ping: %s" % result)
 
@@ -144,7 +144,7 @@ class IDSClient(object):
         """
         parameters = {"sessionId": self.sessionId}
         req = IDSRequest(self.url + "getServiceStatus", parameters)
-        result = self._checkresponse(self.default.open(req)).read()
+        result = self._checkResponseContent(self.default.open(req))
         return json.loads(result)
     
     def getStatus(self, selection):
@@ -158,7 +158,7 @@ class IDSClient(object):
         parameters["sessionId"] = self.sessionId   
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "getStatus", parameters)
-        return self._checkresponse(self.default.open(req)).read()
+        return self._checkResponseContent(self.default.open(req))
     
     def restore(self, selection):
         """Restore data.
@@ -169,7 +169,7 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "restore", parameters, method="POST")
-        return self._checkresponse(self.default.open(req)).read()
+        return self._checkResponseContent(self.default.open(req))
 
     def archive(self, selection):
         """Archive data.
@@ -180,7 +180,7 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "archive", parameters, method="POST")
-        return self._checkresponse(self.default.open(req)).read()
+        return self._checkResponseContent(self.default.open(req))
 
     def isPrepared(self, preparedId):
         """Check if data is ready.
@@ -190,7 +190,7 @@ class IDSClient(object):
         """
         parameters = {"preparedId": preparedId}
         req = IDSRequest(self.url + "isPrepared", parameters)
-        response = self._checkresponse(self.default.open(req)).read()
+        response = self._checkResponseContent(self.default.open(req))
         return response.lower() == "true"
 
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
@@ -201,7 +201,7 @@ class IDSClient(object):
         if zipFlag:  parameters["zip"] = "true"
         if compressFlag: parameters["compress"] = "true"
         req = IDSRequest(self.url + "prepareData", parameters, method="POST")
-        return self._checkresponse(self.default.open(req)).read()
+        return self._checkResponseContent(self.default.open(req))
     
     def getData(self, selection, 
                 compressFlag=False, zipFlag=False, outname=None, offset=0):
@@ -215,7 +215,7 @@ class IDSClient(object):
         req = IDSRequest(self.url + "getData", parameters)
         if offset:
             req.add_header("Range", "bytes=" + str(offset) + "-") 
-        return self._checkresponse(self.default.open(req))
+        return self._checkResponse(self.default.open(req))
     
     def getDataUrl(self, selection, 
                    compressFlag=False, zipFlag=False, outname=None):
@@ -237,7 +237,7 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "delete", parameters, method="DELETE")
-        self._checkresponse(self.default.open(req))
+        self._checkResponse(self.default.open(req))
 
     def getPreparedData(self, preparedId, outname=None, offset=0):
         """Get prepared data.
@@ -250,7 +250,7 @@ class IDSClient(object):
         req = IDSRequest(self.url + "getData", parameters)
         if offset:
             req.add_header("Range", "bytes=" + str(offset) + "-") 
-        return self._checkresponse(self.default.open(req))
+        return self._checkResponse(self.default.open(req))
     
     def getPreparedDataUrl(self, preparedId, outname=None):
         """Get the URL to retrieve prepared data.
@@ -289,7 +289,7 @@ class IDSClient(object):
         req.add_header('Content-Type', 'application/octet-stream')
         inputreader = ChunkedFileReader(inputStream)
         req.add_data(inputreader)
-        result = self._checkresponse(self.chunked.open(req)).read()
+        result = self._checkResponseContent(self.chunked.open(req))
         crc = inputreader.crc32 & 0xffffffff
         om = json.loads(result)
         if om["checksum"] != crc:
@@ -299,12 +299,12 @@ class IDSClient(object):
     def _getDataUrl(self, parameters):
         return (self.url + "getData" + "?" + urlencode(parameters))
 
-    def _checkresponse(self, response):
+    def _checkResponse(self, response):
         """Check the response from the IDS, raise an error if appropriate."""
 
         rc = response.getcode()
-        if (rc / 100 != 2):
-            responseContent = response.read()
+        if (int(rc / 100) != 2):
+            responseContent = response.read().decode('ascii')
             try:
                 om = json.loads(responseContent)
                 code = om["code"]
@@ -314,3 +314,7 @@ class IDSClient(object):
             raise IDSServerError(rc, code, message)
 
         return response
+
+    def _checkResponseContent(self, response):
+        """Check the response from the IDS and return the content."""
+        return self._checkResponse(response).read().decode('ascii')
