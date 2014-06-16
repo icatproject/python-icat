@@ -51,8 +51,8 @@ class ChunkedHTTPConnectionMixin:
         Appends an extra \\r\\n to the buffer.
         A message_body may be specified, to be appended to the request.
         """
-        self._buffer.extend(("", ""))
-        msg = "\r\n".join(self._buffer)
+        self._buffer.extend((b"", b""))
+        msg = b"\r\n".join(self._buffer)
         del self._buffer[:]
         self.send(msg)
 
@@ -71,8 +71,9 @@ class ChunkedHTTPConnectionMixin:
                 raise TypeError("expect either a string, a file, "
                                 "or an iterable")
             for chunk in bodyiter:
-                self.send(hex(len(chunk))[2:] + "\r\n" + chunk + "\r\n")
-            self.send("0\r\n\r\n")
+                self.send(hex(len(chunk))[2:].encode('ascii') 
+                          + b"\r\n" + chunk + b"\r\n")
+            self.send(b"0\r\n\r\n")
 
 class ChunkedHTTPConnection(ChunkedHTTPConnectionMixin, HTTPConnection):
     pass
