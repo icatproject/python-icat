@@ -137,10 +137,11 @@ class XMLDumpFileWriter(object):
         etree.SubElement(head, "apiversion").text = apiversion
         etree.SubElement(head, "generator").text = ("icatdump (python-icat %s)" 
                                                     % icat.__version__)
-        self.outfile.write("""<?xml version="1.0" encoding="utf-8"?>
+        xmlstr = """<?xml version="1.0" encoding="utf-8"?>
 <icatdump>
-""")
-        self.outfile.write(etree.tostring(head, pretty_print=True))
+"""
+        xmlstr += etree.tostring(head, encoding=unicode, pretty_print=True)
+        self.outfile.write(xmlstr)
 
     def startdata(self):
         """Start a new data chunk.
@@ -149,7 +150,9 @@ class XMLDumpFileWriter(object):
         file.
         """
         if len(self.data) > 0:
-            self.outfile.write(etree.tostring(self.data, pretty_print=True))
+            xmlstr = etree.tostring(self.data, 
+                                    encoding=unicode, pretty_print=True)
+            self.outfile.write(xmlstr)
         self.data = etree.Element("data")
 
     def add(self, tag, key, obj, keyindex):
