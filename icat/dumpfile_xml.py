@@ -95,7 +95,7 @@ class XMLDumpFileReader(object):
     def __init__(self, client, infile):
         self.client = client
         # need binary mode for infile
-        self.infile = os.fdopen(infile.fileno(), 'rb')
+        self.infile = os.fdopen(os.dup(infile.fileno()), 'rb')
         self.insttypemap = { c.BeanName:t 
                              for t,c in self.client.typemap.iteritems() }
 
@@ -128,7 +128,7 @@ class XMLDumpFileWriter(object):
 
     def __init__(self, outfile):
         # need binary mode for outfile
-        self.outfile = os.fdopen(outfile.fileno(), 'wb')
+        self.outfile = os.fdopen(os.dup(outfile.fileno()), 'wb')
         self.data = etree.Element("data")
 
     def head(self, service, apiversion):
@@ -165,3 +165,4 @@ class XMLDumpFileWriter(object):
         """Finalize the dump file."""
         self.startdata()
         self.outfile.write(b"</icatdump>\n")
+        self.outfile.close()
