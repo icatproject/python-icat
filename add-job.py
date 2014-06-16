@@ -49,16 +49,10 @@ except KeyError:
     raise RuntimeError("unknown job '%s'" % conf.jobname)
 
 
-# ------------------------------------------------------------
-# Note: to simplify things, we make stronger assumptions on
-# uniqueness constarints then defined in the ICAT schema.
-# ------------------------------------------------------------
-
-
-
-# We simplify some of the uniquness constraints For simplicity, assume that the investigations are unique by the
-# name given in the job data.
-
+# Note: to simplify things, we assume that the is only one facility.
+# E.g. we assume that Investigationa and DatasetTypes are unique by
+# its name and that DatafileFormats and Applications are unique by
+# name and version.
 
 
 # ------------------------------------------------------------
