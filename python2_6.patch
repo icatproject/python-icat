@@ -22,9 +22,18 @@ Index: icat/icatcheck.py
              self.schema[base].classname = baseclassname
 Index: icat/chunkedhttp.py
 ===================================================================
---- icat/chunkedhttp.py	(revision 315)
+--- icat/chunkedhttp.py	(revision 364)
 +++ icat/chunkedhttp.py	(working copy)
-@@ -58,7 +58,7 @@
+@@ -51,14 +51,14 @@
+         Appends an extra \\r\\n to the buffer.
+         A message_body may be specified, to be appended to the request.
+         """
+-        self._buffer.extend((b"", b""))
+-        msg = b"\r\n".join(self._buffer)
++        self._buffer.extend(("", ""))
++        msg = "\r\n".join(self._buffer)
+         del self._buffer[:]
+         self.send(msg)
  
          if message_body is not None:
              chunksize = getattr(self, 'chunksize', self.default_chunk_size)
@@ -33,11 +42,22 @@ Index: icat/chunkedhttp.py
                  bodyiter = stringiterator(message_body, chunksize)
              elif isinstance(message_body, type(u'')):
                  bodyiter = stringiterator(message_body.encode('ascii'), 
+@@ -72,8 +72,8 @@
+                                 "or an iterable")
+             for chunk in bodyiter:
+                 self.send(hex(len(chunk))[2:].encode('ascii') 
+-                          + b"\r\n" + chunk + b"\r\n")
+-            self.send(b"0\r\n\r\n")
++                          + "\r\n" + chunk + "\r\n")
++            self.send("0\r\n\r\n")
+ 
+ class ChunkedHTTPConnection(ChunkedHTTPConnectionMixin, HTTPConnection):
+     pass
 Index: icat/dumpfile_xml.py
 ===================================================================
---- icat/dumpfile_xml.py	(revision 350)
+--- icat/dumpfile_xml.py	(revision 366)
 +++ icat/dumpfile_xml.py	(working copy)
-@@ -73,8 +73,8 @@
+@@ -74,8 +74,8 @@
          elif subelem.tag in obj.InstMRel:
              if mreltypes is None:
                  info = client.getEntityInfo(obj.BeanName)
@@ -48,17 +68,32 @@ Index: icat/dumpfile_xml.py
              robj = elem2entity(client, insttypemap, 
                                 subelem, mreltypes[subelem.tag], objindex)
              getattr(obj, subelem.tag).append(robj)
-@@ -94,8 +94,8 @@
-     def __init__(self, client, infile):
+@@ -96,8 +96,8 @@
          self.client = client
-         self.infile = infile
+         # need binary mode for infile
+         self.infile = os.fdopen(infile.fileno(), 'rb')
 -        self.insttypemap = { c.BeanName:t 
 -                             for t,c in self.client.typemap.iteritems() }
-+        self.insttypemap = dict([ (c.BeanName,t) 
++        self.insttypemap = dict([ (c.BeanName,t)
 +                                  for t,c in self.client.typemap.iteritems() ])
  
      def getdata(self):
          """Iterate over the data chunks in the dump file.
+@@ -140,7 +140,7 @@
+         etree.SubElement(head, "apiversion").text = apiversion
+         etree.SubElement(head, "generator").text = ("icatdump (python-icat %s)" 
+                                                     % icat.__version__)
+-        self.outfile.write(b"""<?xml version="1.0" encoding="utf-8"?>
++        self.outfile.write("""<?xml version="1.0" encoding="utf-8"?>
+ <icatdump>
+ """)
+         self.outfile.write(etree.tostring(head, pretty_print=True))
+@@ -164,4 +164,4 @@
+     def finalize(self):
+         """Finalize the dump file."""
+         self.startdata()
+-        self.outfile.write(b"</icatdump>\n")
++        self.outfile.write("</icatdump>\n")
 Index: icat/dumpfile_yaml.py
 ===================================================================
 --- icat/dumpfile_yaml.py	(revision 349)
