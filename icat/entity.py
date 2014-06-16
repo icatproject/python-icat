@@ -157,15 +157,19 @@ class Entity(object):
         s = [ self.BeanName ]
         for attr in sortattrs:
             v = getattr(self, attr, None)
-            if v is None:
-                pass
-            elif attr in self.InstAttr:
-                try:
-                    v = str(v)
-                except UnicodeError:
-                    v = unicode(v)
+            if attr in self.InstAttr:
+                if v is None:
+                    v = ''
+                else:
+                    try:
+                        v = str(v)
+                    except UnicodeError:
+                        v = unicode(v)
             elif attr in self.InstRel:
-                v = v.__sortkey__()
+                if v is None:
+                    v = []
+                else:
+                    v = v.__sortkey__()
             elif attr in self.InstMRel:
                 v = [ r.__sortkey__() for r in v ]
             else:
