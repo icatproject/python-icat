@@ -2,6 +2,7 @@
 """
 
 import icat
+import os
 import datetime
 from lxml import etree
 
@@ -93,7 +94,8 @@ class XMLDumpFileReader(object):
 
     def __init__(self, client, infile):
         self.client = client
-        self.infile = infile
+        # need binary mode for infile
+        self.infile = os.fdopen(infile.fileno(), 'rb')
         self.insttypemap = { c.BeanName:t 
                              for t,c in self.client.typemap.iteritems() }
 
@@ -125,7 +127,8 @@ class XMLDumpFileWriter(object):
     """Backend for icatdump.py to write a XML dump file."""
 
     def __init__(self, outfile):
-        self.outfile = outfile
+        # need binary mode for outfile
+        self.outfile = os.fdopen(outfile.fileno(), 'wb')
         self.data = etree.Element("data")
 
     def head(self, service, apiversion):
@@ -137,11 +140,10 @@ class XMLDumpFileWriter(object):
         etree.SubElement(head, "apiversion").text = apiversion
         etree.SubElement(head, "generator").text = ("icatdump (python-icat %s)" 
                                                     % icat.__version__)
-        xmlstr = """<?xml version="1.0" encoding="utf-8"?>
+        self.outfile.write(b"""<?xml version="1.0" encoding="utf-8"?>
 <icatdump>
-"""
-        xmlstr += etree.tostring(head, encoding=unicode, pretty_print=True)
-        self.outfile.write(xmlstr)
+""")
+        self.outfile.write(etree.tostring(head, pretty_print=True))
 
     def startdata(self):
         """Start a new data chunk.
@@ -150,9 +152,7 @@ class XMLDumpFileWriter(object):
         file.
         """
         if len(self.data) > 0:
-            xmlstr = etree.tostring(self.data, 
-                                    encoding=unicode, pretty_print=True)
-            self.outfile.write(xmlstr)
+            self.outfile.write(etree.tostring(self.data, pretty_print=True))
         self.data = etree.Element("data")
 
     def add(self, tag, key, obj, keyindex):
@@ -164,4 +164,4 @@ class XMLDumpFileWriter(object):
     def finalize(self):
         """Finalize the dump file."""
         self.startdata()
-        self.outfile.write("</icatdump>\n")
+        self.outfile.write(b"</icatdump>\n")
