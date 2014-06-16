@@ -41,11 +41,21 @@ else:
     authztables = [ "Grouping", "Rule", "User", "UserGroup", ]
 
 
-# First step, delete all Datafiles.  Do it with the IDS (if an idsurl
-# has been provided), not directly in the ICAT, because otherwise it
-# would leave orphan files in the IDS.
+# First step, delete all Datafiles from IDS.
+# 
+# There is a problem: if the Datafile has been created with IDS by a
+# file upload then we MUST delete it with IDS, otherwise it would
+# leave an orphan file in the IDS.  If the Datafile has been created
+# in the ICAT client without IDS, we MUST NOT delete it with IDS,
+# because IDS will not find the actual file and will throw an internal
+# server error.  But there is no reliable way to tell the one from the
+# other.  As a rule, we will assume that the file has been created
+# with IDS if the location attribute is set.  But of course, there is
+# no way to prevent you from creating the file in the ICAT client and
+# set a location ...
 if client.ids:
-    datafileIds = client.search("Datafile.id")
+    datafileIds = client.search("SELECT d.id from Datafile d "
+                                "WHERE d.location IS NOT NULL")
     if datafileIds:
         client.deleteData(dict(datafileIds=datafileIds))
 

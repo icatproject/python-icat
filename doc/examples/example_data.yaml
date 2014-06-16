@@ -4,11 +4,21 @@ applications:
     name: gnomoanalytics
     version: 69
 datafile_formats:
-  nexus:
+  nexus40:
     description: A common data format for neutron, x-ray and muon science
     facility: example_facility
     name: NeXus
-    version: 4.3.0
+    version: 4.0.0
+  nexus42:
+    description: A common data format for neutron, x-ray and muon science
+    facility: example_facility
+    name: NeXus
+    version: 4.2.1
+  nexus43:
+    description: A common data format for neutron, x-ray and muon science
+    facility: example_facility
+    name: NeXus
+    version: 4.3.1
   raw_data:
     description: Raw data
     facility: example_facility
@@ -97,8 +107,7 @@ investigations:
       datafiles:
       - createTime: '2008-06-18T09:31:11+02:00'
         fileSize: 368368864
-        format: nexus
-        location: /data/2008/05/e201215.nxs
+        format: nexus40
         modTime: '2008-06-18T09:31:11+02:00'
         name: e201215.nxs
       endDate: null
@@ -132,13 +141,11 @@ investigations:
       - createTime: '2010-10-01T08:17:48+02:00'
         fileSize: 445952
         format: raw_data
-        location: /data/2010/10/e208339.dat
         modTime: '2010-10-01T08:17:48+02:00'
         name: e208339.dat
       - createTime: '2010-10-01T08:52:22+02:00'
         fileSize: 73427714
-        format: nexus
-        location: /data/2010/10/e208339.nxs
+        format: nexus40
         modTime: '2010-10-01T08:52:22+02:00'
         name: e208339.nxs
       endDate: '2010-10-01T08:17:48+02:00'
@@ -150,13 +157,11 @@ investigations:
       - createTime: '2010-10-05T10:32:21+02:00'
         fileSize: 394240
         format: raw_data
-        location: /data/2010/10/e208341.dat
         modTime: '2010-10-05T10:32:21+02:00'
         name: e208341.dat
       - createTime: '2010-10-05T11:31:53+02:00'
         fileSize: 52856502
-        format: nexus
-        location: /data/2010/10/e208341.nxs
+        format: nexus40
         modTime: '2010-10-05T11:31:53+02:00'
         name: e208341.nxs
       endDate: '2010-10-05T10:32:21+02:00'
@@ -193,13 +198,11 @@ investigations:
       - createTime: '2012-07-30T03:10:08+02:00'
         fileSize: 459264
         format: raw_data
-        location: /data/2012/07/e208945.dat
         modTime: '2012-07-30T03:10:08+02:00'
         name: e208945.dat
       - createTime: '2013-06-03T12:22:43+02:00'
         fileSize: 396430442
-        format: nexus
-        location: /data/2012/07/e208945.nxs
+        format: nexus42
         modTime: '2013-06-03T12:22:43+02:00'
         name: e208945.nxs
       endDate: '2012-07-30T03:10:08+02:00'
@@ -241,9 +244,8 @@ jobs:
         - createTime: '2012-07-16T16:30:17+02:00'
           dataset: e208945
           fileSize: 2893652
-          format: nexus
+          format: nexus42
           investigation: 2012-EDDI-0390-1
-          location: /data/2012/07/e208945-2.nxs
           modTime: '2012-07-16T16:30:17+02:00'
           name: e208945-2.nxs
 sample_types:

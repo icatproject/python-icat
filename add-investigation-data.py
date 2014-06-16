@@ -113,7 +113,6 @@ for datasetdata in investigationdata['datasets']:
             print "Datafile: creating '%s' ..." % datafiledata['name']
             datafile = client.new("datafile")
             datafile.name = datafiledata['name']
-            datafile.location = datafiledata['location']
             datafile.fileSize = datafiledata['fileSize']
             datafile.datafileCreateTime = datafiledata['createTime']
             datafile.datafileModTime = datafiledata['modTime']

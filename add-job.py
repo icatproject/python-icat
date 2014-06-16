@@ -111,13 +111,14 @@ for ds in jobdata['output']['datasets']:
     dataset.type = dataset_type
 
     for df in ds['datafiles']:
-        searchexp = ("SELECT dff FROM DatafileFormat dff WHERE dff.name='%s'" 
-                     % data['datafile_formats'][df['format']]['name'])
+        searchexp = ("SELECT dff FROM DatafileFormat dff "
+                     "WHERE dff.name='%s' AND dff.version='%s'" 
+                     % (data['datafile_formats'][df['format']]['name'], 
+                        data['datafile_formats'][df['format']]['version']))
         datafile_format = client.assertedSearch(dstsearch)[0]
         print "Datafile: creating '%s' ..." % df['name']
         datafile = client.new("datafile")
         datafile.name = df['name']
-        datafile.location = df['location']
         datafile.fileSize = df['fileSize']
         datafile.datafileCreateTime = df['createTime']
         datafile.datafileModTime = df['modTime']
@@ -134,13 +135,14 @@ for df in jobdata['output']['datafiles']:
                  "WHERE ds.name = '%s' AND i.name = '%s'"
                  % (df['dataset'], df['investigation']))
     dataset = client.assertedSearch(searchexp)[0]
-    searchexp = ("SELECT dff FROM DatafileFormat dff WHERE dff.name='%s'" 
-                 % data['datafile_formats'][df['format']]['name'])
+    searchexp = ("SELECT dff FROM DatafileFormat dff "
+                 "WHERE dff.name='%s' AND dff.version='%s'" 
+                 % (data['datafile_formats'][df['format']]['name'], 
+                    data['datafile_formats'][df['format']]['version']))
     datafile_format = client.assertedSearch(searchexp)[0]
     print "Datafile: creating '%s' ..." % df['name']
     datafile = client.new("datafile")
     datafile.name = df['name']
-    datafile.location = df['location']
     datafile.fileSize = df['fileSize']
     datafile.datafileCreateTime = df['createTime']
     datafile.datafileModTime = df['modTime']
