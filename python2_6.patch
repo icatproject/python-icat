@@ -22,19 +22,10 @@ Index: icat/icatcheck.py
              self.schema[base].classname = baseclassname
 Index: icat/chunkedhttp.py
 ===================================================================
---- icat/chunkedhttp.py	(revision 364)
+--- icat/chunkedhttp.py	(revision 371)
 +++ icat/chunkedhttp.py	(working copy)
-@@ -51,14 +51,14 @@
-         Appends an extra \\r\\n to the buffer.
-         A message_body may be specified, to be appended to the request.
+@@ -68,7 +68,7 @@
          """
--        self._buffer.extend((b"", b""))
--        msg = b"\r\n".join(self._buffer)
-+        self._buffer.extend(("", ""))
-+        msg = "\r\n".join(self._buffer)
-         del self._buffer[:]
-         self.send(msg)
- 
          if message_body is not None:
              chunksize = getattr(self, 'chunksize', self.default_chunk_size)
 -            if isinstance(message_body, type(b'')):
@@ -42,7 +33,7 @@ Index: icat/chunkedhttp.py
                  bodyiter = stringiterator(message_body, chunksize)
              elif isinstance(message_body, type(u'')):
                  bodyiter = stringiterator(message_body.encode('ascii'), 
-@@ -72,8 +72,8 @@
+@@ -82,8 +82,8 @@
                                  "or an iterable")
              for chunk in bodyiter:
                  self.send(hex(len(chunk))[2:].encode('ascii') 
