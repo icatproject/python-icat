@@ -9,8 +9,10 @@ is based on Suds and extends it with ICAT specific features.
 System Requirements
 -------------------
 
- + Python 2.7 or newer.
-   Python 2.6 will do but requires patching the sources, see below.
+ + Python 2.6, 2.7, 3.1, or 3.2.
+   The IDS client in python-icat has issues with Python 3.3 and 3.4,
+   otherwise these Python version work as well.
+   Python 2.6 requires patching the sources, see below.
    Python 2.5 is too old and will not work.
 
  + Suds, either the original version[2] or the fork by Jurko
@@ -19,12 +21,17 @@ System Requirements
    the jurko fork.
 
  + PyYAML[4]
-   Only needed to run the example scripts.  Not required to install or
-   use python-icat itself.
+   Only needed to use the YAML backend of icatdump.py and
+   icatrestore.py and to run the example scripts.  Not required to
+   install or use python-icat itself.
 
- + argparse[5]
-   Only if you are using Python 2.6 or older, argparse became part of
-   the Python standard library in 2.7.
+ + lxml[5]
+   Only needed to use the XML backend of icatdump.py and
+   icatrestore.py.  Not required to install or use python-icat itself.
+
+ + argparse[6]
+   Only if you are using Python 2.6 or 3.1, argparse became part of
+   the Python standard library in 2.7 and 3.2 respectively.
 
 
 Installation
@@ -32,7 +39,7 @@ Installation
 
 python-icat follows the standard Python conventions of packaging
 source distributions.  See the documentation on Installing Python
-Modules [6] for details or to customize the install process.
+Modules [7] for details or to customize the install process.
 
   1. Download the sources, unpack, and change into the source
      directory.
@@ -64,8 +71,8 @@ References
 [2]: https://fedorahosted.org/suds/
 [3]: https://bitbucket.org/jurko/suds/
 [4]: http://pyyaml.org/wiki/PyYAML
-[5]: http://code.google.com/p/argparse/
-[6]: http://docs.python.org/2.7/install/
+[6]: http://code.google.com/p/argparse/
+[7]: http://docs.python.org/2.7/install/
 
 # Local Variables:
 # mode: text
