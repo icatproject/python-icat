@@ -55,7 +55,7 @@ Index: icat/chunkedhttp.py
      pass
 Index: icat/dumpfile_xml.py
 ===================================================================
---- icat/dumpfile_xml.py	(revision 366)
+--- icat/dumpfile_xml.py	(revision 368)
 +++ icat/dumpfile_xml.py	(working copy)
 @@ -74,8 +74,8 @@
          elif subelem.tag in obj.InstMRel:
@@ -71,10 +71,10 @@ Index: icat/dumpfile_xml.py
 @@ -96,8 +96,8 @@
          self.client = client
          # need binary mode for infile
-         self.infile = os.fdopen(infile.fileno(), 'rb')
+         self.infile = os.fdopen(os.dup(infile.fileno()), 'rb')
 -        self.insttypemap = { c.BeanName:t 
 -                             for t,c in self.client.typemap.iteritems() }
-+        self.insttypemap = dict([ (c.BeanName,t)
++        self.insttypemap = dict([ (c.BeanName,t) 
 +                                  for t,c in self.client.typemap.iteritems() ])
  
      def getdata(self):
@@ -88,12 +88,13 @@ Index: icat/dumpfile_xml.py
  <icatdump>
  """)
          self.outfile.write(etree.tostring(head, pretty_print=True))
-@@ -164,4 +164,4 @@
+@@ -164,5 +164,5 @@
      def finalize(self):
          """Finalize the dump file."""
          self.startdata()
 -        self.outfile.write(b"</icatdump>\n")
 +        self.outfile.write("</icatdump>\n")
+         self.outfile.close()
 Index: icat/dumpfile_yaml.py
 ===================================================================
 --- icat/dumpfile_yaml.py	(revision 349)
