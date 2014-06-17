@@ -41,21 +41,31 @@ class ChunkedHTTPConnectionMixin:
 
     default_chunk_size = 8192
 
-    def _set_content_length(self, body):
-        # Must not set a Content-length header!
-        pass
+    def _send_request(self, method, url, body, headers):
+        # This method is taken and modified from the Python 2.7
+        # httplib.py to prevent it from trying to set a Content-length
+        # header and to hook in our send_body_chunked() method.
+        # Admitted, it's an evil hack.
+        header_names = dict.fromkeys([k.lower() for k in headers])
+        skips = {}
+        if 'host' in header_names:
+            skips['skip_host'] = 1
+        if 'accept-encoding' in header_names:
+            skips['skip_accept_encoding'] = 1
 
-    def _send_output(self, message_body=None):
-        """Send the currently buffered request and clear the buffer.
+        self.putrequest(method, url, **skips)
 
-        Appends an extra \\r\\n to the buffer.
-        A message_body may be specified, to be appended to the request.
+        for hdr, value in headers.iteritems():
+            self.putheader(hdr, value)
+        self.endheaders()
+        self.send_body_chunked(body)
+
+    def send_body_chunked(self, message_body=None):
+        """Send the message_body with chunked transfer encoding.
+
+        The empty line separating the headers from the body must have
+        been send before calling this method.
         """
-        self._buffer.extend((b"", b""))
-        msg = b"\r\n".join(self._buffer)
-        del self._buffer[:]
-        self.send(msg)
-
         if message_body is not None:
             chunksize = getattr(self, 'chunksize', self.default_chunk_size)
             if isinstance(message_body, type(b'')):
