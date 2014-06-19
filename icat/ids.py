@@ -69,12 +69,27 @@ class ChunkedFileReader(object):
 class DataSelection(object):
     """A set of data to be processed by the ICAT Data Service."""
 
-    def __init__(self, objs):
+    def __init__(self, objs=None):
         super(DataSelection, self).__init__()
-        if isinstance(objs, list):
-            self.invIds = []
-            self.dsIds = []
-            self.dfIds = []
+        self.invIds = []
+        self.dsIds = []
+        self.dfIds = []
+        if objs:
+            self.extend(objs)
+
+    def __len__(self):
+        return len(self.invIds) + len(self.dsIds) + len(self.dfIds)
+
+    def __str__(self):
+        return ("{invIds:%s, dsIds:%s, dfIds:%s}" 
+                % (self.invIds, self.dsIds, self.dfIds))
+
+    def extend(self, objs):
+        if isinstance(objs, DataSelection):
+            self.invIds.extend(objs.invIds)
+            self.dsIds.extend(objs.dsIds)
+            self.dfIds.extend(objs.dfIds)
+        elif isinstance(objs, list):
             for o in objs:
                 if o.BeanName == 'Investigation':
                    self.invIds.append(o.id) 
@@ -85,15 +100,12 @@ class DataSelection(object):
                 else:
                     raise ValueError("invalid object '%s'." % o.BeanName)
         elif isinstance(objs, dict):
-            self.invIds = objs.get('investigationIds', [])
-            self.dsIds = objs.get('datasetIds', [])
-            self.dfIds = objs.get('datafileIds', [])
+            self.invIds.extend(objs.get('investigationIds', []))
+            self.dsIds.extend(objs.get('datasetIds', []))
+            self.dfIds.extend(objs.get('datafileIds', []))
         else:
             raise TypeError("objs must either be a list of objects or "
                             "a dict of ids.")
-
-    def __len__(self):
-        return len(self.invIds) + len(self.dsIds) + len(self.dfIds)
 
     def fillParams(self, params):
         if self.invIds:
