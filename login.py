@@ -7,7 +7,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
-conf = icat.config.Config().getconfig()
+conf = icat.config.Config(ids="optional").getconfig()
 
 client = icat.Client(conf.url, **conf.client_kwargs)
 sessionId = client.login(conf.auth, conf.credentials)
