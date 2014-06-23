@@ -225,7 +225,7 @@ class IDSClient(object):
         if compressFlag: parameters["compress"] = "true"
         if outname: parameters["outname"] = outname
         req = IDSRequest(self.url + "getData", parameters)
-        if offset:
+        if offset > 0:
             req.add_header("Range", "bytes=" + str(offset) + "-") 
         return self._checkResponse(self.default.open(req))
     
@@ -260,7 +260,7 @@ class IDSClient(object):
         parameters = {"preparedId": preparedId}
         if outname: parameters["outname"] = outname
         req = IDSRequest(self.url + "getData", parameters)
-        if offset:
+        if offset > 0:
             req.add_header("Range", "bytes=" + str(offset) + "-") 
         return self._checkResponse(self.default.open(req))
     
