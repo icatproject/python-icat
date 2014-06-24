@@ -1,7 +1,7 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.5.0 (2014-06-??)
+* Version 0.5.0 (2014-06-24)
 
  + Integrate an IDS client in the ICAT client.
 
