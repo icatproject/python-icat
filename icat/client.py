@@ -682,7 +682,30 @@ class Client(suds.client.Client):
     # =================== custom IDS methods ===================
 
     def putData(self, infile, datafile):
-        """Uploads a datafile to IDS."""
+        """Upload a datafile to IDS.
+
+        The content of the file to upload is read from infile, either
+        directly if it is an open file, or a file by that named will
+        be opened for reading.  
+
+        The datafile object must be initialized but not yet created at
+        the ICAT server.  It will be created by the IDS.  The ids of
+        the Dataset and the DatafileFormat as well as the attributes
+        description, doi, datafileCreateTime, and datafileModTime will
+        be taken from datafile.  If datafileModTime is not set, the
+        method will try to fstat infile and use the last modification
+        time from the file system, if available.  If
+        datafileCreateTime is not set, it will be set to
+        datafileModTime.
+
+        :param infile: either a file opened for reading or a filename.
+        :type infile: ``file`` or ``str``
+        :param datafile: A Datafile object.
+        :type datafile: `Datafile`
+        :return: id of the Datafile object created by IDS.
+        :rtype: ``long``
+        """
+
         if not self.ids:
             raise RuntimeError("no IDS.")
         if not datafile.name:
@@ -728,7 +751,33 @@ class Client(suds.client.Client):
 
     def getData(self, objs, compressFlag=False, zipFlag=False, outname=None, 
                 offset=0):
-        """Stream the requested data."""
+        """Retrieve the requested data from IDS.
+
+        The data objects to retrieve are given in objs.  This can be
+        any combination of single Datafiles, Datasets, or complete
+        Investigations.
+
+        :param objs: either a dict having some of the keys
+            ``investigationIds``, ``datasetIds``, and ``datafileIds``
+            with a list if object ids as value respectively, or a list
+            of entity objects, or a data selection.
+        :type objs: ``dict``, ``list`` of ``Entity``, or `DataSelection`
+        :param compressFlag: flag whether to use a zip format with an
+            implementation defined compression level, otherwise use no
+            (or minimal) compression.
+        :type compressFlag: ``bool``
+        :param zipFlag: flag whether return a single datafile in zip
+            format.  For multiple files zip format is always used.
+        :type zipFlag: ``bool``
+        :param outname: the preferred name for the downloaded file to
+            specify in the Content-Disposition header.
+        :type outname: ``str``
+        :param offset: if larger then zero, add Range header to the
+            HTTP request with the indicated bytes offset.
+        :type offset: ``int``
+        :return: a file-like object as returned by
+            ``urllib2.OpenerDirector.open()``
+        """
         if not self.ids:
             raise RuntimeError("no IDS.")
         if not isinstance(objs, DataSelection):
@@ -736,7 +785,33 @@ class Client(suds.client.Client):
         return self.ids.getData(objs, compressFlag, zipFlag, outname, offset)
 
     def getDataUrl(self, objs, compressFlag=False, zipFlag=False, outname=None):
-        """Get the URL to retrieve the requested data."""
+        """Get the URL to retrieve the requested data from IDS.
+
+        The data objects to retrieve are given in objs.  This can be
+        any combination of single Datafiles, Datasets, or complete
+        Investigations.
+
+        Note that the URL contains the session id of the current ICAT
+        session.  It will become invalid if the client logs out.
+
+        :param objs: either a dict having some of the keys
+            ``investigationIds``, ``datasetIds``, and ``datafileIds``
+            with a list if object ids as value respectively, or a list
+            of entity objects, or a data selection.
+        :type objs: ``dict``, ``list`` of ``Entity``, or `DataSelection`
+        :param compressFlag: flag whether to use a zip format with an
+            implementation defined compression level, otherwise use no
+            (or minimal) compression.
+        :type compressFlag: ``bool``
+        :param zipFlag: flag whether return a single datafile in zip
+            format.  For multiple files zip format is always used.
+        :type zipFlag: ``bool``
+        :param outname: the preferred name for the downloaded file to
+            specify in the Content-Disposition header.
+        :type outname: ``str``
+        :return: the URL for tha data at the IDS.
+        :rtype: ``str``
+        """
         if not self.ids:
             raise RuntimeError("no IDS.")
         if not isinstance(objs, DataSelection):
@@ -744,7 +819,28 @@ class Client(suds.client.Client):
         return self.ids.getDataUrl(objs, compressFlag, zipFlag, outname)
 
     def prepareData(self, objs, compressFlag=False, zipFlag=False):
-        """Prepare data for a subsequent getPreparedData call."""
+        """Prepare data at IDS for a subsequent getPreparedData call.
+
+        The data objects to retrieve are given in objs.  This can be
+        any combination of single Datafiles, Datasets, or complete
+        Investigations.
+
+        :param objs: either a dict having some of the keys
+            ``investigationIds``, ``datasetIds``, and ``datafileIds``
+            with a list if object ids as value respectively, or a list
+            of entity objects, or a data selection.
+        :type objs: ``dict``, ``list`` of ``Entity``, or `DataSelection`
+        :param compressFlag: flag whether to use a zip format with an
+            implementation defined compression level, otherwise use no
+            (or minimal) compression.
+        :type compressFlag: ``bool``
+        :param zipFlag: flag whether return a single datafile in zip
+            format.  For multiple files zip format is always used.
+        :type zipFlag: ``bool``
+        :return: preparedId, an opaque string which may be used as an
+            argument to isDataPrepared() and getPreparedData() calls.
+        :rtype: ``str``
+        """
         if not self.ids:
             raise RuntimeError("no IDS.")
         if not isinstance(objs, DataSelection):
@@ -752,25 +848,63 @@ class Client(suds.client.Client):
         return self.ids.prepareData(objs, compressFlag, zipFlag)
 
     def isDataPrepared(self, preparedId):
-        """Check if data is ready."""
+        """Check if prepared data is ready at IDS.
+
+        :param preparedId: the id returned by prepareData().
+        :type preparedId: ``str``
+        :return: ``True`` if the data is ready, otherwise ``False``.
+        :rtype: ``bool``
+        """
         if not self.ids:
             raise RuntimeError("no IDS.")
         return self.ids.isPrepared(preparedId)
 
     def getPreparedData(self, preparedId, outname=None, offset=0):
-        """Get prepared data."""
+        """Retrieve prepared data from IDS.
+
+        :param preparedId: the id returned by prepareData().
+        :type preparedId: ``str``
+        :param outname: the preferred name for the downloaded file to
+            specify in the Content-Disposition header.
+        :type outname: ``str``
+        :param offset: if larger then zero, add Range header to the
+            HTTP request with the indicated bytes offset.
+        :type offset: ``int``
+        :return: a file-like object as returned by
+            ``urllib2.OpenerDirector.open()``
+        """
         if not self.ids:
             raise RuntimeError("no IDS.")
         return self.ids.getPreparedData(preparedId, outname, offset)
 
     def getPreparedDataUrl(self, preparedId, outname=None):
-        """Get the URL to retrieve prepared data."""
+        """Get the URL to retrieve prepared data from IDS.
+
+        :param preparedId: the id returned by prepareData().
+        :type preparedId: ``str``
+        :param outname: the preferred name for the downloaded file to
+            specify in the Content-Disposition header.
+        :type outname: ``str``
+        :return: the URL for tha data at the IDS.
+        :rtype: ``str``
+        """
         if not self.ids:
             raise RuntimeError("no IDS.")
         return self.ids.getPreparedDataUrl(preparedId, outname)
 
     def deleteData(self, objs):
-        """Delete data."""
+        """Delete data from IDS.
+
+        The data objects to delete are given in objs.  This can be
+        any combination of single Datafiles, Datasets, or complete
+        Investigations.
+
+        :param objs: either a dict having some of the keys
+            ``investigationIds``, ``datasetIds``, and ``datafileIds``
+            with a list if object ids as value respectively, or a list
+            of entity objects, or a data selection.
+        :type objs: ``dict``, ``list`` of ``Entity``, or `DataSelection`
+        """
         if not self.ids:
             raise RuntimeError("no IDS.")
         if not isinstance(objs, DataSelection):
