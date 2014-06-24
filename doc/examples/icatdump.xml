@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdump>
 <head>
-  <date>2014-06-04T13:30:05Z</date>
+  <date>2014-06-24T13:30:36Z</date>
   <service>https://localhost:8181/ICATService/ICAT?wsdl</service>
   <apiversion>4.3.2</apiversion>
-  <generator>icatdump (python-icat 0.4.0.4)</generator>
+  <generator>icatdump (python-icat 0.5.0)</generator>
 </head>
 <data>
   <user id="User_name-acord">
@@ -1084,7 +1084,8 @@
     <url>http://www.esnf.example.org/</url>
   </facility>
   <instrument id="Instrument_facility-(name-ESNF)_name-E2">
-    <description>A 3-dimensional part of the reciprocal space can be scanned in less then five steps by combining the "off-plane Bragg-scattering" and the flat-cone layer concept while using a new computer-controlled tilting axis of the detector bank.</description>
+    <description>A 3-dimensional part of the reciprocal space can be scanned in less then five steps by combining the "off-plane Bragg-scattering" and the flat-cone layer concept while using a new computer-controlled tilting axis of the detector bank.
+</description>
     <fullName>E2 - Flat-Cone Diffractometer</fullName>
     <name>E2</name>
     <facility ref="Facility_name-ESNF"/>
@@ -1093,7 +1094,8 @@
     </instrumentScientists>
   </instrument>
   <instrument id="Instrument_facility-(name-ESNF)_name-EDDI">
-    <description>The experimental station EDDI (Energy Dispersive Diffraction) is a fixed station at the 7T-MPW-EDDI beamline.  The beamline provides the direct white photon beam emitted by the 7T multipole wiggler and is operated in the energy-dispersive mode of diffraction.  For the experiments two diffractometers with Eularian cradle segments (GE Inspection Technologies) are at the disposal for light and heavy weight samples.  For the acquisition of the diffraction patterns as well as the fluorescence signals two Germanium solid state detectors (Canberra) are available.</description>
+    <description>The experimental station EDDI (Energy Dispersive Diffraction) is a fixed station at the 7T-MPW-EDDI beamline.  The beamline provides the direct white photon beam emitted by the 7T multipole wiggler and is operated in the energy-dispersive mode of diffraction.  For the experiments two diffractometers with Eularian cradle segments (GE Inspection Technologies) are at the disposal for light and heavy weight samples.  For the acquisition of the diffraction patterns as well as the fluorescence signals two Germanium solid state detectors (Canberra) are available.
+</description>
     <fullName>EDDI - Energy Dispersive Diffraction</fullName>
     <name>EDDI</name>
     <facility ref="Facility_name-ESNF"/>
@@ -1102,7 +1104,8 @@
     </instrumentScientists>
   </instrument>
   <instrument id="Instrument_facility-(name-ESNF)_name-HIKE">
-    <description>The system is designed for hard X-ray high kinetic energy photoelectron spectroscopy (HAXPES or HIKE) experiments in the excitation energy range from 2 keV to 12 keV with an optimized recorded kinetic energy range from 150 eV to 10000 eV.  The typical experiments running on the HIKE end station are investigations of bulk electronic properties &#8211; core levels and valence band, buried interfaces and x-ray standing waves.</description>
+    <description>The system is designed for hard X-ray high kinetic energy photoelectron spectroscopy (HAXPES or HIKE) experiments in the excitation energy range from 2 keV to 12 keV with an optimized recorded kinetic energy range from 150 eV to 10000 eV.  The typical experiments running on the HIKE end station are investigations of bulk electronic properties &#8211; core levels and valence band, buried interfaces and x-ray standing waves.
+</description>
     <fullName>HIKE - High Kinetic Energy Photoelectron Spectroscopy</fullName>
     <name>HIKE</name>
     <facility ref="Facility_name-ESNF"/>
@@ -1150,10 +1153,22 @@
     <name>generic</name>
     <facility ref="Facility_name-ESNF"/>
   </datasetType>
-  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E0">
+  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0">
     <description>A common data format for neutron, x-ray and muon science</description>
     <name>NeXus</name>
-    <version>4.3.0</version>
+    <version>4.0.0</version>
+    <facility ref="Facility_name-ESNF"/>
+  </datafileFormat>
+  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1">
+    <description>A common data format for neutron, x-ray and muon science</description>
+    <name>NeXus</name>
+    <version>4.2.1</version>
+    <facility ref="Facility_name-ESNF"/>
+  </datafileFormat>
+  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E1">
+    <description>A common data format for neutron, x-ray and muon science</description>
+    <name>NeXus</name>
+    <version>4.3.1</version>
     <facility ref="Facility_name-ESNF"/>
   </datafileFormat>
   <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA">
@@ -1162,6 +1177,11 @@
     <version>N/A</version>
     <facility ref="Facility_name-ESNF"/>
   </datafileFormat>
+  <application id="Application_facility-(name-ESNF)_name-gnomoanalytics_version-69">
+    <name>gnomoanalytics</name>
+    <version>69</version>
+    <facility ref="Facility_name-ESNF"/>
+  </application>
 </data>
 <data>
   <investigation id="Investigation_facility-(name-ESNF)_name-2008=2DHIKE=2D0255=2D1_visitId-1">
@@ -1204,12 +1224,13 @@
     <type ref="DatasetType_facility-(name-ESNF)_name-generic"/>
   </dataset>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2008=2DHIKE=2D0255=2D1_visitId-1)_name-e201215)_name-e201215=2Enxs">
+    <checksum>1344cd7f</checksum>
     <datafileCreateTime>2008-06-18T09:31:11+02:00</datafileCreateTime>
     <datafileModTime>2008-06-18T09:31:11+02:00</datafileModTime>
     <fileSize>368368864</fileSize>
-    <location>/data/2008/05/e201215.nxs</location>
+    <location>63833/63982/714d8865-c1da-46fe-b90f-19d0caf33115</location>
     <name>e201215.nxs</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E0"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-2008=2DHIKE=2D0255=2D1_visitId-1)_name-e201215"/>
   </datafile>
 </data>
@@ -1266,39 +1287,43 @@
     <type ref="DatasetType_facility-(name-ESNF)_name-generic"/>
   </dataset>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208339)_name-e208339=2Edat">
+    <checksum>ed2bc66d</checksum>
     <datafileCreateTime>2010-10-01T08:17:48+02:00</datafileCreateTime>
     <datafileModTime>2010-10-01T08:17:48+02:00</datafileModTime>
     <fileSize>445952</fileSize>
-    <location>/data/2010/10/e208339.dat</location>
+    <location>63882/63986/3b8fb2da-d9e2-4d13-b23e-d0e51e8f1a1e</location>
     <name>e208339.dat</name>
     <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208339"/>
   </datafile>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208339)_name-e208339=2Enxs">
+    <checksum>9d38b029</checksum>
     <datafileCreateTime>2010-10-01T08:52:22+02:00</datafileCreateTime>
     <datafileModTime>2010-10-01T08:52:22+02:00</datafileModTime>
     <fileSize>73427714</fileSize>
-    <location>/data/2010/10/e208339.nxs</location>
+    <location>63882/63986/2c6cc6b1-b1c7-4c00-bd79-d5df96692c2b</location>
     <name>e208339.nxs</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E0"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208339"/>
   </datafile>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208341)_name-e208341=2Edat">
+    <checksum>ba17e53e</checksum>
     <datafileCreateTime>2010-10-05T10:32:21+02:00</datafileCreateTime>
     <datafileModTime>2010-10-05T10:32:21+02:00</datafileModTime>
     <fileSize>394240</fileSize>
-    <location>/data/2010/10/e208341.dat</location>
+    <location>63882/63987/06c621f4-b66c-4a34-8bab-f1febf2ee4f4</location>
     <name>e208341.dat</name>
     <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208341"/>
   </datafile>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208341)_name-e208341=2Enxs">
-    <datafileCreateTime>2010-10-05T11:31:53+02:00</datafileCreateTime>
-    <datafileModTime>2010-10-05T11:31:53+02:00</datafileModTime>
+    <checksum>4c491617</checksum>
+    <datafileCreateTime>2010-10-05T11:13:53+02:00</datafileCreateTime>
+    <datafileModTime>2010-10-05T11:13:53+02:00</datafileModTime>
     <fileSize>52856502</fileSize>
-    <location>/data/2010/10/e208341.nxs</location>
+    <location>63882/63987/7933a3a4-df0f-4eb2-9d88-18e8fec2e0d7</location>
     <name>e208341.nxs</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E0"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208341"/>
   </datafile>
 </data>
@@ -1345,23 +1370,40 @@
     <sample ref="Sample_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-Nickel=28II=29=20oxide=20SC"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-generic"/>
   </dataset>
-  <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2Edat">
-    <datafileCreateTime>2012-07-30T03:10:08+02:00</datafileCreateTime>
-    <datafileModTime>2012-07-30T03:10:08+02:00</datafileModTime>
-    <fileSize>459264</fileSize>
-    <location>/data/2012/07/e208945.dat</location>
-    <name>e208945.dat</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA"/>
+  <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2D2=2Enxs">
+    <datafileCreateTime>2012-07-16T16:30:17+02:00</datafileCreateTime>
+    <datafileModTime>2012-07-16T16:30:17+02:00</datafileModTime>
+    <fileSize>2893652</fileSize>
+    <name>e208945-2.nxs</name>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945"/>
   </datafile>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2Enxs">
+    <checksum>6588713c</checksum>
     <datafileCreateTime>2013-06-03T12:22:43+02:00</datafileCreateTime>
     <datafileModTime>2013-06-03T12:22:43+02:00</datafileModTime>
     <fileSize>396430442</fileSize>
-    <location>/data/2012/07/e208945.nxs</location>
+    <location>63929/63991/bc08a83d-16df-4bba-be9a-a6f64502b05f</location>
     <name>e208945.nxs</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E0"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945"/>
   </datafile>
+</data>
+<data>
+  <dataCollection id="DataCollection_00000001">
+    <dataCollectionDatafiles>
+      <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2D2=2Enxs"/>
+    </dataCollectionDatafiles>
+  </dataCollection>
+  <dataCollection id="DataCollection_00000002">
+    <dataCollectionDatafiles>
+      <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2Enxs"/>
+    </dataCollectionDatafiles>
+  </dataCollection>
+  <job id="Job_00000001">
+    <application ref="Application_facility-(name-ESNF)_name-gnomoanalytics_version-69"/>
+    <inputDataCollection ref="DataCollection_00000002"/>
+    <outputDataCollection ref="DataCollection_00000001"/>
+  </job>
 </data>
 </icatdump>
