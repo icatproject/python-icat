@@ -5,6 +5,7 @@ This is the only module that needs to be imported to use the icat.
 
 import os
 from warnings import warn
+import re
 import logging
 from distutils.version import StrictVersion as Version
 import atexit
@@ -171,7 +172,11 @@ class Client(suds.client.Client):
             idsurl = None
 
         super(Client, self).__init__(url, **kwargs)
-        self.apiversion = Version(self.getApiVersion())
+        apiversion = self.getApiVersion()
+        # Translate a version having a trailing '-SNAPSHOT' into
+        # something that StrictVersion would accept.
+        apiversion = re.sub(r'-SNAPSHOT$', 'a1', apiversion)
+        self.apiversion = Version(apiversion)
         log.debug("Connect to %s, ICAT version %s", url, self.apiversion)
 
         # We need to use different TypeMaps depending on the ICAT
