@@ -4,6 +4,7 @@
 # objects found for each type.
 #
 
+from __future__ import print_function
 import icat
 import icat.config
 import logging
@@ -17,13 +18,13 @@ client = icat.Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 
-print "Connect to %s" % conf.url
-print "User: %s" % client.getUserName()
-print
+print("Connect to %s" % conf.url)
+print("User: %s" % client.getUserName())
+print()
 
 entitycolwidth = 24
-print "%-*s   %s" % (entitycolwidth, "Entity", "count")
-print "-" * (entitycolwidth + 3 + 5)
+print("%-*s   %s" % (entitycolwidth, "Entity", "count"))
+print("-" * (entitycolwidth + 3 + 5))
 for entityname in client.getEntityNames():
     try:
         res = client.search("SELECT COUNT(e) FROM %s e" % entityname)[0]
@@ -36,5 +37,5 @@ for entityname in client.getEntityNames():
     except IndexError:
         # ref. ICAT issue 131
         res = 0
-    print "%-*s : %d" % (entitycolwidth, entityname, res)
-print
+    print("%-*s : %d" % (entitycolwidth, entityname, res))
+print()

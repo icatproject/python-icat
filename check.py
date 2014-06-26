@@ -1,5 +1,6 @@
 #! /usr/bin/python
 
+from __future__ import print_function
 import icat
 import icat.config
 import sys
@@ -32,6 +33,6 @@ if conf.test:
 
 if conf.python:
     genealogyrules=[(r'.*Parameter$', 'parameter'), (r'','entityBaseBean')]
-    print checker.pythonsrc(genealogyrules)
+    print(checker.pythonsrc(genealogyrules))
 
 sys.exit(retcode)

@@ -1,8 +1,12 @@
 #! /usr/bin/python
 
+from __future__ import print_function
 import cgi
 import re
-import ConfigParser
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 import yaml
 import icat.cgi
 
@@ -11,7 +15,7 @@ lastupdate = re.search(r'\((.*)\)',date).group(1)
 
 configfile = "/etc/cgi/icat.cfg"
 configsection = "cgi"
-config = ConfigParser.ConfigParser()
+config = configparser.ConfigParser()
 config.read(configfile)
 
 url = config.get(configsection, "url")
@@ -24,17 +28,16 @@ if session.isActive():
 
 
 htmlfile = config.get(configsection, "htmlfile")
-f = open(htmlfile, 'r')
-html = yaml.load(f)
-f.close()
+with open(htmlfile, 'r') as f:
+    html = yaml.load(f)
 
-print "Content-Type: text/html"
-print session.cookie
-print
-print html["head"].encode("utf8")
-print html["status_out"].encode("utf8")
+print("Content-Type: text/html")
+print(session.cookie)
+print()
+print(html["head"].encode("utf8"))
+print(html["status_out"].encode("utf8"))
 if logoutsuccess:
-    print "<p>\n  Logout successful.\n</p>"
+    print("<p>\n  Logout successful.\n</p>")
 else:
-    print "<p>\n  You have not been logged in.\n</p>"
-print html["foot"].encode("utf8") % lastupdate
+    print("<p>\n  You have not been logged in.\n</p>")
+print(html["foot"].encode("utf8") % lastupdate)

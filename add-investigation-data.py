@@ -8,6 +8,7 @@
 # e.g. a user that is in the writer group of the given investigation.
 #
 
+from __future__ import print_function
 import icat
 import icat.config
 import sys
@@ -91,14 +92,14 @@ stsearch = ("SampleType[name='%s']"
             % data['sample_types'][sampledata['type']]['name'])
 sample_type = client.assertedSearch(stsearch)[0]
 
-print "Sample: creating '%s' ..." % sampledata['name']
+print("Sample: creating '%s' ..." % sampledata['name'])
 sample = client.new("sample", name=sampledata['name'], 
                     type=sample_type, investigation=investigation)
 sample.create()
 
 
 for datasetdata in investigationdata['datasets']:
-    print "Dataset: creating '%s' ..." % datasetdata['name']
+    print("Dataset: creating '%s' ..." % datasetdata['name'])
     dataset = client.new("dataset")
     dataset.name = datasetdata['name']
     dataset.startDate = datasetdata['startDate']
@@ -110,7 +111,7 @@ for datasetdata in investigationdata['datasets']:
 
     if not conf.skipfiles:
         for datafiledata in datasetdata['datafiles']:
-            print "Datafile: creating '%s' ..." % datafiledata['name']
+            print("Datafile: creating '%s' ..." % datafiledata['name'])
             datafile = client.new("datafile")
             datafile.name = datafiledata['name']
             datafile.fileSize = datafiledata['fileSize']

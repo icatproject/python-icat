@@ -25,6 +25,7 @@
 # be set with the option "--outputfile".  If not set the output file
 #
 
+from __future__ import print_function
 import icat
 import icat.config
 import sys
@@ -98,7 +99,7 @@ if conf.method == 'getData':
 
 elif conf.method == 'getDataUrl':
 
-    print client.getDataUrl(datafiles)
+    print(client.getDataUrl(datafiles))
     # Must not logout to keep the sessionId in the download url valid. 
     client.autoLogout = False
 
@@ -119,7 +120,7 @@ elif conf.method == 'getPreparedDataUrl':
     prepid = client.prepareData(datafiles)
     while not client.isDataPrepared(prepid):
         time.sleep(5)
-    print client.getPreparedDataUrl(prepid)
+    print(client.getPreparedDataUrl(prepid))
 
 else:
     raise RuntimeError("Invalid method %s." % conf.method)

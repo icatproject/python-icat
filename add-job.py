@@ -8,6 +8,7 @@
 # having appropriate permissions.
 #
 
+from __future__ import print_function
 import icat
 import icat.config
 import sys
@@ -95,7 +96,7 @@ for ds in jobdata['output']['datasets']:
     searchexp = ("SELECT dst FROM DatasetType dst WHERE dst.name='%s'" 
                  % data['dataset_types'][ds['type']]['name'])
     dataset_type = client.assertedSearch(searchexp)[0]
-    print "Dataset: creating '%s' ..." % datasetdata['name']
+    print("Dataset: creating '%s' ..." % datasetdata['name'])
     dataset = client.new("dataset")
     dataset.name = ds['name']
     dataset.startDate = ds['startDate']
@@ -110,7 +111,7 @@ for ds in jobdata['output']['datasets']:
                      % (data['datafile_formats'][df['format']]['name'], 
                         data['datafile_formats'][df['format']]['version']))
         datafile_format = client.assertedSearch(dstsearch)[0]
-        print "Datafile: creating '%s' ..." % df['name']
+        print("Datafile: creating '%s' ..." % df['name'])
         datafile = client.new("datafile")
         datafile.name = df['name']
         datafile.fileSize = df['fileSize']
@@ -134,7 +135,7 @@ for df in jobdata['output']['datafiles']:
                  % (data['datafile_formats'][df['format']]['name'], 
                     data['datafile_formats'][df['format']]['version']))
     datafile_format = client.assertedSearch(searchexp)[0]
-    print "Datafile: creating '%s' ..." % df['name']
+    print("Datafile: creating '%s' ..." % df['name'])
     datafile = client.new("datafile")
     datafile.name = df['name']
     datafile.fileSize = df['fileSize']

@@ -5,6 +5,7 @@
 # This script should be run by the ICAT user useroffice.
 #
 
+from __future__ import print_function
 import icat
 import icat.config
 import sys
@@ -73,7 +74,7 @@ else:
     raise RuntimeError("Investigation: '%s' already exists ..." 
                        % investigationdata['name'])
 
-print "Investigation: creating '%s' ..." % investigationdata['name']
+print("Investigation: creating '%s' ..." % investigationdata['name'])
 investigation = client.new("investigation")
 investigation.name = investigationdata['name']
 investigation.title = investigationdata['title']

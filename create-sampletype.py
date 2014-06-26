@@ -5,6 +5,7 @@
 # This script should be run by a member of the samplewriter group
 #
 
+from __future__ import print_function
 import icat
 import icat.config
 import sys
@@ -63,7 +64,7 @@ else:
     raise RuntimeError("SampleType: '%s' already exists." 
                        % sampletypedata['name'])
 
-print "SampleType: creating '%s' ..." % sampletypedata['name']
+print("SampleType: creating '%s' ..." % sampletypedata['name'])
 sampletype = client.new("sampleType")
 sampletype.name = sampletypedata['name']
 sampletype.molecularFormula = sampletypedata['molecularFormula']
