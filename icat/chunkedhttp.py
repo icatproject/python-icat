@@ -106,11 +106,20 @@ class ChunkedHTTPHandlerMixin:
         # particular it tries to enforce Content-length to be set (and
         # fails doing so if data is not a string), while for chunked
         # transfer encoding Content-length must not be set.
-        host = request.get_host()
+
+        # Compatibility: in Python 2, we must call get_host() which
+        # extracts the host part from the URL.  In Python 3, the
+        # splitting is already done in the constructor, so we may just
+        # access the attribute host instead.  In Python 3.4,
+        # get_host() has been removed.
+        try:
+            host = request.get_host()
+        except AttributeError:
+            host = request.host
         if not host:
             raise URLError('no host given')
 
-        if not request.has_data():
+        if request.data is None:
             raise URLError('no data given')
 
         if not request.has_header('Content-type'):
@@ -124,9 +133,13 @@ class ChunkedHTTPHandlerMixin:
 
         sel_host = host
         if request.has_proxy():
-            scheme, sel = splittype(request.get_selector())
+            # Similar compatibility issue for selector as for host.
+            try:
+                selector = request.get_selector()
+            except AttributeError:
+                selector = request.selector
+            scheme, sel = splittype(selector)
             sel_host, sel_path = splithost(sel)
-
         if not request.has_header('Host'):
             request.add_unredirected_header('Host', sel_host)
         for name, value in self.parent.addheaders:

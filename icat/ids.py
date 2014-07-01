@@ -300,10 +300,10 @@ class IDSClient(object):
         if not inputStream:
             raise ValueError("Input stream is null")
 
-        req = IDSRequest(self.url + "put", parameters, method="PUT")
-        req.add_header('Content-Type', 'application/octet-stream')
         inputreader = ChunkedFileReader(inputStream)
-        req.add_data(inputreader)
+        req = IDSRequest(self.url + "put", parameters, 
+                         data=inputreader, method="PUT")
+        req.add_header('Content-Type', 'application/octet-stream')
         result = self._checkResponseContent(self.chunked.open(req))
         crc = inputreader.crc32 & 0xffffffff
         om = json.loads(result)
