@@ -8,7 +8,7 @@ author.
 .. _IDS distribution: http://code.google.com/p/icat-data-service/
 """
 
-from urllib2 import Request, ProxyHandler, build_opener
+from urllib2 import Request, HTTPDefaultErrorHandler, ProxyHandler, build_opener
 from urllib import urlencode
 from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
 import json
@@ -46,6 +46,20 @@ class IDSRequest(Request):
             return "POST"
         else:
             return "GET"
+
+
+class IDSHTTPErrorHandler(HTTPDefaultErrorHandler):
+    def http_error_default(self, req, fp, httpcode, msg, hdrs):
+        """Handle HTTP errors, in particular errors raised by the IDS server."""
+        content = fp.read().decode('ascii')
+        try:
+            om = json.loads(content)
+            code = om["code"]
+            message = om["message"]
+        except Exception:
+            raise IDSResponseError("HTTP error %d: %s" % (httpcode, msg))
+        else:
+            raise IDSServerError(httpcode, code, message)
 
 
 class ChunkedFileReader(object):
@@ -135,18 +149,20 @@ class IDSClient(object):
         self.sessionId = sessionId
         if proxy:
             proxyhandler = ProxyHandler(proxy)
-            self.default = build_opener(proxyhandler)
+            self.default = build_opener(proxyhandler, IDSHTTPErrorHandler)
             self.chunked = build_opener(proxyhandler, 
-                                        ChunkedHTTPHandler, ChunkedHTTPSHandler)
+                                        ChunkedHTTPHandler, ChunkedHTTPSHandler,
+                                        IDSHTTPErrorHandler)
         else:
-            self.default = build_opener()
-            self.chunked = build_opener(ChunkedHTTPHandler, ChunkedHTTPSHandler)
+            self.default = build_opener(IDSHTTPErrorHandler)
+            self.chunked = build_opener(ChunkedHTTPHandler, ChunkedHTTPSHandler,
+                                        IDSHTTPErrorHandler)
 
     def ping(self):
         """Check that the server is alive and is an IDS server.
         """
         req = IDSRequest(self.url + "ping", {})
-        result = self._checkResponseContent(self.default.open(req))
+        result = self.default.open(req).read().decode('ascii')
         if result != "IdsOK": 
             raise IDSResponseError("unexpected response to ping: %s" % result)
 
@@ -159,7 +175,7 @@ class IDSClient(object):
         """
         parameters = {"sessionId": self.sessionId}
         req = IDSRequest(self.url + "getServiceStatus", parameters)
-        result = self._checkResponseContent(self.default.open(req))
+        result = self.default.open(req).read().decode('ascii')
         return json.loads(result)
     
     def getStatus(self, selection):
@@ -173,7 +189,7 @@ class IDSClient(object):
         parameters["sessionId"] = self.sessionId   
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "getStatus", parameters)
-        return self._checkResponseContent(self.default.open(req))
+        return self.default.open(req).read().decode('ascii')
     
     def restore(self, selection):
         """Restore data.
@@ -184,7 +200,7 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "restore", parameters, method="POST")
-        return self._checkResponseContent(self.default.open(req))
+        return self.default.open(req).read().decode('ascii')
 
     def archive(self, selection):
         """Archive data.
@@ -195,7 +211,7 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "archive", parameters, method="POST")
-        return self._checkResponseContent(self.default.open(req))
+        return self.default.open(req).read().decode('ascii')
 
     def isPrepared(self, preparedId):
         """Check if data is ready.
@@ -205,7 +221,7 @@ class IDSClient(object):
         """
         parameters = {"preparedId": preparedId}
         req = IDSRequest(self.url + "isPrepared", parameters)
-        response = self._checkResponseContent(self.default.open(req))
+        response = self.default.open(req).read().decode('ascii')
         return response.lower() == "true"
 
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
@@ -216,7 +232,7 @@ class IDSClient(object):
         if zipFlag:  parameters["zip"] = "true"
         if compressFlag: parameters["compress"] = "true"
         req = IDSRequest(self.url + "prepareData", parameters, method="POST")
-        return self._checkResponseContent(self.default.open(req))
+        return self.default.open(req).read().decode('ascii')
     
     def getData(self, selection, 
                 compressFlag=False, zipFlag=False, outname=None, offset=0):
@@ -230,7 +246,7 @@ class IDSClient(object):
         req = IDSRequest(self.url + "getData", parameters)
         if offset > 0:
             req.add_header("Range", "bytes=" + str(offset) + "-") 
-        return self._checkResponse(self.default.open(req))
+        return self.default.open(req)
     
     def getDataUrl(self, selection, 
                    compressFlag=False, zipFlag=False, outname=None):
@@ -252,7 +268,7 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "delete", parameters, method="DELETE")
-        self._checkResponse(self.default.open(req))
+        self.default.open(req)
 
     def getPreparedData(self, preparedId, outname=None, offset=0):
         """Get prepared data.
@@ -265,7 +281,7 @@ class IDSClient(object):
         req = IDSRequest(self.url + "getData", parameters)
         if offset > 0:
             req.add_header("Range", "bytes=" + str(offset) + "-") 
-        return self._checkResponse(self.default.open(req))
+        return self.default.open(req)
     
     def getPreparedDataUrl(self, preparedId, outname=None):
         """Get the URL to retrieve prepared data.
@@ -304,7 +320,7 @@ class IDSClient(object):
         req = IDSRequest(self.url + "put", parameters, 
                          data=inputreader, method="PUT")
         req.add_header('Content-Type', 'application/octet-stream')
-        result = self._checkResponseContent(self.chunked.open(req))
+        result = self.chunked.open(req).read().decode('ascii')
         crc = inputreader.crc32 & 0xffffffff
         om = json.loads(result)
         if om["checksum"] != crc:
@@ -313,23 +329,3 @@ class IDSClient(object):
 
     def _getDataUrl(self, parameters):
         return (self.url + "getData" + "?" + urlencode(parameters))
-
-    def _checkResponse(self, response):
-        """Check the response from the IDS, raise an error if appropriate."""
-
-        rc = response.getcode()
-        if (int(rc / 100) != 2):
-            responseContent = response.read().decode('ascii')
-            try:
-                om = json.loads(responseContent)
-                code = om["code"]
-                message = om["message"]
-            except Exception:
-                raise IDSResponseError(responseContent)
-            raise IDSServerError(rc, code, message)
-
-        return response
-
-    def _checkResponseContent(self, response):
-        """Check the response from the IDS and return the content."""
-        return self._checkResponse(response).read().decode('ascii')
