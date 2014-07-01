@@ -30,8 +30,7 @@ class IDSRequest(Request):
             else:
                 url += "?" + parameters
         Request.__init__(self, url, data, headers)
-        if method:
-            self.method = method
+        self.method = method
 
         self.add_header("Cache-Control", "no-cache")
         self.add_header("Pragma", "no-cache")
@@ -41,8 +40,12 @@ class IDSRequest(Request):
 
     def get_method(self):
         """Return a string indicating the HTTP request method."""
-        default_method = "POST" if self.data is not None else "GET"
-        return getattr(self, 'method', default_method)
+        if self.method:
+            return self.method
+        elif self.data is not None:
+            return "POST"
+        else:
+            return "GET"
 
 
 class ChunkedFileReader(object):
