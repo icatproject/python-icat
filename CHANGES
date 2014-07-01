@@ -1,6 +1,22 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.5.1 (2014-07-??)
+
+ + Fix compatibility issue with Python 3.3 that caused the HTTP method
+   to be set to "None" in some IDS methods, which in turn caused an
+   internal server error to be raised in the response from IDS.
+
+ + Fix compatibility issues with Python 3.4: some methods have been
+   removed from class urllib.request.Request which caused an
+   AttributeError in the IDSClient.
+
+ + Fix: failed to connect to an ICAT server if it advertises a version
+   number having a trailing "-SNAPSHOT".
+
+ + Make example files compatible across Python versions without
+   modifications, such as running 2to3 on them.
+
 * Version 0.5.0 (2014-06-24)
 
  + Integrate an IDS client in the ICAT client.
