@@ -27,7 +27,7 @@ def entity2elem(obj, tag, keyindex):
             continue
         elif isinstance(v, bool):
             v = str(v).lower()
-        elif isinstance(v, long) or isinstance(v, int):
+        elif isinstance(v, (int, long)):
             v = str(v)
         elif isinstance(v, datetime.datetime):
             if v.tzinfo is not None and v.tzinfo.utcoffset(v) is not None:

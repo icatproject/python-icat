@@ -50,7 +50,7 @@ def entity2dict(obj, keyindex):
             continue
         elif isinstance(v, bool):
             pass
-        elif isinstance(v, long) or isinstance(v, int):
+        elif isinstance(v, (int, long)):
             v = int(v)
         elif isinstance(v, datetime.datetime):
             if v.tzinfo is not None and v.tzinfo.utcoffset(v) is not None:
