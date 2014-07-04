@@ -17,6 +17,9 @@
    raised instead of an IDSServerError and thus the loss of all
    details about the error reported in the reply from the server.
 
+ + Add specific exception classes for the different error codes raised
+   by the IDS server.
+
  + Fix compatibility issue with Python 3.3 that caused the HTTP method
    to be set to "None" in some IDS methods, which in turn caused an
    internal server error to be raised in the response from IDS.
@@ -26,7 +29,9 @@
    AttributeError in the IDSClient.
 
  + Fix: failed to connect to an ICAT server if it advertises a version
-   number having a trailing "-SNAPSHOT".
+   number having a trailing "-SNAPSHOT" in getApiVersion().  For
+   compatibility, a trailing "-SNAPSHOT" will be replaced by "a1" in
+   the client.apiversion attribute.
 
  + Make example files compatible across Python versions without
    modifications, such as running 2to3 on them.
