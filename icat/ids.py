@@ -13,7 +13,7 @@ from urllib import urlencode
 from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
 import json
 import zlib
-from icat.exception import IDSServerError, IDSResponseError
+from icat.exception import translateIDSError, IDSResponseError
 
 __all__ = ['DataSelection', 'IDSClient']
 
@@ -56,10 +56,10 @@ class IDSHTTPErrorHandler(HTTPDefaultErrorHandler):
             om = json.loads(content)
             code = om["code"]
             message = om["message"]
+            err = translateIDSError(httpcode, code, message)
         except Exception:
-            raise IDSResponseError("HTTP error %d: %s" % (httpcode, msg))
-        else:
-            raise IDSServerError(httpcode, code, message)
+            err = IDSResponseError("HTTP error %d: %s" % (httpcode, msg))
+        raise err
 
 
 class ChunkedFileReader(object):

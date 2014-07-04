@@ -15,7 +15,11 @@ __all__ = [
     'ClientVersionWarning', 'VersionMethodError', 'SearchResultError', 
     'SearchAssertionError', 'DataConsistencyError', 
     # IDS
-    'IDSError', 'IDSServerError', 'IDSResponseError', 
+    'IDSError', 'IDSResponseError', 
+    'IDSServerError', 'IDSBadRequestError', 'IDSDataNotOnlineError', 
+    'IDSInsufficientPrivilegesError', 'IDSInsufficientStorageError', 
+    'IDSInternalError', 'IDSNotFoundError', 'IDSNotImplementedError', 
+    'translateIDSError', 
     # icat.config
     'ConfigError', 
     # icat.icatcheck
@@ -186,19 +190,59 @@ class IDSError(Exception):
     """
     pass
 
-class IDSServerError(IDSError):
-    """Error raised by the by the IDS.
-    """
-    def __init__(self, status, code, message):
-        super(IDSServerError, self).__init__("%s: %s" % (code, message))
-        self.code = status
-        self.idscode = code
-        self.idsmessage = message
-
 class IDSResponseError(IDSError):
     """The response from the IDS was not what should have been expected.
     """
     pass
+
+class IDSServerError(IDSError):
+    """Error raised by the by the IDS.
+    """
+    def __init__(self, status, code, message):
+        super(IDSServerError, self).__init__(message)
+        self.code = status
+        self.idscode = code
+        self.idsmessage = message
+
+class IDSBadRequestError(IDSServerError):
+    pass
+
+class IDSDataNotOnlineError(IDSServerError):
+    pass
+
+class IDSInsufficientPrivilegesError(IDSServerError):
+    pass
+
+class IDSInsufficientStorageError(IDSServerError):
+    pass
+
+class IDSInternalError(IDSServerError):
+    pass
+
+class IDSNotFoundError(IDSServerError):
+    pass
+
+class IDSNotImplementedError(IDSServerError):
+    pass
+
+IDSExceptionTypeMap = {
+    "BadRequestException": IDSBadRequestError,
+    "DataNotOnlineException": IDSDataNotOnlineError,
+    "InsufficientPrivilegesException": IDSInsufficientPrivilegesError,
+    "InsufficientStorageException": IDSInsufficientStorageError,
+    "InternalException": IDSInternalError,
+    "NotFoundException": IDSNotFoundError,
+    "NotImplementedException": IDSNotImplementedError,
+}
+"""Map IDS error codes to Python classes."""
+
+def translateIDSError(status, code, message):
+    """Create the corresponding IDSServerError from an IDS error code."""
+    try:
+        Class = IDSExceptionTypeMap[code]
+    except AttributeError:
+        Class = IDSServerError
+    return Class(status, code, message)
 
 # ================ Exceptions raised in icat.config ================
 
