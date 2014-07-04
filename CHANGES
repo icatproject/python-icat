@@ -3,6 +3,20 @@
 
 * Version 0.5.1 (2014-07-??)
 
+ + Add a module icat.eval that is intended to be run using the "-m"
+   command line switch to Python.  It allows to evaluate Python
+   expressions within an ICAT session as one liners directly from the
+   command line, as for example:
+
+     # get all Dataset ids
+     $ python -m icat.eval -e 'client.search("Dataset.id")' -s root
+     [102284L, 102288L, 102289L, 102293L]
+
+ + Fix an issue in the error handling in the IDS client that caused in
+   the case of an error from the IDS server an urllib2.HTTPError to be
+   raised instead of an IDSServerError and thus the loss of all
+   details about the error reported in the reply from the server.
+
  + Fix compatibility issue with Python 3.3 that caused the HTTP method
    to be set to "None" in some IDS methods, which in turn caused an
    internal server error to be raised in the response from IDS.
