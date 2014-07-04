@@ -185,8 +185,6 @@ class IDSClient(object):
         investigationIds.
         """
         parameters = {"sessionId": self.sessionId}
-        parameters = {}
-        parameters["sessionId"] = self.sessionId   
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "getStatus", parameters)
         return self.default.open(req).read().decode('ascii')
