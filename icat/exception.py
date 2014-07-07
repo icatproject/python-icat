@@ -4,6 +4,8 @@
 import suds
 
 __all__ = [
+    # helper
+    'stripCause', 
     # Internal error
     'InternalError', 
     # Exceptions thrown by the ICAT server
@@ -26,6 +28,23 @@ __all__ = [
     'GenealogyError',
     ]
 
+
+# ======================== helper function =========================
+
+def stripCause(e):
+    """Try to suppress misleading context from an exception.
+
+    `Exception Chaining and Embedded Tracebacks`_ has been introduced
+    with Python 3.  Unfortunately the result is completely misleading
+    most of the times.  Try to suppress the context from the exception
+    traceback.  This works with Python 3.3 and newer, but has no
+    effect with Python 3.1 and 3.2.
+
+    .. _Exception Chaining and Embedded Tracebacks: http://legacy.python.org/dev/peps/pep-3134/
+    """
+    if hasattr(e, '__cause__'):
+        e.__cause__ = None
+    return e
 
 # ========================= Internal error =========================
 
@@ -115,12 +134,7 @@ def translateError(error):
             Class = IcatExceptionTypeMap[error.fault.detail.IcatException.type]
         except AttributeError:
             Class = ICATError
-        err = Class(error)
-        # Try to suppress misleading context introduced with Python 3.
-        # This does not work with Python 3.1 and 3.2.
-        if hasattr(err, '__cause__'):
-            err.__cause__ = None
-        return err
+        return stripCause(Class(error))
     else:
         raise TypeError("Invalid argument type '%s'." % type(error))
 
