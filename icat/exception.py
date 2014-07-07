@@ -40,7 +40,11 @@ class ICATError(Exception):
     """Base class for the errors raised by the ICAT server.
     """
     def __init__(self, webfault):
-        super(ICATError, self).__init__(str(webfault))
+        try:
+            msg = webfault.fault.faultstring
+        except AttributeError:
+            msg = str(webfault)
+        super(ICATError, self).__init__(msg)
         self.fault = webfault.fault
         self.document = webfault.document
         try:
@@ -111,7 +115,12 @@ def translateError(error):
             Class = IcatExceptionTypeMap[error.fault.detail.IcatException.type]
         except AttributeError:
             Class = ICATError
-        return Class(error)
+        err = Class(error)
+        # Try to suppress misleading context introduced with Python 3.
+        # This does not work with Python 3.1 and 3.2.
+        if hasattr(err, '__cause__'):
+            err.__cause__ = None
+        return err
     else:
         raise TypeError("Invalid argument type '%s'." % type(error))
 
