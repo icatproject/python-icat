@@ -1,7 +1,7 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.5.1 (2014-07-??)
+* Version 0.5.1 (2014-07-07)
 
  + Add a module icat.eval that is intended to be run using the "-m"
    command line switch to Python.  It allows to evaluate Python
@@ -12,9 +12,9 @@
      $ python -m icat.eval -e 'client.search("Dataset.id")' -s root
      [102284L, 102288L, 102289L, 102293L]
 
- + Fix an issue in the error handling in the IDS client that caused in
-   the case of an error from the IDS server an urllib2.HTTPError to be
-   raised instead of an IDSServerError and thus the loss of all
+ + Fix an issue in the error handling in the IDS client that caused an
+   urllib2.HTTPError to be raised instead of an IDSServerError in the
+   case of an error from the IDS server and thus the loss of all
    details about the error reported in the reply from the server.
 
  + Add specific exception classes for the different error codes raised
@@ -22,7 +22,7 @@
 
  + Fix compatibility issue with Python 3.3 that caused the HTTP method
    to be set to "None" in some IDS methods, which in turn caused an
-   internal server error to be raised in the response from IDS.
+   internal server error to be raised in the IDS server.
 
  + Fix compatibility issues with Python 3.4: some methods have been
    removed from class urllib.request.Request which caused an
@@ -32,6 +32,10 @@
    number having a trailing "-SNAPSHOT" in getApiVersion().  For
    compatibility, a trailing "-SNAPSHOT" will be replaced by "a1" in
    the client.apiversion attribute.
+
+ + Suppress misleading context information introduced with Python 3
+   (PEP 3134) from the traceback in some error messages.
+   Unfortunately, the fix only works for Python 3.3 and newer.
 
  + Make example files compatible across Python versions without
    modifications, such as running 2to3 on them.
