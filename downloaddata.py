@@ -55,6 +55,20 @@ client.ids.ping()
 
 
 # ------------------------------------------------------------
+# helper
+# ------------------------------------------------------------
+
+def copyfile(infile, outfile, chunksize=8192):
+    """Read all data from infile and write them to outfile.
+    """
+    while True:
+        chunk = infile.read(chunksize)
+        if not chunk:
+            break
+        outfile.write(chunk)
+
+
+# ------------------------------------------------------------
 # Get the objects that we assume to be already present in ICAT.
 # ------------------------------------------------------------
 
@@ -93,9 +107,9 @@ if conf.method == 'getData':
     response = client.getData(datafiles)
     if conf.outputfile:
         with open(conf.outputfile, 'wb') as f:
-            f.write(response.read())
+            copyfile(response, f)
     else:
-        sys.stdout.write(response.read())
+        copyfile(response, sys.stdout)
 
 elif conf.method == 'getDataUrl':
 
@@ -111,9 +125,9 @@ elif conf.method == 'getPreparedData':
     response = client.getPreparedData(prepid)
     if conf.outputfile:
         with open(conf.outputfile, 'wb') as f:
-            f.write(response.read())
+            copyfile(response, f)
     else:
-        sys.stdout.write(response.read())
+        copyfile(response, sys.stdout)
 
 elif conf.method == 'getPreparedDataUrl':
 
