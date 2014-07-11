@@ -24,6 +24,7 @@
 import icat
 import icat.config
 import sys
+import os.path
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -90,7 +91,7 @@ datafileformat = getdatafileformat(conf.datafileformat)
 # ------------------------------------------------------------
 
 for fname in conf.files:
-    datafile = client.new("datafile", name=fname, 
+    datafile = client.new("datafile", name=os.path.basename(fname), 
                           dataset=dataset, datafileFormat=datafileformat)
     client.putData(fname, datafile)
 
