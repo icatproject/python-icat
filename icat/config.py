@@ -39,9 +39,9 @@ class ConfigSource(object):
 class ConfigSourceCmdArgs(ConfigSource):
     """Get configuration from command line arguments.
     """
-    def __init__(self, argparser):
+    def __init__(self, argparser, args=None):
         super(ConfigSourceCmdArgs, self).__init__()
-        self.args = argparser.parse_args()
+        self.args = argparser.parse_args(args)
 
     def get(self, variable):
         return getattr(self.args, variable.name, None)
@@ -370,7 +370,7 @@ class Config(object):
         self.confvariable[name] = var
         self.confvariables.append(var)
 
-    def getconfig(self):
+    def getconfig(self, args=None):
         """Get the configuration.
 
         Parse the command line arguments, evaluate environment
@@ -379,6 +379,10 @@ class Config(object):
         configuration variable.  The first defined value found will be
         taken.
 
+        :param args: list of command line arguments or ``None``.
+            If not set, the command lien arguments will be taken from
+            ``sys.argv``.
+        :type args: ``list`` of ``str``
         :return: an object having the configuration values set as
             attributes.
         :rtype: ``Configuration``
@@ -388,7 +392,7 @@ class Config(object):
             configuration file, or if a mandatory variable is not
             defined.
         """
-        self.args = ConfigSourceCmdArgs(self.argparser)
+        self.args = ConfigSourceCmdArgs(self.argparser, args)
         self.environ = ConfigSourceEnvironment()
         self.file = ConfigSourceFile(self.defaultFiles)
         self.defaults = ConfigSourceDefault()
