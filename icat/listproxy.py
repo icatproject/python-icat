@@ -138,5 +138,44 @@ class ListProxy(MutableSequence):
         res *= other
         return res
 
+
+    # Comparison operators: ListProxy objects try to classify as lists
+    # in terms of comparision.
+    def __lt__(self, other):
+        if isinstance(other, MutableSequence):
+            return list(self) < list(other)
+        else:
+            return NotImplemented
+
+    def __le__(self, other):
+        if isinstance(other, MutableSequence):
+            return list(self) <= list(other)
+        else:
+            return NotImplemented
+
+    def __eq__(self, other):
+        if isinstance(other, MutableSequence):
+            return list(self) == list(other)
+        else:
+            return NotImplemented
+
+    def __ne__(self, other):
+        if isinstance(other, MutableSequence):
+            return list(self) != list(other)
+        else:
+            return NotImplemented
+
+    def __ge__(self, other):
+        if isinstance(other, MutableSequence):
+            return list(self) >= list(other)
+        else:
+            return NotImplemented
+
+    def __gt__(self, other):
+        if isinstance(other, MutableSequence):
+            return list(self) > list(other)
+        else:
+            return NotImplemented
+
 if __name__ == "__main__":
     doctest.testmod()
