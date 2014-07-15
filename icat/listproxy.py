@@ -2,7 +2,6 @@
 """
 
 from collections import MutableSequence
-import doctest
 
 class ListProxy(MutableSequence):
     """A list that acts as a proxy to another list.
@@ -31,54 +30,23 @@ class ListProxy(MutableSequence):
     [0, 1, 'two', 'three', 4]
     >>> l
     [0, 1, 'two', 'three', 4]
-    >>> lp2 = ListProxy(lp)
-    >>> lp2
-    [0, 1, 'two', 'three', 4]
-    >>> lp2.append('five')
-    >>> l
-    [0, 1, 'two', 'three', 4, 'five']
-    >>> type(lp2)
-    <class '__main__.ListProxy'>
-    >>> type(lp)
-    <class '__main__.ListProxy'>
-    >>> type(l)
-    <type 'list'>
-    >>> lp2.target is lp
-    True
-    >>> lp.target is l
-    True
     >>> lp *= 2
     >>> l
-    [0, 1, 'two', 'three', 4, 'five', 0, 1, 'two', 'three', 4, 'five']
-    >>> type(lp)
-    <class '__main__.ListProxy'>
-    >>> type(l)
-    <type 'list'>
-    >>> del lp[6:]
+    [0, 1, 'two', 'three', 4, 0, 1, 'two', 'three', 4]
+    >>> del lp[5:]
     >>> l
-    [0, 1, 'two', 'three', 4, 'five']
+    [0, 1, 'two', 'three', 4]
     >>> lp += ['...', 'and', 'so', 'on']
     >>> l
-    [0, 1, 'two', 'three', 4, 'five', '...', 'and', 'so', 'on']
-    >>> type(lp)
-    <class '__main__.ListProxy'>
-    >>> type(l)
-    <type 'list'>
+    [0, 1, 'two', 'three', 4, '...', 'and', 'so', 'on']
     >>> l[0:] = [ 1, 'b', 'iii' ]
     >>> ll = [ 'x', 'y' ]
     >>> lp + ll
     [1, 'b', 'iii', 'x', 'y']
     >>> ll + lp
     ['x', 'y', 1, 'b', 'iii']
-    >>> lp + lp2
-    [1, 'b', 'iii', 1, 'b', 'iii']
     >>> lp * 3
     [1, 'b', 'iii', 1, 'b', 'iii', 1, 'b', 'iii']
-    >>> t = ('a', 'b', 'c')
-    >>> lpt = ListProxy(t)
-    Traceback (most recent call last):
-      ...
-    TypeError: invalid target type <type 'tuple'>, must be a MutableSequence
     """
 
     def __init__(self, target):
@@ -177,5 +145,3 @@ class ListProxy(MutableSequence):
         else:
             return NotImplemented
 
-if __name__ == "__main__":
-    doctest.testmod()

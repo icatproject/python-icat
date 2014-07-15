@@ -24,82 +24,15 @@ u'Rudolph Beck-D\\xfclmen'
 True
 >>> parse_attr_val("name-jdoe")
 {'name': 'jdoe'}
->>> facilityname = 'ESNF'
->>> facilitykey = "%s-%s" % ("name", simpleqp_quote(facilityname))
->>> name = 'Nickel(II) oxide SC'
->>> molecularFormula = 'NiO'
->>> stkey = "_".join(["%s-(%s)" % ("facility", facilitykey), 
-...                   "%s-%s" % ("name", simpleqp_quote(name)), 
-...                   "%s-%s" % ("molecularFormula", 
-...                              simpleqp_quote(molecularFormula))])
->>> stkey
-'facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO'
->>> parse_attr_val(stkey)
-{'molecularFormula': 'NiO', 'name': 'Nickel=28II=29=20oxide=20SC', 'facility': 'name-ESNF'}
->>> invname = "2012-EDDI-0390-1"
->>> visitid = 1
->>> invkey = "_".join(["%s-(%s)" % ("facility", facilitykey), 
-...                    "%s-%s" % ("name", simpleqp_quote(invname)), 
-...                    "%s-%s" % ("visitId", simpleqp_quote(visitid))])
->>> dsname = "e208945"
->>> dskey = "_".join(["%s-(%s)" % ("investigation", invkey), 
-...                   "%s-%s" % ("name", simpleqp_quote(dsname))])
->>> dfname = "e208945.dat"
->>> dfkey = "_".join(["%s-(%s)" % ("dataset", dskey), 
-...                   "%s-%s" % ("name", simpleqp_quote(dfname))])
->>> dfkey
-'dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2Edat'
->>> df = parse_attr_val(dfkey)
->>> df['dataset']
-'investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945'
->>> ds = parse_attr_val(df['dataset'])
->>> ds
-{'investigation': 'facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1', 'name': 'e208945'}
->>> ds['investigation'] == invkey
-True
->>> parse_attr_val("xx")
-Traceback (most recent call last):
-  ...
-ValueError: substring not found
->>> parse_attr_val("name-jdoe_xx")
-Traceback (most recent call last):
-  ...
-ValueError: substring not found
->>> parse_attr_val("name-jdoe_xx-")
-Traceback (most recent call last):
-  ...
-ValueError: malformed 'xx-'
->>> parse_attr_val("name-jdoe_-xx")
-Traceback (most recent call last):
-  ...
-ValueError: malformed '-xx'
->>> instrname = "E2"
->>> instrkey = "_".join(["%s-(%s)" % ("facility", facilitykey), 
-...                      "%s-%s" % ("name", simpleqp_quote(instrname))])
->>> parse_attr_val(instrkey)
-{'name': 'E2', 'facility': 'name-ESNF'}
->>> instrkey = "_".join(["%s-((%s)" % ("facility", facilitykey), 
-...                      "%s-%s" % ("name", simpleqp_quote(instrname))])
->>> parse_attr_val(instrkey)
-Traceback (most recent call last):
-  ...
-ValueError: malformed 'facility-((name-ESNF)_name-E2'
->>> instrkey = "_".join(["%s-(%s))" % ("facility", facilitykey), 
-...                      "%s-%s" % ("name", simpleqp_quote(instrname))])
->>> parse_attr_val(instrkey)
-Traceback (most recent call last):
-  ...
-ValueError: malformed 'facility-(name-ESNF))_name-E2'
->>> instrkey = "_".join(["%s-(%s)xx" % ("facility", facilitykey), 
-...                      "%s-%s" % ("name", simpleqp_quote(instrname))])
->>> parse_attr_val(instrkey)
-Traceback (most recent call last):
-  ...
-ValueError: malformed 'facility-(name-ESNF)xx_name-E2'
+>>> key = "facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1"
+>>> d = parse_attr_val(key)
+>>> d
+{'visitId': '1', 'name': '2010=2DE2=2D0489=2D1', 'facility': 'name-ESNF'}
+>>> parse_attr_val(d['facility'])
+{'name': 'ESNF'}
 """
 
 import sys
-import doctest
 
 def simpleqp_quote(obj):
     """Simple quote in quoted-printable style."""
@@ -216,7 +149,3 @@ def parse_attr_val(avs):
             # FIXME: Should check that value matches [0-9A-Za-z=]+ here.
         res[attr] = value
     return res
-
-
-if __name__ == "__main__":
-    doctest.testmod()
