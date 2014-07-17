@@ -29,7 +29,7 @@ copy_examples:
 	cp -p $(EXAMPLE_CGI_FILES) $(EXAMPLE_CGI_DIR)
 
 
-test: doctest
+test: init.py doctest
 	$(PYTHON) -m pytest tests
 
 doctest: $(DOCTESTS)
