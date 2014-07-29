@@ -84,6 +84,56 @@ just one blob of dummy input data in one single file.  That is also
 the reason why the example scripts require PyYAML.
 
 
+Bugs and limitations
+--------------------
+
+ + There is a bug in the original version of Suds: the way it deals
+   with datetime values is broken.  Suds converts all incoming
+   datetime values from the server into what it believes to be local
+   time and then throws all time zone information away.  The problem
+   is that Suds' conception of the local time is flawed such that the
+   result from this conversion is wrong.  There is no reliable way to
+   fix the values afterwards.
+
+   One can work around this by setting the local time zone to UTC.
+   (The conversion to UTC is done correctly in Suds.)  As a result,
+   all datetime values retrieved from the server will be in UTC, which
+   at least is well defined.  You may either set the environment
+   variable TZ to 'UTC' before calling your script or add the lines
+
+     import os
+     os.environ['TZ'] = 'UTC'
+
+   at the beginning of your script.  This must be set before importing
+   other modules (in particular suds) in order to be effective.
+
+   icatdump.py assumes all datetime values that do not contain time
+   zone information to be UTC.
+
+   Note that the bug is fixed in the fork by Jurko Gospodnetić which
+   is recommendated anyway.
+
+ + With Python 3.1, icatdump.py emits a spurious error message like
+
+     Exception ValueError: 'I/O operation on closed file.' 
+     in <_io.TextIOWrapper name='<stdout>' encoding='UTF-8'> ignored
+
+   on exit when writing the dump file to stdout (the default).  You
+   can happily ignore this message.  The cause is that icatdump.py
+   closes its output file when finished and that Python 3.1 emits this
+   error message on exit whenever stdout has been closed, even if
+   there was no further output after closing.  I assume this is a bug
+   in Python 3.1.
+
+ + Misleading "context" is displayed in error tracebacks with Python
+   3.1 and 3.2.  Python 3 introduced a "feature" called "Exception
+   Chaining and Embedded Tracebacks"[8].  This causes irrelevant and
+   misleading "error context" to be displayed in the traceback of
+   error messages.  python-icat tries to suppress this in the most
+   annoying cases, but this suppression mechanism is only available
+   with Python 3.3 and newer[9].
+
+
 References
 ----------
 
@@ -94,6 +144,8 @@ References
 [5]: http://lxml.de/
 [6]: http://code.google.com/p/argparse/
 [7]: http://docs.python.org/2.7/install/
+[8]: http://www.python.org/dev/peps/pep-3134/
+[9]: http://bugs.python.org/issue6210
 
 # Local Variables:
 # mode: text
