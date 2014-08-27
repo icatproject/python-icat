@@ -2,9 +2,8 @@
 
 This module provides the handlers ChunkedHTTPHandler and
 ChunkedHTTPSHandler that are suitable to be used as openers for
-urllib2.  These handlers differs from the standard counterparts in
-that they send the data using chunked transfer encoding to the HTTP
-server.
+urllib.  These handlers differ from the standard counterparts in that
+they send the data using chunked transfer encoding to the HTTP server.
 
 **Note**: This module might be useful independently of python-icat.
 It is included here because python-icat uses it internally, but it is
@@ -19,6 +18,7 @@ from urllib2 import URLError, HTTPHandler, HTTPSHandler
 
 
 def stringiterator(buffer, chunksize):
+    """Yield the content of a string by chunks of a given size at a time."""
     while len(buffer) > chunksize:
         yield buffer[:chunksize]
         buffer = buffer[chunksize:]
@@ -26,6 +26,7 @@ def stringiterator(buffer, chunksize):
         yield buffer
 
 def fileiterator(f, chunksize):
+    """Yield the content of a file by chunks of a given size at a time."""
     while True:
         chunk = f.read(chunksize)
         if not chunk:
@@ -64,7 +65,7 @@ class ChunkedHTTPConnectionMixin:
         """Send the message_body with chunked transfer encoding.
 
         The empty line separating the headers from the body must have
-        been send before calling this method.
+        been sent before calling this method.
         """
         if message_body is not None:
             chunksize = getattr(self, 'chunksize', self.default_chunk_size)

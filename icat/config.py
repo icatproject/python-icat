@@ -94,7 +94,7 @@ class ConfigSourceFile(ConfigSource):
 
 
 class ConfigSourceDefault(ConfigSource):
-    """Handle the case that some variable is not set from any source.
+    """Handle the case that some variable is not set from any other source.
     """
     def get(self, variable):
         value = variable.default
@@ -380,7 +380,7 @@ class Config(object):
         taken.
 
         :param args: list of command line arguments or ``None``.
-            If not set, the command lien arguments will be taken from
+            If not set, the command line arguments will be taken from
             ``sys.argv``.
         :type args: ``list`` of ``str``
         :return: an object having the configuration values set as
