@@ -22,9 +22,9 @@ Index: icat/icatcheck.py
              self.schema[base].classname = baseclassname
 Index: icat/chunkedhttp.py
 ===================================================================
---- icat/chunkedhttp.py	(revision 371)
+--- icat/chunkedhttp.py	(revision 412)
 +++ icat/chunkedhttp.py	(working copy)
-@@ -68,7 +68,7 @@
+@@ -69,7 +69,7 @@
          """
          if message_body is not None:
              chunksize = getattr(self, 'chunksize', self.default_chunk_size)
@@ -33,7 +33,7 @@ Index: icat/chunkedhttp.py
                  bodyiter = stringiterator(message_body, chunksize)
              elif isinstance(message_body, type(u'')):
                  bodyiter = stringiterator(message_body.encode('ascii'), 
-@@ -82,8 +82,8 @@
+@@ -83,8 +83,8 @@
                                  "or an iterable")
              for chunk in bodyiter:
                  self.send(hex(len(chunk))[2:].encode('ascii') 
@@ -125,3 +125,18 @@ Index: doc/examples/ldapsync.py
  
  
  ldapclient = ldap.initialize(conf.ldap_uri)
+Index: setup.py
+===================================================================
+--- setup.py	(revision 413)
++++ setup.py	(working copy)
+@@ -14,10 +14,6 @@
+     raise RuntimeError("Sorry, this Python version (%s) is too old to use "
+                        "this package." % sys.version)
+ 
+-if sys.version_info < (2, 7):
+-    raise RuntimeError("You are using Python %s.\n"
+-                       "Please apply python2_6.patch first." % sys.version)
+-
+ DOCLINES         = icatinfo.__doc__.split("\n")
+ DESCRIPTION      = DOCLINES[0]
+ LONG_DESCRIPTION = "\n".join(DOCLINES[2:])
