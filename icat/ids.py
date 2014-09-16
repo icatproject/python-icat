@@ -13,6 +13,7 @@ from urllib import urlencode
 from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
 import json
 import zlib
+import getpass
 from icat.exception import translateIDSError, IDSResponseError
 
 __all__ = ['DataSelection', 'IDSClient']
@@ -158,6 +159,20 @@ class IDSClient(object):
             self.chunked = build_opener(ChunkedHTTPHandler, ChunkedHTTPSHandler,
                                         IDSHTTPErrorHandler)
 
+    def isReadOnly(self):
+        """See if the server is configured to be readonly.
+        """
+        req = IDSRequest(self.url + "isReadOnly", {})
+        response = self.default.open(req).read().decode('ascii')
+        return response.lower() == "true"
+
+    def isTwoLevel(self):
+        """See if the server is configured to use both main and archive storage.
+        """
+        req = IDSRequest(self.url + "isTwoLevel", {})
+        response = self.default.open(req).read().decode('ascii')
+        return response.lower() == "true"
+
     def ping(self):
         """Check that the server is alive and is an IDS server.
         """
@@ -245,6 +260,27 @@ class IDSClient(object):
         if offset > 0:
             req.add_header("Range", "bytes=" + str(offset) + "-") 
         return self.default.open(req)
+    
+    def getLink(self, datafileId):
+        """Return a hard link to a data file.
+
+        This is only useful in those cases where the user has direct
+        access to the file system where the IDS is storing data.  The
+        caller is only granted read access to the file.
+        """
+        username = getpass.getuser()
+        parameters = {"sessionId": self.sessionId, 
+                      "datafileId" : datafileId, "username": username }
+        req = IDSRequest(self.url + "getLink", parameters, method="POST")
+        return self.default.open(req).read().decode('ascii')
+    
+    def getSize(self, selection):
+        """Return the total size of the datafiles.
+        """
+        parameters = {"sessionId": self.sessionId}
+        selection.fillParams(parameters)
+        req = IDSRequest(self.url + "getSize", parameters)
+        return long(self.default.open(req).read().decode('ascii'))
     
     def getDataUrl(self, selection, 
                    compressFlag=False, zipFlag=False, outname=None):
