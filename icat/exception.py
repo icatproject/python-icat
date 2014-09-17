@@ -228,24 +228,38 @@ class IDSServerError(IDSError):
         self.idsmessage = message
 
 class IDSBadRequestError(IDSServerError):
+    """Any kind of bad input parameter.
+    """
     pass
 
 class IDSDataNotOnlineError(IDSServerError):
+    """The requested data are not on line.
+    """
     pass
 
 class IDSInsufficientPrivilegesError(IDSServerError):
+    """You are denied access to the data.
+    """
     pass
 
 class IDSInsufficientStorageError(IDSServerError):
+    """There is not sufficient physical storage or you have exceeded some quota.
+    """
     pass
 
 class IDSInternalError(IDSServerError):
+    """Some kind of failure in the server or in communicating with the server.
+    """
     pass
 
 class IDSNotFoundError(IDSServerError):
+    """The requested data do not exist.
+    """
     pass
 
 class IDSNotImplementedError(IDSServerError):
+    """Use of some functionality that is not supported by the implementation.
+    """
     pass
 
 IDSExceptionTypeMap = {
