@@ -1,6 +1,25 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.6.0 (not yet released)
+
+ + Add new API methods isReadOnly(), isTwoLevel(), getLink(), and
+   getSize() introduced with IDS 1.2.0 to IDSClient.
+
+ + setup.py raises an error in with Python 2.6 if python2_6.patch has
+   not been applied.
+
+ + Add missing MANIFEST.in in the source distribution.
+
+ + Remove the work around the Suds datetime value bug (setting the
+   environment variable TZ to "UTC") from   init  .py.  Instead,
+   document it along with other known issues in the README.
+
+ + Add an optional argument args to Config.getconfig().  If set to a
+   list of strings, it replaces sys.argv.  Mainly useful for testing.
+
+ + Add comparison operators to class ListProxy.
+
 * Version 0.5.1 (2014-07-07)
 
  + Add a module icat.eval that is intended to be run using the "-m"
