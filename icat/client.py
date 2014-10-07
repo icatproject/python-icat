@@ -705,6 +705,13 @@ class Client(suds.client.Client):
         datafileCreateTime is not set, it will be set to
         datafileModTime.
 
+        Note that only the attributes datafileFormat, dataset,
+        description, doi, datafileCreateTime, and datafileModTime of
+        datafile will be taken into account as described above.  All
+        other attributes are ignored and the Datafile object created
+        in the ICAT server might end up with different values for
+        those other attribues.
+
         :param infile: either a file opened for reading or a filename.
         :type infile: ``file`` or ``str``
         :param datafile: A Datafile object.
