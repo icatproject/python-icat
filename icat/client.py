@@ -716,8 +716,8 @@ class Client(suds.client.Client):
         :type infile: ``file`` or ``str``
         :param datafile: A Datafile object.
         :type datafile: `Datafile`
-        :return: id of the Datafile object created by IDS.
-        :rtype: ``long``
+        :return: The Datafile object created by IDS.
+        :rtype: ``Datafile``
         """
 
         if not self.ids:
@@ -758,10 +758,11 @@ class Client(suds.client.Client):
         if not createTime:
             createTime = modTime
 
-        return self.ids.put(infile, datafile.name, 
+        dfid = self.ids.put(infile, datafile.name, 
                             datafile.dataset.id, datafile.datafileFormat.id, 
                             datafile.description, datafile.doi, 
                             createTime, modTime)
+        return self.get(datafile.BeanName, dfid)
 
     def getData(self, objs, compressFlag=False, zipFlag=False, outname=None, 
                 offset=0):
