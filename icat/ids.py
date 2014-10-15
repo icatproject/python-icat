@@ -12,6 +12,8 @@ from urllib2 import Request, HTTPDefaultErrorHandler, ProxyHandler, build_opener
 from urllib import urlencode
 import json
 import zlib
+import re
+from distutils.version import StrictVersion as Version
 import getpass
 
 from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
@@ -159,6 +161,11 @@ class IDSClient(object):
             self.default = build_opener(IDSHTTPErrorHandler)
             self.chunked = build_opener(ChunkedHTTPHandler, ChunkedHTTPSHandler,
                                         IDSHTTPErrorHandler)
+        apiversion = self.getApiVersion()
+        # Translate a version having a trailing '-SNAPSHOT' into
+        # something that StrictVersion would accept.
+        apiversion = re.sub(r'-SNAPSHOT$', 'a1', apiversion)
+        self.apiversion = Version(apiversion)
 
     def ping(self):
         """Check that the server is alive and is an IDS server.
