@@ -10,10 +10,11 @@ author.
 
 from urllib2 import Request, HTTPDefaultErrorHandler, ProxyHandler, build_opener
 from urllib import urlencode
-from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
 import json
 import zlib
 import getpass
+
+from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
 from icat.exception import translateIDSError, IDSResponseError
 
 __all__ = ['DataSelection', 'IDSClient']
@@ -159,6 +160,14 @@ class IDSClient(object):
             self.chunked = build_opener(ChunkedHTTPHandler, ChunkedHTTPSHandler,
                                         IDSHTTPErrorHandler)
 
+    def ping(self):
+        """Check that the server is alive and is an IDS server.
+        """
+        req = IDSRequest(self.url + "ping", {})
+        result = self.default.open(req).read().decode('ascii')
+        if result != "IdsOK": 
+            raise IDSResponseError("unexpected response to ping: %s" % result)
+
     def isReadOnly(self):
         """See if the server is configured to be readonly.
         """
@@ -173,14 +182,6 @@ class IDSClient(object):
         response = self.default.open(req).read().decode('ascii')
         return response.lower() == "true"
 
-    def ping(self):
-        """Check that the server is alive and is an IDS server.
-        """
-        req = IDSRequest(self.url + "ping", {})
-        result = self.default.open(req).read().decode('ascii')
-        if result != "IdsOK": 
-            raise IDSResponseError("unexpected response to ping: %s" % result)
-
     def getServiceStatus(self):
         """Return information about what the IDS is doing.
 
@@ -193,6 +194,14 @@ class IDSClient(object):
         result = self.default.open(req).read().decode('ascii')
         return json.loads(result)
     
+    def getSize(self, selection):
+        """Return the total size of the datafiles.
+        """
+        parameters = {"sessionId": self.sessionId}
+        selection.fillParams(parameters)
+        req = IDSRequest(self.url + "getSize", parameters)
+        return long(self.default.open(req).read().decode('ascii'))
+    
     def getStatus(self, selection):
         """Return the status of data.
 
@@ -204,17 +213,6 @@ class IDSClient(object):
         req = IDSRequest(self.url + "getStatus", parameters)
         return self.default.open(req).read().decode('ascii')
     
-    def restore(self, selection):
-        """Restore data.
-
-        The data is specified by the datafileIds datasetIds and
-        investigationIds.
-        """
-        parameters = {"sessionId": self.sessionId}
-        selection.fillParams(parameters)
-        req = IDSRequest(self.url + "restore", parameters, method="POST")
-        return self.default.open(req).read().decode('ascii')
-
     def archive(self, selection):
         """Archive data.
 
@@ -226,16 +224,16 @@ class IDSClient(object):
         req = IDSRequest(self.url + "archive", parameters, method="POST")
         return self.default.open(req).read().decode('ascii')
 
-    def isPrepared(self, preparedId):
-        """Check if data is ready.
+    def restore(self, selection):
+        """Restore data.
 
-        Returns true if the data identified by the preparedId returned
-        by a call to prepareData is ready.
+        The data is specified by the datafileIds datasetIds and
+        investigationIds.
         """
-        parameters = {"preparedId": preparedId}
-        req = IDSRequest(self.url + "isPrepared", parameters)
-        response = self.default.open(req).read().decode('ascii')
-        return response.lower() == "true"
+        parameters = {"sessionId": self.sessionId}
+        selection.fillParams(parameters)
+        req = IDSRequest(self.url + "restore", parameters, method="POST")
+        return self.default.open(req).read().decode('ascii')
 
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
         """Prepare data for a subsequent getPreparedData call.
@@ -247,6 +245,17 @@ class IDSClient(object):
         req = IDSRequest(self.url + "prepareData", parameters, method="POST")
         return self.default.open(req).read().decode('ascii')
     
+    def isPrepared(self, preparedId):
+        """Check if data is ready.
+
+        Returns true if the data identified by the preparedId returned
+        by a call to prepareData is ready.
+        """
+        parameters = {"preparedId": preparedId}
+        req = IDSRequest(self.url + "isPrepared", parameters)
+        response = self.default.open(req).read().decode('ascii')
+        return response.lower() == "true"
+
     def getData(self, selection, 
                 compressFlag=False, zipFlag=False, outname=None, offset=0):
         """Stream the requested data.
@@ -261,27 +270,6 @@ class IDSClient(object):
             req.add_header("Range", "bytes=" + str(offset) + "-") 
         return self.default.open(req)
     
-    def getLink(self, datafileId):
-        """Return a hard link to a data file.
-
-        This is only useful in those cases where the user has direct
-        access to the file system where the IDS is storing data.  The
-        caller is only granted read access to the file.
-        """
-        username = getpass.getuser()
-        parameters = {"sessionId": self.sessionId, 
-                      "datafileId" : datafileId, "username": username }
-        req = IDSRequest(self.url + "getLink", parameters, method="POST")
-        return self.default.open(req).read().decode('ascii')
-    
-    def getSize(self, selection):
-        """Return the total size of the datafiles.
-        """
-        parameters = {"sessionId": self.sessionId}
-        selection.fillParams(parameters)
-        req = IDSRequest(self.url + "getSize", parameters)
-        return long(self.default.open(req).read().decode('ascii'))
-    
     def getDataUrl(self, selection, 
                    compressFlag=False, zipFlag=False, outname=None):
         """Get the URL to retrieve the requested data.
@@ -293,17 +281,6 @@ class IDSClient(object):
         if outname: parameters["outname"] = outname
         return self._getDataUrl(parameters)
     
-    def delete(self, selection):
-        """Delete data.
-
-        The data is identified by the datafileIds, datasetIds and
-        investigationIds.
-        """
-        parameters = {"sessionId": self.sessionId}
-        selection.fillParams(parameters)
-        req = IDSRequest(self.url + "delete", parameters, method="DELETE")
-        self.default.open(req)
-
     def getPreparedData(self, preparedId, outname=None, offset=0):
         """Get prepared data.
 
@@ -327,6 +304,19 @@ class IDSClient(object):
         if outname: parameters["outname"] = outname
         return self._getDataUrl(parameters)
       
+    def getLink(self, datafileId):
+        """Return a hard link to a data file.
+
+        This is only useful in those cases where the user has direct
+        access to the file system where the IDS is storing data.  The
+        caller is only granted read access to the file.
+        """
+        username = getpass.getuser()
+        parameters = {"sessionId": self.sessionId, 
+                      "datafileId" : datafileId, "username": username }
+        req = IDSRequest(self.url + "getLink", parameters, method="POST")
+        return self.default.open(req).read().decode('ascii')
+    
     def put(self, inputStream, name, datasetId, datafileFormatId, 
             description=None, doi=None, datafileCreateTime=None, 
             datafileModTime=None):
@@ -360,6 +350,17 @@ class IDSClient(object):
         if om["checksum"] != crc:
             raise IDSResponseError("checksum error")
         return long(om["id"])
+
+    def delete(self, selection):
+        """Delete data.
+
+        The data is identified by the datafileIds, datasetIds and
+        investigationIds.
+        """
+        parameters = {"sessionId": self.sessionId}
+        selection.fillParams(parameters)
+        req = IDSRequest(self.url + "delete", parameters, method="DELETE")
+        self.default.open(req)
 
     def _getDataUrl(self, parameters):
         return (self.url + "getData" + "?" + urlencode(parameters))
