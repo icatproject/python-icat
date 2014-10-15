@@ -256,7 +256,7 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "archive", parameters, method="POST")
-        return self.default.open(req).read().decode('ascii')
+        self.default.open(req)
 
     def restore(self, selection):
         """Restore data.
@@ -267,7 +267,7 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "restore", parameters, method="POST")
-        return self.default.open(req).read().decode('ascii')
+        self.default.open(req)
 
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
         """Prepare data for a subsequent getPreparedData call.
