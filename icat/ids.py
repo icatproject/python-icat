@@ -15,7 +15,7 @@ import zlib
 import getpass
 
 from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
-from icat.exception import translateIDSError, IDSResponseError
+from icat.exception import IDSError, IDSResponseError, translateIDSError
 
 __all__ = ['DataSelection', 'IDSClient']
 
@@ -167,6 +167,40 @@ class IDSClient(object):
         result = self.default.open(req).read().decode('ascii')
         if result != "IdsOK": 
             raise IDSResponseError("unexpected response to ping: %s" % result)
+
+    def getApiVersion(self):
+        """Get the version of the IDS server.
+
+        Note: the getApiVersion call has been added in IDS server
+        version 1.3.0.  For older servers, try to guess the server
+        version from features visible in the API.  Obviously this
+        cannot always be accurate as we cannot distinguish server
+        version with no visible API changes.  In particular, versions
+        older then 1.2.0 will always reported as 1.0.0.  Nevertheless,
+        the result of the guess should be fair enough for most use
+        cases.
+        """
+        try:
+            req = IDSRequest(self.url + "getApiVersion", {})
+            return self.default.open(req).read().decode('ascii')
+        except IDSError:
+            pass
+
+        # Verify that the server is reachable to avoid misinterpreting
+        # connection errors as missing features.
+        self.ping()
+
+        # Older then 1.3.0.
+
+        try:
+            self.isReadOnly()
+            return "1.2.0"
+        except IDSError:
+            pass
+
+        # Older then 1.2.0.
+        # No way to distinguish 1.1.0, 1.0.1, and 1.0.0, report as 1.0.0.
+        return "1.0.0"
 
     def isReadOnly(self):
         """See if the server is configured to be readonly.
