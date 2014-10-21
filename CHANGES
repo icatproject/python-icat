@@ -3,6 +3,8 @@
 
 * Version 0.6.0 (not yet released)
 
+ + Add support for ICAT 4.4.0-20141010.100405-5: add InvestigationGroup.
+
  + Add new IDSClient API method getApiVersion() that is supposed to be
    introduced with the next upcoming version of IDS.  The method first
    tries to call getApiVersion() on the IDS server.  If this fails

@@ -211,6 +211,11 @@ class Group43(Group):
     BeanName = 'Grouping'
 
 
+class Group44(Group43):
+    """A group of users."""
+    InstMRel = frozenset(['userGroups', 'rules', 'investigationGroups'])
+
+
 class InputDatafile(Entity):
     """Many to many relationship between data file as input and a job."""
     BeanName = 'InputDatafile'
@@ -309,6 +314,21 @@ class Investigation43(Investigation):
         ii = self.client.new('investigationInstrument', 
                              investigation=self, instrument=instrument)
         ii.create()
+
+
+class Investigation44(Investigation43):
+    """An investigation or experiment."""
+    InstMRel = frozenset(['parameters', 'investigationInstruments', 
+                          'investigationUsers', 'keywords', 
+                          'publications', 'samples', 'datasets', 'shifts', 
+                          'studyInvestigations', 'investigationGroups'])
+
+
+class InvestigationGroup(Entity):
+    """Many to many relationship between investigation and group which might be used within authorization rules. Please see UserInvestigation"""
+    BeanName = 'InvestigationGroup'
+    Constraint = ('grouping', 'investigation')
+    InstRel = frozenset(['investigation', 'grouping'])
 
 
 class InvestigationInstrument(Entity):

@@ -115,6 +115,12 @@ TypeMap431 = TypeMap43.copy()
 """Map instance types defined in the WSDL to Python classes (ICAT 4.3.1)."""
 TypeMap431.update( dataCollection = icat.entities.DataCollection431 )
 
+TypeMap44 = TypeMap431.copy()
+"""Map instance types defined in the WSDL to Python classes (ICAT 4.4.0)."""
+TypeMap44.update( grouping = icat.entities.Group44, 
+                  investigation = icat.entities.Investigation44, 
+                  investigationGroup = icat.entities.InvestigationGroup )
+
 class Client(suds.client.Client):
  
     """A client accessing an ICAT service.
@@ -183,18 +189,20 @@ class Client(suds.client.Client):
         # version.  Currently 4.2.* and 4.3.* are supported.  For
         # other versions, use the closest known TypeMap and hope for
         # the best.
-        if self.apiversion < '4.2.0':
+        if self.apiversion < '4.1.9':
             warn(ClientVersionWarning(self.apiversion, "too old"))
             self.typemap = TypeMap42.copy()
-        elif self.apiversion < '4.3.0':
+        elif self.apiversion < '4.2.9':
             self.typemap = TypeMap42.copy()
-        elif self.apiversion == '4.3.0':
+        elif self.apiversion <= '4.3.0':
             self.typemap = TypeMap43.copy()
-        elif self.apiversion < '4.4':
+        elif self.apiversion < '4.3.9':
             self.typemap = TypeMap431.copy()
+        elif self.apiversion < '4.4.9':
+            self.typemap = TypeMap44.copy()
         else:
             warn(ClientVersionWarning(self.apiversion, "too new"))
-            self.typemap = TypeMap43.copy()
+            self.typemap = TypeMap44.copy()
 
         self.ids = None
         self.sessionId = None
