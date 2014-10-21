@@ -3,8 +3,34 @@
 
 * Version 0.6.0 (not yet released)
 
- + Add new API methods isReadOnly(), isTwoLevel(), getLink(), and
-   getSize() introduced with IDS 1.2.0 to IDSClient.
+ + Add new IDSClient API method getApiVersion() that is supposed to be
+   introduced with the next upcoming version of IDS.  The method first
+   tries to call getApiVersion() on the IDS server.  If this fails
+   because the server does not support it yet, the server version is
+   guessed from visible features in the API.
+
+   IDSClient checks the API version on init.
+
+ + Add new IDSClient API methods isReadOnly(), isTwoLevel(),
+   getLink(), and getSize() introduced with IDS 1.2.0.
+
+ + WARNING, incompatible change!
+   The Client method putData() returns the new Datafile object created
+   by IDS rather then only its id.
+
+   If you depend on the old behavior in the client code, replace:
+
+   dfid = client.putData(file, datafile)
+
+   by
+
+   df = client.putData(file, datafile)
+   dfid = df.id
+
+ + Change IDSClient API methods archive() and restore() to not to
+   return anything.  While formally, this might be considered an
+   incompatible change, these methods never returned anything
+   meaningful in the past.
 
  + setup.py raises an error in with Python 2.6 if python2_6.patch has
    not been applied.
