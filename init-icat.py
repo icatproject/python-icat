@@ -45,30 +45,32 @@ f.close()
 # Setup some basic permissions
 # ------------------------------------------------------------
 
+# The name of the Group entity type has been changed to Grouping in
+# ICAT 4.3.
+if client.apiversion < '4.2.99':
+    groupname = "Group"
+else:
+    groupname = "Grouping"
+
 # List of all tables in the schema
 alltables = client.getEntityNames()
 
 # Public tables that may be read by anybody.  Basically anything thats
 # static and not related to any particular investigation.
-if client.apiversion < '4.3':
-    pubtables = [ "Application", "DatafileFormat", "DatasetType", "Facility", "FacilityCycle", "Instrument", "InstrumentScientist", "InvestigationType", "ParameterType", "PermissibleStringValue", "SampleType", "Group", "User", ]
-else:
-    pubtables = [ "Application", "DatafileFormat", "DatasetType", "Facility", "FacilityCycle", "Instrument", "InstrumentScientist", "InvestigationType", "ParameterType", "PermissibleStringValue", "SampleType", "Grouping", "User", ]
+pubtables = [ "Application", "DatafileFormat", "DatasetType", "Facility", "FacilityCycle", "Instrument", "InstrumentScientist", "InvestigationType", "ParameterType", "PermissibleStringValue", "SampleType", groupname, "User", ]
 
 # Tables needed to setup access permissions
-if client.apiversion < '4.3':
-    authztables = [ "Group", "Rule", "User", "UserGroup", ]
-else:
-    authztables = [ "Grouping", "Rule", "User", "UserGroup", ]
+authztables = [ groupname, "Rule", "User", "UserGroup", ]
 
 # Objects that useroffice might need to create.  Basically anything
 # related to a particular investigation as a whole, but not to
 # individual items created during the investigation (Datafiles and
 # Datasets).  Plus FacilityCycle and InstrumentScientist.
-if client.apiversion < '4.3':
-    uotables = [ "FacilityCycle", "InstrumentScientist", "Investigation", "InvestigationParameter", "InvestigationUser", "Keyword", "Publication", "Shift", "Study", "StudyInvestigation", ] + authztables
-else:
-    uotables = [ "FacilityCycle", "InstrumentScientist", "Investigation", "InvestigationInstrument", "InvestigationParameter", "InvestigationUser", "Keyword", "Publication", "Shift", "Study", "StudyInvestigation", ] + authztables
+uotables = [ "FacilityCycle", "InstrumentScientist", "Investigation", "InvestigationParameter", "InvestigationUser", "Keyword", "Publication", "Shift", "Study", "StudyInvestigation", ] + authztables
+if client.apiversion > '4.2.99':
+    uotables += [ "InvestigationInstrument", ]
+if client.apiversion > '4.3.99':
+    uotables += [ "InvestigationGroup", ]
 
 
 # Permit root to read and write everything.  This gives ourselves the
