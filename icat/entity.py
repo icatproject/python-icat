@@ -172,6 +172,7 @@ class Entity(object):
                     v = v.__sortkey__()
             elif attr in self.InstMRel:
                 v = [ r.__sortkey__() for r in v ]
+                v.sort()
             else:
                 raise InternalError("Invalid sorting attribute '%s' in %s."
                                     % (attr, self.BeanName))
