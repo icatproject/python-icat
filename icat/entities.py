@@ -220,12 +220,14 @@ class InputDatafile(Entity):
     """Many to many relationship between data file as input and a job."""
     BeanName = 'InputDatafile'
     InstRel = frozenset(['job', 'datafile'])
+    SortAttrs = ['job', 'datafile']
 
 
 class InputDataset(Entity):
     """Many to many relationship between data set as input and a job."""
     BeanName = 'InputDataset'
     InstRel = frozenset(['job', 'dataset'])
+    SortAttrs = ['job', 'dataset']
 
 
 class Instrument(Entity):
@@ -369,7 +371,8 @@ class Job(Entity):
     InstRel = frozenset(['application'])
     InstMRel = frozenset(['inputDatafiles', 'inputDatasets', 
                           'outputDatafiles', 'outputDatasets'])
-    SortAttrs = ['application']
+    SortAttrs = ['application', 'inputDatasets', 'inputDatafiles',
+                 'outputDatasets', 'outputDatafiles']
 
 
 class Job43(Job):
@@ -378,7 +381,8 @@ class Job43(Job):
     InstRel = frozenset(['application', 'inputDataCollection', 
                          'outputDataCollection'])
     InstMRel = frozenset([])
-    SortAttrs = ['application', 'arguments']
+    SortAttrs = ['application', 'arguments', 'inputDataCollection',
+                 'outputDataCollection']
 
 
 class Keyword(Entity):
@@ -402,18 +406,21 @@ class Log(Entity):
     BeanName = 'Log'
     InstAttr = frozenset(['id', 'query', 'operation', 'entityId', 'entityName', 
                           'duration'])
+    SortAttrs = ['operation', 'entityName']
 
 
 class OutputDatafile(Entity):
     """Many to many relationship between data file as output and a job."""
     BeanName = 'OutputDatafile'
     InstRel = frozenset(['job', 'datafile'])
+    SortAttrs = ['job', 'datafile']
 
 
 class OutputDataset(Entity):
     """Many to many relationship between data set as output and a job."""
     BeanName = 'OutputDataset'
     InstRel = frozenset(['job', 'dataset'])
+    SortAttrs = ['job', 'dataset']
 
 
 class ParameterType(Entity):
