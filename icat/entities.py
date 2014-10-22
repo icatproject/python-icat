@@ -325,6 +325,12 @@ class Investigation44(Investigation43):
                           'publications', 'samples', 'datasets', 'shifts', 
                           'studyInvestigations', 'investigationGroups'])
 
+    def addInvestigationGroup(self, group, role=None):
+        ig = self.client.new('investigationGroup', investigation=self)
+        ig.grouping = group
+        # ig.role = role - attribute is still missing in ICAT,
+        ig.create()
+
 
 class InvestigationGroup(Entity):
     """Many to many relationship between investigation and group which might be used within authorization rules. Please see UserInvestigation"""
