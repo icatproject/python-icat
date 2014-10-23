@@ -34,14 +34,18 @@
    incompatible change, these methods never returned anything
    meaningful in the past.
 
- + setup.py raises an error in with Python 2.6 if python2_6.patch has
-   not been applied.
+ + Some small fixes in icatdump and icatrestore.
+
+ + setup.py raises an error with Python 2.6 if python2_6.patch has not
+   been applied.
 
  + Add missing MANIFEST.in in the source distribution.
 
  + Remove the work around the Suds datetime value bug (setting the
    environment variable TZ to "UTC") from   init  .py.  Instead,
    document it along with other known issues in the README.
+
+ + Minor fixes in the sorting of entity objects.
 
  + Add an optional argument args to Config.getconfig().  If set to a
    list of strings, it replaces sys.argv.  Mainly useful for testing.
