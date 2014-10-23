@@ -89,7 +89,7 @@ investigation.addKeywords(investigationdata['keywords'])
 
 
 # ------------------------------------------------------------
-# Add some users
+# Add users and setup access groups
 # ------------------------------------------------------------
 
 investigationowner = []
@@ -131,6 +131,12 @@ owngroup = client.createGroup(owngroupname, investigationowner)
 writegroup = client.createGroup(writegroupname, investigationwriter)
 readgroup = client.createGroup(readgroupname, investigationreader)
 
+# Setup InvestigationGroups (although this is not yet functional with
+# the current ICAT snapshot).
+if client.apiversion > '4.3.99':
+    investigation.addInvestigationGroup(owngroup, role="owner")
+    investigation.addInvestigationGroup(writegroup, role="writer")
+    investigation.addInvestigationGroup(readgroup, role="reader")
 
 # ------------------------------------------------------------
 # Setup permissions
@@ -138,7 +144,7 @@ readgroup = client.createGroup(readgroupname, investigationreader)
 
 # perm_own_crud: items, that the owners should get CRUD perms on.
 # perm_own_r: items, that the owners should get R perms on.
-if client.apiversion < '4.3':
+if client.apiversion < '4.2.99':
     perm_own_crud = [ "UserGroup <-> Group[name='%s']" % s for s in 
                       [ writegroupname, readgroupname ] ]
 else:
@@ -159,14 +165,16 @@ perm_crud = [ s % investigationstr for s in
                 "Shift <-> %s",
                 "Keyword <-> %s",
                 "Publication <-> %s", ] ]
-if client.apiversion >= '4.3':
+if client.apiversion > '4.2.99':
     perm_crud.append("InvestigationInstrument <-> %s" % investigationstr)
 
 # Items, that people in the writers group should get RU perms on.
-perm_ru = [ investigationstr, ]
+perm_ru = []
 
 # Items, that people in the writers group should get R perms on.
-perm_r = [ "InvestigationUser <-> %s" % investigationstr, ]
+perm_r = [ investigationstr, "InvestigationUser <-> %s" % investigationstr, ]
+if client.apiversion > '4.3.99':
+    perm_r.append("InvestigationGroup <-> %s" % investigationstr)
 
 # owners permissions
 client.createRules(owngroup, "CRUD", perm_own_crud)
