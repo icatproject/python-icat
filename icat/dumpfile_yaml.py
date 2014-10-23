@@ -151,6 +151,10 @@ class YAMLDumpFileReader(object):
         Yield a new entity object in each iteration.  The object is
         initialized from the data, but not yet created at the client.
         """
+        # check first that the chunk contains only known entries
+        for name in data.keys():
+            if name not in entitytypes:
+                raise RuntimeError("Unknown entry %s in the data." % name)
         for name in entitytypes:
             if name in data:
                 for key, d in data[name].iteritems():
