@@ -77,8 +77,10 @@ for t in need_dataset_types:
 
 datafile_formats = {}
 for t in need_datafile_formats:
-    dffsearch = ("DatafileFormat[name='%s' %s]" 
-                 % (data['datafile_formats'][t]['name'], facility_const))
+    dffsearch = ("DatafileFormat[name='%s' AND version='%s' %s]" 
+                 % (data['datafile_formats'][t]['name'], 
+                    data['datafile_formats'][t]['version'], 
+                    facility_const))
     datafile_formats[t] = client.assertedSearch(dffsearch)[0]
 
 
@@ -114,6 +116,8 @@ for datasetdata in investigationdata['datasets']:
             print("Datafile: creating '%s' ..." % datafiledata['name'])
             datafile = client.new("datafile")
             datafile.name = datafiledata['name']
+            if 'checksum' in datafiledata:
+                datafile.checksum = datafiledata['checksum']
             datafile.fileSize = datafiledata['fileSize']
             datafile.datafileCreateTime = datafiledata['createTime']
             datafile.datafileModTime = datafiledata['modTime']
