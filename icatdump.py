@@ -50,7 +50,7 @@ else:
     raise icat.ConfigError("Unknown dump file format '%s'." % conf.format)
 
 client = icat.Client(conf.url, **conf.client_kwargs)
-if client.apiversion < '4.3':
+if client.apiversion < '4.2.99':
     raise RuntimeError("Sorry, ICAT version %s is too old, need 4.3.0 or newer."
                        % client.apiversion)
 client.login(conf.auth, conf.credentials)
@@ -100,6 +100,53 @@ else:
     datacolparamname = 'parameters'
 
 
+# Lists of types with search expressions.
+# 
+# These lists control which objects get written to the dump file and
+# how this file is organized.
+# 
+# There is some degree of flexibility: an object may include related
+# objects in an one to many relation, just by including it in the
+# search expression.  In this case, these related objects should not
+# be listed on their own again.  For instance, here we include
+# UserGroup with Grouping.  UserGroups are included in their
+# respective grouping in the dump file.  We do do not have an own
+# entry for UserGroup in the lists.  We could also have included Rules
+# in Grouping, but we chosed to list them separately.  If we would
+# have included Rules with Grouping, we still would need a list entry
+# for Rule, but then we would need to search only for rules where
+# grouping is NULL.
+# 
+# Objects related in a many to one relation must always be included in
+# the search expression.  This is also true if the object is
+# indirectly related to one of the included objects.  In this case,
+# only a reference to the related object will be included in the dump
+# file.  The related object must have its own list entry.
+
+# Compatibility ICAT 4.3.* vs. ICAT 4.4.0 and later: include
+# InvestigationGroups.
+if client.apiversion < '4.3.99':
+    investigationsearch = ("SELECT i FROM Investigation i "
+                           "WHERE i.facility.id = %d AND i.name = '%s' "
+                           "AND i.visitId = '%s' "
+                           "INCLUDE i.facility, i.type AS it, it.facility, "
+                           "i.investigationInstruments AS ii, "
+                           "ii.instrument AS iii, iii.facility, "
+                           "i.shifts, i.keywords, i.publications, "
+                           "i.investigationUsers AS iu, iu.user, "
+                           "i.parameters AS ip, ip.type AS ipt, ipt.facility")
+else:
+    investigationsearch = ("SELECT i FROM Investigation i "
+                           "WHERE i.facility.id = %d AND i.name = '%s' "
+                           "AND i.visitId = '%s' "
+                           "INCLUDE i.facility, i.type AS it, it.facility, "
+                           "i.investigationInstruments AS ii, "
+                           "ii.instrument AS iii, iii.facility, "
+                           "i.shifts, i.keywords, i.publications, "
+                           "i.investigationUsers AS iu, iu.user, "
+                           "i.investigationGroups AS ig, ig.grouping, "
+                           "i.parameters AS ip, ip.type AS ipt, ipt.facility")
+
 authtypes = [('user', "User"), 
              ('grouping', "Grouping INCLUDE UserGroup, User"),
              ('rule', "Rule INCLUDE Grouping"),
@@ -115,23 +162,7 @@ statictypes = [('facility', "Facility"),
                ('datafileFormat', "DatafileFormat INCLUDE Facility"),
                ('facilityCycle', "FacilityCycle INCLUDE Facility"),
                ('application', "Application INCLUDE Facility")]
-investtypes = [('investigation', 
-                "SELECT i FROM Investigation i "
-                "WHERE i.facility.id = %d AND i.name = '%s' "
-                "AND i.visitId = '%s' "
-                "INCLUDE i.facility, i.type AS it, it.facility, "
-                "i.investigationInstruments AS ii, "
-                "ii.instrument AS iii, iii.facility, "
-                "i.shifts, i.keywords, i.publications, "
-                "i.investigationUsers AS iu, iu.user, "
-                "i.parameters AS ip, ip.type AS ipt, ipt.facility"),
-               ('study', 
-                "SELECT o FROM Study o "
-                "JOIN o.studyInvestigations si JOIN si.investigation i "
-                "WHERE i.facility.id = %d AND i.name = '%s' "
-                "AND i.visitId = '%s' "
-                "INCLUDE o.user, "
-                "o.studyInvestigations AS si, si.investigation"),
+investtypes = [('investigation', investigationsearch),
                ('sample', 
                 "SELECT o FROM Sample o JOIN o.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
@@ -151,7 +182,11 @@ investtypes = [('investigation',
                 "AND i.visitId = '%s' "
                 "INCLUDE o.dataset, o.datafileFormat AS dff, dff.facility, "
                 "o.parameters AS op, op.type AS opt, opt.facility")]
-othertypes = [('relatedDatafile', 
+othertypes = [('study', 
+               "SELECT o FROM Study o "
+               "INCLUDE o.user, "
+               "o.studyInvestigations AS si, si.investigation"),
+              ('relatedDatafile', 
                "SELECT o FROM RelatedDatafile o "
                "INCLUDE o.sourceDatafile AS sdf, sdf.dataset AS sds, "
                "sds.investigation AS si, si.facility, "
