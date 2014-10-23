@@ -65,24 +65,24 @@
 		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="datafileFormat" type="datafileFormat" 
 		 minOccurs="0" maxOccurs="unbounded"/>
-    <xsd:element name="application" type="application" 
-		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="facilityCycle" type="facilityCycle" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="application" type="application" 
 		 minOccurs="0" maxOccurs="unbounded"/>
     <!-- investigation -->
     <xsd:element name="investigation" type="investigation" 
 		 minOccurs="0" maxOccurs="unbounded"/>
-    <xsd:element name="investigationInstrument" type="investigationInstrument" 
-		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="investigationParameter" type="investigationParameter" 
-		 minOccurs="0" maxOccurs="unbounded"/>
-    <xsd:element name="investigationUser" type="investigationUser" 
 		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="keyword" type="keyword" 
 		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="publication" type="publication" 
 		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="shift" type="shift" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="investigationInstrument" type="investigationInstrument" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="investigationUser" type="investigationUser" 
 		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="sample" type="sample" 
 		 minOccurs="0" maxOccurs="unbounded"/>
@@ -348,17 +348,6 @@
   <xsd:attribute name="id" type="xsd:string"/>
 </xsd:complexType>
 
-<xsd:complexType name="application">
-  <xsd:sequence>
-    <xsd:element name="name" type="xsd:string"/>
-    <xsd:element name="version" type="xsd:string"/>
-    <xsd:element name="facility" type="entityReference" minOccurs="0"/>
-    <xsd:element name="jobs" type="job" 
-		 minOccurs="0" maxOccurs="unbounded"/>
-  </xsd:sequence>
-  <xsd:attribute name="id" type="xsd:string"/>
-</xsd:complexType>
-
 <xsd:complexType name="facilityCycle">
   <xsd:sequence>
     <xsd:element name="description" type="xsd:string" minOccurs="0"/>
@@ -366,6 +355,17 @@
     <xsd:element name="name" type="xsd:string"/>
     <xsd:element name="startDate" type="xsd:dateTime" minOccurs="0"/>
     <xsd:element name="facility" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="application">
+  <xsd:sequence>
+    <xsd:element name="name" type="xsd:string"/>
+    <xsd:element name="version" type="xsd:string"/>
+    <xsd:element name="facility" type="entityReference" minOccurs="0"/>
+    <xsd:element name="jobs" type="job" 
+		 minOccurs="0" maxOccurs="unbounded"/>
   </xsd:sequence>
   <xsd:attribute name="id" type="xsd:string"/>
 </xsd:complexType>
@@ -406,14 +406,6 @@
   <xsd:attribute name="id" type="xsd:string"/>
 </xsd:complexType>
 
-<xsd:complexType name="investigationInstrument">
-  <xsd:sequence>
-    <xsd:element name="instrument" type="entityReference" minOccurs="0"/>
-    <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
-  </xsd:sequence>
-  <xsd:attribute name="id" type="xsd:string"/>
-</xsd:complexType>
-
 <xsd:complexType name="investigationParameter">
   <xsd:sequence>
     <xsd:element name="dateTimeValue" type="xsd:dateTime" minOccurs="0"/>
@@ -424,15 +416,6 @@
     <xsd:element name="stringValue" type="xsd:string" minOccurs="0"/>
     <xsd:element name="type" type="entityReference" minOccurs="0"/>
     <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
-  </xsd:sequence>
-  <xsd:attribute name="id" type="xsd:string"/>
-</xsd:complexType>
-
-<xsd:complexType name="investigationUser">
-  <xsd:sequence>
-    <xsd:element name="role" type="xsd:string" minOccurs="0"/>
-    <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
-    <xsd:element name="user" type="entityReference" minOccurs="0"/>
   </xsd:sequence>
   <xsd:attribute name="id" type="xsd:string"/>
 </xsd:complexType>
@@ -463,6 +446,23 @@
     <xsd:element name="endDate" type="xsd:dateTime"/>
     <xsd:element name="startDate" type="xsd:dateTime"/>
     <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="investigationInstrument">
+  <xsd:sequence>
+    <xsd:element name="instrument" type="entityReference" minOccurs="0"/>
+    <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="investigationUser">
+  <xsd:sequence>
+    <xsd:element name="role" type="xsd:string" minOccurs="0"/>
+    <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
+    <xsd:element name="user" type="entityReference" minOccurs="0"/>
   </xsd:sequence>
   <xsd:attribute name="id" type="xsd:string"/>
 </xsd:complexType>
