@@ -105,8 +105,9 @@ investigations:
     datasets:
     - complete: true
       datafiles:
-      - createTime: '2008-06-18T09:31:11+02:00'
-        fileSize: 368368864
+      - checksum: ac69460a
+        createTime: '2008-06-18T09:31:11+02:00'
+        fileSize: 368369
         format: nexus40
         modTime: '2008-06-18T09:31:11+02:00'
         name: e201215.nxs
@@ -138,13 +139,15 @@ investigations:
     datasets:
     - complete: true
       datafiles:
-      - createTime: '2010-10-01T08:17:48+02:00'
-        fileSize: 445952
+      - checksum: 81c44870
+        createTime: '2010-10-01T08:17:48+02:00'
+        fileSize: 446
         format: raw_data
         modTime: '2010-10-01T08:17:48+02:00'
         name: e208339.dat
-      - createTime: '2010-10-01T08:52:22+02:00'
-        fileSize: 73427714
+      - checksum: 8b369ddc
+        createTime: '2010-10-01T08:52:22+02:00'
+        fileSize: 73428
         format: nexus40
         modTime: '2010-10-01T08:52:22+02:00'
         name: e208339.nxs
@@ -154,13 +157,15 @@ investigations:
       type: generic
     - complete: true
       datafiles:
-      - createTime: '2010-10-05T10:32:21+02:00'
-        fileSize: 394240
+      - checksum: 284558f4
+        createTime: '2010-10-05T10:32:21+02:00'
+        fileSize: 394
         format: raw_data
         modTime: '2010-10-05T10:32:21+02:00'
         name: e208341.dat
-      - createTime: '2010-10-05T11:31:53+02:00'
-        fileSize: 52856502
+      - checksum: 7c72b4bc
+        createTime: '2010-10-05T11:31:53+02:00'
+        fileSize: 52857
         format: nexus40
         modTime: '2010-10-05T11:31:53+02:00'
         name: e208341.nxs
@@ -195,13 +200,15 @@ investigations:
     datasets:
     - complete: false
       datafiles:
-      - createTime: '2012-07-30T03:10:08+02:00'
-        fileSize: 459264
+      - checksum: bd55affa
+        createTime: '2012-07-30T03:10:08+02:00'
+        fileSize: 459
         format: raw_data
         modTime: '2012-07-30T03:10:08+02:00'
         name: e208945.dat
-      - createTime: '2013-06-03T12:22:43+02:00'
-        fileSize: 396430442
+      - checksum: 1db15f18
+        createTime: '2013-06-03T12:22:43+02:00'
+        fileSize: 396430
         format: nexus42
         modTime: '2013-06-03T12:22:43+02:00'
         name: e208945.nxs
