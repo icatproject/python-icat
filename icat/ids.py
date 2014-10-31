@@ -8,6 +8,7 @@ author.
 .. _IDS distribution: http://code.google.com/p/icat-data-service/
 """
 
+from collections import Mapping, Sequence
 from urllib2 import Request, HTTPDefaultErrorHandler, ProxyHandler, build_opener
 from urllib import urlencode
 import json
@@ -17,6 +18,7 @@ from distutils.version import StrictVersion as Version
 import getpass
 
 from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
+from icat.entity import Entity
 from icat.exception import IDSError, IDSResponseError, translateIDSError
 
 __all__ = ['DataSelection', 'IDSClient']
@@ -110,17 +112,20 @@ class DataSelection(object):
             self.invIds.extend(objs.invIds)
             self.dsIds.extend(objs.dsIds)
             self.dfIds.extend(objs.dfIds)
-        elif isinstance(objs, list):
+        elif isinstance(objs, Sequence):
             for o in objs:
-                if o.BeanName == 'Investigation':
-                   self.invIds.append(o.id) 
-                elif o.BeanName == 'Dataset':
-                   self.dsIds.append(o.id) 
-                elif o.BeanName == 'Datafile':
-                   self.dfIds.append(o.id) 
+                if isinstance(o, Entity):
+                    if o.BeanName == 'Investigation':
+                        self.invIds.append(o.id) 
+                    elif o.BeanName == 'Dataset':
+                        self.dsIds.append(o.id) 
+                    elif o.BeanName == 'Datafile':
+                        self.dfIds.append(o.id) 
+                    else:
+                        raise ValueError("invalid object '%s'." % o.BeanName)
                 else:
-                    raise ValueError("invalid object '%s'." % o.BeanName)
-        elif isinstance(objs, dict):
+                    raise TypeError("invalid object type '%s'." % type(o))
+        elif isinstance(objs, Mapping):
             self.invIds.extend(objs.get('investigationIds', []))
             self.dsIds.extend(objs.get('datasetIds', []))
             self.dfIds.extend(objs.get('datafileIds', []))
