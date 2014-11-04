@@ -189,6 +189,17 @@ class Config(object):
         mandatory                  no
         =========================  ==================================
 
+      ``no_proxy``
+        Comma separated list of domain extensions proxy should not be
+        used for.
+
+        =========================  ==================================
+        command line               ``--no-proxy``
+        environment                ``no_proxy``
+        default                    ``None``
+        mandatory                  no
+        =========================  ==================================
+
       ``auth``
         Name of the authentication plugin to use for login.
 
@@ -300,6 +311,9 @@ class Config(object):
         self.add_variable('https_proxy', ("--https-proxy",), 
                           dict(help="proxy to use for https requests"),
                           envvar='https_proxy', optional=True)
+        self.add_variable('no_proxy', ("--no-proxy",), 
+                          dict(help="list of exclusions for proxy use"),
+                          envvar='no_proxy', optional=True)
         if self.needlogin:
             self.add_variable('auth', ("-a", "--auth"), 
                               dict(help="authentication plugin"),
@@ -433,9 +447,13 @@ class Config(object):
             proxy={}
             if config.http_proxy:
                 proxy['http'] = config.http_proxy
+                os.environ['http_proxy'] = config.http_proxy
             if config.https_proxy:
                 proxy['https'] = config.https_proxy
+                os.environ['https_proxy'] = config.https_proxy
             config.client_kwargs['proxy'] = proxy
+        if config.no_proxy:
+                os.environ['no_proxy'] = config.no_proxy
         if self.ids:
             config.client_kwargs['idsurl'] = config.idsurl
 
