@@ -87,6 +87,16 @@ the reason why the example scripts require PyYAML.
 Bugs and limitations
 --------------------
 
+ + The entries in the no_proxy configuration variable are matched
+   against the host part of the URL by simple string comparison.  The
+   host is excluded from proxy use if its name ends with any item in
+   no_proxy.  It is not checked whether the matching part starts with
+   a domain component.  E.g. setting no_proxy=ion.example.org will not
+   only exclude icat.ion.example.org, but also lion.example.org,
+   although the latter is not in the ion.example.org domain.  IP
+   adresses are supported in no_proxy.  This is a limitation in the
+   implementation of the underlying Python library.
+
  + There is a bug in the original version of Suds: the way it deals
    with datetime values is broken.  Suds converts all incoming
    datetime values from the server into what it believes to be local
