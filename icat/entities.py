@@ -328,14 +328,15 @@ class Investigation44(Investigation43):
     def addInvestigationGroup(self, group, role=None):
         ig = self.client.new('investigationGroup', investigation=self)
         ig.grouping = group
-        # ig.role = role - attribute is still missing in ICAT,
+        ig.role = role
         ig.create()
 
 
 class InvestigationGroup(Entity):
-    """Many to many relationship between investigation and group which might be used within authorization rules. Please see UserInvestigation"""
+    """Many to many relationship between investigation and group."""
     BeanName = 'InvestigationGroup'
     Constraint = ('grouping', 'investigation')
+    InstAttr = frozenset(['id', 'role'])
     InstRel = frozenset(['investigation', 'grouping'])
 
 

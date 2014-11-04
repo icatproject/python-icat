@@ -462,9 +462,6 @@
 
 <xsd:complexType name="investigationGroup">
   <xsd:sequence>
-    <!-- InvestigationGroup does not have the role attribute in the
-         current snapshot release.  But I believe it should have this
-         attribute in the final 4.4.0 version. -->
     <xsd:element name="role" type="xsd:string" minOccurs="0"/>
     <xsd:element name="grouping" type="entityReference" minOccurs="0"/>
     <xsd:element name="investigation" type="entityReference" minOccurs="0"/>
