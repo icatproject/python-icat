@@ -202,3 +202,77 @@ for k in data['applications'].keys():
     app.version = data['applications'][k]['version']
     applications.append(app)
 client.createMany(applications)
+
+
+# ------------------------------------------------------------
+# Access rules for investigations (ICAT 4.4 and newer)
+# ------------------------------------------------------------
+
+# ICAT 4.4 introduced InvestigationGroup.  This allows us to setup one
+# static set of permissions to access individual investigations rather
+# then creating individual rules for each investigation.
+
+if client.apiversion > '4.3.99':
+
+    # set permissions for the writer group
+    invcond = ("Investigation <-> InvestigationGroup [role='writer'] "
+               "<-> Grouping <-> UserGroup <-> User [name=:user]")
+    items = [ s % invcond for s in 
+              [ "Sample <-> %s",
+                "Dataset <-> %s",
+                "Datafile <-> Dataset <-> %s",
+                "InvestigationParameter <-> %s",
+                "SampleParameter <-> Sample <-> %s",
+                "DatasetParameter <-> Dataset <-> %s",
+                "DatafileParameter <-> Datafile <-> Dataset <-> %s",
+                "Shift <-> %s",
+                "Keyword <-> %s",
+                "Publication <-> %s",
+                "InvestigationInstrument <-> %s", ] ]
+    client.createRules(None, "R", [ invcond ])
+    client.createRules(None, "CRUD", items)
+
+    # set permissions for the reader group
+    invcond = ("Investigation <-> InvestigationGroup [role='reader'] "
+               "<-> Grouping <-> UserGroup <-> User [name=:user]")
+    items = [ s % invcond for s in 
+              [ "%s",
+                "Sample <-> %s",
+                "Dataset <-> %s",
+                "Datafile <-> Dataset <-> %s",
+                "InvestigationParameter <-> %s",
+                "SampleParameter <-> Sample <-> %s",
+                "DatasetParameter <-> Dataset <-> %s",
+                "DatafileParameter <-> Datafile <-> Dataset <-> %s",
+                "Shift <-> %s",
+                "Keyword <-> %s",
+                "Publication <-> %s",
+                "InvestigationInstrument <-> %s", ] ]
+    client.createRules(None, "R", items)
+
+    # Give all involved users read permission on InvestigationUser and
+    # InvestigationGroup.  This requires JPQL syntax.
+    invcond = ("JOIN i.investigationGroups ig JOIN ig.grouping g "
+               "JOIN g.userGroups ug JOIN ug.user u "
+               "WHERE u.name = :user")
+    items = [ s % invcond for s in 
+              [ ("SELECT o FROM InvestigationUser o "
+                 "JOIN o.investigation i %s"), 
+                ("SELECT o FROM InvestigationGroup o "
+                 "JOIN o.investigation i %s"), ] ]
+    client.createRules(None, "R", items)
+
+    # set permission to grant and to revoke permissions for the owner
+    # Would like to add a condition 
+    # (tig.role = 'writer' OR tig.role = 'reader'),
+    # but this is too long (have 255 chars max).
+    item = ("SELECT tug FROM UserGroup tug "
+            "JOIN tug.grouping tg "
+            "JOIN tg.investigationGroups tig "
+            "JOIN tig.investigation i "
+            "JOIN i.investigationGroups uig "
+            "JOIN uig.grouping ug "
+            "JOIN ug.userGroups uug JOIN uug.user u "
+            "WHERE uig.role = 'owner' AND u.name = :user")
+    client.createRules(None, "CRUD", [ item ])
+

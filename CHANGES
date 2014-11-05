@@ -3,7 +3,7 @@
 
 * Version 0.6.0 (not yet released)
 
- + Add support for ICAT 4.4.0-20141010.100405-5: add InvestigationGroup.
+ + Add support for ICAT 4.4.0: add InvestigationGroup.
 
  + Add new IDSClient API method getApiVersion() that is supposed to be
    introduced with the next upcoming version of IDS.  The method first
@@ -15,6 +15,10 @@
 
  + Add new IDSClient API methods isReadOnly(), isTwoLevel(),
    getLink(), and getSize() introduced with IDS 1.2.0.
+
+ + Add no_proxy support.  The proxy configuration variables,
+   http_proxy, https_proxy, and no_proxy are set in the environment.
+   [Suggested by Alistair Mills]
 
  + WARNING, incompatible change!
    The Client method putData() returns the new Datafile object created
@@ -28,6 +32,12 @@
 
    df = client.putData(file, datafile)
    dfid = df.id
+
+ + Fixed overly stict type checking in the constructor arguments of
+   DataSelection and as a consequence also in the arguments of the
+   ICAT client methods getData(), getDataUrl(), prepareData(), and
+   deleteData(): now, any Sequence of entity objects will be accepted,
+   in particular an EntityList.
 
  + Change IDSClient API methods archive() and restore() to not to
    return anything.  While formally, this might be considered an
