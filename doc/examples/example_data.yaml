@@ -106,10 +106,10 @@ investigations:
     - complete: true
       datafiles:
       - checksum: ac69460a
-        createTime: '2008-06-18T09:31:11+02:00'
+        datafileCreateTime: '2008-06-18T09:31:11+02:00'
+        datafileModTime: '2008-06-18T09:31:11+02:00'
         fileSize: 368369
         format: nexus40
-        modTime: '2008-06-18T09:31:11+02:00'
         name: e201215.nxs
       endDate: null
       name: e201215
@@ -140,16 +140,16 @@ investigations:
     - complete: true
       datafiles:
       - checksum: 81c44870
-        createTime: '2010-10-01T08:17:48+02:00'
+        datafileCreateTime: '2010-10-01T08:17:48+02:00'
+        datafileModTime: '2010-10-01T08:17:48+02:00'
         fileSize: 446
         format: raw_data
-        modTime: '2010-10-01T08:17:48+02:00'
         name: e208339.dat
       - checksum: 8b369ddc
-        createTime: '2010-10-01T08:52:22+02:00'
+        datafileCreateTime: '2010-10-01T08:52:22+02:00'
+        datafileModTime: '2010-10-01T08:52:22+02:00'
         fileSize: 73428
         format: nexus40
-        modTime: '2010-10-01T08:52:22+02:00'
         name: e208339.nxs
       endDate: '2010-10-01T08:17:48+02:00'
       name: e208339
@@ -158,16 +158,16 @@ investigations:
     - complete: true
       datafiles:
       - checksum: 284558f4
-        createTime: '2010-10-05T10:32:21+02:00'
+        datafileCreateTime: '2010-10-05T10:32:21+02:00'
+        datafileModTime: '2010-10-05T10:32:21+02:00'
         fileSize: 394
         format: raw_data
-        modTime: '2010-10-05T10:32:21+02:00'
         name: e208341.dat
       - checksum: 7c72b4bc
-        createTime: '2010-10-05T11:31:53+02:00'
+        datafileCreateTime: '2010-10-05T11:31:53+02:00'
+        datafileModTime: '2010-10-05T11:31:53+02:00'
         fileSize: 52857
         format: nexus40
-        modTime: '2010-10-05T11:31:53+02:00'
         name: e208341.nxs
       endDate: '2010-10-05T10:32:21+02:00'
       name: e208341
@@ -201,16 +201,16 @@ investigations:
     - complete: false
       datafiles:
       - checksum: bd55affa
-        createTime: '2012-07-30T03:10:08+02:00'
+        datafileCreateTime: '2012-07-30T03:10:08+02:00'
+        datafileModTime: '2012-07-30T03:10:08+02:00'
         fileSize: 459
         format: raw_data
-        modTime: '2012-07-30T03:10:08+02:00'
         name: e208945.dat
       - checksum: 1db15f18
-        createTime: '2013-06-03T12:22:43+02:00'
+        datafileCreateTime: '2013-06-03T12:22:43+02:00'
+        datafileModTime: '2013-06-03T12:22:43+02:00'
         fileSize: 396430
         format: nexus42
-        modTime: '2013-06-03T12:22:43+02:00'
         name: e208945.nxs
       endDate: '2012-07-30T03:10:08+02:00'
       name: e208945
@@ -248,12 +248,12 @@ jobs:
     output:
       datasets: []
       datafiles:
-        - createTime: '2012-07-16T16:30:17+02:00'
+        - datafileCreateTime: '2012-07-16T16:30:17+02:00'
+          datafileModTime: '2012-07-16T16:30:17+02:00'
           dataset: e208945
           fileSize: 2893652
           format: nexus42
           investigation: 2012-EDDI-0390-1
-          modTime: '2012-07-16T16:30:17+02:00'
           name: e208945-2.nxs
 sample_types:
   durol:

@@ -34,6 +34,16 @@ client.login(conf.auth, conf.credentials)
 
 
 # ------------------------------------------------------------
+# Helper functions
+# ------------------------------------------------------------
+
+def initobj(obj, attrs):
+    """Initialize an entity object from a dict of attributes."""
+    for a in obj.InstAttr:
+        if a != 'id' and a in attrs:
+            setattr(obj, a, attrs[a])
+
+# ------------------------------------------------------------
 # Read input data
 # ------------------------------------------------------------
 
@@ -98,10 +108,7 @@ for ds in jobdata['output']['datasets']:
     dataset_type = client.assertedSearch(searchexp)[0]
     print("Dataset: creating '%s' ..." % datasetdata['name'])
     dataset = client.new("dataset")
-    dataset.name = ds['name']
-    dataset.startDate = ds['startDate']
-    dataset.endDate = ds['endDate']
-    dataset.complete = ds['complete']
+    initobj(dataset, ds)
     dataset.investigation = investigation
     dataset.type = dataset_type
 
@@ -113,10 +120,7 @@ for ds in jobdata['output']['datasets']:
         datafile_format = client.assertedSearch(dstsearch)[0]
         print("Datafile: creating '%s' ..." % df['name'])
         datafile = client.new("datafile")
-        datafile.name = df['name']
-        datafile.fileSize = df['fileSize']
-        datafile.datafileCreateTime = df['createTime']
-        datafile.datafileModTime = df['modTime']
+        initobj(datafile, df)
         datafile.datafileFormat = datafile_format
         dataset.datafiles.append(datafile)
 
@@ -137,10 +141,7 @@ for df in jobdata['output']['datafiles']:
     datafile_format = client.assertedSearch(searchexp)[0]
     print("Datafile: creating '%s' ..." % df['name'])
     datafile = client.new("datafile")
-    datafile.name = df['name']
-    datafile.fileSize = df['fileSize']
-    datafile.datafileCreateTime = df['createTime']
-    datafile.datafileModTime = df['modTime']
+    initobj(datafile, df)
     datafile.dataset = dataset
     datafile.datafileFormat = datafile_format
     datafile.create()

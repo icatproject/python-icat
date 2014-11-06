@@ -28,6 +28,16 @@ client.login(conf.auth, conf.credentials)
 
 
 # ------------------------------------------------------------
+# Helper functions
+# ------------------------------------------------------------
+
+def initobj(obj, attrs):
+    """Initialize an entity object from a dict of attributes."""
+    for a in obj.InstAttr:
+        if a != 'id' and a in attrs:
+            setattr(obj, a, attrs[a])
+
+# ------------------------------------------------------------
 # Read input data
 # ------------------------------------------------------------
 
@@ -76,11 +86,7 @@ else:
 
 print("Investigation: creating '%s' ..." % investigationdata['name'])
 investigation = client.new("investigation")
-investigation.name = investigationdata['name']
-investigation.title = investigationdata['title']
-investigation.startDate = investigationdata['startDate']
-investigation.endDate = investigationdata['endDate']
-investigation.visitId = investigationdata['visitId']
+initobj(investigation, investigationdata)
 investigation.facility = facility
 investigation.type = investigation_type
 investigation.create()

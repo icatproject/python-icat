@@ -33,6 +33,16 @@ client.login(conf.auth, conf.credentials)
 
 
 # ------------------------------------------------------------
+# Helper functions
+# ------------------------------------------------------------
+
+def initobj(obj, attrs):
+    """Initialize an entity object from a dict of attributes."""
+    for a in obj.InstAttr:
+        if a != 'id' and a in attrs:
+            setattr(obj, a, attrs[a])
+
+# ------------------------------------------------------------
 # Read input data
 # ------------------------------------------------------------
 
@@ -103,10 +113,7 @@ sample.create()
 for datasetdata in investigationdata['datasets']:
     print("Dataset: creating '%s' ..." % datasetdata['name'])
     dataset = client.new("dataset")
-    dataset.name = datasetdata['name']
-    dataset.startDate = datasetdata['startDate']
-    dataset.endDate = datasetdata['endDate']
-    dataset.complete = datasetdata['complete']
+    initobj(dataset, datasetdata)
     dataset.sample = sample
     dataset.investigation = investigation
     dataset.type = dataset_types[datasetdata['type']]
@@ -115,12 +122,7 @@ for datasetdata in investigationdata['datasets']:
         for datafiledata in datasetdata['datafiles']:
             print("Datafile: creating '%s' ..." % datafiledata['name'])
             datafile = client.new("datafile")
-            datafile.name = datafiledata['name']
-            if 'checksum' in datafiledata:
-                datafile.checksum = datafiledata['checksum']
-            datafile.fileSize = datafiledata['fileSize']
-            datafile.datafileCreateTime = datafiledata['createTime']
-            datafile.datafileModTime = datafiledata['modTime']
+            initobj(datafile, datafiledata)
             datafile.datafileFormat = datafile_formats[datafiledata['format']]
             dataset.datafiles.append(datafile)
 

@@ -31,6 +31,16 @@ client.login(conf.auth, conf.credentials)
 
 
 # ------------------------------------------------------------
+# Helper functions
+# ------------------------------------------------------------
+
+def initobj(obj, attrs):
+    """Initialize an entity object from a dict of attributes."""
+    for a in obj.InstAttr:
+        if a != 'id' and a in attrs:
+            setattr(obj, a, attrs[a])
+
+# ------------------------------------------------------------
 # Read input data
 # ------------------------------------------------------------
 
@@ -128,10 +138,7 @@ client.createRules(st_writers, "CRUD", [ "SampleType" ])
 facilities = {}
 for k in data['facilities'].keys():
     fac = client.new("facility")
-    fac.name = data['facilities'][k]['name']
-    fac.fullName = data['facilities'][k]['fullName']
-    fac.description = data['facilities'][k]['description']
-    fac.url = data['facilities'][k]['url']
+    initobj(fac, data['facilities'][k])
     fac.create()
     facilities[k] = fac
 
@@ -143,10 +150,7 @@ for k in data['facilities'].keys():
 instusers = []
 for k in data['instruments'].keys():
     inst = client.new("instrument")
-    inst.name = data['instruments'][k]['name']
-    inst.description = data['instruments'][k]['description']
-    inst.fullName = data['instruments'][k]['fullName']
-    inst.type = data['instruments'][k]['type']
+    initobj(inst, data['instruments'][k])
     inst.facility = facilities[data['instruments'][k]['facility']]
     inst.create()
     ud = data['users'][data['instruments'][k]['instrumentscientist']]
@@ -166,8 +170,7 @@ st_writers.addUsers(instusers)
 investigation_types = []
 for k in data['investigation_types'].keys():
     it = client.new("investigationType")
-    it.name = data['investigation_types'][k]['name']
-    it.description = data['investigation_types'][k]['description']
+    initobj(it, data['investigation_types'][k])
     it.facility = facilities[data['investigation_types'][k]['facility']]
     investigation_types.append(it)
 client.createMany(investigation_types)
@@ -176,8 +179,7 @@ client.createMany(investigation_types)
 dataset_types = []
 for k in data['dataset_types'].keys():
     dt = client.new("datasetType")
-    dt.name = data['dataset_types'][k]['name']
-    dt.description = data['dataset_types'][k]['description']
+    initobj(dt, data['dataset_types'][k])
     dt.facility = facilities[data['dataset_types'][k]['facility']]
     dataset_types.append(dt)
 client.createMany(dataset_types)
@@ -186,10 +188,8 @@ client.createMany(dataset_types)
 fileformats = []
 for k in data['datafile_formats'].keys():
     ff = client.new("datafileFormat")
-    ff.name = data['datafile_formats'][k]['name']
-    ff.description = data['datafile_formats'][k]['description']
+    initobj(ff, data['datafile_formats'][k])
     ff.facility = facilities[data['datafile_formats'][k]['facility']]
-    ff.version = data['datafile_formats'][k]['version']
     fileformats.append(ff)
 client.createMany(fileformats)
 
@@ -197,9 +197,8 @@ client.createMany(fileformats)
 applications = []
 for k in data['applications'].keys():
     app = client.new("application")
-    app.name = data['applications'][k]['name']
+    initobj(app, data['applications'][k])
     app.facility = facilities[data['applications'][k]['facility']]
-    app.version = data['applications'][k]['version']
     applications.append(app)
 client.createMany(applications)
 
