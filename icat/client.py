@@ -668,16 +668,16 @@ class Client(suds.client.Client):
         g.addUsers(users)
         return g
 
-    def createRules(self, group, crudFlags, what):
+    def createRules(self, crudFlags, what, group=None):
         """Create access rules.
 
-        :param group: the group that should be granted access or
-            ``None`` for everybody.
-        :type group: ``Entity``
         :param crudFlags: access mode.
         :type crudFlags: ``str``
         :param what: list of items subject to the rule.
         :type what: ``list`` of ``str``
+        :param group: the group that should be granted access or
+            ``None`` for everybody.
+        :type group: ``Entity``
         :return: list of the ids of the created rules.
         :rtype: ``list`` of ``long``
         """

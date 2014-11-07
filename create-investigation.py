@@ -185,10 +185,10 @@ else:
                "InvestigationUser <-> %s" % investigationstr, ]
 
     # owners permissions
-    client.createRules(owngroup, "CRUD", perm_own_crud)
+    client.createRules("CRUD", perm_own_crud, owngroup)
     # writers permissions
-    client.createRules(writegroup, "CRUD", perm_crud)
-    client.createRules(writegroup, "R", perm_r)
+    client.createRules("CRUD", perm_crud, writegroup)
+    client.createRules("R", perm_r, writegroup)
     # people in the readers group just get read access on the whole bunch
-    client.createRules(readgroup, "R", perm_crud + perm_r)
+    client.createRules("R", perm_crud + perm_r, readgroup)
 

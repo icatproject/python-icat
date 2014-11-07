@@ -87,16 +87,16 @@ if client.apiversion > '4.3.99':
 # permissions to continue this script further on.
 root = client.createUser("root", fullName="Root")
 rootgroup = client.createGroup("root", [ root ])
-client.createRules(rootgroup, "CRUD", alltables)
+client.createRules("CRUD", alltables, rootgroup)
 
 # Grant public read permission to some basic tables.  Note that the
 # created rules do not refer to any group.  That means they will apply
 # to anybody.
-client.createRules(None, "R", pubtables)
+client.createRules("R", pubtables)
 
 # Special rule: each user gets the permission to see which groups he
 # is in.
-client.createRules(None, "R", [ "UserGroup <-> User[name=:user]" ])
+client.createRules("R", [ "UserGroup <-> User[name=:user]" ])
 
 # Add a sepcial user to be configured as reader in ids.server.  This
 # user needs at least permission to read all datasets, datafiles,
@@ -104,7 +104,7 @@ client.createRules(None, "R", [ "UserGroup <-> User[name=:user]" ])
 # simple by giving him read all permissions.
 idsreader = client.createUser("idsreader", fullName="IDS reader")
 rallgroup = client.createGroup("rall", [ idsreader ])
-client.createRules(rallgroup, "R", alltables)
+client.createRules("R", alltables, rallgroup)
 
 # Setup permissions for useroffice.  They need to create
 # Investigations and to setup access permissions for them.  Note that
@@ -112,7 +112,7 @@ client.createRules(rallgroup, "R", alltables)
 # tables which basically gives useroffice root power.
 useroffice = client.createUser("useroffice", fullName="User Office")
 uogroup = client.createGroup("useroffice", [ useroffice ])
-client.createRules(uogroup, "CRUD", uotables)
+client.createRules("CRUD", uotables, uogroup)
 
 # Special case SampleType: most tables in the data base are either
 # specific to the site as a whole (most public tables) or specific to
@@ -128,7 +128,7 @@ client.createRules(uogroup, "CRUD", uotables)
 # writers that have write permissions in SampleType.  We will populate
 # this group later.
 st_writers = client.createGroup("samplewriter")
-client.createRules(st_writers, "CRUD", [ "SampleType" ])
+client.createRules("CRUD", [ "SampleType" ], st_writers)
 
 
 # ------------------------------------------------------------
@@ -228,8 +228,8 @@ if client.apiversion > '4.3.99':
                 "Keyword <-> %s",
                 "Publication <-> %s",
                 "InvestigationInstrument <-> %s", ] ]
-    client.createRules(None, "R", [ invcond ])
-    client.createRules(None, "CRUD", items)
+    client.createRules("R", [ invcond ])
+    client.createRules("CRUD", items)
 
     # set permissions for the reader group
     invcond = ("Investigation <-> InvestigationGroup [role='reader'] "
@@ -247,7 +247,7 @@ if client.apiversion > '4.3.99':
                 "Keyword <-> %s",
                 "Publication <-> %s",
                 "InvestigationInstrument <-> %s", ] ]
-    client.createRules(None, "R", items)
+    client.createRules("R", items)
 
     # Give all involved users read permission on InvestigationUser and
     # InvestigationGroup.  This requires JPQL syntax.
@@ -259,7 +259,7 @@ if client.apiversion > '4.3.99':
                  "JOIN o.investigation i %s"), 
                 ("SELECT o FROM InvestigationGroup o "
                  "JOIN o.investigation i %s"), ] ]
-    client.createRules(None, "R", items)
+    client.createRules("R", items)
 
     # set permission to grant and to revoke permissions for the owner
     # Would like to add a condition 
@@ -273,5 +273,5 @@ if client.apiversion > '4.3.99':
             "JOIN uig.grouping ug "
             "JOIN ug.userGroups uug JOIN uug.user u "
             "WHERE uig.role = 'owner' AND u.name = :user")
-    client.createRules(None, "CRUD", [ item ])
+    client.createRules("CRUD", [ item ])
 
