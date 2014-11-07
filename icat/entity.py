@@ -180,6 +180,24 @@ class Entity(object):
         return s
 
 
+    def getAttrType(self, attr):
+        """Get the type of an attribute.
+
+        :param attr: name of the attribute.
+        :type attr: ``str``
+        :return: name of the attribute type.
+        :rtype: ``str``
+        :raise ValueError: if no attribute by that name is found.
+        """
+        if attr in self.AttrAlias:
+            attr = self.AttrAlias[attr]
+        info = self.client.getEntityInfo(self.BeanName)
+        for f in info.fields:
+            if f.name == attr:
+                return f.type
+        raise ValueError("Unknown attribute name '%s'" % attr)
+
+
     def truncateRelations(self):
         """Delete all relationships.
 
