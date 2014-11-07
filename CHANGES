@@ -21,6 +21,18 @@
    [Suggested by Alistair Mills]
 
  + WARNING, incompatible change!
+   Move the group argument to the Client method createRules() to the
+   last position and make it optional, having default None.
+
+   In the client code, replace:
+
+   client.createRules(group, crudFlags, what)
+
+   by
+
+   client.createRules(crudFlags, what, group)
+
+ + WARNING, incompatible change!
    The Client method putData() returns the new Datafile object created
    by IDS rather then only its id.
 
@@ -33,7 +45,7 @@
    df = client.putData(file, datafile)
    dfid = df.id
 
- + Fixed overly stict type checking in the constructor arguments of
+ + Fixed overly strict type checking in the constructor arguments of
    DataSelection and as a consequence also in the arguments of the
    ICAT client methods getData(), getDataUrl(), prepareData(), and
    deleteData(): now, any Sequence of entity objects will be accepted,
@@ -43,6 +55,8 @@
    return anything.  While formally, this might be considered an
    incompatible change, these methods never returned anything
    meaningful in the past.
+
+ + Add method getAttrType() to Entity.
 
  + Some small fixes in icatdump and icatrestore.
 
