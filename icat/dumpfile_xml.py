@@ -63,22 +63,20 @@ def elem2entity(client, insttypemap, element, objtype, objindex):
     if objtype is None:
         objtype = element.tag
     obj = client.new(objtype)
-    mreltypes = None
     for subelem in element:
-        if subelem.tag in obj.InstAttr:
-            setattr(obj, subelem.tag, subelem.text)
-        elif subelem.tag in obj.InstRel:
+        attr = subelem.tag
+        if attr in obj.AttrAlias:
+            attr = obj.AttrAlias[attr]
+        if attr in obj.InstAttr:
+            setattr(obj, attr, subelem.text)
+        elif attr in obj.InstRel:
             ref = subelem.get('ref')
             robj = client.searchUniqueKey(ref, objindex)
-            setattr(obj, subelem.tag, robj)
-        elif subelem.tag in obj.InstMRel:
-            if mreltypes is None:
-                info = client.getEntityInfo(obj.BeanName)
-                mreltypes = { f.name:insttypemap[f.type] 
-                              for f in info.fields if f.relType == "MANY" }
-            robj = elem2entity(client, insttypemap, 
-                               subelem, mreltypes[subelem.tag], objindex)
-            getattr(obj, subelem.tag).append(robj)
+            setattr(obj, attr, robj)
+        elif attr in obj.InstMRel:
+            rtype = insttypemap[obj.getAttrType(attr)]
+            robj = elem2entity(client, insttypemap, subelem, rtype, objindex)
+            getattr(obj, attr).append(robj)
         else:
             raise ValueError("invalid subelement '%s' in '%s'" 
                              % (subelem.tag, element.tag))

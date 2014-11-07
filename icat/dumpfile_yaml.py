@@ -103,25 +103,23 @@ def entity2dict(obj, keyindex):
 def dict2entity(client, insttypemap, d, objtype, objindex):
     """Create an entity object from a dict of attributes."""
     obj = client.new(objtype)
-    mreltypes = None
-    for attr in d:
+    for k in d:
+        attr = k
+        if attr in obj.AttrAlias:
+            attr = obj.AttrAlias[attr]
         if attr in obj.InstAttr:
-            setattr(obj, attr, d[attr])
+            setattr(obj, attr, d[k])
         elif attr in obj.InstRel:
-            robj = client.searchUniqueKey(d[attr], objindex)
+            robj = client.searchUniqueKey(d[k], objindex)
             setattr(obj, attr, robj)
         elif attr in obj.InstMRel:
-            if mreltypes is None:
-                info = client.getEntityInfo(obj.BeanName)
-                mreltypes = { f.name:insttypemap[f.type] 
-                              for f in info.fields if f.relType == "MANY" }
-            for rd in d[attr]:
-                robj = dict2entity(client, insttypemap, 
-                                   rd, mreltypes[attr], objindex)
+            rtype = insttypemap[obj.getAttrType(attr)]
+            for rd in d[k]:
+                robj = dict2entity(client, insttypemap, rd, rtype, objindex)
                 getattr(obj, attr).append(robj)
         else:
             raise ValueError("invalid attribute '%s' in '%s'" 
-                             % (attr, objtype))
+                             % (k, objtype))
     return obj
 
 
