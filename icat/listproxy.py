@@ -7,7 +7,9 @@ class ListProxy(MutableSequence):
     """A list that acts as a proxy to another list.
 
     ``ListProxy`` mirrors a target list: all items are stored in the
-    target and fetched back from the target on request.
+    target and fetched back from the target on request.  In all other
+    aspects, ``ListProxy`` tries to mimic as close as possible the
+    behavior of an ordinary list.
 
     This class tries to be a minimal working implementation.  Methods
     like ``append`` and ``extent`` have deliberately not been
@@ -25,6 +27,16 @@ class ListProxy(MutableSequence):
     2
     >>> lp[2:4]
     [2, 3]
+    >>> lp == l
+    True
+    >>> lp < l
+    False
+    >>> l < lp
+    False
+    >>> lp < [0, 1, 2, 3, 4, 0]
+    True
+    >>> [0, 1, 2, 3, 3] > lp
+    False
     >>> lp[2:4] = ["two", "three"]
     >>> lp
     [0, 1, 'two', 'three', 4]

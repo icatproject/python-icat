@@ -183,6 +183,11 @@ class Entity(object):
     def getAttrType(self, attr):
         """Get the type of an attribute.
 
+        Query this object's EntityInfo from the ICAT server and
+        retrieve the type of one of the attributes from it.  In the
+        case of a relation attribute, this yields the BeanName of the
+        related object.
+
         :param attr: name of the attribute.
         :type attr: ``str``
         :return: name of the attribute type.

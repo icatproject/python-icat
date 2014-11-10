@@ -14,6 +14,12 @@ def test_listproxy():
     assert lp[2] == 2
     assert lp[2:4] == [2, 3]
 
+    assert (lp == l) is True
+    assert (lp < l) is False
+    assert (l < lp) is False
+    assert (lp < [0, 1, 2, 3, 4, 0]) is True
+    assert ([0, 1, 2, 3, 3] > lp) is False
+
     lp[2:4] = ["two", "three"]
     assert lp == [0, 1, 'two', 'three', 4]
     assert l == [0, 1, 'two', 'three', 4]
