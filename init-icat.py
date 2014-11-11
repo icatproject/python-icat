@@ -113,7 +113,8 @@ client.createRules("R", [ "%s <-> UserGroup <-> User[name=:user]" % groupname ])
 # simple by giving him read all permissions.
 idsreader = client.createUser("idsreader", fullName="IDS reader")
 rallgroup = client.createGroup("rall", [ idsreader ])
-client.createRules("R", alltables, rallgroup)
+ralltables = sorted(set(alltables)-set(pubtables)-set(["Log"]))
+client.createRules("R", ralltables, rallgroup)
 
 # Setup permissions for useroffice.  They need to create
 # Investigations and to setup access permissions for them.  Note that
