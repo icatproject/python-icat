@@ -154,41 +154,42 @@ if client.apiversion > '4.3.99':
 
 else:
 
-    # perm_own_crud: items, that the owners should get CRUD perms on.
-    # perm_own_r: items, that the owners should get R perms on.
-    if client.apiversion < '4.2.99':
-        perm_own_crud = [ "UserGroup <-> Group[name='%s']" % s for s in 
-                          [ writegroupname, readgroupname ] ]
-    else:
-        perm_own_crud = [ "UserGroup <-> Grouping[name='%s']" % s for s in 
-                          [ writegroupname, readgroupname ] ]
-
-
-    investigationstr = "Investigation[name='%s']" % investigation.name
-    # Items, that people in the writers group should get CRUD perms on.
-    perm_crud = [ s % investigationstr for s in 
-                  [ "Sample <-> %s",
-                    "Dataset <-> %s",
-                    "Datafile <-> Dataset <-> %s",
-                    "InvestigationParameter <-> %s",
-                    "SampleParameter <-> Sample <-> %s",
-                    "DatasetParameter <-> Dataset <-> %s",
-                    "DatafileParameter <-> Datafile <-> Dataset <-> %s",
-                    "Shift <-> %s",
-                    "Keyword <-> %s",
-                    "Publication <-> %s", ] ]
+    # Items that are considered to belong to the content of an
+    # investigation, where %s represents the investigation itself.
+    # The writer group will get CRUD permissions and the reader group
+    # R permissions on these items.
+    invitems = [ "Sample <-> %s",
+                 "Dataset <-> %s",
+                 "Datafile <-> Dataset <-> %s",
+                 "InvestigationParameter <-> %s",
+                 "SampleParameter <-> Sample <-> %s",
+                 "DatasetParameter <-> Dataset <-> %s",
+                 "DatafileParameter <-> Datafile <-> Dataset <-> %s",
+                 "Shift <-> %s",
+                 "Keyword <-> %s",
+                 "Publication <-> %s", ] 
     if client.apiversion > '4.2.99':
-        perm_crud.append("InvestigationInstrument <-> %s" % investigationstr)
+        invitems.append("InvestigationInstrument <-> %s")
 
-    # Items, that people in the writers group should get R perms on.
-    perm_r = [ investigationstr, 
-               "InvestigationUser <-> %s" % investigationstr, ]
+    invcond = "Investigation[name='%s']" % investigation.name
 
-    # owners permissions
-    client.createRules("CRUD", perm_own_crud, owngroup)
-    # writers permissions
-    client.createRules("CRUD", perm_crud, writegroup)
-    client.createRules("R", perm_r, writegroup)
-    # people in the readers group just get read access on the whole bunch
-    client.createRules("R", perm_crud + perm_r, readgroup)
+    # set permissions for the writer group
+    client.createRules("R", [ invcond ], writegroup)
+    client.createRules("CRUD", [ s % invcond for s in invitems ], writegroup)
+
+    # set permissions for the reader group
+    client.createRules("R", [ invcond ], readgroup)
+    client.createRules("R", [ s % invcond for s in invitems ], readgroup)
+
+    # set owners permissions
+    if client.apiversion < '4.2.99':
+        groupclass = "Group"
+    else:
+        groupclass = "Grouping"
+    items = [ "UserGroup <-> %s[name='%s']" % (groupclass, s) 
+              for s in [ writegroupname, readgroupname ] ]
+    client.createRules("CRUD", items, owngroup)
+    items = [ "%s[name='%s']" % (groupclass, s) 
+              for s in [ writegroupname, readgroupname ] ]
+    client.createRules("R", items, owngroup)
 

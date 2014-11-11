@@ -67,36 +67,45 @@ alltables = client.getEntityNames()
 
 # Public tables that may be read by anybody.  Basically anything thats
 # static and not related to any particular investigation.
-pubtables = [ "Application", "DatafileFormat", "DatasetType", "Facility", "FacilityCycle", "Instrument", "InstrumentScientist", "InvestigationType", "ParameterType", "PermissibleStringValue", "SampleType", groupname, "User", ]
-
-# Tables needed to setup access permissions
-authztables = [ groupname, "Rule", "User", "UserGroup", ]
+pubtables = [ "Application", "DatafileFormat", "DatasetType", 
+              "Facility", "FacilityCycle", "Instrument", 
+              "InstrumentScientist", "InvestigationType", 
+              "ParameterType", "PermissibleStringValue", "SampleType", 
+              "User", ]
 
 # Objects that useroffice might need to create.  Basically anything
 # related to a particular investigation as a whole, but not to
 # individual items created during the investigation (Datafiles and
 # Datasets).  Plus FacilityCycle and InstrumentScientist.
-uotables = [ "FacilityCycle", "InstrumentScientist", "Investigation", "InvestigationParameter", "InvestigationUser", "Keyword", "Publication", "Shift", "Study", "StudyInvestigation", ] + authztables
+uotables = [ "FacilityCycle", groupname, "InstrumentScientist", 
+             "Investigation", "InvestigationParameter", 
+             "InvestigationUser", "Keyword", "Publication", "Shift", 
+             "Study", "StudyInvestigation", "User", "UserGroup", ]
 if client.apiversion > '4.2.99':
     uotables += [ "InvestigationInstrument", ]
 if client.apiversion > '4.3.99':
     uotables += [ "InvestigationGroup", ]
+if client.apiversion < '4.3.99':
+    uotables += [ "Rule", ]
 
 
 # Permit root to read and write everything.  This gives ourselves the
-# permissions to continue this script further on.
+# permissions to continue this script further on.  With ICAT 4.4 and
+# newer this is not needed, as the root user already has CRUD
+# permission on everything built in.
 root = client.createUser("root", fullName="Root")
-rootgroup = client.createGroup("root", [ root ])
-client.createRules("CRUD", alltables, rootgroup)
+if client.apiversion < '4.3.99':
+    rootgroup = client.createGroup("root", [ root ])
+    client.createRules("CRUD", alltables, rootgroup)
 
 # Grant public read permission to some basic tables.  Note that the
 # created rules do not refer to any group.  That means they will apply
 # to anybody.
 client.createRules("R", pubtables)
 
-# Special rule: each user gets the permission to see which groups he
+# Special rule: each user gets the permission to see the groups he
 # is in.
-client.createRules("R", [ "UserGroup <-> User[name=:user]" ])
+client.createRules("R", [ "%s <-> UserGroup <-> User[name=:user]" % groupname ])
 
 # Add a sepcial user to be configured as reader in ids.server.  This
 # user needs at least permission to read all datasets, datafiles,
@@ -213,57 +222,37 @@ client.createMany(applications)
 
 if client.apiversion > '4.3.99':
 
+    # Items that are considered to belong to the content of an
+    # investigation, where %s represents the investigation itself.
+    # The writer group will get CRUD permissions and the reader group
+    # R permissions on these items.
+    invitems = [ "Sample <-> %s",
+                 "Dataset <-> %s",
+                 "Datafile <-> Dataset <-> %s",
+                 "InvestigationParameter <-> %s",
+                 "SampleParameter <-> Sample <-> %s",
+                 "DatasetParameter <-> Dataset <-> %s",
+                 "DatafileParameter <-> Datafile <-> Dataset <-> %s",
+                 "Shift <-> %s",
+                 "Keyword <-> %s",
+                 "Publication <-> %s",
+                 "InvestigationInstrument <-> %s", ] 
+
     # set permissions for the writer group
     invcond = ("Investigation <-> InvestigationGroup [role='writer'] "
                "<-> Grouping <-> UserGroup <-> User [name=:user]")
-    items = [ s % invcond for s in 
-              [ "Sample <-> %s",
-                "Dataset <-> %s",
-                "Datafile <-> Dataset <-> %s",
-                "InvestigationParameter <-> %s",
-                "SampleParameter <-> Sample <-> %s",
-                "DatasetParameter <-> Dataset <-> %s",
-                "DatafileParameter <-> Datafile <-> Dataset <-> %s",
-                "Shift <-> %s",
-                "Keyword <-> %s",
-                "Publication <-> %s",
-                "InvestigationInstrument <-> %s", ] ]
-    client.createRules("R", [ invcond ])
-    client.createRules("CRUD", items)
+    client.createRules("CRUD", [ s % invcond for s in invitems ])
 
-    # set permissions for the reader group
-    invcond = ("Investigation <-> InvestigationGroup [role='reader'] "
+    # set permissions for the reader group.  Actually, we give read
+    # permissions to all groups related to the investigation.
+    invcond = ("Investigation <-> InvestigationGroup "
                "<-> Grouping <-> UserGroup <-> User [name=:user]")
-    items = [ s % invcond for s in 
-              [ "%s",
-                "Sample <-> %s",
-                "Dataset <-> %s",
-                "Datafile <-> Dataset <-> %s",
-                "InvestigationParameter <-> %s",
-                "SampleParameter <-> Sample <-> %s",
-                "DatasetParameter <-> Dataset <-> %s",
-                "DatafileParameter <-> Datafile <-> Dataset <-> %s",
-                "Shift <-> %s",
-                "Keyword <-> %s",
-                "Publication <-> %s",
-                "InvestigationInstrument <-> %s", ] ]
-    client.createRules("R", items)
-
-    # Give all involved users read permission on InvestigationUser and
-    # InvestigationGroup.  This requires JPQL syntax.
-    invcond = ("JOIN i.investigationGroups ig JOIN ig.grouping g "
-               "JOIN g.userGroups ug JOIN ug.user u "
-               "WHERE u.name = :user")
-    items = [ s % invcond for s in 
-              [ ("SELECT o FROM InvestigationUser o "
-                 "JOIN o.investigation i %s"), 
-                ("SELECT o FROM InvestigationGroup o "
-                 "JOIN o.investigation i %s"), ] ]
-    client.createRules("R", items)
+    client.createRules("R", [ invcond ])
+    client.createRules("R", [ s % invcond for s in invitems ])
 
     # set permission to grant and to revoke permissions for the owner
     # Would like to add a condition 
-    # (tig.role = 'writer' OR tig.role = 'reader'),
+    # ,
     # but this is too long (have 255 chars max).
     item = ("SELECT tug FROM UserGroup tug "
             "JOIN tug.grouping tg "
@@ -272,6 +261,43 @@ if client.apiversion > '4.3.99':
             "JOIN i.investigationGroups uig "
             "JOIN uig.grouping ug "
             "JOIN ug.userGroups uug JOIN uug.user u "
-            "WHERE uig.role = 'owner' AND u.name = :user")
+            "WHERE (tig.role = 'writer' OR tig.role = 'reader') "
+            "AND uig.role = 'owner' AND u.name = :user")
     client.createRules("CRUD", [ item ])
+    item = ("SELECT tg FROM Grouping tg "
+            "JOIN tg.investigationGroups tig "
+            "JOIN tig.investigation i "
+            "JOIN i.investigationGroups uig "
+            "JOIN uig.grouping ug "
+            "JOIN ug.userGroups uug JOIN uug.user u "
+            "WHERE uig.role = 'owner' AND u.name = :user")
+    client.createRules("R", [ item ])
+
+
+# ------------------------------------------------------------
+# Public steps
+# ------------------------------------------------------------
+
+if client.apiversion > '4.2.99':
+    pubsteps = [ ("DataCollection", "parameters"), 
+                 ("Datafile", "dataset"), 
+                 ("Datafile", "parameters"), 
+                 ("Dataset", "datafiles"), 
+                 ("Dataset", "investigation"), 
+                 ("Dataset", "parameters"), 
+                 ("Dataset", "sample"), 
+                 ("Grouping", "userGroups"), 
+                 ("Investigation", "datasets"), 
+                 ("Investigation", "investigationInstruments"), 
+                 ("Investigation", "investigationUsers"), 
+                 ("Investigation", "keywords"), 
+                 ("Investigation", "parameters"), 
+                 ("Investigation", "publications"), 
+                 ("Investigation", "samples"), 
+                 ("Investigation", "shifts"), 
+                 ("Sample", "investigation"), 
+                 ("Sample", "parameters"), ]
+    objs = [ client.new("publicStep", origin=origin, field=field)
+             for (origin, field) in pubsteps ]
+    client.createMany(objs)
 
