@@ -168,8 +168,6 @@ else:
                  "Shift <-> %s",
                  "Keyword <-> %s",
                  "Publication <-> %s", ] 
-    if client.apiversion > '4.2.99':
-        invitems.append("InvestigationInstrument <-> %s")
 
     invcond = "Investigation[name='%s']" % investigation.name
 

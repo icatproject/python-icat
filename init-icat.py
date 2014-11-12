@@ -69,9 +69,8 @@ alltables = set(client.getEntityNames())
 # static and not related to any particular investigation.
 pubtables = { "Application", "DatafileFormat", "DatasetType", 
               "Facility", "FacilityCycle", "Instrument", 
-              "InstrumentScientist", "InvestigationType", 
-              "ParameterType", "PermissibleStringValue", "SampleType", 
-              "User", }
+              "InvestigationType", "ParameterType", 
+              "PermissibleStringValue", "SampleType", "User", }
 
 # Objects that useroffice might need to create.  Basically anything
 # related to a particular investigation as a whole, but not to
@@ -235,8 +234,7 @@ if client.apiversion > '4.3.99':
                  "DatafileParameter <-> Datafile <-> Dataset <-> %s",
                  "Shift <-> %s",
                  "Keyword <-> %s",
-                 "Publication <-> %s",
-                 "InvestigationInstrument <-> %s", ] 
+                 "Publication <-> %s", ] 
 
     # set permissions for the writer group
     invcond = ("Investigation <-> InvestigationGroup [role='writer'] "
@@ -279,7 +277,15 @@ if client.apiversion > '4.3.99':
 # ------------------------------------------------------------
 
 if client.apiversion > '4.2.99':
-    pubsteps = [ ("DataCollection", "parameters"), 
+    # Compatibility ICAT 4.3.0 vs. ICAT 4.3.1 and later: name of the
+    # parameters relation in DataCollection.
+    if client.apiversion < '4.3.1':
+        datacolparamname = 'dataCollectionParameters'
+    else:
+        datacolparamname = 'parameters'
+    pubsteps = [ ("DataCollection", "dataCollectionDatafiles"), 
+                 ("DataCollection", "dataCollectionDatasets"), 
+                 ("DataCollection", datacolparamname), 
                  ("Datafile", "dataset"), 
                  ("Datafile", "parameters"), 
                  ("Dataset", "datafiles"), 
@@ -287,6 +293,7 @@ if client.apiversion > '4.2.99':
                  ("Dataset", "parameters"), 
                  ("Dataset", "sample"), 
                  ("Grouping", "userGroups"), 
+                 ("Instrument", "instrumentScientists"), 
                  ("Investigation", "datasets"), 
                  ("Investigation", "investigationInstruments"), 
                  ("Investigation", "investigationUsers"), 
@@ -295,8 +302,14 @@ if client.apiversion > '4.2.99':
                  ("Investigation", "publications"), 
                  ("Investigation", "samples"), 
                  ("Investigation", "shifts"), 
+                 ("Job", "inputDataCollection"), 
+                 ("Job", "outputDataCollection"), 
                  ("Sample", "investigation"), 
-                 ("Sample", "parameters"), ]
+                 ("Sample", "parameters"), 
+                 ("Study", "studyInvestigations"), ]
+    if client.apiversion > '4.3.99':
+        pubsteps += [ ("Investigation", "investigationGroups"), 
+                      ("InvestigationGroup", "grouping"), ]
     objs = [ client.new("publicStep", origin=origin, field=field)
              for (origin, field) in pubsteps ]
     client.createMany(objs)
