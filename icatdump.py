@@ -201,7 +201,7 @@ if conf.file == "-":
     f = sys.stdout
 else:
     f = open(conf.file, 'w')
-dumpfile = DumpFileWriter(f)
+dumpfile = DumpFileWriter(client, f)
 dumpfile.head(conf.url, str(client.apiversion))
 
 keyindex = {}
