@@ -63,30 +63,30 @@ else:
     groupname = "Grouping"
 
 # List of all tables in the schema
-alltables = client.getEntityNames()
+alltables = set(client.getEntityNames())
 
 # Public tables that may be read by anybody.  Basically anything thats
 # static and not related to any particular investigation.
-pubtables = [ "Application", "DatafileFormat", "DatasetType", 
+pubtables = { "Application", "DatafileFormat", "DatasetType", 
               "Facility", "FacilityCycle", "Instrument", 
               "InstrumentScientist", "InvestigationType", 
               "ParameterType", "PermissibleStringValue", "SampleType", 
-              "User", ]
+              "User", }
 
 # Objects that useroffice might need to create.  Basically anything
 # related to a particular investigation as a whole, but not to
 # individual items created during the investigation (Datafiles and
 # Datasets).  Plus FacilityCycle and InstrumentScientist.
-uotables = [ "FacilityCycle", groupname, "InstrumentScientist", 
+uotables = { "FacilityCycle", groupname, "InstrumentScientist", 
              "Investigation", "InvestigationParameter", 
              "InvestigationUser", "Keyword", "Publication", "Shift", 
-             "Study", "StudyInvestigation", "User", "UserGroup", ]
+             "Study", "StudyInvestigation", "User", "UserGroup", }
 if client.apiversion > '4.2.99':
-    uotables += [ "InvestigationInstrument", ]
+    uotables.add("InvestigationInstrument")
 if client.apiversion > '4.3.99':
-    uotables += [ "InvestigationGroup", ]
+    uotables.add("InvestigationGroup")
 if client.apiversion < '4.3.99':
-    uotables += [ "Rule", ]
+    uotables.add("Rule")
 
 
 # Permit root to read and write everything.  This gives ourselves the
@@ -113,8 +113,7 @@ client.createRules("R", [ "%s <-> UserGroup <-> User[name=:user]" % groupname ])
 # simple by giving him read all permissions.
 idsreader = client.createUser("idsreader", fullName="IDS reader")
 rallgroup = client.createGroup("rall", [ idsreader ])
-ralltables = sorted(set(alltables)-set(pubtables)-set(["Log"]))
-client.createRules("R", ralltables, rallgroup)
+client.createRules("R", alltables - pubtables - {"Log"}, rallgroup)
 
 # Setup permissions for useroffice.  They need to create
 # Investigations and to setup access permissions for them.  Note that
