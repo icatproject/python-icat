@@ -56,7 +56,7 @@ if client.apiversion < '4.2.99':
 client.login(conf.auth, conf.credentials)
 
 
-def dumpobjs(dumpfile, tag, searchexp, keyindex):
+def dumpobjs(dumpfile, searchexp, keyindex):
     i = 0
     objs = client.search(searchexp)
     for obj in sorted(objs, key=icat.entity.Entity.__sortkey__):
@@ -70,7 +70,7 @@ def dumpobjs(dumpfile, tag, searchexp, keyindex):
             keyindex[obj.id] = k
         else:
             k = obj.getUniqueKey(autoget=False, keyindex=keyindex)
-        dumpfile.add(tag, k, obj, keyindex)
+        dumpfile.add(k, obj, keyindex)
 
 
 # We write the data in chunks (separate YAML documents in the case of
@@ -100,10 +100,11 @@ else:
     datacolparamname = 'parameters'
 
 
-# Lists of types with search expressions.
+# Lists of search expressions.
 # 
 # These lists control which objects get written to the dump file and
-# how this file is organized.
+# how this file is organized.  Each list defines the objects that get
+# written to one chunk in the output.
 # 
 # There is some degree of flexibility: an object may include related
 # objects in an one to many relation, just by including it in the
@@ -147,61 +148,52 @@ else:
                            "i.investigationGroups AS ig, ig.grouping, "
                            "i.parameters AS ip, ip.type AS ipt, ipt.facility")
 
-authtypes = [('user', "User"), 
-             ('grouping', "Grouping INCLUDE UserGroup, User"),
-             ('rule', "Rule INCLUDE Grouping"),
-             ('publicStep', "PublicStep")]
-statictypes = [('facility', "Facility"),
-               ('instrument', 
-                "Instrument INCLUDE Facility, InstrumentScientist, User"),
-               ('parameterType', 
-                "ParameterType INCLUDE Facility, PermissibleStringValue"),
-               ('investigationType', "InvestigationType INCLUDE Facility"),
-               ('sampleType', "SampleType INCLUDE Facility"),
-               ('datasetType', "DatasetType INCLUDE Facility"),
-               ('datafileFormat', "DatafileFormat INCLUDE Facility"),
-               ('facilityCycle', "FacilityCycle INCLUDE Facility"),
-               ('application', "Application INCLUDE Facility")]
-investtypes = [('investigation', investigationsearch),
-               ('sample', 
-                "SELECT o FROM Sample o JOIN o.investigation i "
+authtypes = [("User"), 
+             ("Grouping INCLUDE UserGroup, User"),
+             ("Rule INCLUDE Grouping"),
+             ("PublicStep")]
+statictypes = [("Facility"),
+               ("Instrument INCLUDE Facility, InstrumentScientist, User"),
+               ("ParameterType INCLUDE Facility, PermissibleStringValue"),
+               ("InvestigationType INCLUDE Facility"),
+               ("SampleType INCLUDE Facility"),
+               ("DatasetType INCLUDE Facility"),
+               ("DatafileFormat INCLUDE Facility"),
+               ("FacilityCycle INCLUDE Facility"),
+               ("Application INCLUDE Facility")]
+investtypes = [(investigationsearch),
+               ("SELECT o FROM Sample o JOIN o.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
                 "INCLUDE o.investigation, o.type AS ot, ot.facility, "
                 "o.parameters AS op, op.type AS opt, opt.facility"),
-               ('dataset', 
-                "SELECT o FROM Dataset o JOIN o.investigation i "
+               ("SELECT o FROM Dataset o JOIN o.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
                 "INCLUDE o.investigation, o.type AS ot, ot.facility, o.sample, "
                 "o.parameters AS op, op.type AS opt, opt.facility"),
-               ('datafile', 
-                "SELECT o FROM Datafile o "
+               ("SELECT o FROM Datafile o "
                 "JOIN o.dataset ds JOIN ds.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
                 "INCLUDE o.dataset, o.datafileFormat AS dff, dff.facility, "
                 "o.parameters AS op, op.type AS opt, opt.facility")]
-othertypes = [('study', 
-               "SELECT o FROM Study o "
+othertypes = [("SELECT o FROM Study o "
                "INCLUDE o.user, "
                "o.studyInvestigations AS si, si.investigation"),
-              ('relatedDatafile', 
-               "SELECT o FROM RelatedDatafile o "
+              ("SELECT o FROM RelatedDatafile o "
                "INCLUDE o.sourceDatafile AS sdf, sdf.dataset AS sds, "
                "sds.investigation AS si, si.facility, "
                "o.destDatafile AS ddf, ddf.dataset AS dds, "
                "dds.investigation AS di, di.facility"),
-              ('dataCollection', 
-               "SELECT o FROM DataCollection o "
+              ("SELECT o FROM DataCollection o "
                "INCLUDE o.dataCollectionDatasets AS ds, ds.dataset AS dsds, "
                "dsds.investigation AS dsi, dsi.facility, "
                "o.dataCollectionDatafiles AS df, "
                "df.datafile AS dfdf, dfdf.dataset AS dfds, "
                "dfds.investigation AS dfi, dfi.facility, "
                "o.%s AS op, op.type" % datacolparamname),
-              ('job', 
-               "SELECT o FROM Job o "
+              ("SELECT o FROM Job o "
                "INCLUDE o.application AS app, app.facility, "
                "o.inputDataCollection, o.outputDataCollection")]
 
@@ -214,13 +206,13 @@ dumpfile.head(conf.url, str(client.apiversion))
 
 keyindex = {}
 dumpfile.startdata()
-for name, searchexp in authtypes:
-    dumpobjs(dumpfile, name, searchexp, keyindex)
+for searchexp in authtypes:
+    dumpobjs(dumpfile, searchexp, keyindex)
 
 keyindex = {}
 dumpfile.startdata()
-for name, searchexp in statictypes:
-    dumpobjs(dumpfile, name, searchexp, keyindex)
+for searchexp in statictypes:
+    dumpobjs(dumpfile, searchexp, keyindex)
 
 # Dump the investigations each in their own document
 investsearch = "SELECT i FROM Investigation i INCLUDE i.facility"
@@ -230,13 +222,13 @@ investigations.sort()
 for inv in investigations:
     keyindex = {}
     dumpfile.startdata()
-    for name, searchexp in investtypes:
-        dumpobjs(dumpfile, name, searchexp % inv, keyindex)
+    for searchexp in investtypes:
+        dumpobjs(dumpfile, searchexp % inv, keyindex)
 
 keyindex = {}
 dumpfile.startdata()
-for name, searchexp in othertypes:
-    dumpobjs(dumpfile, name, searchexp, keyindex)
+for searchexp in othertypes:
+    dumpobjs(dumpfile, searchexp, keyindex)
 
 dumpfile.finalize()
 f.close()

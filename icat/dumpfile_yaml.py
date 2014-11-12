@@ -195,8 +195,9 @@ class YAMLDumpFileWriter(object):
                       default_flow_style=False, explicit_start=True)
         self.data = {}
 
-    def add(self, tag, key, obj, keyindex):
+    def add(self, key, obj, keyindex):
         """Add an entity object to the current data chunk."""
+        tag = obj.instancetype
         if tag not in entitytypes:
             raise ValueError("Unknown entity type '%s'" % tag)
         if tag not in self.data:
