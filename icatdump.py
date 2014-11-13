@@ -25,29 +25,25 @@
 #    it.
 #
 
-import sys
+import logging
 import icat
 import icat.config
-import logging
+from icat.dumpfile import open_dumpfile
+import icat.dumpfile_xml
+import icat.dumpfile_yaml
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
+formats = icat.dumpfile.Backends.keys()
 config = icat.config.Config()
 config.add_variable('file', ("-o", "--outputfile"), 
                     dict(help="output file name or '-' for stdout"),
                     default='-')
 config.add_variable('format', ("-f", "--format"), 
-                    dict(help="output file format", choices=['XML', 'YAML']),
+                    dict(help="output file format", choices=formats),
                     default='YAML')
 conf = config.getconfig()
-
-if conf.format == 'YAML':
-    from icat.dumpfile_yaml import YAMLDumpFileWriter as DumpFileWriter
-elif conf.format == 'XML':
-    from icat.dumpfile_xml import XMLDumpFileWriter as DumpFileWriter
-else:
-    raise icat.ConfigError("Unknown dump file format '%s'." % conf.format)
 
 client = icat.Client(conf.url, **conf.client_kwargs)
 if client.apiversion < '4.2.99':
@@ -180,26 +176,14 @@ othertypes = [("SELECT o FROM Study o "
                "INCLUDE o.application AS app, app.facility, "
                "o.inputDataCollection, o.outputDataCollection")]
 
-if conf.file == "-":
-    f = sys.stdout
-else:
-    f = open(conf.file, 'w')
-dumpfile = DumpFileWriter(client, f)
-dumpfile.head()
-
-dumpfile.writedata(authtypes)
-
-dumpfile.writedata(statictypes)
-
-# Dump the investigations each in their own chunk
-investsearch = "SELECT i FROM Investigation i INCLUDE i.facility"
-investigations = [(i.facility.id, i.name, i.visitId) 
-                  for i in client.search(investsearch)]
-investigations.sort()
-for inv in investigations:
-    dumpfile.writedata([ se % inv for se in investtypes])
-
-dumpfile.writedata(othertypes)
-
-dumpfile.finalize()
-f.close()
+with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
+    dumpfile.writedata(authtypes)
+    dumpfile.writedata(statictypes)
+    # Dump the investigations each in their own chunk
+    investsearch = "SELECT i FROM Investigation i INCLUDE i.facility"
+    investigations = [(i.facility.id, i.name, i.visitId) 
+                      for i in client.search(investsearch)]
+    investigations.sort()
+    for inv in investigations:
+        dumpfile.writedata([ se % inv for se in investtypes])
+    dumpfile.writedata(othertypes)

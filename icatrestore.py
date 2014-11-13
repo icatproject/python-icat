@@ -26,30 +26,26 @@
 #  + Restoring of several entity types has not yet been
 #    tested.  See icatdump.py for a list.
 
+import logging
 import icat
 import icat.config
-import sys
-import logging
+from icat.dumpfile import open_dumpfile
+import icat.dumpfile_xml
+import icat.dumpfile_yaml
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 log = logging.getLogger(__name__)
 
+formats = icat.dumpfile.Backends.keys()
 config = icat.config.Config()
 config.add_variable('file', ("-i", "--inputfile"), 
                     dict(help="input file name or '-' for stdin"),
                     default='-')
 config.add_variable('format', ("-f", "--format"), 
-                    dict(help="input file format", choices=['XML', 'YAML']),
+                    dict(help="input file format", choices=formats),
                     default='YAML')
 conf = config.getconfig()
-
-if conf.format == 'YAML':
-    from icat.dumpfile_yaml import YAMLDumpFileReader as DumpFileReader
-elif conf.format == 'XML':
-    from icat.dumpfile_xml import XMLDumpFileReader as DumpFileReader
-else:
-    raise icat.ConfigError("Unknown dump file format '%s'." % conf.format)
 
 client = icat.Client(conf.url, **conf.client_kwargs)
 if client.apiversion < '4.3':
@@ -79,11 +75,6 @@ client.login(conf.auth, conf.credentials)
 # boundaries.  It is in the responsibility of the creator of the dump
 # file to create the chunks in this manner.
 
-if conf.file == "-":
-    f = sys.stdin
-else:
-    f = open(conf.file, 'r')
-dumpfile = DumpFileReader(client, f)
-for obj in dumpfile.getobjs():
-    obj.create()
-f.close()
+with open_dumpfile(client, conf.file, conf.format, 'r') as dumpfile:
+    for obj in dumpfile.getobjs():
+        obj.create()

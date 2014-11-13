@@ -5,9 +5,7 @@ import os
 import datetime
 from lxml import etree
 import icat
-from icat.dumpfile import *
-
-__all__ = ['XMLDumpFileReader', 'XMLDumpFileWriter']
+import icat.dumpfile
 
 
 # ------------------------------------------------------------
@@ -88,11 +86,11 @@ def elem2entity(client, insttypemap, element, objtype, objindex):
 # XMLDumpFileReader
 # ------------------------------------------------------------
 
-class XMLDumpFileReader(DumpFileReader):
+class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
     """Backend for icatrestore.py to read a XML dump file."""
 
     def __init__(self, client, infile):
-        super(XMLDumpFileReader, self).__init__(client)
+        super(XMLDumpFileReader, self).__init__(client, infile)
         # need binary mode for infile
         self.infile = os.fdopen(os.dup(infile.fileno()), 'rb')
         self.insttypemap = { c.BeanName:t 
@@ -122,11 +120,11 @@ class XMLDumpFileReader(DumpFileReader):
 # XMLDumpFileWriter
 # ------------------------------------------------------------
 
-class XMLDumpFileWriter(DumpFileWriter):
+class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     """Backend for icatdump.py to write a XML dump file."""
 
     def __init__(self, client, outfile):
-        super(XMLDumpFileWriter, self).__init__(client)
+        super(XMLDumpFileWriter, self).__init__(client, outfile)
         # need binary mode for outfile
         self.outfile = os.fdopen(os.dup(outfile.fileno()), 'wb')
         self.data = etree.Element("data")
@@ -166,3 +164,6 @@ class XMLDumpFileWriter(DumpFileWriter):
         self.startdata()
         self.outfile.write(b"</icatdump>\n")
         self.outfile.close()
+
+
+icat.dumpfile.register_backend("XML", XMLDumpFileReader, XMLDumpFileWriter)

@@ -2,9 +2,8 @@
 icatrestore.py must implement.
 """
 
+import sys
 import icat
-
-__all__ = ['DumpFileReader', 'DumpFileWriter']
 
 
 # ------------------------------------------------------------
@@ -14,8 +13,15 @@ __all__ = ['DumpFileReader', 'DumpFileWriter']
 class DumpFileReader(object):
     """Base class for backends that read a dump file."""
 
-    def __init__(self, client):
+    def __init__(self, client, infile):
         self.client = client
+        self.infile = infile
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.infile.close()
 
     def getdata(self):
         """Iterate over the data chunks in the dump file.
@@ -52,8 +58,18 @@ class DumpFileReader(object):
 class DumpFileWriter(object):
     """Base class for backends that write a dump file."""
 
-    def __init__(self, client):
+    def __init__(self, client, outfile):
         self.client = client
+        self.outfile = outfile
+
+    def __enter__(self):
+        self.head()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        if type is None:
+            self.finalize()
+        self.outfile.close()
 
     def head(self):
         """Write a header with some meta information to the dump file."""
@@ -131,3 +147,36 @@ class DumpFileWriter(object):
         self.startdata()
         for searchexp in searchexps:
             self.writeobjs(searchexp, keyindex)
+
+
+# ------------------------------------------------------------
+# Register of backends and open_dumpfile()
+# ------------------------------------------------------------
+
+Backends = {}
+
+def register_backend(format, reader, writer):
+    Backends[format] = (reader, writer)
+
+def open_dumpfile(client, f, format, mode):
+    if format not in Backends:
+        raise ValueError("Unknown dump file format '%s'" % format)
+    if mode[0] == 'r':
+        if isinstance(f, basestring):
+            if f == "-":
+                f = sys.stdin
+            else:
+                f = open(f, mode)
+        cls = Backends[format][0]
+        return cls(client, f)
+    elif mode[0] == 'w':
+        if isinstance(f, basestring):
+            if f == "-":
+                f = sys.stdout
+            else:
+                f = open(f, mode)
+        cls = Backends[format][1]
+        return cls(client, f)
+    else:
+        raise ValueError("Invalid file mode '%s'" % mode)
+

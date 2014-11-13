@@ -4,9 +4,7 @@
 import datetime
 import yaml
 import icat
-from icat.dumpfile import *
-
-__all__ = ['YAMLDumpFileReader', 'YAMLDumpFileWriter']
+import icat.dumpfile
 
 
 # ------------------------------------------------------------
@@ -128,12 +126,11 @@ def dict2entity(client, insttypemap, d, objtype, objindex):
 # YAMLDumpFileReader
 # ------------------------------------------------------------
 
-class YAMLDumpFileReader(DumpFileReader):
+class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
     """Backend for icatrestore.py to read a YAML dump file."""
 
     def __init__(self, client, infile):
-        super(YAMLDumpFileReader, self).__init__(client)
-        self.infile = infile
+        super(YAMLDumpFileReader, self).__init__(client, infile)
         self.insttypemap = { c.BeanName:t 
                              for t,c in self.client.typemap.iteritems() }
 
@@ -166,12 +163,11 @@ class YAMLDumpFileReader(DumpFileReader):
 # YAMLDumpFileWriter
 # ------------------------------------------------------------
 
-class YAMLDumpFileWriter(DumpFileWriter):
+class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     """Backend for icatdump.py to write a YAML dump file."""
 
     def __init__(self, client, outfile):
-        super(YAMLDumpFileWriter, self).__init__(client)
-        self.outfile = outfile
+        super(YAMLDumpFileWriter, self).__init__(client, outfile)
         self.data = {}
 
     def head(self):
@@ -209,3 +205,6 @@ class YAMLDumpFileWriter(DumpFileWriter):
     def finalize(self):
         """Finalize the dump file."""
         self.startdata()
+
+
+icat.dumpfile.register_backend("YAML", YAMLDumpFileReader, YAMLDumpFileWriter)
