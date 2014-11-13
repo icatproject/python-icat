@@ -187,31 +187,19 @@ else:
 dumpfile = DumpFileWriter(client, f)
 dumpfile.head(conf.url, str(client.apiversion))
 
-keyindex = {}
-dumpfile.startdata()
-for searchexp in authtypes:
-    dumpfile.writeobjs(searchexp, keyindex)
+dumpfile.writedata(authtypes)
 
-keyindex = {}
-dumpfile.startdata()
-for searchexp in statictypes:
-    dumpfile.writeobjs(searchexp, keyindex)
+dumpfile.writedata(statictypes)
 
-# Dump the investigations each in their own document
+# Dump the investigations each in their own chunk
 investsearch = "SELECT i FROM Investigation i INCLUDE i.facility"
 investigations = [(i.facility.id, i.name, i.visitId) 
                   for i in client.search(investsearch)]
 investigations.sort()
 for inv in investigations:
-    keyindex = {}
-    dumpfile.startdata()
-    for searchexp in investtypes:
-        dumpfile.writeobjs(searchexp % inv, keyindex)
+    dumpfile.writedata([ se % inv for se in investtypes])
 
-keyindex = {}
-dumpfile.startdata()
-for searchexp in othertypes:
-    dumpfile.writeobjs(searchexp, keyindex)
+dumpfile.writedata(othertypes)
 
 dumpfile.finalize()
 f.close()

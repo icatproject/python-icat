@@ -106,3 +106,14 @@ class DumpFileWriter(object):
                 k = obj.getUniqueKey(autoget=False, keyindex=keyindex)
             self.writeobj(k, obj, keyindex)
 
+    def writedata(self, searchexps):
+        """Write a data chunk.
+
+        :param searchexps: a list of expressions to search for the
+            objects to write.  See `writeobjs` for details.
+        :type searchexps: ``list`` of ``str``
+        """
+        keyindex = {}
+        self.startdata()
+        for searchexp in searchexps:
+            self.writeobjs(searchexp, keyindex)
