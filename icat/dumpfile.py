@@ -41,7 +41,7 @@ class DumpFileWriter(object):
     def __init__(self, client):
         self.client = client
 
-    def head(self, service, apiversion):
+    def head(self):
         """Write a header with some meta information to the dump file."""
         raise NotImplementedError
 

@@ -185,7 +185,7 @@ if conf.file == "-":
 else:
     f = open(conf.file, 'w')
 dumpfile = DumpFileWriter(client, f)
-dumpfile.head(conf.url, str(client.apiversion))
+dumpfile.head()
 
 dumpfile.writedata(authtypes)
 

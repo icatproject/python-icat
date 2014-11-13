@@ -174,7 +174,7 @@ class YAMLDumpFileWriter(DumpFileWriter):
         self.outfile = outfile
         self.data = {}
 
-    def head(self, service, apiversion):
+    def head(self):
         """Write a header with some meta information to the dump file."""
         dateformat = "%a, %d %b %Y %H:%M:%S +0000"
         date = datetime.datetime.utcnow().strftime(dateformat)
@@ -183,7 +183,7 @@ class YAMLDumpFileWriter(DumpFileWriter):
 # Service: %s
 # ICAT-API: %s
 # Generator: icatdump (python-icat %s)
-""" % (date, service, apiversion, icat.__version__)
+""" % (date, self.client.url, self.client.apiversion, icat.__version__)
         self.outfile.write(head)
 
     def startdata(self):

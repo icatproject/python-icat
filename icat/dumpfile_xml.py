@@ -131,13 +131,13 @@ class XMLDumpFileWriter(DumpFileWriter):
         self.outfile = os.fdopen(os.dup(outfile.fileno()), 'wb')
         self.data = etree.Element("data")
 
-    def head(self, service, apiversion):
+    def head(self):
         """Write a header with some meta information to the dump file."""
         date = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         head = etree.Element("head")
         etree.SubElement(head, "date").text = date
-        etree.SubElement(head, "service").text = service
-        etree.SubElement(head, "apiversion").text = apiversion
+        etree.SubElement(head, "service").text = self.client.url
+        etree.SubElement(head, "apiversion").text = str(self.client.apiversion)
         etree.SubElement(head, "generator").text = ("icatdump (python-icat %s)" 
                                                     % icat.__version__)
         self.outfile.write(b"""<?xml version="1.0" encoding="utf-8"?>
