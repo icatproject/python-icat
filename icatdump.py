@@ -56,23 +56,6 @@ if client.apiversion < '4.2.99':
 client.login(conf.auth, conf.credentials)
 
 
-def dumpobjs(dumpfile, searchexp, keyindex):
-    i = 0
-    objs = client.search(searchexp)
-    for obj in sorted(objs, key=icat.entity.Entity.__sortkey__):
-        # Entities without a constraint will use their id to form the
-        # unique key as a last resort.  But we want the keys to have a
-        # well defined order, independent from the id.  Use a simple
-        # numbered key for the concerned entity types.
-        if 'id' in obj.Constraint:
-            i += 1
-            k = "%s_%08d" % (obj.BeanName, i)
-            keyindex[obj.id] = k
-        else:
-            k = obj.getUniqueKey(autoget=False, keyindex=keyindex)
-        dumpfile.add(k, obj, keyindex)
-
-
 # We write the data in chunks (separate YAML documents in the case of
 # a YAML dump file, content of separate data elements in the case of
 # XML).  This way we can avoid having the whole file, e.g. the
@@ -207,12 +190,12 @@ dumpfile.head(conf.url, str(client.apiversion))
 keyindex = {}
 dumpfile.startdata()
 for searchexp in authtypes:
-    dumpobjs(dumpfile, searchexp, keyindex)
+    dumpfile.writeobjs(searchexp, keyindex)
 
 keyindex = {}
 dumpfile.startdata()
 for searchexp in statictypes:
-    dumpobjs(dumpfile, searchexp, keyindex)
+    dumpfile.writeobjs(searchexp, keyindex)
 
 # Dump the investigations each in their own document
 investsearch = "SELECT i FROM Investigation i INCLUDE i.facility"
@@ -223,12 +206,12 @@ for inv in investigations:
     keyindex = {}
     dumpfile.startdata()
     for searchexp in investtypes:
-        dumpobjs(dumpfile, searchexp % inv, keyindex)
+        dumpfile.writeobjs(searchexp % inv, keyindex)
 
 keyindex = {}
 dumpfile.startdata()
 for searchexp in othertypes:
-    dumpobjs(dumpfile, searchexp, keyindex)
+    dumpfile.writeobjs(searchexp, keyindex)
 
 dumpfile.finalize()
 f.close()
