@@ -52,14 +52,10 @@ if client.apiversion < '4.2.99':
 client.login(conf.auth, conf.credentials)
 
 
-# We write the data in chunks (separate YAML documents in the case of
-# a YAML dump file, content of separate data elements in the case of
-# XML).  This way we can avoid having the whole file, e.g. the
-# complete inventory of the ICAT, at once in memory.  We want to keep
-# these chunks small enough to fit into memory, but at the same time
-# large enough to keep as many relations between objects as possible
-# local in a chunk.  See the comment in icatrestore for an explanation
-# why this is needed.  The partition used here is the following:
+# The data is written in chunks, see the documentation of
+# icat.dumpfile for details why this is needed.  The partition used
+# here is the following:
+#
 #  1. One chunk with all objects that define authorization (User,
 #     Group, Rule, PublicStep).
 #  2. All static content in one chunk, e.g. all objects not related to
@@ -77,31 +73,6 @@ if client.apiversion < '4.3.1':
     datacolparamname = 'dataCollectionParameters'
 else:
     datacolparamname = 'parameters'
-
-
-# Lists of search expressions.
-# 
-# These lists control which objects get written to the dump file and
-# how this file is organized.  Each list defines the objects that get
-# written to one chunk in the output.
-# 
-# There is some degree of flexibility: an object may include related
-# objects in an one to many relation, just by including it in the
-# search expression.  In this case, these related objects should not
-# be listed on their own again.  For instance, here we include
-# UserGroup with Grouping.  UserGroups are included in their
-# respective grouping in the dump file.  We do do not have an own
-# entry for UserGroup in the lists.  We could also have included Rules
-# in Grouping, but we chosed to list them separately.  If we would
-# have included Rules with Grouping, we still would need a list entry
-# for Rule, but then we would need to search only for rules where
-# grouping is NULL.
-# 
-# Objects related in a many to one relation must always be included in
-# the search expression.  This is also true if the object is
-# indirectly related to one of the included objects.  In this case,
-# only a reference to the related object will be included in the dump
-# file.  The related object must have its own list entry.
 
 # Compatibility ICAT 4.3.* vs. ICAT 4.4.0 and later: include
 # InvestigationGroups.

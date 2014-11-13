@@ -54,27 +54,6 @@ if client.apiversion < '4.3':
 client.login(conf.auth, conf.credentials)
 
 
-# We read the data in chunks (separate YAML documents in the case of a
-# YAML dump file, content of separate data elements in the case of
-# XML).  This way we can avoid having the whole file, e.g. the
-# complete inventory of the ICAT, at once in memory.  The problem is
-# that objects contain references to other objects (e.g. Datafiles
-# refer to Datasets, the latter refer to Investigations, and so
-# forth).  We keep an index of the objects in order to resolve these
-# references.  But there is a memory versus time tradeoff: we cannot
-# keep all the objects in the index, that would again mean the
-# complete inventory of the ICAT.  And we can't know beforehand which
-# object is going to be referenced later on, so we don't know which
-# one to keep and which one to discard from the index.  Fortunately we
-# can query objects we discarded once back from the ICAT server with
-# client.searchUniqueKey().  But this is expensive.  So the strategy
-# is as follows: keep all objects from the current chunk in the index
-# and discard the complete index each time a chunk has been processed.
-# This will work fine if objects are mostly referencing other objects
-# from the same chunk and only a few references go across chunk
-# boundaries.  It is in the responsibility of the creator of the dump
-# file to create the chunks in this manner.
-
 with open_dumpfile(client, conf.file, conf.format, 'r') as dumpfile:
     for obj in dumpfile.getobjs():
         obj.create()
