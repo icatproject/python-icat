@@ -177,6 +177,7 @@ class Client(suds.client.Client):
         else:
             idsurl = None
 
+        self.url = url
         super(Client, self).__init__(url, **kwargs)
         apiversion = self.getApiVersion()
         # Translate a version having a trailing '-SNAPSHOT' into
