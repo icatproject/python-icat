@@ -155,7 +155,7 @@ class XMLDumpFileWriter(DumpFileWriter):
             self.outfile.write(etree.tostring(self.data, pretty_print=True))
         self.data = etree.Element("data")
 
-    def add(self, key, obj, keyindex):
+    def writeobj(self, key, obj, keyindex):
         """Add an entity object to the current data chunk."""
         elem = entity2elem(obj, None, keyindex)
         elem.set('id', key)

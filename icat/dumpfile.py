@@ -53,7 +53,7 @@ class DumpFileWriter(object):
         """
         raise NotImplementedError
 
-    def add(self, key, obj, keyindex):
+    def writeobj(self, key, obj, keyindex):
         """Add an entity object to the current data chunk."""
         raise NotImplementedError
 
@@ -104,5 +104,5 @@ class DumpFileWriter(object):
                 keyindex[obj.id] = k
             else:
                 k = obj.getUniqueKey(autoget=False, keyindex=keyindex)
-            self.add(k, obj, keyindex)
+            self.writeobj(k, obj, keyindex)
 
