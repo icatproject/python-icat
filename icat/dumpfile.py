@@ -22,7 +22,7 @@ class DumpFileReader(object):
         """
         raise NotImplementedError
 
-    def getobjs(self, data, objindex):
+    def getobjs_from_data(self, data, objindex):
         """Iterate over the objects in a data chunk.
 
         Yield a new entity object in each iteration.  The object is
