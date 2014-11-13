@@ -84,11 +84,6 @@ if conf.file == "-":
 else:
     f = open(conf.file, 'r')
 dumpfile = DumpFileReader(client, f)
-for data in dumpfile.getdata():
-    objindex = {}
-    for key, obj in dumpfile.getobjs(data, objindex):
-        obj.create()
-        obj.truncateRelations()
-        if key:
-            objindex[key] = obj
+for obj in dumpfile.getobjs():
+    obj.create()
 f.close()

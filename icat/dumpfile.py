@@ -30,6 +30,20 @@ class DumpFileReader(object):
         """
         raise NotImplementedError
 
+    def getobjs(self):
+        """Iterate over the objects in the dump file.
+
+        Yield a new entity object in each iteration.  The object is
+        initialized from the data, but not yet created at the client.
+        """
+        for data in self.getdata():
+            objindex = {}
+            for key, obj in self.getobjs_from_data(data, objindex):
+                yield obj
+                obj.truncateRelations()
+                if key:
+                    objindex[key] = obj
+
 
 # ------------------------------------------------------------
 # DumpFileWriter
