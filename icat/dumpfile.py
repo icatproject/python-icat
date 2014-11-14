@@ -110,6 +110,7 @@ class DumpFileWriter(object):
     def __init__(self, client, outfile):
         self.client = client
         self.outfile = outfile
+        self.idcounter = {}
 
     def __enter__(self):
         self.head()
@@ -168,7 +169,6 @@ class DumpFileWriter(object):
             `Entity` for details.
         :type keyindex: ``dict``
         """
-        i = 0
         objs = self.client.search(searchexp)
         objs.sort(key=icat.entity.Entity.__sortkey__)
         for obj in objs:
@@ -178,8 +178,11 @@ class DumpFileWriter(object):
             # Use a generic numbered key for the concerned entity
             # types instead.
             if 'id' in obj.Constraint:
-                i += 1
-                k = "%s_%08d" % (obj.BeanName, i)
+                t = obj.BeanName
+                if t not in self.idcounter:
+                    self.idcounter[t] = 0
+                self.idcounter[t] += 1
+                k = "%s_%08d" % (t, self.idcounter[t])
                 keyindex[obj.id] = k
             else:
                 k = obj.getUniqueKey(autoget=False, keyindex=keyindex)
