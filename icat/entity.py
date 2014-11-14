@@ -135,15 +135,18 @@ class Entity(object):
 
     def __eq__(self, e):
         if isinstance(e, Entity):
-            return self.instancetype == e.instancetype and self.id == e.id
+            return bool(id(self) == id(e) or (self.id and self.id == e.id))
         else:
             return NotImplemented
 
     def __ne__(self, e):
         if isinstance(e, Entity):
-            return not (self.instancetype == e.instancetype and self.id == e.id)
+            return bool(id(self) != id(e) and (not self.id or self.id != e.id))
         else:
             return NotImplemented
+
+    def __hash__(self):
+        return self.id or id(self)
 
     def __str__(self):
         return str(self.instance)
