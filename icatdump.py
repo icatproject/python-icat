@@ -10,6 +10,10 @@
 #  + This script requires ICAT 4.3.0 or newer.
 #  + IDS is not supported: the script only dumps the meta data stored
 #    in the ICAT, not the content of the files stored in the IDS.
+#  + It is assumed that for each Dataset ds in the ICAT where
+#    ds.sample is not NULL, the condition
+#    ds.investigation == ds.sample.investigation holds.  If this
+#    is not met, this script will fail with a DataConsistencyError.
 #  + The serialization of the following entity types has not yet been
 #    tested: Application, DataCollection, DataCollectionDatafile,
 #    DataCollectionDataset, DataCollectionParameter,
