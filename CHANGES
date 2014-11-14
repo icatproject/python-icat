@@ -21,6 +21,19 @@
    [Suggested by Alistair Mills]
 
  + WARNING, incompatible change!
+   Rework the dump file backend API for icatdump and icatrestore.  As
+   a result, writing custom dump or restore scripts is much cleaner
+   and easier now.
+
+   This causes compatibility issues for users who either wrote their
+   own dump file backend and for users whow wrote custom dump or
+   restore scripts, using the XML or YAML backends.  In the first
+   case, compare the old XML and YAML backends with the new versions
+   and you'll easily see what needs to get adapted.  In the latter
+   case, have a look into the new versions of icatdump and
+   icatrestore to see how to use the new backend API.
+
+ + WARNING, incompatible change!
    Move the group argument to the Client method createRules() to the
    last position and make it optional, having default None.
 
@@ -58,7 +71,10 @@
 
  + Add method getAttrType() to Entity.
 
- + Some small fixes in icatdump and icatrestore.
+ + Slightly modified the "==" and "!=" operator for Entity objects.
+   Add a   hash  () method to the Entity class.  The latter means
+   that you will more likely get what you expect when you create a
+   set of Entity objects or use them as keys in a dict.
 
  + setup.py raises an error with Python 2.6 if python2_6.patch has not
    been applied.
