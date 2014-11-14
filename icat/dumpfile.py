@@ -141,7 +141,7 @@ class DumpFileWriter(object):
         """Finalize the dump file."""
         raise NotImplementedError
 
-    def writeobjs(self, searchexp, keyindex):
+    def writeobjs(self, objs, keyindex):
         """Write some entity objects to the current data chunk.
 
         The objects are searched from the ICAT server.  The key index
@@ -151,25 +151,30 @@ class DumpFileWriter(object):
         These objects may only be referenced from the same data chunk
         in the dump file.
 
-        :param searchexp: expression to use for searching the objects.
-            It must contain appropriate INCLUDE statements to include
-            all related objects from many-to-one relations.  These
-            related objects must also include all informations needed
-            to generate their unique key, unless they are registered
-            in the key index already.
+        :param objs: expression to use for searching the objects.  It
+            must contain appropriate INCLUDE statements to include all
+            related objects from many-to-one relations.  These related
+            objects must also include all informations needed to
+            generate their unique key, unless they are registered in
+            the key index already.
 
             Furthermore, related objects from one-to-many relations
             may be included.  These objects will then be embedded with
             the relating object in the dump file.  The same
             requirements for including their respective related
             objects apply.
-        :type searchexp: ``str``
+
+            As an alternative to a search expression, objs may also be
+            a list of entity objects.  The same conditions on the
+            inclusion of related objects apply.
+        :type objs: ``str`` or ``list``
         :param keyindex: cache of generated keys.  It maps object ids
             to unique keys.  See the ``getUniqueKey()`` method of
             `Entity` for details.
         :type keyindex: ``dict``
         """
-        objs = self.client.search(searchexp)
+        if isinstance(objs, basestring):
+            objs = self.client.search(objs)
         objs.sort(key=icat.entity.Entity.__sortkey__)
         for obj in objs:
             # Entities without a constraint will use their id to form
@@ -188,17 +193,17 @@ class DumpFileWriter(object):
                 k = obj.getUniqueKey(autoget=False, keyindex=keyindex)
             self.writeobj(k, obj, keyindex)
 
-    def writedata(self, searchexps):
+    def writedata(self, objs):
         """Write a data chunk.
 
-        :param searchexps: a list of expressions to search for the
-            objects to write.  See `writeobjs` for details.
-        :type searchexps: ``list`` of ``str``
+        :param objs: a list of expressions to search for the objects
+            to write.  See `writeobjs` for details.
+        :type objs: ``list`` of ``str``
         """
         keyindex = {}
         self.startdata()
-        for searchexp in searchexps:
-            self.writeobjs(searchexp, keyindex)
+        for o in objs:
+            self.writeobjs(o, keyindex)
 
 
 # ------------------------------------------------------------
