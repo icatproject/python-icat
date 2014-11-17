@@ -1,7 +1,7 @@
 #! /usr/bin/python
 #
-# Dump the all objects related to a single investigation to a file or
-# to stdout.
+# Dump the objects related to a single investigation to a file or to
+# stdout.
 #
 # This is intended to demonstrate the dumpfile API.  The result
 # should be a subset of the dumpfile created by icatdump.
