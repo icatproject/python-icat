@@ -76,6 +76,11 @@ pubtables = { "Application", "DatafileFormat", "DatasetType",
 # related to a particular investigation as a whole, but not to
 # individual items created during the investigation (Datafiles and
 # Datasets).  Plus FacilityCycle and InstrumentScientist.
+#
+# With ICAT 4.4 and newer, access permisions on investigations are
+# based InvestigationGroup.  In this case, we have a fixed set of
+# static rules.  With older ICAT versions, we need per investigation
+# rules and thus useroffice need permission to create them.
 uotables = { "FacilityCycle", groupname, "InstrumentScientist", 
              "Investigation", "InvestigationParameter", 
              "InvestigationUser", "Keyword", "Publication", "Shift", 
