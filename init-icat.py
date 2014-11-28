@@ -51,6 +51,7 @@ else:
 data = yaml.load(f)
 f.close()
 
+
 # ------------------------------------------------------------
 # Setup some basic permissions
 # ------------------------------------------------------------
@@ -104,8 +105,8 @@ if client.apiversion < '4.3.99':
 
 # Grant public read permission to some basic tables.  Note that the
 # created rules do not refer to any group.  That means they will apply
-# to anybody.
-client.createRules("R", pubtables)
+# to anybody.  SampleType is a special case, dealt with below.
+client.createRules("R", pubtables - {"SampleType"})
 
 # Special rule: each user gets the permission to see the groups he
 # is in.
@@ -127,93 +128,35 @@ useroffice = client.createUser("useroffice", fullName="User Office")
 uogroup = client.createGroup("useroffice", [ useroffice ])
 client.createRules("CRUD", uotables, uogroup)
 
-# Special case SampleType: most tables in the data base are either
-# specific to the site as a whole (most public tables) or specific to
-# a particular investigation.  The former contain public data that is
-# mostly static, created once at initialization and does not change
-# too much later on.  The latter is private and created during each
-# investigation.  SampleType is something inbetween: it is considered
-# public data and shared among unrelated investigations.  But still
-# each investigation might come up with a new SampleType and might
-# need to create them.
-#
-# This requires special permissions.  Create a group of SampleType
-# writers that have write permissions in SampleType.  We will populate
-# this group later.
-st_writers = client.createGroup("samplewriter")
-client.createRules("CRUD", [ "SampleType" ], st_writers)
-
 
 # ------------------------------------------------------------
-# Create facilities
+# Permissions for some special cases
 # ------------------------------------------------------------
 
-facilities = {}
-for k in data['facilities'].keys():
-    fac = client.new("facility")
-    initobj(fac, data['facilities'][k])
-    fac.create()
-    facilities[k] = fac
+# SampleType is a public table that may be read by anybody.
+# Furthermore still, users may come up with their own special samples
+# and might need to create thier own type.  So allow also creation by
+# anybody.  Since also these special sample types may be shared
+# between users, we do not allow update or delete, not even for the
+# sample type that the user created himself.  Only scientific staff is
+# allowed to do housekeeping.  To do this, scientific staff must also
+# be allowed to update all samples, in order to merge duplicate sample
+# types.
+staff = client.createGroup("scientific_staff")
+client.createRules("CR", ["SampleType"])
+client.createRules("UD", ["SampleType"], staff)
+client.createRules("RU", ["Sample"], staff)
 
-
-# ------------------------------------------------------------
-# Create instruments
-# ------------------------------------------------------------
-
-instusers = []
-for k in data['instruments'].keys():
-    inst = client.new("instrument")
-    initobj(inst, data['instruments'][k])
-    inst.facility = facilities[data['instruments'][k]['facility']]
-    inst.create()
-    ud = data['users'][data['instruments'][k]['instrumentscientist']]
-    instuser = client.createUser(ud['name'], fullName=ud['fullName'], 
-                                 search=True)
-    inst.addInstrumentScientists([instuser])
-    instusers.append(instuser)
-# As a default rule, instrument scientists are SampleType writers
-st_writers.addUsers(instusers)
-
-
-# ------------------------------------------------------------
-# Create InvestigationType, DatasetType, DatafileFormat
-# ------------------------------------------------------------
-
-# investigationTypes
-investigation_types = []
-for k in data['investigation_types'].keys():
-    it = client.new("investigationType")
-    initobj(it, data['investigation_types'][k])
-    it.facility = facilities[data['investigation_types'][k]['facility']]
-    investigation_types.append(it)
-client.createMany(investigation_types)
-
-# datasetTypes
-dataset_types = []
-for k in data['dataset_types'].keys():
-    dt = client.new("datasetType")
-    initobj(dt, data['dataset_types'][k])
-    dt.facility = facilities[data['dataset_types'][k]['facility']]
-    dataset_types.append(dt)
-client.createMany(dataset_types)
-
-# datafileFormats
-fileformats = []
-for k in data['datafile_formats'].keys():
-    ff = client.new("datafileFormat")
-    initobj(ff, data['datafile_formats'][k])
-    ff.facility = facilities[data['datafile_formats'][k]['facility']]
-    fileformats.append(ff)
-client.createMany(fileformats)
-
-# applications
-applications = []
-for k in data['applications'].keys():
-    app = client.new("application")
-    initobj(app, data['applications'][k])
-    app.facility = facilities[data['applications'][k]['facility']]
-    applications.append(app)
-client.createMany(applications)
+# Everybody is allowed to create DataCollections.  But they are
+# private, so users are only allowed to read, update or delete
+# DataCollections they created themselves.  Similar thing for Job.
+owndccond = "DataCollection [createId=:user]"
+owndc = [ s % owndccond for s in 
+          [ "%s", 
+            "DataCollectionDatafile <-> %s", 
+            "DataCollectionDataset <-> %s" ] ]
+client.createRules("CRUD", owndc)
+client.createRules("CRUD", ["Job [createId=:user]"])
 
 
 # ------------------------------------------------------------
@@ -309,7 +252,6 @@ if client.apiversion > '4.2.99':
                  ("Investigation", "shifts"), 
                  ("Job", "inputDataCollection"), 
                  ("Job", "outputDataCollection"), 
-                 ("Sample", "investigation"), 
                  ("Sample", "parameters"), 
                  ("Study", "studyInvestigations"), ]
     if client.apiversion > '4.3.99':
@@ -318,4 +260,77 @@ if client.apiversion > '4.2.99':
     objs = [ client.new("publicStep", origin=origin, field=field)
              for (origin, field) in pubsteps ]
     client.createMany(objs)
+
+
+# ------------------------------------------------------------
+# Create facilities
+# ------------------------------------------------------------
+
+facilities = {}
+for k in data['facilities'].keys():
+    fac = client.new("facility")
+    initobj(fac, data['facilities'][k])
+    fac.create()
+    facilities[k] = fac
+
+
+# ------------------------------------------------------------
+# Create instruments
+# ------------------------------------------------------------
+
+instusers = []
+for k in data['instruments'].keys():
+    inst = client.new("instrument")
+    initobj(inst, data['instruments'][k])
+    inst.facility = facilities[data['instruments'][k]['facility']]
+    inst.create()
+    ud = data['users'][data['instruments'][k]['instrumentscientist']]
+    instuser = client.createUser(ud['name'], fullName=ud['fullName'], 
+                                 search=True)
+    inst.addInstrumentScientists([instuser])
+    instusers.append(instuser)
+# As a default rule, instrument scientists are scientific staff
+staff.addUsers(instusers)
+
+
+# ------------------------------------------------------------
+# Create InvestigationType, DatasetType, DatafileFormat
+# ------------------------------------------------------------
+
+# investigationTypes
+investigation_types = []
+for k in data['investigation_types'].keys():
+    it = client.new("investigationType")
+    initobj(it, data['investigation_types'][k])
+    it.facility = facilities[data['investigation_types'][k]['facility']]
+    investigation_types.append(it)
+client.createMany(investigation_types)
+
+# datasetTypes
+dataset_types = []
+for k in data['dataset_types'].keys():
+    dt = client.new("datasetType")
+    initobj(dt, data['dataset_types'][k])
+    dt.facility = facilities[data['dataset_types'][k]['facility']]
+    dataset_types.append(dt)
+client.createMany(dataset_types)
+
+# datafileFormats
+fileformats = []
+for k in data['datafile_formats'].keys():
+    ff = client.new("datafileFormat")
+    initobj(ff, data['datafile_formats'][k])
+    ff.facility = facilities[data['datafile_formats'][k]['facility']]
+    fileformats.append(ff)
+client.createMany(fileformats)
+
+# applications
+applications = []
+for k in data['applications'].keys():
+    app = client.new("application")
+    initobj(app, data['applications'][k])
+    app.facility = facilities[data['applications'][k]['facility']]
+    applications.append(app)
+client.createMany(applications)
+
 
