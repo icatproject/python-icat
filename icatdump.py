@@ -15,12 +15,11 @@
 #    ds.investigation == ds.sample.investigation holds.  If this
 #    is not met, this script will fail with a DataConsistencyError.
 #  + The serialization of the following entity types has not yet been
-#    tested: Application, DataCollection, DataCollectionDatafile,
-#    DataCollectionDataset, DataCollectionParameter,
-#    DatafileParameter, DatasetParameter, FacilityCycle,
-#    InvestigationParameter, Job, ParameterType,
-#    PermissibleStringValue, PublicStep, Publication, RelatedDatafile,
-#    SampleParameter, Shift, Study, StudyInvestigation.
+#    tested: DataCollectionParameter, DatafileParameter,
+#    DatasetParameter, FacilityCycle, InvestigationParameter,
+#    ParameterType, PermissibleStringValue, Publication,
+#    RelatedDatafile, SampleParameter, Shift, Study,
+#    StudyInvestigation.
 #  + The data in the ICAT server must not be modified while this
 #    script is retrieving it.  Otherwise the script may fail or the
 #    dumpfile be inconsistent.  There is not too much that can be done
