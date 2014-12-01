@@ -9,9 +9,7 @@ is based on Suds and extends it with ICAT specific features.
 System Requirements
 -------------------
 
- + Python 2.6, 2.7, 3.1, or 3.2.
-   The IDS client in python-icat has issues with Python 3.3 and 3.4,
-   otherwise these Python version work as well.
+ + Python 2.6, 2.7, or 3.1 and newer.
    Python 2.6 requires patching the sources, see below.
    Python 2.5 is too old and will not work.
 
@@ -54,8 +52,8 @@ Modules [7] for details or to customize the install process.
 The last step might require admin privileges in order to write into
 the site-packages directory of your Python installation.
 
-If you are using Python 2.6 or older, apply python2_6.patch after the
-first step:
+If you are using Python 2.6, apply python2_6.patch after the first
+step:
 
  1a. Patch:
      $ patch -p0 < python2_6.patch
@@ -76,7 +74,7 @@ unsorted collection of test scripts that I initially wrote for myself
 to try things out.
 
 Almost all scripts use example_data.yaml as input for test data.  Of
-course for real production scripts, the input will come from different
+course for real production, the input will come from different
 sources, out of some workflow from the site.  But this would be
 dynamic and site specific and thus not suitable, neither for testing
 nor for the inclusion into example scripts.  So its easier to have
@@ -94,16 +92,16 @@ Bugs and limitations
    a domain component.  E.g. setting no_proxy=ion.example.org will not
    only exclude icat.ion.example.org, but also lion.example.org,
    although the latter is not in the ion.example.org domain.  IP
-   adresses are supported in no_proxy.  This is a limitation in the
-   implementation of the underlying Python library.
+   adresses are not supported in no_proxy.  This is a limitation in
+   the implementation of the underlying Python library.
 
  + There is a bug in the original version of Suds: the way it deals
    with datetime values is broken.  Suds converts all incoming
    datetime values from the server into what it believes to be local
    time and then throws all time zone information away.  The problem
    is that Suds' conception of the local time is flawed such that the
-   result from this conversion is wrong.  There is no reliable way to
-   fix the values afterwards.
+   result from this conversion may be wrong.  There is no reliable way
+   to fix the values afterwards.
 
    One can work around this by setting the local time zone to UTC.
    (The conversion to UTC is done correctly in Suds.)  As a result,
