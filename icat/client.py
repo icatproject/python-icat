@@ -119,7 +119,8 @@ TypeMap44 = TypeMap431.copy()
 """Map instance types defined in the WSDL to Python classes (ICAT 4.4.0)."""
 TypeMap44.update( grouping = icat.entities.Group44, 
                   investigation = icat.entities.Investigation44, 
-                  investigationGroup = icat.entities.InvestigationGroup )
+                  investigationGroup = icat.entities.InvestigationGroup, 
+                  investigationUser = icat.entities.InvestigationUser44 )
 
 class Client(suds.client.Client):
  

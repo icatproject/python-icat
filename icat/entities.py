@@ -335,7 +335,7 @@ class Investigation44(Investigation43):
 class InvestigationGroup(Entity):
     """Many to many relationship between investigation and group."""
     BeanName = 'InvestigationGroup'
-    Constraint = ('grouping', 'investigation')
+    Constraint = ('grouping', 'investigation', 'role')
     InstAttr = frozenset(['id', 'role'])
     InstRel = frozenset(['investigation', 'grouping'])
 
@@ -370,6 +370,11 @@ class InvestigationUser(Entity):
     Constraint = ('user', 'investigation')
     InstAttr = frozenset(['id', 'role'])
     InstRel = frozenset(['user', 'investigation'])
+
+
+class InvestigationUser44(InvestigationUser):
+    """Many to many relationship between investigation and user."""
+    Constraint = ('user', 'investigation', 'role')
 
 
 class Job(Entity):
