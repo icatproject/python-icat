@@ -58,8 +58,9 @@ step:
  1a. Patch:
      $ patch -p0 < python2_6.patch
 
-It removes the use of dict comprehensions and of the bytes string
-literal prefix 'b' which were introduced in Python 2.7.
+It removes the use of certain language features (dict comprehensions,
+curly braces notation of sets, bytes string literal prefix 'b') that
+were introduced in Python 2.7.
 
 
 Documentation
