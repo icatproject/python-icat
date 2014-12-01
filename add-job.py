@@ -106,7 +106,7 @@ for ds in jobdata['output']['datasets']:
     searchexp = ("SELECT dst FROM DatasetType dst WHERE dst.name='%s'" 
                  % data['dataset_types'][ds['type']]['name'])
     dataset_type = client.assertedSearch(searchexp)[0]
-    print("Dataset: creating '%s' ..." % datasetdata['name'])
+    print("Dataset: creating '%s' ..." % ds['name'])
     dataset = client.new("dataset")
     initobj(dataset, ds)
     dataset.investigation = investigation
@@ -117,7 +117,7 @@ for ds in jobdata['output']['datasets']:
                      "WHERE dff.name='%s' AND dff.version='%s'" 
                      % (data['datafile_formats'][df['format']]['name'], 
                         data['datafile_formats'][df['format']]['version']))
-        datafile_format = client.assertedSearch(dstsearch)[0]
+        datafile_format = client.assertedSearch(searchexp)[0]
         print("Datafile: creating '%s' ..." % df['name'])
         datafile = client.new("datafile")
         initobj(datafile, df)
