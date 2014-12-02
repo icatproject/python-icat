@@ -90,7 +90,7 @@ if client.apiversion > '4.2.99':
     uotables.add("InvestigationInstrument")
 if client.apiversion > '4.3.99':
     uotables.add("InvestigationGroup")
-if client.apiversion < '4.3.99':
+else:
     uotables.add("Rule")
 
 
