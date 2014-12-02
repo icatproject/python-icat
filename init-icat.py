@@ -5,7 +5,7 @@
 # - setup basic permissions
 # - create a facility
 # - create an instrument
-# - create InvestigationType, DatasetType, DatafileParameter
+# - create InvestigationType, DatasetType, DatafileFormat
 #
 # This script must be run by the ICAT root user as configured in the
 # rootUserNames property.
@@ -196,10 +196,7 @@ if client.apiversion > '4.3.99':
     client.createRules("R", [ invcond ])
     client.createRules("R", [ s % invcond for s in invitems ])
 
-    # set permission to grant and to revoke permissions for the owner
-    # Would like to add a condition 
-    # ,
-    # but this is too long (have 255 chars max).
+    # set permission to grant and to revoke permissions for the owner.
     item = ("SELECT tug FROM UserGroup tug "
             "JOIN tug.grouping tg "
             "JOIN tg.investigationGroups tig "
