@@ -22,6 +22,14 @@
    http_proxy, https_proxy, and no_proxy are set in the environment.
    [Suggested by Alistair Mills]
 
+ + The searchText() client method has been deprecated.  It is destined
+   to be dropped from the ICAT server in version 4.5.0 and might get
+   removed from python-icat in a future release as well.
+
+   The method now emits a deprecation warning when called.  Note
+   however that Python by default ignores deprecation warnings, so you
+   won't see this unless you switch them on.
+
  + WARNING, incompatible change!
    Rework the dump file backend API for icatdump and icatrestore.  As
    a result, writing custom dump or restore scripts is much cleaner
@@ -77,6 +85,11 @@
    Add a   hash  () method to the Entity class.  The latter means
    that you will more likely get what you expect when you create a
    set of Entity objects or use them as keys in a dict.
+
+ + The module icat.eval now only does its work (parsing command line
+   arguments and connecting to an ICAT server) when called from the
+   Python command line.  When imported as a regular module, it will
+   essentially do nothing.  This avoids errors to occur when imported.
 
  + setup.py raises an error with Python 2.6 if python2_6.patch has not
    been applied.
