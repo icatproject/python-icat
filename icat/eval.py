@@ -12,22 +12,22 @@ directly from the command line, as in::
 """
 
 from __future__ import print_function
+import logging
 import icat
 import icat.config
-import sys
-import logging
 
-logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
+if __name__ == "__main__":
 
-config = icat.config.Config(ids="optional")
-config.add_variable('expression', ("-e", "--eval"), 
-                    dict(help="Python expression to evaluate"))
-conf = config.getconfig()
+    logging.basicConfig(level=logging.INFO)
 
-client = icat.Client(conf.url, **conf.client_kwargs)
-client.login(conf.auth, conf.credentials)
+    config = icat.config.Config(ids="optional")
+    config.add_variable('expression', ("-e", "--eval"), 
+                        dict(help="Python expression to evaluate"))
+    conf = config.getconfig()
 
-result = eval(conf.expression)
-if result is not None:
-    print(result)
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+
+    result = eval(conf.expression)
+    if result is not None:
+        print(result)
