@@ -516,6 +516,7 @@ class Client(suds.client.Client):
             raise translateError(e)
 
     def searchText(self, query, maxCount, entityName):
+        warn(ICATDeprecationWarning("searchText()", "4.5.0"), stacklevel=2)
         try:
             instances = self.service.searchText(self.sessionId, query, 
                                                 maxCount, entityName)

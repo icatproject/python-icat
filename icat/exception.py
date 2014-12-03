@@ -14,8 +14,8 @@ __all__ = [
     'ICATSessionError', 'ICATValidationError', 
     'translateError', 
     # icat.client, icat.entity
-    'ClientVersionWarning', 'VersionMethodError', 'SearchResultError', 
-    'SearchAssertionError', 'DataConsistencyError', 
+    'ClientVersionWarning', 'ICATDeprecationWarning', 'VersionMethodError', 
+    'SearchResultError', 'SearchAssertionError', 'DataConsistencyError', 
     # IDS
     'IDSError', 'IDSResponseError', 
     'IDSServerError', 'IDSBadRequestError', 'IDSDataNotOnlineError', 
@@ -157,6 +157,19 @@ class ClientVersionWarning(Warning):
             msg = ("%s is not supported (%s), "
                    "expect problems and weird behavior!" % (icatstr, comment))
         super(ClientVersionWarning, self).__init__(msg)
+
+class ICATDeprecationWarning(DeprecationWarning):
+    """Warn about using an API feature that may get removed in future ICAT
+    server versions.
+    """
+    def __init__(self, feature, version=None):
+        if version is None:
+            icatstr = "a future ICAT version"
+        else:
+            icatstr = "ICAT version %s" % version
+        msg = ("%s has been deprecated and is expected to get removed in %s." 
+               % (feature, icatstr))
+        super(ICATDeprecationWarning, self).__init__(msg)
 
 class VersionMethodError(Exception):
     """Call of an ICAT API method that is not supported in the version
