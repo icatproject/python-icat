@@ -6,12 +6,11 @@
  + Add support for ICAT 4.4.0: add new Entity type InvestigationGroup,
    role has been added to the constraint in InvestigationUser.
 
- + Add new IDSClient API method getApiVersion() that will to be
+ + Add new IDSClient API method getApiVersion() that will be
    introduced with the upcoming version 1.3.0 of IDS.  This method may
-   also been called with older IDS servers.  It first tries to call
-   getApiVersion() on the IDS server.  If this fails because the
-   server does not support it yet, the server version is guessed from
-   visible features in the API.
+   also be called with older IDS servers: if it is not available
+   because the server does not support it yet, the server version is
+   guessed from visible features in the API.
 
    IDSClient checks the API version on init.
 
@@ -36,12 +35,12 @@
    and easier now.
 
    This causes compatibility issues for users who either wrote their
-   own dump file backend and for users whow wrote custom dump or
+   own dump file backend and for users who wrote custom dump or
    restore scripts, using the XML or YAML backends.  In the first
    case, compare the old XML and YAML backends with the new versions
    and you'll easily see what needs to get adapted.  In the latter
-   case, have a look into the new versions of icatdump and
-   icatrestore to see how to use the new backend API.
+   case, have a look into the new versions of icatdump and icatrestore
+   to see how to use the new backend API.
 
  + WARNING, incompatible change!
    Move the group argument to the Client method createRules() to the
