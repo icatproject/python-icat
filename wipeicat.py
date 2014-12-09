@@ -2,6 +2,9 @@
 #
 # Delete all content from an ICAT.
 #
+# This script uses the JPQL syntax for searching in the ICAT.  It thus
+# requires ICAT version 4.3.0 or greater.
+#
 
 import time
 import logging
@@ -18,22 +21,18 @@ conf = config.getconfig()
 client = icat.Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
+# Limit of the number of objects to be searched at a time.
+searchlimit = 200
 
 def deletetype(t):
     """Delete all objects of some type t.
     """
-    # The search may fail if there are too many objects to return.
-    # Limit the result to 100 at a time.  This requires the JPQL
-    # syntax introduced with ICAT 4.3.  Try and hope for the best with
-    # older ICATs.
-    if client.apiversion < '4.3':
-        client.deleteMany(client.search(t))
-    else:
-        while True:
-            objs = client.search("SELECT o FROM %s o LIMIT 0, 100" % t)
-            if not objs:
-                break
-            client.deleteMany(objs)
+    searchexp = "SELECT o FROM %s o LIMIT 0, %d" % (t, searchlimit)
+    while True:
+        objs = client.search(searchexp)
+        if not objs:
+            break
+        client.deleteMany(objs)
 
 def waitOpsQueue():
     """Wait for the opsQueue in the service status to drain.
@@ -46,11 +45,8 @@ def waitOpsQueue():
 
 
 # Entity types needed for access permissions.  Must be deleted last,
-# otherwise we would take delete permission from ourselves.
-if client.apiversion < '4.3':
-    authztables = [ "Group", "Rule", "User", "UserGroup", ]
-else:
-    authztables = [ "Grouping", "Rule", "User", "UserGroup", ]
+# otherwise we might take delete permission from ourselves.
+authztables = [ "Grouping", "Rule", "User", "UserGroup", ]
 
 
 # First step, delete all Datafiles from IDS.
@@ -70,10 +66,8 @@ else:
 # everything that is currently online in a first step and file a
 # restore request for all the rest in a second step.
 if client.ids:
-    if client.apiversion < '4.3':
-        searchexp = "Dataset INCLUDE Datafile"
-    else:
-        searchexp = "SELECT o FROM Dataset o INCLUDE o.datafiles LIMIT 0, 100"
+    searchexp = ("SELECT o FROM Dataset o INCLUDE o.datafiles "
+                 "LIMIT 0, %d" % searchlimit)
     while True:
         restsel = DataSelection()
         deleted = False
@@ -105,8 +99,7 @@ client.deleteMany(client.search("Facility"))
 
 # Third step, delete almost all remaining bits, keep only
 # authztables.  This will hit stuff not directly linked to Facility,
-# such as Study, Log, and PublicStep, but also Application and
-# Datafile in ICAT 4.2.
+# such as Study, Log, and PublicStep.
 for t in client.getEntityNames():
     if t not in authztables:
         deletetype(t)
