@@ -43,7 +43,6 @@ def waitOpsQueue():
             break
         time.sleep(30)
 
-
 # Entity types needed for access permissions.  Must be deleted last,
 # otherwise we might take delete permission from ourselves.
 authztables = [ "Grouping", "Rule", "User", "UserGroup", ]
@@ -65,36 +64,48 @@ authztables = [ "Grouping", "Rule", "User", "UserGroup", ]
 # sweeps to get everything deleted.  In each sweep, we delete
 # everything that is currently online in a first step and file a
 # restore request for all the rest in a second step.
+def getDfSelections(status=None):
+    """Yield selections of Datafiles.
+    """
+    skip = 0
+    while True:
+        searchexp = ("SELECT o FROM Dataset o INCLUDE o.datafiles "
+                     "LIMIT %d, %d" % (skip, searchlimit))
+        skip += searchlimit
+        datasets = client.search(searchexp)
+        if not datasets:
+            break
+        selection = DataSelection()
+        for ds in datasets:
+            dfs = [df for df in ds.datafiles if df.location is not None]
+            if dfs and (not status or 
+                        client.ids.getStatus(DataSelection([ds])) == status):
+                selection.extend(dfs)
+        if selection:
+            yield selection
+
 if client.ids:
-    searchexp = ("SELECT o FROM Dataset o INCLUDE o.datafiles "
-                 "LIMIT 0, %d" % searchlimit)
     while True:
         restsel = DataSelection()
-        deleted = False
+        action = False
         # Wait for the server to process all pending requests.  This
         # may be needed to avoid race conditions, see
         # https://code.google.com/p/icat-data-service/issues/detail?id=14
         waitOpsQueue()
-        for ds in client.search(searchexp):
-            selection = DataSelection([df for df in ds.datafiles 
-                                       if df.location is not None])
-            if selection:
-                if client.ids.getStatus(selection) == "ONLINE":
-                    client.deleteData(selection)
-                    deleted = True
-                else:
-                    restsel.extend(selection)
-            else:
-                client.delete(ds)
-                deleted = True
-        if not deleted and not restsel:
+        # First step: delete everything that is currently online.
+        for selection in getDfSelections("ONLINE"):
+            client.deleteData(selection)
+            action = True
+        # Second step: request a restore of all remaining datasets.
+        for selection in getDfSelections():
+            client.ids.restore(selection)
+            action = True
+        if not action:
             break
-        if restsel:
-            client.ids.restore(restsel)
 
 
-# Second step, delete the Facility.  By cascading, this already wipes
-# almost everything.
+# Second step, delete all Facilities.  By cascading, this already
+# wipes almost everything.
 client.deleteMany(client.search("Facility"))
 
 # Third step, delete almost all remaining bits, keep only
