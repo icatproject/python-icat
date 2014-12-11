@@ -14,6 +14,9 @@
 #    ds.sample is not NULL, the condition
 #    ds.investigation == ds.sample.investigation holds.  If this
 #    is not met, this script will fail with a DataConsistencyError.
+#  + The partition of the data into chunks ist static.  It should
+#    rather be dynamic, e.g. chunks should be splitted if the number
+#    of objects in them grows too large.
 #  + The serialization of the following entity types has not yet been
 #    tested: DataCollectionParameter, DatafileParameter,
 #    DatasetParameter, FacilityCycle, InvestigationParameter,
@@ -83,81 +86,101 @@ if client.apiversion < '4.3.99':
     investigationsearch = ("SELECT i FROM Investigation i "
                            "WHERE i.facility.id = %d AND i.name = '%s' "
                            "AND i.visitId = '%s' "
-                           "INCLUDE i.facility, i.type AS it, it.facility, "
+                           "INCLUDE i.facility, i.type.facility, "
                            "i.investigationInstruments AS ii, "
-                           "ii.instrument AS iii, iii.facility, "
+                           "ii.instrument.facility, "
                            "i.shifts, i.keywords, i.publications, "
                            "i.investigationUsers AS iu, iu.user, "
-                           "i.parameters AS ip, ip.type AS ipt, ipt.facility")
+                           "i.parameters AS ip, ip.type.facility")
 else:
     investigationsearch = ("SELECT i FROM Investigation i "
                            "WHERE i.facility.id = %d AND i.name = '%s' "
                            "AND i.visitId = '%s' "
-                           "INCLUDE i.facility, i.type AS it, it.facility, "
+                           "INCLUDE i.facility, i.type.facility, "
                            "i.investigationInstruments AS ii, "
-                           "ii.instrument AS iii, iii.facility, "
+                           "ii.instrument.facility, "
                            "i.shifts, i.keywords, i.publications, "
                            "i.investigationUsers AS iu, iu.user, "
                            "i.investigationGroups AS ig, ig.grouping, "
-                           "i.parameters AS ip, ip.type AS ipt, ipt.facility")
+                           "i.parameters AS ip, ip.type.facility")
 
-authtypes = [("User"), 
-             ("Grouping INCLUDE UserGroup, User"),
-             ("Rule INCLUDE Grouping"),
-             ("PublicStep")]
-statictypes = [("Facility"),
-               ("Instrument INCLUDE Facility, InstrumentScientist, User"),
-               ("ParameterType INCLUDE Facility, PermissibleStringValue"),
-               ("InvestigationType INCLUDE Facility"),
-               ("SampleType INCLUDE Facility"),
-               ("DatasetType INCLUDE Facility"),
-               ("DatafileFormat INCLUDE Facility"),
-               ("FacilityCycle INCLUDE Facility"),
-               ("Application INCLUDE Facility")]
+authtypes = [("User ORDER BY name"), 
+             ("Grouping ORDER BY name INCLUDE UserGroup, User"),
+             ("SELECT r FROM Rule r WHERE r.grouping IS NULL ORDER BY r.what"),
+             ("SELECT r FROM Rule r JOIN r.grouping g "
+              "ORDER BY g.name, r.what INCLUDE r.grouping"),
+             ("PublicStep ORDER BY origin, field")]
+statictypes = [("Facility ORDER BY name"),
+               ("SELECT o FROM Instrument o JOIN o.facility f "
+                "ORDER BY f.name, o.name "
+                "INCLUDE o.facility, o.instrumentScientists.user"),
+               ("SELECT o FROM ParameterType o JOIN o.facility f "
+                "ORDER BY f.name, o.name, o.units "
+                "INCLUDE o.facility, o.permissibleStringValues"),
+               ("SELECT o FROM InvestigationType o JOIN o.facility f "
+                "ORDER BY f.name, o.name INCLUDE o.facility"),
+               ("SELECT o FROM SampleType o JOIN o.facility f "
+                "ORDER BY f.name, o.name, o.molecularFormula "
+                "INCLUDE o.facility"),
+               ("SELECT o FROM DatasetType o JOIN o.facility f "
+                "ORDER BY f.name, o.name INCLUDE o.facility"),
+               ("SELECT o FROM DatafileFormat o JOIN o.facility f "
+                "ORDER BY f.name, o.name, o.version INCLUDE o.facility"),
+               ("SELECT o FROM FacilityCycle o JOIN o.facility f "
+                "ORDER BY f.name, o.name INCLUDE o.facility"),
+               ("SELECT o FROM Application o JOIN o.facility f "
+                "ORDER BY f.name, o.name, o.version INCLUDE o.facility")]
 investtypes = [(investigationsearch),
                ("SELECT o FROM Sample o JOIN o.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
-                "INCLUDE o.investigation, o.type AS ot, ot.facility, "
-                "o.parameters AS op, op.type AS opt, opt.facility"),
+                "ORDER BY o.name "
+                "INCLUDE o.investigation, o.type.facility, "
+                "o.parameters AS op, op.type.facility"),
                ("SELECT o FROM Dataset o JOIN o.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
-                "INCLUDE o.investigation, o.type AS ot, ot.facility, o.sample, "
-                "o.parameters AS op, op.type AS opt, opt.facility"),
+                "ORDER BY o.name "
+                "INCLUDE o.investigation, o.type.facility, o.sample, "
+                "o.parameters AS op, op.type.facility"),
                ("SELECT o FROM Datafile o "
                 "JOIN o.dataset ds JOIN ds.investigation i "
                 "WHERE i.facility.id = %d AND i.name = '%s' "
                 "AND i.visitId = '%s' "
-                "INCLUDE o.dataset, o.datafileFormat AS dff, dff.facility, "
-                "o.parameters AS op, op.type AS opt, opt.facility")]
-othertypes = [("SELECT o FROM Study o "
+                "ORDER BY ds.name, o.name "
+                "INCLUDE o.dataset, o.datafileFormat.facility, "
+                "o.parameters AS op, op.type.facility")]
+# It is in principle not possible to get a consistent ordering of
+# DataCollection using an ORDER BY clause in the search expression.
+# In the case of RelatedDatafile, it is possible in theory, but the
+# ORDER BY clause would be rather complicated.  Fall back on sorting
+# by id in these cases.
+othertypes = [("SELECT o FROM Study o ORDER BY o.name, o.id "
                "INCLUDE o.user, "
                "o.studyInvestigations AS si, si.investigation"),
-              ("SELECT o FROM RelatedDatafile o "
-               "INCLUDE o.sourceDatafile AS sdf, sdf.dataset AS sds, "
-               "sds.investigation AS si, si.facility, "
-               "o.destDatafile AS ddf, ddf.dataset AS dds, "
-               "dds.investigation AS di, di.facility"),
-              ("SELECT o FROM DataCollection o "
-               "INCLUDE o.dataCollectionDatasets AS ds, ds.dataset AS dsds, "
-               "dsds.investigation AS dsi, dsi.facility, "
+              ("SELECT o FROM RelatedDatafile o ORDER BY o.id "
+               "INCLUDE o.sourceDatafile AS sdf, "
+               "sdf.dataset.investigation.facility, "
+               "o.destDatafile AS ddf, "
+               "ddf.dataset.investigation.facility"),
+              ("SELECT o FROM DataCollection o ORDER BY o.id "
+               "INCLUDE o.dataCollectionDatasets AS ds, "
+               "ds.dataset.investigation.facility, "
                "o.dataCollectionDatafiles AS df, "
-               "df.datafile AS dfdf, dfdf.dataset AS dfds, "
-               "dfds.investigation AS dfi, dfi.facility, "
+               "df.datafile.dataset.investigation.facility, "
                "o.%s AS op, op.type" % datacolparamname),
-              ("SELECT o FROM Job o "
-               "INCLUDE o.application AS app, app.facility, "
+              ("SELECT o FROM Job o JOIN o.application a JOIN a.facility f "
+               "ORDER BY f.name, a.name, o.arguments, o.id "
+               "INCLUDE o.application.facility, "
                "o.inputDataCollection, o.outputDataCollection")]
 
 with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     dumpfile.writedata(authtypes)
     dumpfile.writedata(statictypes)
     # Dump the investigations each in their own chunk
-    investsearch = "SELECT i FROM Investigation i INCLUDE i.facility"
-    investigations = [(i.facility.id, i.name, i.visitId) 
-                      for i in client.search(investsearch)]
-    investigations.sort()
-    for inv in investigations:
-        dumpfile.writedata([ se % inv for se in investtypes])
+    investsearch = ("SELECT i FROM Investigation i JOIN i.facility f "
+                    "ORDER BY f.name, i.name, i.visitId INCLUDE i.facility")
+    for i in client.searchChunked(investsearch):
+        dumpfile.writedata([ se % (i.facility.id, i.name, i.visitId) 
+                             for se in investtypes ])
     dumpfile.writedata(othertypes)

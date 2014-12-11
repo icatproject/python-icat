@@ -174,8 +174,9 @@ class DumpFileWriter(object):
         :type keyindex: ``dict``
         """
         if isinstance(objs, basestring):
-            objs = self.client.search(objs)
-        objs.sort(key=icat.entity.Entity.__sortkey__)
+            objs = self.client.searchChunked(objs)
+        else:
+            objs.sort(key=icat.entity.Entity.__sortkey__)
         for obj in objs:
             # Entities without a constraint will use their id to form
             # the unique key as a last resort.  But we want the keys
