@@ -1,7 +1,7 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.6.0 (not yet released)
+* Version 0.6.0 (2014-12-1?)
 
  + Add support for ICAT 4.4.0: add new Entity type InvestigationGroup,
    role has been added to the constraint in InvestigationUser.
@@ -77,6 +77,8 @@
    return anything.  While formally, this might be considered an
    incompatible change, these methods never returned anything
    meaningful in the past.
+
+ + Add method searchChunked() to Client.
 
  + Add method getAttrType() to Entity.
 
