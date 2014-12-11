@@ -359,6 +359,7 @@ class InvestigationType(Entity):
     """A type of investigation."""
     BeanName = 'InvestigationType'
     Constraint = ('name', 'facility')
+    SortAttrs = ['facility', 'name']
     InstAttr = frozenset(['id', 'name', 'description'])
     InstRel = frozenset(['facility'])
     InstMRel = frozenset(['investigations'])
