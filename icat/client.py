@@ -570,6 +570,58 @@ class Client(suds.client.Client):
         else:
             raise SearchAssertionError(query, assertmin, assertmax, num)
 
+    def searchChunked(self, query, skip=0, count=None, chunksize=100):
+        """Search the ICAT server.
+
+        Call the ICAT search API method, limiting the number of
+        results in each call and repeat the call as often as needed to
+        retrieve all the results.
+
+        This can be used as a drop in replacement for the search API
+        method most of the times.  It avoids the error if the number
+        of items in the result exceeds the limit imposed by the ICAT
+        server.  There are a few subtle differences though: the query
+        must not contain a LIMIT clause (use the skip and count
+        arguments instead) and should contain an ORDER BY clause.  The
+        return value is a generator that iterates over the items in
+        the result rather then a list.  The individual search calls
+        are done lazily, e.g. they are not done until needed to yield
+        the next item from the generator.  The result may be defective
+        (omissions, duplicates) if the content in the ICAT server
+        changes between individual search calls in a way that would
+        affect the search result.
+
+        :param query: the search query string.
+        :type query: ``str``
+        :param skip: offset from within the full list of available results.
+        :type skip: ``int``
+        :param count: maximum number of items to return.  A value of
+            ``None`` means no limit.
+        :type count: ``int``
+        :param chunksize: number of items to query in each search
+            call.  This is an internal tuning parameter and does not
+            affect the result.
+        :type chunksize: ``int``
+        :return: a generator that iterates over the items in the
+            search result.
+        :rtype: ``generator``
+        """
+        if query.startswith("SELECT"):
+            query += " LIMIT %d, %d"
+        else:
+            query = "%d, %d " + query
+        delivered = 0
+        while True:
+            if count is not None and count - delivered < chunksize:
+                chunksize = count - delivered
+            items = self.search(query % (skip, chunksize))
+            skip += chunksize
+            if not items:
+                break
+            for o in items:
+                yield o
+                delivered += 1
+
     def searchUniqueKey(self, key, objindex=None):
         """Search the object that belongs to a unique key.
 
