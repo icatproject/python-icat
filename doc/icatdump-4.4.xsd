@@ -5,10 +5,6 @@
   <xsd:documentation>
     Schema definition for an ICAT dump file format.
     Valid for ICAT 4.4.*.
-
-    Note that this schema is based on a snapshot version of ICAT 4.4.0.  
-    The final ICAT 4.4.0 version is not yet released as of the time of
-    this writing.
   </xsd:documentation>
 </xsd:annotation>
 
