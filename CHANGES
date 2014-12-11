@@ -21,11 +21,12 @@
    http_proxy, https_proxy, and no_proxy are set in the environment.
    [Suggested by Alistair Mills]
 
- + The searchText() client method has been deprecated.  It is destined
-   to be dropped from the ICAT server in version 4.5.0 and might get
-   removed from python-icat in a future release as well.
+ + The searchText() and luceneSearch() client method have been
+   deprecated.  They are destined to be dropped from the ICAT server
+   or at least changed in version 4.5.0 and might get removed from
+   python-icat in a future release as well.
 
-   The method now emits a deprecation warning when called.  Note
+   The methods now emit a deprecation warning when called.  Note
    however that Python by default ignores deprecation warnings, so you
    won't see this unless you switch them on.
 

@@ -487,6 +487,7 @@ class Client(suds.client.Client):
                 raise
 
     def luceneSearch(self, query, maxCount, entityName):
+        warn(ICATDeprecationWarning("luceneSearch()", "4.5.0"), stacklevel=2)
         try:
             return self.service.luceneSearch(self.sessionId, query, maxCount, entityName)
         except suds.WebFault as e:
