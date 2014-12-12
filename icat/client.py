@@ -137,8 +137,8 @@ class Client(suds.client.Client):
         luceneGetPopulating, lucenePopulate, luceneSearch, refresh,
         search, searchText, update
 
-    :group custom API methods: searchUniqueKey, assertedSearch,
-        createUser, createGroup, createRules
+    :group custom API methods: assertedSearch, searchChunked,
+        searchUniqueKey, createUser, createGroup, createRules
 
     :group custom IDS methods: putData, getData, getDataUrl,
         prepareData, isDataPrepared, getPreparedData,
