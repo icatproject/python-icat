@@ -153,9 +153,9 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
                 raise RuntimeError("Unknown entry %s in the data." % name)
         for name in entitytypes:
             if name in data:
-                for key, d in data[name].iteritems():
+                for key in sorted(data[name].keys()):
                     obj = dict2entity(self.client, self.insttypemap, 
-                                      d, name, objindex)
+                                      data[name][key], name, objindex)
                     yield key, obj
 
 
