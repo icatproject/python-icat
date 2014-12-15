@@ -1,7 +1,9 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.6.0 (2014-12-1?)
+* Version 0.6.0 (2014-12-15)
+
+** New features
 
  + Add support for ICAT 4.4.0: add new Entity type InvestigationGroup,
    role has been added to the constraint in InvestigationUser.
@@ -21,30 +23,25 @@
    http_proxy, https_proxy, and no_proxy are set in the environment.
    [Suggested by Alistair Mills]
 
- + The searchText() and luceneSearch() client method have been
-   deprecated.  They are destined to be dropped from the ICAT server
-   or at least changed in version 4.5.0 and might get removed from
-   python-icat in a future release as well.
-
-   The methods now emit a deprecation warning when called.  Note
-   however that Python by default ignores deprecation warnings, so you
-   won't see this unless you switch them on.
-
- + WARNING, incompatible change!
-   Rework the dump file backend API for icatdump and icatrestore.  As
+ + Rework the dump file backend API for icatdump and icatrestore.  As
    a result, writing custom dump or restore scripts is much cleaner
    and easier now.
 
-   This causes compatibility issues for users who either wrote their
-   own dump file backend and for users who wrote custom dump or
+   This may cause compatibility issues for users who either wrote
+   their own dump file backend or for users who wrote custom dump or
    restore scripts, using the XML or YAML backends.  In the first
    case, compare the old XML and YAML backends with the new versions
    and you'll easily see what needs to get adapted.  In the latter
    case, have a look into the new versions of icatdump and icatrestore
    to see how to use the new backend API.
 
- + WARNING, incompatible change!
-   Move the group argument to the Client method createRules() to the
+ + Add method searchChunked() to Client.
+
+ + Add method getAttrType() to Entity.
+
+** Incompatible changes
+
+ + Move the group argument to the Client method createRules() to the
    last position and make it optional, having default None.
 
    In the client code, replace:
@@ -55,8 +52,7 @@
 
    client.createRules(crudFlags, what, group)
 
- + WARNING, incompatible change!
-   The Client method putData() returns the new Datafile object created
+ + The Client method putData() returns the new Datafile object created
    by IDS rather then only its id.
 
    If you depend on the old behavior in the client code, replace:
@@ -68,6 +64,17 @@
    df = client.putData(file, datafile)
    dfid = df.id
 
+** Minor changes and fixes
+
+ + The searchText() and luceneSearch() client method have been
+   deprecated.  They are destined to be dropped from the ICAT server
+   or at least changed in version 4.5.0 and might get removed from
+   python-icat in a future release as well.
+
+   The methods now emit a deprecation warning when called.  Note
+   however that Python by default ignores deprecation warnings, so you
+   won't see this unless you switch them on.
+
  + Fixed overly strict type checking in the constructor arguments of
    DataSelection and as a consequence also in the arguments of the
    ICAT client methods getData(), getDataUrl(), prepareData(), and
@@ -78,10 +85,6 @@
    return anything.  While formally, this might be considered an
    incompatible change, these methods never returned anything
    meaningful in the past.
-
- + Add method searchChunked() to Client.
-
- + Add method getAttrType() to Entity.
 
  + Slightly modified the "==" and "!=" operator for Entity objects.
    Add a   hash  () method to the Entity class.  The latter means
