@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Tue, 24 Jun 2014 13:30:50 +0000
+# Date: Mon, 15 Dec 2014 09:20:13 +0000
 # Service: https://localhost:8181/ICATService/ICAT?wsdl
-# ICAT-API: 4.3.2
-# Generator: icatdump (python-icat 0.5.0)
+# ICAT-API: 4.4
+# Generator: icatdump (python-icat 0.6.0)
 ---
 grouping:
   Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fowner:
@@ -51,762 +51,407 @@ grouping:
     name: rall
     userGroups:
     - user: User_name-idsreader
-  Grouping_name-root:
-    name: root
-    userGroups:
-    - user: User_name-root
-  Grouping_name-samplewriter:
-    name: samplewriter
+  Grouping_name-scientific=5Fstaff:
+    name: scientific_staff
     userGroups:
     - user: User_name-acord
   Grouping_name-useroffice:
     name: useroffice
     userGroups:
     - user: User_name-useroffice
+publicStep:
+  PublicStep_origin-DataCollection_field-dataCollectionDatafiles:
+    field: dataCollectionDatafiles
+    origin: DataCollection
+  PublicStep_origin-DataCollection_field-dataCollectionDatasets:
+    field: dataCollectionDatasets
+    origin: DataCollection
+  PublicStep_origin-DataCollection_field-parameters:
+    field: parameters
+    origin: DataCollection
+  PublicStep_origin-Datafile_field-dataset:
+    field: dataset
+    origin: Datafile
+  PublicStep_origin-Datafile_field-parameters:
+    field: parameters
+    origin: Datafile
+  PublicStep_origin-Dataset_field-datafiles:
+    field: datafiles
+    origin: Dataset
+  PublicStep_origin-Dataset_field-investigation:
+    field: investigation
+    origin: Dataset
+  PublicStep_origin-Dataset_field-parameters:
+    field: parameters
+    origin: Dataset
+  PublicStep_origin-Dataset_field-sample:
+    field: sample
+    origin: Dataset
+  PublicStep_origin-Grouping_field-userGroups:
+    field: userGroups
+    origin: Grouping
+  PublicStep_origin-Instrument_field-instrumentScientists:
+    field: instrumentScientists
+    origin: Instrument
+  PublicStep_origin-InvestigationGroup_field-grouping:
+    field: grouping
+    origin: InvestigationGroup
+  PublicStep_origin-Investigation_field-datasets:
+    field: datasets
+    origin: Investigation
+  PublicStep_origin-Investigation_field-investigationGroups:
+    field: investigationGroups
+    origin: Investigation
+  PublicStep_origin-Investigation_field-investigationInstruments:
+    field: investigationInstruments
+    origin: Investigation
+  PublicStep_origin-Investigation_field-investigationUsers:
+    field: investigationUsers
+    origin: Investigation
+  PublicStep_origin-Investigation_field-keywords:
+    field: keywords
+    origin: Investigation
+  PublicStep_origin-Investigation_field-parameters:
+    field: parameters
+    origin: Investigation
+  PublicStep_origin-Investigation_field-publications:
+    field: publications
+    origin: Investigation
+  PublicStep_origin-Investigation_field-samples:
+    field: samples
+    origin: Investigation
+  PublicStep_origin-Investigation_field-shifts:
+    field: shifts
+    origin: Investigation
+  PublicStep_origin-Job_field-inputDataCollection:
+    field: inputDataCollection
+    origin: Job
+  PublicStep_origin-Job_field-outputDataCollection:
+    field: outputDataCollection
+    origin: Job
+  PublicStep_origin-Sample_field-parameters:
+    field: parameters
+    origin: Sample
+  PublicStep_origin-Study_field-studyInvestigations:
+    field: studyInvestigations
+    origin: Study
 rule:
   Rule_00000001:
     crudFlags: R
     what: Application
   Rule_00000002:
-    crudFlags: R
-    what: DatafileFormat
+    crudFlags: CRUD
+    what: DataCollection [createId=:user]
   Rule_00000003:
-    crudFlags: R
-    what: DatasetType
+    crudFlags: CRUD
+    what: DataCollectionDatafile <-> DataCollection [createId=:user]
   Rule_00000004:
-    crudFlags: R
-    what: Facility
+    crudFlags: CRUD
+    what: DataCollectionDataset <-> DataCollection [createId=:user]
   Rule_00000005:
     crudFlags: R
-    what: FacilityCycle
+    what: Datafile <-> Dataset <-> Investigation <-> InvestigationGroup <-> Grouping
+      <-> UserGroup <-> User [name=:user]
   Rule_00000006:
-    crudFlags: R
-    what: Grouping
+    crudFlags: CRUD
+    what: Datafile <-> Dataset <-> Investigation <-> InvestigationGroup [role='writer']
+      <-> Grouping <-> UserGroup <-> User [name=:user]
   Rule_00000007:
     crudFlags: R
-    what: Instrument
+    what: DatafileFormat
   Rule_00000008:
     crudFlags: R
-    what: InstrumentScientist
+    what: DatafileParameter <-> Datafile <-> Dataset <-> Investigation <-> InvestigationGroup
+      <-> Grouping <-> UserGroup <-> User [name=:user]
   Rule_00000009:
-    crudFlags: R
-    what: InvestigationType
+    crudFlags: CRUD
+    what: DatafileParameter <-> Datafile <-> Dataset <-> Investigation <-> InvestigationGroup
+      [role='writer'] <-> Grouping <-> UserGroup <-> User [name=:user]
   Rule_00000010:
     crudFlags: R
-    what: ParameterType
+    what: Dataset <-> Investigation <-> InvestigationGroup <-> Grouping <-> UserGroup
+      <-> User [name=:user]
   Rule_00000011:
-    crudFlags: R
-    what: PermissibleStringValue
+    crudFlags: CRUD
+    what: Dataset <-> Investigation <-> InvestigationGroup [role='writer'] <-> Grouping
+      <-> UserGroup <-> User [name=:user]
   Rule_00000012:
     crudFlags: R
-    what: SampleType
+    what: DatasetParameter <-> Dataset <-> Investigation <-> InvestigationGroup <->
+      Grouping <-> UserGroup <-> User [name=:user]
   Rule_00000013:
-    crudFlags: R
-    what: User
+    crudFlags: CRUD
+    what: DatasetParameter <-> Dataset <-> Investigation <-> InvestigationGroup [role='writer']
+      <-> Grouping <-> UserGroup <-> User [name=:user]
   Rule_00000014:
     crudFlags: R
-    what: UserGroup <-> User[name=:user]
+    what: DatasetType
   Rule_00000015:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fowner
-    what: UserGroup <-> Grouping[name='investigation_2008-HIKE-0255-1_reader']
+    crudFlags: R
+    what: Facility
   Rule_00000016:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fowner
-    what: UserGroup <-> Grouping[name='investigation_2008-HIKE-0255-1_writer']
+    crudFlags: R
+    what: FacilityCycle
   Rule_00000017:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
-    what: Datafile <-> Dataset <-> Investigation[name='2008-HIKE-0255-1']
+    what: Grouping <-> UserGroup <-> User[name=:user]
   Rule_00000018:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
-    what: DatafileParameter <-> Datafile <-> Dataset <-> Investigation[name='2008-HIKE-0255-1']
+    what: Instrument
   Rule_00000019:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
-    what: Dataset <-> Investigation[name='2008-HIKE-0255-1']
+    what: Investigation <-> InvestigationGroup <-> Grouping <-> UserGroup <-> User
+      [name=:user]
   Rule_00000020:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
-    what: DatasetParameter <-> Dataset <-> Investigation[name='2008-HIKE-0255-1']
+    what: InvestigationParameter <-> Investigation <-> InvestigationGroup <-> Grouping
+      <-> UserGroup <-> User [name=:user]
   Rule_00000021:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
-    what: InvestigationInstrument <-> Investigation[name='2008-HIKE-0255-1']
+    crudFlags: CRUD
+    what: InvestigationParameter <-> Investigation <-> InvestigationGroup [role='writer']
+      <-> Grouping <-> UserGroup <-> User [name=:user]
   Rule_00000022:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
-    what: InvestigationParameter <-> Investigation[name='2008-HIKE-0255-1']
+    what: InvestigationType
   Rule_00000023:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
-    what: InvestigationUser <-> Investigation[name='2008-HIKE-0255-1']
+    crudFlags: CRUD
+    what: Job [createId=:user]
   Rule_00000024:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
-    what: Investigation[name='2008-HIKE-0255-1']
+    what: Keyword <-> Investigation <-> InvestigationGroup <-> Grouping <-> UserGroup
+      <-> User [name=:user]
   Rule_00000025:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
-    what: Keyword <-> Investigation[name='2008-HIKE-0255-1']
+    crudFlags: CRUD
+    what: Keyword <-> Investigation <-> InvestigationGroup [role='writer'] <-> Grouping
+      <-> UserGroup <-> User [name=:user]
   Rule_00000026:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
-    what: Publication <-> Investigation[name='2008-HIKE-0255-1']
+    what: ParameterType
   Rule_00000027:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
-    what: Sample <-> Investigation[name='2008-HIKE-0255-1']
+    what: PermissibleStringValue
   Rule_00000028:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
-    what: SampleParameter <-> Sample <-> Investigation[name='2008-HIKE-0255-1']
+    what: Publication <-> Investigation <-> InvestigationGroup <-> Grouping <-> UserGroup
+      <-> User [name=:user]
   Rule_00000029:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
-    what: Shift <-> Investigation[name='2008-HIKE-0255-1']
-  Rule_00000030:
     crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
-    what: Datafile <-> Dataset <-> Investigation[name='2008-HIKE-0255-1']
+    what: Publication <-> Investigation <-> InvestigationGroup [role='writer'] <->
+      Grouping <-> UserGroup <-> User [name=:user]
+  Rule_00000030:
+    crudFlags: R
+    what: Sample <-> Investigation <-> InvestigationGroup <-> Grouping <-> UserGroup
+      <-> User [name=:user]
   Rule_00000031:
     crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
-    what: DatafileParameter <-> Datafile <-> Dataset <-> Investigation[name='2008-HIKE-0255-1']
+    what: Sample <-> Investigation <-> InvestigationGroup [role='writer'] <-> Grouping
+      <-> UserGroup <-> User [name=:user]
   Rule_00000032:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
-    what: Dataset <-> Investigation[name='2008-HIKE-0255-1']
+    crudFlags: R
+    what: SampleParameter <-> Sample <-> Investigation <-> InvestigationGroup <->
+      Grouping <-> UserGroup <-> User [name=:user]
   Rule_00000033:
     crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
-    what: DatasetParameter <-> Dataset <-> Investigation[name='2008-HIKE-0255-1']
+    what: SampleParameter <-> Sample <-> Investigation <-> InvestigationGroup [role='writer']
+      <-> Grouping <-> UserGroup <-> User [name=:user]
   Rule_00000034:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
-    what: InvestigationInstrument <-> Investigation[name='2008-HIKE-0255-1']
+    crudFlags: CR
+    what: SampleType
   Rule_00000035:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
-    what: InvestigationParameter <-> Investigation[name='2008-HIKE-0255-1']
-  Rule_00000036:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
-    what: InvestigationUser <-> Investigation[name='2008-HIKE-0255-1']
+    what: SELECT tg FROM Grouping tg JOIN tg.investigationGroups tig JOIN tig.investigation
+      i JOIN i.investigationGroups uig JOIN uig.grouping ug JOIN ug.userGroups uug
+      JOIN uug.user u WHERE uig.role = 'owner' AND u.name = :user
+  Rule_00000036:
+    crudFlags: CRUD
+    what: SELECT tug FROM UserGroup tug JOIN tug.grouping tg JOIN tg.investigationGroups
+      tig JOIN tig.investigation i JOIN i.investigationGroups uig JOIN uig.grouping
+      ug JOIN ug.userGroups uug JOIN uug.user u WHERE (tig.role = 'writer' OR tig.role
+      = 'reader') AND uig.role = 'owner' AND u.name = :user
   Rule_00000037:
-    crudFlags: RU
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
-    what: Investigation[name='2008-HIKE-0255-1']
+    crudFlags: R
+    what: Shift <-> Investigation <-> InvestigationGroup <-> Grouping <-> UserGroup
+      <-> User [name=:user]
   Rule_00000038:
     crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
-    what: Keyword <-> Investigation[name='2008-HIKE-0255-1']
+    what: Shift <-> Investigation <-> InvestigationGroup [role='writer'] <-> Grouping
+      <-> UserGroup <-> User [name=:user]
   Rule_00000039:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
-    what: Publication <-> Investigation[name='2008-HIKE-0255-1']
+    crudFlags: R
+    what: User
   Rule_00000040:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
-    what: Sample <-> Investigation[name='2008-HIKE-0255-1']
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: DataCollection
   Rule_00000041:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
-    what: SampleParameter <-> Sample <-> Investigation[name='2008-HIKE-0255-1']
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: DataCollectionDatafile
   Rule_00000042:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
-    what: Shift <-> Investigation[name='2008-HIKE-0255-1']
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: DataCollectionDataset
   Rule_00000043:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fowner
-    what: UserGroup <-> Grouping[name='investigation_2010-E2-0489-1_reader']
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: DataCollectionParameter
   Rule_00000044:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fowner
-    what: UserGroup <-> Grouping[name='investigation_2010-E2-0489-1_writer']
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: Datafile
   Rule_00000045:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
-    what: Datafile <-> Dataset <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: DatafileParameter
   Rule_00000046:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
-    what: DatafileParameter <-> Datafile <-> Dataset <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: Dataset
   Rule_00000047:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
-    what: Dataset <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: DatasetParameter
   Rule_00000048:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
-    what: DatasetParameter <-> Dataset <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: Grouping
   Rule_00000049:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
-    what: InvestigationInstrument <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: InstrumentScientist
   Rule_00000050:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
-    what: InvestigationParameter <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: Investigation
   Rule_00000051:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
-    what: InvestigationUser <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: InvestigationGroup
   Rule_00000052:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
-    what: Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: InvestigationInstrument
   Rule_00000053:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
-    what: Keyword <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: InvestigationParameter
   Rule_00000054:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
-    what: Publication <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: InvestigationUser
   Rule_00000055:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
-    what: Sample <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: Job
   Rule_00000056:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
-    what: SampleParameter <-> Sample <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: Keyword
   Rule_00000057:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
-    what: Shift <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: Publication
   Rule_00000058:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
-    what: Datafile <-> Dataset <-> Investigation[name='2010-E2-0489-1']
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: PublicStep
   Rule_00000059:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
-    what: DatafileParameter <-> Datafile <-> Dataset <-> Investigation[name='2010-E2-0489-1']
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: RelatedDatafile
   Rule_00000060:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
-    what: Dataset <-> Investigation[name='2010-E2-0489-1']
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: Rule
   Rule_00000061:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
-    what: DatasetParameter <-> Dataset <-> Investigation[name='2010-E2-0489-1']
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: Sample
   Rule_00000062:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
-    what: InvestigationInstrument <-> Investigation[name='2010-E2-0489-1']
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: SampleParameter
   Rule_00000063:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
-    what: InvestigationParameter <-> Investigation[name='2010-E2-0489-1']
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: Shift
   Rule_00000064:
     crudFlags: R
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
-    what: InvestigationUser <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-rall
+    what: Study
   Rule_00000065:
-    crudFlags: RU
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
-    what: Investigation[name='2010-E2-0489-1']
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: StudyInvestigation
   Rule_00000066:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
-    what: Keyword <-> Investigation[name='2010-E2-0489-1']
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: UserGroup
   Rule_00000067:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
-    what: Publication <-> Investigation[name='2010-E2-0489-1']
+    crudFlags: RU
+    grouping: Grouping_name-scientific=5Fstaff
+    what: Sample
   Rule_00000068:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
-    what: Sample <-> Investigation[name='2010-E2-0489-1']
+    crudFlags: UD
+    grouping: Grouping_name-scientific=5Fstaff
+    what: SampleType
   Rule_00000069:
     crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
-    what: SampleParameter <-> Sample <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-useroffice
+    what: FacilityCycle
   Rule_00000070:
     crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
-    what: Shift <-> Investigation[name='2010-E2-0489-1']
+    grouping: Grouping_name-useroffice
+    what: Grouping
   Rule_00000071:
     crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fowner
-    what: UserGroup <-> Grouping[name='investigation_2012-EDDI-0390-1_reader']
+    grouping: Grouping_name-useroffice
+    what: InstrumentScientist
   Rule_00000072:
     crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fowner
-    what: UserGroup <-> Grouping[name='investigation_2012-EDDI-0390-1_writer']
+    grouping: Grouping_name-useroffice
+    what: Investigation
   Rule_00000073:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
-    what: Datafile <-> Dataset <-> Investigation[name='2012-EDDI-0390-1']
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: InvestigationGroup
   Rule_00000074:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
-    what: DatafileParameter <-> Datafile <-> Dataset <-> Investigation[name='2012-EDDI-0390-1']
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: InvestigationInstrument
   Rule_00000075:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
-    what: Dataset <-> Investigation[name='2012-EDDI-0390-1']
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: InvestigationParameter
   Rule_00000076:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
-    what: DatasetParameter <-> Dataset <-> Investigation[name='2012-EDDI-0390-1']
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: InvestigationUser
   Rule_00000077:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
-    what: InvestigationInstrument <-> Investigation[name='2012-EDDI-0390-1']
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: Keyword
   Rule_00000078:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
-    what: InvestigationParameter <-> Investigation[name='2012-EDDI-0390-1']
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: Publication
   Rule_00000079:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
-    what: InvestigationUser <-> Investigation[name='2012-EDDI-0390-1']
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: Shift
   Rule_00000080:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
-    what: Investigation[name='2012-EDDI-0390-1']
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: Study
   Rule_00000081:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
-    what: Keyword <-> Investigation[name='2012-EDDI-0390-1']
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: StudyInvestigation
   Rule_00000082:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
-    what: Publication <-> Investigation[name='2012-EDDI-0390-1']
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: User
   Rule_00000083:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
-    what: Sample <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000084:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
-    what: SampleParameter <-> Sample <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000085:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
-    what: Shift <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000086:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
-    what: Datafile <-> Dataset <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000087:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
-    what: DatafileParameter <-> Datafile <-> Dataset <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000088:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
-    what: Dataset <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000089:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
-    what: DatasetParameter <-> Dataset <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000090:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
-    what: InvestigationInstrument <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000091:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
-    what: InvestigationParameter <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000092:
-    crudFlags: R
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
-    what: InvestigationUser <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000093:
-    crudFlags: RU
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
-    what: Investigation[name='2012-EDDI-0390-1']
-  Rule_00000094:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
-    what: Keyword <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000095:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
-    what: Publication <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000096:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
-    what: Sample <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000097:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
-    what: SampleParameter <-> Sample <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000098:
-    crudFlags: CRUD
-    grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
-    what: Shift <-> Investigation[name='2012-EDDI-0390-1']
-  Rule_00000099:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Application
-  Rule_00000100:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: DataCollection
-  Rule_00000101:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: DataCollectionDatafile
-  Rule_00000102:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: DataCollectionDataset
-  Rule_00000103:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: DataCollectionParameter
-  Rule_00000104:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Datafile
-  Rule_00000105:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: DatafileFormat
-  Rule_00000106:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: DatafileParameter
-  Rule_00000107:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Dataset
-  Rule_00000108:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: DatasetParameter
-  Rule_00000109:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: DatasetType
-  Rule_00000110:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Facility
-  Rule_00000111:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: FacilityCycle
-  Rule_00000112:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Grouping
-  Rule_00000113:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Instrument
-  Rule_00000114:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: InstrumentScientist
-  Rule_00000115:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Investigation
-  Rule_00000116:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: InvestigationInstrument
-  Rule_00000117:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: InvestigationParameter
-  Rule_00000118:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: InvestigationType
-  Rule_00000119:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: InvestigationUser
-  Rule_00000120:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Job
-  Rule_00000121:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Keyword
-  Rule_00000122:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Log
-  Rule_00000123:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: ParameterType
-  Rule_00000124:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: PermissibleStringValue
-  Rule_00000125:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: PublicStep
-  Rule_00000126:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Publication
-  Rule_00000127:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: RelatedDatafile
-  Rule_00000128:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Rule
-  Rule_00000129:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Sample
-  Rule_00000130:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: SampleParameter
-  Rule_00000131:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: SampleType
-  Rule_00000132:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Shift
-  Rule_00000133:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Study
-  Rule_00000134:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: StudyInvestigation
-  Rule_00000135:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: User
-  Rule_00000136:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: UserGroup
-  Rule_00000137:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Application
-  Rule_00000138:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: DataCollection
-  Rule_00000139:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: DataCollectionDatafile
-  Rule_00000140:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: DataCollectionDataset
-  Rule_00000141:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: DataCollectionParameter
-  Rule_00000142:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Datafile
-  Rule_00000143:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: DatafileFormat
-  Rule_00000144:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: DatafileParameter
-  Rule_00000145:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Dataset
-  Rule_00000146:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: DatasetParameter
-  Rule_00000147:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: DatasetType
-  Rule_00000148:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Facility
-  Rule_00000149:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: FacilityCycle
-  Rule_00000150:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Grouping
-  Rule_00000151:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Instrument
-  Rule_00000152:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: InstrumentScientist
-  Rule_00000153:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Investigation
-  Rule_00000154:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: InvestigationInstrument
-  Rule_00000155:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: InvestigationParameter
-  Rule_00000156:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: InvestigationType
-  Rule_00000157:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: InvestigationUser
-  Rule_00000158:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Job
-  Rule_00000159:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Keyword
-  Rule_00000160:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Log
-  Rule_00000161:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: ParameterType
-  Rule_00000162:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: PermissibleStringValue
-  Rule_00000163:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: PublicStep
-  Rule_00000164:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Publication
-  Rule_00000165:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: RelatedDatafile
-  Rule_00000166:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Rule
-  Rule_00000167:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Sample
-  Rule_00000168:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: SampleParameter
-  Rule_00000169:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: SampleType
-  Rule_00000170:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Shift
-  Rule_00000171:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: Study
-  Rule_00000172:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: StudyInvestigation
-  Rule_00000173:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: User
-  Rule_00000174:
-    crudFlags: CRUD
-    grouping: Grouping_name-root
-    what: UserGroup
-  Rule_00000175:
-    crudFlags: CRUD
-    grouping: Grouping_name-samplewriter
-    what: SampleType
-  Rule_00000176:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: FacilityCycle
-  Rule_00000177:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: Grouping
-  Rule_00000178:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: InstrumentScientist
-  Rule_00000179:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: Investigation
-  Rule_00000180:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: InvestigationInstrument
-  Rule_00000181:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: InvestigationParameter
-  Rule_00000182:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: InvestigationUser
-  Rule_00000183:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: Keyword
-  Rule_00000184:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: Publication
-  Rule_00000185:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: Rule
-  Rule_00000186:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: Shift
-  Rule_00000187:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: Study
-  Rule_00000188:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: StudyInvestigation
-  Rule_00000189:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: User
-  Rule_00000190:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: UserGroup
@@ -949,13 +594,13 @@ sampleType:
 ---
 datafile:
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2008=2DHIKE=2D0255=2D1_visitId-1)_name-e201215)_name-e201215=2Enxs
-  : checksum: 1344cd7f
+  : checksum: ac69460a
     datafileCreateTime: '2008-06-18T09:31:11+02:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0
     datafileModTime: '2008-06-18T09:31:11+02:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-2008=2DHIKE=2D0255=2D1_visitId-1)_name-e201215
-    fileSize: 368368864
-    location: 63833/63982/714d8865-c1da-46fe-b90f-19d0caf33115
+    fileSize: 368369
+    location: 42642/42716/e5fc878f-9f89-4d29-9366-1381f51096ad
     name: e201215.nxs
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-2008=2DHIKE=2D0255=2D1_visitId-1)_name-e201215:
@@ -968,6 +613,13 @@ dataset:
 investigation:
   Investigation_facility-(name-ESNF)_name-2008=2DHIKE=2D0255=2D1_visitId-1:
     facility: Facility_name-ESNF
+    investigationGroups:
+    - grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fowner
+      role: owner
+    - grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Freader
+      role: reader
+    - grouping: Grouping_name-investigation=5F2008=2DHIKE=2D0255=2D1=5Fwriter
+      role: writer
     investigationInstruments:
     - instrument: Instrument_facility-(name-ESNF)_name-HIKE
     investigationUsers:
@@ -992,40 +644,40 @@ sample:
 ---
 datafile:
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208339)_name-e208339=2Edat
-  : checksum: ed2bc66d
+  : checksum: 81c44870
     datafileCreateTime: '2010-10-01T08:17:48+02:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA
     datafileModTime: '2010-10-01T08:17:48+02:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208339
-    fileSize: 445952
-    location: 63882/63986/3b8fb2da-d9e2-4d13-b23e-d0e51e8f1a1e
+    fileSize: 446
+    location: 42666/42720/6d5d0afa-b88f-4fe6-9ca6-1d4223339fee
     name: e208339.dat
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208339)_name-e208339=2Enxs
-  : checksum: 9d38b029
+  : checksum: 8b369ddc
     datafileCreateTime: '2010-10-01T08:52:22+02:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0
     datafileModTime: '2010-10-01T08:52:22+02:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208339
-    fileSize: 73427714
-    location: 63882/63986/2c6cc6b1-b1c7-4c00-bd79-d5df96692c2b
+    fileSize: 73428
+    location: 42666/42720/98f77f8a-4f28-43bb-b55a-20a4cc3b6220
     name: e208339.nxs
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208341)_name-e208341=2Edat
-  : checksum: ba17e53e
+  : checksum: 284558f4
     datafileCreateTime: '2010-10-05T10:32:21+02:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA
     datafileModTime: '2010-10-05T10:32:21+02:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208341
-    fileSize: 394240
-    location: 63882/63987/06c621f4-b66c-4a34-8bab-f1febf2ee4f4
+    fileSize: 394
+    location: 42666/42721/554ec0ec-055e-49cb-b4ab-cc8f435c382c
     name: e208341.dat
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208341)_name-e208341=2Enxs
-  : checksum: 4c491617
-    datafileCreateTime: '2010-10-05T11:13:53+02:00'
+  : checksum: 7c72b4bc
+    datafileCreateTime: '2010-10-05T11:31:53+02:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0
-    datafileModTime: '2010-10-05T11:13:53+02:00'
+    datafileModTime: '2010-10-05T11:31:53+02:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208341
-    fileSize: 52856502
-    location: 63882/63987/7933a3a4-df0f-4eb2-9d88-18e8fec2e0d7
+    fileSize: 52857
+    location: 42666/42721/cea9cde9-36c9-48df-879b-4e06c3c4e27f
     name: e208341.nxs
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208339:
@@ -1048,6 +700,13 @@ investigation:
   Investigation_facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1:
     endDate: '2010-10-05T10:32:21+02:00'
     facility: Facility_name-ESNF
+    investigationGroups:
+    - grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fowner
+      role: owner
+    - grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Freader
+      role: reader
+    - grouping: Grouping_name-investigation=5F2010=2DE2=2D0489=2D1=5Fwriter
+      role: writer
     investigationInstruments:
     - instrument: Instrument_facility-(name-ESNF)_name-E2
     investigationUsers:
@@ -1075,17 +734,33 @@ datafile:
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1
     datafileModTime: '2012-07-16T16:30:17+02:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945
-    fileSize: 2893652
+    fileSize: 28937
     name: e208945-2.nxs
+  ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2Edat
+  : checksum: bd55affa
+    datafileCreateTime: '2012-07-30T03:10:08+02:00'
+    datafileFormat: DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA
+    datafileModTime: '2012-07-30T03:10:08+02:00'
+    dataset: Dataset_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945
+    fileSize: 459
+    location: 42688/42725/51ef9865-2250-4036-a11a-f769d5483ae5
+    name: e208945.dat
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2Enxs
-  : checksum: 6588713c
+  : checksum: 1db15f18
     datafileCreateTime: '2013-06-03T12:22:43+02:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1
     datafileModTime: '2013-06-03T12:22:43+02:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945
-    fileSize: 396430442
-    location: 63929/63991/bc08a83d-16df-4bba-be9a-a6f64502b05f
+    fileSize: 396430
+    location: 42688/42725/5e61e1d6-6dea-4db2-8df6-50cbbf1532c3
     name: e208945.nxs
+  ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208946)_name-e208946=2Enxs
+  : datafileCreateTime: '2012-07-16T16:30:17+02:00'
+    datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1
+    datafileModTime: '2012-07-16T16:30:17+02:00'
+    dataset: Dataset_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208946
+    fileSize: 14965
+    name: e208946.nxs
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945:
     complete: false
@@ -1095,10 +770,22 @@ dataset:
     sample: Sample_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-Nickel=28II=29=20oxide=20SC
     startDate: '2012-07-26T17:44:24+02:00'
     type: DatasetType_facility-(name-ESNF)_name-generic
+  Dataset_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208946:
+    complete: true
+    investigation: Investigation_facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1
+    name: e208946
+    type: DatasetType_facility-(name-ESNF)_name-generic
 investigation:
   Investigation_facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1:
     endDate: '2012-07-30T03:10:08+02:00'
     facility: Facility_name-ESNF
+    investigationGroups:
+    - grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fowner
+      role: owner
+    - grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Freader
+      role: reader
+    - grouping: Grouping_name-investigation=5F2012=2DEDDI=2D0390=2D1=5Fwriter
+      role: writer
     investigationInstruments:
     - instrument: Instrument_facility-(name-ESNF)_name-EDDI
     investigationUsers:
@@ -1123,12 +810,16 @@ sample:
 dataCollection:
   DataCollection_00000001:
     dataCollectionDatafiles:
-    - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2D2=2Enxs
+    - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2Enxs
+    dataCollectionDatasets:
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-2010=2DE2=2D0489=2D1_visitId-1)_name-e208341
   DataCollection_00000002:
     dataCollectionDatafiles:
-    - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2Enxs
+    - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208945)_name-e208945=2D2=2Enxs
+    dataCollectionDatasets:
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-2012=2DEDDI=2D0390=2D1_visitId-1)_name-e208946
 job:
   Job_00000001:
     application: Application_facility-(name-ESNF)_name-gnomoanalytics_version-69
-    inputDataCollection: DataCollection_00000002
-    outputDataCollection: DataCollection_00000001
+    inputDataCollection: DataCollection_00000001
+    outputDataCollection: DataCollection_00000002

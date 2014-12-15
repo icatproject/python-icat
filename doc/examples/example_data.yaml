@@ -240,18 +240,30 @@ jobs:
   job1:
     application: gnomoanalytics
     input:
-      datasets: []
+      datasets:
+        - investigation: 2010-E2-0489-1
+          name: e208341
       datafiles:
         - dataset: e208945
           investigation: 2012-EDDI-0390-1
           name: e208945.nxs
     output:
-      datasets: []
+      datasets:
+        - complete: true
+          datafiles:
+            - datafileCreateTime: '2012-07-16T16:30:17+02:00'
+              datafileModTime: '2012-07-16T16:30:17+02:00'
+              fileSize: 14965
+              format: nexus42
+              name: e208946.nxs
+          investigation: 2012-EDDI-0390-1
+          name: e208946
+          type: generic
       datafiles:
         - datafileCreateTime: '2012-07-16T16:30:17+02:00'
           datafileModTime: '2012-07-16T16:30:17+02:00'
           dataset: e208945
-          fileSize: 2893652
+          fileSize: 28937
           format: nexus42
           investigation: 2012-EDDI-0390-1
           name: e208945-2.nxs
