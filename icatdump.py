@@ -84,8 +84,7 @@ else:
 # InvestigationGroups.
 if client.apiversion < '4.3.99':
     investigationsearch = ("SELECT i FROM Investigation i "
-                           "WHERE i.facility.id = %d AND i.name = '%s' "
-                           "AND i.visitId = '%s' "
+                           "WHERE i.id in (%d) "
                            "INCLUDE i.facility, i.type.facility, "
                            "i.investigationInstruments AS ii, "
                            "ii.instrument.facility, "
@@ -94,8 +93,7 @@ if client.apiversion < '4.3.99':
                            "i.parameters AS ip, ip.type.facility")
 else:
     investigationsearch = ("SELECT i FROM Investigation i "
-                           "WHERE i.facility.id = %d AND i.name = '%s' "
-                           "AND i.visitId = '%s' "
+                           "WHERE i.id in (%d) "
                            "INCLUDE i.facility, i.type.facility, "
                            "i.investigationInstruments AS ii, "
                            "ii.instrument.facility, "
@@ -132,22 +130,16 @@ statictypes = [("Facility ORDER BY name"),
                 "ORDER BY f.name, o.name, o.version INCLUDE o.facility")]
 investtypes = [(investigationsearch),
                ("SELECT o FROM Sample o JOIN o.investigation i "
-                "WHERE i.facility.id = %d AND i.name = '%s' "
-                "AND i.visitId = '%s' "
-                "ORDER BY o.name "
+                "WHERE i.id = %d ORDER BY o.name "
                 "INCLUDE o.investigation, o.type.facility, "
                 "o.parameters AS op, op.type.facility"),
                ("SELECT o FROM Dataset o JOIN o.investigation i "
-                "WHERE i.facility.id = %d AND i.name = '%s' "
-                "AND i.visitId = '%s' "
-                "ORDER BY o.name "
+                "WHERE i.id = %d ORDER BY o.name "
                 "INCLUDE o.investigation, o.type.facility, o.sample, "
                 "o.parameters AS op, op.type.facility"),
                ("SELECT o FROM Datafile o "
                 "JOIN o.dataset ds JOIN ds.investigation i "
-                "WHERE i.facility.id = %d AND i.name = '%s' "
-                "AND i.visitId = '%s' "
-                "ORDER BY ds.name, o.name "
+                "WHERE i.id = %d ORDER BY ds.name, o.name "
                 "INCLUDE o.dataset, o.datafileFormat.facility, "
                 "o.parameters AS op, op.type.facility")]
 # It is in principle not possible to get a consistent ordering of
@@ -178,9 +170,8 @@ with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     dumpfile.writedata(authtypes)
     dumpfile.writedata(statictypes)
     # Dump the investigations each in their own chunk
-    investsearch = ("SELECT i FROM Investigation i JOIN i.facility f "
-                    "ORDER BY f.name, i.name, i.visitId INCLUDE i.facility")
+    investsearch = ("SELECT i.id FROM Investigation i JOIN i.facility f "
+                    "ORDER BY f.name, i.name, i.visitId")
     for i in client.searchChunked(investsearch):
-        dumpfile.writedata([ se % (i.facility.id, i.name, i.visitId) 
-                             for se in investtypes ])
+        dumpfile.writedata([ se % (i) for se in investtypes ])
     dumpfile.writedata(othertypes)
