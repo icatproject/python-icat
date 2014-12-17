@@ -203,11 +203,7 @@ class Entity(object):
         """
         if attr in self.AttrAlias:
             attr = self.AttrAlias[attr]
-        info = self.client.getEntityInfo(self.BeanName)
-        for f in info.fields:
-            if f.name == attr:
-                return f.type
-        raise ValueError("Unknown attribute name '%s'" % attr)
+        return self.client.getEntityAttrType(self.BeanName, attr)
 
 
     def truncateRelations(self):
