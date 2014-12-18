@@ -171,8 +171,44 @@ class Query(object):
         if order is True:
             self.order = getnaturalorder(self.client, self.entity)
         elif order:
-            # FIXME ...
-            self.order = order
+            self.order = []
+            for obj in order:
+                objcls = self.entity
+                for p in parents(obj):
+                    i = p.rfind('.')
+                    if i < 0:
+                        a = p
+                    else:
+                        a = p[i+1:]
+                    if a in objcls.InstRel:
+                        cname = self.client.getEntityAttrType(objcls.BeanName, a)
+                        objcls = getentityclassbyname(self.client, cname)
+                    elif a in objcls.InstMRel:
+                        raise ValueError("Cannot set order on one to many "
+                                         "relationship %s of %s" 
+                                         % (a, objcls.BeanName))
+                    else:
+                        raise ValueError("Invalid attribute '%s' for %s" 
+                                         % (obj, self.entity.BeanName))
+                i = obj.rfind('.')
+                if i < 0:
+                    a = obj
+                else:
+                    a = obj[i+1:]
+                if a in objcls.InstAttr:
+                    self.order.append(obj)
+                elif a in objcls.InstRel:
+                    rname = self.client.getEntityAttrType(objcls.BeanName, a)
+                    rclass = getentityclassbyname(self.client, rname)
+                    rorder = getnaturalorder(self.client, rclass)
+                    self.order.extend(["%s.%s" % (obj, ra) for ra in rorder])
+                elif a in objcls.InstMRel:
+                    raise ValueError("Cannot set order on one to many "
+                                     "relationship %s of %s" 
+                                     % (a, objcls.BeanName))
+                else:
+                    raise ValueError("Invalid attribute '%s' for %s" 
+                                     % (obj, self.entity.BeanName))
         else:
             self.order = []
 
