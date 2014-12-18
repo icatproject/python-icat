@@ -89,11 +89,10 @@ class Query(object):
 
     # FIXME: as a first version, we implement only a rather restricted
     # type of conditions in the WHERE clause, namely a list of
-    # attribute equal value pairs combined by AND.  A more general
-    # solution might be desirable: other operators, more general
-    # boolean expressions.  In the restricted case, each attribute may
-    # naturally only appear once.  In the general case, the same
-    # attribute may appear more then once, e.g. "o.a > 5 AND o.a < 10".
+    # attribute operator value pairs combined by AND.  A more general
+    # solution might be desirable.  In particular, each attribute may
+    # only appear once.  In the general case, the same attribute may
+    # appear more then once, e.g. "o.a > 5 AND o.a < 10".
 
     def __init__(self, client, entity, 
                  ordering=None, conditions=None, includes=None):
@@ -156,11 +155,10 @@ class Query(object):
 
         :param conditions: the conditions to restrict the search
             result.  This should be a mapping of attribute names to
-            values.
-        :type conditions:  ``dict``
+            conditions.
+        :type conditions: ``dict``
         """
         if conditions:
-            # FIXME ...
             self.conditions.update(conditions)
 
     def addIncludes(self, includes):
@@ -171,7 +169,6 @@ class Query(object):
         :type includes: iterable of ``str``
         """
         if includes:
-            # FIXME ...
             self.includes.update(includes)
 
     def __repr__(self):
@@ -193,7 +190,7 @@ class Query(object):
         for obj in sorted(subst.keys()):
             joins += " JOIN %s" % dosubst(obj, subst)
         if self.conditions:
-            conds = [ "%s = %s" % (dosubst(a, subst), self.conditions[a]) 
+            conds = [ "%s %s" % (dosubst(a, subst), self.conditions[a]) 
                       for a in sorted(self.conditions.keys()) ]
             where = " WHERE " + " AND ".join(conds)
         else:
