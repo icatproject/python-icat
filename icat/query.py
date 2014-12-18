@@ -18,23 +18,23 @@ def getentityclassbyname(client, name):
     else:
         raise ValueError("Invalid entity type '%s'." % name)
 
-def getnaturalordering(client, entity):
-    """Return the natural ordering of the Enitity class entity.
+def getnaturalorder(client, entity):
+    """Return the natural order of the Enitity class entity.
     """
     # FIXME: consider to make this a client method or a class method
     # in Entity.
-    ordering = []
+    order = []
     attrs = list(entity.SortAttrs or entity.Constraint)
     if "id" in entity.Constraint and "id" not in attrs:
         attrs.append("id")
     for a in attrs:
         if a in entity.InstAttr:
-            ordering.append(a)
+            order.append(a)
         elif a in entity.InstRel:
             rname = client.getEntityAttrType(entity.BeanName, a)
             rclass = getentityclassbyname(client, rname)
-            rordering = getnaturalordering(client, rclass)
-            ordering.extend(["%s.%s" % (a, ra) for ra in rordering])
+            rorder = getnaturalorder(client, rclass)
+            order.extend(["%s.%s" % (a, ra) for ra in rorder])
         elif a in entity.InstMRel:
             # skip, one to many relationships cannot be used in an
             # ORDER BY clause.
@@ -42,7 +42,7 @@ def getnaturalordering(client, entity):
         else:
             raise InternalError("Invalid sorting attribute '%s' in %s."
                                 % (a, entity.BeanName))
-    return ordering
+    return order
 
 def parents(obj):
     """Iterate over the parents of obj as dot separated components.
@@ -95,7 +95,7 @@ class Query(object):
     # appear more then once, e.g. "o.a > 5 AND o.a < 10".
 
     def __init__(self, client, entity, 
-                 ordering=None, conditions=None, includes=None):
+                 order=None, conditions=None, includes=None):
 
         """Initialize the query.
 
@@ -105,8 +105,8 @@ class Query(object):
             either be an ``Entity`` subclass or the name of an entity
             type.
         :type entity: `Entity` or ``str``
-        :param ordering: the sorting attributes to build the ORDER BY
-            clause from.  See the `setOrdering` method for details.
+        :param order: the sorting attributes to build the ORDER BY
+            clause from.  See the `setOrder` method for details.
         :param conditions: the conditions to build the WHERE clause
             from.  See the `addConditions` method for details.
         :param includes: list of related objects to add to the INCLUDE
@@ -127,28 +127,28 @@ class Query(object):
         else:
             raise TypeError("Invalid entity type '%s'." % type(entity))
 
-        self.setOrdering(ordering)
+        self.setOrder(order)
         self.conditions = dict()
         self.addConditions(conditions)
         self.includes = set()
         self.addIncludes(includes)
 
-    def setOrdering(self, ordering):
-        """Set the ordering to build the ORDER BY clause from.
+    def setOrder(self, order):
+        """Set the order to build the ORDER BY clause from.
 
-        :param ordering: the list of the attributes used for sorting.
+        :param order: the list of the attributes used for sorting.
             A special value of `True` may be used to indicate the
-            natural ordering of the entity type.  Any `False` value
+            natural order of the entity type.  Any `False` value
             means no ORDER BY clause.
-        :type ordering: ``list`` of ``str`` or ``bool``
+        :type order: ``list`` of ``str`` or ``bool``
         """
-        if ordering is True:
-            self.ordering = getnaturalordering(self.client, self.entity)
-        elif ordering:
+        if order is True:
+            self.order = getnaturalorder(self.client, self.entity)
+        elif order:
             # FIXME ...
-            self.ordering = ordering
+            self.order = order
         else:
-            self.ordering = []
+            self.order = []
 
     def addConditions(self, conditions):
         """Add conditions to the constraints to build the WHERE clause from.
@@ -174,17 +174,17 @@ class Query(object):
     def __repr__(self):
         """Return a formal representation of the query.
         """
-        return ("%s(%s, %s, ordering=%s, conditions=%s, includes=%s)"
+        return ("%s(%s, %s, order=%s, conditions=%s, includes=%s)"
                 % (self.__class__.__name__, 
                    repr(self.client), repr(self.entity), 
-                   repr(self.ordering), repr(self.conditions), 
+                   repr(self.order), repr(self.conditions), 
                    repr(self.includes)))
 
     def __str__(self):
         """Return a string representation of the query.
         """
         base = "SELECT o FROM %s o" % self.entity.BeanName
-        joinattrs = set(self.ordering) | set(self.conditions.keys())
+        joinattrs = set(self.order) | set(self.conditions.keys())
         subst = makesubst(joinattrs)
         joins = ""
         for obj in sorted(subst.keys()):
@@ -195,8 +195,8 @@ class Query(object):
             where = " WHERE " + " AND ".join(conds)
         else:
             where = ""
-        if self.ordering:
-            orders = [ dosubst(a, subst) for a in self.ordering ]
+        if self.order:
+            orders = [ dosubst(a, subst) for a in self.order ]
             order = " ORDER BY " + ", ".join(orders)
         else:
             order = ""
