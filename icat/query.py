@@ -8,6 +8,29 @@ from icat.exception import InternalError
 
 __all__ = ['Query']
 
+substnames = {
+    "datafileFormat":"dff",
+    "dataset":"ds",
+    "dataset.investigation":"i",
+    "facility":"f",
+    "grouping":"g",
+    "instrumentScientists":"isc",
+    "investigation":"i",
+    "investigationGroups":"ig",
+    "investigationInstruments":"ii",
+    "investigationUsers":"iu",
+    "parameters":"p",
+    "parameters.type":"pt",
+    "type":"t",
+    "user":"u",
+    "userGroups":"ug",
+}
+"""Symbolic names for the representation of related objects in
+JOIN ... AS and INCLUDE ... AS.  Prescribing sensible names makes the
+search expressions somewhat better readable.  There is no need for
+completeness here.
+"""
+
 def getentityclassbyname(client, name):
     """Return the Entity class corresponding to a BeanName for the client.
     """
@@ -66,8 +89,11 @@ def makesubst(objs):
     for obj in sorted(objs):
         for o in parents(obj):
             if o not in subst:
-                substcount += 1
-                subst[o] = "s%d" % substcount
+                if o in substnames and substnames[o] not in subst.values():
+                    subst[o] = substnames[o]
+                else:
+                    substcount += 1
+                    subst[o] = "s%d" % substcount
     return subst
 
 def dosubst(obj, subst):
