@@ -116,3 +116,8 @@ print("\nThere is no sensible order for DataCollection, fall back to id.")
 q = Query(client, "DataCollection", order=True)
 print(str(q))
 print("%d result(s)" % len(client.search(str(q))))
+
+print("\nDatafiles ordered by format.")
+q = Query(client, "Datafile", order=['datafileFormat', 'dataset', 'name'])
+print(str(q))
+print("%d result(s)" % len(client.search(str(q))))
