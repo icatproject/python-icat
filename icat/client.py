@@ -539,30 +539,6 @@ class Client(suds.client.Client):
 
     # =================== custom API methods ===================
 
-    def getEntityAttrType(self, entity, attr):
-        """Get the type of an entity's attribute.
-
-        Query the EntityInfo of the entity from the ICAT server and
-        retrieve the type of one of the attributes from it.  In the
-        case of a relation attribute, this yields the BeanName of the
-        related object.
-
-        :param entity: name of the entity.
-        :type entity: ``str``
-        :param attr: name of the attribute.
-        :type attr: ``str``
-        :return: name of the attribute type.
-        :rtype: ``str``
-        :raise ICATParameterError: if the entity is not known to the ICAT.
-        :raise ValueError: if no attribute by that name is found.
-        """
-        info = self.getEntityInfo(entity)
-        for f in info.fields:
-            if f.name == attr:
-                return f.type
-        else:
-            raise ValueError("Unknown attribute name '%s'" % attr)
-
     def assertedSearch(self, query, assertmin=1, assertmax=1):
         """Search with an assertion on the result.
 

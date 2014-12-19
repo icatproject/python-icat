@@ -62,6 +62,30 @@ class Entity(object):
         return map(cls.getInstance, objs)
 
 
+    @classmethod
+    def getAttrInfo(cls, client, attr):
+        """Get information on an attribute.
+
+        Query the EntityInfo of the entity from the ICAT server and
+        retrieve information on one of the attributes from it.
+
+        :param client: the ICAT client.
+        :type client: `Client`
+        :param attr: name of the attribute.
+        :type attr: ``str``
+        :return: information on the attribute.
+        :raise ValueError: if this is an abstract entity class or if
+            no attribute by that name is found.
+        """
+        if cls.BeanName is None:
+            raise ValueError("Cannot get info for an abstract entity class.")
+        info = client.getEntityInfo(cls.BeanName)
+        for f in info.fields:
+            if f.name == attr:
+                return f
+        else:
+            raise ValueError("Unknown attribute name '%s'." % attr)
+
     def __init__(self, client, instance, **kwargs):
         super(Entity, self).__init__()
         self.client = client
@@ -203,7 +227,7 @@ class Entity(object):
         """
         if attr in self.AttrAlias:
             attr = self.AttrAlias[attr]
-        return self.client.getEntityAttrType(self.BeanName, attr)
+        return self.getAttrInfo(self.client, attr).type
 
 
     def truncateRelations(self):
