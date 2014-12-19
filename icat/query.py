@@ -51,20 +51,19 @@ def getnaturalorder(client, entity):
     if "id" in entity.Constraint and "id" not in attrs:
         attrs.append("id")
     for a in attrs:
-        if a in entity.InstAttr:
+        attrInfo = entity.getAttrInfo(client, a)
+        if attrInfo.relType == "ATTRIBUTE":
             order.append(a)
-        elif a in entity.InstRel:
-            rname = client.getEntityAttrType(entity.BeanName, a)
-            rclass = getentityclassbyname(client, rname)
+        elif attrInfo.relType == "ONE":
+            rclass = getentityclassbyname(client, attrInfo.type)
             rorder = getnaturalorder(client, rclass)
             order.extend(["%s.%s" % (a, ra) for ra in rorder])
-        elif a in entity.InstMRel:
+        elif attrInfo.relType == "MANY":
             # skip, one to many relationships cannot be used in an
             # ORDER BY clause.
             continue
         else:
-            raise InternalError("Invalid sorting attribute '%s' in %s."
-                                % (a, entity.BeanName))
+            assert False, "Invalid relType: '%s'" % attrInfo.relType
     return order
 
 def parents(obj):
@@ -169,47 +168,47 @@ class Query(object):
         :type order: ``list`` of ``str`` or ``bool``
         """
         if order is True:
+
             self.order = getnaturalorder(self.client, self.entity)
+
         elif order:
+
             self.order = []
             for obj in order:
-                objcls = self.entity
-                for p in parents(obj):
-                    i = p.rfind('.')
-                    if i < 0:
-                        a = p
-                    else:
-                        a = p[i+1:]
-                    if a in objcls.InstRel:
-                        cname = self.client.getEntityAttrType(objcls.BeanName, a)
-                        objcls = getentityclassbyname(self.client, cname)
-                    elif a in objcls.InstMRel:
-                        raise ValueError("Cannot set order on one to many "
-                                         "relationship %s of %s" 
-                                         % (a, objcls.BeanName))
-                    else:
-                        raise ValueError("Invalid attribute '%s' for %s" 
+
+                rclass = self.entity
+                final = False
+                for attr in obj.split('.'):
+
+                    if final:
+                        # Last component was attribute, no further
+                        # components in the name allowed.
+                        raise ValueError("Invalid attribute '%s' for %s." 
                                          % (obj, self.entity.BeanName))
-                i = obj.rfind('.')
-                if i < 0:
-                    a = obj
-                else:
-                    a = obj[i+1:]
-                if a in objcls.InstAttr:
+
+                    attrInfo = rclass.getAttrInfo(self.client, attr)
+                    if attrInfo.relType == "ATTRIBUTE":
+                        final = True
+                    elif attrInfo.relType == "ONE":
+                        rclass = getentityclassbyname(self.client, attrInfo.type)
+                    elif attrInfo.relType == "MANY":
+                        raise ValueError("Cannot use one to many relationship "
+                                         "in '%s' to order %s." 
+                                         % (obj, self.entity.BeanName))
+                    else:
+                        assert False, "Invalid relType: '%s'" % attrInfo.relType
+
+                if final:
+                    # obj is an attribute, use it right away.
                     self.order.append(obj)
-                elif a in objcls.InstRel:
-                    rname = self.client.getEntityAttrType(objcls.BeanName, a)
-                    rclass = getentityclassbyname(self.client, rname)
+                else:
+                    # obj is a related object, use the natural order
+                    # of its class.
                     rorder = getnaturalorder(self.client, rclass)
                     self.order.extend(["%s.%s" % (obj, ra) for ra in rorder])
-                elif a in objcls.InstMRel:
-                    raise ValueError("Cannot set order on one to many "
-                                     "relationship %s of %s" 
-                                     % (a, objcls.BeanName))
-                else:
-                    raise ValueError("Invalid attribute '%s' for %s" 
-                                     % (obj, self.entity.BeanName))
+
         else:
+
             self.order = []
 
     def addConditions(self, conditions):
