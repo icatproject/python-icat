@@ -112,13 +112,6 @@ class Query(object):
     4.3.0.  It won't work with older ICAT servers.
     """
 
-    # FIXME: as a first version, we implement only a rather restricted
-    # type of conditions in the WHERE clause, namely a list of
-    # attribute operator value pairs combined by AND.  A more general
-    # solution might be desirable.  In particular, each attribute may
-    # only appear once.  In the general case, the same attribute may
-    # appear more then once, e.g. "o.a > 5 AND o.a < 10".
-
     def __init__(self, client, entity, 
                  order=None, conditions=None, includes=None):
 
@@ -219,11 +212,29 @@ class Query(object):
 
         :param conditions: the conditions to restrict the search
             result.  This should be a mapping of attribute names to
-            conditions.
+            conditions on that attribute.  The latter may either be a
+            string with a single condition or a list of strings to add
+            more then one condition on a single attribute.  If the
+            query already has a condition on a given attribute, it
+            will be turned into a list with the new condition(s)
+            appended.
         :type conditions: ``dict``
         """
         if conditions:
-            self.conditions.update(conditions)
+            for a in conditions.keys():
+                if a in self.conditions:
+                    conds = []
+                    if isinstance(self.conditions[a], basestring):
+                        conds.append(self.conditions[a])
+                    else:
+                        conds.extend(self.conditions[a])
+                    if isinstance(conditions[a], basestring):
+                        conds.append(conditions[a])
+                    else:
+                        conds.extend(conditions[a])
+                    self.conditions[a] = conds
+                else:
+                    self.conditions[a] = conditions[a]
 
     def addIncludes(self, includes):
         """Add related objects to build the INCLUDE clause from.
@@ -254,8 +265,15 @@ class Query(object):
         for obj in sorted(subst.keys()):
             joins += " JOIN %s" % dosubst(obj, subst)
         if self.conditions:
-            conds = [ "%s %s" % (dosubst(a, subst), self.conditions[a]) 
-                      for a in sorted(self.conditions.keys()) ]
+            conds = []
+            for a in sorted(self.conditions.keys()):
+                attr = dosubst(a, subst)
+                cond = self.conditions[a]
+                if isinstance(cond, basestring):
+                    conds.append("%s %s" % (attr, cond))
+                else:
+                    for c in cond:
+                        conds.append("%s %s" % (attr, c))
             where = " WHERE " + " AND ".join(conds)
         else:
             where = ""
