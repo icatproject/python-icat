@@ -16,6 +16,7 @@ import suds.sudsobject
 
 from icat.entity import Entity
 import icat.entities
+from icat.query import Query
 from icat.exception import *
 from icat.ids import *
 from icat.helper import simpleqp_unquote, parse_attr_val
@@ -374,7 +375,7 @@ class Client(suds.client.Client):
 
     def get(self, query, primaryKey):
         try:
-            instance = self.service.get(self.sessionId, query, primaryKey)
+            instance = self.service.get(self.sessionId, str(query), primaryKey)
             return self.getEntity(instance)
         except suds.WebFault as e:
             raise translateError(e)
@@ -511,7 +512,7 @@ class Client(suds.client.Client):
 
     def search(self, query):
         try:
-            instances = self.service.search(self.sessionId, query)
+            instances = self.service.search(self.sessionId, str(query))
             return map(lambda i: self.getEntity(i), instances)
         except suds.WebFault as e:
             raise translateError(e)
@@ -546,8 +547,8 @@ class Client(suds.client.Client):
         lies within the bounds of assertmin and assertmax.  Raise an
         error if this assertion fails.
 
-        :param query: the search query string.
-        :type query: ``str``
+        :param query: the search query.
+        :type query: `Query` or ``str``
         :param assertmin: minimum number of expected results.
         :type assertmin: ``int``
         :param assertmax: maximum number of expected results.  A value
@@ -592,8 +593,8 @@ class Client(suds.client.Client):
         changes between individual search calls in a way that would
         affect the search result.
 
-        :param query: the search query string.
-        :type query: ``str``
+        :param query: the search query.
+        :type query: `Query` or ``str``
         :param skip: offset from within the full list of available results.
         :type skip: ``int``
         :param count: maximum number of items to return.  A value of
@@ -607,6 +608,7 @@ class Client(suds.client.Client):
             search result.
         :rtype: ``generator``
         """
+        query = str(query)
         if query.startswith("SELECT"):
             query += " LIMIT %d, %d"
         else:

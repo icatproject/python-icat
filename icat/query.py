@@ -2,9 +2,7 @@
 """
 
 from warnings import warn
-import icat.client
 import icat.entity
-import icat.entities
 from icat.exception import InternalError, QueryNullableOrderWarning
 
 __all__ = ['Query']
