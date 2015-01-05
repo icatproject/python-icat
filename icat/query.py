@@ -166,6 +166,9 @@ class Query(object):
             natural order of the entity type.  Any `False` value
             means no ORDER BY clause.
         :type order: ``list`` of ``str`` or ``bool``
+        :raise ValueError: if the order contains invalid attributes
+            that either do not exist or contain one to many
+            relationships.
         """
         if order is True:
 

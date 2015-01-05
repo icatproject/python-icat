@@ -86,6 +86,7 @@ class Entity(object):
         else:
             raise ValueError("Unknown attribute name '%s'." % attr)
 
+
     def __init__(self, client, instance, **kwargs):
         super(Entity, self).__init__()
         self.client = client
