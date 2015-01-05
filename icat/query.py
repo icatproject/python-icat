@@ -117,7 +117,7 @@ class Query(object):
     """
 
     def __init__(self, client, entity, 
-                 order=None, conditions=None, includes=None):
+                 order=None, conditions=None, includes=None, limit=None):
 
         """Initialize the query.
 
@@ -133,6 +133,8 @@ class Query(object):
             from.  See the `addConditions` method for details.
         :param includes: list of related objects to add to the INCLUDE
             clause.  See the `addIncludes` method for details.
+        :param includes: a tuple (skip, count) to be used in the LIMIT
+            clause.  See the `setLimit` method for details.
         """
 
         super(Query, self).__init__()
@@ -155,6 +157,7 @@ class Query(object):
         self.includes = set()
         self.addIncludes(includes)
         self.setOrder(order)
+        self.setLimit(limit)
         self._init = None
 
     def setOrder(self, order):
@@ -265,14 +268,25 @@ class Query(object):
         if includes:
             self.includes.update(includes)
 
+    def setLimit(self, limit):
+        """Set the limits to build the LIMIT clause from.
+
+        :param limit: a tuple (skip, count).
+        :type limit: ``tuple``
+        """
+        if limit:
+            self.limit = limit
+        else:
+            self.limit = None            
+
     def __repr__(self):
         """Return a formal representation of the query.
         """
-        return ("%s(%s, %s, order=%s, conditions=%s, includes=%s)"
+        return ("%s(%s, %s, order=%s, conditions=%s, includes=%s, limit=%s)"
                 % (self.__class__.__name__, 
                    repr(self.client), repr(self.entity), 
                    repr(self.order), repr(self.conditions), 
-                   repr(self.includes)))
+                   repr(self.includes), repr(self.limit)))
 
     def __str__(self):
         """Return a string representation of the query.
@@ -308,4 +322,8 @@ class Query(object):
             include = " INCLUDE " + ", ".join(incl)
         else:
             include = ""
-        return base + joins + where + order + include
+        if self.limit:
+            limit = " LIMIT %s, %s" % self.limit
+        else:
+            limit = ""
+        return base + joins + where + order + include + limit

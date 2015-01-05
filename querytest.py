@@ -171,3 +171,15 @@ q = Query(client, "Rule", order=['grouping.name', 'what', 'id'],
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
+print("\nAdd a LIMIT clause to the last example.")
+q.setLimit( (0,10) )
+print(str(q))
+print("%d result(s)" % len(client.search(q)))
+
+print("\nLIMIT clauses are particular useful with placeholders.")
+q.setLimit( ("%d","%d") )
+print(str(q))
+print(str(q) % (0,30))
+print("%d result(s)" % len(client.search(str(q) % (0,30))))
+print(str(q) % (30,30))
+print("%d result(s)" % len(client.search(str(q) % (30,30))))
