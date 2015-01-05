@@ -8,6 +8,10 @@ __all__ = [
     'stripCause', 
     # Internal error
     'InternalError', 
+    # icat.config
+    'ConfigError', 
+    # icat.query
+    'QueryNullableOrderWarning', 
     # Exceptions thrown by the ICAT server
     'ICATError', 'ICATParameterError', 'ICATInternalError', 
     'ICATPrivilegesError', 'ICATNoObjectError', 'ICATObjectExistsError', 
@@ -22,8 +26,6 @@ __all__ = [
     'IDSInsufficientPrivilegesError', 'IDSInsufficientStorageError', 
     'IDSInternalError', 'IDSNotFoundError', 'IDSNotImplementedError', 
     'translateIDSError', 
-    # icat.config
-    'ConfigError', 
     # icat.icatcheck
     'GenealogyError',
     ]
@@ -52,6 +54,22 @@ class InternalError(Exception):
     """An error that reveals a bug in python-icat.
     """
     pass
+
+# ================ Exceptions raised in icat.config ================
+
+class ConfigError(Exception):
+    """Error getting configuration options."""
+    pass
+
+# ================ Exceptions raised in icat.query =================
+
+class QueryNullableOrderWarning(Warning):
+    """Warn about using a nullable relation for ordering.
+    """
+    def __init__(self, attr):
+        msg = ("ordering on a nullable relation implicitly "
+               "adds a '%s IS NOT NULL' condition." % attr)
+        super(QueryNullableOrderWarning, self).__init__(msg)
 
 # ============== Exceptions thrown by the ICAT server ==============
 
@@ -293,12 +311,6 @@ def translateIDSError(status, code, message):
     except AttributeError:
         Class = IDSServerError
     return Class(status, code, message)
-
-# ================ Exceptions raised in icat.config ================
-
-class ConfigError(Exception):
-    """Error getting configuration options."""
-    pass
 
 # ============== Exceptions raised in icat.icatcheck ===============
 

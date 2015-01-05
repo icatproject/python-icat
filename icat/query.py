@@ -5,7 +5,7 @@ from warnings import warn
 import icat.client
 import icat.entity
 import icat.entities
-from icat.exception import InternalError
+from icat.exception import InternalError, QueryNullableOrderWarning
 
 __all__ = ['Query']
 
@@ -138,6 +138,7 @@ class Query(object):
         """
 
         super(Query, self).__init__()
+        self._init = True
         self.client = client
 
         if isinstance(entity, basestring):
@@ -156,6 +157,7 @@ class Query(object):
         self.includes = set()
         self.addIncludes(includes)
         self.setOrder(order)
+        self._init = None
 
     def setOrder(self, order):
         """Set the order to build the ORDER BY clause from.
@@ -199,8 +201,12 @@ class Query(object):
                     elif attrInfo.relType == "ONE":
                         if (not attrInfo.notNullable and 
                             pattr not in self.conditions):
-                            warn("ordering on a nullable relation implicitly "
-                                 "adds a '%s IS NOT NULL' condition." % pattr)
+                            if self._init:
+                                sl=3
+                            else:
+                                sl=2
+                            warn(QueryNullableOrderWarning(pattr), 
+                                 stacklevel=sl)
                         rclass = getentityclassbyname(self.client, attrInfo.type)
                     elif attrInfo.relType == "MANY":
                         raise ValueError("Cannot use one to many relationship "
