@@ -95,13 +95,13 @@ def makesubst(objs):
                     subst[o] = "s%d" % substcount
     return subst
 
-def dosubst(obj, subst):
+def dosubst(obj, subst, addas=True):
     i = obj.rfind('.')
     if i < 0:
         n = "o.%s" % (obj)
     else:
         n = "%s.%s" % (subst[obj[:i]], obj[i+1:])
-    if obj in subst:
+    if addas and obj in subst:
         n += " AS %s" % (subst[obj])
     return n
 
@@ -267,7 +267,7 @@ class Query(object):
         if self.conditions:
             conds = []
             for a in sorted(self.conditions.keys()):
-                attr = dosubst(a, subst)
+                attr = dosubst(a, subst, False)
                 cond = self.conditions[a]
                 if isinstance(cond, basestring):
                     conds.append("%s %s" % (attr, cond))
@@ -278,7 +278,7 @@ class Query(object):
         else:
             where = ""
         if self.order:
-            orders = [ dosubst(a, subst) for a in self.order ]
+            orders = [ dosubst(a, subst, False) for a in self.order ]
             order = " ORDER BY " + ", ".join(orders)
         else:
             order = ""
