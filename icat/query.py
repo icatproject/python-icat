@@ -1,6 +1,7 @@
 """Provide the Query class.
 """
 
+from warnings import warn
 import icat.client
 import icat.entity
 import icat.entities
@@ -55,9 +56,14 @@ def getnaturalorder(client, entity):
         if attrInfo.relType == "ATTRIBUTE":
             order.append(a)
         elif attrInfo.relType == "ONE":
-            rclass = getentityclassbyname(client, attrInfo.type)
-            rorder = getnaturalorder(client, rclass)
-            order.extend(["%s.%s" % (a, ra) for ra in rorder])
+            if not attrInfo.notNullable:
+                # skip, adding a nullable relation to ORDER BY
+                # implicitly adds a NOT NULL condition.
+                continue
+            else:
+                rclass = getentityclassbyname(client, attrInfo.type)
+                rorder = getnaturalorder(client, rclass)
+                order.extend(["%s.%s" % (a, ra) for ra in rorder])
         elif attrInfo.relType == "MANY":
             # skip, one to many relationships cannot be used in an
             # ORDER BY clause.
@@ -145,11 +151,11 @@ class Query(object):
         else:
             raise TypeError("Invalid entity type '%s'." % type(entity))
 
-        self.setOrder(order)
         self.conditions = dict()
         self.addConditions(conditions)
         self.includes = set()
         self.addIncludes(includes)
+        self.setOrder(order)
 
     def setOrder(self, order):
         """Set the order to build the ORDER BY clause from.
@@ -173,9 +179,14 @@ class Query(object):
             for obj in order:
 
                 rclass = self.entity
+                pattr = ""
                 final = False
                 for attr in obj.split('.'):
 
+                    if pattr:
+                        pattr += ".%s" % attr
+                    else:
+                        pattr = attr
                     if final:
                         # Last component was attribute, no further
                         # components in the name allowed.
@@ -186,6 +197,10 @@ class Query(object):
                     if attrInfo.relType == "ATTRIBUTE":
                         final = True
                     elif attrInfo.relType == "ONE":
+                        if (not attrInfo.notNullable and 
+                            pattr not in self.conditions):
+                            warn("ordering on a nullable relation implicitly "
+                                 "adds a '%s IS NOT NULL' condition." % pattr)
                         rclass = getentityclassbyname(self.client, attrInfo.type)
                     elif attrInfo.relType == "MANY":
                         raise ValueError("Cannot use one to many relationship "
