@@ -327,3 +327,13 @@ class Query(object):
         else:
             limit = ""
         return base + joins + where + order + include + limit
+
+    def copy(self):
+        """Return an independent clone of this query.
+        """
+        q = Query(self.client, self.entity)
+        q.order = list(self.order)
+        q.conditions = self.conditions.copy()
+        q.includes = self.includes.copy()
+        q.limit = self.limit
+        return q
