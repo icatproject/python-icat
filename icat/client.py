@@ -608,8 +608,11 @@ class Client(suds.client.Client):
             search result.
         :rtype: ``generator``
         """
-        query = str(query)
-        if query.startswith("SELECT"):
+        if isinstance(query, Query):
+            q = query.copy()
+            q.setLimit( ("%d","%d") )
+            query = str(q)
+        elif query.startswith("SELECT"):
             query += " LIMIT %d, %d"
         else:
             query = "%d, %d " + query
@@ -661,22 +664,20 @@ class Client(suds.client.Client):
         beanname = key[:us]
         av = parse_attr_val(key[us+1:])
         info = self.getEntityInfo(beanname)
-        query = "SELECT e FROM %s e" % beanname
-        op = "WHERE"
+        query = Query(self, beanname)
         for f in info.fields:
             if f.name in av.keys():
                 attr = f.name
                 if f.relType == "ATTRIBUTE":
-                    query += " %s e.%s = '%s'" % (op, attr, 
-                                                  simpleqp_unquote(av[attr]))
+                    cond = "= '%s'" % simpleqp_unquote(av[attr])
+                    query.addConditions({attr:cond})
                 elif f.relType == "ONE":
                     rk = str("%s_%s" % (f.type, av[attr]))
                     ro = self.searchUniqueKey(rk, objindex)
-                    query += " %s e.%s.id = %d" % (op, attr, ro.id)
+                    query.addConditions({"%s.id" % attr:"= %d" % ro.id})
                 else:
                     raise ValueError("malformed '%s': invalid attribute '%s'" 
                                      % (key, attr))
-                op = "AND"
         obj = self.assertedSearch(query)[0]
         if objindex is not None:
             objindex[key] = obj
