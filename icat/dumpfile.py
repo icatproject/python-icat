@@ -49,6 +49,7 @@ file.  The related object must have its own list entry.
 
 import sys
 import icat
+from icat.query import Query
 
 
 # ------------------------------------------------------------
@@ -151,12 +152,12 @@ class DumpFileWriter(object):
         These objects may only be referenced from the same data chunk
         in the dump file.
 
-        :param objs: expression to use for searching the objects.  It
-            must contain appropriate INCLUDE statements to include all
-            related objects from many-to-one relations.  These related
-            objects must also include all informations needed to
-            generate their unique key, unless they are registered in
-            the key index already.
+        :param objs: query to search the objects, either a Query
+            object or a string.  It must contain appropriate INCLUDE
+            statements to include all related objects from many-to-one
+            relations.  These related objects must also include all
+            informations needed to generate their unique key, unless
+            they are registered in the key index already.
 
             Furthermore, related objects from one-to-many relations
             may be included.  These objects will then be embedded with
@@ -164,16 +165,16 @@ class DumpFileWriter(object):
             requirements for including their respective related
             objects apply.
 
-            As an alternative to a search expression, objs may also be
-            a list of entity objects.  The same conditions on the
-            inclusion of related objects apply.
-        :type objs: ``str`` or ``list``
+            As an alternative to a query, objs may also be a list of
+            entity objects.  The same conditions on the inclusion of
+            related objects apply.
+        :type objs: `Query` or ``str`` or ``list``
         :param keyindex: cache of generated keys.  It maps object ids
             to unique keys.  See the ``getUniqueKey()`` method of
             `Entity` for details.
         :type keyindex: ``dict``
         """
-        if isinstance(objs, basestring):
+        if isinstance(objs, Query) or isinstance(objs, basestring):
             objs = self.client.searchChunked(objs)
         else:
             objs.sort(key=icat.entity.Entity.__sortkey__)
@@ -197,9 +198,9 @@ class DumpFileWriter(object):
     def writedata(self, objs):
         """Write a data chunk.
 
-        :param objs: a list of expressions to search for the objects
-            to write.  See `writeobjs` for details.
-        :type objs: ``list`` of ``str``
+        :param objs: an iterable that yields either queries to search
+            for the objects or object lists.  See `writeobjs` for
+            details.
         """
         keyindex = {}
         self.startdata()

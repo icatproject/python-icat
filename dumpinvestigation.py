@@ -10,6 +10,7 @@
 import logging
 import icat
 import icat.config
+from icat.query import Query
 from icat.dumpfile import open_dumpfile
 import icat.dumpfile_xml
 import icat.dumpfile_yaml
@@ -91,28 +92,26 @@ ptsearch = [("ParameterType INCLUDE Facility, PermissibleStringValue "
              "<-> DatafileParameter <-> Datafile <-> Dataset "
              "<-> Investigation [id=%d]"), ]
 
-# Need to search the investigation separately.  Putting the search
-# expression in investtypes below would cause an infinite loop:
-# dumpfile.writedata() internally adds a LIMIT clause to the search
-# and relies on it.  But LIMIT clauses are ignored when searching by
-# id, see ICAT issue 149.
-# https://code.google.com/p/icatproject/issues/detail?id=149
-investigation = client.search("SELECT i FROM Investigation i WHERE i.id = %d "
-                              "INCLUDE i.facility, i.type.facility, "
-                              "i.investigationInstruments AS ii, "
-                              "ii.instrument.facility, "
-                              "i.shifts, i.keywords, i.publications, "
-                              "i.investigationUsers AS iu, iu.user, "
-                              "i.investigationGroups AS ig, ig.grouping, "
-                              "i.parameters AS ip, ip.type.facility" % invid)
+# The set of objects to be included in the Investigation.
+inv_includes = { "facility", "type.facility", "investigationInstruments", 
+                 "investigationInstruments.instrument.facility", "shifts", 
+                 "keywords", "publications", "investigationUsers", 
+                 "investigationUsers.user", "investigationGroups", 
+                 "investigationGroups.grouping", "parameters", 
+                 "parameters.type.facility" }
 
-# We may either provide a search expression or a list of objects.  We
-# assume that there is only one relevant facility, e.g. that all
-# objects related to the investigation are related to the same
-# facility.  We may thus ommit the facility from the ORDER BY clauses.
-authtypes = [mergesearch([s % invid for s in usersearch]),
-             ("Grouping ORDER BY name INCLUDE UserGroup, User "
-              "<-> InvestigationGroup <-> Investigation [id=%d]" % invid)]
+# The following lists control what ICAT objects are written in each of
+# the dumpfile chunks.  There are three options for the items in each
+# list: either queries expressed as Query objects, or queries
+# expressed as string expressions, or lists of objects.  In the first
+# two cases, the seacrh results will be written, in the last case, the
+# objects are written as provided.  We assume that there is only one
+# relevant facility, e.g. that all objects related to the
+# investigation are related to the same facility.  We may thus ommit
+# the facility from the ORDER BY clauses.
+authtypes =   [mergesearch([s % invid for s in usersearch]),
+               ("Grouping ORDER BY name INCLUDE UserGroup, User "
+                "<-> InvestigationGroup <-> Investigation [id=%d]" % invid)]
 statictypes = [("Facility ORDER BY name"),
                ("Instrument ORDER BY name "
                 "INCLUDE Facility, InstrumentScientist, User "
@@ -127,20 +126,21 @@ statictypes = [("Facility ORDER BY name"),
                 "<-> Dataset <-> Investigation [id=%d]" % invid),
                ("DatafileFormat ORDER BY name, version INCLUDE Facility "
                 "<-> Datafile <-> Dataset <-> Investigation [id=%d]" % invid)]
-investtypes = [investigation, 
-               ("SELECT o FROM Sample o JOIN o.investigation i "
-                "WHERE i.id = %d ORDER BY o.name "
-                "INCLUDE o.investigation, o.type.facility, "
-                "o.parameters AS op, op.type.facility" % invid),
-               ("SELECT o FROM Dataset o JOIN o.investigation i "
-                "WHERE i.id = %d ORDER BY o.name "
-                "INCLUDE o.investigation, o.type.facility, o.sample, "
-                "o.parameters AS op, op.type.facility" % invid),
-               ("SELECT o FROM Datafile o "
-                "JOIN o.dataset ds JOIN ds.investigation i "
-                "WHERE i.id = %d ORDER BY ds.name, o.name "
-                "INCLUDE o.dataset, o.datafileFormat.facility, "
-                "o.parameters AS op, op.type.facility" % invid)]
+investtypes = [Query(client, "Investigation", 
+                     conditions={"id":"in (%d)" % invid}, 
+                     includes=inv_includes), 
+               Query(client, "Sample", order=["name"], 
+                     conditions={"investigation.id":"= %d" % invid}, 
+                     includes={"investigation", "type.facility", 
+                               "parameters", "parameters.type.facility"}), 
+               Query(client, "Dataset", order=["name"], 
+                     conditions={"investigation.id":"= %d" % invid}, 
+                     includes={"investigation", "type.facility", "sample", 
+                               "parameters", "parameters.type.facility"}), 
+               Query(client, "Datafile", order=["dataset.name", "name"], 
+                     conditions={"dataset.investigation.id":"= %d" % invid}, 
+                     includes={"dataset", "datafileFormat.facility", 
+                               "parameters", "parameters.type.facility"})]
 
 with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     dumpfile.writedata(authtypes)

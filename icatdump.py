@@ -34,6 +34,7 @@
 import logging
 import icat
 import icat.config
+from icat.query import Query
 from icat.dumpfile import open_dumpfile
 import icat.dumpfile_xml
 import icat.dumpfile_yaml
@@ -82,89 +83,71 @@ else:
 
 # Compatibility ICAT 4.3.* vs. ICAT 4.4.0 and later: include
 # InvestigationGroups.
-if client.apiversion < '4.3.99':
-    investigationsearch = ("SELECT i FROM Investigation i "
-                           "WHERE i.id in (%d) "
-                           "INCLUDE i.facility, i.type.facility, "
-                           "i.investigationInstruments AS ii, "
-                           "ii.instrument.facility, "
-                           "i.shifts, i.keywords, i.publications, "
-                           "i.investigationUsers AS iu, iu.user, "
-                           "i.parameters AS ip, ip.type.facility")
-else:
-    investigationsearch = ("SELECT i FROM Investigation i "
-                           "WHERE i.id in (%d) "
-                           "INCLUDE i.facility, i.type.facility, "
-                           "i.investigationInstruments AS ii, "
-                           "ii.instrument.facility, "
-                           "i.shifts, i.keywords, i.publications, "
-                           "i.investigationUsers AS iu, iu.user, "
-                           "i.investigationGroups AS ig, ig.grouping, "
-                           "i.parameters AS ip, ip.type.facility")
+inv_includes = { "facility", "type.facility", "investigationInstruments", 
+                 "investigationInstruments.instrument.facility", "shifts", 
+                 "keywords", "publications", "investigationUsers", 
+                 "investigationUsers.user", "parameters", 
+                 "parameters.type.facility" }
+if client.apiversion > '4.3.99':
+    inv_includes |= { "investigationGroups", "investigationGroups.grouping" }
 
-authtypes = [("User ORDER BY name"), 
-             ("Grouping ORDER BY name INCLUDE UserGroup, User"),
-             ("SELECT r FROM Rule r WHERE r.grouping IS NULL ORDER BY r.what"),
-             ("SELECT r FROM Rule r JOIN r.grouping g "
-              "ORDER BY g.name, r.what INCLUDE r.grouping"),
-             ("PublicStep ORDER BY origin, field")]
-statictypes = [("Facility ORDER BY name"),
-               ("SELECT o FROM Instrument o JOIN o.facility f "
-                "ORDER BY f.name, o.name "
-                "INCLUDE o.facility, o.instrumentScientists.user"),
-               ("SELECT o FROM ParameterType o JOIN o.facility f "
-                "ORDER BY f.name, o.name, o.units "
-                "INCLUDE o.facility, o.permissibleStringValues"),
-               ("SELECT o FROM InvestigationType o JOIN o.facility f "
-                "ORDER BY f.name, o.name INCLUDE o.facility"),
-               ("SELECT o FROM SampleType o JOIN o.facility f "
-                "ORDER BY f.name, o.name, o.molecularFormula "
-                "INCLUDE o.facility"),
-               ("SELECT o FROM DatasetType o JOIN o.facility f "
-                "ORDER BY f.name, o.name INCLUDE o.facility"),
-               ("SELECT o FROM DatafileFormat o JOIN o.facility f "
-                "ORDER BY f.name, o.name, o.version INCLUDE o.facility"),
-               ("SELECT o FROM FacilityCycle o JOIN o.facility f "
-                "ORDER BY f.name, o.name INCLUDE o.facility"),
-               ("SELECT o FROM Application o JOIN o.facility f "
-                "ORDER BY f.name, o.name, o.version INCLUDE o.facility")]
-investtypes = [(investigationsearch),
-               ("SELECT o FROM Sample o JOIN o.investigation i "
-                "WHERE i.id = %d ORDER BY o.name "
-                "INCLUDE o.investigation, o.type.facility, "
-                "o.parameters AS op, op.type.facility"),
-               ("SELECT o FROM Dataset o JOIN o.investigation i "
-                "WHERE i.id = %d ORDER BY o.name "
-                "INCLUDE o.investigation, o.type.facility, o.sample, "
-                "o.parameters AS op, op.type.facility"),
-               ("SELECT o FROM Datafile o "
-                "JOIN o.dataset ds JOIN ds.investigation i "
-                "WHERE i.id = %d ORDER BY ds.name, o.name "
-                "INCLUDE o.dataset, o.datafileFormat.facility, "
-                "o.parameters AS op, op.type.facility")]
-# It is in principle not possible to get a consistent ordering of
-# DataCollection using an ORDER BY clause in the search expression.
-# In the case of RelatedDatafile, it is possible in theory, but the
-# ORDER BY clause would be rather complicated.  Fall back on sorting
-# by id in these cases.
-othertypes = [("SELECT o FROM Study o ORDER BY o.name, o.id "
-               "INCLUDE o.user, "
-               "o.studyInvestigations AS si, si.investigation"),
-              ("SELECT o FROM RelatedDatafile o ORDER BY o.id "
-               "INCLUDE o.sourceDatafile AS sdf, "
-               "sdf.dataset.investigation.facility, "
-               "o.destDatafile AS ddf, "
-               "ddf.dataset.investigation.facility"),
-              ("SELECT o FROM DataCollection o ORDER BY o.id "
-               "INCLUDE o.dataCollectionDatasets AS ds, "
-               "ds.dataset.investigation.facility, "
-               "o.dataCollectionDatafiles AS df, "
-               "df.datafile.dataset.investigation.facility, "
-               "o.%s AS op, op.type" % datacolparamname),
-              ("SELECT o FROM Job o JOIN o.application a JOIN a.facility f "
-               "ORDER BY f.name, a.name, o.arguments, o.id "
-               "INCLUDE o.application.facility, "
-               "o.inputDataCollection, o.outputDataCollection")]
+
+authtypes =   [Query(client, "User", order=True), 
+               Query(client, "Grouping", order=True, 
+                     includes={"userGroups", "userGroups.user"}),
+               Query(client, "Rule", order=["what", "id"], 
+                     conditions={"grouping":"IS NULL"}), 
+               Query(client, "Rule", order=["grouping.name", "what", "id"], 
+                     conditions={"grouping":"IS NOT NULL"}, 
+                     includes={"grouping"}), 
+               Query(client, "PublicStep", order=True) ]
+statictypes = [Query(client, "Facility", order=True), 
+               Query(client, "Instrument", order=True, 
+                     includes={"facility", "instrumentScientists.user"}), 
+               Query(client, "ParameterType", order=True, 
+                     includes={"facility", "permissibleStringValues"}), 
+               Query(client, "InvestigationType", order=True, 
+                     includes={"facility"}), 
+               Query(client, "SampleType", order=True, 
+                     includes={"facility"}), 
+               Query(client, "DatasetType", order=True, 
+                     includes={"facility"}), 
+               Query(client, "DatafileFormat", order=True, 
+                     includes={"facility"}), 
+               Query(client, "FacilityCycle", order=True, 
+                     includes={"facility"}), 
+               Query(client, "Application", order=True, 
+                     includes={"facility"}) ]
+investtypes = [Query(client, "Investigation", 
+                     conditions={"id":"in (%d)"}, 
+                     includes=inv_includes), 
+               Query(client, "Sample", order=["name"], 
+                     conditions={"investigation.id":"= %d"}, 
+                     includes={"investigation", "type.facility", 
+                               "parameters", "parameters.type.facility"}), 
+               Query(client, "Dataset", order=["name"], 
+                     conditions={"investigation.id":"= %d"}, 
+                     includes={"investigation", "type.facility", 
+                               "sample", "parameters.type.facility"}), 
+               Query(client, "Datafile", order=["dataset.name", "name"], 
+                     conditions={"dataset.investigation.id":"= %d"}, 
+                     includes={"dataset", "datafileFormat.facility", 
+                               "parameters.type.facility"}) ]
+othertypes =  [Query(client, "Study", order=True, 
+                     includes={"user", "studyInvestigations", 
+                               "studyInvestigations.investigation"}), 
+               Query(client, "RelatedDatafile", order=True, 
+                     includes={"sourceDatafile.dataset.investigation.facility", 
+                               "destDatafile.dataset.investigation.facility"}), 
+               Query(client, "DataCollection", order=True, 
+                     includes={("dataCollectionDatasets.dataset."
+                                "investigation.facility"), 
+                               ("dataCollectionDatafiles.datafile.dataset."
+                                "investigation.facility"), 
+                               "%s.type" % datacolparamname}), 
+               Query(client, "Job", order=True, 
+                     includes={"application.facility", 
+                               "inputDataCollection", "outputDataCollection"})]
 
 with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     dumpfile.writedata(authtypes)
@@ -173,5 +156,5 @@ with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     investsearch = ("SELECT i.id FROM Investigation i JOIN i.facility f "
                     "ORDER BY f.name, i.name, i.visitId")
     for i in client.searchChunked(investsearch):
-        dumpfile.writedata([ se % (i) for se in investtypes ])
+        dumpfile.writedata([ str(q) % (i) for q in investtypes ])
     dumpfile.writedata(othertypes)
