@@ -1,6 +1,27 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.7.0 (not yet released)
+
+** New features
+
+ + Add a module icat.query with a class Query that can be used to
+   build ICAT search expressions.  Instances of the class may be used
+   in place of search expression strings where appropriate.
+
+ + Add a class method getNaturalOrder() to Entity that returns a list
+   of attributes suitable to be used in an ORDER BY clause in an ICAT
+   search expression.
+
+ + Add a class method getAttrInfo() to Entity that queries the
+   EntityInfo from the ICAT server and extracts the information on an
+   attribute.
+
+ + Add a method getEntityClass() that returns the Entity class
+   corresponding to a name.
+
+ + Add a warning class QueryNullableOrderWarning.
+
 * Version 0.6.0 (2014-12-15)
 
 ** New features
