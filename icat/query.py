@@ -30,12 +30,14 @@ search expressions somewhat better readable.  There is no need for
 completeness here.
 """
 
-def parents(obj):
+# ======================== Internal helper ===========================
+
+def _parents(obj):
     """Iterate over the parents of obj as dot separated components.
 
-    >>> list(parents("a.bb.c.ddd.e.ff"))
+    >>> list(_parents("a.bb.c.ddd.e.ff"))
     ['a', 'a.bb', 'a.bb.c', 'a.bb.c.ddd', 'a.bb.c.ddd.e']
-    >>> list(parents("abc"))
+    >>> list(_parents("abc"))
     []
     """
     s = 0
@@ -46,11 +48,11 @@ def parents(obj):
         yield obj[:i]
         s = i+1
 
-def makesubst(objs):
+def _makesubst(objs):
     subst = {}
     substcount = 0
     for obj in sorted(objs):
-        for o in parents(obj):
+        for o in _parents(obj):
             if o not in subst:
                 if o in substnames and substnames[o] not in subst.values():
                     subst[o] = substnames[o]
@@ -59,7 +61,7 @@ def makesubst(objs):
                     subst[o] = "s%d" % substcount
     return subst
 
-def dosubst(obj, subst, addas=True):
+def _dosubst(obj, subst, addas=True):
     i = obj.rfind('.')
     if i < 0:
         n = "o.%s" % (obj)
@@ -68,6 +70,8 @@ def dosubst(obj, subst, addas=True):
     if addas and obj in subst:
         n += " AS %s" % (subst[obj])
     return n
+
+# ========================== class Query =============================
 
 class Query(object):
     """Build a query to search an ICAT server.
@@ -93,7 +97,7 @@ class Query(object):
             from.  See the `addConditions` method for details.
         :param includes: list of related objects to add to the INCLUDE
             clause.  See the `addIncludes` method for details.
-        :param includes: a tuple (skip, count) to be used in the LIMIT
+        :param limit: a tuple (skip, count) to be used in the LIMIT
             clause.  See the `setLimit` method for details.
         """
 
@@ -253,14 +257,14 @@ class Query(object):
         """
         base = "SELECT o FROM %s o" % self.entity.BeanName
         joinattrs = set(self.order) | set(self.conditions.keys())
-        subst = makesubst(joinattrs)
+        subst = _makesubst(joinattrs)
         joins = ""
         for obj in sorted(subst.keys()):
-            joins += " JOIN %s" % dosubst(obj, subst)
+            joins += " JOIN %s" % _dosubst(obj, subst)
         if self.conditions:
             conds = []
             for a in sorted(self.conditions.keys()):
-                attr = dosubst(a, subst, False)
+                attr = _dosubst(a, subst, False)
                 cond = self.conditions[a]
                 if isinstance(cond, basestring):
                     conds.append("%s %s" % (attr, cond))
@@ -271,14 +275,14 @@ class Query(object):
         else:
             where = ""
         if self.order:
-            orders = [ dosubst(a, subst, False) for a in self.order ]
+            orders = [ _dosubst(a, subst, False) for a in self.order ]
             order = " ORDER BY " + ", ".join(orders)
         else:
             order = ""
         if self.includes:
-            subst = makesubst(self.includes)
+            subst = _makesubst(self.includes)
             self.addIncludes(subst.keys())
-            incl = [ dosubst(obj, subst) for obj in sorted(self.includes) ]
+            incl = [ _dosubst(obj, subst) for obj in sorted(self.includes) ]
             include = " INCLUDE " + ", ".join(incl)
         else:
             include = ""
