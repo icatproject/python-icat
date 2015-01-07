@@ -61,7 +61,6 @@ class Entity(object):
         """
         return map(cls.getInstance, objs)
 
-
     @classmethod
     def getAttrInfo(cls, client, attr):
         """Get information on an attribute.
@@ -85,6 +84,43 @@ class Entity(object):
                 return f
         else:
             raise ValueError("Unknown attribute name '%s'." % attr)
+
+    @classmethod
+    def getNaturalOrder(cls, client):
+        """Return the natural order of this class.
+
+        The oreder is a list of attributes suitable to be used in a
+        ORDER BY clause in an ICAT search expression.  The natural
+        order is the one that is as close as possible to sorting the
+        objects by the `__sortkey__`.  It is based on the Constraint
+        of the class or the SortAttrs, if the latter are defined.  In
+        any case, one to many relationships and nullable many to one
+        relationships are removed from the list.
+        """
+        order = []
+        attrs = list(cls.SortAttrs or cls.Constraint)
+        if "id" in cls.Constraint and "id" not in attrs:
+            attrs.append("id")
+        for a in attrs:
+            attrInfo = cls.getAttrInfo(client, a)
+            if attrInfo.relType == "ATTRIBUTE":
+                order.append(a)
+            elif attrInfo.relType == "ONE":
+                if not attrInfo.notNullable:
+                    # skip, adding a nullable relation to ORDER BY
+                    # would implicitly add a NOT NULL condition.
+                    continue
+                else:
+                    rclass = client.getEntityClass(attrInfo.type)
+                    rorder = rclass.getNaturalOrder(client)
+                    order.extend(["%s.%s" % (a, ra) for ra in rorder])
+            elif attrInfo.relType == "MANY":
+                # skip, one to many relationships cannot be used in an
+                # ORDER BY clause.
+                continue
+            else:
+                assert False, "Invalid relType: '%s'" % attrInfo.relType
+        return order
 
 
     def __init__(self, client, instance, **kwargs):

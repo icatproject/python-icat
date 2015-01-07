@@ -3,7 +3,7 @@
 
 from warnings import warn
 import icat.entity
-from icat.exception import InternalError, QueryNullableOrderWarning
+from icat.exception import QueryNullableOrderWarning
 
 __all__ = ['Query']
 
@@ -29,46 +29,6 @@ JOIN ... AS and INCLUDE ... AS.  Prescribing sensible names makes the
 search expressions somewhat better readable.  There is no need for
 completeness here.
 """
-
-def getentityclassbyname(client, name):
-    """Return the Entity class corresponding to a BeanName for the client.
-    """
-    # FIXME: consider to make this a client method.
-    for c in client.typemap.values():
-        if name == c.BeanName:
-            return c
-    else:
-        raise ValueError("Invalid entity type '%s'." % name)
-
-def getnaturalorder(client, entity):
-    """Return the natural order of the Enitity class entity.
-    """
-    # FIXME: consider to make this a client method or a class method
-    # in Entity.
-    order = []
-    attrs = list(entity.SortAttrs or entity.Constraint)
-    if "id" in entity.Constraint and "id" not in attrs:
-        attrs.append("id")
-    for a in attrs:
-        attrInfo = entity.getAttrInfo(client, a)
-        if attrInfo.relType == "ATTRIBUTE":
-            order.append(a)
-        elif attrInfo.relType == "ONE":
-            if not attrInfo.notNullable:
-                # skip, adding a nullable relation to ORDER BY
-                # implicitly adds a NOT NULL condition.
-                continue
-            else:
-                rclass = getentityclassbyname(client, attrInfo.type)
-                rorder = getnaturalorder(client, rclass)
-                order.extend(["%s.%s" % (a, ra) for ra in rorder])
-        elif attrInfo.relType == "MANY":
-            # skip, one to many relationships cannot be used in an
-            # ORDER BY clause.
-            continue
-        else:
-            assert False, "Invalid relType: '%s'" % attrInfo.relType
-    return order
 
 def parents(obj):
     """Iterate over the parents of obj as dot separated components.
@@ -142,7 +102,7 @@ class Query(object):
         self.client = client
 
         if isinstance(entity, basestring):
-            self.entity = getentityclassbyname(self.client, entity)
+            self.entity = self.client.getEntityClass(entity)
         elif issubclass(entity, icat.entity.Entity):
             if (entity in self.client.typemap.values() and 
                 entity.BeanName is not None):
@@ -174,7 +134,7 @@ class Query(object):
         """
         if order is True:
 
-            self.order = getnaturalorder(self.client, self.entity)
+            self.order = self.entity.getNaturalOrder(self.client)
 
         elif order:
 
@@ -208,7 +168,7 @@ class Query(object):
                                 sl=2
                             warn(QueryNullableOrderWarning(pattr), 
                                  stacklevel=sl)
-                        rclass = getentityclassbyname(self.client, attrInfo.type)
+                        rclass = self.client.getEntityClass(attrInfo.type)
                     elif attrInfo.relType == "MANY":
                         raise ValueError("Cannot use one to many relationship "
                                          "in '%s' to order %s." 
@@ -222,7 +182,7 @@ class Query(object):
                 else:
                     # obj is a related object, use the natural order
                     # of its class.
-                    rorder = getnaturalorder(self.client, rclass)
+                    rorder = rclass.getNaturalOrder(self.client)
                     self.order.extend(["%s.%s" % (obj, ra) for ra in rorder])
 
         else:

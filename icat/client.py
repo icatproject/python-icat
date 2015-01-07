@@ -309,6 +309,15 @@ class Client(suds.client.Client):
 
         return Class(self, instance, **kwargs)
 
+    def getEntityClass(self, name):
+        """Return the Entity class corresponding to a BeanName.
+        """
+        for c in self.typemap.values():
+            if name == c.BeanName:
+                return c
+        else:
+            raise ValueError("Invalid entity type '%s'." % name)
+
     def getEntity(self, obj):
         """Get the corresponding `Entity` for an object.
 
