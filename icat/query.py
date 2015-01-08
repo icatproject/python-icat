@@ -3,7 +3,7 @@
 
 from warnings import warn
 import icat.entity
-from icat.exception import QueryNullableOrderWarning
+from icat.exception import InternalError, QueryNullableOrderWarning
 
 __all__ = ['Query']
 
@@ -178,7 +178,8 @@ class Query(object):
                                          "in '%s' to order %s." 
                                          % (obj, self.entity.BeanName))
                     else:
-                        assert False, "Invalid relType: '%s'" % attrInfo.relType
+                        raise InternalError("Invalid relType: '%s'" 
+                                            % attrInfo.relType)
 
                 if final:
                     # obj is an attribute, use it right away.

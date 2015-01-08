@@ -119,7 +119,7 @@ class Entity(object):
                 # ORDER BY clause.
                 continue
             else:
-                assert False, "Invalid relType: '%s'" % attrInfo.relType
+                raise InternalError("Invalid relType: '%s'" % attrInfo.relType)
         return order
 
 
