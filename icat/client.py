@@ -741,8 +741,10 @@ class Client(suds.client.Client):
 
         :param crudFlags: access mode.
         :type crudFlags: ``str``
-        :param what: list of items subject to the rule.
-        :type what: ``list`` of ``str``
+        :param what: list of items subject to the rule.  The items
+            must be either ICAT search expression strings or `Query`
+            objects.
+        :type what: ``list``
         :param group: the group that should be granted access or
             ``None`` for everybody.
         :type group: ``Entity``
@@ -757,7 +759,8 @@ class Client(suds.client.Client):
 
         rules = []
         for w in what:
-            r = self.new("rule", crudFlags=crudFlags, what=w, grouping=group)
+            r = self.new("rule", 
+                         crudFlags=crudFlags, what=str(w), grouping=group)
             rules.append(r)
         return self.createMany(rules)
 
