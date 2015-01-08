@@ -126,6 +126,7 @@ print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nDatafiles ordered by format.")
+print("(Note: this raises a QueryNullableOrderWarning, see below.)")
 q = Query(client, "Datafile", order=['datafileFormat', 'dataset', 'name'])
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
