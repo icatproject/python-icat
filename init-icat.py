@@ -188,11 +188,10 @@ if client.apiversion > '4.3.99':
 
     # set permissions for the writer group
     items = []
-    for name, attr in invitems:
-        ig = attr + "investigationGroups"
+    for name, a in invitems:
         q = Query(client, name, conditions={
-            ig + ".role":"= 'writer'",
-            ig + ".grouping.userGroups.user.name":"= :user",
+            a + "investigationGroups.role":"= 'writer'",
+            a + "investigationGroups.grouping.userGroups.user.name":"= :user",
         })
         items.append(q)
     client.createRules("CRUD", items)
@@ -200,12 +199,11 @@ if client.apiversion > '4.3.99':
     # set permissions for the reader group.  Actually, we give read
     # permissions to all groups related to the investigation.
     # For reading, we add the investigation itself to the invitems.
-    invitems[0:0] = [ ( "Investigation", "" ) ]
+    invitems.insert(0, ( "Investigation", "" ) )
     items = []
-    for name, attr in invitems:
-        ig = attr + "investigationGroups"
+    for name, a in invitems:
         q = Query(client, name, conditions={
-            ig + ".grouping.userGroups.user.name":"= :user",
+            a + "investigationGroups.grouping.userGroups.user.name":"= :user",
         })
         items.append(q)
     client.createRules("R", items)
