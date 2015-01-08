@@ -11,11 +11,12 @@
 # rootUserNames property.
 #
 
-import icat
-import icat.config
 import sys
 import logging
 import yaml
+import icat
+import icat.config
+from icat.query import Query
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -135,7 +136,7 @@ client.createRules("CRUD", uotables, uogroup)
 
 # SampleType is a public table that may be read by anybody.
 # Furthermore still, users may come up with their own special samples
-# and might need to create thier own type.  So allow also creation by
+# and might need to create their own type.  So allow also creation by
 # anybody.  Since also these special sample types may be shared
 # between users, we do not allow update or delete, not even for the
 # sample type that the user created himself.  Only scientific staff is
@@ -170,50 +171,59 @@ client.createRules("CRUD", ["Job [createId=:user]"])
 if client.apiversion > '4.3.99':
 
     # Items that are considered to belong to the content of an
-    # investigation, where %s represents the investigation itself.
-    # The writer group will get CRUD permissions and the reader group
-    # R permissions on these items.
-    invitems = [ "Sample <-> %s",
-                 "Dataset <-> %s",
-                 "Datafile <-> Dataset <-> %s",
-                 "InvestigationParameter <-> %s",
-                 "SampleParameter <-> Sample <-> %s",
-                 "DatasetParameter <-> Dataset <-> %s",
-                 "DatafileParameter <-> Datafile <-> Dataset <-> %s",
-                 "Shift <-> %s",
-                 "Keyword <-> %s",
-                 "Publication <-> %s", ] 
+    # investigation.  List tuples of an entity type and the attribute
+    # that indicates the path to the investigation.  The writer group
+    # will get CRUD permissions and the reader group R permissions on
+    # these items.
+    invitems = [ ( "Sample", "investigation." ),
+                 ( "Dataset", "investigation." ),
+                 ( "Datafile", "dataset.investigation." ),
+                 ( "InvestigationParameter", "investigation." ),
+                 ( "SampleParameter", "sample.investigation." ),
+                 ( "DatasetParameter", "dataset.investigation." ),
+                 ( "DatafileParameter", "datafile.dataset.investigation." ),
+                 ( "Shift", "investigation." ),
+                 ( "Keyword", "investigation." ),
+                 ( "Publication", "investigation." ), ] 
 
     # set permissions for the writer group
-    invcond = ("Investigation <-> InvestigationGroup [role='writer'] "
-               "<-> Grouping <-> UserGroup <-> User [name=:user]")
-    client.createRules("CRUD", [ s % invcond for s in invitems ])
+    items = []
+    for name, attr in invitems:
+        ig = attr + "investigationGroups"
+        q = Query(client, name, conditions={
+            ig + ".role":"= 'writer'",
+            ig + ".grouping.userGroups.user.name":"= :user",
+        })
+        items.append(q)
+    client.createRules("CRUD", items)
 
     # set permissions for the reader group.  Actually, we give read
     # permissions to all groups related to the investigation.
-    invcond = ("Investigation <-> InvestigationGroup "
-               "<-> Grouping <-> UserGroup <-> User [name=:user]")
-    client.createRules("R", [ invcond ])
-    client.createRules("R", [ s % invcond for s in invitems ])
+    # For reading, we add the investigation itself to the invitems.
+    invitems[0:0] = [ ( "Investigation", "" ) ]
+    items = []
+    for name, attr in invitems:
+        ig = attr + "investigationGroups"
+        q = Query(client, name, conditions={
+            ig + ".grouping.userGroups.user.name":"= :user",
+        })
+        items.append(q)
+    client.createRules("R", items)
 
     # set permission to grant and to revoke permissions for the owner.
-    item = ("SELECT tug FROM UserGroup tug "
-            "JOIN tug.grouping tg "
-            "JOIN tg.investigationGroups tig "
-            "JOIN tig.investigation i "
-            "JOIN i.investigationGroups uig "
-            "JOIN uig.grouping ug "
-            "JOIN ug.userGroups uug JOIN uug.user u "
-            "WHERE (tig.role = 'writer' OR tig.role = 'reader') "
-            "AND uig.role = 'owner' AND u.name = :user")
+    tig = "grouping.investigationGroups"
+    uig = "grouping.investigationGroups.investigation.investigationGroups"
+    item = Query(client, "UserGroup", conditions={
+        uig + ".grouping.userGroups.user.name":"= :user",
+        uig + ".role":"= 'owner'", 
+        tig + ".role":"in ('reader', 'writer')"
+    })
     client.createRules("CRUD", [ item ])
-    item = ("SELECT tg FROM Grouping tg "
-            "JOIN tg.investigationGroups tig "
-            "JOIN tig.investigation i "
-            "JOIN i.investigationGroups uig "
-            "JOIN uig.grouping ug "
-            "JOIN ug.userGroups uug JOIN uug.user u "
-            "WHERE uig.role = 'owner' AND u.name = :user")
+    uig = "investigationGroups.investigation.investigationGroups"
+    item = Query(client, "Grouping", conditions={
+        uig + ".grouping.userGroups.user.name":"= :user",
+        uig + ".role":"= 'owner'"
+    })
     client.createRules("R", [ item ])
 
 
