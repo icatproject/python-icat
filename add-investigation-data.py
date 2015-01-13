@@ -114,6 +114,9 @@ for datasetdata in investigationdata['datasets']:
     print("Dataset: creating '%s' ..." % datasetdata['name'])
     dataset = client.new("dataset")
     initobj(dataset, datasetdata)
+    # Need to override the complete flag from the example data as we
+    # do not have create permissions on complete datasets.
+    dataset.complete = False
     dataset.sample = sample
     dataset.investigation = investigation
     dataset.type = dataset_types[datasetdata['type']]

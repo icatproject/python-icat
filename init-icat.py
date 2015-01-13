@@ -171,41 +171,46 @@ client.createRules("CRUD", ["Job [createId=:user]"])
 if client.apiversion > '4.3.99':
 
     # Items that are considered to belong to the content of an
-    # investigation.  List tuples of an entity type and the attribute
-    # that indicates the path to the investigation.  The writer group
-    # will get CRUD permissions and the reader group R permissions on
-    # these items.
-    invitems = [ ( "Sample", "investigation." ),
-                 ( "Dataset", "investigation." ),
-                 ( "Datafile", "dataset.investigation." ),
-                 ( "InvestigationParameter", "investigation." ),
-                 ( "SampleParameter", "sample.investigation." ),
-                 ( "DatasetParameter", "dataset.investigation." ),
-                 ( "DatafileParameter", "datafile.dataset.investigation." ),
-                 ( "Shift", "investigation." ),
-                 ( "Keyword", "investigation." ),
-                 ( "Publication", "investigation." ), ] 
+    # investigation.  The writer group will get CRUD permissions and
+    # the reader group R permissions on these items.  The list are
+    # tuples with three items: the entity type, the attribute that
+    # indicates the path to the investigation, and optionally, the
+    # path to a dataset complete attribute.  If the latter is set, an
+    # extra condition is added so that CRUD permission is only given
+    # if complete is False.
+    invitems = [ ( "Sample", "investigation.", "" ),
+                 ( "Dataset", "investigation.", "complete" ),
+                 ( "Datafile", "dataset.investigation.", "dataset.complete" ),
+                 ( "InvestigationParameter", "investigation.", "" ),
+                 ( "SampleParameter", "sample.investigation.", "" ),
+                 ( "DatasetParameter", "dataset.investigation.", "" ),
+                 ( "DatafileParameter", "datafile.dataset.investigation.", "" ),
+                 ( "Shift", "investigation.", "" ),
+                 ( "Keyword", "investigation.", "" ),
+                 ( "Publication", "investigation.", "" ), ] 
 
     # set permissions for the writer group
     items = []
-    for name, a in invitems:
-        q = Query(client, name, conditions={
+    for name, a, c in invitems:
+        conditions={
             a + "investigationGroups.role":"= 'writer'",
             a + "investigationGroups.grouping.userGroups.user.name":"= :user",
-        })
-        items.append(q)
-    client.createRules("CRUD", items)
+        }
+        if c:
+            conditions[c] = "= False"
+        items.append(Query(client, name, conditions=conditions))
+    client.createRules("CUD", items)
 
     # set permissions for the reader group.  Actually, we give read
     # permissions to all groups related to the investigation.
     # For reading, we add the investigation itself to the invitems.
-    invitems.insert(0, ( "Investigation", "" ) )
+    invitems.insert(0, ( "Investigation", "", "" ) )
     items = []
-    for name, a in invitems:
-        q = Query(client, name, conditions={
+    for name, a, c in invitems:
+        conditions={
             a + "investigationGroups.grouping.userGroups.user.name":"= :user",
-        })
-        items.append(q)
+        }
+        items.append(Query(client, name, conditions=conditions))
     client.createRules("R", items)
 
     # set permission to grant and to revoke permissions for the owner.
