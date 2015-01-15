@@ -25,8 +25,16 @@ datafile_formats:
     name: raw
     version: N/A
 dataset_types:
+  raw:
+    description: data collected from experiments on instruments
+    facility: example_facility
+    name: raw
+  analyzed:
+    description: data arising from the analysis of other data
+    facility: example_facility
+    name: analyzed
   generic:
-    description: generic data set
+    description: generic data
     facility: example_facility
     name: generic
 facilities:
@@ -114,7 +122,7 @@ investigations:
       endDate: null
       name: e201215
       startDate: '2008-03-13T11:39:42+01:00'
-      type: generic
+      type: raw
     endDate: null
     facility: example_facility
     instrument: hike
@@ -154,7 +162,7 @@ investigations:
       endDate: '2010-10-01T08:17:48+02:00'
       name: e208339
       startDate: '2010-09-30T12:27:24+02:00'
-      type: generic
+      type: raw
     - complete: true
       datafiles:
       - checksum: 284558f4
@@ -172,7 +180,7 @@ investigations:
       endDate: '2010-10-05T10:32:21+02:00'
       name: e208341
       startDate: '2010-10-02T04:00:21+02:00'
-      type: generic
+      type: raw
     endDate: '2010-10-05T10:32:21+02:00'
     facility: example_facility
     instrument: e2
@@ -215,7 +223,7 @@ investigations:
       endDate: '2012-07-30T03:10:08+02:00'
       name: e208945
       startDate: '2012-07-26T17:44:24+02:00'
-      type: generic
+      type: raw
     endDate: '2012-07-30T03:10:08+02:00'
     facility: example_facility
     instrument: eddi
@@ -258,7 +266,7 @@ jobs:
               name: e208946.nxs
           investigation: 2012-EDDI-0390-1
           name: e208946
-          type: generic
+          type: analyzed
       datafiles:
         - datafileCreateTime: '2012-07-16T16:30:17+02:00'
           datafileModTime: '2012-07-16T16:30:17+02:00'
