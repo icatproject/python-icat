@@ -191,13 +191,13 @@ if client.apiversion > '4.3.99':
 
     # set permissions for the writer group
     items = []
-    for name, a, c in invitems:
+    for name, a, complete in invitems:
         conditions={
             a + "investigationGroups.role":"= 'writer'",
             a + "investigationGroups.grouping.userGroups.user.name":"= :user",
         }
-        if c:
-            conditions[c] = "= False"
+        if complete:
+            conditions[complete] = "= False"
         items.append(Query(client, name, conditions=conditions))
     client.createRules("CUD", items)
 
@@ -231,6 +231,28 @@ if client.apiversion > '4.3.99':
 
 
 # ------------------------------------------------------------
+# Public access
+# ------------------------------------------------------------
+
+# Allow public read access to investigations, datasets, and datafiles
+# once the investigation's releaseDate has been passed.
+
+invitems = [ ( "Investigation", "", "" ),
+             ( "Dataset", "investigation.", "type.name" ),
+             ( "Datafile", "dataset.investigation.", "dataset.type.name" ), ]
+
+items = []
+for name, a, dstype_name in invitems:
+    conditions={
+        a + "releaseDate":"< CURRENT_TIMESTAMP",
+    }
+    if dstype_name:
+        conditions[dstype_name] = "= 'raw'"
+    items.append(Query(client, name, conditions=conditions))
+client.createRules("R", items)
+
+
+# ------------------------------------------------------------
 # Public steps
 # ------------------------------------------------------------
 
@@ -252,7 +274,6 @@ if client.apiversion > '4.2.99':
                  ("Dataset", "sample"), 
                  ("Grouping", "userGroups"), 
                  ("Instrument", "instrumentScientists"), 
-                 ("Investigation", "datasets"), 
                  ("Investigation", "investigationInstruments"), 
                  ("Investigation", "investigationUsers"), 
                  ("Investigation", "keywords"), 
