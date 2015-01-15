@@ -3,9 +3,9 @@
 # Create a job along with the input and output datacollection.
 #
 # The Datasets and Datafiles in the input datacollection are assumed
-# to already exists.  The output Datasets and Datafiles will be
-# created by this script.  This script must be run by an ICAT user
-# having appropriate permissions.
+# to already exist.  The output Datasets and Datafiles will be created
+# by this script.  This script must be run by an ICAT user having
+# appropriate permissions.
 #
 
 from __future__ import print_function
@@ -60,10 +60,10 @@ except KeyError:
     raise RuntimeError("unknown job '%s'" % conf.jobname)
 
 
-# Note: to simplify things, we assume that the is only one facility.
-# E.g. we assume that Investigationa and DatasetTypes are unique by
-# its name and that DatafileFormats and Applications are unique by
-# name and version.
+# Note: to simplify things, we assume that there is only one facility.
+# E.g. we assume that Investigations and DatasetTypes are unique by
+# their respective names and that DatafileFormats and Applications are
+# unique by name and version.
 
 
 # ------------------------------------------------------------
