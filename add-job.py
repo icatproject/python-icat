@@ -129,7 +129,14 @@ for ds in jobdata['output']['datasets']:
         datafile.datafileFormat = datafile_format
         dataset.datafiles.append(datafile)
 
+    # Need to override the complete flag from the example data as we
+    # do not have create permissions on complete datasets.
+    dataset.complete = False
     dataset.create()
+    if ds['complete']:
+        del dataset.datafiles
+        dataset.complete = True
+        dataset.update()
     dcs = client.new("dataCollectionDataset", dataset=dataset)
     outputcollection.dataCollectionDatasets.append(dcs)
 
