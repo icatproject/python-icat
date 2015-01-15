@@ -9,11 +9,12 @@
 #
 
 from __future__ import print_function
-import icat
-import icat.config
 import sys
 import logging
 import yaml
+import icat
+import icat.config
+from icat.query import Query
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -73,20 +74,21 @@ except KeyError:
 inputcollection = client.new("dataCollection")
 
 for ds in jobdata['input']['datasets']:
-    searchexp = ("SELECT ds FROM Dataset ds "
-                 "JOIN ds.investigation i "
-                 "WHERE ds.name = '%s' AND i.name = '%s'"
-                 % (ds['name'], ds['investigation']))
-    dataset = client.assertedSearch(searchexp)[0]
+    query = Query(client, "Dataset", conditions={
+        "name":"= '%s'" % ds['name'], 
+        "investigation.name":"= '%s'" % ds['investigation']
+    })
+    dataset = client.assertedSearch(query)[0]
     dcs = client.new("dataCollectionDataset", dataset=dataset)
     inputcollection.dataCollectionDatasets.append(dcs)
 
 for df in jobdata['input']['datafiles']:
-    searchexp = ("SELECT df FROM Datafile df "
-                 "JOIN df.dataset ds JOIN ds.investigation i "
-                 "WHERE df.name = '%s' AND ds.name = '%s' AND i.name = '%s'"
-                 % (df['name'], df['dataset'], df['investigation']))
-    datafile = client.assertedSearch(searchexp)[0]
+    query = Query(client, "Datafile", conditions={
+        "name":"= '%s'" % df['name'], 
+        "dataset.name":"= '%s'" % df['dataset'], 
+        "dataset.investigation.name":"= '%s'" % df['investigation']
+    })
+    datafile = client.assertedSearch(query)[0]
     dcf = client.new("dataCollectionDatafile", datafile=datafile)
     inputcollection.dataCollectionDatafiles.append(dcf)
 
@@ -100,12 +102,14 @@ inputcollection.create()
 outputcollection = client.new("dataCollection")
 
 for ds in jobdata['output']['datasets']:
-    searchexp = ("SELECT i FROM Investigation i WHERE i.name='%s'" 
-                 % ds['investigation'])
-    investigation = client.assertedSearch(searchexp)[0]
-    searchexp = ("SELECT dst FROM DatasetType dst WHERE dst.name='%s'" 
-                 % data['dataset_types'][ds['type']]['name'])
-    dataset_type = client.assertedSearch(searchexp)[0]
+    query = Query(client, "Investigation", conditions={
+        "name":"= '%s'" % ds['investigation']
+    })
+    investigation = client.assertedSearch(query)[0]
+    query = Query(client, "DatasetType", conditions={
+        "name":"= '%s'" % data['dataset_types'][ds['type']]['name']
+    })
+    dataset_type = client.assertedSearch(query)[0]
     print("Dataset: creating '%s' ..." % ds['name'])
     dataset = client.new("dataset")
     initobj(dataset, ds)
@@ -113,11 +117,12 @@ for ds in jobdata['output']['datasets']:
     dataset.type = dataset_type
 
     for df in ds['datafiles']:
-        searchexp = ("SELECT dff FROM DatafileFormat dff "
-                     "WHERE dff.name='%s' AND dff.version='%s'" 
-                     % (data['datafile_formats'][df['format']]['name'], 
-                        data['datafile_formats'][df['format']]['version']))
-        datafile_format = client.assertedSearch(searchexp)[0]
+        dff = data['datafile_formats'][df['format']]
+        query = Query(client, "DatafileFormat", conditions={
+            "name":"= '%s'" % dff['name'], 
+            "version":"= '%s'" % dff['version'], 
+        })
+        datafile_format = client.assertedSearch(query)[0]
         print("Datafile: creating '%s' ..." % df['name'])
         datafile = client.new("datafile")
         initobj(datafile, df)
@@ -129,16 +134,17 @@ for ds in jobdata['output']['datasets']:
     outputcollection.dataCollectionDatasets.append(dcs)
 
 for df in jobdata['output']['datafiles']:
-    searchexp = ("SELECT ds FROM Dataset ds "
-                 "JOIN ds.investigation i "
-                 "WHERE ds.name = '%s' AND i.name = '%s'"
-                 % (df['dataset'], df['investigation']))
-    dataset = client.assertedSearch(searchexp)[0]
-    searchexp = ("SELECT dff FROM DatafileFormat dff "
-                 "WHERE dff.name='%s' AND dff.version='%s'" 
-                 % (data['datafile_formats'][df['format']]['name'], 
-                    data['datafile_formats'][df['format']]['version']))
-    datafile_format = client.assertedSearch(searchexp)[0]
+    query = Query(client, "Dataset", conditions={
+        "name":"= '%s'" % df['dataset'], 
+        "investigation.name":"= '%s'" % df['investigation']
+    })
+    dataset = client.assertedSearch(query)[0]
+    dff = data['datafile_formats'][df['format']]
+    query = Query(client, "DatafileFormat", conditions={
+        "name":"= '%s'" % dff['name'], 
+        "version":"= '%s'" % dff['version'], 
+    })
+    datafile_format = client.assertedSearch(query)[0]
     print("Datafile: creating '%s' ..." % df['name'])
     datafile = client.new("datafile")
     initobj(datafile, df)
