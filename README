@@ -6,7 +6,7 @@ programs that access an ICAT[1] service using the SOAP interface.  It
 is based on Suds and extends it with ICAT specific features.
 
 
-System Requirements
+System requirements
 -------------------
 
  + Python 2.6, 2.7, or 3.1 and newer.
@@ -143,6 +143,15 @@ Bugs and limitations
    with Python 3.3 and newer[9].
 
 
+Version numbering
+-----------------
+
+Version numbers of python-icat comply with Python standards as defined
+in PEP 440[10].  They try to adhere to the principles of Semantic
+Versioning[11], but may deviate from the formatting defined therein
+when it is incompatible with PEP 440.
+
+
 References
 ----------
 
@@ -151,10 +160,12 @@ References
 [3]: https://bitbucket.org/jurko/suds/
 [4]: http://pyyaml.org/wiki/PyYAML
 [5]: http://lxml.de/
-[6]: http://code.google.com/p/argparse/
-[7]: http://docs.python.org/2.7/install/
-[8]: http://www.python.org/dev/peps/pep-3134/
+[6]: https://code.google.com/p/argparse/
+[7]: https://docs.python.org/2.7/install/
+[8]: https://www.python.org/dev/peps/pep-3134/
 [9]: http://bugs.python.org/issue6210
+[10]: https://www.python.org/dev/peps/pep-0440/
+[11]: http://semver.org/
 
 # Local Variables:
 # mode: text
