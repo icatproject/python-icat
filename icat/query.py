@@ -166,10 +166,7 @@ class Query(object):
                     elif attrInfo.relType == "ONE":
                         if (not attrInfo.notNullable and 
                             pattr not in self.conditions):
-                            if self._init:
-                                sl=3
-                            else:
-                                sl=2
+                            sl = 3 if self._init else 2
                             warn(QueryNullableOrderWarning(pattr), 
                                  stacklevel=sl)
                         rclass = self.client.getEntityClass(attrInfo.type)
