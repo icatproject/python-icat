@@ -350,14 +350,15 @@ class IDSClient(object):
         if outname: parameters["outname"] = outname
         return self._getDataUrl(parameters)
       
-    def getLink(self, datafileId):
+    def getLink(self, datafileId, username=None):
         """Return a hard link to a data file.
 
         This is only useful in those cases where the user has direct
         access to the file system where the IDS is storing data.  The
         caller is only granted read access to the file.
         """
-        username = getpass.getuser()
+        if username is None:
+            username = getpass.getuser()
         parameters = {"sessionId": self.sessionId, 
                       "datafileId" : datafileId, "username": username }
         req = IDSRequest(self.url + "getLink", parameters, method="POST")
