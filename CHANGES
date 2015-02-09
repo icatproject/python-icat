@@ -1,7 +1,7 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.7.0 (not yet released)
+* Version 0.7.0 (2015-02-??)
 
 ** New features
 
@@ -21,6 +21,8 @@
    corresponding to a name.
 
  + Add a warning class QueryNullableOrderWarning.
+
+ + Add an optional argument username to the getLink() IDS method.
 
 * Version 0.6.0 (2014-12-15)
 

@@ -10,7 +10,7 @@ based on Suds and extends it with ICAT specific features.
 #
 
 __author__    = "Rolf Krahl <rolf.krahl@helmholtz-berlin.de>"
-__copyright__ = """Copyright 2013, 2014
+__copyright__ = """Copyright 2013, 2014, 2015
 Helmholtz-Zentrum Berlin fuer Materialien und Energie GmbH
 All rights reserved.
 
@@ -38,4 +38,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
-__version__   = "0.7.0.dev638"
+__version__   = "0.7.0rc1"
