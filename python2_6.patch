@@ -132,7 +132,7 @@ Index: icatdump.py
 +                     includes=set(["facility", "instrumentScientists.user"])), 
                 Query(client, "ParameterType", order=True, 
 -                     includes={"facility", "permissibleStringValues"}), 
-+                     includes=set(["facility", "permissibleStringValues"}), 
++                     includes=set(["facility", "permissibleStringValues"])), 
                 Query(client, "InvestigationType", order=True, 
 -                     includes={"facility"}), 
 +                     includes=set(["facility"])), 
