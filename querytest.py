@@ -48,7 +48,7 @@ print(str(q))
 res = client.search(q)
 print("%d result(s)" % len(res))
 # keep the investigation id for a later example
-if res > 0:
+if len(res) > 0:
     invid = res[0].id
 else:
     # No result, use a bogus id instead
@@ -162,12 +162,12 @@ print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nOrdering on nullable relations emits a warning.")
-q = Query(client, "Rule", order=['grouping.name', 'what', 'id'])
+q = Query(client, "Rule", order=['grouping', 'what', 'id'])
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nThe warning can be suppressed by making the condition explicit.")
-q = Query(client, "Rule", order=['grouping.name', 'what', 'id'], 
+q = Query(client, "Rule", order=['grouping', 'what', 'id'], 
           conditions={"grouping":"IS NOT NULL"})
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
