@@ -1,13 +1,16 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.7.0 (2015-02-??)
+* Version 0.7.0 (2015-02-11)
 
 ** New features
 
  + Add a module icat.query with a class Query that can be used to
    build ICAT search expressions.  Instances of the class may be used
    in place of search expression strings where appropriate.
+
+   Numerous examples on how to use this new class can be found in
+   querytest.py in the examples.
 
  + Add a class method getNaturalOrder() to Entity that returns a list
    of attributes suitable to be used in an ORDER BY clause in an ICAT
