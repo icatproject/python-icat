@@ -86,7 +86,6 @@ def getDfSelections(status=None):
 
 if client.ids:
     while True:
-        restsel = DataSelection()
         action = False
         # Wait for the server to process all pending requests.  This
         # may be needed to avoid race conditions, see
