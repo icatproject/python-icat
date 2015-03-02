@@ -2,6 +2,7 @@
 """
 
 import os
+import os.path
 import getpass
 import argparse
 import ConfigParser
@@ -256,7 +257,10 @@ class Config(object):
     Mandatory means that an error will be raised if no value is found
     for the configuration variable in question.
 
-    Two further derived variables are set in ``getconfig``:
+    A few derived variables are also set in ``getconfig``:
+
+      ``configDir``
+        the directory where (the last) configFile has been found.
 
       ``client_kwargs``
         contains the proxy settings and should be passed as the
@@ -268,7 +272,7 @@ class Config(object):
         `Client.login`.
     """
 
-    ReservedVariables = ['client_kwargs', 'credentials']
+    ReservedVariables = ['configDir', 'client_kwargs', 'credentials']
     """Reserved names of configuration variables."""
 
     def __init__(self, needlogin=True, ids=False):
@@ -444,6 +448,11 @@ class Config(object):
 
             if var.name == 'configFile':
                 config.configFile = self.file.read(config.configFile)
+                if config.configFile:
+                    f = config.configFile[-1]
+                    config.configDir = os.path.dirname(os.path.abspath(f))
+                else:
+                    config.configDir = None
             elif var.name == 'configSection':
                 self.file.setsection(config.configSection)
 
