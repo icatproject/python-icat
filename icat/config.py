@@ -11,8 +11,11 @@ from icat.exception import *
 __all__ = ['Configuration', 'Config']
 
 
-basedir = os.path.expanduser("~/.icat")
-filename = "icat.cfg"
+cfgdirs = [ os.path.expanduser("~/.config/icat"), 
+            os.path.expanduser("~/.icat"), "" ]
+"""Search path for the configuration file"""
+cfgfile = "icat.cfg"
+"""Configuration file name"""
 defaultsection = None
 
 
@@ -153,7 +156,8 @@ class Config(object):
         =========================  ==================================
         command line               ``-c``, ``--configfile``
         environment                ``ICAT_CFG``
-        default                    ``~/.icat/icat.cfg``, ``icat.cfg``
+        default                    ``~/.config/icat/icat.cfg``, 
+                                   ``~/.icat/icat.cfg``, ``icat.cfg``
         mandatory                  no
         =========================  ==================================
 
@@ -287,7 +291,7 @@ class Config(object):
         ``False``, to "mandatory", or to "optional" respectively.
         """
         super(Config, self).__init__()
-        self.defaultFiles = [os.path.join(basedir, filename), filename]
+        self.defaultFiles = [os.path.join(d, cfgfile) for d in cfgdirs]
         self.needlogin = needlogin
         self.ids = ids
         self.confvariables = []

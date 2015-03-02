@@ -91,12 +91,10 @@ def test_config_minimal_file(tmpconfigfile, monkeypatch):
     a config file this time.
     """
 
-    # Let the config file be found in the default location, which is
-    # [basedir+"/icat.cfg", "icat.cfg"], where basedir is "~/.icat".
-    # Make sure that basedir does not exist and that our config file
-    # is in the cwd.
-    monkeypatch.setattr(icat.config, "basedir", 
-                        os.path.join(tmpconfigfile.dir, ".icat"))
+    # Let the config file be found in the default location, but
+    # manipulate the search path such that only the cwd exists.
+    cfgdirs = [ os.path.join(tmpconfigfile.dir, ".icat"), ""]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
     monkeypatch.chdir(tmpconfigfile.dir)
 
     args = ["-s", "example_root"]
