@@ -63,7 +63,7 @@ class ConfigSourceFile(ConfigSource):
     """
     def __init__(self, defaultFiles):
         super(ConfigSourceFile, self).__init__()
-        self.confparser = ConfigParser.ConfigParser()
+        self.confparser = ConfigParser.RawConfigParser()
         self.defaultFiles = defaultFiles
         self.section = None
 

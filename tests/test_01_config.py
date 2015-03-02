@@ -47,6 +47,7 @@ url = https://icat.example.com/ICATService/ICAT?wsdl
 auth = ldap
 username = jdoe
 password = pass
+greeting = Hello %(username)s!
 """
 
 @pytest.fixture(scope="module")
@@ -307,3 +308,88 @@ def test_config_custom_var(tmpconfigfile):
     assert conf.ldap_base == "ou=People,dc=example,dc=com"
     assert conf.ldap_filter == "(uid=*)"
     assert conf.credentials == {'username': 'root', 'password': 'secret'}
+
+
+def test_config_subst_nosubst(tmpconfigfile):
+    """
+    Use a format string in a configuration variable, but disable substitution.
+    """
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    config = icat.config.Config()
+    config.add_variable('greeting', ("--greeting",), 
+                        dict(help="Greeting message"),
+                        subst=False)
+    conf = config.getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'client_kwargs', 'configFile', 'configSection', 
+                      'credentials', 'greeting', 'http_proxy', 'https_proxy', 
+                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configSection == "example_jdoe"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "ldap"
+    assert conf.username == "jdoe"
+    assert conf.password == "pass"
+    assert conf.promptPass == False
+    assert conf.greeting == "Hello %(username)s!"
+    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
+
+
+def test_config_subst(tmpconfigfile):
+    """
+    Same as above, but enable substitution.
+    """
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    config = icat.config.Config()
+    config.add_variable('greeting', ("--greeting",), 
+                        dict(help="Greeting message"),
+                        subst=True)
+    conf = config.getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'client_kwargs', 'configFile', 'configSection', 
+                      'credentials', 'greeting', 'http_proxy', 'https_proxy', 
+                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configSection == "example_jdoe"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "ldap"
+    assert conf.username == "jdoe"
+    assert conf.password == "pass"
+    assert conf.promptPass == False
+    assert conf.greeting == "Hello jdoe!"
+    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
+
+
+def test_config_subst_cmdline(tmpconfigfile):
+    """
+    Same as above, but set the referenced variable from the command line.
+    """
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", 
+            "-u", "jonny", "-p", "pass"]
+    config = icat.config.Config()
+    config.add_variable('greeting', ("--greeting",), 
+                        dict(help="Greeting message"),
+                        subst=True)
+    conf = config.getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'client_kwargs', 'configFile', 'configSection', 
+                      'credentials', 'greeting', 'http_proxy', 'https_proxy', 
+                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configSection == "example_jdoe"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "ldap"
+    assert conf.username == "jonny"
+    assert conf.password == "pass"
+    assert conf.promptPass == False
+    assert conf.greeting == "Hello jonny!"
+    assert conf.credentials == {'username': 'jonny', 'password': 'pass'}
