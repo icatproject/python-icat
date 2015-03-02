@@ -123,6 +123,12 @@ class Configuration(object):
                 arg_strings.append('%s=%r' % (f, getattr(self, f)))
         return '%s(%s)' % (typename, ', '.join(arg_strings))
 
+    def as_dict(self):
+        """Return the configuration as a dict."""
+        vars = [var.name for var in self._config.confvariables] \
+            + self._config.ReservedVariables
+        return { f:getattr(self, f) for f in vars if hasattr(self, f) }
+
 
 class Config(object):
     """Set configuration variables.
