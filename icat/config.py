@@ -18,11 +18,12 @@ defaultsection = None
 class ConfigVariable(object):
     """Describe a configuration variable.
     """
-    def __init__(self, name, envvar, optional, default):
+    def __init__(self, name, envvar, optional, default, subst):
         self.name = name
         self.envvar = envvar
         self.optional = optional
         self.default = default
+        self.subst = subst
 
 
 class ConfigSource(object):
@@ -336,7 +337,7 @@ class Config(object):
                               optional=True)
 
     def add_variable(self, name, arg_opts=(), arg_kws=dict(), 
-                   envvar=None, optional=False, default=None):
+                     envvar=None, optional=False, default=None, subst=False):
         """Defines a new configuration variable.
 
         Call ``ArgumentParser.add_argument`` to add a new command line
@@ -369,6 +370,13 @@ class Config(object):
         :raise ValueError: if the name is not valid.
         :see: the documentation of the ``argparse`` standard library
             module for details on ``arg_opts`` and ``arg_kws``.
+        :param subst: flag wether substitution of other configuration
+            variables using the ``%`` interpolation operator shall be
+            performed.  If set to ``True``, the value may contain
+            conversion specifications such as ``%(othervar)s``.  This
+            will then be substituted by the value of ``othervar``.
+            The referenced variable must have been defined earlier.
+        :type subst: ``bool``
         """
         if name in self.ReservedVariables or name[0] == '_':
             raise ValueError("Config variable name '%s' is reserved." % name)
@@ -386,7 +394,7 @@ class Config(object):
                 # optional argument
                 arg_kws['dest'] = name
             self.argparser.add_argument(*arg_opts, **arg_kws)
-        var = ConfigVariable(name, envvar, optional, default)
+        var = ConfigVariable(name, envvar, optional, default, subst)
         self.confvariable[name] = var
         self.confvariables.append(var)
 
@@ -429,6 +437,8 @@ class Config(object):
                 value = source.get(var)
                 if value is not None: 
                     break
+            if value is not None and var.subst:
+                value = value % config.as_dict()
 
             setattr(config, var.name, value)
 
