@@ -1,6 +1,17 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.8.0 (not yet released)
+
+** New features
+
+ + Implemented substituting the values of configuration variables in
+   other variables.
+
+ + Add another derived configuration variable configDir.
+
+ + Add ~/.config/icat to the default search path for the config file.
+
 * Version 0.7.0 (2015-02-11)
 
 ** New features
