@@ -10,7 +10,8 @@
 
  + Add another derived configuration variable configDir.
 
- + Add ~/.config/icat to the default search path for the config file.
+ + Add /etc/icat and ~/.config/icat to the default search path for the
+   config file.
 
 * Version 0.7.0 (2015-02-11)
 
