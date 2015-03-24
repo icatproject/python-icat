@@ -594,13 +594,13 @@ class Client(suds.client.Client):
         server.  There are a few subtle differences though: the query
         must not contain a LIMIT clause (use the skip and count
         arguments instead) and should contain an ORDER BY clause.  The
-        return value is a generator that iterates over the items in
-        the result rather then a list.  The individual search calls
-        are done lazily, e.g. they are not done until needed to yield
-        the next item from the generator.  The result may be defective
+        return value is an iterator over the items in the search
+        result rather then a list.  The individual search calls are
+        done lazily, e.g. they are not done until needed to yield the
+        next item from the iterator.  The result may be defective
         (omissions, duplicates) if the content in the ICAT server
         changes between individual search calls in a way that would
-        affect the search result.
+        affect the result.
 
         :param query: the search query.
         :type query: `Query` or ``str``
@@ -616,6 +616,7 @@ class Client(suds.client.Client):
         :return: a generator that iterates over the items in the
             search result.
         :rtype: ``generator``
+
         """
         if isinstance(query, Query):
             q = query.copy()
