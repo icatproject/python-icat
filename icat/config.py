@@ -11,7 +11,8 @@ from icat.exception import *
 __all__ = ['Configuration', 'Config']
 
 
-cfgdirs = [ os.path.expanduser("~/.config/icat"), 
+cfgdirs = [ "/etc/icat", 
+            os.path.expanduser("~/.config/icat"), 
             os.path.expanduser("~/.icat"), "" ]
 """Search path for the configuration file"""
 cfgfile = "icat.cfg"
