@@ -38,7 +38,7 @@ setup(
     license = "BSD-2-Clause",
     requires = ["suds"],
     packages = ["icat"],
-    scripts = ["icatdump.py", "icatrestore.py"],
+    scripts = ["icatdump.py", "icatrestore.py", "icatexport.py"],
     # I never tested Python 3.0, any feedback welcome.  Python 3.*
     # requires the jurko fork of Suds.
     classifiers = [
