@@ -1,6 +1,7 @@
 """Exception handling.
 """
 
+from collections import Mapping
 import suds
 
 __all__ = [
@@ -76,22 +77,35 @@ class QueryNullableOrderWarning(Warning):
 class ICATError(Exception):
     """Base class for the errors raised by the ICAT server.
     """
-    def __init__(self, webfault):
-        try:
-            msg = webfault.fault.faultstring
-        except AttributeError:
-            msg = str(webfault)
-        super(ICATError, self).__init__(msg)
-        self.fault = webfault.fault
-        self.document = webfault.document
-        try:
-            icatexception = webfault.fault.detail.IcatException
-        except AttributeError:
-            pass
+    def __init__(self, error):
+        """Expecept either a suds.WebFault or a Mapping with the keys 'code',
+        'message', and 'offset'.
+        """
+        if isinstance(error, suds.WebFault):
+            try:
+                msg = error.fault.faultstring
+            except AttributeError:
+                msg = str(error)
+            super(ICATError, self).__init__(msg)
+            self.fault = error.fault
+            self.document = error.document
+            try:
+                icatexception = error.fault.detail.IcatException
+            except AttributeError:
+                pass
+            else:
+                self.type = getattr(icatexception, 'type', None)
+                self.message = getattr(icatexception, 'message', None)
+                self.offset = getattr(icatexception, 'offset', None)
+        elif isinstance(error, Mapping):
+            # Deliberately not fetching KeyError here.  Require the
+            # field to be present.  Only 'offset' is optional.
+            self.type = error['code']
+            self.message = error['message']
+            self.offset = error.get('offset', None)
+            super(ICATError, self).__init__(self.message)
         else:
-            self.message = getattr(icatexception, 'message', None)
-            self.offset = getattr(icatexception, 'offset', None)
-            self.type = getattr(icatexception, 'type', None)
+            raise TypeError("Invalid argument type '%s'." % type(error))
 
 class ICATParameterError(ICATError):
     """Generally indicates a problem with the arguments made to a
@@ -152,9 +166,11 @@ def translateError(error):
             Class = IcatExceptionTypeMap[error.fault.detail.IcatException.type]
         except AttributeError:
             Class = ICATError
-        return stripCause(Class(error))
+    elif isinstance(error, Mapping):
+        Class = IcatExceptionTypeMap[error['code']]
     else:
         raise TypeError("Invalid argument type '%s'." % type(error))
+    return stripCause(Class(error))
 
 
 # ======== Exceptions raised in icat.client and icat.entity ========
