@@ -10,7 +10,8 @@ EXAMPLE_FILES     = getversion.py login.py init-icat.py			\
 		    add-investigation-data.py addfile.py add-job.py	\
 		    downloaddata.py ldapsync.py				\
 		    create-parametertypes.py check.py icatsummary.py	\
-		    wipeicat.py dumpinvestigation.py querytest.py
+		    wipeicat.py dumpinvestigation.py querytest.py	\
+		    icatexport.py icatimport.py
 
 EXAMPLE_CGI_DIR   = $(EXAMPLE_DIR)/cgi
 EXAMPLE_CGI_FILES = cgi/login.py cgi/logout.py cgi/session-status.py	\

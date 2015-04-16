@@ -1,11 +1,11 @@
 #! /usr/bin/python
 #
-# Export the content of the ICAT to a file or to stdout.
+# Import the content of the ICAT from a file or from stdin.
 #
-# Use the export feature from ICAT server: make the appropriate call
-# to the ICAT RESTful interface to get the ICAT content and store the
-# result to a file.  Try to keep the command line interface as close
-# as possible to the one from icatdump.py.
+# Use the import feature from ICAT server: make the appropriate call
+# to the ICAT RESTful interface to upload content to the ICAT server.
+# Try to keep the command line interface as close as possible to the
+# one from icatrestore.py.
 #
 
 import sys
@@ -23,8 +23,8 @@ config = icat.config.Config()
 config.add_variable('resturl', ("--resturl",), 
                     dict(help="URL to the ICAT RESTful interface"),
                     default=True)
-config.add_variable('file', ("-o", "--outputfile"), 
-                    dict(help="output file name or '-' for stdout"),
+config.add_variable('file', ("-i", "--inputfile"), 
+                    dict(help="input file name or '-' for stdin"),
                     default='-')
 config.add_variable('verifySSL', ("--no-check-certificate",), 
                     dict(help="don't verify the server certificate", 
@@ -32,16 +32,17 @@ config.add_variable('verifySSL', ("--no-check-certificate",),
                     default=True)
 # The format argument makes in fact little sense, as there is no
 # choice.  It's here for compatiblity with the command line interface
-# of icatdump.py only.
+# of icatrestore.py only.
 config.add_variable('format', ("-f", "--format"), 
-                    dict(help="output file format", choices=["ICAT"]),
+                    dict(help="input file format", choices=["ICAT"]),
                     default='ICAT')
 # Additional arguments that icatdump.py does not provide:
-config.add_variable('query', ("--query",), 
-                    dict(help="query string to select the content"), 
-                    optional=True)
+config.add_variable('duplicate', ("--duplicate",), 
+                    dict(help="behavior in case of duplicate objects",
+                         choices=["THROW", "IGNORE", "CHECK", "OVERWRITE"]), 
+                    default='THROW')
 config.add_variable('attributes', ("--attributes",), 
-                    dict(help="attributes to include in the output", 
+                    dict(help="attributes to consider in the input", 
                          choices=["ALL", "USER"]),
                     default='USER')
 conf = config.getconfig()
@@ -59,22 +60,24 @@ if not conf.resturl.endswith("/"):
     conf.resturl += "/"
 
 
-args = {"sessionId": client.sessionId, "attributes":conf.attributes}
-if conf.query:
-    args['query'] = conf.query
-parameters = {"json":json.dumps(args)}
-request = requests.get(conf.resturl + "port", params=parameters, 
-                       stream=True, verify=conf.verifySSL)
-if request.status_code == requests.codes.ok:
-    if conf.file == "-":
-        for chunk in request.iter_content(8192):
-            sys.stdout.write(chunk)
-    else:
-        with open(conf.file, 'wb') as f:
-            for chunk in request.iter_content(8192):
-                f.write(chunk)
+args = {"sessionId": client.sessionId, 
+        "duplicate": conf.duplicate, 
+        "attributes": conf.attributes}
+if conf.file == "-":
+    f = sys.stdin
 else:
+    f = open(conf.file, 'rb')
+formfields = {
+    "json": ('json', json.dumps(args), 'text/plain'),
+    "data": ('data', f, 'application/octet-stream'),
+}
+url = conf.resturl + "port"
+#url = 'http://httpbin.org/post'
+request = requests.post(url, data={"json":json.dumps(args)},
+                        files={'file': f}, stream=True, verify=conf.verifySSL)
+if request.status_code != requests.codes.ok:
     try:
         raise icat.exception.translateError(request.json())
     except ValueError:
         request.raise_for_status()
+
