@@ -1,6 +1,7 @@
 """Exception handling.
 """
 
+import sys
 from collections import Mapping
 import suds
 
@@ -49,6 +50,25 @@ def stripCause(e):
         e.__cause__ = None
     return e
 
+# ========================== base classes ==========================
+
+class ICATException(Exception):
+    """Common base class for ICATError and IDSError.
+    Not intented to be used directly.
+    """
+    def __init__(self, msg):
+        # msg may be a str, a suds.sax.text.Text instance, or (only
+        # for Python 2) an unicode instance.  In Python 2, we must
+        # convert it to a pure ascii string for Exception.  In Python
+        # 3, we convert it to a str.  It may still contain non-ascii
+        # chars, but this is ok for Exception in Python 3.
+        if sys.version_info < (3, 0):
+            msg = msg.encode('ascii', errors='replace')
+        else:
+            msg = str(msg)
+        super(ICATException, self).__init__(msg)
+        self.message = msg
+
 # ========================= Internal error =========================
 
 class InternalError(Exception):
@@ -74,7 +94,7 @@ class QueryNullableOrderWarning(Warning):
 
 # ============== Exceptions thrown by the ICAT server ==============
 
-class ICATError(Exception):
+class ICATError(ICATException):
     """Base class for the errors raised by the ICAT server.
     """
     def __init__(self, error):
@@ -95,15 +115,13 @@ class ICATError(Exception):
                 pass
             else:
                 self.type = getattr(icatexception, 'type', None)
-                self.message = getattr(icatexception, 'message', None)
                 self.offset = getattr(icatexception, 'offset', None)
         elif isinstance(error, Mapping):
             # Deliberately not fetching KeyError here.  Require the
             # field to be present.  Only 'offset' is optional.
-            self.type = error['code']
-            self.message = error['message']
+            super(ICATError, self).__init__(error['message'])
+            self.type = str(error['code'])
             self.offset = error.get('offset', None)
-            super(ICATError, self).__init__(self.message)
         else:
             raise TypeError("Invalid argument type '%s'." % type(error))
 
@@ -255,7 +273,7 @@ class DataConsistencyError(Exception):
 
 # ==== Exceptions raised while talking to an ICAT Data Service =====
 
-class IDSError(Exception):
+class IDSError(ICATException):
     """Base class for the errors raised while talking to IDS.
     """
     pass
