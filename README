@@ -27,7 +27,12 @@ System requirements
    Only needed to use the XML backend of icatdump.py and
    icatrestore.py.  Not required to install or use python-icat itself.
 
- + argparse[6]
+ + Requests[6]
+   Only needed for the example scripts using the ICAT RESTful
+   interface, icatexport.py and icatimport.py.  Not required to
+   install or use python-icat itself.
+
+ + argparse[7]
    Only if you are using Python 2.6 or 3.1, argparse became part of
    the Python standard library in 2.7 and 3.2 respectively.
 
@@ -37,7 +42,7 @@ Installation
 
 python-icat follows the standard Python conventions of packaging
 source distributions.  See the documentation on Installing Python
-Modules [7] for details or to customize the install process.
+Modules [8] for details or to customize the install process.
 
   1. Download the sources, unpack, and change into the source
      directory.
@@ -136,19 +141,19 @@ Bugs and limitations
 
  + Misleading "context" is displayed in error tracebacks with Python
    3.1 and 3.2.  Python 3 introduced a "feature" called "Exception
-   Chaining and Embedded Tracebacks"[8].  This causes irrelevant and
+   Chaining and Embedded Tracebacks"[9].  This causes irrelevant and
    misleading "error context" to be displayed in the traceback of
    error messages.  python-icat tries to suppress this in the most
    annoying cases, but this suppression mechanism is only available
-   with Python 3.3 and newer[9].
+   with Python 3.3 and newer[10].
 
 
 Version numbering
 -----------------
 
 Version numbers of python-icat comply with Python standards as defined
-in PEP 440[10].  They try to adhere to the principles of Semantic
-Versioning[11], but may deviate from the formatting defined therein
+in PEP 440[11].  They try to adhere to the principles of Semantic
+Versioning[12], but may deviate from the formatting defined therein
 when it is incompatible with PEP 440.
 
 
@@ -160,12 +165,13 @@ References
 [3]: https://bitbucket.org/jurko/suds/
 [4]: http://pyyaml.org/wiki/PyYAML
 [5]: http://lxml.de/
-[6]: https://code.google.com/p/argparse/
-[7]: https://docs.python.org/2.7/install/
-[8]: https://www.python.org/dev/peps/pep-3134/
-[9]: http://bugs.python.org/issue6210
-[10]: https://www.python.org/dev/peps/pep-0440/
-[11]: http://semver.org/
+[6]: http://python-requests.org/
+[7]: https://code.google.com/p/argparse/
+[8]: https://docs.python.org/2.7/install/
+[9]: https://www.python.org/dev/peps/pep-3134/
+[10]: http://bugs.python.org/issue6210
+[11]: https://www.python.org/dev/peps/pep-0440/
+[12]: http://semver.org/
 
 # Local Variables:
 # mode: text
