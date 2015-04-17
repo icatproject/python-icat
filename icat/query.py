@@ -246,7 +246,7 @@ class Query(object):
         """
         return ("%s(%s, %s, order=%s, conditions=%s, includes=%s, limit=%s)"
                 % (self.__class__.__name__, 
-                   repr(self.client), repr(self.entity), 
+                   repr(self.client), repr(self.entity.BeanName), 
                    repr(self.order), repr(self.conditions), 
                    repr(self.includes), repr(self.limit)))
 
@@ -279,8 +279,9 @@ class Query(object):
             order = ""
         if self.includes:
             subst = _makesubst(self.includes)
-            self.addIncludes(subst.keys())
-            incl = [ _dosubst(obj, subst) for obj in sorted(self.includes) ]
+            includes = self.includes
+            includes.update(subst.keys())
+            incl = [ _dosubst(obj, subst) for obj in sorted(includes) ]
             include = " INCLUDE " + ", ".join(incl)
         else:
             include = ""
