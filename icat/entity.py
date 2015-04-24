@@ -89,7 +89,7 @@ class Entity(object):
     def getNaturalOrder(cls, client):
         """Return the natural order of this class.
 
-        The oreder is a list of attributes suitable to be used in a
+        The order is a list of attributes suitable to be used in a
         ORDER BY clause in an ICAT search expression.  The natural
         order is the one that is as close as possible to sorting the
         objects by the `__sortkey__`.  It is based on the Constraint
