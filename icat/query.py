@@ -82,7 +82,6 @@ class Query(object):
 
     def __init__(self, client, entity, 
                  order=None, conditions=None, includes=None, limit=None):
-
         """Initialize the query.
 
         :param client: the ICAT client.
@@ -252,6 +251,14 @@ class Query(object):
 
     def __str__(self):
         """Return a string representation of the query.
+
+        Note for Python 2: the result will be an Unicode object, if
+        any of the conditions in the query contains unicode.  This
+        violates the specification of the string representation
+        operator that requires the return value to be a string object.
+        But it is the *right thing* to do to get queries with
+        non-ascii characters working.  For Python 3, there is no
+        distinction between Unicode and string objects anyway.
         """
         base = "SELECT o FROM %s o" % self.entity.BeanName
         joinattrs = set(self.order) | set(self.conditions.keys())
