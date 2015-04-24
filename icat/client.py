@@ -384,7 +384,8 @@ class Client(suds.client.Client):
 
     def get(self, query, primaryKey):
         try:
-            instance = self.service.get(self.sessionId, str(query), primaryKey)
+            instance = self.service.get(self.sessionId, 
+                                        unicode(query), primaryKey)
             return self.getEntity(instance)
         except suds.WebFault as e:
             raise translateError(e)
@@ -521,7 +522,7 @@ class Client(suds.client.Client):
 
     def search(self, query):
         try:
-            instances = self.service.search(self.sessionId, str(query))
+            instances = self.service.search(self.sessionId, unicode(query))
             return map(lambda i: self.getEntity(i), instances)
         except suds.WebFault as e:
             raise translateError(e)
@@ -621,7 +622,7 @@ class Client(suds.client.Client):
         if isinstance(query, Query):
             q = query.copy()
             q.setLimit( ("%d","%d") )
-            query = str(q)
+            query = unicode(q)
         elif query.startswith("SELECT"):
             query += " LIMIT %d, %d"
         else:
@@ -761,7 +762,7 @@ class Client(suds.client.Client):
         rules = []
         for w in what:
             r = self.new("rule", 
-                         crudFlags=crudFlags, what=str(w), grouping=group)
+                         crudFlags=crudFlags, what=unicode(w), grouping=group)
             rules.append(r)
         return self.createMany(rules)
 
