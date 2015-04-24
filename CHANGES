@@ -5,8 +5,6 @@
 
 ** Open Issues
 
- + Non-ASCII characters in queries.
-
  + Consider unify translating of errors fom ICAT and IDS.  Merge
    translateError() and translateIDSError()?
 
@@ -28,15 +26,20 @@
    now able to construct exceptions based on a dict such as those that
    are returend by the ICAT RESTful interface in case of an error.
 
-** Minor changes and fixes
+** Bug fixes and minor changes
+
+ + Fix a regression introduced with version 0.7.0 that caused
+   non-ASCII characters in queries not to work.
 
  + Fix ICATError and IDSError to gracefully deal with non-ASCII
    characters in error messages.  Add a common abstract base class
    ICATException that cares about this.
 
- + Fix: the string representation operator   str  () of Query must not
-   modify the query object.  Cosmetic improvement in the formal
-   representation operator   repr  () of Query.
+ + Fix: the string representation operator   str  () of Query should
+   not modify the query object.
+
+ + Cosmetic improvement in the formal representation operator
+     repr  () of Query.
 
 * Version 0.7.0 (2015-02-11)
 
