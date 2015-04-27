@@ -19,7 +19,7 @@ import getpass
 
 from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
 from icat.entity import Entity
-from icat.exception import IDSError, IDSResponseError, translateIDSError
+from icat.exception import IDSError, IDSResponseError, translateError
 
 __all__ = ['DataSelection', 'IDSClient']
 
@@ -59,10 +59,7 @@ class IDSHTTPErrorHandler(HTTPDefaultErrorHandler):
         """Handle HTTP errors, in particular errors raised by the IDS server."""
         content = fp.read().decode('ascii')
         try:
-            om = json.loads(content)
-            code = om["code"]
-            message = om["message"]
-            err = translateIDSError(httpcode, code, message)
+            err = translateError(json.loads(content), httpcode, "IDS")
         except Exception:
             err = IDSResponseError("HTTP error %d: %s" % (httpcode, msg))
         raise err

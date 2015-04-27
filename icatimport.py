@@ -15,6 +15,7 @@ import logging
 import requests
 import icat
 import icat.config
+from icat.exception import translateError
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('requests.packages.urllib3').setLevel(logging.WARNING)
@@ -77,7 +78,7 @@ request = requests.post(url, data={"json":json.dumps(args)},
                         files={'file': f}, stream=True, verify=conf.verifySSL)
 if request.status_code != requests.codes.ok:
     try:
-        raise icat.exception.translateError(request.json())
+        raise translateError(request.json(), status=request.status_code)
     except ValueError:
         request.raise_for_status()
 
