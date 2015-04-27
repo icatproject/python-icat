@@ -48,6 +48,27 @@ def _parents(obj):
         yield obj[:i]
         s = i+1
 
+def _attrpath(client, entity, attrname):
+    """Follow the attribute path along related objects and iterate over
+    the components.
+    """
+    rclass = entity
+    for attr in attrname.split('.'):
+        if rclass is None:
+            # Last component was not a relation, no further components
+            # in the name allowed.
+            raise ValueError("Invalid attrname '%s' for %s." 
+                             % (attrname, entity.BeanName))
+        attrInfo = rclass.getAttrInfo(client, attr)
+        if attrInfo.relType == "ATTRIBUTE":
+            rclass = None
+        elif (attrInfo.relType == "ONE" or 
+              attrInfo.relType == "MANY"):
+            rclass = client.getEntityClass(attrInfo.type)
+        else:
+            raise InternalError("Invalid relType: '%s'" % attrInfo.relType)
+        yield (attrInfo, rclass)
+
 def _makesubst(objs):
     subst = {}
     substcount = 0
@@ -144,40 +165,25 @@ class Query(object):
             self.order = []
             for obj in order:
 
-                rclass = self.entity
                 pattr = ""
-                final = False
-                for attr in obj.split('.'):
-
+                attrpath = _attrpath(self.client, self.entity, obj)
+                for (attrInfo, rclass) in attrpath:
                     if pattr:
-                        pattr += ".%s" % attr
+                        pattr += ".%s" % attrInfo.name
                     else:
-                        pattr = attr
-                    if final:
-                        # Last component was attribute, no further
-                        # components in the name allowed.
-                        raise ValueError("Invalid attribute '%s' for %s." 
-                                         % (obj, self.entity.BeanName))
-
-                    attrInfo = rclass.getAttrInfo(self.client, attr)
-                    if attrInfo.relType == "ATTRIBUTE":
-                        final = True
-                    elif attrInfo.relType == "ONE":
+                        pattr = attrInfo.name
+                    if attrInfo.relType == "ONE":
                         if (not attrInfo.notNullable and 
                             pattr not in self.conditions):
                             sl = 3 if self._init else 2
                             warn(QueryNullableOrderWarning(pattr), 
                                  stacklevel=sl)
-                        rclass = self.client.getEntityClass(attrInfo.type)
                     elif attrInfo.relType == "MANY":
                         raise ValueError("Cannot use one to many relationship "
                                          "in '%s' to order %s." 
                                          % (obj, self.entity.BeanName))
-                    else:
-                        raise InternalError("Invalid relType: '%s'" 
-                                            % attrInfo.relType)
 
-                if final:
+                if rclass is None:
                     # obj is an attribute, use it right away.
                     self.order.append(obj)
                 else:
@@ -194,7 +200,7 @@ class Query(object):
         """Add conditions to the constraints to build the WHERE clause from.
 
         :param conditions: the conditions to restrict the search
-            result.  This should be a mapping of attribute names to
+            result.  This must be a mapping of attribute names to
             conditions on that attribute.  The latter may either be a
             string with a single condition or a list of strings to add
             more then one condition on a single attribute.  If the
@@ -202,9 +208,13 @@ class Query(object):
             will be turned into a list with the new condition(s)
             appended.
         :type conditions: ``dict``
+        :raise ValueError: if any key in conditions is not valid.
         """
         if conditions:
             for a in conditions.keys():
+                attrpath = _attrpath(self.client, self.entity, a)
+                for (attrInfo, rclass) in attrpath:
+                    pass
                 if a in self.conditions:
                     conds = []
                     if isinstance(self.conditions[a], basestring):
@@ -225,8 +235,16 @@ class Query(object):
         :param includes: list of related objects to add to the INCLUDE
             clause.
         :type includes: iterable of ``str``
+        :raise ValueError: if any item in includes is not a related object.
         """
         if includes:
+            for iobj in includes:
+                attrpath = _attrpath(self.client, self.entity, iobj)
+                for (attrInfo, rclass) in attrpath:
+                    pass
+                if rclass is None:
+                    raise ValueError("%s.%s is not a related object." 
+                                     % (self.entity.BeanName, iobj))
             self.includes.update(includes)
 
     def setLimit(self, limit):
