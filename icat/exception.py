@@ -8,28 +8,27 @@ import suds
 __all__ = [
     # helper
     'stripCause', 
+    # Exceptions thrown by the ICAT or IDS server
+    'ICATError', 'ICATParameterError', 'ICATInternalError', 
+    'ICATPrivilegesError', 'ICATNoObjectError', 'ICATObjectExistsError', 
+    'ICATSessionError', 'ICATValidationError', 
+    'IDSError', 'IDSBadRequestError', 'IDSDataNotOnlineError', 
+    'IDSInsufficientPrivilegesError', 'IDSInsufficientStorageError', 
+    'IDSInternalError', 'IDSNotFoundError', 'IDSNotImplementedError', 
+    'translateError', 
     # Internal error
     'InternalError', 
     # icat.config
     'ConfigError', 
     # icat.query
     'QueryNullableOrderWarning', 
-    # Exceptions thrown by the ICAT server
-    'ICATError', 'ICATParameterError', 'ICATInternalError', 
-    'ICATPrivilegesError', 'ICATNoObjectError', 'ICATObjectExistsError', 
-    'ICATSessionError', 'ICATValidationError', 
     # icat.client, icat.entity
     'ClientVersionWarning', 'ICATDeprecationWarning', 'VersionMethodError', 
     'SearchResultError', 'SearchAssertionError', 'DataConsistencyError', 
-    # IDS
+    # icat.ids
     'IDSResponseError', 
-    'IDSError', 'IDSBadRequestError', 'IDSDataNotOnlineError', 
-    'IDSInsufficientPrivilegesError', 'IDSInsufficientStorageError', 
-    'IDSInternalError', 'IDSNotFoundError', 'IDSNotImplementedError', 
     # icat.icatcheck
     'GenealogyError',
-    # translateError
-    'translateError', 
     ]
 
 
@@ -50,11 +49,14 @@ def stripCause(e):
         e.__cause__ = None
     return e
 
-# =========================== base class ===========================
+
+# ========== Exceptions thrown by the ICAT or IDS server ===========
 
 class ServerError(Exception):
-    """Common base class for ICATError and IDSError.
-    Not intented to be used directly.
+    """Errors raised by either the ICAT or the IDS server.
+
+    This is the common base class for ICATError and IDSError, it is
+    not intented to be raised directly.
     """
     def __init__(self, error, status):
         """Expecept either a suds.WebFault or a Mapping with the keys 'code',
@@ -102,30 +104,6 @@ class ServerError(Exception):
         else:
             return str(msg)
 
-# ========================= Internal error =========================
-
-class InternalError(Exception):
-    """An error that reveals a bug in python-icat.
-    """
-    pass
-
-# ================ Exceptions raised in icat.config ================
-
-class ConfigError(Exception):
-    """Error getting configuration options."""
-    pass
-
-# ================ Exceptions raised in icat.query =================
-
-class QueryNullableOrderWarning(Warning):
-    """Warn about using a nullable relation for ordering.
-    """
-    def __init__(self, attr):
-        msg = ("ordering on a nullable relation implicitly "
-               "adds a '%s IS NOT NULL' condition." % attr)
-        super(QueryNullableOrderWarning, self).__init__(msg)
-
-# ============== Exceptions thrown by the ICAT server ==============
 
 class ICATError(ServerError):
     """Base class for the errors raised by the ICAT server.
@@ -183,6 +161,109 @@ IcatExceptionTypeMap = {
     "VALIDATION": ICATValidationError,
 }
 """Map exception types thrown by the ICAT server to Python classes."""
+
+
+class IDSError(ServerError):
+    """Base class for the errors raised by the IDS server.
+    """
+    pass
+
+class IDSBadRequestError(IDSError):
+    """Any kind of bad input parameter.
+    """
+    pass
+
+class IDSDataNotOnlineError(IDSError):
+    """The requested data are not on line.
+    """
+    pass
+
+class IDSInsufficientPrivilegesError(IDSError):
+    """You are denied access to the data.
+    """
+    pass
+
+class IDSInsufficientStorageError(IDSError):
+    """There is not sufficient physical storage or you have exceeded some quota.
+    """
+    pass
+
+class IDSInternalError(IDSError):
+    """Some kind of failure in the server or in communicating with the server.
+    """
+    pass
+
+class IDSNotFoundError(IDSError):
+    """The requested data do not exist.
+    """
+    pass
+
+class IDSNotImplementedError(IDSError):
+    """Use of some functionality that is not supported by the implementation.
+    """
+    pass
+
+IDSExceptionTypeMap = {
+    "BadRequestException": IDSBadRequestError,
+    "DataNotOnlineException": IDSDataNotOnlineError,
+    "InsufficientPrivilegesException": IDSInsufficientPrivilegesError,
+    "InsufficientStorageException": IDSInsufficientStorageError,
+    "InternalException": IDSInternalError,
+    "NotFoundException": IDSNotFoundError,
+    "NotImplementedException": IDSNotImplementedError,
+}
+"""Map IDS error codes to Python classes."""
+
+
+def translateError(error, status=None, server="ICAT"):
+    """Translate an error from ICAT or IDS to the corresponding exception."""
+    if server == "ICAT":
+        typemap = IcatExceptionTypeMap
+        BaseClass = ICATError
+    elif server == "IDS":
+        typemap = IDSExceptionTypeMap
+        BaseClass = IDSError
+    else:
+        raise ValueError("Invalid server '%s'." % server)
+
+    if isinstance(error, suds.WebFault):
+        try:
+            Class = typemap[error.fault.detail.IcatException.type]
+        except AttributeError:
+            Class = BaseClass
+    elif isinstance(error, Mapping):
+        Class = typemap[error['code']]
+    else:
+        raise TypeError("Invalid argument type '%s'." % type(error))
+
+    return stripCause(Class(error, status))
+
+
+# ========================= Internal error =========================
+
+class InternalError(Exception):
+    """An error that reveals a bug in python-icat.
+    """
+    pass
+
+
+# ================ Exceptions raised in icat.config ================
+
+class ConfigError(Exception):
+    """Error getting configuration options."""
+    pass
+
+
+# ================ Exceptions raised in icat.query =================
+
+class QueryNullableOrderWarning(Warning):
+    """Warn about using a nullable relation for ordering.
+    """
+    def __init__(self, attr):
+        msg = ("ordering on a nullable relation implicitly "
+               "adds a '%s IS NOT NULL' condition." % attr)
+        super(QueryNullableOrderWarning, self).__init__(msg)
+
 
 # ======== Exceptions raised in icat.client and icat.entity ========
 
@@ -264,63 +345,14 @@ class DataConsistencyError(Exception):
     """Some data is not consistent with rules or constraints."""
     pass
 
-# ==== Exceptions raised while talking to an ICAT Data Service =====
+
+# ================= Exceptions raised in icat.ids ==================
 
 class IDSResponseError(Exception):
     """The response from the IDS was not what should have been expected.
     """
     pass
 
-class IDSError(ServerError):
-    """Error raised by the by the IDS.
-    """
-    pass
-
-class IDSBadRequestError(IDSError):
-    """Any kind of bad input parameter.
-    """
-    pass
-
-class IDSDataNotOnlineError(IDSError):
-    """The requested data are not on line.
-    """
-    pass
-
-class IDSInsufficientPrivilegesError(IDSError):
-    """You are denied access to the data.
-    """
-    pass
-
-class IDSInsufficientStorageError(IDSError):
-    """There is not sufficient physical storage or you have exceeded some quota.
-    """
-    pass
-
-class IDSInternalError(IDSError):
-    """Some kind of failure in the server or in communicating with the server.
-    """
-    pass
-
-class IDSNotFoundError(IDSError):
-    """The requested data do not exist.
-    """
-    pass
-
-class IDSNotImplementedError(IDSError):
-    """Use of some functionality that is not supported by the implementation.
-    """
-    pass
-
-IDSExceptionTypeMap = {
-    "BadRequestException": IDSBadRequestError,
-    "DataNotOnlineException": IDSDataNotOnlineError,
-    "InsufficientPrivilegesException": IDSInsufficientPrivilegesError,
-    "InsufficientStorageException": IDSInsufficientStorageError,
-    "InternalException": IDSInternalError,
-    "NotFoundException": IDSNotFoundError,
-    "NotImplementedException": IDSNotImplementedError,
-}
-"""Map IDS error codes to Python classes."""
 
 # ============== Exceptions raised in icat.icatcheck ===============
 
@@ -328,27 +360,3 @@ class GenealogyError(Exception):
     """Error in the genealogy of entity types."""
     pass
 
-# ========================= translateError =========================
-
-def translateError(error, status=None, server="ICAT"):
-    """Translate an error from ICAT or IDS to the corresponding exception."""
-    if server == "ICAT":
-        typemap = IcatExceptionTypeMap
-        BaseClass = ICATError
-    elif server == "IDS":
-        typemap = IDSExceptionTypeMap
-        BaseClass = IDSError
-    else:
-        raise ValueError("Invalid server '%s'." % server)
-
-    if isinstance(error, suds.WebFault):
-        try:
-            Class = typemap[error.fault.detail.IcatException.type]
-        except AttributeError:
-            Class = BaseClass
-    elif isinstance(error, Mapping):
-        Class = typemap[error['code']]
-    else:
-        raise TypeError("Invalid argument type '%s'." % type(error))
-
-    return stripCause(Class(error, status))
