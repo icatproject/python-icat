@@ -3,11 +3,6 @@
 
 * Version 0.8.0 (not yet released)
 
-** Open Issues
-
- + Consider unify translating of errors fom ICAT and IDS.  Merge
-   translateError() and translateIDSError()?
-
 ** New features
 
  + Implemented substituting the values of configuration variables in
@@ -22,11 +17,26 @@
    corresponding calls to the ICAT RESTful interface to dump and
    restore the ICAT content.
 
+** Incompatible changes
+
  + The constructor of ICATError and the translateError() function are
-   now able to construct exceptions based on a dict such as those that
-   are returend by the ICAT RESTful interface in case of an error.
+   now able to construct exceptions based on a dict such as those
+   returend by the ICAT RESTful interface in case of an error.
+
+   Unified handling of errors raised from the ICAT and the IDS server.
+   As a consequence, the exception class hierarchy has been reviewed,
+   with a somewhat more clear separation of exceptions raised by
+   other libraries, exceptions raised by the server, and exceptions
+   raised by python-icat respectively.
+
+   If you put assumptions on the exception hierarchy in your code,
+   this might need a review.  In particular, IDSResponseError is not
+   derived from IDSError any more.  IDSServerError has been removed.
 
 ** Bug fixes and minor changes
+
+ + The Query class now checks the attributes referenced in conditions
+   and includes for validity.
 
  + Fix a regression introduced with version 0.7.0 that caused
    non-ASCII characters in queries not to work.
