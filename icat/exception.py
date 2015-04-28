@@ -22,8 +22,8 @@ __all__ = [
     'ClientVersionWarning', 'ICATDeprecationWarning', 'VersionMethodError', 
     'SearchResultError', 'SearchAssertionError', 'DataConsistencyError', 
     # IDS
-    'IDSError', 'IDSResponseError', 
-    'IDSServerError', 'IDSBadRequestError', 'IDSDataNotOnlineError', 
+    'IDSResponseError', 
+    'IDSError', 'IDSBadRequestError', 'IDSDataNotOnlineError', 
     'IDSInsufficientPrivilegesError', 'IDSInsufficientStorageError', 
     'IDSInternalError', 'IDSNotFoundError', 'IDSNotImplementedError', 
     # icat.icatcheck
@@ -52,7 +52,7 @@ def stripCause(e):
 
 # =========================== base class ===========================
 
-class ICATException(Exception):
+class ServerError(Exception):
     """Common base class for ICATError and IDSError.
     Not intented to be used directly.
     """
@@ -65,7 +65,7 @@ class ICATException(Exception):
                 message = self._convertmsg(error.fault.faultstring)
             except AttributeError:
                 message = self._convertmsg(str(error))
-            super(ICATException, self).__init__(message)
+            super(ServerError, self).__init__(message)
             self.status = status
             self.message = message
             self.fault = error.fault
@@ -83,7 +83,7 @@ class ICATException(Exception):
             # Deliberately not fetching KeyError here.  Require the
             # field to be present.  Only 'offset' is optional.
             message = self._convertmsg(error['message'])
-            super(ICATException, self).__init__(message)
+            super(ServerError, self).__init__(message)
             self.status = status
             self.message = message
             self.type = str(error['code'])
@@ -127,7 +127,7 @@ class QueryNullableOrderWarning(Warning):
 
 # ============== Exceptions thrown by the ICAT server ==============
 
-class ICATError(ICATException):
+class ICATError(ServerError):
     """Base class for the errors raised by the ICAT server.
     """
     pass
@@ -266,52 +266,47 @@ class DataConsistencyError(Exception):
 
 # ==== Exceptions raised while talking to an ICAT Data Service =====
 
-class IDSError(ICATException):
-    """Base class for the errors raised while talking to IDS.
-    """
-    pass
-
-class IDSResponseError(IDSError):
+class IDSResponseError(Exception):
     """The response from the IDS was not what should have been expected.
     """
     pass
 
-class IDSServerError(IDSError):
+class IDSError(ServerError):
     """Error raised by the by the IDS.
     """
     pass
 
-class IDSBadRequestError(IDSServerError):
+class IDSBadRequestError(IDSError):
     """Any kind of bad input parameter.
     """
     pass
 
-class IDSDataNotOnlineError(IDSServerError):
+class IDSDataNotOnlineError(IDSError):
     """The requested data are not on line.
     """
     pass
 
-class IDSInsufficientPrivilegesError(IDSServerError):
+class IDSInsufficientPrivilegesError(IDSError):
     """You are denied access to the data.
     """
     pass
 
-class IDSInsufficientStorageError(IDSServerError):
+class IDSInsufficientStorageError(IDSError):
     """There is not sufficient physical storage or you have exceeded some quota.
     """
     pass
 
-class IDSInternalError(IDSServerError):
+class IDSInternalError(IDSError):
     """Some kind of failure in the server or in communicating with the server.
     """
     pass
 
-class IDSNotFoundError(IDSServerError):
+class IDSNotFoundError(IDSError):
     """The requested data do not exist.
     """
     pass
 
-class IDSNotImplementedError(IDSServerError):
+class IDSNotImplementedError(IDSError):
     """Use of some functionality that is not supported by the implementation.
     """
     pass
@@ -342,7 +337,7 @@ def translateError(error, status=None, server="ICAT"):
         BaseClass = ICATError
     elif server == "IDS":
         typemap = IDSExceptionTypeMap
-        BaseClass = IDSServerError
+        BaseClass = IDSError
     else:
         raise ValueError("Invalid server '%s'." % server)
 
