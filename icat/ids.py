@@ -9,7 +9,8 @@ author.
 """
 
 from collections import Mapping, Sequence
-from urllib2 import Request, HTTPDefaultErrorHandler, ProxyHandler, build_opener
+from urllib2 import (Request, HTTPError, 
+                     HTTPDefaultErrorHandler, ProxyHandler, build_opener)
 from urllib import urlencode
 import json
 import zlib
@@ -55,13 +56,13 @@ class IDSRequest(Request):
 
 
 class IDSHTTPErrorHandler(HTTPDefaultErrorHandler):
-    def http_error_default(self, req, fp, httpcode, msg, hdrs):
+    def http_error_default(self, req, fp, code, msg, hdrs):
         """Handle HTTP errors, in particular errors raised by the IDS server."""
         content = fp.read().decode('ascii')
         try:
-            err = translateError(json.loads(content), httpcode, "IDS")
+            err = translateError(json.loads(content), code, "IDS")
         except Exception:
-            err = IDSResponseError("HTTP error %d: %s" % (httpcode, msg))
+            err = HTTPError(req.get_full_url(), code, msg, hdrs, fp)
         raise err
 
 
@@ -192,7 +193,7 @@ class IDSClient(object):
         try:
             req = IDSRequest(self.url + "getApiVersion", {})
             return self.default.open(req).read().decode('ascii')
-        except IDSError:
+        except (HTTPError, IDSError):
             pass
 
         # Verify that the server is reachable to avoid misinterpreting
@@ -204,7 +205,7 @@ class IDSClient(object):
         try:
             self.isReadOnly()
             return "1.2.0"
-        except IDSError:
+        except (HTTPError, IDSError):
             pass
 
         # Older then 1.2.0.
