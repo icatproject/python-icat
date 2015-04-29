@@ -157,7 +157,8 @@ class Config(object):
         =========================  ==================================
         command line               ``-c``, ``--configfile``
         environment                ``ICAT_CFG``
-        default                    ``~/.config/icat/icat.cfg``, 
+        default                    ``/etc/icat/icat.cfg``, 
+                                   ``~/.config/icat/icat.cfg``, 
                                    ``~/.icat/icat.cfg``, ``icat.cfg``
         mandatory                  no
         =========================  ==================================
