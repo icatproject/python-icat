@@ -5,8 +5,10 @@
 
 ** New features
 
- + Implemented substituting the values of configuration variables in
-   other variables.
+ + Add type conversion of configuration variables.
+
+ + Add substituting the values of configuration variables in other
+   variables.
 
  + Add another derived configuration variable configDir.
 
