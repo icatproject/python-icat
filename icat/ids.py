@@ -9,8 +9,8 @@ author.
 """
 
 from collections import Mapping, Sequence
-from urllib2 import (Request, HTTPError, 
-                     HTTPDefaultErrorHandler, ProxyHandler, build_opener)
+from urllib2 import Request, HTTPError
+from urllib2 import HTTPDefaultErrorHandler, ProxyHandler, build_opener
 from urllib import urlencode
 import json
 import zlib
