@@ -23,12 +23,24 @@ defaultsection = None
 class ConfigVariable(object):
     """Describe a configuration variable.
     """
-    def __init__(self, name, envvar, optional, default, subst):
+    def __init__(self, name, envvar, optional, default, convert, subst):
         self.name = name
         self.envvar = envvar
         self.optional = optional
         self.default = default
+        self.convert = convert
         self.subst = subst
+    def get(self, value):
+        if self.convert and value is not None:
+            try:
+                return self.convert(value)
+            except (TypeError, ValueError):
+                typename = getattr(self.convert, "__name__", str(self.convert))
+                err = ConfigError("%s: invalid %s value: %r" 
+                                  % (self.name, typename, value))
+                raise stripCause(err)
+        else:
+            return value
 
 
 class ConfigSource(object):
@@ -50,7 +62,7 @@ class ConfigSourceCmdArgs(ConfigSource):
         self.args = argparser.parse_args(args)
 
     def get(self, variable):
-        return getattr(self.args, variable.name, None)
+        return variable.get(getattr(self.args, variable.name, None))
 
 
 class ConfigSourceEnvironment(ConfigSource):
@@ -58,7 +70,7 @@ class ConfigSourceEnvironment(ConfigSource):
     """
     def get(self, variable):
         if variable.envvar:
-            return os.environ.get(variable.envvar, None)
+            return variable.get(os.environ.get(variable.envvar, None))
         else:
             return None
 
@@ -96,7 +108,7 @@ class ConfigSourceFile(ConfigSource):
                 value = self.confparser.get(self.section, variable.name)
             except ConfigParser.NoOptionError:
                 pass
-        return value
+        return variable.get(value)
 
 
 class ConfigSourceDefault(ConfigSource):
@@ -106,7 +118,7 @@ class ConfigSourceDefault(ConfigSource):
         value = variable.default
         if value is None and not variable.optional:
             raise ConfigError("Config option '%s' not given." % variable.name)
-        return value
+        return variable.get(value)
 
 
 class Configuration(object):
@@ -347,7 +359,8 @@ class Config(object):
                               optional=True)
 
     def add_variable(self, name, arg_opts=(), arg_kws=dict(), 
-                     envvar=None, optional=False, default=None, subst=False):
+                     envvar=None, optional=False, default=None, type=None, 
+                     subst=False):
         """Defines a new configuration variable.
 
         Call ``ArgumentParser.add_argument`` to add a new command line
@@ -377,9 +390,13 @@ class Config(object):
             the variable is mandatory.
         :type optional: ``bool``
         :param default: default value.
-        :raise ValueError: if the name is not valid.
-        :see: the documentation of the ``argparse`` standard library
-            module for details on ``arg_opts`` and ``arg_kws``.
+        :param type: type to which the value should be converted.
+            This must be a callable that accepts one string argument
+            and returns the desired value.  The builtins ``int`` and
+            ``float`` are fine.  If set to ``None``, the string value
+            is taken as is.  If applicable, the default value will
+            also be passed through this conversion.
+        :type type: callable
         :param subst: flag wether substitution of other configuration
             variables using the ``%`` interpolation operator shall be
             performed.  If set to ``True``, the value may contain
@@ -387,6 +404,9 @@ class Config(object):
             will then be substituted by the value of ``othervar``.
             The referenced variable must have been defined earlier.
         :type subst: ``bool``
+        :raise ValueError: if the name is not valid.
+        :see: the documentation of the ``argparse`` standard library
+            module for details on ``arg_opts`` and ``arg_kws``.
         """
         if name in self.ReservedVariables or name[0] == '_':
             raise ValueError("Config variable name '%s' is reserved." % name)
@@ -404,7 +424,7 @@ class Config(object):
                 # optional argument
                 arg_kws['dest'] = name
             self.argparser.add_argument(*arg_opts, **arg_kws)
-        var = ConfigVariable(name, envvar, optional, default, subst)
+        var = ConfigVariable(name, envvar, optional, default, type, subst)
         self.confvariable[name] = var
         self.confvariables.append(var)
 
@@ -427,8 +447,8 @@ class Config(object):
         :raise ConfigError: if ``configFile`` is defined but the file
             by this name can not be read, if ``configSection`` is
             defined but no section by this name could be found in the
-            configuration file, or if a mandatory variable is not
-            defined.
+            configuration file, if an invalid value is given to a
+            variable, or if a mandatory variable is not defined.
         """
         self.args = ConfigSourceCmdArgs(self.argparser, args)
         self.environ = ConfigSourceEnvironment()
