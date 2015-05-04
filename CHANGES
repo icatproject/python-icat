@@ -12,8 +12,9 @@
 
  + Add another derived configuration variable configDir.
 
- + Add /etc/icat and ~/.config/icat to the default search path for the
-   config file.
+ + Default search path for the configuration file: add an appropriate
+   path on Windows, add /etc/icat and ~/.config/icat if not on
+   Windows.
 
  + Add icatexport.py and icatimport.py example scripts that use the
    corresponding calls to the ICAT RESTful interface to dump and

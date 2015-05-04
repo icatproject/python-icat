@@ -1,6 +1,7 @@
 """Provide the Config class.
 """
 
+import sys
 import os
 import os.path
 import getpass
@@ -11,9 +12,16 @@ from icat.exception import *
 __all__ = ['Configuration', 'Config']
 
 
-cfgdirs = [ "/etc/icat", 
-            os.path.expanduser("~/.config/icat"), 
-            os.path.expanduser("~/.icat"), "" ]
+if sys.platform.startswith("win"):
+    cfgdirs = [ os.path.join(os.environ['ProgramData'], "ICAT"),
+                os.path.join(os.environ['AppData'], "ICAT"),
+                os.path.join(os.environ['LocalAppData'], "ICAT"), 
+                "", ]
+else:
+    cfgdirs = [ "/etc/icat", 
+                os.path.expanduser("~/.config/icat"),
+                os.path.expanduser("~/.icat"), 
+                "", ]
 """Search path for the configuration file"""
 cfgfile = "icat.cfg"
 """Configuration file name"""
