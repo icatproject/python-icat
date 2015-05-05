@@ -51,6 +51,8 @@ password = pass
 greeting = Hello %(username)s!
 num = 42
 invnum = forty-two
+flag1 = true
+flag2 = off
 """
 
 @pytest.fixture(scope="module")
@@ -490,3 +492,60 @@ def test_config_type_int_err(tmpconfigfile):
     with pytest.raises(icat.exception.ConfigError) as err:
         conf = config.getconfig(args)
     assert 'invalid int value' in str(err.value)
+
+
+def test_config_type_flag(tmpconfigfile):
+    """
+    Check a boolean configuration variable.
+    """
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    config = icat.config.Config()
+    config.add_variable('flag1', ("--flag1",), 
+                        dict(help="Flag 1", action='store_const', const=True), 
+                        type=icat.config.boolean)
+    config.add_variable('flag2', ("--flag2",), 
+                        dict(help="Flag 2", action='store_const', const=True), 
+                        type=icat.config.boolean)
+    conf = config.getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'client_kwargs', 'configDir', 'configFile', 
+                      'configSection', 'credentials', 'flag1', 'flag2', 
+                      'http_proxy', 'https_proxy', 'no_proxy', 
+                      'password', 'promptPass', 'url', 'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_jdoe"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "ldap"
+    assert conf.username == "jdoe"
+    assert conf.password == "pass"
+    assert conf.promptPass == False
+    assert conf.flag1 == True
+    assert conf.flag2 == False
+    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
+
+    # Now override flag2 from the command line
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", "--flag2"]
+    conf = config.getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'client_kwargs', 'configDir', 'configFile', 
+                      'configSection', 'credentials', 'flag1', 'flag2', 
+                      'http_proxy', 'https_proxy', 'no_proxy', 
+                      'password', 'promptPass', 'url', 'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_jdoe"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "ldap"
+    assert conf.username == "jdoe"
+    assert conf.password == "pass"
+    assert conf.promptPass == False
+    assert conf.flag1 == True
+    assert conf.flag2 == True
+    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
+

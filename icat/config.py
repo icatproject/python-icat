@@ -9,7 +9,7 @@ import argparse
 import ConfigParser
 from icat.exception import *
 
-__all__ = ['Configuration', 'Config']
+__all__ = ['boolean', 'Configuration', 'Config']
 
 
 if sys.platform.startswith("win"):
@@ -26,6 +26,26 @@ else:
 cfgfile = "icat.cfg"
 """Configuration file name"""
 defaultsection = None
+
+
+def boolean(value):
+    """Test truth value.
+
+    Convert the string representation of a truth value, such as ``0``,
+    ``1``, ``yes``, ``no``, ``true``, or ``false`` to bool.  This
+    function is suitable to be passed as type to Config.add_variable().
+    """
+    if isinstance(value, basestring):
+        if value.lower() in ["0", "no", "n", "false", "f", "off"]:
+            return False
+        elif value.lower() in ["1", "yes", "y", "true", "t", "on"]:
+            return True
+        else:
+            raise ValueError("Invalid truth value '%s'" % value)
+    elif isinstance(value, bool):
+        return value
+    else:
+        raise TypeError("invalid type %s, expect bool or str" % type(value))
 
 
 class ConfigVariable(object):
@@ -364,7 +384,7 @@ class Config(object):
             self.add_variable('promptPass', ("-P", "--prompt-pass"), 
                               dict(help="prompt for the password", 
                                    action='store_true'), 
-                              optional=True)
+                              type=boolean, optional=True)
 
     def add_variable(self, name, arg_opts=(), arg_kws=dict(), 
                      envvar=None, optional=False, default=None, type=None, 
