@@ -7,6 +7,7 @@ import shutil
 import tempfile
 import getpass
 import icat.config
+import icat.exception
 
 
 # ============================= helper =============================
@@ -48,6 +49,8 @@ auth = ldap
 username = jdoe
 password = pass
 greeting = Hello %(username)s!
+num = 42
+invnum = forty-two
 """
 
 @pytest.fixture(scope="module")
@@ -444,3 +447,46 @@ def test_config_subst_confdir(tmpconfigfile):
     assert conf.promptPass == False
     assert os.path.dirname(conf.extracfg) == tmpconfigfile.dir
     assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
+
+
+def test_config_type_int(tmpconfigfile):
+    """
+    Read an interger variable from the configuration file.
+    """
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    config = icat.config.Config()
+    config.add_variable('num', ("--num",), 
+                        dict(help="Integer variable"), type=int)
+    conf = config.getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'client_kwargs', 'configDir', 'configFile', 
+                      'configSection', 'credentials', 'http_proxy', 
+                      'https_proxy', 'no_proxy', 'num', 'password', 
+                      'promptPass', 'url', 'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_jdoe"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "ldap"
+    assert conf.username == "jdoe"
+    assert conf.password == "pass"
+    assert conf.promptPass == False
+    assert conf.num == 42
+    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
+
+
+def test_config_type_int_err(tmpconfigfile):
+    """
+    Same as last one, but have an invalid value this time.
+    """
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    config = icat.config.Config()
+    config.add_variable('invnum', ("--invnum",), 
+                        dict(help="Integer variable"), type=int)
+    with pytest.raises(icat.exception.ConfigError) as err:
+        conf = config.getconfig(args)
+    assert 'invalid int value' in str(err.value)
