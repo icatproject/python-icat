@@ -1,9 +1,16 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.8.0 (not yet released)
+* Version 0.8.0 (2015-05-08)
 
 ** New features
+
+ + Enable verification of the SSL server certificate in HTTPS
+   connections.  Add a new configuration variable "checkCert" to
+   control this.  It is set to True by default.
+
+   Note that this requires either Python 2.7.9 or 3.2 or newer.  With
+   older Python version, this configuration option has no effect.
 
  + Add type conversion of configuration variables.
 
@@ -13,28 +20,47 @@
  + Add another derived configuration variable configDir.
 
  + Default search path for the configuration file: add an appropriate
-   path on Windows, add /etc/icat and ~/.config/icat if not on
-   Windows.
+   path on Windows, add /etc/icat and ~/.config/icat to the path if
+   not on Windows.
 
  + Add icatexport.py and icatimport.py example scripts that use the
    corresponding calls to the ICAT RESTful interface to dump and
    restore the ICAT content.
 
-** Incompatible changes
-
  + The constructor of ICATError and the translateError() function are
    now able to construct exceptions based on a dict such as those
-   returend by the ICAT RESTful interface in case of an error.
+   returned by the ICAT RESTful interface in case of an error.
 
    Unified handling of errors raised from the ICAT and the IDS server.
-   As a consequence, the exception class hierarchy has been reviewed,
-   with a somewhat more clear separation of exceptions raised by
-   other libraries, exceptions raised by the server, and exceptions
-   raised by python-icat respectively.
+
+** Incompatible changes
+
+ + As a consequence of the unified handling of errors, the exception
+   class hierarchy has been reviewed, with a somewhat more clear
+   separation of exceptions raised by other libraries, exceptions
+   raised by the server, and exceptions raised by python-icat
+   respectively.
 
    If you put assumptions on the exception hierarchy in your code,
    this might need a review.  In particular, IDSResponseError is not
    derived from IDSError any more.  IDSServerError has been removed.
+
+   I.e., replace all references to IDSServerError by IDSError in your
+   code. Furthermore, if you catch IDSError in your code with the
+   intention to catch both, errors from the IDS server and
+   IDSResponseError in one branch, replace:
+
+     try:
+         # ...
+     except IDSError:
+         # ...
+
+   by
+
+     try:
+         # ...
+     except (IDSError, IDSResponseError):
+         # ...
 
 ** Bug fixes and minor changes
 
@@ -125,23 +151,23 @@
 
    In the client code, replace:
 
-   client.createRules(group, crudFlags, what)
+     client.createRules(group, crudFlags, what)
 
    by
 
-   client.createRules(crudFlags, what, group)
+     client.createRules(crudFlags, what, group)
 
  + The Client method putData() returns the new Datafile object created
    by IDS rather then only its id.
 
    If you depend on the old behavior in the client code, replace:
 
-   dfid = client.putData(file, datafile)
+     dfid = client.putData(file, datafile)
 
    by
 
-   df = client.putData(file, datafile)
-   dfid = df.id
+     df = client.putData(file, datafile)
+     dfid = df.id
 
 ** Minor changes and fixes
 
@@ -334,14 +360,14 @@
 
    In the client code, replace:
 
-   pi = investigation.addInvestigationUser(uid, fullName=userName, 
-                                           search=True, 
-                                           role="Principal Investigator")
+     pi = investigation.addInvestigationUser(uid, fullName=userName, 
+                                             search=True, 
+                                             role="Principal Investigator")
 
    by
 
-   pi = client.createUser(uid, fullName=userName, search=True)
-   investigation.addInvestigationUsers([pi], role="Principal Investigator")
+     pi = client.createUser(uid, fullName=userName, search=True)
+     investigation.addInvestigationUsers([pi], role="Principal Investigator")
 
  + Work around a bug in the way SUDS deals with datetime values: set
    the local time zone to UTC.
@@ -367,13 +393,13 @@
 
    In the client code, replace:
 
-   conf = icat.config.Config()
-   conf.getconfig()
+     conf = icat.config.Config()
+     conf.getconfig()
 
    by
 
-   config = icat.config.Config()
-   conf = config.getconfig()
+     config = icat.config.Config()
+     conf = config.getconfig()
 
  + Move ConfigError from icat.config to icat.exception.
 

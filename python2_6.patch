@@ -1,8 +1,8 @@
 Index: icat/config.py
 ===================================================================
---- icat/config.py	(revision 822)
+--- icat/config.py	(revision 835)
 +++ icat/config.py	(working copy)
-@@ -145,7 +145,7 @@
+@@ -176,7 +176,7 @@
          """Return the configuration as a dict."""
          vars = [var.name for var in self._config.confvariables] \
              + self._config.ReservedVariables
