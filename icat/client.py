@@ -176,6 +176,7 @@ class Client(suds.client.Client):
 
         idsurl = kwargs.pop('idsurl', None)
         tr_args = {}
+        tr_args['proxy'] = kwargs.pop('proxy', {})
         tr_args['context'] = kwargs.pop('sslContext', None)
         tr_args['verify'] = kwargs.pop('checkCert', True)
         tr_args['cafile'] = kwargs.pop('caFile', None)
