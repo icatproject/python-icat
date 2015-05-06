@@ -427,28 +427,22 @@ def test_config_subst_confdir(tmpconfigfile):
     """
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
-    config = icat.config.Config()
+    config = icat.config.Config(needlogin=False)
     config.add_variable('extracfg', ("--extracfg",), 
                         dict(help="Extra config file"),
                         default="%(configDir)s/extra.xml", subst=True)
     conf = config.getconfig(args)
 
     attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'client_kwargs', 'configDir', 'configFile', 
-                      'configSection', 'credentials', 'extracfg', 
-                      'http_proxy', 'https_proxy', 'no_proxy', 'password', 
-                      'promptPass', 'url', 'username' ]
+    assert attrs == [ 'client_kwargs', 'configDir', 'configFile', 
+                      'configSection', 'extracfg', 'http_proxy', 
+                      'https_proxy', 'no_proxy', 'url' ]
 
     assert conf.configFile == [tmpconfigfile.path]
     assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "ldap"
-    assert conf.username == "jdoe"
-    assert conf.password == "pass"
-    assert conf.promptPass == False
     assert os.path.dirname(conf.extracfg) == tmpconfigfile.dir
-    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
 
 
 def test_config_type_int(tmpconfigfile):
@@ -457,27 +451,21 @@ def test_config_type_int(tmpconfigfile):
     """
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
-    config = icat.config.Config()
+    config = icat.config.Config(needlogin=False)
     config.add_variable('num', ("--num",), 
                         dict(help="Integer variable"), type=int)
     conf = config.getconfig(args)
 
     attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'client_kwargs', 'configDir', 'configFile', 
-                      'configSection', 'credentials', 'http_proxy', 
-                      'https_proxy', 'no_proxy', 'num', 'password', 
-                      'promptPass', 'url', 'username' ]
+    assert attrs == [ 'client_kwargs', 'configDir', 'configFile', 
+                      'configSection', 'http_proxy', 'https_proxy', 
+                      'no_proxy', 'num', 'url' ]
 
     assert conf.configFile == [tmpconfigfile.path]
     assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "ldap"
-    assert conf.username == "jdoe"
-    assert conf.password == "pass"
-    assert conf.promptPass == False
     assert conf.num == 42
-    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
 
 
 def test_config_type_int_err(tmpconfigfile):
@@ -486,7 +474,7 @@ def test_config_type_int_err(tmpconfigfile):
     """
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
-    config = icat.config.Config()
+    config = icat.config.Config(needlogin=False)
     config.add_variable('invnum', ("--invnum",), 
                         dict(help="Integer variable"), type=int)
     with pytest.raises(icat.exception.ConfigError) as err:
@@ -500,7 +488,7 @@ def test_config_type_flag(tmpconfigfile):
     """
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
-    config = icat.config.Config()
+    config = icat.config.Config(needlogin=False)
     config.add_variable('flag1', ("--flag1",), 
                         dict(help="Flag 1", action='store_const', const=True), 
                         type=icat.config.boolean)
@@ -510,42 +498,30 @@ def test_config_type_flag(tmpconfigfile):
     conf = config.getconfig(args)
 
     attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'client_kwargs', 'configDir', 'configFile', 
-                      'configSection', 'credentials', 'flag1', 'flag2', 
-                      'http_proxy', 'https_proxy', 'no_proxy', 
-                      'password', 'promptPass', 'url', 'username' ]
+    assert attrs == [ 'client_kwargs', 'configDir', 'configFile', 
+                      'configSection', 'flag1', 'flag2', 
+                      'http_proxy', 'https_proxy', 'no_proxy', 'url' ]
 
     assert conf.configFile == [tmpconfigfile.path]
     assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "ldap"
-    assert conf.username == "jdoe"
-    assert conf.password == "pass"
-    assert conf.promptPass == False
     assert conf.flag1 == True
     assert conf.flag2 == False
-    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
 
     # Now override flag2 from the command line
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", "--flag2"]
     conf = config.getconfig(args)
 
     attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'client_kwargs', 'configDir', 'configFile', 
-                      'configSection', 'credentials', 'flag1', 'flag2', 
-                      'http_proxy', 'https_proxy', 'no_proxy', 
-                      'password', 'promptPass', 'url', 'username' ]
+    assert attrs == [ 'client_kwargs', 'configDir', 'configFile', 
+                      'configSection', 'flag1', 'flag2', 
+                      'http_proxy', 'https_proxy', 'no_proxy', 'url' ]
 
     assert conf.configFile == [tmpconfigfile.path]
     assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "ldap"
-    assert conf.username == "jdoe"
-    assert conf.password == "pass"
-    assert conf.promptPass == False
     assert conf.flag1 == True
     assert conf.flag2 == True
-    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
 
