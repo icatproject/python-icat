@@ -482,9 +482,9 @@ def test_config_type_int_err(tmpconfigfile):
     assert 'invalid int value' in str(err.value)
 
 
-def test_config_type_flag(tmpconfigfile):
+def test_config_type_boolean(tmpconfigfile):
     """
-    Check a boolean configuration variable.
+    Test a boolean configuration variable.
     """
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
@@ -523,5 +523,48 @@ def test_config_type_flag(tmpconfigfile):
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.flag1 == True
+    assert conf.flag2 == True
+
+
+def test_config_type_flag(tmpconfigfile):
+    """
+    Test the special configuration variable type flag.
+    """
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    config = icat.config.Config(needlogin=False)
+    config.add_variable('flag1', ("--flag1",), 
+                        dict(help="Flag 1"), type=icat.config.flag)
+    config.add_variable('flag2', ("--flag2",), 
+                        dict(help="Flag 2"), type=icat.config.flag)
+    conf = config.getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'client_kwargs', 'configDir', 'configFile', 
+                      'configSection', 'flag1', 'flag2', 
+                      'http_proxy', 'https_proxy', 'no_proxy', 'url' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_jdoe"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.flag1 == True
+    assert conf.flag2 == False
+
+    # Now override the flags from the command line
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", 
+            "--no-flag1", "--flag2"]
+    conf = config.getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'client_kwargs', 'configDir', 'configFile', 
+                      'configSection', 'flag1', 'flag2', 
+                      'http_proxy', 'https_proxy', 'no_proxy', 'url' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_jdoe"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.flag1 == False
     assert conf.flag2 == True
 

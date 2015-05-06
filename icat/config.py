@@ -47,6 +47,9 @@ def boolean(value):
     else:
         raise TypeError("invalid type %s, expect bool or str" % type(value))
 
+flag = object()
+"""Special boolean variable type that defines two command line arguments."""
+
 
 class ConfigVariable(object):
     """Describe a configuration variable.
@@ -440,7 +443,31 @@ class Config(object):
             raise ValueError("Config variable name '%s' is reserved." % name)
         if name in self.confvariable:
             raise ValueError("Config variable '%s' is already defined." % name)
-        if arg_opts:
+        if type == flag:
+            # flag is a variant of boolean that defines two command
+            # line arguments, a positive and a negative one.
+            if '-' not in self.argparser.prefix_chars:
+                raise ValueError("flag type requires '-' to be in the "
+                                 "argparser's prefix_chars.")
+            if len(arg_opts) != 1 or not arg_opts[0].startswith('--'):
+                raise ValueError("invalid argument options for flag type.")
+            arg = arg_opts[0][2:]
+            arg_kws['dest'] = name
+            arg_kws['action'] = 'store_const'
+            if default:
+                arg_kws['const'] = False
+                self.argparser.add_argument("--no-"+arg, **arg_kws)
+                arg_kws['const'] = True
+                arg_kws['help'] = argparse.SUPPRESS
+                self.argparser.add_argument("--"+arg, **arg_kws)
+            else:
+                arg_kws['const'] = True
+                self.argparser.add_argument("--"+arg, **arg_kws)
+                arg_kws['const'] = False
+                arg_kws['help'] = argparse.SUPPRESS
+                self.argparser.add_argument("--no-"+arg, **arg_kws)
+            type = boolean
+        elif arg_opts:
             prefix = self.argparser.prefix_chars
             if len(arg_opts) == 1 and arg_opts[0][0] not in prefix:
                 # positional argument
