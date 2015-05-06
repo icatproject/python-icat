@@ -174,14 +174,15 @@ class Client(suds.client.Client):
         :see: ``suds.options.Options`` for the keyword arguments.
         """
 
-        if 'idsurl' in kwargs:
-            idsurl = kwargs['idsurl']
-            del kwargs['idsurl']
-        else:
-            idsurl = None
+        idsurl = kwargs.pop('idsurl', None)
+        tr_args = {}
+        tr_args['context'] = kwargs.pop('sslContext', None)
+        tr_args['verify'] = kwargs.pop('checkCert', True)
+        tr_args['cafile'] = kwargs.pop('caFile', None)
+        tr_args['capath'] = kwargs.pop('caPath', None)
 
         self.url = url
-        kwargs['transport'] = icat.transport.HTTPSTransport(verify=False)
+        kwargs['transport'] = icat.transport.HTTPSTransport(**tr_args)
         super(Client, self).__init__(url, **kwargs)
         apiversion = self.getApiVersion()
         # Translate a version having a trailing '-SNAPSHOT' into

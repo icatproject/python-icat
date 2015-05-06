@@ -226,6 +226,28 @@ class Config(object):
         mandatory                  yes
         =========================  ==================================
 
+      ``idsurl``
+        URL to the ICAT Data Service.
+
+        =========================  ==================================
+        command line               ``--idsurl``
+        environment                ``ICAT_DATA_SERVICE``
+        default                    ``None``
+        mandatory                  depends on constructor arguments
+        =========================  ==================================
+
+      ``checkCert``
+        Verify the server certificate for HTTPS connections.
+        Note that this requires either Python 2.7.9 or 3.2 or newer.
+        With older Python version, this option has no effect.
+
+        =========================  ==================================
+        command line               ``--check-certificate``, 
+                                   ``--no-check-certificate``
+        default                    ``True``
+        mandatory                  no
+        =========================  ==================================
+
       ``http_proxy``
         Proxy to use for http requests.
 
@@ -293,16 +315,6 @@ class Config(object):
         mandatory                  no
         =========================  ==================================
 
-      ``idsurl``
-        URL to the ICAT Data Service.
-
-        =========================  ==================================
-        command line               ``--idsurl``
-        environment                ``ICAT_DATA_SERVICE``
-        default                    ``None``
-        mandatory                  depends on constructor arguments
-        =========================  ==================================
-
     Mandatory means that an error will be raised if no value is found
     for the configuration variable in question.
 
@@ -319,6 +331,7 @@ class Config(object):
       ``credentials``
         contains username and password suitable to be passed to
         `Client.login`.
+
     """
 
     ReservedVariables = ['configDir', 'client_kwargs', 'credentials']
@@ -365,6 +378,9 @@ class Config(object):
             self.add_variable('idsurl', ("--idsurl",), 
                               dict(help="URL to the ICAT Data Service"),
                               envvar='ICAT_DATA_SERVICE', optional=idsopt)
+        self.add_variable('checkCert', ("--check-certificate",), 
+                          dict(help="verify the server certificate"), 
+                          type=flag, default=True)
         self.add_variable('http_proxy', ("--http-proxy",), 
                           dict(help="proxy to use for http requests"),
                           envvar='http_proxy', optional=True)
@@ -549,6 +565,9 @@ class Config(object):
                                    'password':config.password }
 
         config.client_kwargs = {}
+        if self.ids:
+            config.client_kwargs['idsurl'] = config.idsurl
+        config.client_kwargs['checkCert'] = config.checkCert
         if config.http_proxy or config.https_proxy:
             proxy={}
             if config.http_proxy:
@@ -560,7 +579,5 @@ class Config(object):
             config.client_kwargs['proxy'] = proxy
         if config.no_proxy:
                 os.environ['no_proxy'] = config.no_proxy
-        if self.ids:
-            config.client_kwargs['idsurl'] = config.idsurl
 
         return config
