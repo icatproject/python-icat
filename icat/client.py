@@ -19,7 +19,7 @@ import icat.entities
 from icat.query import Query
 from icat.exception import *
 from icat.ids import *
-import icat.sslcert
+from icat.sslcert import create_ssl_context, HTTPSTransport
 from icat.helper import simpleqp_unquote, parse_attr_val
 
 __all__ = ['Client']
@@ -175,15 +175,18 @@ class Client(suds.client.Client):
         """
 
         idsurl = kwargs.pop('idsurl', None)
-        tr_args = {}
-        tr_args['proxy'] = kwargs.pop('proxy', {})
-        tr_args['context'] = kwargs.pop('sslContext', None)
-        tr_args['verify'] = kwargs.pop('checkCert', True)
-        tr_args['cafile'] = kwargs.pop('caFile', None)
-        tr_args['capath'] = kwargs.pop('caPath', None)
+
+        sslverify = kwargs.pop('checkCert', True)
+        cafile = kwargs.pop('caFile', None)
+        capath = kwargs.pop('caPath', None)
+        if 'sslContext' in kwargs:
+            self.sslContext = kwargs.pop(['sslContext'])
+        else:
+            self.sslContext = create_ssl_context(sslverify, cafile, capath)
 
         self.url = url
-        kwargs['transport'] = icat.sslcert.HTTPSTransport(**tr_args)
+        proxy = kwargs.pop('proxy', {})
+        kwargs['transport'] = HTTPSTransport(self.sslContext, proxy=proxy)
         super(Client, self).__init__(url, **kwargs)
         apiversion = self.getApiVersion()
         # Translate a version having a trailing '-SNAPSHOT' into
