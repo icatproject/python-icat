@@ -379,7 +379,7 @@ class Config(object):
                               dict(help="URL to the ICAT Data Service"),
                               envvar='ICAT_DATA_SERVICE', optional=idsopt)
         self.add_variable('checkCert', ("--check-certificate",), 
-                          dict(help="verify the server certificate"), 
+                          dict(help="don't verify the server certificate"), 
                           type=flag, default=True)
         self.add_variable('http_proxy', ("--http-proxy",), 
                           dict(help="proxy to use for http requests"),
