@@ -246,6 +246,7 @@ class Client(suds.client.Client):
         idsargs = {}
         if self.sessionId:
             idsargs['sessionId'] = self.sessionId
+        idsargs['sslContext'] = self.sslContext
         if proxy:
             idsargs['proxy'] = proxy
         self.ids = IDSClient(url, **idsargs)

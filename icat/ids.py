@@ -9,8 +9,10 @@ author.
 """
 
 from collections import Mapping, Sequence
+import ssl
 from urllib2 import Request, HTTPError
-from urllib2 import HTTPDefaultErrorHandler, ProxyHandler, build_opener
+from urllib2 import HTTPDefaultErrorHandler, ProxyHandler, HTTPSHandler
+from urllib2 import build_opener
 from urllib import urlencode
 import json
 import zlib
@@ -148,21 +150,37 @@ class IDSClient(object):
     from the ICAT client.
     """
 
-    def __init__(self, url, sessionId=None, proxy=None):
+    def __init__(self, url, sessionId=None, sslContext=None, proxy=None):
         """Create an IDSClient.
         """
         self.url = url
         if not self.url.endswith("/"): self.url += "/"
         self.sessionId = sessionId
+        if sslContext:
+            verify = (sslContext.verify_mode != ssl.CERT_NONE)
+            try:
+                httpsHandler = HTTPSHandler(context=sslContext, 
+                                            check_hostname=verify)
+                chunkedHTTPSHandler = ChunkedHTTPSHandler(context=sslContext, 
+                                                          check_hostname=verify)
+            except TypeError:
+                # Python 2.7.9 HTTPSHandler does not accept the
+                # check_hostname keyword argument.
+                httpsHandler = HTTPSHandler(context=sslContext)
+                chunkedHTTPSHandler = ChunkedHTTPSHandler(context=sslContext)
+        else:
+            httpsHandler = HTTPSHandler()
+            chunkedHTTPSHandler = ChunkedHTTPSHandler()
         if proxy:
             proxyhandler = ProxyHandler(proxy)
-            self.default = build_opener(proxyhandler, IDSHTTPErrorHandler)
+            self.default = build_opener(proxyhandler, httpsHandler, 
+                                        IDSHTTPErrorHandler)
             self.chunked = build_opener(proxyhandler, 
-                                        ChunkedHTTPHandler, ChunkedHTTPSHandler,
+                                        ChunkedHTTPHandler, chunkedHTTPSHandler,
                                         IDSHTTPErrorHandler)
         else:
-            self.default = build_opener(IDSHTTPErrorHandler)
-            self.chunked = build_opener(ChunkedHTTPHandler, ChunkedHTTPSHandler,
+            self.default = build_opener(httpsHandler, IDSHTTPErrorHandler)
+            self.chunked = build_opener(ChunkedHTTPHandler, chunkedHTTPSHandler,
                                         IDSHTTPErrorHandler)
         apiversion = self.getApiVersion()
         # Translate a version having a trailing '-SNAPSHOT' into
