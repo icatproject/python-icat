@@ -27,10 +27,6 @@ config.add_variable('resturl', ("--resturl",),
 config.add_variable('file', ("-i", "--inputfile"), 
                     dict(help="input file name or '-' for stdin"),
                     default='-')
-config.add_variable('verifySSL', ("--no-check-certificate",), 
-                    dict(help="don't verify the server certificate", 
-                         action='store_false'), 
-                    default=True)
 # The format argument makes in fact little sense, as there is no
 # choice.  It's here for compatiblity with the command line interface
 # of icatrestore.py only.
@@ -75,7 +71,7 @@ formfields = {
 url = conf.resturl + "port"
 #url = 'http://httpbin.org/post'
 request = requests.post(url, data={"json":json.dumps(args)},
-                        files={'file': f}, stream=True, verify=conf.verifySSL)
+                        files={'file': f}, stream=True, verify=conf.checkCert)
 if request.status_code != requests.codes.ok:
     try:
         raise translateError(request.json(), status=request.status_code)

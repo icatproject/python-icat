@@ -27,10 +27,6 @@ config.add_variable('resturl', ("--resturl",),
 config.add_variable('file', ("-o", "--outputfile"), 
                     dict(help="output file name or '-' for stdout"),
                     default='-')
-config.add_variable('verifySSL', ("--no-check-certificate",), 
-                    dict(help="don't verify the server certificate", 
-                         action='store_false'), 
-                    default=True)
 # The format argument makes in fact little sense, as there is no
 # choice.  It's here for compatiblity with the command line interface
 # of icatdump.py only.
@@ -65,7 +61,7 @@ if conf.query:
     args['query'] = conf.query
 parameters = {"json":json.dumps(args)}
 request = requests.get(conf.resturl + "port", params=parameters, 
-                       stream=True, verify=conf.verifySSL)
+                       stream=True, verify=conf.checkCert)
 if request.status_code == requests.codes.ok:
     if conf.file == "-":
         for chunk in request.iter_content(8192):
