@@ -54,6 +54,8 @@ else:
     # No result, use a bogus id instead
     invid = 4711
 
+print("\nUse investigation id: %d" % invid)
+
 print("\nQuery a datafile by its name, dataset name, and investigation name:")
 df = inp['datafiles'][0]
 conditions = { 
