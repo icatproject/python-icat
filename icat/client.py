@@ -19,7 +19,7 @@ import icat.entities
 from icat.query import Query
 from icat.exception import *
 from icat.ids import *
-import icat.transport
+import icat.sslcert
 from icat.helper import simpleqp_unquote, parse_attr_val
 
 __all__ = ['Client']
@@ -183,7 +183,7 @@ class Client(suds.client.Client):
         tr_args['capath'] = kwargs.pop('caPath', None)
 
         self.url = url
-        kwargs['transport'] = icat.transport.HTTPSTransport(**tr_args)
+        kwargs['transport'] = icat.sslcert.HTTPSTransport(**tr_args)
         super(Client, self).__init__(url, **kwargs)
         apiversion = self.getApiVersion()
         # Translate a version having a trailing '-SNAPSHOT' into
