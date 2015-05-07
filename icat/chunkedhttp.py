@@ -160,7 +160,18 @@ class ChunkedHTTPHandler(ChunkedHTTPHandlerMixin, HTTPHandler):
 class ChunkedHTTPSHandler(ChunkedHTTPHandlerMixin, HTTPSHandler):
 
     def https_open(self, req):
-        return self.do_open(ChunkedHTTPSConnection, req)
+        if hasattr(self, '_context') and hasattr(self, '_check_hostname'):
+            # Python 3.2 and newer
+            return self.do_open(ChunkedHTTPSConnection, req,
+                                context=self._context, 
+                                check_hostname=self._check_hostname)
+        elif hasattr(self, '_context'):
+            # Python 2.7.9
+            return self.do_open(ChunkedHTTPSConnection, req,
+                                context=self._context)
+        else:
+            # Python 2.7.8 or 3.1 and older
+            return self.do_open(ChunkedHTTPSConnection, req)
 
     https_request = ChunkedHTTPHandlerMixin.do_request_
 
