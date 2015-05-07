@@ -327,9 +327,9 @@ Index: doc/examples/dumpinvestigation.py
      dumpfile.writedata(authtypes)
 Index: doc/examples/querytest.py
 ===================================================================
---- doc/examples/querytest.py	(revision 617)
+--- doc/examples/querytest.py	(revision 838)
 +++ doc/examples/querytest.py	(working copy)
-@@ -78,12 +78,12 @@
+@@ -80,12 +80,12 @@
  print("%d result(s)" % len(client.search(str(q) % df)))
  
  print("\nQuery lots of information about one single investigation.")
@@ -348,7 +348,7 @@ Index: doc/examples/querytest.py
  q = Query(client, "Investigation", 
            conditions={"id":"= %d" % invid}, includes=includes)
  print(str(q))
-@@ -94,7 +94,7 @@
+@@ -96,7 +96,7 @@
            order=["name"], 
            conditions={ "investigationInstruments.investigation.id":
                         "= %d" % invid }, 
@@ -357,7 +357,7 @@ Index: doc/examples/querytest.py
  print(str(q))
  print("%d result(s)" % len(client.search(q)))
  
-@@ -101,8 +101,8 @@
+@@ -103,8 +103,8 @@
  print("\nThe datafiles related to a given investigation in natural order.")
  q = Query(client, "Datafile", order=True, 
            conditions={ "dataset.investigation.id":"= %d" % invid }, 
@@ -368,7 +368,7 @@ Index: doc/examples/querytest.py
  print(str(q))
  print("%d result(s)" % len(client.search(q)))
  
-@@ -109,8 +109,8 @@
+@@ -111,8 +111,8 @@
  print("\nSame example, but skip the investigation in the order.")
  q = Query(client, "Datafile", order=['dataset.name', 'name'], 
            conditions={ "dataset.investigation.id":"= %d" % invid }, 
