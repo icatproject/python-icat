@@ -64,8 +64,10 @@ request = requests.get(conf.resturl + "port", params=parameters,
                        stream=True, verify=conf.checkCert)
 if request.status_code == requests.codes.ok:
     if conf.file == "-":
-        for chunk in request.iter_content(8192):
-            sys.stdout.write(chunk)
+        # Need to reopen stdout in binary mode.
+        with os.fdopen(os.dup(sys.stdout.fileno()), 'wb') as f:
+            for chunk in request.iter_content(8192):
+                f.write(chunk)
     else:
         with open(conf.file, 'wb') as f:
             for chunk in request.iter_content(8192):
