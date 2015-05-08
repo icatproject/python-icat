@@ -49,11 +49,21 @@ class HTTPSTransport(suds.transport.http.HttpTransport):
     """
 
     def __init__(self, context, **kwargs):
+        """Initialize the HTTPSTransport instance.
+
+        :param context: The SSL context to use.
+        :type context: ``ssl.SSLContext``
+        :param kwargs: keyword arguments.
+        :see: ``suds.transport.http.HttpTransport`` for the keyword
+            arguments.
+        """
         suds.transport.http.HttpTransport.__init__(self, **kwargs)
         self.ssl_context = context
         self.verify = (context and context.verify_mode != ssl.CERT_NONE)
 
     def u2handlers(self):
+        """Get a collection of urllib handlers.
+        """
         handlers = suds.transport.http.HttpTransport.u2handlers(self)
         if self.ssl_context:
             try:
