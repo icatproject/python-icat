@@ -73,5 +73,5 @@ if request.status_code == requests.codes.ok:
 else:
     try:
         raise translateError(request.json(), status=request.status_code)
-    except ValueError:
+    except (ValueError, TypeError):
         request.raise_for_status()

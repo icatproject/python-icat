@@ -69,12 +69,11 @@ formfields = {
     "data": ('data', f, 'application/octet-stream'),
 }
 url = conf.resturl + "port"
-#url = 'http://httpbin.org/post'
 request = requests.post(url, data={"json":json.dumps(args)},
                         files={'file': f}, stream=True, verify=conf.checkCert)
 if request.status_code != requests.codes.ok:
     try:
         raise translateError(request.json(), status=request.status_code)
-    except ValueError:
+    except (ValueError, TypeError):
         request.raise_for_status()
 
