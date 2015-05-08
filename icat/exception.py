@@ -100,7 +100,7 @@ class ServerError(Exception):
         # 3, we convert it to a str.  It may still contain non-ascii
         # chars, but this is ok for Exception in Python 3.
         if sys.version_info < (3, 0):
-            return msg.encode('ascii', errors='replace')
+            return msg.encode('ascii', 'replace')
         else:
             return str(msg)
 
