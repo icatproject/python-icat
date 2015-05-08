@@ -19,7 +19,7 @@ import icat.entities
 from icat.query import Query
 from icat.exception import *
 from icat.ids import *
-from icat.sslcert import create_ssl_context, HTTPSTransport
+from icat.sslcontext import create_ssl_context, HTTPSTransport
 from icat.helper import simpleqp_unquote, parse_attr_val
 
 __all__ = ['Client']
