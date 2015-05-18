@@ -1,4 +1,5 @@
 include CHANGES
+include COPYING
 include MANIFEST.in
 include icatinfo.py
 include python2_6.patch
