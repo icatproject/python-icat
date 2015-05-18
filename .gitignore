@@ -1,0 +1,8 @@
+*.pyc
+__pycache__/
+/MANIFEST
+/build/
+/dist/
+/doc/api/
+/icat.cfg
+/icat/__init__.py
