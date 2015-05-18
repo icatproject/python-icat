@@ -55,13 +55,13 @@ distclean: apidoc_clean example_clean clean
 	rm -rf dist
 
 
-icat/__init__.py: icatinfo.py icatinit.py svnversion
+icat/__init__.py: icatinfo.py icatinit.py gitversion
 	(cat icatinfo.py; \
-	echo "__revision__  = \"`svnversion`\""; \
+	echo "__revision__  = \"`git describe --always --dirty`\""; \
 	cat icatinit.py) > icat/__init__.py
 
 # Dummy target to force icat/__init__.py
-svnversion:
+gitversion:
 
 
 %.doctest: %.py
@@ -69,4 +69,4 @@ svnversion:
 
 
 .PHONY: sdist init.py apidoc copy_examples test doctest \
-	clean apidoc_clean example_clean distclean svnversion
+	clean apidoc_clean example_clean distclean gitversion
