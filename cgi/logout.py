@@ -2,16 +2,12 @@
 
 from __future__ import print_function
 import cgi
-import re
 try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
 import yaml
 import icat.cgi
-
-date = "$Date$"
-lastupdate = re.search(r'\((.*)\)',date).group(1)
 
 configfile = "/etc/cgi/icat.cfg"
 configsection = "cgi"
@@ -40,4 +36,4 @@ if logoutsuccess:
     print("<p>\n  Logout successful.\n</p>")
 else:
     print("<p>\n  You have not been logged in.\n</p>")
-print(html["foot"].encode("utf8") % lastupdate)
+print(html["foot"].encode("utf8"))

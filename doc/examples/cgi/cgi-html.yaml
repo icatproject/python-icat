@@ -18,12 +18,6 @@ head: |
   <body>
 foot: |
   
-  <div class="footer">
-    <p class="version">
-      Last update: %s
-    </p>
-  </div>
-  
   </body>
   
   </html>

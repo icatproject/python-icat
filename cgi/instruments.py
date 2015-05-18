@@ -10,9 +10,6 @@ except ImportError:
 import yaml
 import icat.cgi
 
-date = "$Date$"
-lastupdate = re.search(r'\((.*)\)',date).group(1)
-
 configfile = "/etc/cgi/icat.cfg"
 configsection = "cgi"
 config = configparser.ConfigParser()
@@ -62,7 +59,7 @@ if session.isActive():
             print("<li><a href=\"/cgi-bin/instruments.py?name=%s\">%s</a></li>" % (i.name, i.fullName))
         print("</ul>")
 
-    print(html["foot"].encode("utf8") % lastupdate)
+    print(html["foot"].encode("utf8"))
 
 else:
 
@@ -71,4 +68,4 @@ else:
     print(html["head"].encode("utf8"))
     print(html["status_out"].encode("utf8"))
     print("<p>\n  You need to login first.\n</p>")
-    print(html["foot"].encode("utf8") % lastupdate)
+    print(html["foot"].encode("utf8"))
