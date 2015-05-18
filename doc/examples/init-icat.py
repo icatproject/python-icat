@@ -69,10 +69,10 @@ alltables = set(client.getEntityNames())
 
 # Public tables that may be read by anybody.  Basically anything thats
 # static and not related to any particular investigation.
-pubtables = { "Application", "DatafileFormat", "DatasetType", 
-              "Facility", "FacilityCycle", "Instrument", 
-              "InvestigationType", "ParameterType", 
-              "PermissibleStringValue", "SampleType", "User", }
+pubtables = set([ "Application", "DatafileFormat", "DatasetType", 
+                  "Facility", "FacilityCycle", "Instrument", 
+                  "InvestigationType", "ParameterType", 
+                  "PermissibleStringValue", "SampleType", "User", ])
 
 # Objects that useroffice might need to create.  Basically anything
 # related to a particular investigation as a whole, but not to
@@ -83,10 +83,10 @@ pubtables = { "Application", "DatafileFormat", "DatasetType",
 # based InvestigationGroup.  In this case, we have a fixed set of
 # static rules.  With older ICAT versions, we need per investigation
 # rules and thus useroffice need permission to create them.
-uotables = { "FacilityCycle", groupname, "InstrumentScientist", 
-             "Investigation", "InvestigationParameter", 
-             "InvestigationUser", "Keyword", "Publication", "Shift", 
-             "Study", "StudyInvestigation", "User", "UserGroup", }
+uotables = set([ "FacilityCycle", groupname, "InstrumentScientist", 
+                 "Investigation", "InvestigationParameter", 
+                 "InvestigationUser", "Keyword", "Publication", "Shift", 
+                 "Study", "StudyInvestigation", "User", "UserGroup", ])
 if client.apiversion > '4.2.99':
     uotables.add("InvestigationInstrument")
 if client.apiversion > '4.3.99':
@@ -107,7 +107,7 @@ if client.apiversion < '4.3.99':
 # Grant public read permission to some basic tables.  Note that the
 # created rules do not refer to any group.  That means they will apply
 # to anybody.  SampleType is a special case, dealt with below.
-client.createRules("R", pubtables - {"SampleType"})
+client.createRules("R", pubtables - set(["SampleType"]))
 
 # Special rule: each user gets the permission to see the groups he
 # is in.
@@ -119,7 +119,7 @@ client.createRules("R", [ "%s <-> UserGroup <-> User[name=:user]" % groupname ])
 # simple by giving him read all permissions.
 idsreader = client.createUser("idsreader", fullName="IDS reader")
 rallgroup = client.createGroup("rall", [ idsreader ])
-client.createRules("R", alltables - pubtables - {"Log"}, rallgroup)
+client.createRules("R", alltables - pubtables - set(["Log"]), rallgroup)
 
 # Setup permissions for useroffice.  They need to create
 # Investigations and to setup access permissions for them.  Note that

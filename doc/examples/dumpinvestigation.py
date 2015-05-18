@@ -93,12 +93,12 @@ ptsearch = [("ParameterType INCLUDE Facility, PermissibleStringValue "
              "<-> Investigation [id=%d]"), ]
 
 # The set of objects to be included in the Investigation.
-inv_includes = { "facility", "type.facility", "investigationInstruments", 
-                 "investigationInstruments.instrument.facility", "shifts", 
-                 "keywords", "publications", "investigationUsers", 
-                 "investigationUsers.user", "investigationGroups", 
-                 "investigationGroups.grouping", "parameters", 
-                 "parameters.type.facility" }
+inv_includes = set([ "facility", "type.facility", "investigationInstruments", 
+                     "investigationInstruments.instrument.facility", "shifts", 
+                     "keywords", "publications", "investigationUsers", 
+                     "investigationUsers.user", "investigationGroups", 
+                     "investigationGroups.grouping", "parameters", 
+                     "parameters.type.facility" ])
 
 # The following lists control what ICAT objects are written in each of
 # the dumpfile chunks.  There are three options for the items in each
@@ -131,16 +131,16 @@ investtypes = [Query(client, "Investigation",
                      includes=inv_includes), 
                Query(client, "Sample", order=["name"], 
                      conditions={"investigation.id":"= %d" % invid}, 
-                     includes={"investigation", "type.facility", 
-                               "parameters", "parameters.type.facility"}), 
+                     includes=set(["investigation", "type.facility", 
+                                   "parameters", "parameters.type.facility"])), 
                Query(client, "Dataset", order=["name"], 
                      conditions={"investigation.id":"= %d" % invid}, 
-                     includes={"investigation", "type.facility", "sample", 
-                               "parameters", "parameters.type.facility"}), 
+                     includes=set(["investigation", "type.facility", "sample", 
+                                   "parameters", "parameters.type.facility"])), 
                Query(client, "Datafile", order=["dataset.name", "name"], 
                      conditions={"dataset.investigation.id":"= %d" % invid}, 
-                     includes={"dataset", "datafileFormat.facility", 
-                               "parameters", "parameters.type.facility"})]
+                     includes=set(["dataset", "datafileFormat.facility", 
+                                   "parameters", "parameters.type.facility"]))]
 
 with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     dumpfile.writedata(authtypes)

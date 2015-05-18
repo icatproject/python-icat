@@ -176,7 +176,7 @@ class Configuration(object):
         """Return the configuration as a dict."""
         vars = [var.name for var in self._config.confvariables] \
             + self._config.ReservedVariables
-        return { f:getattr(self, f) for f in vars if hasattr(self, f) }
+        return dict([ (f,getattr(self, f)) for f in vars if hasattr(self, f) ])
 
 
 class Config(object):

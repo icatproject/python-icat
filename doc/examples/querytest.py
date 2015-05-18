@@ -80,12 +80,12 @@ print(str(q) % df)
 print("%d result(s)" % len(client.search(str(q) % df)))
 
 print("\nQuery lots of information about one single investigation.")
-includes = { "facility", "type.facility", "investigationInstruments", 
-             "investigationInstruments.instrument.facility", "shifts", 
-             "keywords", "publications", "investigationUsers", 
-             "investigationUsers.user", "investigationGroups", 
-             "investigationGroups.grouping", "parameters", 
-             "parameters.type.facility" }
+includes = set([ "facility", "type.facility", "investigationInstruments", 
+                 "investigationInstruments.instrument.facility", "shifts", 
+                 "keywords", "publications", "investigationUsers", 
+                 "investigationUsers.user", "investigationGroups", 
+                 "investigationGroups.grouping", "parameters", 
+                 "parameters.type.facility" ])
 q = Query(client, "Investigation", 
           conditions={"id":"= %d" % invid}, includes=includes)
 print(str(q))
@@ -96,23 +96,23 @@ q = Query(client, "Instrument",
           order=["name"], 
           conditions={ "investigationInstruments.investigation.id":
                        "= %d" % invid }, 
-          includes={"facility", "instrumentScientists.user"})
+          includes=set(["facility", "instrumentScientists.user"]))
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nThe datafiles related to a given investigation in natural order.")
 q = Query(client, "Datafile", order=True, 
           conditions={ "dataset.investigation.id":"= %d" % invid }, 
-          includes={"dataset", "datafileFormat.facility", 
-                    "parameters.type.facility"})
+          includes=set(["dataset", "datafileFormat.facility", 
+                        "parameters.type.facility"]))
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nSame example, but skip the investigation in the order.")
 q = Query(client, "Datafile", order=['dataset.name', 'name'], 
           conditions={ "dataset.investigation.id":"= %d" % invid }, 
-          includes={"dataset", "datafileFormat.facility", 
-                    "parameters.type.facility"})
+          includes=set(["dataset", "datafileFormat.facility", 
+                        "parameters.type.facility"]))
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 

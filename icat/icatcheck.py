@@ -258,7 +258,7 @@ class ICATChecker(object):
     def _genealogy(self, rules):
         """Set up the genealogy of entity types."""
 
-        tree = { t:{'level':0, 'base':None} for t in self.schema.keys() }
+        tree = dict([ (t,{'level':0, 'base':None}) for t in self.schema.keys() ])
         for t in tree:
             log.debug("checking ancestors of %s ...", t)
             for r in rules:
@@ -325,7 +325,7 @@ class ICATChecker(object):
         except GenealogyError as e:
             log.error("%s Dropping class genealogy in Python output.", 
                       e.args[0])
-            tree = { t:{'level':0, 'base':None} for t in self.schema.keys() }
+            tree = dict([ (t,{'level':0, 'base':None}) for t in self.schema.keys() ])
         else:
             base = [t for t in tree if tree[t]['base'] is None][0]
             self.schema[base].classname = baseclassname

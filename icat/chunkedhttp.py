@@ -69,7 +69,7 @@ class ChunkedHTTPConnectionMixin:
         """
         if message_body is not None:
             chunksize = getattr(self, 'chunksize', self.default_chunk_size)
-            if isinstance(message_body, type(b'')):
+            if isinstance(message_body, type('')):
                 bodyiter = stringiterator(message_body, chunksize)
             elif isinstance(message_body, type(u'')):
                 bodyiter = stringiterator(message_body.encode('ascii'), 
@@ -83,8 +83,8 @@ class ChunkedHTTPConnectionMixin:
                                 "or an iterable")
             for chunk in bodyiter:
                 self.send(hex(len(chunk))[2:].encode('ascii') 
-                          + b"\r\n" + chunk + b"\r\n")
-            self.send(b"0\r\n\r\n")
+                          + "\r\n" + chunk + "\r\n")
+            self.send("0\r\n\r\n")
 
 class ChunkedHTTPConnection(ChunkedHTTPConnectionMixin, HTTPConnection):
     pass

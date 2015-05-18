@@ -31,7 +31,7 @@ conf = config.getconfig()
 client = icat.Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
-icatuser = { u.name:u for u in client.search("User") }
+icatuser = dict([ (u.name,u) for u in client.search("User") ])
 
 
 ldapclient = ldap.initialize(conf.ldap_uri)

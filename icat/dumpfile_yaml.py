@@ -131,8 +131,8 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
 
     def __init__(self, client, infile):
         super(YAMLDumpFileReader, self).__init__(client, infile)
-        self.insttypemap = { c.BeanName:t 
-                             for t,c in self.client.typemap.iteritems() }
+        self.insttypemap = dict([ (c.BeanName,t) 
+                                  for t,c in self.client.typemap.iteritems() ])
 
     def getdata(self):
         """Iterate over the data chunks in the dump file.

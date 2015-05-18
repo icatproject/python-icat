@@ -83,71 +83,71 @@ else:
 
 # Compatibility ICAT 4.3.* vs. ICAT 4.4.0 and later: include
 # InvestigationGroups.
-inv_includes = { "facility", "type.facility", "investigationInstruments", 
-                 "investigationInstruments.instrument.facility", "shifts", 
-                 "keywords", "publications", "investigationUsers", 
-                 "investigationUsers.user", "parameters", 
-                 "parameters.type.facility" }
+inv_includes = set([ "facility", "type.facility", "investigationInstruments", 
+                     "investigationInstruments.instrument.facility", "shifts", 
+                     "keywords", "publications", "investigationUsers", 
+                     "investigationUsers.user", "parameters", 
+                     "parameters.type.facility" ])
 if client.apiversion > '4.3.99':
-    inv_includes |= { "investigationGroups", "investigationGroups.grouping" }
+    inv_includes |= set([ "investigationGroups", "investigationGroups.grouping" ])
 
 
 authtypes =   [Query(client, "User", order=True), 
                Query(client, "Grouping", order=True, 
-                     includes={"userGroups", "userGroups.user"}),
+                     includes=set(["userGroups", "userGroups.user"])),
                Query(client, "Rule", order=["what", "id"], 
                      conditions={"grouping":"IS NULL"}), 
                Query(client, "Rule", order=["grouping.name", "what", "id"], 
                      conditions={"grouping":"IS NOT NULL"}, 
-                     includes={"grouping"}), 
+                     includes=set(["grouping"])), 
                Query(client, "PublicStep", order=True) ]
 statictypes = [Query(client, "Facility", order=True), 
                Query(client, "Instrument", order=True, 
-                     includes={"facility", "instrumentScientists.user"}), 
+                     includes=set(["facility", "instrumentScientists.user"])), 
                Query(client, "ParameterType", order=True, 
-                     includes={"facility", "permissibleStringValues"}), 
+                     includes=set(["facility", "permissibleStringValues"])), 
                Query(client, "InvestigationType", order=True, 
-                     includes={"facility"}), 
+                     includes=set(["facility"])), 
                Query(client, "SampleType", order=True, 
-                     includes={"facility"}), 
+                     includes=set(["facility"])), 
                Query(client, "DatasetType", order=True, 
-                     includes={"facility"}), 
+                     includes=set(["facility"])), 
                Query(client, "DatafileFormat", order=True, 
-                     includes={"facility"}), 
+                     includes=set(["facility"])), 
                Query(client, "FacilityCycle", order=True, 
-                     includes={"facility"}), 
+                     includes=set(["facility"])), 
                Query(client, "Application", order=True, 
-                     includes={"facility"}) ]
+                     includes=set(["facility"])) ]
 investtypes = [Query(client, "Investigation", 
                      conditions={"id":"in (%d)"}, 
                      includes=inv_includes), 
                Query(client, "Sample", order=["name"], 
                      conditions={"investigation.id":"= %d"}, 
-                     includes={"investigation", "type.facility", 
-                               "parameters", "parameters.type.facility"}), 
+                     includes=set(["investigation", "type.facility", 
+                                   "parameters", "parameters.type.facility"])), 
                Query(client, "Dataset", order=["name"], 
                      conditions={"investigation.id":"= %d"}, 
-                     includes={"investigation", "type.facility", 
-                               "sample", "parameters.type.facility"}), 
+                     includes=set(["investigation", "type.facility", 
+                                   "sample", "parameters.type.facility"])), 
                Query(client, "Datafile", order=["dataset.name", "name"], 
                      conditions={"dataset.investigation.id":"= %d"}, 
-                     includes={"dataset", "datafileFormat.facility", 
-                               "parameters.type.facility"}) ]
+                     includes=set(["dataset", "datafileFormat.facility", 
+                                   "parameters.type.facility"])) ]
 othertypes =  [Query(client, "Study", order=True, 
-                     includes={"user", "studyInvestigations", 
-                               "studyInvestigations.investigation"}), 
+                     includes=set(["user", "studyInvestigations", 
+                                   "studyInvestigations.investigation"])), 
                Query(client, "RelatedDatafile", order=True, 
-                     includes={"sourceDatafile.dataset.investigation.facility", 
-                               "destDatafile.dataset.investigation.facility"}), 
+                     includes=set(["sourceDatafile.dataset.investigation.facility", 
+                                   "destDatafile.dataset.investigation.facility"])), 
                Query(client, "DataCollection", order=True, 
-                     includes={("dataCollectionDatasets.dataset."
-                                "investigation.facility"), 
-                               ("dataCollectionDatafiles.datafile.dataset."
-                                "investigation.facility"), 
-                               "%s.type" % datacolparamname}), 
+                     includes=set([("dataCollectionDatasets.dataset."
+                                    "investigation.facility"), 
+                                   ("dataCollectionDatafiles.datafile.dataset."
+                                    "investigation.facility"), 
+                                   "%s.type" % datacolparamname])), 
                Query(client, "Job", order=True, 
-                     includes={"application.facility", 
-                               "inputDataCollection", "outputDataCollection"})]
+                     includes=set(["application.facility", 
+                                   "inputDataCollection", "outputDataCollection"]))]
 
 with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     dumpfile.writedata(authtypes)
