@@ -6,3 +6,4 @@ __pycache__/
 /doc/api/
 /icat.cfg
 /icat/__init__.py
+/python2_6.patch

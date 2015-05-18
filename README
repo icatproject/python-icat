@@ -61,7 +61,7 @@ If you are using Python 2.6, apply python2_6.patch after the first
 step:
 
  1a. Patch:
-     $ patch -p0 < python2_6.patch
+     $ patch -p1 < python2_6.patch
 
 It removes the use of certain language features (dict comprehensions,
 curly braces notation of sets, bytes string literal prefix 'b') that
