@@ -7,6 +7,7 @@ try:
 except ImportError:
     # Python 2.x
     from distutils.command.build_py import build_py
+from runtests import runtests
 import icatinfo
 import re
 
@@ -57,6 +58,6 @@ setup(
         "Operating System :: OS Independent",
         "Topic :: Software Development :: Libraries :: Python Modules",
         ],
-    cmdclass = {'build_py': build_py},
+    cmdclass = {'build_py': build_py, 'test': runtests},
 )
 
