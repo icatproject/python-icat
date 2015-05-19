@@ -1,0 +1,24 @@
+			   Test environment
+			   ================
+
+This is the test environment feature branch.  The goal is to improve
+the test environment such that a "make test" or "python setup.py test"
+will run the complete test suite.  Once this is done, the tests
+subdirectory should be included in the distribution.  Ultimately
+switch to test driven development, e.g. add a test for each bug or
+missing feature first before fixing it.
+
+
+TODO:
+
+ + Implement "python setup.py test".  This will depend on "python
+   setup.py build".
+
+ + Make sure the tests import python-icat from build/lib/icat instead
+   of the installed version from site-packages.
+
+ + Make test_00_info.py work with all Python versions.
+
+ + Add more tests.  Tests that access a life ICAT server will require
+   manual configuration of the server and will be skipped by default.
+
