@@ -7,18 +7,6 @@
 # Try to keep the command line interface as close as possible to the
 # one from icatrestore.py.
 #
-# Known issues and limitations:
-#
-#  + Depending on the version of the requests package, one may get an
-#    error like:
-#
-#      requests.exceptions.SSLError: EOF occurred in violation of protocol
-#
-#    This is not yet fully understood, but it seems that some versions
-#    of requests screw up the SSL parameters such that the server
-#    refuses the SSL handshake.  I got the error with requests 2.7.0
-#    (this is the lastest version), while requests 1.2.3 seem to work.
-#
 
 import sys
 import json
