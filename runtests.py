@@ -8,6 +8,21 @@ import sys
 import os.path
 from distutils.core import Command
 from distutils import log
+from distutils.spawn import spawn
+
+
+class tmpchdir:
+    """Temporarily change the working directory.
+    """
+    def __init__(self, wdir):
+        self.savedir = os.getcwd()
+        self.wdir = wdir
+    def __enter__(self):
+        os.chdir(self.wdir)
+        return os.getcwd()
+    def __exit__(self, type, value, tb):
+        os.chdir(self.savedir)
+
 
 class runtests(Command):
 
@@ -53,5 +68,10 @@ class runtests(Command):
         import icat
         log.info("Version: python-icat %s (%s)", 
                  icat.__version__, icat.__revision__)
-        
 
+        # Must change the directory, otherwise the icat package in the
+        # cwd would override the one from build_lib.  Alas, there seem
+        # to be no way to tell Python not to put the cwd in front of
+        # $PYTHONPATH in sys.path.
+        with tmpchdir("tests"):
+            spawn([sys.executable, "-m", "pytest", "."])
