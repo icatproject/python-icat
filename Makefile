@@ -14,8 +14,8 @@ apidoc: apidoc_clean init.py
 	epydoc --html --docformat=restructuredtext --output=$(APIDOC_DIR) icat
 
 
-test: init.py doctest
-	$(PYTHON) -m pytest tests
+test: init.py
+	$(PYTHON) setup.py test
 
 doctest: $(DOCTESTS)
 
