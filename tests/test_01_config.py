@@ -1,11 +1,9 @@
 """Test module icat.config
 """
 
-import pytest
 import os.path
-import shutil
-import tempfile
 import getpass
+import pytest
 import icat.config
 import icat.exception
 
@@ -15,22 +13,6 @@ import icat.exception
 # Deliberately not using the 'tmpdir' fixture provided by pytest,
 # because it seem to use a predictable directory name in /tmp wich is
 # insecure.
-
-class TmpConfigFile(object):
-    """Provide a temporary configuration file.
-    """
-    def __init__(self, content):
-        self.dir = tempfile.mkdtemp(prefix="python-icat-test-config-")
-        self.path = os.path.join(self.dir, "icat.cfg")
-        with open(self.path, "w") as f:
-            f.write(content)
-    def __del__(self):
-        self.cleanup()
-    def cleanup(self):
-        if self.dir:
-            shutil.rmtree(self.dir)
-        self.dir = None
-        self.path = None
 
 # Content of the configuration file used in the tests
 configfilestr = """
@@ -55,11 +37,16 @@ flag1 = true
 flag2 = off
 """
 
+class ConfigFile(object):
+    def __init__(self, confdir, content):
+        self.dir = confdir
+        self.path = os.path.join(self.dir, "icat.cfg")
+        with open(self.path, "w") as f:
+            f.write(content)
+
 @pytest.fixture(scope="module")
-def tmpconfigfile(request):
-    tmpconf = TmpConfigFile(configfilestr)
-    request.addfinalizer(tmpconf.cleanup)
-    return tmpconf
+def tmpconfigfile(tmpdirsec):
+    return ConfigFile(tmpdirsec.dir, configfilestr)
 
 # ============================= tests ==============================
 
