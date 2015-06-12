@@ -1,4 +1,5 @@
 *.pyc
+*~
 __pycache__/
 /MANIFEST
 /build/
@@ -7,3 +8,4 @@ __pycache__/
 /icat.cfg
 /icat/__init__.py
 /python2_6.patch
+/tests/data/icat.cfg

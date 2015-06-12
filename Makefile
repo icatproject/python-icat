@@ -21,7 +21,7 @@ doctest: $(DOCTESTS)
 
 
 clean:
-	rm -f *~ icat/*~ doc/*~ doc/examples/*~
+	rm -f *~ icat/*~ tests/*~ doc/*~ doc/examples/*~
 	rm -rf build
 
 apidoc_clean:
