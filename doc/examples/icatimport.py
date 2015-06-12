@@ -64,10 +64,6 @@ if conf.file == "-":
     f = sys.stdin
 else:
     f = open(conf.file, 'rb')
-formfields = {
-    "json": ('json', json.dumps(args), 'text/plain'),
-    "data": ('data', f, 'application/octet-stream'),
-}
 url = conf.resturl + "port"
 request = requests.post(url, data={"json":json.dumps(args)},
                         files={'file': f}, stream=True, verify=conf.checkCert)
