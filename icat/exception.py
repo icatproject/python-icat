@@ -79,8 +79,6 @@ class ServerError(Exception):
             else:
                 self.type = getattr(icatexception, 'type', None)
                 self.offset = getattr(icatexception, 'offset', None)
-                if self.offset is not None and self.offset < 0:
-                    self.offset = None
         elif isinstance(error, Mapping):
             # Deliberately not fetching KeyError here.  Require the
             # field to be present.  Only 'offset' is optional.
@@ -92,6 +90,14 @@ class ServerError(Exception):
             self.offset = error.get('offset', None)
         else:
             raise TypeError("Invalid argument type '%s'." % type(error))
+
+        # Sanitize offset: we get is as a string from the HTTP
+        # response, but it is supposed to be an int.  If the offset is
+        # negativ, it has no meaning and should be set to None.
+        if self.offset is not None:
+            self.offset = int(self.offset)
+            if self.offset < 0:
+                self.offset = None
 
     def _convertmsg(self, msg):
         # msg may be a str, a suds.sax.text.Text instance, or (only
