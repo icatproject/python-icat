@@ -2,6 +2,7 @@
 """
 
 import sys
+import os
 import os.path
 import shutil
 import tempfile
@@ -33,6 +34,10 @@ class tmpSessionId:
     def __exit__(self, type, value, tb):
         self.client.sessionId = self.saveSessionId
 
+def callscript(scriptname, args):
+    script = os.path.join(testdir, "scripts", scriptname)
+    ret = os.spawnv(os.P_WAIT, sys.executable, ["python", script] + args)
+    return ret
 
 # ============================ fixtures ==============================
 
