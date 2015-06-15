@@ -96,8 +96,11 @@ class test(Command):
         # cwd would override the one from build_lib.  Alas, there seem
         # to be no way to tell Python not to put the cwd in front of
         # $PYTHONPATH in sys.path.
+        testcmd = [sys.executable, "-m", "pytest"]
+        if self.dry_run:
+            testcmd.append("--collect-only")
         with tmpchdir("tests"):
-            spawn([sys.executable, "-m", "pytest", "."])
+            spawn(testcmd)
 
     def copy_test_scripts(self):
         destdir = os.path.join("tests", "scripts")
