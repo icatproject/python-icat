@@ -5,6 +5,7 @@ from __future__ import print_function
 import pytest
 import icat
 import icat.config
+from conftest import tmpSessionId
 
 # Try out three different users: root, useroffice, and acord.  Normal
 # users like acord might use a different authentication plugin then
@@ -28,9 +29,6 @@ def test_login(icatconfigfile, user):
 
     # Verify that the logout was effective, e.g. that the sessionId is
     # invalidated.
-    client.sessionId = sessionId
-    with pytest.raises(icat.exception.ICATSessionError):
-        username = client.getUserName()
-
-    # Avoid a spurious SessionError at exit in the implicit logout()
-    client.sessionId = None
+    with tmpSessionId(client, sessionId):
+        with pytest.raises(icat.exception.ICATSessionError):
+            username = client.getUserName()

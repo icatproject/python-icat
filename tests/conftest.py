@@ -17,6 +17,23 @@ logging.basicConfig(level=logging.INFO)
 
 testdir = os.path.dirname(__file__)
 
+
+# ============================= helper ===============================
+
+class tmpSessionId:
+    """Temporarily switch to another sessionId in an ICAT client.
+    """
+    def __init__(self, client, sessionId):
+        self.client = client
+        self.saveSessionId = client.sessionId
+        self.sessionId = sessionId
+    def __enter__(self):
+        self.client.sessionId = self.sessionId
+        return self.client
+    def __exit__(self, type, value, tb):
+        self.client.sessionId = self.saveSessionId
+
+
 # ============================ fixtures ==============================
 
 # Deliberately not using the 'tmpdir' fixture provided by pytest,
