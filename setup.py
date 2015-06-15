@@ -2,6 +2,7 @@
 
 import sys
 import os.path
+from glob import glob
 from distutils.core import  Command, setup
 try:
     from distutils.command.build_py import build_py_2to3 as build_py
@@ -66,6 +67,8 @@ class test(Command):
         if not self.skip_build:
             self.run_command('build_py')
 
+        self.copy_test_scripts()
+
         # Add build_lib to the module search path to make sure the
         # built package can be imported by the tests.  Manipulate
         # both, sys.path to affect the current running Python, and
@@ -95,6 +98,16 @@ class test(Command):
         # $PYTHONPATH in sys.path.
         with tmpchdir("tests"):
             spawn([sys.executable, "-m", "pytest", "."])
+
+    def copy_test_scripts(self):
+        destdir = os.path.join("tests", "scripts")
+        self.mkpath(destdir)
+        scripts = []
+        scripts += glob(os.path.join("doc", "examples", "*.py"))
+        scripts += self.distribution.scripts
+        for script in scripts:
+            dest = os.path.join(destdir, os.path.basename(script))
+            self.copy_file(script, dest, preserve_mode=False)
 
 
 setup(

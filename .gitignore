@@ -9,3 +9,4 @@ __pycache__/
 /icat/__init__.py
 /python2_6.patch
 /tests/data/icat.cfg
+/tests/scripts/
