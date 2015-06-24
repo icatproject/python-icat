@@ -23,6 +23,7 @@ doctest: $(DOCTESTS)
 clean:
 	rm -f *~ icat/*~ tests/*~ doc/*~ doc/examples/*~
 	rm -rf build
+	rm -rf tests/data/example_data.yaml tests/data/icatdump.*
 	rm -rf tests/scripts
 
 apidoc_clean:

@@ -68,6 +68,7 @@ class test(Command):
             self.run_command('build_py')
 
         self.copy_test_scripts()
+        self.copy_test_data()
 
         # Add build_lib to the module search path to make sure the
         # built package can be imported by the tests.  Manipulate
@@ -111,6 +112,15 @@ class test(Command):
         for script in scripts:
             dest = os.path.join(destdir, os.path.basename(script))
             self.copy_file(script, dest, preserve_mode=False)
+
+    def copy_test_data(self):
+        destdir = os.path.join("tests", "data")
+        self.mkpath(destdir)
+        files = ["example_data.yaml", "icatdump.xml", "icatdump.yaml"]
+        for f in files:
+            src = os.path.join("doc", "examples", f)
+            dest = os.path.join(destdir, os.path.basename(f))
+            self.copy_file(src, dest, preserve_mode=False)
 
 
 setup(

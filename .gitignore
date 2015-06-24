@@ -8,5 +8,8 @@ __pycache__/
 /icat.cfg
 /icat/__init__.py
 /python2_6.patch
+/tests/data/example_data.yaml
 /tests/data/icat.cfg
+/tests/data/icatdump.xml
+/tests/data/icatdump.yaml
 /tests/scripts/
