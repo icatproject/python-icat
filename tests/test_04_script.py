@@ -14,8 +14,7 @@ def test_getversion(icatconfigfile):
     """
 
     args = ["-c", icatconfigfile, "-s", "root"]
-    ret = callscript("getversion.py", args)
-    assert ret == 0
+    callscript("getversion.py", args)
 
 
 @pytest.mark.parametrize("user", ["root", "useroffice", "acord"])
@@ -24,5 +23,4 @@ def test_login(icatconfigfile, user):
     """
 
     args = ["-c", icatconfigfile, "-s", user]
-    ret = callscript("login.py", args)
-    assert ret == 0
+    callscript("login.py", args)
