@@ -1,6 +1,7 @@
 """pytest configuration.
 """
 
+from __future__ import print_function
 import sys
 import os
 import os.path
@@ -36,7 +37,9 @@ class tmpSessionId:
 
 def callscript(scriptname, args):
     script = os.path.join(testdir, "scripts", scriptname)
-    ret = os.spawnv(os.P_WAIT, sys.executable, ["python", script] + args)
+    cmd = [sys.executable, script] + args
+    print("\n>", *cmd)
+    ret = os.spawnv(os.P_WAIT, sys.executable, cmd)
     assert ret == 0
 
 # ============================ fixtures ==============================
