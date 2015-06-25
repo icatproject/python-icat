@@ -3,9 +3,9 @@
 
 from __future__ import print_function
 import sys
-import os
 import os.path
 import re
+import subprocess
 import shutil
 import tempfile
 import logging
@@ -43,12 +43,11 @@ def gettestdata(fname):
     return fname
 
 
-def callscript(scriptname, args):
+def callscript(scriptname, args, stdin=None, stdout=None, stderr=None):
     script = os.path.join(testdir, "scripts", scriptname)
     cmd = [sys.executable, script] + args
     print("\n>", *cmd)
-    ret = os.spawnv(os.P_WAIT, sys.executable, cmd)
-    assert ret == 0
+    subprocess.check_call(cmd, stdin=stdin, stdout=stdout, stderr=stderr)
 
 
 def filter_yaml_dump(infile, outfile):
