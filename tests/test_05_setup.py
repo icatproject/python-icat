@@ -16,6 +16,10 @@ from conftest import gettestdata, callscript, filter_yaml_dump
 
 testinput = gettestdata("example_data.yaml")
 refdump = gettestdata("icatdump.yaml")
+users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
+refsummary = { "root": gettestdata("summary") }
+for u in users:
+    refsummary[u] = gettestdata("summary.%s" % u)
 
 
 def test_init(icatconfigfile):
@@ -63,3 +67,27 @@ def test_check_content(icatconfigfile, tmpdirsec):
     callscript("icatdump.py", args)
     filter_yaml_dump(dump, fdump)
     assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
+
+def test_check_summary_root(icatconfigfile, tmpdirsec):
+    """Check the number of objects for each class at the ICAT server.
+    """
+    summary = os.path.join(tmpdirsec.dir, "summary")
+    ref = refsummary["root"]
+    args = ["-c", icatconfigfile, "-s", "root"]
+    with open(summary, "wt") as out:
+        callscript("icatsummary.py", args, stdout=out)
+    assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
+
+@pytest.mark.parametrize(("user"), users)
+def test_check_summary_user(icatconfigfile, tmpdirsec, user):
+    """Check the number of objects from a user's point of view.
+
+    This checks which objects a given user may see and thus whether
+    the (read) access rules work as expected.
+    """
+    summary = os.path.join(tmpdirsec.dir, "summary.%s" % user)
+    ref = refsummary[user]
+    args = ["-c", icatconfigfile, "-s", user]
+    with open(summary, "wt") as out:
+        callscript("icatsummary.py", args, stdout=out)
+    assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
