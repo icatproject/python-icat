@@ -47,17 +47,19 @@ class tmpchdir:
 
 class test(Command):
 
-    description = "\"test\" the distribution by running the tests"
+    description = "run the tests"
     user_options = [
         ('build-lib=', 'd', "directory to \"build\" (copy) to"),
         ('skip-build', None,
          "skip rebuilding everything (for testing/debugging)"),
+        ('test-args=', None, "extra arguments to pass to pytest"),
     ]
     boolean_options = ['skip-build']
 
     def initialize_options(self):
         self.build_lib = None
         self.skip_build = 0
+        self.test_args = None
 
     def finalize_options(self):
         self.set_undefined_options('build', ('build_lib', 'build_lib'))
@@ -98,6 +100,8 @@ class test(Command):
         # to be no way to tell Python not to put the cwd in front of
         # $PYTHONPATH in sys.path.
         testcmd = [sys.executable, "-m", "pytest"]
+        if self.test_args:
+            testcmd.extend(self.test_args.split())
         if self.dry_run:
             testcmd.append("--collect-only")
         with tmpchdir("tests"):
