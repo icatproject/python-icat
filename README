@@ -9,32 +9,40 @@ is based on Suds and extends it with ICAT specific features.
 System requirements
 -------------------
 
+Python:
+
  + Python 2.6, 2.7, or 3.1 and newer.
    Python 2.6 requires patching the sources, see below.
    Python 2.5 is too old and will not work.
+
+Required Library packages:
 
  + Suds, either the original version[2] or the fork by Jurko
    Gospodnetić[3].  The latter is recommended as the original version
    is not maintained any more and contains bugs.  Python 3 requires
    the jurko fork.
 
- + PyYAML[4]
-   Only needed to use the YAML backend of icatdump.py and
-   icatrestore.py and to run the example scripts.  Not required to
-   install or use python-icat itself.
-
- + lxml[5]
-   Only needed to use the XML backend of icatdump.py and
-   icatrestore.py.  Not required to install or use python-icat itself.
-
- + Requests[6]
-   Only needed for the example scripts using the ICAT RESTful
-   interface, icatexport.py and icatimport.py.  Not required to
-   install or use python-icat itself.
-
- + argparse[7]
+ + argparse[4]
    Only if you are using Python 2.6 or 3.1, argparse became part of
    the Python standard library in 2.7 and 3.2 respectively.
+
+Optional library packages, only needed to use certain extra features,
+not required to install or use python-icat itself:
+
+ + PyYAML[5]
+   Only needed to use the YAML backend of icatdump.py and
+   icatrestore.py and to run the example scripts (see below).
+
+ + lxml[6]
+   Only needed to use the XML backend of icatdump.py and
+   icatrestore.py.
+
+ + Requests[7]
+   Only needed for the example scripts using the ICAT RESTful
+   interface, icatexport.py and icatimport.py.
+
+ + pytest[8]
+   Only if you want to run the tests.
 
 
 Installation
@@ -42,7 +50,7 @@ Installation
 
 python-icat follows the standard Python conventions of packaging
 source distributions.  See the documentation on Installing Python
-Modules [8] for details or to customize the install process.
+Modules [9] for details or to customize the install process.
 
   1. Download the sources, unpack, and change into the source
      directory.
@@ -50,7 +58,10 @@ Modules [8] for details or to customize the install process.
   2. Build:
      $ python setup.py build
 
-  3. Install:
+  3. Test (optional, see below):
+     $ python setup.py test
+
+  4. Install:
      $ python setup.py install
 
 (If you are reading this, you probably already did the first step.)
@@ -86,6 +97,29 @@ dynamic and site specific and thus not suitable, neither for testing
 nor for the inclusion into example scripts.  So its easier to have
 just one blob of dummy input data in one single file.  That is also
 the reason why the example scripts require PyYAML.
+
+
+Test
+----
+
+There is no need to run the tests at all.  The test suite is mostly
+useful to the maintainer of python-icat.
+
+Mosts tests require a test ICAT server to talk to.  These tests are
+disabled by default, unless you configure such a test server.  To do
+so, place an icat.cfg file into tests/data.  This file must have at
+least the configuration sections "root", "useroffice", "acord",
+"ahau", "jbotu", "jdoe", "nbour", and "rbeck" with the options and
+credentials to access the test server as the respective user.  See
+doc/examples for an example.  Obviously, this implies that your
+authentication plugin must also have these users configured.
+
+**WARNING**: the tests are destructive!  They will delete all content
+from the test server and replace it with example content.  Do not
+configure the tests to access a production server!
+
+You can sefely run the tests without configuring any test server.  You
+will just get many skipped tests then.
 
 
 Bugs and limitations
@@ -149,19 +183,19 @@ Bugs and limitations
 
  + Misleading "context" is displayed in error tracebacks with Python
    3.1 and 3.2.  Python 3 introduced a "feature" called "Exception
-   Chaining and Embedded Tracebacks"[9].  This causes irrelevant and
+   Chaining and Embedded Tracebacks"[10].  This causes irrelevant and
    misleading "error context" to be displayed in the traceback of
    error messages.  python-icat tries to suppress this in the most
    annoying cases, but this suppression mechanism is only available
-   with Python 3.3 and newer[10].
+   with Python 3.3 and newer[11].
 
 
 Version numbering
 -----------------
 
 Version numbers of python-icat comply with Python standards as defined
-in PEP 440[11].  They try to adhere to the principles of Semantic
-Versioning[12], but may deviate from the formatting defined therein
+in PEP 440[12].  They try to adhere to the principles of Semantic
+Versioning[13], but may deviate from the formatting defined therein
 when it is incompatible with PEP 440.
 
 
@@ -171,15 +205,16 @@ References
 [1]: http://www.icatproject.org/
 [2]: https://fedorahosted.org/suds/
 [3]: https://bitbucket.org/jurko/suds/
-[4]: http://pyyaml.org/wiki/PyYAML
-[5]: http://lxml.de/
-[6]: http://python-requests.org/
-[7]: https://code.google.com/p/argparse/
-[8]: https://docs.python.org/2.7/install/
-[9]: https://www.python.org/dev/peps/pep-3134/
-[10]: http://bugs.python.org/issue6210
-[11]: https://www.python.org/dev/peps/pep-0440/
-[12]: http://semver.org/
+[4]: https://code.google.com/p/argparse/
+[5]: http://pyyaml.org/wiki/PyYAML
+[6]: http://lxml.de/
+[7]: http://python-requests.org/
+[8]: http://pytest.org/
+[9]: https://docs.python.org/2.7/install/
+[10]: https://www.python.org/dev/peps/pep-3134/
+[11]: http://bugs.python.org/issue6210
+[12]: https://www.python.org/dev/peps/pep-0440/
+[13]: http://semver.org/
 
 # Local Variables:
 # mode: text
