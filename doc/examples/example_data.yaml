@@ -108,8 +108,7 @@ investigation_types:
     facility: example_facility
     name: Simulation
 investigations:
-  2008-HIKE-0255-1:
-    addinstuser: true
+  08100122-EF:
     datasets:
     - complete: true
       datafiles:
@@ -134,16 +133,15 @@ investigations:
     invpi: jbotu
     keywords:
     - Durol
-    name: 2008-HIKE-0255-1
+    name: 08100122-EF
     sample:
       name: Durol SC
       type: durol
     startDate: '2008-03-13T11:39:42+01:00'
     title: Durol single crystal
     type: experiment
-    visitId: 1
-  2010-E2-0489-1:
-    addinstuser: true
+    visitId: 1.1-P
+  10100601-ST:
     datasets:
     - complete: true
       datafiles:
@@ -195,16 +193,15 @@ investigations:
     - Nickel
     - Manganese
     - Gallium
-    name: 2010-E2-0489-1
+    name: 10100601-ST
     sample:
       name: NiMnGa 991027
       type: nimnga
     startDate: '2010-09-30T12:27:24+02:00'
     title: Ni-Mn-Ga flat cone
     type: experiment
-    visitId: 1
-  2012-EDDI-0390-1:
-    addinstuser: false
+    visitId: 1.1-N
+  12100409-ST:
     datasets:
     - complete: false
       datafiles:
@@ -236,24 +233,24 @@ investigations:
     - Nickel oxide
     - Nickel
     - oxide
-    name: 2012-EDDI-0390-1
+    name: 12100409-ST
     sample:
       name: Nickel(II) oxide SC
       type: nio
     startDate: '2012-07-26T17:44:24+02:00'
     title: NiO SC OF1 JUH HHL
     type: experiment
-    visitId: 1
+    visitId: 1.1-P
 jobs:
   job1:
     application: gnomoanalytics
     input:
       datasets:
-        - investigation: 2010-E2-0489-1
+        - investigation: 10100601-ST
           name: e208341
       datafiles:
         - dataset: e208945
-          investigation: 2012-EDDI-0390-1
+          investigation: 12100409-ST
           name: e208945.nxs
     output:
       datasets:
@@ -264,7 +261,7 @@ jobs:
               fileSize: 14965
               format: nexus42
               name: e208946.nxs
-          investigation: 2012-EDDI-0390-1
+          investigation: 12100409-ST
           name: e208946
           type: analyzed
       datafiles:
@@ -273,7 +270,7 @@ jobs:
           dataset: e208945
           fileSize: 28937
           format: nexus42
-          investigation: 2012-EDDI-0390-1
+          investigation: 12100409-ST
           name: e208945-2.nxs
 sample_types:
   durol:
