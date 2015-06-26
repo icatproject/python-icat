@@ -13,12 +13,27 @@ TODO:
 
  + Implement "python setup.py test".  This will depend on "python
    setup.py build".
+   -> Done
 
  + Make sure the tests import python-icat from build/lib/icat instead
    of the installed version from site-packages.
+   -> Done
 
  + Make test_00_info.py work with all Python versions.
+   -> Done (actually found a better solution)
 
- + Add more tests.  Tests that access a life ICAT server will require
-   manual configuration of the server and will be skipped by default.
+ + Add tests that access a life ICAT server.  These will require
+   manual configuration of the server and should be skipped by default.
+   -> Done
+
+ + Add more tests:
+   - getversion and test login.
+     -> Done
+   - full workflow cycle (init server, create investigations, add content).
+     -> Done, but didn't deal with parameters, collections and jobs yet.
+   - icatdump and icatrestore.
+   - query.
+   - IDS upload and download.
+   - Bugs and Features (e.g. review change history and see if we can
+     retroactively add tests for the fixed bugs).
 
