@@ -4,7 +4,7 @@ include MANIFEST.in
 include icatinfo.py
 include python2_6.patch
 include doc/api/*
-include doc/icatdump*.xsd
+include doc/icatdata*.xsd
 include doc/examples/*.py
 include doc/examples/icat.cfg
 include doc/examples/example_data.yaml

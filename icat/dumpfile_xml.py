@@ -174,7 +174,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         etree.SubElement(head, "generator").text = ("icatdump (python-icat %s)" 
                                                     % icat.__version__)
         self.outfile.write(b"""<?xml version="1.0" encoding="utf-8"?>
-<icatdump>
+<icatdata>
 """)
         self.outfile.write(etree.tostring(head, pretty_print=True))
 
@@ -197,7 +197,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     def finalize(self):
         """Finalize the dump file."""
         self.startdata()
-        self.outfile.write(b"</icatdump>\n")
+        self.outfile.write(b"</icatdata>\n")
         self.outfile.close()
 
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<icatdump>
+<icatdata>
 <head>
   <date>2014-12-15T09:20:30Z</date>
   <service>https://localhost:8181/ICATService/ICAT?wsdl</service>
@@ -1006,4 +1006,4 @@
     <outputDataCollection ref="DataCollection_00000002"/>
   </job>
 </data>
-</icatdump>
+</icatdata>

@@ -8,9 +8,9 @@
   </xsd:documentation>
 </xsd:annotation>
 
-<xsd:element name="icatdump" type="dumpfile"/>
+<xsd:element name="icatdata" type="icatdata"/>
 
-<xsd:complexType name="dumpfile">
+<xsd:complexType name="icatdata">
   <xsd:sequence>
     <xsd:element name="head" type="head" minOccurs="0"/>
     <xsd:element name="data" type="data" minOccurs="0" maxOccurs="unbounded"/>
