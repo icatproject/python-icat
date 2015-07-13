@@ -1,4 +1,4 @@
-"""YAML dump file backend for icatdump.py and icatrestore.py.
+"""YAML dump file backend for icatdump.py and icatingest.py.
 """
 
 import datetime
@@ -127,7 +127,7 @@ def dict2entity(client, insttypemap, d, objtype, objindex):
 # ------------------------------------------------------------
 
 class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
-    """Backend for icatrestore.py to read a YAML dump file."""
+    """Backend for icatingest.py to read a YAML dump file."""
 
     def __init__(self, client, infile):
         super(YAMLDumpFileReader, self).__init__(client, infile)

@@ -1,4 +1,4 @@
-"""Backend for icatdump and icatrestore.
+"""Backend for icatdump and icatingest.
 
 This module provides the base classes DumpFileReader and
 DumpFileWriter that define the API and the logic for reading and

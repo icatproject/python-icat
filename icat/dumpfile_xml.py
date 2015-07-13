@@ -1,4 +1,4 @@
-"""XML dump file backend for icatdump.py and icatrestore.py.
+"""XML dump file backend for icatdump.py and icatingest.py.
 """
 
 import os
@@ -115,7 +115,7 @@ def elem2entity(client, insttypemap, element, objtype, objindex):
 # ------------------------------------------------------------
 
 class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
-    """Backend for icatrestore.py to read a XML dump file."""
+    """Backend for icatingest.py to read a XML dump file."""
 
     def __init__(self, client, infile):
         super(XMLDumpFileReader, self).__init__(client, infile)

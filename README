@@ -20,12 +20,12 @@ System requirements
 
  + PyYAML[4]
    Only needed to use the YAML backend of icatdump.py and
-   icatrestore.py and to run the example scripts.  Not required to
+   icatingest.py and to run the example scripts.  Not required to
    install or use python-icat itself.
 
  + lxml[5]
    Only needed to use the XML backend of icatdump.py and
-   icatrestore.py.  Not required to install or use python-icat itself.
+   icatingest.py.  Not required to install or use python-icat itself.
 
  + Requests[6]
    Only needed for the example scripts using the ICAT RESTful
