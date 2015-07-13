@@ -6,6 +6,7 @@ import datetime
 from lxml import etree
 import icat
 import icat.dumpfile
+from icat.query import Query
 
 
 # ------------------------------------------------------------
@@ -57,28 +58,55 @@ def entity2elem(obj, tag, keyindex):
 
     return d
 
+def searchByReference(client, element, objtype, objindex):
+    """Search for a referenced object.
+
+    If the element is a reference to an existing object, search and
+    return the object.  Otherwise return None.
+    """
+    ref = element.get('ref')
+    if ref:
+        # element references the object by key.
+        return client.searchUniqueKey(ref, objindex)
+    attrs = set(element.keys()) - {'id'}
+    if len(attrs):
+        # element references the object by attributes.
+        conditions = { a: "= '%s'" % element.get(a) for a in attrs }
+        query = Query(client, objtype, conditions=conditions)
+        return client.assertedSearch(query)[0]
+    # element is not a reference.
+    return None
+
 def elem2entity(client, insttypemap, element, objtype, objindex):
     """Create an entity object from XML element data."""
     if objtype is None:
-        objtype = element.tag
-    obj = client.new(objtype)
-    for subelem in element:
-        attr = subelem.tag
-        if attr in obj.AttrAlias:
-            attr = obj.AttrAlias[attr]
-        if attr in obj.InstAttr:
-            setattr(obj, attr, subelem.text)
-        elif attr in obj.InstRel:
-            ref = subelem.get('ref')
-            robj = client.searchUniqueKey(ref, objindex)
-            setattr(obj, attr, robj)
-        elif attr in obj.InstMRel:
-            rtype = insttypemap[obj.getAttrType(attr)]
-            robj = elem2entity(client, insttypemap, subelem, rtype, objindex)
-            getattr(obj, attr).append(robj)
-        else:
-            raise ValueError("invalid subelement '%s' in '%s'" 
-                             % (subelem.tag, element.tag))
+        objtype = client.typemap[element.tag].BeanName
+    obj = searchByReference(client, element, objtype, objindex)
+    if not obj:
+        obj = client.new(insttypemap[objtype])
+        for subelem in element:
+            attr = subelem.tag
+            if attr in obj.AttrAlias:
+                attr = obj.AttrAlias[attr]
+            if attr in obj.InstAttr:
+                setattr(obj, attr, subelem.text)
+            elif attr in obj.InstRel:
+                rtype = obj.getAttrType(attr)
+                robj = searchByReference(client, subelem, rtype, objindex)
+                if robj:
+                    setattr(obj, attr, robj)
+                else:
+                    raise ValueError("many to one relationships '%s' in '%s' "
+                                     "must be a reference" 
+                                     % (subelem.tag, element.tag))
+            elif attr in obj.InstMRel:
+                rtype = obj.getAttrType(attr)
+                robj = elem2entity(client, insttypemap, subelem, rtype, 
+                                   objindex)
+                getattr(obj, attr).append(robj)
+            else:
+                raise ValueError("invalid subelement '%s' in '%s'" 
+                                 % (subelem.tag, element.tag))
     return obj
 
 
@@ -113,7 +141,14 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
             key = elem.get('id')
             obj = elem2entity(self.client, self.insttypemap, 
                               elem, None, objindex)
-            yield key, obj
+            if obj.id is not None:
+                # elem was a reference to an already existing object.
+                # Do not yield it as it should not be created, but add
+                # it to the objindex so it can be referenced later on
+                # from other objects.
+                objindex[key] = obj
+            else:
+                yield key, obj
 
 
 # ------------------------------------------------------------
