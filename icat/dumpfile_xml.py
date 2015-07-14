@@ -60,53 +60,38 @@ def entity2elem(obj, tag, keyindex):
 
 def searchByReference(client, element, objtype, objindex):
     """Search for a referenced object.
-
-    If the element is a reference to an existing object, search and
-    return the object.  Otherwise return None.
     """
     ref = element.get('ref')
     if ref:
-        # element references the object by key.
+        # object is referenced by key.
         return client.searchUniqueKey(ref, objindex)
-    attrs = set(element.keys()) - {'id'}
-    if len(attrs):
-        # element references the object by attributes.
+    else:
+        # object is referenced by attributes.
+        attrs = set(element.keys()) - {'id'}
         conditions = { a: "= '%s'" % element.get(a) for a in attrs }
         query = Query(client, objtype, conditions=conditions)
         return client.assertedSearch(query)[0]
-    # element is not a reference.
-    return None
 
 def elem2entity(client, insttypemap, element, objtype, objindex):
     """Create an entity object from XML element data."""
-    if objtype is None:
-        objtype = client.typemap[element.tag].BeanName
-    obj = searchByReference(client, element, objtype, objindex)
-    if not obj:
-        obj = client.new(insttypemap[objtype])
-        for subelem in element:
-            attr = subelem.tag
-            if attr in obj.AttrAlias:
-                attr = obj.AttrAlias[attr]
-            if attr in obj.InstAttr:
-                setattr(obj, attr, subelem.text)
-            elif attr in obj.InstRel:
-                rtype = obj.getAttrType(attr)
-                robj = searchByReference(client, subelem, rtype, objindex)
-                if robj:
-                    setattr(obj, attr, robj)
-                else:
-                    raise ValueError("many to one relationships '%s' in '%s' "
-                                     "must be a reference" 
-                                     % (subelem.tag, element.tag))
-            elif attr in obj.InstMRel:
-                rtype = obj.getAttrType(attr)
-                robj = elem2entity(client, insttypemap, subelem, rtype, 
-                                   objindex)
-                getattr(obj, attr).append(robj)
-            else:
-                raise ValueError("invalid subelement '%s' in '%s'" 
-                                 % (subelem.tag, element.tag))
+    obj = client.new(insttypemap[objtype])
+    for subelem in element:
+        attr = subelem.tag
+        if attr in obj.AttrAlias:
+            attr = obj.AttrAlias[attr]
+        if attr in obj.InstAttr:
+            setattr(obj, attr, subelem.text)
+        elif attr in obj.InstRel:
+            rtype = obj.getAttrType(attr)
+            robj = searchByReference(client, subelem, rtype, objindex)
+            setattr(obj, attr, robj)
+        elif attr in obj.InstMRel:
+            rtype = obj.getAttrType(attr)
+            robj = elem2entity(client, insttypemap, subelem, rtype, objindex)
+            getattr(obj, attr).append(robj)
+        else:
+            raise ValueError("invalid subelement '%s' in '%s'" 
+                             % (subelem.tag, element.tag))
     return obj
 
 
@@ -139,15 +124,21 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
         """
         for elem in data:
             key = elem.get('id')
-            obj = elem2entity(self.client, self.insttypemap, 
-                              elem, None, objindex)
-            if obj.id is not None:
-                # elem was a reference to an already existing object.
+            tag = elem.tag
+            if tag.endswith("Ref"):
+                # elem is a reference to an already existing object.
                 # Do not yield it as it should not be created, but add
                 # it to the objindex so it can be referenced later on
                 # from other objects.
-                objindex[key] = obj
+                if key:
+                    objtype = self.client.typemap[tag[0:-3]].BeanName
+                    obj = searchByReference(self.client, elem, objtype, 
+                                            objindex)
+                    objindex[key] = obj
             else:
+                objtype = self.client.typemap[tag].BeanName
+                obj = elem2entity(self.client, self.insttypemap, 
+                                  elem, objtype, objindex)
                 yield key, obj
 
 
