@@ -117,6 +117,20 @@ def icatconfigfile():
     return fname
 
 
+@pytest.fixture(scope="module")
+def wipeicat(icatconfigfile):
+    callscript("wipeicat.py", ["-c", icatconfigfile, "-s", "root"])
+
+
+testcontent = gettestdata("icatdump.yaml")
+
+@pytest.fixture(scope="module")
+def setupicat(wipeicat, icatconfigfile):
+    args = ["-c", icatconfigfile, "-s", "root", 
+            "-f", "YAML", "-i", testcontent]
+    callscript("icatrestore.py", args)
+
+
 # ============================= hooks ================================
 
 def pytest_report_header(config):

@@ -22,8 +22,7 @@ for u in users:
     refsummary[u] = gettestdata("summary.%s" % u)
 
 
-def test_init(icatconfigfile):
-    callscript("wipeicat.py", ["-c", icatconfigfile, "-s", "root"])
+def test_init(wipeicat, icatconfigfile):
     args = ["-c", icatconfigfile, "-s", "root", testinput]
     callscript("init-icat.py", args)
 

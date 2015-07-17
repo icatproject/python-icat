@@ -8,30 +8,33 @@ import icat.config
 from icat.query import Query
 from conftest import gettestdata, callscript
 
-dumpfile = gettestdata("icatdump.yaml")
+
+# Note: the number of objects returned in the queries and their
+# attributes obviously depend on the content of the ICAT and need to
+# be kept in sync with the reference input used in the setupicat
+# fixture.
 
 
-def test_init(icatconfigfile):
-    """Set up well defined content at the ICAT server.
-    """
-    callscript("wipeicat.py", ["-c", icatconfigfile, "-s", "root"])
-    args = ["-c", icatconfigfile, "-s", "root", "-f", "YAML", "-i", dumpfile]
-    callscript("icatrestore.py", args)
+# The ICAT session as a fixture to be shared among all tests in this
+# module.  The user needs appropriate read permissions.
+user = "root"
 
-
-def test_queries(icatconfigfile, recwarn):
-    """Test some queries.
-    """
-    # Note: the number of objects returned in the queries and their
-    # attributes obviously depend on the content of the ICAT and need
-    # to be kept in sync with the reference input setup above.
-
-    args = ["-c", icatconfigfile, "-s", "root"]
+@pytest.fixture(scope="module")
+def client(setupicat, icatconfigfile):
+    args = ["-c", icatconfigfile, "-s", user]
     conf = icat.config.Config().getconfig(args)
     client = icat.Client(conf.url, **conf.client_kwargs)
     client.login(conf.auth, conf.credentials)
+    return client
 
-    # A simple query for an investigation by name.
+
+investigation = None
+
+def test_query_simple(client):
+    """A simple query for an investigation by name.
+    """
+    # The investigation is reused in other tests.
+    global investigation
     name = "10100601-ST"
     query = Query(client, "Investigation", conditions={"name":"= '%s'" % name})
     print(str(query))
@@ -41,7 +44,9 @@ def test_queries(icatconfigfile, recwarn):
     assert investigation.BeanName == "Investigation"
     assert investigation.name == name
 
-    # Query a datafile by its name, dataset name, and investigation name.
+def test_query_datafile(client):
+    """Query a datafile by its name, dataset name, and investigation name.
+    """
     dfdata = { 
         'name': "e208945.nxs", 
         'dataset': "e208945", 
@@ -73,11 +78,11 @@ def test_queries(icatconfigfile, recwarn):
     assert str(query) % dfdata == qstr
     res = client.search(str(query) % dfdata)
     assert len(res) == 1
-    df = res[0]
-    assert df.BeanName == "Datafile"
-    assert df.name == dfdata['name']
+    assert res[0] == df
 
-    # Query lots of information about one single investigation.
+def test_query_investigation_includes(client):
+    """Query lots of information about one single investigation.
+    """
     includes = { "facility", "type.facility", "investigationInstruments", 
                  "investigationInstruments.instrument.facility", "shifts", 
                  "keywords", "publications", "investigationUsers", 
@@ -100,7 +105,9 @@ def test_queries(icatconfigfile, recwarn):
     assert len(inv.investigationUsers) > 0
     assert len(inv.investigationGroups) > 0
 
-    # Query the instruments related to a given investigation.
+def test_query_instruments(client):
+    """Query the instruments related to a given investigation.
+    """
     query = Query(client, "Instrument", 
                   order=["name"], 
                   conditions={ "investigationInstruments.investigation.id":
@@ -113,7 +120,9 @@ def test_queries(icatconfigfile, recwarn):
     assert instr.BeanName == "Instrument"
     assert instr.facility.BeanName == "Facility"
 
-    # The datafiles related to a given investigation in natural order.
+def test_query_datafile_by_investigation(client):
+    """The datafiles related to a given investigation in natural order.
+    """
     query = Query(client, "Datafile", order=True, 
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id }, 
@@ -127,7 +136,7 @@ def test_queries(icatconfigfile, recwarn):
     sdf = sorted(res, key=icat.entity.Entity.__sortkey__)
     assert res == sdf
 
-    # Same example, but skip the investigation in the order.")
+    # Same example, but skip the investigation in the order.
     query = Query(client, "Datafile", order=['dataset.name', 'name'], 
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id }, 
@@ -138,22 +147,28 @@ def test_queries(icatconfigfile, recwarn):
     assert len(res) == 4
     assert res == sdf
 
-    # RelatedDatafile is the entity type with the most complicated
-    # natural order.
+def test_query_relateddatafile(client):
+    """RelatedDatafile is the entity type with the most complicated
+    natural order.
+    """
     query = Query(client, "RelatedDatafile", order=True)
     print(str(query))
     res = client.search(query)
     assert len(res) == 0
 
-    # There is no sensible order for DataCollection, fall back to id.
+def test_query_datacollection(client):
+    """There is no sensible order for DataCollection, fall back to id.
+    """
     query = Query(client, "DataCollection", order=True)
     print(str(query))
     assert "id" in query.order
     res = client.search(query)
     assert len(res) == 0
 
-    # Datafiles ordered by format.
-    # Note: this raises a QueryNullableOrderWarning, see below.
+def test_query_datafiles_datafileformat(client, recwarn):
+    """Datafiles ordered by format.
+    Note: this raises a QueryNullableOrderWarning, see below.
+    """
     recwarn.clear()
     query = Query(client, "Datafile", 
                   order=['datafileFormat', 'dataset', 'name'])
@@ -164,7 +179,9 @@ def test_queries(icatconfigfile, recwarn):
     res = client.search(query)
     assert len(res) == 7
 
-    # Other relations then equal may be used in the conditions too.
+def test_query_condition_greaterthen(client):
+    """Other relations then equal may be used in the conditions too.
+    """
     condition = {"datafileCreateTime": ">= '2012-01-01'"}
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
@@ -176,7 +193,9 @@ def test_queries(icatconfigfile, recwarn):
     res = client.search(query)
     assert len(res) == 5
 
-    # We may also add a list of conditions on a single attribute.
+def test_query_condition_list(client):
+    """We may also add a list of conditions on a single attribute.
+    """
     condition = {"datafileCreateTime": [">= '2012-01-01'", "< '2013-01-01'"]}
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
@@ -193,8 +212,10 @@ def test_queries(icatconfigfile, recwarn):
     res = client.search(query)
     assert len(res) == 1
 
-    # Using "id in (i)" rather then "id = i" also works.
-    # (This may be needed to work around ICAT Issue 149.)
+def test_query_in_operator(client):
+    """Using "id in (i)" rather then "id = i" also works.
+    (This may be needed to work around ICAT Issue 149.)
+    """
     query = Query(client, "Investigation", 
                   conditions={"id": "in (%d)" % investigation.id})
     print(str(query))
@@ -205,14 +226,18 @@ def test_queries(icatconfigfile, recwarn):
     assert inv.id == investigation.id
     assert inv.name == investigation.name
 
-    # Rule does not have a constraint, id is included in the natural order.
+def test_query_rule_order(client):
+    """Rule does not have a constraint, id is included in the natural order.
+    """
     query = Query(client, "Rule", order=True)
     print(str(query))
     assert "id" in query.order
     res = client.search(query)
     assert len(res) == 101
 
-    # Ordering on nullable relations emits a warning.
+def test_query_nullable_warning(client, recwarn):
+    """Ordering on nullable relations emits a warning.
+    """
     recwarn.clear()
     query = Query(client, "Rule", order=['grouping', 'what', 'id'])
     w = recwarn.pop(icat.QueryNullableOrderWarning)
@@ -222,7 +247,9 @@ def test_queries(icatconfigfile, recwarn):
     res = client.search(query)
     assert len(res) == 44
 
-    # The warning can be suppressed by making the condition explicit.
+def test_query_nullable_warning_suppressed(client, recwarn):
+    """The warning can be suppressed by making the condition explicit.
+    """
     recwarn.clear()
     query = Query(client, "Rule", order=['grouping', 'what', 'id'], 
                   conditions={"grouping":"IS NOT NULL"})
@@ -231,13 +258,21 @@ def test_queries(icatconfigfile, recwarn):
     res = client.search(query)
     assert len(res) == 44
 
-    # Add a LIMIT clause to the last example.
+def test_query_limit(client):
+    """Add a LIMIT clause to the last example.
+    """
+    query = Query(client, "Rule", order=['grouping', 'what', 'id'], 
+                  conditions={"grouping":"IS NOT NULL"})
     query.setLimit( (0,10) )
     print(str(query))
     res = client.search(query)
     assert len(res) == 10
 
-    # LIMIT clauses are particular useful with placeholders.
+def test_query_limit_placeholder(client):
+    """LIMIT clauses are particular useful with placeholders.
+    """
+    query = Query(client, "Rule", order=['grouping', 'what', 'id'], 
+                  conditions={"grouping":"IS NOT NULL"})
     query.setLimit( ("%d","%d") )
     print(str(query))
     print(str(query) % (0,30))
