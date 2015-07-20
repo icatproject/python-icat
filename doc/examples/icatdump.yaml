@@ -1,5 +1,5 @@
 %YAML 1.1
-# Date: Wed, 24 Jun 2015 13:59:08 +0000
+# Date: Mon, 20 Jul 2015 07:05:34 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 4.4
 # Generator: icatdump (python-icat 0.8.0)
@@ -722,6 +722,13 @@ dataset:
     sample: Sample_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-Durol=20SC
     startDate: '2008-03-13T11:39:42+01:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
+  Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201216:
+    complete: false
+    investigation: Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP
+    name: e201216
+    sample: Sample_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-Durol=20SC
+    startDate: '2008-03-20T08:20:00+01:00'
+    type: DatasetType_facility-(name-ESNF)_name-raw
 investigation:
   Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP:
     facility: Facility_name-ESNF
@@ -804,9 +811,17 @@ dataset:
     sample: Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027
     startDate: '2010-10-02T04:00:21+02:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
+  Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208342:
+    complete: false
+    endDate: '2010-10-12T17:00:00+02:00'
+    investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
+    name: e208342
+    sample: Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027
+    startDate: '2010-10-09T07:00:00+02:00'
+    type: DatasetType_facility-(name-ESNF)_name-raw
 investigation:
   Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN:
-    endDate: '2010-10-05T10:32:21+02:00'
+    endDate: '2010-10-12T17:00:00+02:00'
     facility: Facility_name-ESNF
     investigationGroups:
     - grouping: Grouping_name-investigation=5F10100601=2DST=5Fowner
@@ -862,9 +877,17 @@ dataset:
     sample: Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC
     startDate: '2012-07-26T17:44:24+02:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
+  Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208946:
+    complete: false
+    endDate: '2012-08-06T03:10:08+02:00'
+    investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
+    name: e208946
+    sample: Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC
+    startDate: '2012-08-02T07:30:00+02:00'
+    type: DatasetType_facility-(name-ESNF)_name-raw
 investigation:
   Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP:
-    endDate: '2012-07-30T03:10:08+02:00'
+    endDate: '2012-08-06T03:10:08+02:00'
     facility: Facility_name-ESNF
     investigationGroups:
     - grouping: Grouping_name-investigation=5F12100409=2DST=5Fowner

@@ -122,6 +122,12 @@ investigations:
       name: e201215
       startDate: '2008-03-13T11:39:42+01:00'
       type: raw
+    - complete: false
+      datafiles: []
+      endDate: null
+      name: e201216
+      startDate: '2008-03-20T08:20:00+01:00'
+      type: raw
     endDate: null
     facility: example_facility
     instrument: hike
@@ -179,7 +185,13 @@ investigations:
       name: e208341
       startDate: '2010-10-02T04:00:21+02:00'
       type: raw
-    endDate: '2010-10-05T10:32:21+02:00'
+    - complete: false
+      datafiles: []
+      endDate: '2010-10-12T17:00:00+02:00'
+      name: e208342
+      startDate: '2010-10-09T07:00:00+02:00'
+      type: raw
+    endDate: '2010-10-12T17:00:00+02:00'
     facility: example_facility
     instrument: e2
     invcol: []
@@ -221,7 +233,13 @@ investigations:
       name: e208945
       startDate: '2012-07-26T17:44:24+02:00'
       type: raw
-    endDate: '2012-07-30T03:10:08+02:00'
+    - complete: false
+      datafiles: []
+      endDate: '2012-08-06T03:10:08+02:00'
+      name: e208946
+      startDate: '2012-08-02T07:30:00+02:00'
+      type: raw
+    endDate: '2012-08-06T03:10:08+02:00'
     facility: example_facility
     instrument: eddi
     invcol: []
