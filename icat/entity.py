@@ -198,7 +198,8 @@ class Entity(object):
         if isinstance(e, Entity):
             return bool(id(self) == id(e) or 
                         (self.id and 
-                         self.client == e.client and self.id == e.id))
+                         self.client == e.client and 
+                         self.BeanName == e.BeanName and self.id == e.id))
         else:
             return NotImplemented
 
@@ -206,12 +207,14 @@ class Entity(object):
         if isinstance(e, Entity):
             return bool(id(self) != id(e) and 
                         (not self.id or 
-                         self.client != e.client or self.id != e.id))
+                         self.client != e.client or 
+                         self.BeanName != e.BeanName or self.id != e.id))
         else:
             return NotImplemented
 
     def __hash__(self):
-        return hash(self.client) ^ self.id if self.id else id(self)
+        return hash(self.client) ^ ((hash(self.BeanName) ^ self.id) 
+                                    if self.id else id(self))
 
     def __str__(self):
         return str(self.instance)
@@ -317,8 +320,9 @@ class Entity(object):
             constraint is not set.
         """
 
-        if keyindex is not None and self.id in keyindex:
-            return keyindex[self.id]
+        kid = (self.BeanName, self.id)
+        if keyindex is not None and kid in keyindex:
+            return keyindex[kid]
 
         if autoget:
             inclattr = [a for a in self.Constraint if a in self.InstRel]
@@ -348,7 +352,7 @@ class Entity(object):
                 raise InternalError("Invalid constraint '%s' in %s."
                                     % (c, self.BeanName))
         if keyindex is not None:
-            keyindex[self.id] = key
+            keyindex[kid] = key
         return key
 
     def create(self):
