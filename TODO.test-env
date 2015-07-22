@@ -32,8 +32,151 @@ TODO:
    - full workflow cycle (init server, create investigations, add content).
      -> Done, but didn't deal with parameters, collections and jobs yet.
    - icatdump and icatrestore.
+     -> Done
    - query.
+     -> Done
    - IDS upload and download.
-   - Bugs and Features (e.g. review change history and see if we can
-     retroactively add tests for the fixed bugs).
+     -> Done
+   - Bugs and Features, e.g. review change history and see if we can
+     retroactively add tests for the fixed bugs, see appendix for a
+     list.
 
+
+* Appendix: old fixes
+
+List of bugfixes from the git log and whether we may test it:
+
+ + 67e91ed
+   icat.config: case no password is set, but promptPass is true
+   should not throw an error.
+   -> add to test_01_config.py
+ + 7d10764
+   icat.config: positional arguments on command line.
+   -> add to test_01_config.py
+ + 1ad4ee6
+   icatdump: datetime format and character encoding.
+   -> no action, already checked in test_06_dump.py
+ + a6699ed
+   assertedSearch: assertmin/assertmax.
+   -> add tests on assertedSearch.
+ + 862d50c
+   icatdump: datetime format.
+   -> no action, already checked in test_06_dump.py
+ + 8e912ed
+   icatdump: compatibility ICAT 4.3.0 vs. 4.3.1.
+   -> no action, would need several test server having different
+      ICAT versions to test this.
+   icatdump: DataCollection.parameters.
+   -> add DataCollection with parameters to test data.
+ + 7b7b84e
+   icatdump: DataCollection.
+   -> no action
+ + e43fe3a
+   IcatException
+   -> add tests for icat.exception
+ + 21f8787
+   icatdump: order of objects.
+   -> no action, already checked in test_06_dump.py
+ + d270207
+   simpleqp_quote: compatibility with Python 3.
+   -> no action, already checked in test_01_helper.py
+ + f9f4f55
+   icatdump: compatibility with Python 3.
+   -> no action, already checked in test_06_dump.py
+ + 1fe88ba
+   simpleqp_unquote: deal with ints and othernon-strings.
+   -> consider adding more tests to test_01_helper.py
+ + a428b54
+   setup.py: usage of setuptools vs. distutils.
+   -> no action.
+ + 8f9e2dd
+   icat.ids: Fix wrong call for archive.
+   -> add tests on archive/restore to test_06_ids.py
+ + c4ee013
+   parse_attr_val:  wrong variable name during raising of errors.
+   -> no action, already checked in test_01_helper.py
+ + 4467b63
+   icat.ids: return value from isPrepared().
+   -> no action, already checked in test_01_ids.py as far as
+      possible, otherwise timing issue, difficult to check anyway.
+ + 13fcfb3
+   wipeicat.py: search fails if there are too many objects to
+   return.
+   -> consider adding a test for wipeicat.
+ + 409fd3b
+   icatdump: RelatedDatafile, DataCollection, and Job.
+   -> add RelatedDatafile, DataCollection, and Job to test data.
+ + 0df5832
+   Entity.__sortkey__: one to many relationships.
+   -> add a test on sorting entity objects.
+ + 8f33ae1
+   Entity.__sortkey__: compatibility with Python 3.
+   -> add a test on sorting entity objects.
+ + c591b7e
+   icat.chunkedhttp: compatibility with Python 3.
+   -> no action, already checked in test_01_ids.py
+ + 8f5e195
+   icat.ids: compatibility with Python 3.
+   -> no action, already checked in test_01_ids.py
+ + 1c3070b
+   icat.chunkedhttp: compatibility with Python 2.6.
+   -> no action, already checked in test_01_ids.py
+ + 75c64a2
+   icat.ids: compatibility with Python 3.3.
+   -> no action, already checked in test_01_ids.py
+ + d039074
+   icat.ids: compatibility with Python 3.4.
+   -> no action, already checked in test_01_ids.py
+ + 56905f1
+   icat.ids: error handling.
+   -> consider adding tests for IDSErrors. 
+ + 957b0c0
+   icat.ids.DataSelection: constructor arguments.
+   -> add tests for DataSelection.
+ + c9a1be6
+   Entity: eq and hash operator.
+   -> add test on equality of entity objects and on hashing them.
+ + 22e0981
+   wipeicat.py: delete archived datafiles from IDS.
+   -> consider adding a test for wipeicat.
+ + 35256e5
+   icat.query: "AS ..." in WHERE or ORDER BY clauses.
+   -> no action, already checked in test_06_query.py
+ + 583a9f4
+   icat.config: prevent substitution
+   -> no action, already checked in test_01_config.py
+ + d9e7fd0
+   icat.exception: non-ascii chars in error messages from server.
+   -> add tests for icat.exception
+ + 4688517
+   icat.query:   str  () must not modify self.
+   -> add a test in test_06_query.py
+ + 8d5132d
+   icat.query: non-ascii characters in query strings.
+   -> add a test in test_06_query.py
+ + abd65eb
+   icat.ids: import must not use parentheses.
+   -> no action
+ + 6fb93d0
+   icat.client: proxy settings were not effective.
+   -> no action, very difficult to test.
+ + 905dd8c
+   icat.query:   str  () must not modify self.
+   -> add a test in test_06_query.py
+ + d4e5d3c
+   icat.exception: proper dealing with offset.
+   -> add tests for icat.exception
+
+List of resulting actions:
+
+ + add more items to the test data (8e912ed, 409fd3b).
+ + add tests to test_01_config.py (67e91ed, 7d10764).
+ + add tests to test_01_helper.py (1fe88ba).
+ + add tests to test_06_ids.py (8f9e2dd, 56905f1).
+ + add tests to test_06_query.py (4688517, 8d5132d, 905dd8c).
+ + new test module on icat.exception (e43fe3a, d9e7fd0, d4e5d3c).
+ + new test module on DataSelection (957b0c0).
+ + new test module on equality of entity objects (c9a1be6).
+ + new test module on assertedSearch (a6699ed).
+ + new test module on sorting entity objects (0df5832, 8f33ae1).
+ + new test module on wipeicat.py (13fcfb3, 22e0981).
