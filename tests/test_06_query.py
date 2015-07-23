@@ -2,6 +2,7 @@
 """
 
 from __future__ import print_function
+import sys
 import pytest
 import icat
 import icat.config
@@ -281,3 +282,40 @@ def test_query_limit_placeholder(client):
     print(str(query) % (30,30))
     res = client.search(str(query) % (30,30))
     assert len(res) == 14
+
+def test_query_non_ascii(client):
+    """Test if query strings with non-ascii characters work.
+
+    There was a bug that forced query strings to be all ascii.  The
+    bug only occured with Python 2.  It was fixed in change 8d5132d.
+    """
+    # String literal with unicode characters that will be understood
+    # by both Python 2 and Python 3.
+    fullName = b'Rudolph Beck-D\xc3\xbclmen'.decode('utf8')
+    query = Query(client, "User", 
+                  conditions={ "fullName": "= '%s'" % fullName })
+    if sys.version_info < (3, 0):
+        print(unicode(query))
+    else:
+        print(str(query))
+    res = client.search(query)
+    assert len(res) == 1
+
+def test_query_str(client):
+    """Test the __str__() operator.  It should have no side effects.
+
+    The __str__() operator was modifying the query object under
+    certain conditions (if a1.a2 was in includes but a1 not, a1 was
+    added).  While this modification was most likely harmless and in
+    particular did not cause any semantic change of the query, it was
+    still a bug because a __str__() operator should not have any side
+    effects at all.  It was fixed in changes 4688517 and 905dd8c.
+    """
+    query = Query(client, "Datafile", order=True, 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id }, 
+                  includes={"dataset", "datafileFormat.facility", 
+                            "parameters.type.facility"})
+    r = repr(query)
+    print(str(query))
+    assert repr(query) == r
