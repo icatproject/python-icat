@@ -11,6 +11,7 @@ import tempfile
 import logging
 import pytest
 import icat
+import icat.config
 
 
 # Note that pytest captures stderr, so we won't see any logging by
@@ -41,6 +42,26 @@ def gettestdata(fname):
     fname = os.path.join(testdir, "data", fname)
     assert os.path.isfile(fname)
     return fname
+
+
+def get_icat_version():
+    fname = os.path.join(testdir, "data", "icat.cfg")
+    args = ["-c", fname, "-s", "root"]
+    conf = icat.config.Config(needlogin=False).getconfig(args)
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    return client.apiversion
+
+# ICAT server version we talk to.  Ignore any errors from
+# get_icat_version(), if something fails (e.g. no server is configured
+# at all), set a dummy zero version number.
+try:
+    icat_version = get_icat_version()
+except:
+    icat_version = "0"
+
+def require_icat_version(minversion):
+    if icat_version < minversion:
+        pytest.skip("need ICAT server version %s or newer" % minversion)
 
 
 def callscript(scriptname, args, stdin=None, stdout=None, stderr=None):
@@ -119,6 +140,8 @@ def icatconfigfile():
 
 @pytest.fixture(scope="module")
 def wipeicat(icatconfigfile):
+    # wipeicat uses JPQL search syntax.
+    require_icat_version("4.3.0")
     callscript("wipeicat.py", ["-c", icatconfigfile, "-s", "root"])
 
 
@@ -126,6 +149,8 @@ testcontent = gettestdata("icatdump.yaml")
 
 @pytest.fixture(scope="module")
 def setupicat(wipeicat, icatconfigfile):
+    # testcontent has InvestigationGroup objects.
+    require_icat_version("4.4.0")
     args = ["-c", icatconfigfile, "-s", "root", 
             "-f", "YAML", "-i", testcontent]
     callscript("icatrestore.py", args)

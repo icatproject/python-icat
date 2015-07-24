@@ -6,7 +6,11 @@ import filecmp
 import pytest
 import icat
 import icat.config
+from conftest import require_icat_version
 from conftest import gettestdata, callscript, filter_xml_dump, filter_yaml_dump
+
+# test content has InvestigationGroup objects.
+require_icat_version("4.4.0")
 
 backends = {
     'XML': {

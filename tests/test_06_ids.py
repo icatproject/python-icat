@@ -14,11 +14,14 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import gettestdata, callscript
+from conftest import require_icat_version, gettestdata, callscript
 try:
     from suds.sax.date import UtcTimezone
 except ImportError:
     UtcTimezone = None
+
+# test content has InvestigationGroup objects.
+require_icat_version("4.4.0")
 
 # ============================= helper =============================
 

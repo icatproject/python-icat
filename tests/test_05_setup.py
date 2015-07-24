@@ -12,7 +12,11 @@ import filecmp
 import pytest
 import icat
 import icat.config
+from conftest import require_icat_version
 from conftest import gettestdata, callscript, filter_yaml_dump
+
+# wipeicat uses JPQL search syntax.
+require_icat_version("4.3.0")
 
 testinput = gettestdata("example_data.yaml")
 refdump = gettestdata("icatdump.yaml")
