@@ -76,6 +76,9 @@ def test_equality_new(client):
 
 def test_equality_client(client, icatconfigfile):
     """Test that objects that belong to different clients are never equal.
+
+    There used to be a bug such that the client was not taken into
+    account, fixed in c9a1be6.
     """
     # Get a second client that is connected as the same user to the
     # same server and even shares the same ICAT session.

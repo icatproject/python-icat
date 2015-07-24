@@ -85,7 +85,7 @@ List of bugfixes from the git log and whether we may test it:
    -> no action, already checked in test_06_dump.py
  + 1fe88ba
    simpleqp_unquote: deal with ints and othernon-strings.
-   -> consider adding more tests to test_01_helper.py
+   -> no action, already checked in test_01_helper.py
  + a428b54
    setup.py: usage of setuptools vs. distutils.
    -> no action.
@@ -171,12 +171,14 @@ List of resulting actions:
 
  + add more items to the test data (8e912ed, 409fd3b).
  + add tests to test_01_config.py (67e91ed, 7d10764).
- + add tests to test_01_helper.py (1fe88ba).
+   -> Done
  + add tests to test_06_ids.py (8f9e2dd, 56905f1).
  + add tests to test_06_query.py (4688517, 8d5132d, 905dd8c).
+   -> Done
  + new test module on icat.exception (e43fe3a, d9e7fd0, d4e5d3c).
  + new test module on DataSelection (957b0c0).
  + new test module on equality of entity objects (c9a1be6).
+   -> Done
  + new test module on assertedSearch (a6699ed).
  + new test module on sorting entity objects (0df5832, 8f33ae1).
  + new test module on wipeicat.py (13fcfb3, 22e0981).
