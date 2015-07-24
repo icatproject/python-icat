@@ -84,12 +84,12 @@ def test_query_datafile(client):
 def test_query_investigation_includes(client):
     """Query lots of information about one single investigation.
     """
-    includes = { "facility", "type.facility", "investigationInstruments", 
-                 "investigationInstruments.instrument.facility", "shifts", 
-                 "keywords", "publications", "investigationUsers", 
-                 "investigationUsers.user", "investigationGroups", 
-                 "investigationGroups.grouping", "parameters", 
-                 "parameters.type.facility" }
+    includes = set([ "facility", "type.facility", "investigationInstruments", 
+                     "investigationInstruments.instrument.facility", "shifts", 
+                     "keywords", "publications", "investigationUsers", 
+                     "investigationUsers.user", "investigationGroups", 
+                     "investigationGroups.grouping", "parameters", 
+                     "parameters.type.facility" ])
     query = Query(client, "Investigation", 
                   conditions={"id": "= %d" % investigation.id}, 
                   includes=includes)
@@ -113,7 +113,7 @@ def test_query_instruments(client):
                   order=["name"], 
                   conditions={ "investigationInstruments.investigation.id":
                                "= %d" % investigation.id }, 
-                  includes={"facility", "instrumentScientists.user"})
+                  includes=set(["facility", "instrumentScientists.user"]))
     print(str(query))
     res = client.search(query)
     assert len(res) == 1
@@ -127,8 +127,8 @@ def test_query_datafile_by_investigation(client):
     query = Query(client, "Datafile", order=True, 
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id }, 
-                  includes={"dataset", "datafileFormat.facility", 
-                            "parameters.type.facility"})
+                  includes=set(["dataset", "datafileFormat.facility", 
+                                "parameters.type.facility"]))
     print(str(query))
     res = client.search(query)
     assert len(res) == 4
@@ -299,8 +299,8 @@ def test_query_str(client):
     query = Query(client, "Datafile", order=True, 
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id }, 
-                  includes={"dataset", "datafileFormat.facility", 
-                            "parameters.type.facility"})
+                  includes=set(["dataset", "datafileFormat.facility", 
+                                "parameters.type.facility"]))
     r = repr(query)
     print(str(query))
     assert repr(query) == r
