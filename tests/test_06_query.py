@@ -7,7 +7,7 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import gettestdata, callscript
+from conftest import icat_version, gettestdata, callscript
 
 
 # Note: the number of objects returned in the queries and their
@@ -304,3 +304,15 @@ def test_query_str(client):
     r = repr(query)
     print(str(query))
     assert repr(query) == r
+
+@pytest.mark.xfail(icat_version < '4.4.99',
+                   reason="Bug #6",
+                   raises=ValueError)
+def test_query_metaattr(client):
+    """Test adding a condition on a meta attribute.  Issue #6
+    """
+    query = Query(client, "Datafile", conditions={ "modId": "= 'jdoe'" })
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 0
+
