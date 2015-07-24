@@ -79,13 +79,14 @@ def filter_yaml_dump(infile, outfile):
     independently of the content.
     """
     substre = re.compile(r"^# (Date|Service|ICAT-API|Generator): .*$")
-    with open(infile, 'rt') as inf, open(outfile, 'wt') as outf:
-        while True:
-            l = inf.readline()
-            if not l:
-                break
-            l = re.sub(substre, r"# \1: ###", l)
-            outf.write(l)
+    with open(infile, 'rt') as inf:
+        with open(outfile, 'wt') as outf:
+            while True:
+                l = inf.readline()
+                if not l:
+                    break
+                l = re.sub(substre, r"# \1: ###", l)
+                outf.write(l)
 
 
 def filter_xml_dump(infile, outfile):
@@ -96,13 +97,14 @@ def filter_xml_dump(infile, outfile):
     independently of the content.
     """
     substre = re.compile(r"^\s*<(date|service|apiversion|generator)>.*</\1>$")
-    with open(infile, 'rt') as inf, open(outfile, 'wt') as outf:
-        while True:
-            l = inf.readline()
-            if not l:
-                break
-            l = re.sub(substre, r"  <\1>###</\1>", l)
-            outf.write(l)
+    with open(infile, 'rt') as inf:
+        with open(outfile, 'wt') as outf:
+            while True:
+                l = inf.readline()
+                if not l:
+                    break
+                l = re.sub(substre, r"  <\1>###</\1>", l)
+                outf.write(l)
 
 
 # ============================ fixtures ==============================
