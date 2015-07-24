@@ -276,7 +276,7 @@ def test_query_non_ascii(client):
     """
     # String literal with unicode characters that will be understood
     # by both Python 2 and Python 3.
-    fullName = b'Rudolph Beck-D\xc3\xbclmen'.decode('utf8')
+    fullName = 'Rudolph Beck-D\xc3\xbclmen'.decode('utf8')
     query = Query(client, "User", 
                   conditions={ "fullName": "= '%s'" % fullName })
     if sys.version_info < (3, 0):
