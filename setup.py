@@ -61,7 +61,6 @@ class test(Command):
         self.set_undefined_options('build', ('build_lib', 'build_lib'))
 
     def run(self):
-        self.run_command('check')
         if not self.skip_build:
             self.run_command('build_py')
 
