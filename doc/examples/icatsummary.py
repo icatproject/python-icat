@@ -18,7 +18,6 @@ client = icat.Client(conf.url, **conf.client_kwargs)
 client.login(conf.auth, conf.credentials)
 
 
-print("Connect to %s" % conf.url)
 print("User: %s" % client.getUserName())
 print()
 
@@ -26,6 +25,8 @@ entitycolwidth = 24
 print("%-*s   %s" % (entitycolwidth, "Entity", "count"))
 print("-" * (entitycolwidth + 3 + 5))
 for entityname in client.getEntityNames():
+    if entityname == "Log":
+        continue
     try:
         res = client.search("SELECT COUNT(e) FROM %s e" % entityname)[0]
     except icat.exception.ICATPrivilegesError:
