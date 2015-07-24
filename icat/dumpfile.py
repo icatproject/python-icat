@@ -190,7 +190,7 @@ class DumpFileWriter(object):
                     self.idcounter[t] = 0
                 self.idcounter[t] += 1
                 k = "%s_%08d" % (t, self.idcounter[t])
-                keyindex[obj.id] = k
+                keyindex[(obj.BeanName, obj.id)] = k
             else:
                 k = obj.getUniqueKey(autoget=False, keyindex=keyindex)
             self.writeobj(k, obj, keyindex)

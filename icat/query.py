@@ -304,7 +304,7 @@ class Query(object):
             order = ""
         if self.includes:
             subst = _makesubst(self.includes)
-            includes = self.includes
+            includes = set(self.includes)
             includes.update(subst.keys())
             incl = [ _dosubst(obj, subst) for obj in sorted(includes) ]
             include = " INCLUDE " + ", ".join(incl)
