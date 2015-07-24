@@ -8,12 +8,12 @@ def test_helper_quote():
     """Test simpleqp_quote() and simpleqp_unquote()
     """
 
-    name = u'rbeck'
+    name = b'rbeck'.decode('ascii')
     qps = simpleqp_quote(name)
     s = simpleqp_unquote(qps)
     assert s == name
 
-    fullName = u'Rudolph Beck-D\\xfclmen'
+    fullName = b'Rudolph Beck-D\xc3\xbclmen'.decode('utf-8')
     qps = simpleqp_quote(fullName)
     s = simpleqp_unquote(qps)
     assert s == fullName

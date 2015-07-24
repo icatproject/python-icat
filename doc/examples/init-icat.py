@@ -164,6 +164,14 @@ client.createRules("CRUD", ["Job [createId=:user]"])
 # Access rules for investigations (ICAT 4.4 and newer)
 # ------------------------------------------------------------
 
+# We set access permissions on investigation related objects based on
+# user groups.  We create three groups for each investigation:
+# "reader", "writer", and "owner", where the first two have the
+# obvious semantic.  User in "owner" may grant access to other users,
+# e.g. add or remove users to or from the other two groups.
+# Additionally, instrument scientist get the the same permissions as
+# "writer" on the investigations related to their instrument.
+
 # ICAT 4.4 introduced InvestigationGroup.  This allows us to setup one
 # static set of permissions to access individual investigations rather
 # then creating individual rules for each investigation.
@@ -178,20 +186,20 @@ if client.apiversion > '4.3.99':
     # path to a dataset complete attribute.  If the latter is set, an
     # extra condition is added so that CRUD permission is only given
     # if complete is False.
-    invitems = [ ( "Sample", "investigation.", "" ),
-                 ( "Dataset", "investigation.", "complete" ),
-                 ( "Datafile", "dataset.investigation.", "dataset.complete" ),
-                 ( "InvestigationParameter", "investigation.", "" ),
-                 ( "SampleParameter", "sample.investigation.", "" ),
-                 ( "DatasetParameter", "dataset.investigation.", "" ),
-                 ( "DatafileParameter", "datafile.dataset.investigation.", "" ),
-                 ( "Shift", "investigation.", "" ),
-                 ( "Keyword", "investigation.", "" ),
-                 ( "Publication", "investigation.", "" ), ] 
+    invitems = [
+        ( "Sample", "investigation.", "" ),
+        ( "Dataset", "investigation.", "complete" ),
+        ( "Datafile", "dataset.investigation.", "dataset.complete" ),
+        ( "InvestigationParameter", "investigation.", "" ),
+        ( "SampleParameter", "sample.investigation.", "" ),
+        ( "DatasetParameter", "dataset.investigation.", "" ),
+        ( "DatafileParameter", "datafile.dataset.investigation.", "" ),
+    ]
 
-    # set permissions for the writer group
+    # Set write permissions
     items = []
     for name, a, complete in invitems:
+        # ... for writer group.
         conditions={
             a + "investigationGroups.role":"= 'writer'",
             a + "investigationGroups.grouping.userGroups.user.name":"= :user",
@@ -199,16 +207,33 @@ if client.apiversion > '4.3.99':
         if complete:
             conditions[complete] = "= False"
         items.append(Query(client, name, conditions=conditions))
+        # ... for instrument scientists.
+        conditions={
+            a + "investigationInstruments.instrument.instrumentScientists"
+            ".user.name":"= :user",
+        }
+        if complete:
+            conditions[complete] = "= False"
+        items.append(Query(client, name, conditions=conditions))
     client.createRules("CUD", items)
 
-    # set permissions for the reader group.  Actually, we give read
-    # permissions to all groups related to the investigation.
-    # For reading, we add the investigation itself to the invitems.
-    invitems.insert(0, ( "Investigation", "", "" ) )
+    # Set permissions for the reader group.  Actually, we give read
+    # permissions to all groups related to the investigation.  For
+    # read access, we add some more related items, in particular the
+    # investigation itself.
+    invitems.extend([ ( "Investigation", "", "" ),
+                      ( "Shift", "investigation.", "" ),
+                      ( "Keyword", "investigation.", "" ),
+                      ( "Publication", "investigation.", "" ) ])
     items = []
     for name, a, c in invitems:
         conditions={
             a + "investigationGroups.grouping.userGroups.user.name":"= :user",
+        }
+        items.append(Query(client, name, conditions=conditions))
+        conditions={
+            a + "investigationInstruments.instrument.instrumentScientists"
+            ".user.name":"= :user",
         }
         items.append(Query(client, name, conditions=conditions))
     client.createRules("R", items)
