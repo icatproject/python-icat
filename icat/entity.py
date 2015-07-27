@@ -83,7 +83,22 @@ class Entity(object):
             if f.name == attr:
                 return f
         else:
-            raise ValueError("Unknown attribute name '%s'." % attr)
+            if attr in cls.MetaAttr:
+                # ICAT server 4.4 and older did not add the meta
+                # attributes in the entity info.  Create a fake
+                # entityField to emulate the new behavior of ICAT
+                # 4.5.0.
+                f = client.factory.create('entityField')
+                f.name = attr
+                f.notNullable = False
+                f.relType = "ATTRIBUTE"
+                if attr in {'createTime', 'modTime'}:
+                    f.type = "Date"
+                else:
+                    f.type = "String"
+                return f
+            else:
+                raise ValueError("Unknown attribute name '%s'." % attr)
 
     @classmethod
     def getNaturalOrder(cls, client):
