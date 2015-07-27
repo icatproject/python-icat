@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2015-07-20T07:26:52Z</date>
+  <date>2015-07-27T13:41:10Z</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
-  <apiversion>4.4</apiversion>
+  <apiversion>4.5</apiversion>
   <generator>icatdump (python-icat 0.8.0)</generator>
 </head>
 <data>
@@ -709,6 +709,62 @@
       <user ref="User_name-acord"/>
     </instrumentScientists>
   </instrument>
+  <parameterType id="ParameterType_facility-(name-ESNF)_name-Magnetic=20field_units-T">
+    <applicableToDataCollection>false</applicableToDataCollection>
+    <applicableToDatafile>false</applicableToDatafile>
+    <applicableToDataset>true</applicableToDataset>
+    <applicableToInvestigation>false</applicableToInvestigation>
+    <applicableToSample>false</applicableToSample>
+    <enforced>false</enforced>
+    <name>Magnetic field</name>
+    <units>T</units>
+    <unitsFullName>Tesla</unitsFullName>
+    <valueType>NUMERIC</valueType>
+    <verified>false</verified>
+    <facility ref="Facility_name-ESNF"/>
+  </parameterType>
+  <parameterType id="ParameterType_facility-(name-ESNF)_name-Reactor=20power_units-MW">
+    <applicableToDataCollection>false</applicableToDataCollection>
+    <applicableToDatafile>false</applicableToDatafile>
+    <applicableToDataset>true</applicableToDataset>
+    <applicableToInvestigation>false</applicableToInvestigation>
+    <applicableToSample>false</applicableToSample>
+    <enforced>false</enforced>
+    <name>Reactor power</name>
+    <units>MW</units>
+    <unitsFullName>Megawatt</unitsFullName>
+    <valueType>NUMERIC</valueType>
+    <verified>false</verified>
+    <facility ref="Facility_name-ESNF"/>
+  </parameterType>
+  <parameterType id="ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-C">
+    <applicableToDataCollection>false</applicableToDataCollection>
+    <applicableToDatafile>false</applicableToDatafile>
+    <applicableToDataset>true</applicableToDataset>
+    <applicableToInvestigation>false</applicableToInvestigation>
+    <applicableToSample>false</applicableToSample>
+    <enforced>false</enforced>
+    <name>Sample temperature</name>
+    <units>C</units>
+    <unitsFullName>Celsius</unitsFullName>
+    <valueType>NUMERIC</valueType>
+    <verified>false</verified>
+    <facility ref="Facility_name-ESNF"/>
+  </parameterType>
+  <parameterType id="ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-K">
+    <applicableToDataCollection>false</applicableToDataCollection>
+    <applicableToDatafile>false</applicableToDatafile>
+    <applicableToDataset>true</applicableToDataset>
+    <applicableToInvestigation>false</applicableToInvestigation>
+    <applicableToSample>false</applicableToSample>
+    <enforced>false</enforced>
+    <name>Sample temperature</name>
+    <units>K</units>
+    <unitsFullName>Kelvin</unitsFullName>
+    <valueType>NUMERIC</valueType>
+    <verified>false</verified>
+    <facility ref="Facility_name-ESNF"/>
+  </parameterType>
   <investigationType id="InvestigationType_name-Calibration_facility-(name-ESNF)">
     <name>Calibration</name>
     <facility ref="Facility_name-ESNF"/>

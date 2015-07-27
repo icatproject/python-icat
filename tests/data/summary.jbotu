@@ -26,7 +26,7 @@ InvestigationType        : 5
 InvestigationUser        : 0
 Job                      : 0
 Keyword                  : 5
-ParameterType            : 0
+ParameterType            : 4
 PermissibleStringValue   : 0
 PublicStep               : 0
 Publication              : 0
