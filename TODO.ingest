@@ -1,0 +1,46 @@
+				Ingest
+				======
+
+Issue #4:
+
+Currently, icatrestore reads a dump file and creates all entity
+objects defined therein in the ICAT server.  This has been designed
+for the use case to restore the full content of an ICAT, where the
+dump file has previously been created by icatdump.  But it could in
+principle also be used as an ingestor, to add only a few objects to an
+ICAT that already has content.
+
+But there are a few things in the dump file format that are somewhat
+impractical for the latter use case:
+
+ + icatrestore assumes that all the objects in the dump file are to be
+   created in the ICAT.  It should also be possible to list objects
+   that are assumed to already exist as a prerequisite in order to
+   reference them by other objects to be created.
+
+ + Relations between objects are expressed using the keys as returned
+   by the getUniqueKey() call.  But creators of an ingest file will
+   likely not be able to generate these keys.  It should also be
+   possible to reference existing objects by attribute values.
+
+
+TODO:
+
+ + Implement referencing of objects in the dumpfile by attribute
+   rather then by unique key.
+   -> Done (for XML).
+
+ + Implement listing of existing objects in the dumpfile for
+   reference.
+   -> Done (for XML).
+
+ + Add examples and test cases for the use of icatrestore as ingestor.
+
+ + Implement upload of datafiles to IDS from the ingestor (to be
+   controlled by configuration variables).
+
+ + Optionally allow ignoring of ICATObjectExistsErrors, see the
+   duplicate configuration variable in icatimport.
+
+ + Handle ImportErrors gracefully in case of missing dependencies for
+   the backend modules.
