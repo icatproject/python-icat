@@ -305,9 +305,6 @@ def test_query_str(client):
     print(str(query))
     assert repr(query) == r
 
-@pytest.mark.xfail(icat_version < '4.4.99',
-                   reason="Bug #6",
-                   raises=ValueError)
 def test_query_metaattr(client):
     """Test adding a condition on a meta attribute.  Issue #6
     """
