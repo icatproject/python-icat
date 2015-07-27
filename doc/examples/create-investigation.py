@@ -126,10 +126,6 @@ for u in investigationdata['invguest']:
                                   search=True)
     investigationreader.append(userguest)
 
-# Add InstrumentScientists to the writers
-if investigationdata['addinstuser']:
-    investigationwriter.extend(instrument.getInstrumentScientists())
-
 owngroupname = "investigation_%s_owner" % investigation.name
 writegroupname = "investigation_%s_writer" % investigation.name
 readgroupname = "investigation_%s_reader" % investigation.name
@@ -154,30 +150,34 @@ if client.apiversion > '4.3.99':
 
 else:
 
+    invcond = "Investigation[name='%s']" % investigation.name
+
     # Items that are considered to belong to the content of an
     # investigation, where %s represents the investigation itself.
     # The writer group will get CRUD permissions and the reader group
     # R permissions on these items.
-    invitems = [ "Sample <-> %s",
-                 "Dataset <-> %s",
-                 "Datafile <-> Dataset <-> %s",
-                 "InvestigationParameter <-> %s",
-                 "SampleParameter <-> Sample <-> %s",
-                 "DatasetParameter <-> Dataset <-> %s",
-                 "DatafileParameter <-> Datafile <-> Dataset <-> %s",
-                 "Shift <-> %s",
-                 "Keyword <-> %s",
-                 "Publication <-> %s", ] 
+    invwitems = [ "Sample <-> %s",
+                  "Dataset <-> %s",
+                  "Datafile <-> Dataset <-> %s",
+                  "InvestigationParameter <-> %s",
+                  "SampleParameter <-> Sample <-> %s",
+                  "DatasetParameter <-> Dataset <-> %s",
+                  "DatafileParameter <-> Datafile <-> Dataset <-> %s", ]
 
-    invcond = "Investigation[name='%s']" % investigation.name
+    # Items that we allow read only access for both readers and
+    # writers, in particular the investigation itself.
+    invritems = [ "%s",
+                  "Shift <-> %s",
+                  "Keyword <-> %s",
+                  "Publication <-> %s", ]
 
     # set permissions for the writer group
-    client.createRules("R", [ invcond ], writegroup)
-    client.createRules("CRUD", [ s % invcond for s in invitems ], writegroup)
+    client.createRules("R", [ s % invcond for s in invritems ], writegroup)
+    client.createRules("CRUD", [ s % invcond for s in invwitems ], writegroup)
 
     # set permissions for the reader group
-    client.createRules("R", [ invcond ], readgroup)
-    client.createRules("R", [ s % invcond for s in invitems ], readgroup)
+    client.createRules("R", [ s % invcond for s in invritems ], readgroup)
+    client.createRules("R", [ s % invcond for s in invwitems ], readgroup)
 
     # set owners permissions
     if client.apiversion < '4.2.99':

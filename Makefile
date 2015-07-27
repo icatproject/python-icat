@@ -14,15 +14,17 @@ apidoc: apidoc_clean init.py
 	epydoc --html --docformat=restructuredtext --output=$(APIDOC_DIR) icat
 
 
-test: init.py doctest
-	$(PYTHON) -m pytest tests
+test: init.py
+	$(PYTHON) setup.py test
 
 doctest: $(DOCTESTS)
 
 
 clean:
-	rm -f *~ icat/*~ doc/*~ doc/examples/*~
+	rm -f *~ icat/*~ tests/*~ doc/*~ doc/examples/*~
 	rm -rf build
+	rm -rf tests/data/example_data.yaml tests/data/icatdump.*
+	rm -rf tests/scripts
 
 apidoc_clean:
 	rm -rf $(APIDOC_DIR)

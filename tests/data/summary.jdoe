@@ -1,0 +1,43 @@
+User: jdoe
+
+Entity                     count
+--------------------------------
+Application              : 1
+DataCollection           : 0
+DataCollectionDatafile   : 0
+DataCollectionDataset    : 0
+DataCollectionParameter  : 0
+Datafile                 : 5
+DatafileFormat           : 4
+DatafileParameter        : 0
+Dataset                  : 5
+DatasetParameter         : 0
+DatasetType              : 3
+Facility                 : 1
+FacilityCycle            : 0
+Grouping                 : 2
+Instrument               : 3
+InstrumentScientist      : 0
+Investigation            : 2
+InvestigationGroup       : 0
+InvestigationInstrument  : 0
+InvestigationParameter   : 0
+InvestigationType        : 5
+InvestigationUser        : 0
+Job                      : 0
+Keyword                  : 5
+ParameterType            : 0
+PermissibleStringValue   : 0
+PublicStep               : 0
+Publication              : 0
+RelatedDatafile          : 0
+Rule                     : 0
+Sample                   : 2
+SampleParameter          : 0
+SampleType               : 3
+Shift                    : 0
+Study                    : 0
+StudyInvestigation       : 0
+User                     : 9
+UserGroup                : 0
+

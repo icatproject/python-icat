@@ -1,11 +1,9 @@
 """Test module icat.config
 """
 
-import pytest
 import os.path
-import shutil
-import tempfile
 import getpass
+import pytest
 import icat.config
 import icat.exception
 
@@ -15,22 +13,6 @@ import icat.exception
 # Deliberately not using the 'tmpdir' fixture provided by pytest,
 # because it seem to use a predictable directory name in /tmp wich is
 # insecure.
-
-class TmpConfigFile(object):
-    """Provide a temporary configuration file.
-    """
-    def __init__(self, content):
-        self.dir = tempfile.mkdtemp(prefix="python-icat-test-config-")
-        self.path = os.path.join(self.dir, "icat.cfg")
-        with open(self.path, "w") as f:
-            f.write(content)
-    def __del__(self):
-        self.cleanup()
-    def cleanup(self):
-        if self.dir:
-            shutil.rmtree(self.dir)
-        self.dir = None
-        self.path = None
 
 # Content of the configuration file used in the tests
 configfilestr = """
@@ -53,13 +35,23 @@ num = 42
 invnum = forty-two
 flag1 = true
 flag2 = off
+
+[example_nbour]
+url = https://icat.example.com/ICATService/ICAT?wsdl
+auth = ldap
+username = nbour
 """
 
+class ConfigFile(object):
+    def __init__(self, confdir, content):
+        self.dir = confdir
+        self.path = os.path.join(self.dir, "icat.cfg")
+        with open(self.path, "w") as f:
+            f.write(content)
+
 @pytest.fixture(scope="module")
-def tmpconfigfile(request):
-    tmpconf = TmpConfigFile(configfilestr)
-    request.addfinalizer(tmpconf.cleanup)
-    return tmpconf
+def tmpconfigfile(tmpdirsec):
+    return ConfigFile(tmpdirsec.dir, configfilestr)
 
 # ============================= tests ==============================
 
@@ -201,9 +193,41 @@ def test_config_askpass(tmpconfigfile, monkeypatch):
     assert conf.credentials == {'username': 'rbeck', 'password': 'mockpass'}
 
 
-def test_config_environment(tmpconfigfile, monkeypatch):
+def test_config_nopass_askpass(tmpconfigfile, monkeypatch):
     """
-    Set some config variables from the environment.
+    Same as test_config_askpass(), but with no password set in the
+    config file.  Very early versions of icat.config had a bug to
+    raise an error if no password was set at all even if interactive
+    prompt for the password was explictely requested.  (Fixed in
+    67e91ed.)
+    """
+
+    def mockgetpass():
+        return "mockpass"
+    monkeypatch.setattr(getpass, "getpass", mockgetpass)
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_nbour", "-P"]
+    conf = icat.config.Config().getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'checkCert', 'client_kwargs', 'configDir', 
+                      'configFile', 'configSection', 'credentials', 
+                      'http_proxy', 'https_proxy', 'no_proxy', 
+                      'password', 'promptPass', 'url', 'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_nbour"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "ldap"
+    assert conf.username == "nbour"
+    assert conf.password == "mockpass"
+    assert conf.promptPass == True
+    assert conf.credentials == {'username': 'nbour', 'password': 'mockpass'}
+
+
+def test_config_environment(tmpconfigfile, monkeypatch):
+    """Set some config variables from the environment.
     """
 
     monkeypatch.setenv("ICAT_CFG", tmpconfigfile.path)
@@ -290,8 +314,7 @@ def test_config_ids(tmpconfigfile):
 
 
 def test_config_custom_var(tmpconfigfile):
-    """
-    Define custom configuration variables.
+    """Define custom configuration variables.
     """
 
     # Note that ldap_filter is not defined in the configuration file,
@@ -331,8 +354,9 @@ def test_config_custom_var(tmpconfigfile):
 
 
 def test_config_subst_nosubst(tmpconfigfile):
-    """
-    Use a format string in a configuration variable, but disable substitution.
+    """Use a format string in a configuration variable.
+
+    But disable the substitution.
     """
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
@@ -361,8 +385,9 @@ def test_config_subst_nosubst(tmpconfigfile):
 
 
 def test_config_subst(tmpconfigfile):
-    """
-    Same as above, but enable substitution.
+    """Use a format string in a configuration variable.
+
+    Same as above, but enable the substitution this time.
     """
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
@@ -391,8 +416,10 @@ def test_config_subst(tmpconfigfile):
 
 
 def test_config_subst_cmdline(tmpconfigfile):
-    """
-    Same as above, but set the referenced variable from the command line.
+    """Use a format string in a configuration variable.
+
+    Same as above, but set the referenced variable from the command
+    line.
     """
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", 
@@ -422,8 +449,7 @@ def test_config_subst_cmdline(tmpconfigfile):
 
 
 def test_config_subst_confdir(tmpconfigfile):
-    """
-    Substitute configDir in the default of a variable.
+    """Substitute configDir in the default of a variable.
     """
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
@@ -446,8 +472,7 @@ def test_config_subst_confdir(tmpconfigfile):
 
 
 def test_config_type_int(tmpconfigfile):
-    """
-    Read an interger variable from the configuration file.
+    """Read an integer variable from the configuration file.
     """
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
@@ -469,7 +494,8 @@ def test_config_type_int(tmpconfigfile):
 
 
 def test_config_type_int_err(tmpconfigfile):
-    """
+    """Read an integer variable from the configuration file.
+
     Same as last one, but have an invalid value this time.
     """
 
@@ -483,8 +509,7 @@ def test_config_type_int_err(tmpconfigfile):
 
 
 def test_config_type_boolean(tmpconfigfile):
-    """
-    Test a boolean configuration variable.
+    """Test a boolean configuration variable.
     """
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
@@ -527,8 +552,7 @@ def test_config_type_boolean(tmpconfigfile):
 
 
 def test_config_type_flag(tmpconfigfile):
-    """
-    Test the special configuration variable type flag.
+    """Test the special configuration variable type flag.
     """
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
@@ -568,3 +592,34 @@ def test_config_type_flag(tmpconfigfile):
     assert conf.flag1 == False
     assert conf.flag2 == True
 
+
+def test_config_positional(tmpconfigfile):
+    """Test adding a positional argument on the command line.
+
+    (There used to be a bug in adding positional arguments, fixed in
+    7d10764.)
+    """
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", "test.dat"]
+    config = icat.config.Config()
+    config.add_variable('datafile', ("datafile",), 
+                        dict(metavar="input.dat", 
+                             help="name of the input datafile"))
+    conf = config.getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'checkCert', 'client_kwargs', 'configDir', 
+                      'configFile', 'configSection', 'credentials', 
+                      'datafile', 'http_proxy', 'https_proxy', 'no_proxy', 
+                      'password', 'promptPass', 'url', 'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_jdoe"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "ldap"
+    assert conf.username == "jdoe"
+    assert conf.password == "pass"
+    assert conf.promptPass == False
+    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
+    assert conf.datafile == "test.dat"
