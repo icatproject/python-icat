@@ -92,7 +92,7 @@ class Entity(object):
                 f.name = attr
                 f.notNullable = False
                 f.relType = "ATTRIBUTE"
-                if attr in {'createTime', 'modTime'}:
+                if attr in set(['createTime', 'modTime']):
                     f.type = "Date"
                 else:
                     f.type = "String"
