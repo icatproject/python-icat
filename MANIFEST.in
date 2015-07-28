@@ -10,6 +10,7 @@ include doc/examples/icat.cfg
 include doc/examples/example_data.yaml
 include doc/examples/icatdump.yaml
 include doc/examples/icatdump.xml
+include doc/examples/ingest-*.xml
 include doc/examples/cgi/*.py
 include doc/examples/cgi/icat.cfg
 include doc/examples/cgi/cgi-html.yaml
