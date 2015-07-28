@@ -4,7 +4,10 @@
 from __future__ import print_function
 import sys
 import os.path
+import datetime
 import re
+from random import getrandbits
+import zlib
 import subprocess
 import shutil
 import tempfile
@@ -12,6 +15,10 @@ import logging
 import pytest
 import icat
 import icat.config
+try:
+    from suds.sax.date import UtcTimezone
+except ImportError:
+    UtcTimezone = None
 
 
 # Note that pytest captures stderr, so we won't see any logging by
@@ -23,6 +30,42 @@ testdir = os.path.dirname(__file__)
 
 
 # ============================= helper ===============================
+
+if sys.version_info < (3, 0):
+    def buf(seq):
+        return buffer(bytearray(seq))
+else:
+    def buf(seq):
+        return bytearray(seq)
+
+class DummyDatafile(object):
+    """A dummy file with random content to be used for test upload.
+    """
+    def __init__(self, directory, name, size, date=None):
+        if date is not None:
+            date = (date, date)
+        self.name = name
+        self.fname = os.path.join(directory, name)
+        chunksize = 8192
+        crc32 = 0
+        with open(self.fname, 'wb') as f:
+            while size > 0:
+                if chunksize > size:
+                    chunksize = size
+                chunk = buf(getrandbits(8) for _ in range(chunksize))
+                size -= chunksize
+                crc32 = zlib.crc32(chunk, crc32)
+                f.write(chunk)
+        if date:
+            os.utime(self.fname, date)
+        self.crc32 = "%x" % (crc32 & 0xffffffff)
+        self.stat = os.stat(self.fname)
+        self.size = self.stat.st_size
+        if UtcTimezone:
+            mtime = int(self.stat.st_mtime)
+            self.mtime = datetime.datetime.fromtimestamp(mtime, UtcTimezone())
+        else:
+            self.mtime = None
 
 class tmpSessionId:
     """Temporarily switch to another sessionId in an ICAT client.

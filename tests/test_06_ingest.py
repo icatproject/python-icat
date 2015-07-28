@@ -7,7 +7,7 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import gettestdata, callscript
+from conftest import DummyDatafile, gettestdata, callscript
 
 
 # The ICAT session as a fixture to be shared among all tests in this
@@ -24,6 +24,21 @@ def client(setupicat, icatconfigfile):
 
 
 ds_params = gettestdata("ingest-ds-params.xml")
+datafiles = gettestdata("ingest-datafiles.xml")
+
+testdatafiles = [
+    {
+        'dfname': "e208343.dat",
+        'size': 394,
+        'mtime': 1286600400,
+    },
+    {
+        'dfname': "e208343.nxs",
+        'size': 52857,
+        'mtime': 1286600400,
+    },
+]
+
 
 def test_ingest_dataset_params(client, icatconfigfile):
     """Ingest a file setting some dataset parameters.
@@ -47,3 +62,63 @@ def test_ingest_dataset_params(client, icatconfigfile):
     assert values == { ("Magnetic field", 5.3, "T"), 
                        ("Reactor power", 10.0, "MW"), 
                        ("Sample temperature", 293.15, "K") }
+
+
+def test_ingest_datafiles(tmpdirsec, client, icatconfigfile):
+    """Ingest a dataset with some datafiles.
+    """
+    dummyfiles = [ f['dfname'] for f in testdatafiles ]
+    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", datafiles]
+    callscript("icatingest.py", args)
+    # Verify that the datafiles have been uploaded.
+    conditions = {
+        "name": "= 'e208343'", 
+        "investigation.name": "= '10100601-ST'",  
+        "investigation.visitId": "='1.1-N'"
+    }
+    query = Query(client, "Dataset", conditions=conditions)
+    dataset = client.assertedSearch(query)[0]
+    for fname in dummyfiles:
+        query = Query(client, "Datafile", conditions={
+            "name": "= '%s'" % fname,
+            "dataset.id": "= %d" % dataset.id,
+        })
+        df = client.assertedSearch(query)[0]
+        assert df.location is None
+    # Delete the dataset together with the datafiles so that the next
+    # test got a chance to creste them again.
+    client.delete(dataset)
+
+
+def test_ingest_datafiles_upload(tmpdirsec, client, icatconfigfile):
+    """Upload datafiles to IDS from icatingest.
+
+    Same as last test, but set the --upload-datafiles flag so that
+    icatingest will not create the datafiles as objects in the ICAT,
+    but upload the files to IDS instead.
+    """
+    dummyfiles = [ DummyDatafile(tmpdirsec.dir, 
+                                 f['dfname'], f['size'], f['mtime'])
+                   for f in testdatafiles ]
+    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", datafiles, 
+            "--upload-datafiles", "--datafile-dir", tmpdirsec.dir]
+    callscript("icatingest.py", args)
+    # Verify that the datafiles have been uploaded.
+    conditions = {
+        "name": "= 'e208343'", 
+        "investigation.name": "= '10100601-ST'",  
+        "investigation.visitId": "='1.1-N'"
+    }
+    query = Query(client, "Dataset", conditions=conditions)
+    dataset = client.assertedSearch(query)[0]
+    for f in dummyfiles:
+        query = Query(client, "Datafile", conditions={
+            "name": "= '%s'" % f.name,
+            "dataset.id": "= %d" % dataset.id,
+        })
+        df = client.assertedSearch(query)[0]
+        assert df.location is not None
+        assert df.fileSize == f.size
+        assert df.checksum == f.crc32
+        if f.mtime:
+            assert df.datafileModTime == f.mtime
