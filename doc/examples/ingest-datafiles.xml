@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icatdata>
+  <!-- Example input to add a dataset with few datafiles with
+       icatingest.py. -->
+  <head>
+    <date>2015-07-28T08:23:26Z</date>
+    <generator>manual edit</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_002">
+      <complete>false</complete>
+      <endDate>2010-10-15T07:00:00+02:00</endDate>
+      <name>e208343</name>
+      <startDate>2010-10-12T17:00:00+02:00</startDate>
+      <investigation name="10100601-ST" visitId="1.1-N"/>
+      <type name="raw"/>
+    </dataset>
+    <datafile>
+      <name>e208343.dat</name>
+      <datafileFormat name="raw"/>
+      <dataset ref="Dataset_002"/>
+    </datafile>
+    <datafile>
+      <name>e208343.nxs</name>
+      <datafileFormat name="NeXus" version="4.0.0"/>
+      <dataset ref="Dataset_002"/>
+    </datafile>
+  </data>
+</icatdata>

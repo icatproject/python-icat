@@ -120,7 +120,8 @@ class test(Command):
     def copy_test_data(self):
         destdir = os.path.join("tests", "data")
         self.mkpath(destdir)
-        files = ["example_data.yaml", "icatdump.xml", "icatdump.yaml"]
+        files = ["example_data.yaml", "icatdump.xml", "icatdump.yaml", 
+                 "ingest-datafiles.xml", "ingest-ds-params.xml"]
         for f in files:
             src = os.path.join("doc", "examples", f)
             dest = os.path.join(destdir, os.path.basename(f))
@@ -138,7 +139,7 @@ setup(
     license = "BSD-2-Clause",
     requires = ["suds"],
     packages = ["icat"],
-    scripts = ["icatdump.py", "icatrestore.py"],
+    scripts = ["icatdump.py", "icatingest.py"],
     # I never tested Python 3.0, any feedback welcome.  Python 3.*
     # requires the jurko fork of Suds.
     classifiers = [

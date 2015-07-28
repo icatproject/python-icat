@@ -36,13 +36,22 @@ import icat
 import icat.config
 from icat.query import Query
 from icat.dumpfile import open_dumpfile
-import icat.dumpfile_xml
-import icat.dumpfile_yaml
+try:
+    import icat.dumpfile_xml
+except ImportError:
+    pass
+try:
+    import icat.dumpfile_yaml
+except ImportError:
+    pass
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 formats = icat.dumpfile.Backends.keys()
+if len(formats) == 0:
+    raise RuntimeError("No datafile backends available.")
+
 config = icat.config.Config()
 config.add_variable('file', ("-o", "--outputfile"), 
                     dict(help="output file name or '-' for stdout"),

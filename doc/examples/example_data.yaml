@@ -290,6 +290,35 @@ jobs:
           format: nexus42
           investigation: 12100409-ST
           name: e208945-2.nxs
+parameter_types:
+  magnetic_field:
+    applicableToDataset: True
+    facility: example_facility
+    name: Magnetic field
+    units: T
+    unitsFullName: Tesla
+    valueType: NUMERIC
+  reactor_power:
+    applicableToDataset: True
+    facility: example_facility
+    name: Reactor power
+    units: MW
+    unitsFullName: Megawatt
+    valueType: NUMERIC
+  sample_temperature_c:
+    applicableToDataset: True
+    facility: example_facility
+    name: Sample temperature
+    units: C
+    unitsFullName: Celsius
+    valueType: NUMERIC
+  sample_temperature_k:
+    applicableToDataset: True
+    facility: example_facility
+    name: Sample temperature
+    units: K
+    unitsFullName: Kelvin
+    valueType: NUMERIC
 sample_types:
   durol:
     facility: example_facility

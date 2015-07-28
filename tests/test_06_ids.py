@@ -2,23 +2,16 @@
 """
 
 from __future__ import print_function
-import sys
 import os
 import os.path
-from random import getrandbits
-import datetime
-import zlib
 import zipfile
 import filecmp
 import pytest
 import icat
 import icat.config
 from icat.query import Query
+from conftest import DummyDatafile
 from conftest import require_icat_version, gettestdata, callscript
-try:
-    from suds.sax.date import UtcTimezone
-except ImportError:
-    UtcTimezone = None
 
 # test content has InvestigationGroup objects.
 require_icat_version("4.4.0")
@@ -34,41 +27,6 @@ def client(setupicat, icatconfigfile):
     client = icat.Client(conf.url, **conf.client_kwargs)
     client.login(conf.auth, conf.credentials)
     return client
-
-# Create a test file with random content.
-
-if sys.version_info < (3, 0):
-    def buf(seq):
-        return buffer(bytearray(seq))
-else:
-    def buf(seq):
-        return bytearray(seq)
-
-class Testfile(object):
-    def __init__(self, directory, name, size, date=None):
-        if date is not None:
-            date = (date, date)
-        self.fname = os.path.join(directory, name)
-        chunksize = 8192
-        crc32 = 0
-        with open(self.fname, 'wb') as f:
-            while size > 0:
-                if chunksize > size:
-                    chunksize = size
-                chunk = buf(getrandbits(8) for _ in range(chunksize))
-                size -= chunksize
-                crc32 = zlib.crc32(chunk, crc32)
-                f.write(chunk)
-        if date:
-            os.utime(self.fname, date)
-        self.crc32 = "%x" % (crc32 & 0xffffffff)
-        self.stat = os.stat(self.fname)
-        self.size = self.stat.st_size
-        if UtcTimezone:
-            mtime = int(self.stat.st_mtime)
-            self.mtime = datetime.datetime.fromtimestamp(mtime, UtcTimezone())
-        else:
-            self.mtime = None
 
 
 # ============================= tests ==============================
@@ -145,7 +103,8 @@ testdatasets = [
 
 @pytest.mark.parametrize(("case"), testdatafiles)
 def test_upload(tmpdirsec, icatconfigfile, client, case):
-    f = Testfile(tmpdirsec.dir, case['dfname'], case['size'], case['mtime'])
+    f = DummyDatafile(tmpdirsec.dir, 
+                      case['dfname'], case['size'], case['mtime'])
     print("\nUpload file %s" % case['dfname'])
     args = ["-c", icatconfigfile, "-s", case['uluser'], 
             case['invname'], case['dsname'], case['dfformat'], f.fname]

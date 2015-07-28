@@ -1,4 +1,4 @@
-"""XML dump file backend for icatdump.py and icatrestore.py.
+"""XML dump file backend for icatdump.py and icatingest.py.
 """
 
 import os
@@ -6,6 +6,7 @@ import datetime
 from lxml import etree
 import icat
 import icat.dumpfile
+from icat.query import Query
 
 
 # ------------------------------------------------------------
@@ -57,11 +58,23 @@ def entity2elem(obj, tag, keyindex):
 
     return d
 
+def searchByReference(client, element, objtype, objindex):
+    """Search for a referenced object.
+    """
+    ref = element.get('ref')
+    if ref:
+        # object is referenced by key.
+        return client.searchUniqueKey(ref, objindex)
+    else:
+        # object is referenced by attributes.
+        attrs = set(element.keys()) - {'id'}
+        conditions = { a: "= '%s'" % element.get(a) for a in attrs }
+        query = Query(client, objtype, conditions=conditions)
+        return client.assertedSearch(query)[0]
+
 def elem2entity(client, insttypemap, element, objtype, objindex):
     """Create an entity object from XML element data."""
-    if objtype is None:
-        objtype = element.tag
-    obj = client.new(objtype)
+    obj = client.new(insttypemap[objtype])
     for subelem in element:
         attr = subelem.tag
         if attr in obj.AttrAlias:
@@ -69,11 +82,11 @@ def elem2entity(client, insttypemap, element, objtype, objindex):
         if attr in obj.InstAttr:
             setattr(obj, attr, subelem.text)
         elif attr in obj.InstRel:
-            ref = subelem.get('ref')
-            robj = client.searchUniqueKey(ref, objindex)
+            rtype = obj.getAttrType(attr)
+            robj = searchByReference(client, subelem, rtype, objindex)
             setattr(obj, attr, robj)
         elif attr in obj.InstMRel:
-            rtype = insttypemap[obj.getAttrType(attr)]
+            rtype = obj.getAttrType(attr)
             robj = elem2entity(client, insttypemap, subelem, rtype, objindex)
             getattr(obj, attr).append(robj)
         else:
@@ -87,7 +100,7 @@ def elem2entity(client, insttypemap, element, objtype, objindex):
 # ------------------------------------------------------------
 
 class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
-    """Backend for icatrestore.py to read a XML dump file."""
+    """Backend for icatingest.py to read a XML dump file."""
 
     def __init__(self, client, infile):
         super(XMLDumpFileReader, self).__init__(client, infile)
@@ -111,9 +124,22 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
         """
         for elem in data:
             key = elem.get('id')
-            obj = elem2entity(self.client, self.insttypemap, 
-                              elem, None, objindex)
-            yield key, obj
+            tag = elem.tag
+            if tag.endswith("Ref"):
+                # elem is a reference to an already existing object.
+                # Do not yield it as it should not be created, but add
+                # it to the objindex so it can be referenced later on
+                # from other objects.
+                if key:
+                    objtype = self.client.typemap[tag[0:-3]].BeanName
+                    obj = searchByReference(self.client, elem, objtype, 
+                                            objindex)
+                    objindex[key] = obj
+            else:
+                objtype = self.client.typemap[tag].BeanName
+                obj = elem2entity(self.client, self.insttypemap, 
+                                  elem, objtype, objindex)
+                yield key, obj
 
 
 # ------------------------------------------------------------
@@ -139,7 +165,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         etree.SubElement(head, "generator").text = ("icatdump (python-icat %s)" 
                                                     % icat.__version__)
         self.outfile.write(b"""<?xml version="1.0" encoding="utf-8"?>
-<icatdump>
+<icatdata>
 """)
         self.outfile.write(etree.tostring(head, pretty_print=True))
 
@@ -162,7 +188,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     def finalize(self):
         """Finalize the dump file."""
         self.startdata()
-        self.outfile.write(b"</icatdump>\n")
+        self.outfile.write(b"</icatdata>\n")
         self.outfile.close()
 
 
