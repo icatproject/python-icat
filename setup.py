@@ -120,7 +120,8 @@ class test(Command):
     def copy_test_data(self):
         destdir = os.path.join("tests", "data")
         self.mkpath(destdir)
-        files = ["example_data.yaml", "icatdump.xml", "icatdump.yaml"]
+        files = ["example_data.yaml", "icatdump.xml", "icatdump.yaml", 
+                 "ingest-ds-params.xml"]
         for f in files:
             src = os.path.join("doc", "examples", f)
             dest = os.path.join(destdir, os.path.basename(f))
