@@ -33,14 +33,23 @@ import logging
 import icat
 import icat.config
 from icat.dumpfile import open_dumpfile
-import icat.dumpfile_xml
-import icat.dumpfile_yaml
+try:
+    import icat.dumpfile_xml
+except ImportError:
+    pass
+try:
+    import icat.dumpfile_yaml
+except ImportError:
+    pass
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.CRITICAL)
 log = logging.getLogger(__name__)
 
 formats = icat.dumpfile.Backends.keys()
+if len(formats) == 0:
+    raise RuntimeError("No datafile backends available.")
+
 config = icat.config.Config(ids="optional")
 config.add_variable('file', ("-i", "--inputfile"), 
                     dict(help="input file name or '-' for stdin"),
