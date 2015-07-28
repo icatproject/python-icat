@@ -35,12 +35,16 @@ TODO:
    -> Done (for XML).
 
  + Add examples and test cases for the use of icatrestore as ingestor.
+   -> Done.
 
  + Implement upload of datafiles to IDS from the ingestor (to be
    controlled by configuration variables).
+   -> Done.
 
  + Optionally allow ignoring of ICATObjectExistsErrors, see the
    duplicate configuration variable in icatimport.
+   -> Done.
 
  + Handle ImportErrors gracefully in case of missing dependencies for
    the backend modules.
+   -> Done.
