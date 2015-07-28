@@ -1,4 +1,4 @@
-"""Test icatdump and icatrestore.
+"""Test icatdump and icatingest.
 """
 
 import os.path
@@ -30,13 +30,13 @@ for u in users:
     refsummary[u] = gettestdata("summary.%s" % u)
 
 
-def test_restore_xml(icatconfigfile):
+def test_ingest_xml(icatconfigfile):
     """Restore the ICAT content from a XML dumpfile.
     """
     callscript("wipeicat.py", ["-c", icatconfigfile, "-s", "root"])
     refdump = backends["XML"]['refdump']
     args = ["-c", icatconfigfile, "-s", "root", "-f", "XML", "-i", refdump]
-    callscript("icatrestore.py", args)
+    callscript("icatingest.py", args)
 
 @pytest.mark.parametrize(("backend"), sorted(backends.keys()))
 def test_check_content_xml(icatconfigfile, tmpdirsec, backend):
@@ -79,13 +79,13 @@ def test_check_summary_user_xml(icatconfigfile, tmpdirsec, user):
     assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
 
 
-def test_restore_yaml(icatconfigfile):
+def test_ingest_yaml(icatconfigfile):
     """Restore the ICAT content from a YAML dumpfile.
     """
     callscript("wipeicat.py", ["-c", icatconfigfile, "-s", "root"])
     refdump = backends["YAML"]['refdump']
     args = ["-c", icatconfigfile, "-s", "root", "-f", "YAML", "-i", refdump]
-    callscript("icatrestore.py", args)
+    callscript("icatingest.py", args)
 
 @pytest.mark.parametrize(("backend"), sorted(backends.keys()))
 def test_check_content_yaml(icatconfigfile, tmpdirsec, backend):

@@ -1,7 +1,7 @@
 %YAML 1.1
-# Date: Mon, 20 Jul 2015 07:05:34 +0000
+# Date: Mon, 27 Jul 2015 13:23:11 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
-# ICAT-API: 4.4
+# ICAT-API: 4.5
 # Generator: icatdump (python-icat 0.8.0)
 ---
 grouping:
@@ -691,6 +691,59 @@ investigationType:
   InvestigationType_name-Simulation_facility-(name-ESNF):
     facility: Facility_name-ESNF
     name: Simulation
+parameterType:
+  ParameterType_facility-(name-ESNF)_name-Magnetic=20field_units-T:
+    applicableToDataCollection: false
+    applicableToDatafile: false
+    applicableToDataset: true
+    applicableToInvestigation: false
+    applicableToSample: false
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Magnetic field
+    units: T
+    unitsFullName: Tesla
+    valueType: NUMERIC
+    verified: false
+  ParameterType_facility-(name-ESNF)_name-Reactor=20power_units-MW:
+    applicableToDataCollection: false
+    applicableToDatafile: false
+    applicableToDataset: true
+    applicableToInvestigation: false
+    applicableToSample: false
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Reactor power
+    units: MW
+    unitsFullName: Megawatt
+    valueType: NUMERIC
+    verified: false
+  ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-C:
+    applicableToDataCollection: false
+    applicableToDatafile: false
+    applicableToDataset: true
+    applicableToInvestigation: false
+    applicableToSample: false
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Sample temperature
+    units: C
+    unitsFullName: Celsius
+    valueType: NUMERIC
+    verified: false
+  ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-K:
+    applicableToDataCollection: false
+    applicableToDatafile: false
+    applicableToDataset: true
+    applicableToInvestigation: false
+    applicableToSample: false
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Sample temperature
+    units: K
+    unitsFullName: Kelvin
+    valueType: NUMERIC
+    verified: false
 sampleType:
   SampleType_facility-(name-ESNF)_name-Durol=20SC_molecularFormula-C10H14:
     facility: Facility_name-ESNF

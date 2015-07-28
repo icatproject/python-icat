@@ -140,7 +140,8 @@ class Client(suds.client.Client):
         search, searchText, update
 
     :group custom API methods: assertedSearch, searchChunked,
-        searchUniqueKey, createUser, createGroup, createRules
+        searchUniqueKey, searchMatching, createUser, createGroup, 
+        createRules
 
     :group custom IDS methods: putData, getData, getDataUrl,
         prepareData, isDataPrepared, getPreparedData,
@@ -669,7 +670,7 @@ class Client(suds.client.Client):
         :type objindex: ``dict``
         :return: the object corresponding to the key.
         :rtype: ``Entity``
-        :raise SearchResultError: if the object have not been found.
+        :raise SearchResultError: if the object has not been found.
         :raise ValueError: if the key is not well formed.
         :raise VersionMethodError: if connected to an ICAT server
             older then 4.3.0.
@@ -701,6 +702,38 @@ class Client(suds.client.Client):
         if objindex is not None:
             objindex[key] = obj
         return obj
+
+    def searchMatching(self, obj):
+        """Search the matching object.
+
+        Search the object from the ICAT server that matches the given
+        object in the uniqueness constraint.
+
+        :param obj: an entity object having the attrinutes for the
+            uniqueness constraint set accordingly.
+        :type obj: ``Entity``
+        :return: the corresponding object.
+        :rtype: ``Entity``
+        :raise SearchResultError: if the object has not been found.
+        :raise ValueError: if the object's class does not have a
+            uniqueness constraint or if any attribute needed for the
+            constraint is not set.
+        """
+        if 'id' in obj.Constraint:
+            raise ValueError("%s does not have a uniqueness constraint.")
+        query = Query(self, obj.BeanName)
+        for a in obj.Constraint:
+            v = getattr(obj, a)
+            if v is None:
+                raise ValueError("%s is not set" % a)
+            if a in obj.InstAttr:
+                query.addConditions({a: "= '%s'" % v})
+            elif a in obj.InstRel:
+                query.addConditions({"%s.id" % a: "= %d" % v.id})
+            else:
+                raise InternalError("Invalid constraint '%s' in %s."
+                                    % (a, obj.BeanName))
+        return self.assertedSearch(query)[0]
 
     def createUser(self, name, search=False, **kwargs):
         """Search a user by name or Create a new user.

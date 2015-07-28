@@ -5,7 +5,7 @@
 # Use the import feature from ICAT server: make the appropriate call
 # to the ICAT RESTful interface to upload content to the ICAT server.
 # Try to keep the command line interface as close as possible to the
-# one from icatrestore.py.
+# one from icatingest.py.
 #
 
 import sys
@@ -29,7 +29,7 @@ config.add_variable('file', ("-i", "--inputfile"),
                     default='-')
 # The format argument makes in fact little sense, as there is no
 # choice.  It's here for compatiblity with the command line interface
-# of icatrestore.py only.
+# of icatingest.py only.
 config.add_variable('format', ("-f", "--format"), 
                     dict(help="input file format", choices=["ICAT"]),
                     default='ICAT')

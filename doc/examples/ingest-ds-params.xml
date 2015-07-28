@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icatdata>
+  <!-- Example input to add a few dataset parameters to a given
+       dataset with icatingest.py. -->
+  <head>
+    <date>2015-07-28T06:28:34Z</date>
+    <generator>manual edit</generator>
+  </head>
+  <data>
+    <datasetRef id="Dataset_001" 
+		name="e208341" 
+		investigation.name="10100601-ST" 
+		investigation.visitId="1.1-N"/>
+    <datasetParameter>
+      <numericValue>5.3</numericValue>
+      <dataset ref="Dataset_001"/>
+      <type name="Magnetic field" units="T"/>
+    </datasetParameter>
+    <datasetParameter>
+      <numericValue>10.0</numericValue>
+      <dataset ref="Dataset_001"/>
+      <type name="Reactor power" units="MW"/>
+    </datasetParameter>
+    <datasetParameter>
+      <numericValue>293.15</numericValue>
+      <dataset ref="Dataset_001"/>
+      <type name="Sample temperature" units="K"/>
+    </datasetParameter>
+  </data>
+</icatdata>

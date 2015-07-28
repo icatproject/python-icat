@@ -380,6 +380,15 @@ for k in data['datafile_formats'].keys():
     fileformats.append(ff)
 client.createMany(fileformats)
 
+# parameterTypes
+param_types = []
+for k in data['parameter_types'].keys():
+    pt = client.new("parameterType")
+    initobj(pt, data['parameter_types'][k])
+    pt.facility = facilities[data['parameter_types'][k]['facility']]
+    param_types.append(pt)
+client.createMany(param_types)
+
 # applications
 applications = []
 for k in data['applications'].keys():
