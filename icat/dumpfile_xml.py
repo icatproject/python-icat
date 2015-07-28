@@ -67,8 +67,8 @@ def searchByReference(client, element, objtype, objindex):
         return client.searchUniqueKey(ref, objindex)
     else:
         # object is referenced by attributes.
-        attrs = set(element.keys()) - {'id'}
-        conditions = { a: "= '%s'" % element.get(a) for a in attrs }
+        attrs = set(element.keys()) - set(['id'])
+        conditions = dict([ (a, "= '%s'" % element.get(a)) for a in attrs ])
         query = Query(client, objtype, conditions=conditions)
         return client.assertedSearch(query)[0]
 

@@ -59,10 +59,10 @@ def test_ingest_dataset_params(client, icatconfigfile):
                   includes={"type"})
     params = client.search(query)
     assert len(params) == 3
-    values = { (p.type.name, p.numericValue, p.type.units) for p in params }
-    assert values == { ("Magnetic field", 5.3, "T"), 
-                       ("Reactor power", 10.0, "MW"), 
-                       ("Sample temperature", 293.15, "K") }
+    values = set([ (p.type.name, p.numericValue, p.type.units) for p in params ])
+    assert values == set([ ("Magnetic field", 5.3, "T"), 
+                           ("Reactor power", 10.0, "MW"), 
+                           ("Sample temperature", 293.15, "K") ])
     # Delete the dataset parameters so that the following tests get a
     # chance to creste them again.
     client.deleteMany(params)
@@ -94,9 +94,9 @@ def test_ingest_duplicate_throw(client, icatconfigfile):
                   includes={"type"})
     params = client.search(query)
     assert len(params) == 2
-    values = { (p.type.name, p.numericValue, p.type.units) for p in params }
-    assert values == { ("Magnetic field", 5.3, "T"), 
-                       ("Reactor power", 5.0, "MW") }
+    values = set([ (p.type.name, p.numericValue, p.type.units) for p in params ])
+    assert values == set([ ("Magnetic field", 5.3, "T"), 
+                           ("Reactor power", 5.0, "MW") ])
     # Delete the dataset parameters so that the following tests get a
     # chance to creste them again.
     client.deleteMany(params)
@@ -127,10 +127,10 @@ def test_ingest_duplicate_ignore(client, icatconfigfile):
                   includes={"type"})
     params = client.search(query)
     assert len(params) == 3
-    values = { (p.type.name, p.numericValue, p.type.units) for p in params }
-    assert values == { ("Magnetic field", 5.3, "T"), 
-                       ("Reactor power", 5.0, "MW"), 
-                       ("Sample temperature", 293.15, "K") }
+    values = set([ (p.type.name, p.numericValue, p.type.units) for p in params ])
+    assert values == set([ ("Magnetic field", 5.3, "T"), 
+                           ("Reactor power", 5.0, "MW"), 
+                           ("Sample temperature", 293.15, "K") ])
     # Delete the dataset parameters so that the following tests get a
     # chance to creste them again.
     client.deleteMany(params)
@@ -163,9 +163,9 @@ def test_ingest_duplicate_check_err(client, icatconfigfile):
                   includes={"type"})
     params = client.search(query)
     assert len(params) == 2
-    values = { (p.type.name, p.numericValue, p.type.units) for p in params }
-    assert values == { ("Magnetic field", 5.3, "T"), 
-                       ("Reactor power", 5.0, "MW") }
+    values = set([ (p.type.name, p.numericValue, p.type.units) for p in params ])
+    assert values == set([ ("Magnetic field", 5.3, "T"), 
+                           ("Reactor power", 5.0, "MW") ])
     # Delete the dataset parameters so that the following tests get a
     # chance to creste them again.
     client.deleteMany(params)
@@ -196,10 +196,10 @@ def test_ingest_duplicate_check_ok(client, icatconfigfile):
                   includes={"type"})
     params = client.search(query)
     assert len(params) == 3
-    values = { (p.type.name, p.numericValue, p.type.units) for p in params }
-    assert values == { ("Magnetic field", 5.3, "T"), 
-                       ("Reactor power", 10.0, "MW"), 
-                       ("Sample temperature", 293.15, "K") }
+    values = set([ (p.type.name, p.numericValue, p.type.units) for p in params ])
+    assert values == set([ ("Magnetic field", 5.3, "T"), 
+                           ("Reactor power", 10.0, "MW"), 
+                           ("Sample temperature", 293.15, "K") ])
     # Delete the dataset parameters so that the following tests get a
     # chance to creste them again.
     client.deleteMany(params)
@@ -230,10 +230,10 @@ def test_ingest_duplicate_overwrite(client, icatconfigfile):
                   includes={"type"})
     params = client.search(query)
     assert len(params) == 3
-    values = { (p.type.name, p.numericValue, p.type.units) for p in params }
-    assert values == { ("Magnetic field", 5.3, "T"), 
-                       ("Reactor power", 10.0, "MW"), 
-                       ("Sample temperature", 293.15, "K") }
+    values = set([ (p.type.name, p.numericValue, p.type.units) for p in params ])
+    assert values == set([ ("Magnetic field", 5.3, "T"), 
+                           ("Reactor power", 10.0, "MW"), 
+                           ("Sample temperature", 293.15, "K") ])
     # Delete the dataset parameters so that the following tests get a
     # chance to creste them again.
     client.deleteMany(params)
