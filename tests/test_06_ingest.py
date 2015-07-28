@@ -56,7 +56,7 @@ def test_ingest_dataset_params(client, icatconfigfile):
     dataset = client.assertedSearch(query)[0]
     query = Query(client, "DatasetParameter", 
                   conditions={"dataset.id": "= %d" % dataset.id}, 
-                  includes={"type"})
+                  includes=set(["type"]))
     params = client.search(query)
     assert len(params) == 3
     values = set([ (p.type.name, p.numericValue, p.type.units) for p in params ])
@@ -91,7 +91,7 @@ def test_ingest_duplicate_throw(client, icatconfigfile):
     # Verify that the params have been set.
     query = Query(client, "DatasetParameter", 
                   conditions={"dataset.id": "= %d" % dataset.id}, 
-                  includes={"type"})
+                  includes=set(["type"]))
     params = client.search(query)
     assert len(params) == 2
     values = set([ (p.type.name, p.numericValue, p.type.units) for p in params ])
@@ -124,7 +124,7 @@ def test_ingest_duplicate_ignore(client, icatconfigfile):
     # Verify that the params have been set.
     query = Query(client, "DatasetParameter", 
                   conditions={"dataset.id": "= %d" % dataset.id}, 
-                  includes={"type"})
+                  includes=set(["type"]))
     params = client.search(query)
     assert len(params) == 3
     values = set([ (p.type.name, p.numericValue, p.type.units) for p in params ])
@@ -160,7 +160,7 @@ def test_ingest_duplicate_check_err(client, icatconfigfile):
     # Verify that the params have been set.
     query = Query(client, "DatasetParameter", 
                   conditions={"dataset.id": "= %d" % dataset.id}, 
-                  includes={"type"})
+                  includes=set(["type"]))
     params = client.search(query)
     assert len(params) == 2
     values = set([ (p.type.name, p.numericValue, p.type.units) for p in params ])
@@ -193,7 +193,7 @@ def test_ingest_duplicate_check_ok(client, icatconfigfile):
     # Verify that the params have been set.
     query = Query(client, "DatasetParameter", 
                   conditions={"dataset.id": "= %d" % dataset.id}, 
-                  includes={"type"})
+                  includes=set(["type"]))
     params = client.search(query)
     assert len(params) == 3
     values = set([ (p.type.name, p.numericValue, p.type.units) for p in params ])
@@ -227,7 +227,7 @@ def test_ingest_duplicate_overwrite(client, icatconfigfile):
     # Verify that the params have been set.
     query = Query(client, "DatasetParameter", 
                   conditions={"dataset.id": "= %d" % dataset.id}, 
-                  includes={"type"})
+                  includes=set(["type"]))
     params = client.search(query)
     assert len(params) == 3
     values = set([ (p.type.name, p.numericValue, p.type.units) for p in params ])
