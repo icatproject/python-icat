@@ -100,7 +100,7 @@ def check_duplicate(obj):
             v = getattr(obj, a)
             # FIXME: must take the attribute type into account for the
             # comparision of the value.
-            if v is not None and getattr(dobj, a) != v:
+            if v is not None and str(getattr(dobj, a)) != v:
                 raise
     elif conf.duplicate == "OVERWRITE":
         dobj.get()
