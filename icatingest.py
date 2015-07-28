@@ -26,6 +26,7 @@
 #  + Restoring of several entity types has not yet been
 #    tested.  See icatdump.py for a list.
 
+import os.path
 import logging
 import icat
 import icat.config
@@ -38,14 +39,26 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 formats = icat.dumpfile.Backends.keys()
-config = icat.config.Config()
+config = icat.config.Config(ids="optional")
 config.add_variable('file', ("-i", "--inputfile"), 
                     dict(help="input file name or '-' for stdin"),
                     default='-')
 config.add_variable('format', ("-f", "--format"), 
                     dict(help="input file format", choices=formats),
                     default='YAML')
+config.add_variable('uploadDatafiles', ("--upload-datafiles",), 
+                    dict(help="upload datafiles to IDS"), 
+                    type=icat.config.flag, default=False)
+config.add_variable('dataDir', ("--datafile-dir",), 
+                    dict(help="datafile directory"),
+                    default='.')
 conf = config.getconfig()
+
+if conf.uploadDatafiles:
+    if conf.idsurl is None:
+        raise icat.ConfigError("Config option 'idsurl' not given, "
+                               "but required for uploadDatafiles.")
+    conf.dataDir = os.path.abspath(conf.dataDir)
 
 client = icat.Client(conf.url, **conf.client_kwargs)
 if client.apiversion < '4.3':
@@ -56,4 +69,8 @@ client.login(conf.auth, conf.credentials)
 
 with open_dumpfile(client, conf.file, conf.format, 'r') as dumpfile:
     for obj in dumpfile.getobjs():
-        obj.create()
+        if conf.uploadDatafiles and obj.BeanName == "Datafile":
+            fname = os.path.join(conf.dataDir, obj.name)
+            client.putData(fname, obj)
+        else:
+            obj.create()
