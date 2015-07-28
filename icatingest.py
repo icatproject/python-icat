@@ -12,12 +12,6 @@
 #    the file.  In the generic case of restoring the entire content on
 #    an empty ICAT server, the script must be run by the ICAT root
 #    user.
-#  + It is assumed that the data in the dump file may be created right
-#    away in the ICAT server.  There is no collision check with data
-#    already present at the server.
-#  + IDS is not supported: the script only restores the meta data
-#    stored in the ICAT, not the content of the files stored in the
-#    IDS.
 #  + This script requires ICAT 4.3.0 or newer.
 #  + A dump and restore of an ICAT will not preserve the attributes
 #    id, createId, createTime, modId, and modTime of any objects.
@@ -25,6 +19,14 @@
 #    rules that are based on object ids will not work after a restore.
 #  + Restoring of several entity types has not yet been
 #    tested.  See icatdump.py for a list.
+#  + Dealing with duplicates (option --duplicate) is only supported
+#    for single objects.  If the object contains related objects in
+#    one to many relationships that are to be created at once, the
+#    only allowed option to deal with duplicates is THROW.
+#  + When using --duplicate=CHECK to raise an error (only) if the new
+#    data does not match the old, spurious errors may be raised may be
+#    raised for attributes that are not strings.
+#
 
 import os.path
 import logging
@@ -35,7 +37,7 @@ import icat.dumpfile_xml
 import icat.dumpfile_yaml
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
+logging.getLogger('suds.client').setLevel(logging.CRITICAL)
 log = logging.getLogger(__name__)
 
 formats = icat.dumpfile.Backends.keys()
@@ -52,6 +54,10 @@ config.add_variable('uploadDatafiles', ("--upload-datafiles",),
 config.add_variable('dataDir', ("--datafile-dir",), 
                     dict(help="datafile directory"),
                     default='.')
+config.add_variable('duplicate', ("--duplicate",), 
+                    dict(help="behavior in case of duplicate objects",
+                         choices=["THROW", "IGNORE", "CHECK", "OVERWRITE"]), 
+                    default='THROW')
 conf = config.getconfig()
 
 if conf.uploadDatafiles:
@@ -67,10 +73,42 @@ if client.apiversion < '4.3':
 client.login(conf.auth, conf.credentials)
 
 
+def check_duplicate(obj):
+    """Deal with duplicate objects according conf.duplicate.
+    """
+    if conf.duplicate == "THROW":
+        raise
+    # Allow IGNORE, CHECK, and OVERWRITE only on single objects
+    for r in obj.InstMRel:
+        if getattr(obj, r):
+            raise RuntimeError("Cannot %s duplicate on %s if %s is not empty."
+                               % (conf.duplicate, obj.BeanName, r))
+    dobj = client.searchMatching(obj)
+    if conf.duplicate == "IGNORE":
+        pass
+    elif conf.duplicate == "CHECK":
+        for a in obj.InstAttr:
+            v = getattr(obj, a)
+            # FIXME: must take the attribute type into account for the
+            # comparision of the value.
+            if v is not None and getattr(dobj, a) != v:
+                raise
+    elif conf.duplicate == "OVERWRITE":
+        dobj.get()
+        for a in obj.InstAttr:
+            v = getattr(obj, a)
+            if v is not None:
+                setattr(dobj, a, v)
+        dobj.update()
+    obj.id = dobj.id
+
 with open_dumpfile(client, conf.file, conf.format, 'r') as dumpfile:
     for obj in dumpfile.getobjs():
         if conf.uploadDatafiles and obj.BeanName == "Datafile":
             fname = os.path.join(conf.dataDir, obj.name)
             client.putData(fname, obj)
         else:
-            obj.create()
+            try:
+                obj.create()
+            except icat.ICATObjectExistsError:
+                check_duplicate(obj)
