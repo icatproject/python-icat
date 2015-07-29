@@ -54,7 +54,10 @@ class EntityInfo(object):
 
     def getattrs(self):
         """Return the attributes (relType == ATTRIBUTE)."""
-        return self.getfieldnames('ATTRIBUTE')
+        # ICAT 4.5.0 also lists the meta attributes as attributes in
+        # the entity info.  Need to remove them here, as they should
+        # not be added to InstAttr.
+        return self.getfieldnames('ATTRIBUTE') - Entity.MetaAttr
 
     def getrelations(self):
         """Return the many to one relations (relType == ONE)."""

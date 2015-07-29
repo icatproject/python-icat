@@ -135,9 +135,7 @@ class Client(suds.client.Client):
     :group ICAT API methods: login, logout, create, createMany,
         delete, deleteMany, get, getApiVersion, getEntityInfo,
         getEntityNames, getProperties, getRemainingMinutes,
-        getUserName, isAccessAllowed, luceneClear, luceneCommit,
-        luceneGetPopulating, lucenePopulate, luceneSearch, refresh,
-        search, searchText, update
+        getUserName, isAccessAllowed, refresh, search, update
 
     :group custom API methods: assertedSearch, searchChunked,
         searchUniqueKey, searchMatching, createUser, createGroup, 
@@ -209,7 +207,7 @@ class Client(suds.client.Client):
             self.typemap = TypeMap43.copy()
         elif self.apiversion < '4.3.9':
             self.typemap = TypeMap431.copy()
-        elif self.apiversion < '4.4.9':
+        elif self.apiversion < '4.5.9':
             self.typemap = TypeMap44.copy()
         else:
             warn(ClientVersionWarning(self.apiversion, "too new"))
@@ -462,62 +460,6 @@ class Client(suds.client.Client):
             else:
                 raise
 
-    def luceneClear(self):
-        try:
-            self.service.luceneClear(self.sessionId)
-        except suds.WebFault as e:
-            raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("luceneClear", self.apiversion)
-            else:
-                raise
-
-    def luceneCommit(self):
-        try:
-            self.service.luceneCommit(self.sessionId)
-        except suds.WebFault as e:
-            raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("luceneCommit", self.apiversion)
-            else:
-                raise
-
-    def luceneGetPopulating(self):
-        try:
-            return self.service.luceneGetPopulating(self.sessionId)
-        except suds.WebFault as e:
-            raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3.1':
-                raise VersionMethodError("luceneGetPopulating", self.apiversion)
-            else:
-                raise
-
-    def lucenePopulate(self, entityName):
-        try:
-            self.service.lucenePopulate(self.sessionId, entityName)
-        except suds.WebFault as e:
-            raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("lucenePopulate", self.apiversion)
-            else:
-                raise
-
-    def luceneSearch(self, query, maxCount, entityName):
-        warn(ICATDeprecationWarning("luceneSearch()", "4.5.0"), stacklevel=2)
-        try:
-            return self.service.luceneSearch(self.sessionId, query, maxCount, entityName)
-        except suds.WebFault as e:
-            raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("luceneSearch", self.apiversion)
-            else:
-                raise
-
     def refresh(self):
         try:
             self.service.refresh(self.sessionId)
@@ -535,20 +477,6 @@ class Client(suds.client.Client):
             return map(lambda i: self.getEntity(i), instances)
         except suds.WebFault as e:
             raise translateError(e)
-
-    def searchText(self, query, maxCount, entityName):
-        warn(ICATDeprecationWarning("searchText()", "4.5.0"), stacklevel=2)
-        try:
-            instances = self.service.searchText(self.sessionId, query, 
-                                                maxCount, entityName)
-            return map(lambda i: self.getEntity(i), instances)
-        except suds.WebFault as e:
-            raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("searchText", self.apiversion)
-            else:
-                raise
 
     def update(self, bean):
         try:
