@@ -230,6 +230,12 @@ class IDSClient(object):
         # No way to distinguish 1.1.0, 1.0.1, and 1.0.0, report as 1.0.0.
         return "1.0.0"
 
+    def getIcatUrl(self):
+        """Get the URL of the ICAT server connected to this IDS.
+        """
+        req = IDSRequest(self.url + "getIcatUrl", {})
+        return self.default.open(req).read().decode('ascii')
+
     def isReadOnly(self):
         """See if the server is configured to be readonly.
         """
