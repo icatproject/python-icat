@@ -23,9 +23,10 @@
 #    for single objects.  If the object contains related objects in
 #    one to many relationships that are to be created at once, the
 #    only allowed option to deal with duplicates is THROW.
-#  + When using --duplicate=CHECK to raise an error (only) if the new
-#    data does not match the old, spurious errors may be raised may be
-#    raised for attributes that are not strings.
+#  + Issue #9: icatingest with duplicate=CHECK may fail when
+#    attributes are not strings.  When using duplicate=CHECK to raise
+#    an error (only) if the new data does not match the old, spurious
+#    errors may be raised for attributes that are not strings.
 #
 
 import os.path
