@@ -207,7 +207,7 @@ class Client(suds.client.Client):
             self.typemap = TypeMap43.copy()
         elif self.apiversion < '4.3.9':
             self.typemap = TypeMap431.copy()
-        elif self.apiversion < '4.4.9':
+        elif self.apiversion < '4.5.9':
             self.typemap = TypeMap44.copy()
         else:
             warn(ClientVersionWarning(self.apiversion, "too new"))
