@@ -187,6 +187,101 @@ def test_ingest_duplicate_overwrite(dataset, client, icatconfigfile):
     })
 
 
+# Minimal example, a Datafile featuring a string.
+ingest_data_string = """<?xml version="1.0" encoding="utf-8"?>
+<icatdata>
+  <data>
+    <datafile>
+      <name>dup_test_str.dat</name>
+      <dataset name="e201215" 
+	       investigation.name="08100122-EF"
+	       investigation.visitId="1.1-P"/>
+    </datafile>
+  </data>
+</icatdata>
+"""
+# A Datafile featuring an int.
+ingest_data_int = """<?xml version="1.0" encoding="utf-8"?>
+<icatdata>
+  <data>
+    <datafile>
+      <fileSize>42</fileSize>
+      <name>dup_test_int.dat</name>
+      <dataset name="e201215" 
+	       investigation.name="08100122-EF"
+	       investigation.visitId="1.1-P"/>
+    </datafile>
+  </data>
+</icatdata>
+"""
+# A Dataset featuring a boolean.
+ingest_data_boolean = """<?xml version="1.0" encoding="utf-8"?>
+<icatdata>
+  <data>
+    <dataset>
+      <complete>false</complete>
+      <name>dup_test_bool</name>
+      <investigation name="08100122-EF" visitId="1.1-P"/>
+      <type name="raw"/>
+    </dataset>
+  </data>
+</icatdata>
+"""
+# A DatasetParameter featuring a float.
+ingest_data_float = """<?xml version="1.0" encoding="utf-8"?>
+<icatdata>
+  <data>
+    <datasetParameter>
+      <numericValue>5.3</numericValue>
+      <dataset name="e201215" 
+	       investigation.name="08100122-EF"
+	       investigation.visitId="1.1-P"/>
+      <type name="Magnetic field" units="T"/>
+    </datasetParameter>
+  </data>
+</icatdata>
+"""
+# A Datafile featuring a date.
+ingest_data_date = """<?xml version="1.0" encoding="utf-8"?>
+<icatdata>
+  <data>
+    <datafile>
+      <datafileCreateTime>2008-06-18T09:31:11+02:00</datafileCreateTime>
+      <name>dup_test_date.dat</name>
+      <dataset name="e201215" 
+	       investigation.name="08100122-EF"
+	       investigation.visitId="1.1-P"/>
+    </datafile>
+  </data>
+</icatdata>
+"""
+
+@pytest.mark.parametrize("inputdata", [
+    ingest_data_string,
+    ingest_data_int,
+    pytest.mark.xfail(reason="Bug #9")(ingest_data_boolean),
+    ingest_data_float,
+    pytest.mark.xfail(reason="Bug #9")(ingest_data_date),
+])
+def test_ingest_duplicate_check_types(tmpdirsec, client, icatconfigfile, 
+                                      inputdata):
+    """Ingest with a collision of a duplicate object.
+
+    Similar to test_ingest_duplicate_check_ok(), but trying several
+    input datasets that test different data types.  Issue #9.
+    """
+    # We simply ingest twice the same data, using duplicate=CHECK the
+    # second time.  This obviously leads to matching duplicates.
+    inpfile = os.path.join(tmpdirsec.dir, "ingest.xml")
+    with open(inpfile, "wt") as f:
+        f.write(inputdata)
+    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", inpfile]
+    callscript("icatingest.py", args)
+    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", inpfile, 
+            "--duplicate", "CHECK"]
+    callscript("icatingest.py", args)
+
+
 def test_ingest_datafiles(tmpdirsec, client, icatconfigfile):
     """Ingest a dataset with some datafiles.
     """
