@@ -65,21 +65,26 @@ testdatafiles = [
 ]
 
 
+def verify_dataset_params(client, dataset, params):
+    query = Query(client, "DatasetParameter", 
+                  conditions={"dataset.id": "= %d" % dataset.id}, 
+                  includes={"type"})
+    ps = client.search(query)
+    assert len(ps) == len(params)
+    values = { (p.type.name, p.numericValue, p.type.units) for p in ps }
+    assert values == params
+
+
 def test_ingest_dataset_params(dataset, client, icatconfigfile):
     """Ingest a file setting some dataset parameters.
     """
     args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", ds_params]
     callscript("icatingest.py", args)
-    # Verify that the params have been set.
-    query = Query(client, "DatasetParameter", 
-                  conditions={"dataset.id": "= %d" % dataset.id}, 
-                  includes={"type"})
-    params = client.search(query)
-    assert len(params) == 3
-    values = { (p.type.name, p.numericValue, p.type.units) for p in params }
-    assert values == { ("Magnetic field", 5.3, "T"), 
-                       ("Reactor power", 10.0, "MW"), 
-                       ("Sample temperature", 293.15, "K") }
+    verify_dataset_params(client, dataset, { 
+        ("Magnetic field", 5.3, "T"), 
+        ("Reactor power", 10.0, "MW"), 
+        ("Sample temperature", 293.15, "K") 
+    })
 
 
 def test_ingest_duplicate_throw(dataset, client, icatconfigfile):
@@ -99,14 +104,10 @@ def test_ingest_duplicate_throw(dataset, client, icatconfigfile):
     # have been raised while trying to ingest the second parameter.
     # The first one (Maegnetic field) should have been created and
     # Reactor power should still have the value set above.
-    query = Query(client, "DatasetParameter", 
-                  conditions={"dataset.id": "= %d" % dataset.id}, 
-                  includes={"type"})
-    params = client.search(query)
-    assert len(params) == 2
-    values = { (p.type.name, p.numericValue, p.type.units) for p in params }
-    assert values == { ("Magnetic field", 5.3, "T"), 
-                       ("Reactor power", 5.0, "MW") }
+    verify_dataset_params(client, dataset, { 
+        ("Magnetic field", 5.3, "T"), 
+        ("Reactor power", 5.0, "MW") 
+    })
 
 
 def test_ingest_duplicate_ignore(dataset, client, icatconfigfile):
@@ -121,16 +122,11 @@ def test_ingest_duplicate_ignore(dataset, client, icatconfigfile):
     args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", ds_params, 
             "--duplicate", "IGNORE"]
     callscript("icatingest.py", args)
-    # Verify that the params have been set.
-    query = Query(client, "DatasetParameter", 
-                  conditions={"dataset.id": "= %d" % dataset.id}, 
-                  includes={"type"})
-    params = client.search(query)
-    assert len(params) == 3
-    values = { (p.type.name, p.numericValue, p.type.units) for p in params }
-    assert values == { ("Magnetic field", 5.3, "T"), 
-                       ("Reactor power", 5.0, "MW"), 
-                       ("Sample temperature", 293.15, "K") }
+    verify_dataset_params(client, dataset, { 
+        ("Magnetic field", 5.3, "T"), 
+        ("Reactor power", 5.0, "MW"), 
+        ("Sample temperature", 293.15, "K") 
+    })
 
 
 def test_ingest_duplicate_check_err(dataset, client, icatconfigfile):
@@ -147,15 +143,10 @@ def test_ingest_duplicate_check_err(dataset, client, icatconfigfile):
     # FIXME: should inspect stderr and verify ICATObjectExistsError.
     with pytest.raises(CalledProcessError) as err:
         callscript("icatingest.py", args)
-    # Verify that the params have been set.
-    query = Query(client, "DatasetParameter", 
-                  conditions={"dataset.id": "= %d" % dataset.id}, 
-                  includes={"type"})
-    params = client.search(query)
-    assert len(params) == 2
-    values = { (p.type.name, p.numericValue, p.type.units) for p in params }
-    assert values == { ("Magnetic field", 5.3, "T"), 
-                       ("Reactor power", 5.0, "MW") }
+    verify_dataset_params(client, dataset, { 
+        ("Magnetic field", 5.3, "T"), 
+        ("Reactor power", 5.0, "MW") 
+    })
 
 
 def test_ingest_duplicate_check_ok(dataset, client, icatconfigfile):
@@ -170,16 +161,11 @@ def test_ingest_duplicate_check_ok(dataset, client, icatconfigfile):
     args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", ds_params, 
             "--duplicate", "CHECK"]
     callscript("icatingest.py", args)
-    # Verify that the params have been set.
-    query = Query(client, "DatasetParameter", 
-                  conditions={"dataset.id": "= %d" % dataset.id}, 
-                  includes={"type"})
-    params = client.search(query)
-    assert len(params) == 3
-    values = { (p.type.name, p.numericValue, p.type.units) for p in params }
-    assert values == { ("Magnetic field", 5.3, "T"), 
-                       ("Reactor power", 10.0, "MW"), 
-                       ("Sample temperature", 293.15, "K") }
+    verify_dataset_params(client, dataset, { 
+        ("Magnetic field", 5.3, "T"), 
+        ("Reactor power", 10.0, "MW"), 
+        ("Sample temperature", 293.15, "K") 
+    })
 
 
 def test_ingest_duplicate_overwrite(dataset, client, icatconfigfile):
@@ -194,16 +180,11 @@ def test_ingest_duplicate_overwrite(dataset, client, icatconfigfile):
     args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", ds_params, 
             "--duplicate", "OVERWRITE"]
     callscript("icatingest.py", args)
-    # Verify that the params have been set.
-    query = Query(client, "DatasetParameter", 
-                  conditions={"dataset.id": "= %d" % dataset.id}, 
-                  includes={"type"})
-    params = client.search(query)
-    assert len(params) == 3
-    values = { (p.type.name, p.numericValue, p.type.units) for p in params }
-    assert values == { ("Magnetic field", 5.3, "T"), 
-                       ("Reactor power", 10.0, "MW"), 
-                       ("Sample temperature", 293.15, "K") }
+    verify_dataset_params(client, dataset, { 
+        ("Magnetic field", 5.3, "T"), 
+        ("Reactor power", 10.0, "MW"), 
+        ("Sample temperature", 293.15, "K") 
+    })
 
 
 def test_ingest_datafiles(tmpdirsec, client, icatconfigfile):
