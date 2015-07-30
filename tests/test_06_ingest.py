@@ -24,9 +24,33 @@ def client(setupicat, icatconfigfile):
     return client
 
 
+# Test input
 ds_params = gettestdata("ingest-ds-params.xml")
 datafiles = gettestdata("ingest-datafiles.xml")
 
+@pytest.fixture(scope="function")
+def dataset(client):
+    """Get the dataset to be used for ingest tests.
+
+    The ingest-ds-params.xml test input uses a Dataset that is assumed
+    to exist in the ICAT content as set up by the setupicat fixture.
+    This fixture retrieves this dataset from ICAT and deletes all
+    DatasetParameters related to it.
+    """
+    conditions = {
+        "name": "= 'e208341'", 
+        "investigation.name": "= '10100601-ST'",  
+        "investigation.visitId": "='1.1-N'"
+    }
+    query = Query(client, "Dataset", conditions=conditions)
+    ds = client.assertedSearch(query)[0]
+    query = Query(client, "DatasetParameter", 
+                  conditions={"dataset.id": "= %d" % ds.id})
+    client.deleteMany(client.search(query))
+    return ds
+
+
+# Test datafiles to be created by test_ingest_datafiles:
 testdatafiles = [
     {
         'dfname': "e208343.dat",
@@ -41,19 +65,12 @@ testdatafiles = [
 ]
 
 
-def test_ingest_dataset_params(client, icatconfigfile):
+def test_ingest_dataset_params(dataset, client, icatconfigfile):
     """Ingest a file setting some dataset parameters.
     """
     args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", ds_params]
     callscript("icatingest.py", args)
     # Verify that the params have been set.
-    conditions = {
-        "name": "= 'e208341'", 
-        "investigation.name": "= '10100601-ST'",  
-        "investigation.visitId": "='1.1-N'"
-    }
-    query = Query(client, "Dataset", conditions=conditions)
-    dataset = client.assertedSearch(query)[0]
     query = Query(client, "DatasetParameter", 
                   conditions={"dataset.id": "= %d" % dataset.id}, 
                   includes={"type"})
@@ -63,23 +80,13 @@ def test_ingest_dataset_params(client, icatconfigfile):
     assert values == { ("Magnetic field", 5.3, "T"), 
                        ("Reactor power", 10.0, "MW"), 
                        ("Sample temperature", 293.15, "K") }
-    # Delete the dataset parameters so that the following tests get a
-    # chance to creste them again.
-    client.deleteMany(params)
 
 
-def test_ingest_duplicate_throw(client, icatconfigfile):
+def test_ingest_duplicate_throw(dataset, client, icatconfigfile):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but now place a duplicate object in the way.
     """
-    conditions = {
-        "name": "= 'e208341'", 
-        "investigation.name": "= '10100601-ST'",  
-        "investigation.visitId": "='1.1-N'"
-    }
-    query = Query(client, "Dataset", conditions=conditions)
-    dataset = client.assertedSearch(query)[0]
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
     p = client.new("datasetParameter", numericValue=5.0, 
                    dataset=dataset, type=ptype)
@@ -88,7 +95,10 @@ def test_ingest_duplicate_throw(client, icatconfigfile):
     # FIXME: should inspect stderr and verify ICATObjectExistsError.
     with pytest.raises(CalledProcessError) as err:
         callscript("icatingest.py", args)
-    # Verify that the params have been set.
+    # Verify that the params have been set.  The exceptions should
+    # have been raised while trying to ingest the second parameter.
+    # The first one (Maegnetic field) should have been created and
+    # Reactor power should still have the value set above.
     query = Query(client, "DatasetParameter", 
                   conditions={"dataset.id": "= %d" % dataset.id}, 
                   includes={"type"})
@@ -97,23 +107,13 @@ def test_ingest_duplicate_throw(client, icatconfigfile):
     values = { (p.type.name, p.numericValue, p.type.units) for p in params }
     assert values == { ("Magnetic field", 5.3, "T"), 
                        ("Reactor power", 5.0, "MW") }
-    # Delete the dataset parameters so that the following tests get a
-    # chance to creste them again.
-    client.deleteMany(params)
 
 
-def test_ingest_duplicate_ignore(client, icatconfigfile):
+def test_ingest_duplicate_ignore(dataset, client, icatconfigfile):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but now ignore the duplicate.
     """
-    conditions = {
-        "name": "= 'e208341'", 
-        "investigation.name": "= '10100601-ST'",  
-        "investigation.visitId": "='1.1-N'"
-    }
-    query = Query(client, "Dataset", conditions=conditions)
-    dataset = client.assertedSearch(query)[0]
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
     p = client.new("datasetParameter", numericValue=5.0, 
                    dataset=dataset, type=ptype)
@@ -131,23 +131,13 @@ def test_ingest_duplicate_ignore(client, icatconfigfile):
     assert values == { ("Magnetic field", 5.3, "T"), 
                        ("Reactor power", 5.0, "MW"), 
                        ("Sample temperature", 293.15, "K") }
-    # Delete the dataset parameters so that the following tests get a
-    # chance to creste them again.
-    client.deleteMany(params)
 
 
-def test_ingest_duplicate_check_err(client, icatconfigfile):
+def test_ingest_duplicate_check_err(dataset, client, icatconfigfile):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but use CHECK which fails due to mismatch.
     """
-    conditions = {
-        "name": "= 'e208341'", 
-        "investigation.name": "= '10100601-ST'",  
-        "investigation.visitId": "='1.1-N'"
-    }
-    query = Query(client, "Dataset", conditions=conditions)
-    dataset = client.assertedSearch(query)[0]
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
     p = client.new("datasetParameter", numericValue=5.0, 
                    dataset=dataset, type=ptype)
@@ -166,23 +156,13 @@ def test_ingest_duplicate_check_err(client, icatconfigfile):
     values = { (p.type.name, p.numericValue, p.type.units) for p in params }
     assert values == { ("Magnetic field", 5.3, "T"), 
                        ("Reactor power", 5.0, "MW") }
-    # Delete the dataset parameters so that the following tests get a
-    # chance to creste them again.
-    client.deleteMany(params)
 
 
-def test_ingest_duplicate_check_ok(client, icatconfigfile):
+def test_ingest_duplicate_check_ok(dataset, client, icatconfigfile):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but now it matches, so CHECK should return ok.
     """
-    conditions = {
-        "name": "= 'e208341'", 
-        "investigation.name": "= '10100601-ST'",  
-        "investigation.visitId": "='1.1-N'"
-    }
-    query = Query(client, "Dataset", conditions=conditions)
-    dataset = client.assertedSearch(query)[0]
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
     p = client.new("datasetParameter", numericValue=10.0, 
                    dataset=dataset, type=ptype)
@@ -200,23 +180,13 @@ def test_ingest_duplicate_check_ok(client, icatconfigfile):
     assert values == { ("Magnetic field", 5.3, "T"), 
                        ("Reactor power", 10.0, "MW"), 
                        ("Sample temperature", 293.15, "K") }
-    # Delete the dataset parameters so that the following tests get a
-    # chance to creste them again.
-    client.deleteMany(params)
 
 
-def test_ingest_duplicate_overwrite(client, icatconfigfile):
+def test_ingest_duplicate_overwrite(dataset, client, icatconfigfile):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but now overwrite the old value.
     """
-    conditions = {
-        "name": "= 'e208341'", 
-        "investigation.name": "= '10100601-ST'",  
-        "investigation.visitId": "='1.1-N'"
-    }
-    query = Query(client, "Dataset", conditions=conditions)
-    dataset = client.assertedSearch(query)[0]
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
     p = client.new("datasetParameter", numericValue=5.0, 
                    dataset=dataset, type=ptype)
@@ -234,9 +204,6 @@ def test_ingest_duplicate_overwrite(client, icatconfigfile):
     assert values == { ("Magnetic field", 5.3, "T"), 
                        ("Reactor power", 10.0, "MW"), 
                        ("Sample temperature", 293.15, "K") }
-    # Delete the dataset parameters so that the following tests get a
-    # chance to creste them again.
-    client.deleteMany(params)
 
 
 def test_ingest_datafiles(tmpdirsec, client, icatconfigfile):
