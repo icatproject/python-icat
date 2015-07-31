@@ -1,8 +1,9 @@
 """Test module icat.helper
 """
 
+import datetime
 import pytest
-from icat.helper import simpleqp_quote, simpleqp_unquote, parse_attr_val
+from icat.helper import *
 
 def test_helper_quote():
     """Test simpleqp_quote() and simpleqp_unquote()
@@ -124,3 +125,35 @@ def test_helper_parse_attr_val_err():
                          "%s-%s" % ("name", simpleqp_quote(instrname))])
     with pytest.raises(ValueError):
         parse_attr_val(instrkey)
+
+@pytest.mark.parametrize(("s", "attrtype", "res"), [
+    ("Foo", "String", "Foo"),
+    ("42", "Integer", 42),
+    ("5.3", "Double", 5.3),
+    ("false", "boolean", False),
+    ("0", "boolean", False),
+    ("true", "boolean", True),
+    ("1", "boolean", True),
+])
+def test_helper_parse_attr_string(s, attrtype, res):
+    """Test parse_attr_string()
+    """
+    assert parse_attr_string(s, attrtype) == res
+
+def test_helper_parse_attr_string_date():
+    """Test parse_attr_string() for type Date
+    """
+    dstr = "2008-06-18T09:31:11+02:00"
+    d = parse_attr_string(dstr, "Date")
+    assert type(d) == datetime.datetime
+    if d.tzinfo:
+        # Suds jurko fork handles time zone information correctly and
+        # returns "aware" datetime objects.  So we have a chance to
+        # check the value.
+        assert d.isoformat() == dstr
+
+    dstr = "2008-06-18T07:31:11Z"
+    d = parse_attr_string(dstr, "Date")
+    assert type(d) == datetime.datetime
+    if d.tzinfo:
+        assert d.isoformat() == "2008-06-18T07:31:11+00:00"
