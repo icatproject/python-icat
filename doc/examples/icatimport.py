@@ -33,11 +33,11 @@ config.add_variable('file', ("-i", "--inputfile"),
 config.add_variable('format', ("-f", "--format"), 
                     dict(help="input file format", choices=["ICAT"]),
                     default='ICAT')
-# Additional arguments that icatdump.py does not provide:
 config.add_variable('duplicate', ("--duplicate",), 
                     dict(help="behavior in case of duplicate objects",
                          choices=["THROW", "IGNORE", "CHECK", "OVERWRITE"]), 
                     default='THROW')
+# Additional arguments that icatdump.py does not provide:
 config.add_variable('attributes', ("--attributes",), 
                     dict(help="attributes to consider in the input", 
                          choices=["ALL", "USER"]),

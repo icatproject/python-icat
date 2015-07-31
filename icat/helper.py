@@ -33,6 +33,8 @@ True
 """
 
 import sys
+import suds.sax.date
+
 
 def simpleqp_quote(obj):
     """Simple quote in quoted-printable style."""
@@ -149,3 +151,44 @@ def parse_attr_val(avs):
             # FIXME: Should check that value matches [0-9A-Za-z=]+ here.
         res[attr] = value
     return res
+
+
+def parse_attr_string(s, attrtype):
+    """Parse the string representation of an entity attribute.
+
+    Note: for Date we use the parser from suds.sax.date.  If this is
+    the original suds version, this parser is buggy and might yield
+    wrong results.  But the same buggy parser is also applied by Suds
+    internally for the Date values coming from the ICAT server.  Since
+    we are mainly interested to compare with values from the ICAT
+    server, we have a fair chance that this comparision nevertheless
+    yields valid results.
+    """
+    if s is None:
+        return None
+    if attrtype in ['String', 'ParameterValueType', 'StudyStatus']:
+        return s
+    elif attrtype in ['Integer', 'Long']:
+        return int(s)
+    elif attrtype == 'Double':
+        return float(s)
+    elif attrtype == 'boolean':
+        # This is somewhat too liberal.  Valid values according XML
+        # Schema Definition are only {"0", "false", "1", "true"} (case
+        # sensitive).
+        if s.lower() in ["0", "no", "n", "false", "f", "off"]:
+            return False
+        elif s.lower() in ["1", "yes", "y", "true", "t", "on"]:
+            return True
+        else:
+            raise ValueError("Invalid boolean value '%s'" % s)
+    elif attrtype == 'Date':
+        d = suds.sax.date.DateTime(s)
+        try:
+            # jurko fork
+            return d.value
+        except AttributeError:
+            # original Suds
+            return d.datetime
+    else:
+        raise ValueError("Invalid attribute type '%s'" % attrtype)
