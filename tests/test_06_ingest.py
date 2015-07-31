@@ -259,9 +259,9 @@ ingest_data_date = """<?xml version="1.0" encoding="utf-8"?>
 @pytest.mark.parametrize("inputdata", [
     ingest_data_string,
     ingest_data_int,
-    pytest.mark.xfail(reason="Bug #9")(ingest_data_boolean),
+    ingest_data_boolean,
     ingest_data_float,
-    pytest.mark.xfail(reason="Bug #9")(ingest_data_date),
+    ingest_data_date,
 ])
 def test_ingest_duplicate_check_types(tmpdirsec, client, icatconfigfile, 
                                       inputdata):

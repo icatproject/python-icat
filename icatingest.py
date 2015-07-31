@@ -23,10 +23,6 @@
 #    for single objects.  If the object contains related objects in
 #    one to many relationships that are to be created at once, the
 #    only allowed option to deal with duplicates is THROW.
-#  + Issue #9: icatingest with duplicate=CHECK may fail when
-#    attributes are not strings.  When using duplicate=CHECK to raise
-#    an error (only) if the new data does not match the old, spurious
-#    errors may be raised for attributes that are not strings.
 #
 
 import os.path
@@ -42,6 +38,7 @@ try:
     import icat.dumpfile_yaml
 except ImportError:
     pass
+from icat.helper import parse_attr_string
 
 logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.CRITICAL)
@@ -98,10 +95,8 @@ def check_duplicate(obj):
         pass
     elif conf.duplicate == "CHECK":
         for a in obj.InstAttr:
-            v = getattr(obj, a)
-            # FIXME: must take the attribute type into account for the
-            # comparision of the value.
-            if v is not None and str(getattr(dobj, a)) != v:
+            v = parse_attr_string(getattr(obj, a), obj.getAttrType(a))
+            if v is not None and getattr(dobj, a) != v:
                 raise
     elif conf.duplicate == "OVERWRITE":
         dobj.get()
