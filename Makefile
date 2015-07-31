@@ -49,7 +49,7 @@ icat/__init__.py: icatinfo.py icatinit.py gitversion
 gitversion:
 
 python2_6.patch:
-	git diff master python2_6 > $@
+	git diff `git merge-base master python2_6` python2_6 > $@
 
 
 %.doctest: %.py
