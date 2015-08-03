@@ -20,7 +20,7 @@ from icat.query import Query
 from icat.exception import *
 from icat.ids import *
 from icat.sslcontext import create_ssl_context, HTTPSTransport
-from icat.helper import simpleqp_unquote, parse_attr_val
+from icat.helper import simpleqp_unquote, parse_attr_val, ms_timestamp
 
 __all__ = ['Client']
 
@@ -793,7 +793,7 @@ class Client(suds.client.Client):
                                 "must either be a file or a file name." % 
                                 type(infile))
 
-        modTime = datafile.datafileModTime
+        modTime = ms_timestamp(datafile.datafileModTime)
         if not modTime:
             try:
                 # Try our best to get the mtime from the fileno, but
@@ -804,7 +804,7 @@ class Client(suds.client.Client):
                 modTime = int(1000*os.fstat(infile.fileno()).st_mtime)
             except:
                 pass
-        createTime = datafile.datafileCreateTime
+        createTime = ms_timestamp(datafile.datafileCreateTime)
         if not createTime:
             createTime = modTime
 

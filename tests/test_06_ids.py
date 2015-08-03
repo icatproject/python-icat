@@ -161,7 +161,6 @@ def test_download(tmpdirsec, icatconfigfile, case, method):
         raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
 
 
-@pytest.mark.xfail(reason="Bug #10", raises=icat.IDSError)
 def test_putData_datafileCreateTime(tmpdirsec, client):
     """Call client.putData() with a datafile having datafileCreateTime set.
     Issue #10.
@@ -175,14 +174,14 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
     datafileformat = client.assertedSearch("DatafileFormat [name='raw']")[0]
     tzinfo = UtcTimezone() if UtcTimezone else None
     createTime = datetime.datetime(2008, 6, 18, 9, 31, 11, tzinfo=tzinfo)
-    f = DummyDatafile(tmpdirsec.dir, "test_datafileCreateTime_dt.dat", 
-                      case['size'])
+    dfname = "test_datafileCreateTime_dt.dat"
+    f = DummyDatafile(tmpdirsec.dir, dfname, case['size'])
     datafile = client.new("datafile", name=f.name, 
                           dataset=dataset, datafileFormat=datafileformat)
     datafile.datafileCreateTime = createTime
     client.putData(f.fname, datafile)
     query = Query(client, "Datafile", conditions={
-        "name": "= '%s'" % case['dfname'],
+        "name": "= '%s'" % dfname,
         "dataset.name": "= '%s'" % case['dsname'],
         "dataset.investigation.name": "= '%s'" % case['invname'],
     })
@@ -196,14 +195,14 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
         assert df.datafileCreateTime == createTime
 
     # Now try the same again with datafileCreateTime set to a string.
-    f = DummyDatafile(tmpdirsec.dir, "test_datafileCreateTime_str.dat", 
-                      case['size'])
+    dfname = "test_datafileCreateTime_str.dat"
+    f = DummyDatafile(tmpdirsec.dir, dfname, case['size'])
     datafile = client.new("datafile", name=f.name, 
                           dataset=dataset, datafileFormat=datafileformat)
     datafile.datafileCreateTime = createTime.isoformat()
     client.putData(f.fname, datafile)
     query = Query(client, "Datafile", conditions={
-        "name": "= '%s'" % case['dfname'],
+        "name": "= '%s'" % dfname,
         "dataset.name": "= '%s'" % case['dsname'],
         "dataset.investigation.name": "= '%s'" % case['invname'],
     })

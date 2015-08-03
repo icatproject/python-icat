@@ -41,6 +41,9 @@
 
  + Issue #6: Query: adding a condition on a meta attribute fails.
 
+ + Issue #10: client.putData: IDSInternalError is raised if
+   datafile.datafileCreateTime is set.
+
  + Ignore import errors from the backend modules in icatingest.py and
    icatdump.py.  This means one can use the scripts also if the
    prerequisites for some backends are not fulfilled, only the
