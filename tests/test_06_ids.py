@@ -6,11 +6,12 @@ import os
 import os.path
 import zipfile
 import filecmp
+import datetime
 import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import DummyDatafile
+from conftest import DummyDatafile, UtcTimezone
 from conftest import require_icat_version, gettestdata, callscript
 
 # test content has InvestigationGroup objects.
@@ -23,7 +24,7 @@ user = "root"
 @pytest.fixture(scope="module")
 def client(setupicat, icatconfigfile):
     args = ["-c", icatconfigfile, "-s", user]
-    conf = icat.config.Config().getconfig(args)
+    conf = icat.config.Config(ids="mandatory").getconfig(args)
     client = icat.Client(conf.url, **conf.client_kwargs)
     client.login(conf.auth, conf.credentials)
     return client
@@ -158,3 +159,55 @@ def test_download(tmpdirsec, icatconfigfile, case, method):
         assert filecmp.cmp(dfs[0]['testfile'].fname, dfname)
     else:
         raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
+
+
+@pytest.mark.xfail(reason="Bug #10", raises=icat.IDSError)
+def test_putData_datafileCreateTime(tmpdirsec, client):
+    """Call client.putData() with a datafile having datafileCreateTime set.
+    Issue #10.
+    """
+    case = testdatafiles[0]
+    query = Query(client, "Dataset", conditions={
+        "name": "= '%s'" % case['dsname'], 
+        "investigation.name": "= '%s'" % case['invname'], 
+    })
+    dataset = client.assertedSearch(query)[0]
+    datafileformat = client.assertedSearch("DatafileFormat [name='raw']")[0]
+    tzinfo = UtcTimezone() if UtcTimezone else None
+    createTime = datetime.datetime(2008, 6, 18, 9, 31, 11, tzinfo=tzinfo)
+    f = DummyDatafile(tmpdirsec.dir, "test_datafileCreateTime_dt.dat", 
+                      case['size'])
+    datafile = client.new("datafile", name=f.name, 
+                          dataset=dataset, datafileFormat=datafileformat)
+    datafile.datafileCreateTime = createTime
+    client.putData(f.fname, datafile)
+    query = Query(client, "Datafile", conditions={
+        "name": "= '%s'" % case['dfname'],
+        "dataset.name": "= '%s'" % case['dsname'],
+        "dataset.investigation.name": "= '%s'" % case['invname'],
+    })
+    df = client.assertedSearch(query)[0]
+    assert df.datafileCreateTime is not None
+    # The handling of date value in original Suds is buggy, so we
+    # cannot expect to be able to reliably compare date values.  If
+    # UtcTimezone is set, we have the jurko fork and then this bug in
+    # Suds is fixed.
+    if tzinfo is not None:
+        assert df.datafileCreateTime == createTime
+
+    # Now try the same again with datafileCreateTime set to a string.
+    f = DummyDatafile(tmpdirsec.dir, "test_datafileCreateTime_str.dat", 
+                      case['size'])
+    datafile = client.new("datafile", name=f.name, 
+                          dataset=dataset, datafileFormat=datafileformat)
+    datafile.datafileCreateTime = createTime.isoformat()
+    client.putData(f.fname, datafile)
+    query = Query(client, "Datafile", conditions={
+        "name": "= '%s'" % case['dfname'],
+        "dataset.name": "= '%s'" % case['dsname'],
+        "dataset.investigation.name": "= '%s'" % case['invname'],
+    })
+    df = client.assertedSearch(query)[0]
+    assert df.datafileCreateTime is not None
+    if tzinfo is not None:
+        assert df.datafileCreateTime == createTime
