@@ -799,7 +799,7 @@ class Client(suds.client.Client):
                 # Try our best to get the mtime from the fileno, but
                 # don't bother if this doesn't work, e.g. if it cannot
                 # be fstated.  Note that fstat() yields seconds since
-                # epoch as float, while IDS expects microseconds since
+                # epoch as float, while IDS expects milliseconds since
                 # epoch as int.
                 modTime = int(1000*os.fstat(infile.fileno()).st_mtime)
             except:
