@@ -184,9 +184,10 @@ class Entity(object):
         elif attr in self.InstRel:
             setattr(self.instance, attr, self.getInstance(value))
         elif attr in self.InstMRel:
-            setattr(self.instance, attr, value)
+            setattr(self.instance, attr, [])
             l = EntityList(self.client, getattr(self.instance, attr))
             super(Entity, self).__setattr__(attr, l)
+            l.extend(value)
         elif attr in self.AttrAlias:
             setattr(self, self.AttrAlias[attr], value)
         else:
