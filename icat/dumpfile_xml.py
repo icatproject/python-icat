@@ -1,4 +1,4 @@
-"""XML dump file backend for icatdump.py and icatingest.py.
+"""XML data file backend for icatdump.py and icatingest.py.
 """
 
 import os
@@ -100,7 +100,7 @@ def elem2entity(client, insttypemap, element, objtype, objindex):
 # ------------------------------------------------------------
 
 class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
-    """Backend for icatingest.py to read a XML dump file."""
+    """Backend for icatingest.py to read a XML data file."""
 
     def __init__(self, client, infile):
         super(XMLDumpFileReader, self).__init__(client, infile)
@@ -110,7 +110,7 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
                              for t,c in self.client.typemap.iteritems() }
 
     def getdata(self):
-        """Iterate over the data chunks in the dump file.
+        """Iterate over the chunks in the data file.
         """
         for event, data in etree.iterparse(self.infile, tag='data'):
             yield data
@@ -147,7 +147,7 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
 # ------------------------------------------------------------
 
 class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
-    """Backend for icatdump.py to write a XML dump file."""
+    """Backend for icatdump.py to write a XML data file."""
 
     def __init__(self, client, outfile):
         super(XMLDumpFileWriter, self).__init__(client, outfile)
@@ -156,7 +156,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         self.data = etree.Element("data")
 
     def head(self):
-        """Write a header with some meta information to the dump file."""
+        """Write a header with some meta information to the data file."""
         date = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         head = etree.Element("head")
         etree.SubElement(head, "date").text = date
@@ -172,7 +172,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     def startdata(self):
         """Start a new data chunk.
 
-        If the current chunk contains any data, write it to the dump
+        If the current chunk contains any data, write it to the data
         file.
         """
         if len(self.data) > 0:
@@ -186,7 +186,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         self.data.append(elem)
 
     def finalize(self):
-        """Finalize the dump file."""
+        """Finalize the data file."""
         self.startdata()
         self.outfile.write(b"</icatdata>\n")
         self.outfile.close()

@@ -163,8 +163,8 @@ Bugs and limitations
    at the beginning of your script.  This must be set before importing
    other modules (in particular suds) in order to be effective.
 
-   icatdump.py assumes all datetime values that do not contain time
-   zone information to be UTC.
+   As a general rule, python-icat assumes all datetime values that do
+   not contain time zone information to be UTC.
 
    Note that the bug is fixed in the fork by Jurko Gospodnetić which
    is recommendated anyway.

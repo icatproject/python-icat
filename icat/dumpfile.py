@@ -2,11 +2,11 @@
 
 This module provides the base classes DumpFileReader and
 DumpFileWriter that define the API and the logic for reading and
-writing ICAT dump files.  The actual work is done in file format
+writing ICAT data files.  The actual work is done in file format
 specific modules that should provide subclasses that must implement
 the abstract methods.
 
-Dump files are partitioned in chunks.  This is done to avoid having
+Data files are partitioned in chunks.  This is done to avoid having
 the whole file, e.g. the complete inventory of the ICAT, at once in
 memory.  The problem is that objects contain references to other
 objects (e.g. Datafiles refer to Datasets, the latter refer to
@@ -27,9 +27,9 @@ references go across chunk boundaries.
 Therefore, we want these chunks to be small enough to fit into memory,
 but at the same time large enough to keep as many relations between
 objects as possible local in a chunk.  It is in the responsibility of
-the writer of the dump file to create the chunks in this manner.
+the writer of the data file to create the chunks in this manner.
 
-The objects that get written to the dump file and how this file is
+The objects that get written to the data file and how this file is
 organized is controlled by lists of ICAT search expressions, see the
 ``writeobjs()`` method of `DumpFileWriter`.  There is some degree of
 flexibility: an object may include related objects in an one-to-many
@@ -37,13 +37,13 @@ relation, just by including them in the search expression.  In this
 case, these related objects should not have a search expression on
 their own again.  For instance, the search expression for Grouping may
 include UserGroup.  The UserGroups will then be embedded in their
-respective grouping in the dump file.  There should not be a search
+respective grouping in the data file.  There should not be a search
 expression for UserGroup then.
 
 Objects related in a many-to-one relation must always be included in
 the search expression.  This is also true if the object is
 indirectly related to one of the included objects.  In this case,
-only a reference to the related object will be included in the dump
+only a reference to the related object will be included in the data
 file.  The related object must have its own list entry.
 """
 
@@ -57,7 +57,7 @@ from icat.query import Query
 # ------------------------------------------------------------
 
 class DumpFileReader(object):
-    """Base class for backends that read a dump file."""
+    """Base class for backends that read a data file."""
 
     def __init__(self, client, infile):
         self.client = client
@@ -70,7 +70,7 @@ class DumpFileReader(object):
         self.infile.close()
 
     def getdata(self):
-        """Iterate over the data chunks in the dump file.
+        """Iterate over the chunks in the data file.
 
         Yield some data object in each iteration.  This data object is
         specific to the implementing backend and should be passed as
@@ -87,7 +87,7 @@ class DumpFileReader(object):
         raise NotImplementedError
 
     def getobjs(self):
-        """Iterate over the objects in the dump file.
+        """Iterate over the objects in the data file.
 
         Yield a new entity object in each iteration.  The object is
         initialized from the data, but not yet created at the client.
@@ -106,7 +106,7 @@ class DumpFileReader(object):
 # ------------------------------------------------------------
 
 class DumpFileWriter(object):
-    """Base class for backends that write a dump file."""
+    """Base class for backends that write a data file."""
 
     def __init__(self, client, outfile):
         self.client = client
@@ -123,13 +123,13 @@ class DumpFileWriter(object):
         self.outfile.close()
 
     def head(self):
-        """Write a header with some meta information to the dump file."""
+        """Write a header with some meta information to the data file."""
         raise NotImplementedError
 
     def startdata(self):
         """Start a new data chunk.
 
-        If the current chunk contains any data, write it to the dump
+        If the current chunk contains any data, write it to the data
         file.
         """
         raise NotImplementedError
@@ -139,18 +139,18 @@ class DumpFileWriter(object):
         raise NotImplementedError
 
     def finalize(self):
-        """Finalize the dump file."""
+        """Finalize the data file."""
         raise NotImplementedError
 
     def writeobjs(self, objs, keyindex):
         """Write some entity objects to the current data chunk.
 
         The objects are searched from the ICAT server.  The key index
-        is used to serialize object relations in the dump file.  For
+        is used to serialize object relations in the data file.  For
         object types that do not have an appropriate uniqueness
         constraint in the ICAT schema, a generic key is generated.
-        These objects may only be referenced from the same data chunk
-        in the dump file.
+        These objects may only be referenced from the same chunk in
+        the data file.
 
         :param objs: query to search the objects, either a Query
             object or a string.  It must contain appropriate INCLUDE
@@ -161,7 +161,7 @@ class DumpFileWriter(object):
 
             Furthermore, related objects from one-to-many relations
             may be included.  These objects will then be embedded with
-            the relating object in the dump file.  The same
+            the relating object in the data file.  The same
             requirements for including their respective related
             objects apply.
 
@@ -221,15 +221,15 @@ def register_backend(format, reader, writer):
     :param format: name of the file format that the backend
         implements.
     :type format: ``str``
-    :param reader: class for reading dump files.  Should be a subclass
+    :param reader: class for reading data files.  Should be a subclass
         of `DumpFileReader`.
-    :param writer: class for writing dump files.  Should be a subclass
+    :param writer: class for writing data files.  Should be a subclass
         of `DumpFileWriter`.
     """
     Backends[format] = (reader, writer)
 
 def open_dumpfile(client, f, format, mode):
-    """Open a dumpfile, either for reading or for writing.
+    """Open a data file, either for reading or for writing.
 
     Note that (subclasses of) `DumpFileReader` and `DumpFileWriter`
     may be used as context managers.  This function is suitable to be
@@ -256,7 +256,7 @@ def open_dumpfile(client, f, format, mode):
         not start with "r" or "w".
     """
     if format not in Backends:
-        raise ValueError("Unknown dump file format '%s'" % format)
+        raise ValueError("Unknown data file format '%s'" % format)
     if mode[0] == 'r':
         if isinstance(f, basestring):
             if f == "-":
