@@ -9,6 +9,7 @@ __all__ = [
     # helper
     'stripCause', 
     # Exceptions thrown by the ICAT or IDS server
+    'ServerError', 
     'ICATError', 'ICATParameterError', 'ICATInternalError', 
     'ICATPrivilegesError', 'ICATNoObjectError', 'ICATObjectExistsError', 
     'ICATSessionError', 'ICATValidationError', 

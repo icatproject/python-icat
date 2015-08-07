@@ -7,6 +7,9 @@ from icat.listproxy import ListProxy
 from icat.exception import InternalError, DataConsistencyError
 from icat.helper import simpleqp_quote
 
+__all__ = ['Entity']
+
+
 class Entity(object):
     """The base of the classes representing the entities in the ICAT schema.
 

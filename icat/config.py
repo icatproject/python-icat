@@ -9,7 +9,7 @@ import argparse
 import ConfigParser
 from icat.exception import *
 
-__all__ = ['boolean', 'Configuration', 'Config']
+__all__ = ['boolean', 'flag', 'Configuration', 'Config']
 
 
 if sys.platform.startswith("win"):

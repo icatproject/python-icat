@@ -13,7 +13,7 @@ from icat.query import Query
 # Helper
 # ------------------------------------------------------------
 
-def entity2elem(obj, tag, keyindex):
+def _entity2elem(obj, tag, keyindex):
     """Convert an entity object to an etree.Element."""
     if tag is None:
         tag = obj.instancetype
@@ -54,11 +54,11 @@ def entity2elem(obj, tag, keyindex):
     for attr in sorted(obj.InstMRel):
         for o in sorted(getattr(obj, attr), 
                         key=icat.entity.Entity.__sortkey__):
-            d.append(entity2elem(o, tag=attr, keyindex=keyindex))
+            d.append(_entity2elem(o, tag=attr, keyindex=keyindex))
 
     return d
 
-def searchByReference(client, element, objtype, objindex):
+def _searchByReference(client, element, objtype, objindex):
     """Search for a referenced object.
     """
     ref = element.get('ref')
@@ -72,7 +72,7 @@ def searchByReference(client, element, objtype, objindex):
         query = Query(client, objtype, conditions=conditions)
         return client.assertedSearch(query)[0]
 
-def elem2entity(client, insttypemap, element, objtype, objindex):
+def _elem2entity(client, insttypemap, element, objtype, objindex):
     """Create an entity object from XML element data."""
     obj = client.new(insttypemap[objtype])
     for subelem in element:
@@ -83,11 +83,11 @@ def elem2entity(client, insttypemap, element, objtype, objindex):
             setattr(obj, attr, subelem.text)
         elif attr in obj.InstRel:
             rtype = obj.getAttrType(attr)
-            robj = searchByReference(client, subelem, rtype, objindex)
+            robj = _searchByReference(client, subelem, rtype, objindex)
             setattr(obj, attr, robj)
         elif attr in obj.InstMRel:
             rtype = obj.getAttrType(attr)
-            robj = elem2entity(client, insttypemap, subelem, rtype, objindex)
+            robj = _elem2entity(client, insttypemap, subelem, rtype, objindex)
             getattr(obj, attr).append(robj)
         else:
             raise ValueError("invalid subelement '%s' in '%s'" 
@@ -132,13 +132,13 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
                 # from other objects.
                 if key:
                     objtype = self.client.typemap[tag[0:-3]].BeanName
-                    obj = searchByReference(self.client, elem, objtype, 
-                                            objindex)
+                    obj = _searchByReference(self.client, elem, objtype, 
+                                             objindex)
                     objindex[key] = obj
             else:
                 objtype = self.client.typemap[tag].BeanName
-                obj = elem2entity(self.client, self.insttypemap, 
-                                  elem, objtype, objindex)
+                obj = _elem2entity(self.client, self.insttypemap, 
+                                   elem, objtype, objindex)
                 yield key, obj
 
 
@@ -181,7 +181,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
 
     def writeobj(self, key, obj, keyindex):
         """Add an entity object to the current data chunk."""
-        elem = entity2elem(obj, None, keyindex)
+        elem = _entity2elem(obj, None, keyindex)
         elem.set('id', key)
         self.data.append(elem)
 
