@@ -1,7 +1,15 @@
-python-icat documentation
-=========================
+python-icat -- Python interface to ICAT and IDS
+===============================================
 
-Contents:
+python-icat provides a collection of modules for writing Python
+programs that access an `ICAT`_ service using the SOAP interface.  It
+is based on Suds and extends it with ICAT specific features.
+
+.. _ICAT: http://www.icatproject.org/
+
+
+Module reference
+~~~~~~~~~~~~~~~~
 
 .. toctree::
    :maxdepth: 4
@@ -25,9 +33,8 @@ Contents:
 
 
 Indices and tables
-==================
+~~~~~~~~~~~~~~~~~~
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
