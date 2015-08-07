@@ -1,18 +1,17 @@
+PYTHON   = python
+DOCTESTS = icat/helper.doctest icat/listproxy.doctest
 
-PYTHON = python
 
-DOCTESTS     = icat/helper.doctest icat/listproxy.doctest
-
-APIDOC_DIR   = doc/api
-
-sdist: init.py python2_6.patch apidoc
+sdist: init.py python2_6.patch doc-html
 	$(PYTHON) setup.py sdist
 
 init.py: icat/__init__.py
 
-apidoc: apidoc_clean init.py
-	epydoc --html --docformat=restructuredtext --output=$(APIDOC_DIR) icat
+doc-html: init.py
+	$(MAKE) -C doc html
 
+doc-pdf: init.py
+	$(MAKE) -C doc latexpdf
 
 test: init.py
 	$(PYTHON) setup.py test
@@ -27,10 +26,7 @@ clean:
 	rm -rf tests/data/icatdump.* tests/data/ingest-*.xml
 	rm -rf tests/scripts
 
-apidoc_clean:
-	rm -rf $(APIDOC_DIR)
-
-distclean: apidoc_clean clean
+distclean: clean
 	rm -f MANIFEST
 	rm -rf python_icat.egg-info
 	rm -f *.pyc icat/*.pyc tests/*.pyc
@@ -38,6 +34,7 @@ distclean: apidoc_clean clean
 	rm -f icat/__init__.py
 	rm -f python2_6.patch
 	rm -rf dist
+	$(MAKE) -C doc distclean
 
 
 icat/__init__.py: icatinfo.py icatinit.py gitversion
@@ -56,5 +53,5 @@ python2_6.patch:
 	$(PYTHON) -m doctest $<
 
 
-.PHONY: sdist init.py apidoc test doctest \
-	clean apidoc_clean distclean gitversion
+.PHONY: sdist init.py doc-html doc-pdf test doctest \
+	clean distclean gitversion $(DOCTESTS)
