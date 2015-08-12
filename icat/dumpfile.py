@@ -221,6 +221,9 @@ Backends = {}
 def register_backend(formatname, reader, writer):
     """Register a backend.
 
+    This function should be called by file format specific backends at
+    initialization.
+
     :param formatname: name of the file format that the backend
         implements.
     :type formatname: :class:`str`
@@ -238,6 +241,10 @@ def open_dumpfile(client, f, formatname, mode):
     and :class:`icat.dumpfile.DumpFileWriter` may be used as context
     managers.  This function is suitable to be used in the
     :obj:`with` statement.
+
+    >>> with open_dumpfile(client, f, "XML", 'r') as dumpfile:
+    ...     for obj in dumpfile.getobjs():
+    ...         obj.create()
 
     :param client: the ICAT client.
     :type client: :class:`icat.client.Client`
