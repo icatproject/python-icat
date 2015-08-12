@@ -1,7 +1,6 @@
-icat.entity Module
-==================
+:mod:`icat.entity` --- Provide the Entity class
+===============================================
 
-.. automodule:: icat.entity
+.. autoclass:: icat.entity.Entity
     :members:
-    :undoc-members:
     :show-inheritance:

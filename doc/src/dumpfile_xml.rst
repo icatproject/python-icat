@@ -1,7 +1,10 @@
-icat.dumpfile_xml Module
-========================
+:mod:`icat.dumpfile_xml` --- XML data file backend
+==================================================
 
-.. automodule:: icat.dumpfile_xml
+.. autoclass:: icat.dumpfile_xml.XMLDumpFileReader
     :members:
-    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: icat.dumpfile_xml.XMLDumpFileWriter
+    :members:
     :show-inheritance:

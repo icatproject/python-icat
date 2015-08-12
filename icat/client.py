@@ -131,19 +131,6 @@ class Client(suds.client.Client):
     Client is a subclass of suds.client.Client and inherits most of
     its behavior.  It adds methods for the instantiation of ICAT
     entities and implementations of the ICAT API methods.
-
-    :group ICAT API methods: login, logout, create, createMany,
-        delete, deleteMany, get, getApiVersion, getEntityInfo,
-        getEntityNames, getProperties, getRemainingMinutes,
-        getUserName, isAccessAllowed, refresh, search, update
-
-    :group custom API methods: assertedSearch, searchChunked,
-        searchUniqueKey, searchMatching, createUser, createGroup, 
-        createRules
-
-    :group custom IDS methods: putData, getData, getDataUrl,
-        prepareData, isDataPrepared, getPreparedData,
-        getPreparedDataUrl, deleteData
     """
 
     Register = {}

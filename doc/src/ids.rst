@@ -1,7 +1,10 @@
-icat.ids Module
-===============
+:mod:`icat.ids` --- Provide the IDSClient class
+===============================================
 
-.. automodule:: icat.ids
+.. autoclass:: icat.ids.DataSelection
     :members:
-    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: icat.ids.IDSClient
+    :members:
     :show-inheritance:

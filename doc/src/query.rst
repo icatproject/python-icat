@@ -1,7 +1,7 @@
-icat.query Module
-=================
+:mod:`icat.query` --- Provide the Query class
+=============================================
 
-.. automodule:: icat.query
+.. autoclass:: icat.query.Query
     :members:
     :undoc-members:
     :show-inheritance:

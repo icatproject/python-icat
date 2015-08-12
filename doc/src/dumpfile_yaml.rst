@@ -1,7 +1,10 @@
-icat.dumpfile_yaml Module
-=========================
+:mod:`icat.dumpfile_yaml` --- YAML data file backend
+====================================================
 
-.. automodule:: icat.dumpfile_yaml
+.. autoclass:: icat.dumpfile_yaml.YAMLDumpFileReader
     :members:
-    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: icat.dumpfile_yaml.YAMLDumpFileWriter
+    :members:
     :show-inheritance:

@@ -1,5 +1,5 @@
-python-icat -- Python interface to ICAT and IDS
-===============================================
+python-icat --- Python interface to ICAT and IDS
+================================================
 
 python-icat provides a collection of modules for writing Python
 programs that access an `ICAT`_ service using the SOAP interface.  It
@@ -12,7 +12,7 @@ Module reference
 ~~~~~~~~~~~~~~~~
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    cgi
    client

@@ -26,6 +26,7 @@ else:
 cfgfile = "icat.cfg"
 """Configuration file name"""
 defaultsection = None
+"""Default value for configSection"""
 
 
 def boolean(value):
