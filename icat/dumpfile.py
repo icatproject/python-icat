@@ -218,20 +218,20 @@ class DumpFileWriter(object):
 Backends = {}
 """A register of all known backends."""
 
-def register_backend(format, reader, writer):
+def register_backend(formatname, reader, writer):
     """Register a backend.
 
-    :param format: name of the file format that the backend
+    :param formatname: name of the file format that the backend
         implements.
-    :type format: :class:`str`
+    :type formatname: :class:`str`
     :param reader: class for reading data files.  Should be a subclass
         of :class:`icat.dumpfile.DumpFileReader`.
     :param writer: class for writing data files.  Should be a subclass
         of :class:`icat.dumpfile.DumpFileWriter`.
     """
-    Backends[format] = (reader, writer)
+    Backends[formatname] = (reader, writer)
 
-def open_dumpfile(client, f, format, mode):
+def open_dumpfile(client, f, formatname, mode):
     """Open a data file, either for reading or for writing.
 
     Note that (subclasses of) :class:`icat.dumpfile.DumpFileReader`
@@ -246,9 +246,9 @@ def open_dumpfile(client, f, format, mode):
         case a file by that name is opened using mode.  The special
         value of "-" may be used as an alias for :data:`sys.stdin` or
         :data:`sys.stdout`.
-    :param format: name of the file format that has been registered by
+    :param formatname: name of the file format that has been registered by
         the backend.
-    :type format: :class:`str`
+    :type formatname: :class:`str`
     :param mode: a string indicating how the file is to be opened.
         The first character must be either "r" or "w" for reading or
         writing respectively.
@@ -259,15 +259,15 @@ def open_dumpfile(client, f, format, mode):
     :raise ValueError: if the format is not known or if the mode does
         not start with "r" or "w".
     """
-    if format not in Backends:
-        raise ValueError("Unknown data file format '%s'" % format)
+    if formatname not in Backends:
+        raise ValueError("Unknown data file format '%s'" % formatname)
     if mode[0] == 'r':
         if isinstance(f, basestring):
             if f == "-":
                 f = sys.stdin
             else:
                 f = open(f, mode)
-        cls = Backends[format][0]
+        cls = Backends[formatname][0]
         return cls(client, f)
     elif mode[0] == 'w':
         if isinstance(f, basestring):
@@ -275,7 +275,7 @@ def open_dumpfile(client, f, format, mode):
                 f = sys.stdout
             else:
                 f = open(f, mode)
-        cls = Backends[format][1]
+        cls = Backends[formatname][1]
         return cls(client, f)
     else:
         raise ValueError("Invalid file mode '%s'" % mode)
