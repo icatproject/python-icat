@@ -106,19 +106,22 @@ class Query(object):
         """Initialize the query.
 
         :param client: the ICAT client.
-        :type client: `Client`
+        :type client: :class:`icat.client.Client`
         :param entity: the type of objects to search for.  This may
-            either be an ``Entity`` subclass or the name of an entity
-            type.
-        :type entity: `Entity` or ``str``
+            either be an :class:`icat.entity.Entity` subclass or the
+            name of an entity type.
         :param order: the sorting attributes to build the ORDER BY
-            clause from.  See the `setOrder` method for details.
+            clause from.  See the :meth:`icat.query.Query.setOrder`
+            method for details.
         :param conditions: the conditions to build the WHERE clause
-            from.  See the `addConditions` method for details.
+            from.  See the :meth:`icat.query.Query.addConditions`
+            method for details.
         :param includes: list of related objects to add to the INCLUDE
-            clause.  See the `addIncludes` method for details.
+            clause.  See the :meth:`icat.query.Query.addIncludes`
+            method for details.
         :param limit: a tuple (skip, count) to be used in the LIMIT
-            clause.  See the `setLimit` method for details.
+            clause.  See the :meth:`icat.query.Query.setLimit` method
+            for details.
         """
 
         super(Query, self).__init__()
@@ -147,11 +150,11 @@ class Query(object):
     def setOrder(self, order):
         """Set the order to build the ORDER BY clause from.
 
-        :param order: the list of the attributes used for sorting.
-            A special value of `True` may be used to indicate the
-            natural order of the entity type.  Any `False` value
-            means no ORDER BY clause.
-        :type order: ``list`` of ``str`` or ``bool``
+        :param order: the list of the attributes used for sorting.  A
+            special value of :const:`True` may be used to indicate the
+            natural order of the entity type.  Any false value means
+            no ORDER BY clause.
+        :type order: :class:`list` of :class:`str` or :class:`bool`
         :raise ValueError: if the order contains invalid attributes
             that either do not exist or contain one to many
             relationships.
@@ -207,7 +210,7 @@ class Query(object):
             query already has a condition on a given attribute, it
             will be turned into a list with the new condition(s)
             appended.
-        :type conditions: ``dict``
+        :type conditions: :class:`dict`
         :raise ValueError: if any key in conditions is not valid.
         """
         if conditions:
@@ -234,7 +237,7 @@ class Query(object):
 
         :param includes: list of related objects to add to the INCLUDE
             clause.
-        :type includes: iterable of ``str``
+        :type includes: iterable of :class:`str`
         :raise ValueError: if any item in includes is not a related object.
         """
         if includes:
@@ -251,7 +254,7 @@ class Query(object):
         """Set the limits to build the LIMIT clause from.
 
         :param limit: a tuple (skip, count).
-        :type limit: ``tuple``
+        :type limit: :class:`tuple`
         """
         if limit:
             self.limit = limit

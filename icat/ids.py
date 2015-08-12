@@ -304,7 +304,8 @@ class IDSClient(object):
         self.default.open(req)
 
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
-        """Prepare data for a subsequent getPreparedData call.
+        """Prepare data for a subsequent
+        :meth:`icat.ids.IDSClient.getPreparedData` call.
         """
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
@@ -317,7 +318,7 @@ class IDSClient(object):
         """Check if data is ready.
 
         Returns true if the data identified by the preparedId returned
-        by a call to prepareData is ready.
+        by a call to :meth:`icat.ids.IDSClient.prepareData` is ready.
         """
         parameters = {"preparedId": preparedId}
         req = IDSRequest(self.url + "isPrepared", parameters)
@@ -353,7 +354,7 @@ class IDSClient(object):
         """Get prepared data.
 
         Get the data using the preparedId returned by a call to
-        prepareData.
+        :meth:`icat.ids.IDSClient.prepareData`.
         """
         parameters = {"preparedId": preparedId}
         if outname: parameters["outname"] = outname
@@ -366,7 +367,7 @@ class IDSClient(object):
         """Get the URL to retrieve prepared data.
 
         Get the URL to retrieve data using the preparedId returned by
-        a call to prepareData.
+        a call to :meth:`icat.ids.IDSClient.prepareData`.
         """
         parameters = {"preparedId": preparedId}
         if outname: parameters["outname"] = outname
@@ -391,9 +392,10 @@ class IDSClient(object):
             datafileModTime=None):
         """Put data into IDS.
 
-        Put the data in the inputStream into a data file and catalogue
-        it.  The client generates a checksum which is compared to that
-        produced by the server to detect any transmission errors.
+        Put the data in the `inputStream` into a data file and
+        catalogue it.  The client generates a checksum which is
+        compared to that produced by the server to detect any
+        transmission errors.
         """
         parameters = {"sessionId":self.sessionId, "name":name, 
                       "datasetId":str(datasetId), 

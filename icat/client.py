@@ -140,8 +140,9 @@ class Client(suds.client.Client):
     def cleanupall(cls):
         """Cleanup all class instances.
 
-        Call `cleanup` on all registered class instances, e.g. on all
-        clients that have not yet been cleaned up.
+        Call :meth:`icat.client.Client.cleanup` on all registered
+        class instances, e.g. on all clients that have not yet been
+        cleaned up.
         """
         cl = list(cls.Register.values())
         for c in cl:
@@ -157,7 +158,7 @@ class Client(suds.client.Client):
         :param url: The URL for the WSDL.
         :type url: str
         :param kwargs: keyword arguments.
-        :see: ``suds.options.Options`` for the keyword arguments.
+        :see: :class:`suds.options.Options` for the keyword arguments.
         """
 
         idsurl = kwargs.pop('idsurl', None)
@@ -210,15 +211,15 @@ class Client(suds.client.Client):
         self.Register[id(self)] = self
 
     def __del__(self):
-        """Call `cleanup`."""
+        """Call :meth:`icat.client.Client.cleanup`."""
         self.cleanup()
 
     def cleanup(self):
         """Release resources allocated by the client.
 
-        Logout from the active ICAT session (if ``self.autoLogout`` is
-        True).  The client should not be used any more after calling
-        this method.
+        Logout from the active ICAT session (if
+        :attr:`self.autoLogout` is :const:`True`).  The client should
+        not be used any more after calling this method.
         """
         if id(self) in self.Register:
             if self.autoLogout:
@@ -245,22 +246,22 @@ class Client(suds.client.Client):
 
     def new(self, obj, **kwargs):
 
-        """Instantiate a new `Entity` object.
+        """Instantiate a new :class:`icat.entity.Entity` object.
 
         If obj is a string, take it as the name of an instance type.
         Create a new instance object of this type and lookup the class
-        for the ``Entity`` object in the ``typemap`` using this type
+        for the object in the :attr:`self.typemap` using this type
         name.  If obj is an instance object, look up its class name in
-        the ``typemap`` to determine the class for the ``Entity``
-        object.  If obj is ``None``, do nothing and return ``None``.
+        the typemap to determine the class.  If obj is :const:`None`,
+        do nothing and return :const:`None`.
         
         :param obj: either a Suds instance object, a name of an
-            instance type, or ``None``.
-        :type obj: ``suds.sudsobject.Object`` or ``str``
-        :param kwargs: attributes passed to the constructor
-            `Entity.__init__` of the entity class.
-        :return: the new entity object or ``None``.
-        :rtype: ``Entity``
+            instance type, or :const:`None`.
+        :type obj: :class:`suds.sudsobject.Object` or :class:`str`
+        :param kwargs: attributes passed to the constructor of
+            :class:`icat.entity.Entity`.
+        :return: the new entity object or :const:`None`.
+        :rtype: :class:`icat.entity.Entity`
         :raise TypeError: if obj is neither a valid instance object,
             nor a valid name of an entity type, nor None.
         """
@@ -313,16 +314,16 @@ class Client(suds.client.Client):
             raise ValueError("Invalid entity type '%s'." % name)
 
     def getEntity(self, obj):
-        """Get the corresponding `Entity` for an object.
+        """Get the corresponding :class:`icat.entity.Entity` for an object.
 
-        If obj is a Suds instance object, create a new ``Entity``
-        object with `new`.  Otherwise do nothing and return obj
-        unchanged.
+        If obj is a Suds instance object, create a new object with
+        :meth:`icat.client.Client.new`.  Otherwise do nothing and
+        return obj unchanged.
         
         :param obj: either a Suds instance object or anything.
-        :type obj: ``suds.sudsobject.Object`` or any type
+        :type obj: :class:`suds.sudsobject.Object` or any type
         :return: the new entity object or obj.
-        :rtype: ``Entity`` or any type
+        :rtype: :class:`icat.entity.Entity` or any type
         """
         if isinstance(obj, suds.sudsobject.Object):
             return self.new(obj)
@@ -482,14 +483,14 @@ class Client(suds.client.Client):
         error if this assertion fails.
 
         :param query: the search query.
-        :type query: `Query` or ``str``
+        :type query: :class:`icat.query.Query` or :class:`str`
         :param assertmin: minimum number of expected results.
-        :type assertmin: ``int``
+        :type assertmin: :class:`int`
         :param assertmax: maximum number of expected results.  A value
-            of ``None`` is treated as infinity.
-        :type assertmax: ``int``
+            of :const:`None` is treated as infinity.
+        :type assertmax: :class:`int`
         :return: search result.
-        :rtype: ``list``
+        :rtype: :class:`list`
         :raise ValueError: in case of inconsistent arguments.
         :raise SearchAssertionError: if the assertion on the number of
             results fails.
@@ -509,9 +510,9 @@ class Client(suds.client.Client):
     def searchChunked(self, query, skip=0, count=None, chunksize=100):
         """Search the ICAT server.
 
-        Call the ICAT search API method, limiting the number of
-        results in each call and repeat the call as often as needed to
-        retrieve all the results.
+        Call the ICAT :meth:`icat.client.Client.search` API method,
+        limiting the number of results in each call and repeat the
+        call as often as needed to retrieve all the results.
 
         This can be used as a drop in replacement for the search API
         method most of the times.  It avoids the error if the number
@@ -528,20 +529,19 @@ class Client(suds.client.Client):
         affect the result.
 
         :param query: the search query.
-        :type query: `Query` or ``str``
+        :type query: :class:`icat.query.Query` or :class:`str`
         :param skip: offset from within the full list of available results.
-        :type skip: ``int``
+        :type skip: :class:`int`
         :param count: maximum number of items to return.  A value of
-            ``None`` means no limit.
-        :type count: ``int``
+            :const:`None` means no limit.
+        :type count: :class:`int`
         :param chunksize: number of items to query in each search
             call.  This is an internal tuning parameter and does not
             affect the result.
-        :type chunksize: ``int``
+        :type chunksize: :class:`int`
         :return: a generator that iterates over the items in the
             search result.
-        :rtype: ``generator``
-
+        :rtype: generator
         """
         if isinstance(query, Query):
             q = query.copy()
@@ -567,11 +567,11 @@ class Client(suds.client.Client):
         """Search the object that belongs to a unique key.
 
         This is in a sense the inverse method to
-        `Entity.getUniqueKey()`.  The key must previously have been
-        generated by ``getUniqueKey()``.  This method searches the
-        Entity object that created this key from the server.
+        :meth:`icat.entity.Entity.getUniqueKey`, the key must
+        previously have been generated by it.  This method searches
+        the Entity object from the server that created this key.
 
-        if objindex is not ``None``, it is used as a cache of
+        if objindex is not :const:`None`, it is used as a cache of
         previously retrieved objects.  It must be a dict that maps
         keys to Entity objects.  The newly object retrieved by this
         method call will be added to this index.
@@ -580,11 +580,11 @@ class Client(suds.client.Client):
         with ICAT 4.3.0.  It won't work with older ICAT servers.
 
         :param key: the unique key of the object to search for.
-        :type key: ``str``
+        :type key: :class:`str`
         :param objindex: cache of Entity objects.
-        :type objindex: ``dict``
+        :type objindex: :class:`dict`
         :return: the object corresponding to the key.
-        :rtype: ``Entity``
+        :rtype: :class:`icat.entity.Entity`
         :raise SearchResultError: if the object has not been found.
         :raise ValueError: if the key is not well formed.
         :raise VersionMethodError: if connected to an ICAT server
@@ -626,9 +626,9 @@ class Client(suds.client.Client):
 
         :param obj: an entity object having the attrinutes for the
             uniqueness constraint set accordingly.
-        :type obj: ``Entity``
+        :type obj: :class:`icat.entity.Entity`
         :return: the corresponding object.
-        :rtype: ``Entity``
+        :rtype: :class:`icat.entity.Entity`
         :raise SearchResultError: if the object has not been found.
         :raise ValueError: if the object's class does not have a
             uniqueness constraint or if any attribute needed for the
@@ -653,16 +653,16 @@ class Client(suds.client.Client):
     def createUser(self, name, search=False, **kwargs):
         """Search a user by name or Create a new user.
 
-        If search is ``True`` search a user by the given name.  If
-        search is ``False`` or no user is found, create a new user.
+        If search is :const:`True` search a user by the given name.  If
+        search is :const:`False` or no user is found, create a new user.
 
         :param name: username.
-        :type name: ``str``
+        :type name: :class:`str`
         :param search: flag whether a user should be searched first.
-        :type search: ``bool``
+        :type search: :class:`bool`
         :param kwargs: attributes of the user passed to `new`.
         :return: the user.
-        :rtype: ``Entity``
+        :rtype: :class:`icat.entity.Entity`
         """
         if search:
             users = self.search("User[name='%s']" % name)
@@ -679,11 +679,11 @@ class Client(suds.client.Client):
         """Create a group and add users to it.
 
         :param name: the name of the group.
-        :type name: ``str``
+        :type name: :class:`str`
         :param users: a list of users.
-        :type users: ``list`` of ``Entity``
+        :type users: :class:`list` of :class:`icat.entity.Entity`
         :return: the group.
-        :rtype: ``Entity``
+        :rtype: :class:`icat.entity.Entity`
         """
         log.info("Group: creating '%s'", name)
         if self.apiversion < '4.3':
@@ -698,16 +698,16 @@ class Client(suds.client.Client):
         """Create access rules.
 
         :param crudFlags: access mode.
-        :type crudFlags: ``str``
+        :type crudFlags: :class:`str`
         :param what: list of items subject to the rule.  The items
             must be either ICAT search expression strings or `Query`
             objects.
-        :type what: ``list``
+        :type what: :class:`list`
         :param group: the group that should be granted access or
-            ``None`` for everybody.
-        :type group: ``Entity``
+            :const:`None` for everybody.
+        :type group: :class:`icat.entity.Entity`
         :return: list of the ids of the created rules.
-        :rtype: ``list`` of ``long``
+        :rtype: :class:`list` of :class:`long`
         """
         if group:
             log.info("Rule: adding %s permissions for group '%s'", 
@@ -737,8 +737,8 @@ class Client(suds.client.Client):
         the Dataset and the DatafileFormat as well as the attributes
         description, doi, datafileCreateTime, and datafileModTime will
         be taken from datafile.  If datafileModTime is not set, the
-        method will try to fstat infile and use the last modification
-        time from the file system, if available.  If
+        method will try to :func:`os.fstat` infile and use the last
+        modification time from the file system, if available.  If
         datafileCreateTime is not set, it will be set to
         datafileModTime.
 
@@ -750,11 +750,11 @@ class Client(suds.client.Client):
         those other attribues.
 
         :param infile: either a file opened for reading or a filename.
-        :type infile: ``file`` or ``str``
+        :type infile: :class:`file` or :class:`str`
         :param datafile: A Datafile object.
-        :type datafile: `Datafile`
+        :type datafile: :class:`icat.entity.Entity`
         :return: The Datafile object created by IDS.
-        :rtype: ``Datafile``
+        :rtype: :class:`icat.entity.Entity`
         """
 
         if not self.ids:
@@ -813,22 +813,24 @@ class Client(suds.client.Client):
             ``investigationIds``, ``datasetIds``, and ``datafileIds``
             with a list if object ids as value respectively, or a list
             of entity objects, or a data selection.
-        :type objs: ``dict``, ``list`` of ``Entity``, or `DataSelection`
+        :type objs: :class:`dict`, :class:`list` of
+            :class:`icat.entity.Entity`, or
+            :class:`icat.ids.DataSelection`
         :param compressFlag: flag whether to use a zip format with an
             implementation defined compression level, otherwise use no
             (or minimal) compression.
-        :type compressFlag: ``bool``
+        :type compressFlag: :class:`bool`
         :param zipFlag: flag whether return a single datafile in zip
             format.  For multiple files zip format is always used.
-        :type zipFlag: ``bool``
+        :type zipFlag: :class:`bool`
         :param outname: the preferred name for the downloaded file to
             specify in the Content-Disposition header.
-        :type outname: ``str``
+        :type outname: :class:`str`
         :param offset: if larger then zero, add Range header to the
             HTTP request with the indicated bytes offset.
-        :type offset: ``int``
+        :type offset: :class:`int`
         :return: a file-like object as returned by
-            ``urllib2.OpenerDirector.open()``
+            :meth:`urllib2.OpenerDirector.open`.
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
@@ -850,19 +852,21 @@ class Client(suds.client.Client):
             ``investigationIds``, ``datasetIds``, and ``datafileIds``
             with a list if object ids as value respectively, or a list
             of entity objects, or a data selection.
-        :type objs: ``dict``, ``list`` of ``Entity``, or `DataSelection`
+        :type objs: :class:`dict`, :class:`list` of
+            :class:`icat.entity.Entity`, or
+            :class:`icat.ids.DataSelection`
         :param compressFlag: flag whether to use a zip format with an
             implementation defined compression level, otherwise use no
             (or minimal) compression.
-        :type compressFlag: ``bool``
+        :type compressFlag: :class:`bool`
         :param zipFlag: flag whether return a single datafile in zip
             format.  For multiple files zip format is always used.
-        :type zipFlag: ``bool``
+        :type zipFlag: :class:`bool`
         :param outname: the preferred name for the downloaded file to
             specify in the Content-Disposition header.
-        :type outname: ``str``
+        :type outname: :class:`str`
         :return: the URL for tha data at the IDS.
-        :rtype: ``str``
+        :rtype: :class:`str`
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
@@ -881,17 +885,20 @@ class Client(suds.client.Client):
             ``investigationIds``, ``datasetIds``, and ``datafileIds``
             with a list if object ids as value respectively, or a list
             of entity objects, or a data selection.
-        :type objs: ``dict``, ``list`` of ``Entity``, or `DataSelection`
+        :type objs: :class:`dict`, :class:`list` of
+            :class:`icat.entity.Entity`, or
+            :class:`icat.ids.DataSelection`
         :param compressFlag: flag whether to use a zip format with an
             implementation defined compression level, otherwise use no
             (or minimal) compression.
-        :type compressFlag: ``bool``
+        :type compressFlag: :class:`bool`
         :param zipFlag: flag whether return a single datafile in zip
             format.  For multiple files zip format is always used.
-        :type zipFlag: ``bool``
+        :type zipFlag: :class:`bool`
         :return: preparedId, an opaque string which may be used as an
-            argument to isDataPrepared() and getPreparedData() calls.
-        :rtype: ``str``
+            argument to :meth:`icat.client.Client.isDataPrepared` and
+            :meth:`icat.client.Client.getPreparedData` calls.
+        :rtype: :class:`str`
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
@@ -902,10 +909,11 @@ class Client(suds.client.Client):
     def isDataPrepared(self, preparedId):
         """Check if prepared data is ready at IDS.
 
-        :param preparedId: the id returned by prepareData().
-        :type preparedId: ``str``
-        :return: ``True`` if the data is ready, otherwise ``False``.
-        :rtype: ``bool``
+        :param preparedId: the id returned by
+            :meth:`icat.client.Client.prepareData`.
+        :type preparedId: :class:`str`
+        :return: :const:`True` if the data is ready, otherwise :const:`False`.
+        :rtype: :class:`bool`
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
@@ -914,16 +922,17 @@ class Client(suds.client.Client):
     def getPreparedData(self, preparedId, outname=None, offset=0):
         """Retrieve prepared data from IDS.
 
-        :param preparedId: the id returned by prepareData().
-        :type preparedId: ``str``
+        :param preparedId: the id returned by
+            :meth:`icat.client.Client.prepareData`.
+        :type preparedId: :class:`str`
         :param outname: the preferred name for the downloaded file to
             specify in the Content-Disposition header.
-        :type outname: ``str``
+        :type outname: :class:`str`
         :param offset: if larger then zero, add Range header to the
             HTTP request with the indicated bytes offset.
-        :type offset: ``int``
+        :type offset: :class:`int`
         :return: a file-like object as returned by
-            ``urllib2.OpenerDirector.open()``
+            :meth:`urllib2.OpenerDirector.open`.
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
@@ -932,13 +941,14 @@ class Client(suds.client.Client):
     def getPreparedDataUrl(self, preparedId, outname=None):
         """Get the URL to retrieve prepared data from IDS.
 
-        :param preparedId: the id returned by prepareData().
-        :type preparedId: ``str``
+        :param preparedId: the id returned by
+            :meth:`icat.client.Client.prepareData`.
+        :type preparedId: :class:`str`
         :param outname: the preferred name for the downloaded file to
             specify in the Content-Disposition header.
-        :type outname: ``str``
+        :type outname: :class:`str`
         :return: the URL for tha data at the IDS.
-        :rtype: ``str``
+        :rtype: :class:`str`
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
@@ -955,7 +965,9 @@ class Client(suds.client.Client):
             ``investigationIds``, ``datasetIds``, and ``datafileIds``
             with a list if object ids as value respectively, or a list
             of entity objects, or a data selection.
-        :type objs: ``dict``, ``list`` of ``Entity``, or `DataSelection`
+        :type objs: :class:`dict`, :class:`list` of
+            :class:`icat.entity.Entity`, or
+            :class:`icat.ids.DataSelection`
         """
         if not self.ids:
             raise RuntimeError("no IDS.")

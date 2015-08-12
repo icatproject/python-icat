@@ -56,8 +56,9 @@ def stripCause(e):
 class ServerError(Exception):
     """Errors raised by either the ICAT or the IDS server.
 
-    This is the common base class for ICATError and IDSError, it is
-    not intented to be raised directly.
+    This is the common base class for :exc:`icat.exception.ICATError`
+    and :exc:`icat.exception.IDSError`, it is not intented to be
+    raised directly.
     """
     def __init__(self, error, status):
         """Expecept either a suds.WebFault or a Mapping with the keys 'code',

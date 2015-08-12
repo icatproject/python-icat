@@ -13,24 +13,25 @@ __all__ = ['Entity']
 class Entity(object):
     """The base of the classes representing the entities in the ICAT schema.
 
-    ``Entity`` is the abstract base for a hierarchy of classes
+    Entity is the abstract base for a hierarchy of classes
     representing the entities in the ICAT schema.  It implements the
     basic behavior of these classes.
 
-    Each ``Entity`` object is connected to an instance of the
-    ``suds.sudsobject.Object`` class, named *instance* in the
+    Each Entity object is connected to an instance of the
+    :class:`suds.sudsobject.Object`, named *instance* in the
     following.  Instances are created by Suds based on the ICAT WSDL
-    schema.  ``Entity`` objects mimic the behavior of the corresponding
+    schema.  Entity objects mimic the behavior of the corresponding
     instance.  Attribute accesses are proxied to the instance.  A
-    transparent conversion between ``Entity`` objects and Suds
-    instances is performed where appropriate.
+    transparent conversion between Entity objects and Suds instances
+    is performed where appropriate.
     """
     BeanName = None
-    """Name of the entity in the ICAT schema, ``None`` for abstract classes."""
+    """Name of the entity in the ICAT schema, :const:`None` for abstract
+    classes."""
     Constraint = ('id',)
     """Attribute or relation names that form a uniqueness constraint."""
     SelfAttr = frozenset(['client', 'instance'])
-    """Attributes stored in the ``Entity`` object itself."""
+    """Attributes stored in the Entity object itself."""
     InstAttr = frozenset(['id'])
     """Attributes of the entity in the ICAT schema, stored in the instance."""
     MetaAttr = frozenset(['createId', 'createTime', 'modId', 'modTime'])
@@ -42,7 +43,7 @@ class Entity(object):
     AttrAlias = {}
     """Map of alias names for attributes and relationships."""
     SortAttrs = None
-    """List of attributes used for sorting.  Uses Constraint if set to None."""
+    """List of attributes used for sorting.  Uses Constraint if :const:`None`."""
 
 
     @classmethod
@@ -72,9 +73,9 @@ class Entity(object):
         retrieve information on one of the attributes from it.
 
         :param client: the ICAT client.
-        :type client: `Client`
+        :type client: :class:`icat.client.Client`
         :param attr: name of the attribute.
-        :type attr: ``str``
+        :type attr: :class:`str`
         :return: information on the attribute.
         :raise ValueError: if this is an abstract entity class or if
             no attribute by that name is found.
@@ -110,10 +111,11 @@ class Entity(object):
         The order is a list of attributes suitable to be used in a
         ORDER BY clause in an ICAT search expression.  The natural
         order is the one that is as close as possible to sorting the
-        objects by the `__sortkey__`.  It is based on the Constraint
-        of the class or the SortAttrs, if the latter are defined.  In
-        any case, one to many relationships and nullable many to one
-        relationships are removed from the list.
+        objects by the :meth:`icat.entity.Entity.__sortkey__`.  It is
+        based on the Constraint of the class or the SortAttrs, if the
+        latter are defined.  In any case, one to many relationships
+        and nullable many to one relationships are removed from the
+        list.
         """
         order = []
         attrs = list(cls.SortAttrs or cls.Constraint)
@@ -279,9 +281,9 @@ class Entity(object):
         related object.
 
         :param attr: name of the attribute.
-        :type attr: ``str``
+        :type attr: :class:`str`
         :return: name of the attribute type.
-        :rtype: ``str``
+        :rtype: :class:`str`
         :raise ValueError: if no attribute by that name is found.
         """
         if attr in self.AttrAlias:
@@ -308,33 +310,35 @@ class Entity(object):
 
         The key is a string that is guaranteed to be unique for all
         entities in the ICAT.  All attributes that form the uniqueness
-        constraint must be set.  A ``search`` or ``get`` with the
-        appropriate INCLUDE statement may be required before calling
-        this method.  Note that this may be a problem with ICAT
-        versions older then 4.3.0, because in these versions, the
-        schema did allow constraint attributes and relations to be
-        NULL in some cases.  That means, it may happen that this
-        method fails to create a unique key when connected to an old
-        server.
+        constraint must be set.  A :meth:`icat.client.Client.search`
+        or :meth:`icat.client.Client.get` with the appropriate INCLUDE
+        statement may be required before calling this method.  Note
+        that this may be a problem with ICAT versions older then
+        4.3.0, because in these versions, the schema did allow
+        constraint attributes and relations to be NULL in some cases.
+        That means, it may happen that this method fails to create a
+        unique key when connected to an old server.
 
-        If autoget is ``True`` the method will call ``get`` with the
-        appropriate arguments to fill the relations needed for the
-        constraint.  Note that this may discard information on other
-        relations currently present in the entity object.
+        If autoget is :const:`True` the method will call
+        :meth:`icat.client.Client.get` with the appropriate arguments
+        to fill the relations needed for the constraint.  Note that
+        this may discard information on other relations currently
+        present in the entity object.
 
-        if keyindex is not ``None``, it is used as a cache of
+        if keyindex is not :const:`None`, it is used as a cache of
         previously generated keys.  It must be a dict that maps entity
-        ids to the keys returned by previous calls of getUniqueKey()
-        on other entity objects.  The newly generated key will be
-        added to this index.
+        ids to the keys returned by previous calls of
+        :meth:`icat.entity.Entity.getUniqueKey` on other entity
+        objects.  The newly generated key will be added to this index.
 
-        :param autoget: flag whether ``get`` shall be called in order
-            to have all needed attributes set.
-        :type autoget: ``bool``
+        :param autoget: flag whether :meth:`icat.client.Client.get`
+            shall be called in order to have all needed attributes
+            set.
+        :type autoget: :class:`bool`
         :param keyindex: cache of generated keys.
-        :type keyindex: ``dict``
+        :type keyindex: :class:`dict`
         :return: a unique key.
-        :rtype: ``str``
+        :rtype: :class:`str`
         :raise DataConsistencyError: if a relation required in a
             constraint is not set.
         """
@@ -375,18 +379,21 @@ class Entity(object):
         return key
 
     def create(self):
-        """Call the ``create`` client API method to create the object
-        in the ICAT.""" 
+        """Call :meth:`icat.client.Client.create` to create the object in the
+        ICAT.
+        """ 
         self.id = self.client.create(self.instance)
 
     def update(self):
-        """Call the ``update`` client API method to update the object
-        in the ICAT.""" 
+        """Call :meth:`icat.client.Client.update` to update the object in the
+        ICAT.
+        """ 
         self.client.update(self.instance)
 
     def get(self, query=None):
-        """Call the ``get`` client API method to get the object from
-        the ICAT.""" 
+        """Call :meth:`icat.client.Client.get` to get the object from the
+        ICAT.
+        """ 
         if self.BeanName is None:
             raise TypeError("Cannot get an object of abstract type '%s'." % 
                             self.instancetype)
@@ -403,10 +410,11 @@ class Entity(object):
 class EntityList(ListProxy):
     """A list of Entity objects.
 
-    It actually is a proxy to a list of ``suds.sudsobject`` instances.
-    List items are converted on the fly: `Entity` objects are
-    converted to ``sudsobjects`` when stored into the list and
-    converted back to ``Entity`` objects when retrieved.
+    It actually is a proxy to a list of
+    :class:`suds.sudsobject.Object` instances.  List items are
+    converted on the fly: Entity objects are converted to
+    suds.sudsobject.Object when stored into the list and converted
+    back to Entity objects when retrieved.
     """
 
     def __init__(self, client, instancelist):

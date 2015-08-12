@@ -1,8 +1,8 @@
 """Check the compatibility of the client with the ICAT server.
 
-This module provides tests to check the compatibility of the client
-with the WSDL description got from the ICAT server.  It is mainly
-useful for the package maintainer.
+**Note**: This module provides tests to check the compatibility of the
+client with the WSDL description got from the ICAT server.  It is
+mainly useful for the package maintainer.
 """
 
 import re
@@ -305,7 +305,8 @@ class ICATChecker(object):
         The Python classes are created as a hierarchy.  It is assumed
         that there is one abstract base type which is the root of the
         genealogy tree.  In the case of the ICAT 4.2.* schema, this
-        assumptions holds, the base is ``entityBaseBean``.
+        assumptions holds, the base is
+        :class:`suds.sudsobject.entityBaseBean`.
 
         The parameter genealogyrules defines the rules for the tree.
         It must be a list of tupels, each having two elements, a
@@ -316,8 +317,8 @@ class ICATChecker(object):
         ``(r'','base')``, where base is the name of the root.
 
         Entity classes having children in the hierarchy are assumed to
-        be abstract.  In this case the attribut ``BeanName`` is set to
-        ``None``.
+        be abstract.  In this case the attribut
+        :attr:`icat.entity.Entity.BeanName` is set to :const:`None`.
 
         The parameter baseclassname is the name for the base class at
         the root of the tree used in the Python output.
