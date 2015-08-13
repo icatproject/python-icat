@@ -74,7 +74,7 @@ class DumpFileReader(object):
 
         Yield some data object in each iteration.  This data object is
         specific to the implementing backend and should be passed as
-        the data argument to
+        the `data` argument to
         :meth:`icat.dumpfile.DumpFileReader.getobjs_from_data`.
         """
         raise NotImplementedError
@@ -250,7 +250,7 @@ def open_dumpfile(client, f, formatname, mode):
     :type client: :class:`icat.client.Client`
     :param f: a file object or the name of file.  In the former case,
         the file must be opened in the appropriate mode, in the latter
-        case a file by that name is opened using mode.  The special
+        case a file by that name is opened using `mode`.  The special
         value of "-" may be used as an alias for :data:`sys.stdin` or
         :data:`sys.stdout`.
     :param formatname: name of the file format that has been registered by

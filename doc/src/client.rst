@@ -25,14 +25,14 @@ Instance attributes:
 .. attribute:: Client.sslContext
 
     The :class:`ssl.SSLContext` instance that has been used to
-    establish the HTTPS conection to the ICAT and IDS server.
-    This is ``None`` for old Python versions that do not have the
+    establish the HTTPS conection to the ICAT and IDS server.  This is
+    :const:`None` for old Python versions that do not have the
     :class:`ssl.SSLContext` class.
 
 .. attribute:: Client.typemap
 
-    A ``dict`` that maps type names from the ICAT WSDL schema to the
-    corresponding classes in the :class:`icat.entity.Entity`
+    A :class:`dict` that maps type names from the ICAT WSDL schema to
+    the corresponding classes in the :class:`icat.entity.Entity`
     hierarchy.
 
 .. attribute:: Client.url

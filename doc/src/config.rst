@@ -22,7 +22,8 @@ added.  The main class that client programs interact with is
 .. data:: icat.config.flag
 
     Variant of :func:`icat.config.boolean` that defines two command
-    line arguments to switch the value on and off respectively.
+    line arguments to switch the value on and off respectively.  May
+    be passed as type to :meth:`icat.config.Config.add_variable`.
 
 .. autoclass:: icat.config.Configuration
     :members:
@@ -58,10 +59,10 @@ set of configuration variables that an ICAT client typically needs:
     With older Python version, this option has no effect.
 
   `http_proxy`
-    Proxy to use for http requests.
+    Proxy to use for HTTP requests.
 
   `https_proxy`
-    Proxy to use for https requests.
+    Proxy to use for HTTPS requests.
 
   `no_proxy`
     Comma separated list of domain extensions proxy should not be

@@ -276,7 +276,7 @@ class Config(object):
         command line argument if `arg_opts` is set.
 
         :param name: the name of the variable.  This will be used as
-            the name of the attribute of the
+            the name of the attribute of
             :class:`icat.config.Configuration` returned by
             :meth:`icat.config.Config.getconfig` and as the name of
             the option to be looked for in the configuration file.

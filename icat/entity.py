@@ -17,7 +17,7 @@ class Entity(object):
     representing the entities in the ICAT schema.  It implements the
     basic behavior of these classes.
 
-    Each Entity object is connected to an instance of the
+    Each Entity object is connected to an instance of
     :class:`suds.sudsobject.Object`, named *instance* in the
     following.  Instances are created by Suds based on the ICAT WSDL
     schema.  Entity objects mimic the behavior of the corresponding

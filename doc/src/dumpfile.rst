@@ -1,10 +1,11 @@
 :mod:`icat.dumpfile` --- Backend for icatdump and icatingest
 ============================================================
 
-Provide the base classes DumpFileReader and DumpFileWriter that define
-the API and the logic for reading and writing ICAT data files.  The
-actual work is done in file format specific modules that should
-provide subclasses that must implement the abstract methods.
+Provide the base classes :class:`icat.dumpfile.DumpFileReader` and
+:class:`icat.dumpfile.DumpFileWriter` that define the API and the
+logic for reading and writing ICAT data files.  The actual work is
+done in file format specific modules that should provide subclasses
+that must implement the abstract methods.
 
 .. autoclass:: icat.dumpfile.DumpFileReader
     :members:

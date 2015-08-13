@@ -308,8 +308,8 @@ class ICATChecker(object):
         assumptions holds, the base is
         :class:`suds.sudsobject.entityBaseBean`.
 
-        The parameter genealogyrules defines the rules for the tree.
-        It must be a list of tupels, each having two elements, a
+        The parameter `genealogyrules` defines the rules for the tree.
+        It must be a list of tuples, each having two elements, a
         regular expression and the name of a parent type.  Each type
         matching the regular expression is assumed to be derived from
         the parent.  The first match in the list wins.  The last
@@ -320,7 +320,7 @@ class ICATChecker(object):
         be abstract.  In this case the attribut
         :attr:`icat.entity.Entity.BeanName` is set to :const:`None`.
 
-        The parameter baseclassname is the name for the base class at
+        The parameter `baseclassname` is the name for the base class at
         the root of the tree used in the Python output.
         """
 
