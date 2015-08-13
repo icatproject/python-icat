@@ -54,7 +54,7 @@ entitytypes = [
     'job',
 ]
 
-def entity2dict(obj, keyindex):
+def _entity2dict(obj, keyindex):
     """Convert an entity object to a dict."""
     d = {}
 
@@ -94,12 +94,12 @@ def entity2dict(obj, keyindex):
             d[attr] = []
             for o in sorted(getattr(obj, attr), 
                             key=icat.entity.Entity.__sortkey__):
-                d[attr].append(entity2dict(o, keyindex=keyindex))
+                d[attr].append(_entity2dict(o, keyindex=keyindex))
 
     return d
 
 
-def dict2entity(client, insttypemap, d, objtype, objindex):
+def _dict2entity(client, insttypemap, d, objtype, objindex):
     """Create an entity object from a dict of attributes."""
     obj = client.new(objtype)
     for k in d:
@@ -114,7 +114,7 @@ def dict2entity(client, insttypemap, d, objtype, objindex):
         elif attr in obj.InstMRel:
             rtype = insttypemap[obj.getAttrType(attr)]
             for rd in d[k]:
-                robj = dict2entity(client, insttypemap, rd, rtype, objindex)
+                robj = _dict2entity(client, insttypemap, rd, rtype, objindex)
                 getattr(obj, attr).append(robj)
         else:
             raise ValueError("invalid attribute '%s' in '%s'" 
@@ -154,8 +154,8 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
         for name in entitytypes:
             if name in data:
                 for key in sorted(data[name].keys()):
-                    obj = dict2entity(self.client, self.insttypemap, 
-                                      data[name][key], name, objindex)
+                    obj = _dict2entity(self.client, self.insttypemap, 
+                                       data[name][key], name, objindex)
                     yield key, obj
 
 
@@ -200,7 +200,7 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
             raise ValueError("Unknown entity type '%s'" % tag)
         if tag not in self.data:
             self.data[tag] = {}
-        self.data[tag][key] = entity2dict(obj, keyindex)
+        self.data[tag][key] = _entity2dict(obj, keyindex)
 
     def finalize(self):
         """Finalize the data file."""

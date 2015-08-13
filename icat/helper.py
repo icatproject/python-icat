@@ -157,13 +157,13 @@ def parse_attr_val(avs):
 def parse_attr_string(s, attrtype):
     """Parse the string representation of an entity attribute.
 
-    Note: for Date we use the parser from suds.sax.date.  If this is
-    the original suds version, this parser is buggy and might yield
-    wrong results.  But the same buggy parser is also applied by Suds
-    internally for the Date values coming from the ICAT server.  Since
-    we are mainly interested to compare with values from the ICAT
-    server, we have a fair chance that this comparision nevertheless
-    yields valid results.
+    Note: for Date we use the parser from :mod:`suds.sax.date`.  If
+    this is the original Suds version, this parser is buggy and might
+    yield wrong results.  But the same buggy parser is also applied by
+    Suds internally for the Date values coming from the ICAT server.
+    Since we are mainly interested to compare with values from the
+    ICAT server, we have a fair chance that this comparision
+    nevertheless yields valid results.
     """
     if s is None:
         return None
@@ -196,7 +196,8 @@ def parse_attr_string(s, attrtype):
 
 
 def ms_timestamp(dt):
-    """Convert datetime or string to timestamp in milliseconds since epoch.
+    """Convert :class:`datetime.datetime` or string to timestamp in
+    milliseconds since epoch.
     """
     if dt is None:
         return None

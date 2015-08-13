@@ -17,7 +17,7 @@ again mean the complete inventory of the ICAT.  And we can't know
 beforehand which object is going to be referenced later on, so we
 don't know which one to keep and which one to discard from the index.
 Fortunately we can query objects we discarded once back from the ICAT
-server with the ``searchUniqueKey()`` method of `Client`.  But this is
+server with :meth:`icat.client.Client.searchUniqueKey`.  But this is
 expensive.  So the strategy is as follows: keep all objects from the
 current chunk in the index and discard the complete index each time a
 chunk has been processed.  This will work fine if objects are mostly
@@ -30,15 +30,15 @@ objects as possible local in a chunk.  It is in the responsibility of
 the writer of the data file to create the chunks in this manner.
 
 The objects that get written to the data file and how this file is
-organized is controlled by lists of ICAT search expressions, see the
-``writeobjs()`` method of `DumpFileWriter`.  There is some degree of
-flexibility: an object may include related objects in an one-to-many
-relation, just by including them in the search expression.  In this
-case, these related objects should not have a search expression on
-their own again.  For instance, the search expression for Grouping may
-include UserGroup.  The UserGroups will then be embedded in their
-respective grouping in the data file.  There should not be a search
-expression for UserGroup then.
+organized is controlled by lists of ICAT search expressions, see
+:meth:`icat.dumpfile.DumpFileWriter.writeobjs`.  There is some degree
+of flexibility: an object may include related objects in an
+one-to-many relation, just by including them in the search expression.
+In this case, these related objects should not have a search
+expression on their own again.  For instance, the search expression
+for Grouping may include UserGroup.  The UserGroups will then be
+embedded in their respective grouping in the data file.  There should
+not be a search expression for UserGroup then.
 
 Objects related in a many-to-one relation must always be included in
 the search expression.  This is also true if the object is
@@ -74,7 +74,8 @@ class DumpFileReader(object):
 
         Yield some data object in each iteration.  This data object is
         specific to the implementing backend and should be passed as
-        the data argument to `getobjs_from_data`.
+        the `data` argument to
+        :meth:`icat.dumpfile.DumpFileReader.getobjs_from_data`.
         """
         raise NotImplementedError
 
@@ -168,11 +169,12 @@ class DumpFileWriter(object):
             As an alternative to a query, objs may also be a list of
             entity objects.  The same conditions on the inclusion of
             related objects apply.
-        :type objs: `Query` or ``str`` or ``list``
+        :type objs: :class:`icat.query.Query` or :class:`str` or
+            :class:`list`
         :param keyindex: cache of generated keys.  It maps object ids
-            to unique keys.  See the ``getUniqueKey()`` method of
-            `Entity` for details.
-        :type keyindex: ``dict``
+            to unique keys.  See the
+            :meth:`icat.entity.Entity.getUniqueKey` for details.
+        :type keyindex: :class:`dict`
         """
         if isinstance(objs, Query) or isinstance(objs, basestring):
             objs = self.client.searchChunked(objs)
@@ -199,7 +201,8 @@ class DumpFileWriter(object):
         """Write a data chunk.
 
         :param objs: an iterable that yields either queries to search
-            for the objects or object lists.  See `writeobjs` for
+            for the objects or object lists.  See
+            :meth:`icat.dumpfile.DumpFileWriter.writeobjs` for
             details.
         """
         keyindex = {}
@@ -215,55 +218,63 @@ class DumpFileWriter(object):
 Backends = {}
 """A register of all known backends."""
 
-def register_backend(format, reader, writer):
+def register_backend(formatname, reader, writer):
     """Register a backend.
 
-    :param format: name of the file format that the backend
-        implements.
-    :type format: ``str``
-    :param reader: class for reading data files.  Should be a subclass
-        of `DumpFileReader`.
-    :param writer: class for writing data files.  Should be a subclass
-        of `DumpFileWriter`.
-    """
-    Backends[format] = (reader, writer)
+    This function should be called by file format specific backends at
+    initialization.
 
-def open_dumpfile(client, f, format, mode):
+    :param formatname: name of the file format that the backend
+        implements.
+    :type formatname: :class:`str`
+    :param reader: class for reading data files.  Should be a subclass
+        of :class:`icat.dumpfile.DumpFileReader`.
+    :param writer: class for writing data files.  Should be a subclass
+        of :class:`icat.dumpfile.DumpFileWriter`.
+    """
+    Backends[formatname] = (reader, writer)
+
+def open_dumpfile(client, f, formatname, mode):
     """Open a data file, either for reading or for writing.
 
-    Note that (subclasses of) `DumpFileReader` and `DumpFileWriter`
-    may be used as context managers.  This function is suitable to be
-    used in the ``with`` statement.
+    Note that (subclasses of) :class:`icat.dumpfile.DumpFileReader`
+    and :class:`icat.dumpfile.DumpFileWriter` may be used as context
+    managers.  This function is suitable to be used in the
+    :obj:`with` statement.
+
+    >>> with open_dumpfile(client, f, "XML", 'r') as dumpfile:
+    ...     for obj in dumpfile.getobjs():
+    ...         obj.create()
 
     :param client: the ICAT client.
-    :type client: `Client`
+    :type client: :class:`icat.client.Client`
     :param f: a file object or the name of file.  In the former case,
         the file must be opened in the appropriate mode, in the latter
-        case a file by that name is opened using mode.  The special
-        value of "-" may be used as an alias for ``sys.stdin`` or
-        ``sys.stdout``.
-    :param format: name of the file format that has been registered by
+        case a file by that name is opened using `mode`.  The special
+        value of "-" may be used as an alias for :data:`sys.stdin` or
+        :data:`sys.stdout`.
+    :param formatname: name of the file format that has been registered by
         the backend.
-    :type format: ``str``
+    :type formatname: :class:`str`
     :param mode: a string indicating how the file is to be opened.
         The first character must be either "r" or "w" for reading or
         writing respectively.
-    :type mode: ``str``
+    :type mode: :class:`str`
     :return: an instance of the appropriate class.  This is either the
         reader or the writer class, according to the mode, that has
         been registered by the backend.
     :raise ValueError: if the format is not known or if the mode does
         not start with "r" or "w".
     """
-    if format not in Backends:
-        raise ValueError("Unknown data file format '%s'" % format)
+    if formatname not in Backends:
+        raise ValueError("Unknown data file format '%s'" % formatname)
     if mode[0] == 'r':
         if isinstance(f, basestring):
             if f == "-":
                 f = sys.stdin
             else:
                 f = open(f, mode)
-        cls = Backends[format][0]
+        cls = Backends[formatname][0]
         return cls(client, f)
     elif mode[0] == 'w':
         if isinstance(f, basestring):
@@ -271,7 +282,7 @@ def open_dumpfile(client, f, format, mode):
                 f = sys.stdout
             else:
                 f = open(f, mode)
-        cls = Backends[format][1]
+        cls = Backends[formatname][1]
         return cls(client, f)
     else:
         raise ValueError("Invalid file mode '%s'" % mode)

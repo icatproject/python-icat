@@ -13,9 +13,9 @@ from icat.exception import *
 class SessionCookie(SimpleCookie):
     """A cookie to store an ICAT session id.
 
-    Extend ``SimpleCookie`` by the attribute ``sessionId``.  Setting
-    this attribute will set the session id in the cookie, getting it
-    will retrieve its value from the cookie.
+    Extend :class:`Cookie.SimpleCookie` by the attribute `sessionId`.
+    Setting this attribute will set the session id in the cookie,
+    getting it will retrieve its value from the cookie.
     """
 
     def __init__(self):
@@ -61,7 +61,8 @@ class Session(object):
     """A persisting ICAT session.
 
     Manage an ICAT session that persist over the life time of the
-    script.  The session id is stored in a `SessionCookie`.
+    script.  The session id is stored in a
+    :class:`icat.cgi.SessionCookie`.
     """
 
     def __init__(self, url, 
