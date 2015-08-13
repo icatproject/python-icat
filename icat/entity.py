@@ -2,6 +2,7 @@
 """
 
 import re
+from warnings import warn
 import suds.sudsobject
 from icat.listproxy import ListProxy
 from icat.exception import InternalError, DataConsistencyError
@@ -319,13 +320,19 @@ class Entity(object):
         That means, it may happen that this method fails to create a
         unique key when connected to an old server.
 
-        If autoget is :const:`True` the method will call
+        If `autoget` is :const:`True` the method will call
         :meth:`icat.client.Client.get` with the appropriate arguments
         to fill the relations needed for the constraint.  Note that
         this may discard information on other relations currently
         present in the entity object.
 
-        if keyindex is not :const:`None`, it is used as a cache of
+        .. deprecated:: 0.9
+            Using the `autoget` argument is obsolete.  Call
+            :meth:`icat.client.Client.search` or
+            :meth:`icat.client.Client.get` with the appropriate
+            INCLUDE statement instead.
+
+        if `keyindex` is not :const:`None`, it is used as a cache of
         previously generated keys.  It must be a dict that maps entity
         ids to the keys returned by previous calls of
         :meth:`icat.entity.Entity.getUniqueKey` on other entity
@@ -348,6 +355,7 @@ class Entity(object):
             return keyindex[kid]
 
         if autoget:
+            warn("The autoget argument is deprecated.", DeprecationWarning, 2)
             inclattr = [a for a in self.Constraint if a in self.InstRel]
             if inclattr:
                 info = self.client.getEntityInfo(self.BeanName)

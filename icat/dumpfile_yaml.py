@@ -87,7 +87,7 @@ def _entity2dict(obj, keyindex):
     for attr in obj.InstRel:
         o = getattr(obj, attr, None)
         if o is not None:
-            d[attr] = o.getUniqueKey(autoget=False, keyindex=keyindex)
+            d[attr] = o.getUniqueKey(keyindex=keyindex)
 
     for attr in obj.InstMRel:
         if len(getattr(obj, attr)) > 0:

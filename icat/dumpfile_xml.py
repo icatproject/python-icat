@@ -48,7 +48,7 @@ def _entity2elem(obj, tag, keyindex):
     for attr in sorted(obj.InstRel):
         o = getattr(obj, attr, None)
         if o is not None:
-            k = o.getUniqueKey(autoget=False, keyindex=keyindex)
+            k = o.getUniqueKey(keyindex=keyindex)
             etree.SubElement(d, attr, ref=k)
 
     for attr in sorted(obj.InstMRel):
