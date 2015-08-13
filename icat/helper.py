@@ -33,6 +33,7 @@ True
 """
 
 import sys
+import datetime
 import suds.sax.date
 
 
@@ -156,13 +157,13 @@ def parse_attr_val(avs):
 def parse_attr_string(s, attrtype):
     """Parse the string representation of an entity attribute.
 
-    Note: for Date we use the parser from suds.sax.date.  If this is
-    the original suds version, this parser is buggy and might yield
-    wrong results.  But the same buggy parser is also applied by Suds
-    internally for the Date values coming from the ICAT server.  Since
-    we are mainly interested to compare with values from the ICAT
-    server, we have a fair chance that this comparision nevertheless
-    yields valid results.
+    Note: for Date we use the parser from :mod:`suds.sax.date`.  If
+    this is the original Suds version, this parser is buggy and might
+    yield wrong results.  But the same buggy parser is also applied by
+    Suds internally for the Date values coming from the ICAT server.
+    Since we are mainly interested to compare with values from the
+    ICAT server, we have a fair chance that this comparision
+    nevertheless yields valid results.
     """
     if s is None:
         return None
@@ -192,3 +193,35 @@ def parse_attr_string(s, attrtype):
             return d.datetime
     else:
         raise ValueError("Invalid attribute type '%s'" % attrtype)
+
+
+def ms_timestamp(dt):
+    """Convert :class:`datetime.datetime` or string to timestamp in
+    milliseconds since epoch.
+    """
+    if dt is None:
+        return None
+    if isinstance(dt, basestring):
+        dt = parse_attr_string(dt, "Date")
+    try:
+        # datetime.timestamp() is new in Python 3.3.
+        # timezone is new in Python 3.2.
+        if not dt.tzinfo:
+            # Unaware datetime values are assumed to be UTC.
+            dt = dt.replace(tzinfo=datetime.timezone.utc)
+        ts = 1000 * dt.timestamp()
+    except AttributeError:
+        # Python 3.2 and older.
+        if dt.tzinfo:
+            # dt is aware.  Convert it to naive UTC.
+            offs = dt.utcoffset()
+            dt = dt.replace(tzinfo=None) - offs
+        try:
+            # timedelta.total_seconds() is new in Python 2.7 and 3.2.
+            ts = 1000 * (dt - datetime.datetime(1970, 1, 1)).total_seconds()
+        except AttributeError:
+            # Python 2.6 or 3.1.
+            td = dt - datetime.datetime(1970, 1, 1)
+            ts = (1000 * (td.seconds + td.days * 24 * 3600) 
+                  + td.microseconds / 1000)
+    return int(ts)

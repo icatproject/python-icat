@@ -52,10 +52,10 @@ class HTTPSTransport(suds.transport.http.HttpTransport):
         """Initialize the HTTPSTransport instance.
 
         :param context: The SSL context to use.
-        :type context: ``ssl.SSLContext``
+        :type context: :class:`ssl.SSLContext`
         :param kwargs: keyword arguments.
-        :see: ``suds.transport.http.HttpTransport`` for the keyword
-            arguments.
+        :see: :class:`suds.transport.http.HttpTransport` for the
+            keyword arguments.
         """
         suds.transport.http.HttpTransport.__init__(self, **kwargs)
         self.ssl_context = context

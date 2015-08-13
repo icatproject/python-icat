@@ -90,7 +90,11 @@ class ChunkedFileReader(object):
 
 
 class DataSelection(object):
-    """A set of data to be processed by the ICAT Data Service."""
+    """A set of data to be processed by the ICAT Data Service.
+
+    This can be passed as the `selection` argument to
+    :class:`icat.ids.IDSClient` method calls.
+    """
 
     def __init__(self, objs=None):
         super(DataSelection, self).__init__()
@@ -108,6 +112,16 @@ class DataSelection(object):
                 % (self.invIds, self.dsIds, self.dfIds))
 
     def extend(self, objs):
+        """Add `objs` to the DataSelection.
+
+        :param objs: either a dict having some of the keys
+            `investigationIds`, `datasetIds`, and `datafileIds`
+            with a list of object ids as value respectively, or a list
+            of entity objects, or another data selection.
+        :type objs: :class:`dict`, :class:`list` of
+            :class:`icat.entity.Entity`, or
+            :class:`icat.ids.DataSelection`
+        """
         if isinstance(objs, DataSelection):
             self.invIds.extend(objs.invIds)
             self.dsIds.extend(objs.dsIds)
@@ -199,7 +213,7 @@ class IDSClient(object):
     def getApiVersion(self):
         """Get the version of the IDS server.
 
-        Note: the getApiVersion call has been added in IDS server
+        Note: the `getApiVersion` call has been added in IDS server
         version 1.3.0.  For older servers, try to guess the server
         version from features visible in the API.  Obviously this
         cannot always be accurate as we cannot distinguish server
@@ -272,9 +286,6 @@ class IDSClient(object):
     
     def getStatus(self, selection):
         """Return the status of data.
-
-        The data is specified by the datafileIds datasetIds and
-        investigationIds.
         """
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
@@ -283,9 +294,6 @@ class IDSClient(object):
     
     def archive(self, selection):
         """Archive data.
-
-        The data is specified by the datafileIds datasetIds and
-        investigationIds.
         """
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
@@ -294,9 +302,6 @@ class IDSClient(object):
 
     def restore(self, selection):
         """Restore data.
-
-        The data is specified by the datafileIds datasetIds and
-        investigationIds.
         """
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
@@ -304,7 +309,8 @@ class IDSClient(object):
         self.default.open(req)
 
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
-        """Prepare data for a subsequent getPreparedData call.
+        """Prepare data for a subsequent
+        :meth:`icat.ids.IDSClient.getPreparedData` call.
         """
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
@@ -316,8 +322,9 @@ class IDSClient(object):
     def isPrepared(self, preparedId):
         """Check if data is ready.
 
-        Returns true if the data identified by the preparedId returned
-        by a call to prepareData is ready.
+        Returns true if the data identified by the `preparedId`
+        returned by a call to :meth:`icat.ids.IDSClient.prepareData`
+        is ready.
         """
         parameters = {"preparedId": preparedId}
         req = IDSRequest(self.url + "isPrepared", parameters)
@@ -352,8 +359,8 @@ class IDSClient(object):
     def getPreparedData(self, preparedId, outname=None, offset=0):
         """Get prepared data.
 
-        Get the data using the preparedId returned by a call to
-        prepareData.
+        Get the data using the `preparedId` returned by a call to
+        :meth:`icat.ids.IDSClient.prepareData`.
         """
         parameters = {"preparedId": preparedId}
         if outname: parameters["outname"] = outname
@@ -365,8 +372,8 @@ class IDSClient(object):
     def getPreparedDataUrl(self, preparedId, outname=None):
         """Get the URL to retrieve prepared data.
 
-        Get the URL to retrieve data using the preparedId returned by
-        a call to prepareData.
+        Get the URL to retrieve data using the `preparedId` returned
+        by a call to :meth:`icat.ids.IDSClient.prepareData`.
         """
         parameters = {"preparedId": preparedId}
         if outname: parameters["outname"] = outname
@@ -391,9 +398,10 @@ class IDSClient(object):
             datafileModTime=None):
         """Put data into IDS.
 
-        Put the data in the inputStream into a data file and catalogue
-        it.  The client generates a checksum which is compared to that
-        produced by the server to detect any transmission errors.
+        Put the data in the `inputStream` into a data file and
+        catalogue it.  The client generates a checksum which is
+        compared to that produced by the server to detect any
+        transmission errors.
         """
         parameters = {"sessionId":self.sessionId, "name":name, 
                       "datasetId":str(datasetId), 
@@ -422,9 +430,6 @@ class IDSClient(object):
 
     def delete(self, selection):
         """Delete data.
-
-        The data is identified by the datafileIds, datasetIds and
-        investigationIds.
         """
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)

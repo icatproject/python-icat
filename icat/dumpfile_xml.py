@@ -1,4 +1,4 @@
-"""XML dump file backend for icatdump.py and icatingest.py.
+"""XML data file backend for icatdump.py and icatingest.py.
 """
 
 import os
@@ -13,7 +13,7 @@ from icat.query import Query
 # Helper
 # ------------------------------------------------------------
 
-def entity2elem(obj, tag, keyindex):
+def _entity2elem(obj, tag, keyindex):
     """Convert an entity object to an etree.Element."""
     if tag is None:
         tag = obj.instancetype
@@ -48,17 +48,17 @@ def entity2elem(obj, tag, keyindex):
     for attr in sorted(obj.InstRel):
         o = getattr(obj, attr, None)
         if o is not None:
-            k = o.getUniqueKey(autoget=False, keyindex=keyindex)
+            k = o.getUniqueKey(keyindex=keyindex)
             etree.SubElement(d, attr, ref=k)
 
     for attr in sorted(obj.InstMRel):
         for o in sorted(getattr(obj, attr), 
                         key=icat.entity.Entity.__sortkey__):
-            d.append(entity2elem(o, tag=attr, keyindex=keyindex))
+            d.append(_entity2elem(o, tag=attr, keyindex=keyindex))
 
     return d
 
-def searchByReference(client, element, objtype, objindex):
+def _searchByReference(client, element, objtype, objindex):
     """Search for a referenced object.
     """
     ref = element.get('ref')
@@ -72,7 +72,7 @@ def searchByReference(client, element, objtype, objindex):
         query = Query(client, objtype, conditions=conditions)
         return client.assertedSearch(query)[0]
 
-def elem2entity(client, insttypemap, element, objtype, objindex):
+def _elem2entity(client, insttypemap, element, objtype, objindex):
     """Create an entity object from XML element data."""
     obj = client.new(insttypemap[objtype])
     for subelem in element:
@@ -83,11 +83,11 @@ def elem2entity(client, insttypemap, element, objtype, objindex):
             setattr(obj, attr, subelem.text)
         elif attr in obj.InstRel:
             rtype = obj.getAttrType(attr)
-            robj = searchByReference(client, subelem, rtype, objindex)
+            robj = _searchByReference(client, subelem, rtype, objindex)
             setattr(obj, attr, robj)
         elif attr in obj.InstMRel:
             rtype = obj.getAttrType(attr)
-            robj = elem2entity(client, insttypemap, subelem, rtype, objindex)
+            robj = _elem2entity(client, insttypemap, subelem, rtype, objindex)
             getattr(obj, attr).append(robj)
         else:
             raise ValueError("invalid subelement '%s' in '%s'" 
@@ -100,7 +100,7 @@ def elem2entity(client, insttypemap, element, objtype, objindex):
 # ------------------------------------------------------------
 
 class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
-    """Backend for icatingest.py to read a XML dump file."""
+    """Backend for icatingest.py to read a XML data file."""
 
     def __init__(self, client, infile):
         super(XMLDumpFileReader, self).__init__(client, infile)
@@ -110,7 +110,7 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
                                   for t,c in self.client.typemap.iteritems() ])
 
     def getdata(self):
-        """Iterate over the data chunks in the dump file.
+        """Iterate over the chunks in the data file.
         """
         for event, data in etree.iterparse(self.infile, tag='data'):
             yield data
@@ -132,13 +132,13 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
                 # from other objects.
                 if key:
                     objtype = self.client.typemap[tag[0:-3]].BeanName
-                    obj = searchByReference(self.client, elem, objtype, 
-                                            objindex)
+                    obj = _searchByReference(self.client, elem, objtype, 
+                                             objindex)
                     objindex[key] = obj
             else:
                 objtype = self.client.typemap[tag].BeanName
-                obj = elem2entity(self.client, self.insttypemap, 
-                                  elem, objtype, objindex)
+                obj = _elem2entity(self.client, self.insttypemap, 
+                                   elem, objtype, objindex)
                 yield key, obj
 
 
@@ -147,7 +147,7 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
 # ------------------------------------------------------------
 
 class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
-    """Backend for icatdump.py to write a XML dump file."""
+    """Backend for icatdump.py to write a XML data file."""
 
     def __init__(self, client, outfile):
         super(XMLDumpFileWriter, self).__init__(client, outfile)
@@ -156,7 +156,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         self.data = etree.Element("data")
 
     def head(self):
-        """Write a header with some meta information to the dump file."""
+        """Write a header with some meta information to the data file."""
         date = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         head = etree.Element("head")
         etree.SubElement(head, "date").text = date
@@ -172,7 +172,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     def startdata(self):
         """Start a new data chunk.
 
-        If the current chunk contains any data, write it to the dump
+        If the current chunk contains any data, write it to the data
         file.
         """
         if len(self.data) > 0:
@@ -181,12 +181,12 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
 
     def writeobj(self, key, obj, keyindex):
         """Add an entity object to the current data chunk."""
-        elem = entity2elem(obj, None, keyindex)
+        elem = _entity2elem(obj, None, keyindex)
         elem.set('id', key)
         self.data.append(elem)
 
     def finalize(self):
-        """Finalize the dump file."""
+        """Finalize the data file."""
         self.startdata()
         self.outfile.write("</icatdata>\n")
         self.outfile.close()

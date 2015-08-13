@@ -9,7 +9,7 @@ import argparse
 import ConfigParser
 from icat.exception import *
 
-__all__ = ['boolean', 'Configuration', 'Config']
+__all__ = ['boolean', 'flag', 'Configuration', 'Config']
 
 
 if sys.platform.startswith("win"):
@@ -26,14 +26,16 @@ else:
 cfgfile = "icat.cfg"
 """Configuration file name"""
 defaultsection = None
+"""Default value for `configSection`"""
 
 
 def boolean(value):
     """Test truth value.
 
     Convert the string representation of a truth value, such as ``0``,
-    ``1``, ``yes``, ``no``, ``true``, or ``false`` to bool.  This
-    function is suitable to be passed as type to Config.add_variable().
+    ``1``, ``yes``, ``no``, ``true``, or ``false`` to :class:`bool`.
+    This function is suitable to be passed as type to
+    :meth:`icat.config.Config.add_variable`.
     """
     if isinstance(value, basestring):
         if value.lower() in ["0", "no", "n", "false", "f", "off"]:
@@ -155,8 +157,9 @@ class ConfigSourceDefault(ConfigSource):
 class Configuration(object):
     """Provide a name space to store the configuration.
 
-    `Config.getconfig` returns a ``Configuration`` object having the
-    configuration values stored in the respective attributes.
+    :meth:`icat.config.Config.getconfig` returns a Configuration
+    object having the configuration values stored in the respective
+    attributes.
     """
     def __init__(self, config):
         super(Configuration, self).__init__()
@@ -186,152 +189,10 @@ class Config(object):
     arguments, environment variables, configuration files, and default
     values, in this order.  The first value found will be taken.
     Command line arguments and configuration files are read using the
-    standard Python library modules ``argparse`` and ``ConfigParser``
-    respectively, see the documentation of these modules for details
-    on how to setup custom arguments or for the format of the
-    configuration files.
-
-    The following set of configuration variables that an ICAT client
-    typically needs is predefined:
-
-      ``configFile``
-        Name of the configuration file to read.
-
-        =========================  ==================================
-        command line               ``-c``, ``--configfile``
-        environment                ``ICAT_CFG``
-        default                    ``/etc/icat/icat.cfg``, 
-                                   ``~/.config/icat/icat.cfg``, 
-                                   ``~/.icat/icat.cfg``, ``icat.cfg``
-        mandatory                  no
-        =========================  ==================================
-
-      ``configSection``
-        Name of the section in the configuration file to apply.  If
-        not set, no values will be read from the configuration file.
-
-        =========================  ==================================
-        command line               ``-s``, ``--configsection``
-        environment                ``ICAT_CFG_SECTION``
-        default                    ``None``
-        mandatory                  no
-        =========================  ==================================
-
-      ``url``
-        URL to the web service description of the ICAT server.
-
-        =========================  ==================================
-        command line               ``-w``, ``--url``
-        environment                ``ICAT_SERVICE``
-        mandatory                  yes
-        =========================  ==================================
-
-      ``idsurl``
-        URL to the ICAT Data Service.
-
-        =========================  ==================================
-        command line               ``--idsurl``
-        environment                ``ICAT_DATA_SERVICE``
-        default                    ``None``
-        mandatory                  depends on constructor arguments
-        =========================  ==================================
-
-      ``checkCert``
-        Verify the server certificate for HTTPS connections.
-        Note that this requires either Python 2.7.9 or 3.2 or newer.
-        With older Python version, this option has no effect.
-
-        =========================  ==================================
-        command line               ``--check-certificate``, 
-                                   ``--no-check-certificate``
-        default                    ``True``
-        mandatory                  no
-        =========================  ==================================
-
-      ``http_proxy``
-        Proxy to use for http requests.
-
-        =========================  ==================================
-        command line               ``--http-proxy``
-        environment                ``http_proxy``
-        default                    ``None``
-        mandatory                  no
-        =========================  ==================================
-
-      ``https_proxy``
-        Proxy to use for https requests.
-
-        =========================  ==================================
-        command line               ``--https-proxy``
-        environment                ``https_proxy``
-        default                    ``None``
-        mandatory                  no
-        =========================  ==================================
-
-      ``no_proxy``
-        Comma separated list of domain extensions proxy should not be
-        used for.
-
-        =========================  ==================================
-        command line               ``--no-proxy``
-        environment                ``no_proxy``
-        default                    ``None``
-        mandatory                  no
-        =========================  ==================================
-
-      ``auth``
-        Name of the authentication plugin to use for login.
-
-        =========================  ==================================
-        command line               ``-a``, ``--auth``
-        environment                ``ICAT_AUTH``
-        mandatory                  yes
-        =========================  ==================================
-
-      ``username``
-        The ICAT user name.
-
-        =========================  ==================================
-        command line               ``-u``, ``--user``
-        environment                ``ICAT_USER``
-        mandatory                  yes
-        =========================  ==================================
-
-      ``password``
-        The user's password.  Will prompt for the password if not set.
-
-        =========================  ==================================
-        command line               ``-p``, ``--pass``
-        default                    ``None``
-        mandatory                  no
-        =========================  ==================================
-
-      ``promptPass``
-        Prompt for the password.
-
-        =========================  ==================================
-        command line               ``-P``, ``--prompt-pass``
-        default                    ``False``
-        mandatory                  no
-        =========================  ==================================
-
-    Mandatory means that an error will be raised if no value is found
-    for the configuration variable in question.
-
-    A few derived variables are also set in ``getconfig``:
-
-      ``configDir``
-        the directory where (the last) configFile has been found.
-
-      ``client_kwargs``
-        contains the proxy settings and should be passed as the
-        keyword arguments to the constructor `Client.__init__` of the
-        client.
-
-      ``credentials``
-        contains username and password suitable to be passed to
-        `Client.login`.
-
+    standard Python library modules :mod:`argparse` and
+    :mod:`ConfigParser` respectively, see the documentation of these
+    modules for details on how to setup custom arguments or for the
+    format of the configuration files.
     """
 
     ReservedVariables = ['configDir', 'client_kwargs', 'credentials']
@@ -340,13 +201,13 @@ class Config(object):
     def __init__(self, needlogin=True, ids=False):
         """Initialize the object.
 
-        Setup the predefined configuration variables.  If
-        ``needlogin`` is set to ``False``, the configuration variables
-        ``auth``, ``username``, ``password``, ``promptPass``, and
-        ``credentials`` will be left out.  The configuration variable
-        ``idsurl`` will not be set up at all, or be set up as a
-        mandatory or as an optional variable, if ``ids`` is set to
-        ``False``, to "mandatory", or to "optional" respectively.
+        Setup the predefined configuration variables.  If `needlogin`
+        is set to :const:`False`, the configuration variables `auth`,
+        `username`, `password`, `promptPass`, and `credentials` will
+        be left out.  The configuration variable `idsurl` will not be
+        set up at all, or be set up as a mandatory, or as an optional
+        variable, if `ids` is set to :const:`False`, to "mandatory",
+        or to "optional" respectively.
         """
         super(Config, self).__init__()
         self.defaultFiles = [os.path.join(d, cfgfile) for d in cfgdirs]
@@ -408,52 +269,57 @@ class Config(object):
     def add_variable(self, name, arg_opts=(), arg_kws=dict(), 
                      envvar=None, optional=False, default=None, type=None, 
                      subst=False):
+
         """Defines a new configuration variable.
 
-        Call ``ArgumentParser.add_argument`` to add a new command line
-        argument if ``arg_opts`` is set.
+        Call :meth:`argparse.ArgumentParser.add_argument` to add a new
+        command line argument if `arg_opts` is set.
 
         :param name: the name of the variable.  This will be used as
-            the name of the attribute of the `Configuration` returned
-            by `getconfig` and as the name of the option to be looked
-            for in the configuration file.  The name must be unique
-            and not in `ReservedVariables`.  If ``arg_opts``
-            corresponds to a positional argument, the name must be
-            equal to this argument name.
-        :type name: ``str``
+            the name of the attribute of
+            :class:`icat.config.Configuration` returned by
+            :meth:`icat.config.Config.getconfig` and as the name of
+            the option to be looked for in the configuration file.
+            The name must be unique and not in
+            :attr:`icat.config.Config.ReservedVariables`.  If
+            `arg_opts` corresponds to a positional argument, the name
+            must be equal to this argument name.
+        :type name: :class:`str`
         :param arg_opts: command line flags associated with this
-            variable.  This will be passed as ``name or flags`` to
-            ``ArgumentParser.add_argument``.
-        :type arg_opts: ``tuple`` of ``str``
+            variable.  This will be passed as `name or flags` to
+            :meth:`argparse.ArgumentParser.add_argument`.
+        :type arg_opts: :class:`tuple` of :class:`str`
         :param arg_kws: keyword arguments to be passed to
-            ``ArgumentParser.add_argument``.
-        :type arg_kws: ``dict``
-        :param envvar: name of the environment variable or ``None``.
-            If set, the value for the variable may be set from the
-            respective environment variable.
-        :type envvar: ``str``
+            :meth:`argparse.ArgumentParser.add_argument`.
+        :type arg_kws: :class:`dict`
+        :param envvar: name of the environment variable or
+            :const:`None`.  If set, the value for the variable may be
+            set from the respective environment variable.
+        :type envvar: :class:`str`
         :param optional: flag wether the configuration variable is
-            optional.  If set to ``False`` and ``default`` is ``None``
-            the variable is mandatory.
-        :type optional: ``bool``
+            optional.  If set to :const:`False` and `default` is
+            :const:`None` the variable is mandatory.
+        :type optional: :class:`bool`
         :param default: default value.
         :param type: type to which the value should be converted.
             This must be a callable that accepts one string argument
-            and returns the desired value.  The builtins ``int`` and
-            ``float`` are fine.  If set to ``None``, the string value
-            is taken as is.  If applicable, the default value will
-            also be passed through this conversion.
+            and returns the desired value.  The builtins :func:`int`
+            and :func:`float` are fine.  If set to :const:`None`, the
+            string value is taken as is.  If applicable, the default
+            value will also be passed through this conversion.  The
+            special value of :data:`icat.config.flag` may also be used
+            to indicate a variant of :func:`icat.config.boolean`.
         :type type: callable
         :param subst: flag wether substitution of other configuration
             variables using the ``%`` interpolation operator shall be
-            performed.  If set to ``True``, the value may contain
+            performed.  If set to :const:`True`, the value may contain
             conversion specifications such as ``%(othervar)s``.  This
-            will then be substituted by the value of ``othervar``.
-            The referenced variable must have been defined earlier.
-        :type subst: ``bool``
+            will then be substituted by the value of `othervar`.  The
+            referenced variable must have been defined earlier.
+        :type subst: :class:`bool`
         :raise ValueError: if the name is not valid.
-        :see: the documentation of the ``argparse`` standard library
-            module for details on ``arg_opts`` and ``arg_kws``.
+        :see: the documentation of the :mod:`argparse` standard
+            library module for details on `arg_opts` and `arg_kws`.
         """
         if name in self.ReservedVariables or name[0] == '_':
             raise ValueError("Config variable name '%s' is reserved." % name)
@@ -508,16 +374,16 @@ class Config(object):
         configuration variable.  The first defined value found will be
         taken.
 
-        :param args: list of command line arguments or ``None``.
+        :param args: list of command line arguments or :const:`None`.
             If not set, the command line arguments will be taken from
-            ``sys.argv``.
-        :type args: ``list`` of ``str``
+            :data:`sys.argv`.
+        :type args: :class:`list` of :class:`str`
         :return: an object having the configuration values set as
             attributes.
-        :rtype: ``Configuration``
-        :raise ConfigError: if ``configFile`` is defined but the file
-            by this name can not be read, if ``configSection`` is
-            defined but no section by this name could be found in the
+        :rtype: :class:`icat.config.Configuration`
+        :raise ConfigError: if `configFile` is defined but the file by
+            this name can not be read, if `configSection` is defined
+            but no section by this name could be found in the
             configuration file, if an invalid value is given to a
             variable, or if a mandatory variable is not defined.
         """

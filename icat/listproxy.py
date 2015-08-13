@@ -1,4 +1,8 @@
 """Provide the ListProxy class.
+
+**Note**: This module is mostly intended for the internal use in
+python-icat.  Most users will not need to use it directly or even care
+about it.
 """
 
 from collections import MutableSequence
@@ -6,18 +10,18 @@ from collections import MutableSequence
 class ListProxy(MutableSequence):
     """A list that acts as a proxy to another list.
 
-    ``ListProxy`` mirrors a target list: all items are stored in the
+    ListProxy mirrors a target list: all items are stored in the
     target and fetched back from the target on request.  In all other
-    aspects, ``ListProxy`` tries to mimic as close as possible the
+    aspects, ListProxy tries to mimic as close as possible the
     behavior of an ordinary list.
 
     This class tries to be a minimal working implementation.  Methods
-    like ``append`` and ``extent`` have deliberately not been
+    like :meth:`append` and :meth:`extent` have deliberately not been
     implemented here.  These operations fall back on the versions
-    inherited from ``MutableSequence`` that are based on the
-    elementary methods.  This may be less efficient then proxying the
-    operations directly to the target, but this way its easier to
-    override the elementary methods.
+    inherited from :class:`collections.MutableSequence` that are based
+    on the elementary methods.  This may be less efficient then
+    proxying the operations directly to the target, but this way its
+    easier to override the elementary methods.
 
     >>> l = [ 0, 1, 2, 3, 4 ]
     >>> lp = ListProxy(l)

@@ -1,4 +1,4 @@
-"""YAML dump file backend for icatdump.py and icatingest.py.
+"""YAML data file backend for icatdump.py and icatingest.py.
 """
 
 import datetime
@@ -54,7 +54,7 @@ entitytypes = [
     'job',
 ]
 
-def entity2dict(obj, keyindex):
+def _entity2dict(obj, keyindex):
     """Convert an entity object to a dict."""
     d = {}
 
@@ -87,19 +87,19 @@ def entity2dict(obj, keyindex):
     for attr in obj.InstRel:
         o = getattr(obj, attr, None)
         if o is not None:
-            d[attr] = o.getUniqueKey(autoget=False, keyindex=keyindex)
+            d[attr] = o.getUniqueKey(keyindex=keyindex)
 
     for attr in obj.InstMRel:
         if len(getattr(obj, attr)) > 0:
             d[attr] = []
             for o in sorted(getattr(obj, attr), 
                             key=icat.entity.Entity.__sortkey__):
-                d[attr].append(entity2dict(o, keyindex=keyindex))
+                d[attr].append(_entity2dict(o, keyindex=keyindex))
 
     return d
 
 
-def dict2entity(client, insttypemap, d, objtype, objindex):
+def _dict2entity(client, insttypemap, d, objtype, objindex):
     """Create an entity object from a dict of attributes."""
     obj = client.new(objtype)
     for k in d:
@@ -114,7 +114,7 @@ def dict2entity(client, insttypemap, d, objtype, objindex):
         elif attr in obj.InstMRel:
             rtype = insttypemap[obj.getAttrType(attr)]
             for rd in d[k]:
-                robj = dict2entity(client, insttypemap, rd, rtype, objindex)
+                robj = _dict2entity(client, insttypemap, rd, rtype, objindex)
                 getattr(obj, attr).append(robj)
         else:
             raise ValueError("invalid attribute '%s' in '%s'" 
@@ -127,7 +127,7 @@ def dict2entity(client, insttypemap, d, objtype, objindex):
 # ------------------------------------------------------------
 
 class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
-    """Backend for icatingest.py to read a YAML dump file."""
+    """Backend for icatingest.py to read a YAML data file."""
 
     def __init__(self, client, infile):
         super(YAMLDumpFileReader, self).__init__(client, infile)
@@ -135,7 +135,7 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
                                   for t,c in self.client.typemap.iteritems() ])
 
     def getdata(self):
-        """Iterate over the data chunks in the dump file.
+        """Iterate over the chunks in the data file.
         """
         # yaml.load_all() returns a generator that yield one chunk
         # (YAML document) from the file in each iteration.
@@ -154,8 +154,8 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
         for name in entitytypes:
             if name in data:
                 for key in sorted(data[name].keys()):
-                    obj = dict2entity(self.client, self.insttypemap, 
-                                      data[name][key], name, objindex)
+                    obj = _dict2entity(self.client, self.insttypemap, 
+                                       data[name][key], name, objindex)
                     yield key, obj
 
 
@@ -164,14 +164,14 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
 # ------------------------------------------------------------
 
 class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
-    """Backend for icatdump.py to write a YAML dump file."""
+    """Backend for icatdump.py to write a YAML data file."""
 
     def __init__(self, client, outfile):
         super(YAMLDumpFileWriter, self).__init__(client, outfile)
         self.data = {}
 
     def head(self):
-        """Write a header with some meta information to the dump file."""
+        """Write a header with some meta information to the data file."""
         dateformat = "%a, %d %b %Y %H:%M:%S +0000"
         date = datetime.datetime.utcnow().strftime(dateformat)
         head = """%%YAML 1.1
@@ -185,7 +185,7 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     def startdata(self):
         """Start a new data chunk.
 
-        If the current chunk contains any data, write it to the dump
+        If the current chunk contains any data, write it to the data
         file.
         """
         if self.data:
@@ -200,10 +200,10 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
             raise ValueError("Unknown entity type '%s'" % tag)
         if tag not in self.data:
             self.data[tag] = {}
-        self.data[tag][key] = entity2dict(obj, keyindex)
+        self.data[tag][key] = _entity2dict(obj, keyindex)
 
     def finalize(self):
-        """Finalize the dump file."""
+        """Finalize the data file."""
         self.startdata()
 
 
