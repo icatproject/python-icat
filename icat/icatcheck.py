@@ -308,31 +308,32 @@ class ICATChecker(object):
         assumptions holds, the base is
         :class:`suds.sudsobject.entityBaseBean`.
 
-        The parameter `genealogyrules` defines the rules for the tree.
-        It must be a list of tuples, each having two elements, a
-        regular expression and the name of a parent type.  Each type
-        matching the regular expression is assumed to be derived from
-        the parent.  The first match in the list wins.  The last
-        element in the list should be a default rule of the form
-        ``(r'','base')``, where base is the name of the root.
-
         Entity classes having children in the hierarchy are assumed to
         be abstract.  In this case the attribut
         :attr:`icat.entity.Entity.BeanName` is set to :const:`None`.
 
-        The parameter `baseclassname` is the name for the base class at
-        the root of the tree used in the Python output.
+        :param genealogyrules: define the rules for the genealogy
+            tree.  It must be a list of tuples, each having two
+            elements, a regular expression and the name of a parent
+            type.  Each type matching the regular expression is
+            assumed to be derived from the parent.  The first match in
+            the list wins.  The last element in the list should be a
+            default rule of the form ``(r'','base')``, where base is
+            the name of the root.
+        :type genealogyrules: :class:`list` of :class:`tuple`
+        :param baseclassname: the name for the base class at the root
+            of the genealogy tree that shall be used in the Python
+            output.
+        :type baseclassname: :class:`str`
+        :return: Python source.
+        :rtype: :class:`str`
+        :raise GenealogyError: if the genealogy tree defined by
+            `genealogyrules` is not consistent.
         """
 
-        try:
-            tree = self._genealogy(genealogyrules)
-        except GenealogyError as e:
-            log.error("%s Dropping class genealogy in Python output.", 
-                      e.args[0])
-            tree = { t:{'level':0, 'base':None} for t in self.schema.keys() }
-        else:
-            base = [t for t in tree if tree[t]['base'] is None][0]
-            self.schema[base].classname = baseclassname
+        tree = self._genealogy(genealogyrules)
+        base = [t for t in tree if tree[t]['base'] is None][0]
+        self.schema[base].classname = baseclassname
 
         # Abstract entity classes are marked by setting BeanName to
         # None.
