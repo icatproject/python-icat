@@ -12,7 +12,7 @@ __all__ = [
     'ServerError', 
     'ICATError', 'ICATParameterError', 'ICATInternalError', 
     'ICATPrivilegesError', 'ICATNoObjectError', 'ICATObjectExistsError', 
-    'ICATSessionError', 'ICATValidationError', 
+    'ICATSessionError', 'ICATValidationError', 'ICATNotImplementedError',
     'IDSError', 'IDSBadRequestError', 'IDSDataNotOnlineError', 
     'IDSInsufficientPrivilegesError', 'IDSInsufficientStorageError', 
     'IDSInternalError', 'IDSNotFoundError', 'IDSNotImplementedError', 
@@ -159,6 +159,12 @@ class ICATValidationError(ICATError):
     """
     pass
 
+class ICATNotImplementedError(ICATError):
+    """
+    """
+    # Added in icat.server 4.6, but not documented.
+    pass
+
 IcatExceptionTypeMap = {
     "BAD_PARAMETER": ICATParameterError,
     "INTERNAL": ICATInternalError,
@@ -167,6 +173,7 @@ IcatExceptionTypeMap = {
     "OBJECT_ALREADY_EXISTS": ICATObjectExistsError,
     "SESSION": ICATSessionError,
     "VALIDATION": ICATValidationError,
+    "NOT_IMPLEMENTED": ICATNotImplementedError,
 }
 """Map exception types thrown by the ICAT server to Python classes."""
 

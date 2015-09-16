@@ -45,6 +45,10 @@ Exceptions thrown by the ICAT or IDS server
     :members:
     :show-inheritance:
 
+.. autoexception:: icat.exception.ICATNotImplementedError
+    :members:
+    :show-inheritance:
+
 .. autoexception:: icat.exception.IDSError
     :members:
     :show-inheritance:
@@ -141,6 +145,7 @@ The class hierarchy for the exceptions is::
    |    |    +-- ICATObjectExistsError
    |    |    +-- ICATSessionError
    |    |    +-- ICATValidationError
+   |    |    +-- ICATNotImplementedError
    |    +-- IDSError
    |    |    +-- IDSBadRequestError
    |    |    +-- IDSDataNotOnlineError
