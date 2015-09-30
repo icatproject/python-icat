@@ -7,7 +7,6 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import icat_version, gettestdata, callscript
 
 
 # Note: the number of objects returned in the queries and their
