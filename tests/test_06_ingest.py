@@ -11,19 +11,6 @@ from icat.query import Query
 from conftest import DummyDatafile, gettestdata, callscript
 
 
-# The ICAT session as a fixture to be shared among all tests in this
-# module.  The user needs appropriate read permissions.
-user = "root"
-
-@pytest.fixture(scope="module")
-def client(setupicat, icatconfigfile):
-    args = ["-c", icatconfigfile, "-s", user]
-    conf = icat.config.Config().getconfig(args)
-    client = icat.Client(conf.url, **conf.client_kwargs)
-    client.login(conf.auth, conf.credentials)
-    return client
-
-
 # Test input
 ds_params = gettestdata("ingest-ds-params.xml")
 datafiles = gettestdata("ingest-datafiles.xml")

@@ -8,15 +8,8 @@ import pytest
 import icat
 import icat.config
 
-user = "root"
-
-@pytest.fixture(scope="module")
-def client(setupicat, icatconfigfile):
-    args = ["-c", icatconfigfile, "-s", user]
-    conf = icat.config.Config().getconfig(args)
-    client = icat.Client(conf.url, **conf.client_kwargs)
-    client.login(conf.auth, conf.credentials)
-    return client
+# the user to use by the client fixture.
+client_user = "root"
 
 
 def test_equality_fetched_ne(client):
@@ -53,7 +46,7 @@ def test_equality_fetched_eq(client):
     assert u1.name != u2.name
 
 def test_equality_new(client):
-    """Create a few objects qith new and test for equality.
+    """Create a few objects with new and test for equality.
     """
     u1 = client.new("user")
     u2 = client.new("user")
@@ -82,7 +75,7 @@ def test_equality_client(client, icatconfigfile):
     """
     # Get a second client that is connected as the same user to the
     # same server and even shares the same ICAT session.
-    args = ["-c", icatconfigfile, "-s", user]
+    args = ["-c", icatconfigfile, "-s", client_user]
     conf = icat.config.Config().getconfig(args)
     client2 = icat.Client(conf.url, **conf.client_kwargs)
     client2.sessionId = client.sessionId
