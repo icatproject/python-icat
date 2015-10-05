@@ -6,7 +6,7 @@ this module.
 """
 
 from __future__ import print_function
-from collections import Iterable
+from collections import Iterable, Callable
 import pytest
 import icat
 import icat.config
@@ -79,10 +79,33 @@ def test_assertedSearch_range_exact_query(client):
 
 # ===================== test searchChunked() =======================
 
-def test_searchChunked_simple(client):
+# Try different type of queries: query strings using concise syntax,
+# query strings using JPQL style syntax, Query objects.  For each
+# type, try both, simple and complex queries.
+@pytest.mark.parametrize(("query",), [
+    ("User",),
+    ("User <-> UserGroup <-> Grouping <-> "
+     "InvestigationGroup [role='writer'] <-> "
+     "Investigation [name='08100122-EF']",),
+    ("SELECT u FROM User u",),
+    ("SELECT u FROM User u "
+     "JOIN u.userGroups AS ug JOIN ug.grouping AS g "
+     "JOIN g.investigationGroups AS ig JOIN ig.investigation AS i "
+     "WHERE i.name ='08100122-EF' AND ig.role = 'writer' "
+     "ORDER BY u.name",),
+    (lambda client: Query(client, "User"),),
+    (lambda client: Query(client, "User", order=True, conditions={
+        "userGroups.grouping.investigationGroups.role": "= 'writer'", 
+        "userGroups.grouping.investigationGroups.investigation.name": "= '08100122-EF'"
+    }),),
+])
+def test_searchChunked_simple(client, query):
     """A simple search with searchChunked().
     """
-    query = "User"
+    # Hack: the parametrize marker above cannot access client,
+    # must defer the constrictor call to here.
+    if isinstance(query, Callable):
+        query = query(client)
     # Do a normal search as a reference first, the result from
     # searchChunked() should be the same.
     users = client.search(query)
@@ -92,26 +115,6 @@ def test_searchChunked_simple(client):
     # be iterable.
     assert isinstance(res, Iterable)
     # turn it to a list so we can inspect the acual search result.
-    objs = list(res)
-    assert objs == users
-
-def test_searchChunked_simple_jpql(client):
-    """Same as test_searchChunked_simple, but using JPQL style query.
-    """
-    query = "SELECT o FROM User o"
-    users = client.search(query)
-    res = client.searchChunked(query)
-    assert isinstance(res, Iterable)
-    objs = list(res)
-    assert objs == users
-
-def test_searchChunked_simple_query(client):
-    """Same as test_searchChunked_simple, but using a Query object.
-    """
-    query = Query(client, "User")
-    users = client.search(query)
-    res = client.searchChunked(query)
-    assert isinstance(res, Iterable)
     objs = list(res)
     assert objs == users
 
@@ -134,40 +137,19 @@ def test_searchChunked_chunksize(client):
     objs = list(res)
     assert objs == users
 
-def test_searchChunked_limit(client):
+@pytest.mark.parametrize(("skip", "count", "chunksize"), [
+    (0,4,100),
+    (2,4,100),
+    (2,500,100),
+    (2,4,3),
+])
+def test_searchChunked_limit(client, skip, count, chunksize):
     """Same as test_searchChunked_simple, but adding a limit.
     """
     query = "User"
     users = client.search(query)
-    s = 2
-    c = 4
-    res = client.searchChunked(query, skip=s, count=c)
+    res = client.searchChunked(query, skip=skip, count=count, 
+                               chunksize=chunksize)
     assert isinstance(res, Iterable)
     objs = list(res)
-    assert objs == users[s:s+c]
-
-def test_searchChunked_limit_toomany(client):
-    """Same as test_searchChunked_limit, but choose an exceedingly large count.
-    """
-    query = "User"
-    users = client.search(query)
-    # Searching for len(users) after having skipped two is always
-    # two more then available.
-    s = 2
-    c = len(users)
-    res = client.searchChunked(query, skip=s, count=c)
-    assert isinstance(res, Iterable)
-    objs = list(res)
-    assert objs == users[s:]
-
-def test_searchChunked_limit_chunked(client):
-    """Same as test_searchChunked_limit, but additionally setting a chunksize.
-    """
-    query = "User"
-    users = client.search(query)
-    s = 2
-    c = 4
-    res = client.searchChunked(query, skip=s, count=c, chunksize=3)
-    assert isinstance(res, Iterable)
-    objs = list(res)
-    assert objs == users[s:s+c]
+    assert objs == users[skip:skip+count]
