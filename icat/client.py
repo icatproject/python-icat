@@ -544,10 +544,9 @@ class Client(suds.client.Client):
         :rtype: generator
         """
         if isinstance(query, Query):
-            q = query.copy()
-            q.setLimit( ("%d","%d") )
-            query = unicode(q)
-        elif query.startswith("SELECT"):
+            query = unicode(query)
+        query = query.replace('%', '%%')
+        if query.startswith("SELECT"):
             query += " LIMIT %d, %d"
         else:
             query = "%d, %d " + query

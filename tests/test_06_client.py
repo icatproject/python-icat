@@ -154,7 +154,6 @@ def test_searchChunked_limit(client, skip, count, chunksize):
     objs = list(res)
     assert objs == users[skip:skip+count]
 
-@pytest.mark.xfail(reason="Bug #13")
 @pytest.mark.parametrize(("query",), [
     ("User [name LIKE 'j%']",),
     ("SELECT u FROM User u WHERE u.name LIKE 'j%' ORDER BY u.name",),
