@@ -226,3 +226,33 @@ def test_searchUniqueKey_objindex_preset(client):
     objindex = {dskey : ds}
     obj = client.searchUniqueKey(dskey, objindex=objindex)
     assert obj == ds
+
+# ==================== test searchMatching() =======================
+# searchMatching() is pretty much straight forward.  There are not
+# too much features that could be tested.
+
+def test_searchMatching_simple(client):
+    """Search a few objects with searchMatching()
+    """
+    facility = client.new("facility", name="ESNF")
+    obj = client.searchMatching(facility)
+    assert obj.BeanName == "Facility"
+    assert obj.id
+    assert obj.name == "ESNF"
+    facility = obj
+    investigation = client.new("investigation", 
+                               name="12100409-ST", visitId="1.1-P",
+                               facility=facility)
+    obj = client.searchMatching(investigation)
+    assert obj.BeanName == "Investigation"
+    assert obj.id
+    assert obj.name == "12100409-ST"
+    assert obj.visitId == "1.1-P"
+    investigation = obj
+    dataset = client.new("dataset", name="e208945", 
+                         investigation=investigation)
+    obj = client.searchMatching(dataset)
+    assert obj.BeanName == "Dataset"
+    assert obj.id
+    assert obj.name == "e208945"
+    dataset = obj
