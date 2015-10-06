@@ -173,3 +173,56 @@ def test_searchChunked_percent(client, query):
     objs = list(res)
     assert objs == users
 
+# ==================== test searchUniqueKey() ======================
+
+@pytest.mark.parametrize(("key", "attrs"), [
+    ("Facility_name-ESNF", {"name": "ESNF"}),
+    ("Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP", 
+     {"name": "12100409-ST", "visitId": "1.1-P"}),
+])
+def test_searchUniqueKey_simple(client, key, attrs):
+    """Search a few objects by their unique key.
+    """
+    obj = client.searchUniqueKey(key)
+    assert obj.BeanName == key.split('_', 1)[0]
+    assert obj.id
+    for k in attrs:
+        assert getattr(obj, k) == attrs[k]
+
+@pytest.mark.parametrize(("key", "relobjs"), [
+    ("Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945", [
+        ("investigation", "Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP"),
+        ("investigation.facility", "Facility_name-ESNF"),
+    ]),
+])
+def test_searchUniqueKey_objindex(client, key, relobjs):
+    """Test caching of objects in the objindex.
+    """
+    objindex = {}
+    obj = client.searchUniqueKey(key, objindex=objindex)
+    assert obj.BeanName == key.split('_', 1)[0]
+    assert obj.id
+    assert objindex[key] == obj
+    for (a, k) in relobjs:
+        assert k in objindex
+        assert objindex[k].BeanName == k.split('_', 1)[0]
+        assert objindex[k].id
+        # Reestablish the relation
+        o = obj
+        for ac in a.split('.')[:-1]:
+            o = getattr(o, ac)
+        setattr(o, a.rsplit('.',1)[-1], objindex[k])
+    assert obj.getUniqueKey() == key
+
+def test_searchUniqueKey_objindex_preset(client):
+    """Test presetting the objindex.
+
+    Objects may be added to the objindex beforehand and will then
+    not be searched from the server.
+    """
+    ds = client.assertedSearch("Dataset [name='e208945']")[0]
+    # Deliberately choose a key that would not be found otherwise.
+    dskey = "Dataset_foo"
+    objindex = {dskey : ds}
+    obj = client.searchUniqueKey(dskey, objindex=objindex)
+    assert obj == ds
