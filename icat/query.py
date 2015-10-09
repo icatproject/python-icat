@@ -3,7 +3,7 @@
 
 from warnings import warn
 import icat.entity
-from icat.exception import InternalError, QueryNullableOrderWarning
+from icat.exception import *
 
 __all__ = ['Query']
 
@@ -123,6 +123,9 @@ class Query(object):
             clause.  See the :meth:`icat.query.Query.setLimit` method
             for details.
         """
+
+        if client.apiversion < '4.3':
+            raise VersionMethodError("Query", client.apiversion)
 
         super(Query, self).__init__()
         self._init = True
