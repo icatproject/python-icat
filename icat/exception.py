@@ -313,14 +313,14 @@ class ICATDeprecationWarning(DeprecationWarning):
         super(ICATDeprecationWarning, self).__init__(msg)
 
 class VersionMethodError(Exception):
-    """Call of an ICAT API method that is not supported in the version
-    of the ICAT server.
+    """Call of an API method that is not supported in the version
+    of the server.
     """
-    def __init__(self, method, version=None):
+    def __init__(self, method, version=None, service="ICAT"):
         if version is None:
-            icatstr = "this ICAT version"
+            icatstr = "this %s version" % service
         else:
-            icatstr = "ICAT version %s" % version
+            icatstr = "%s version %s" % (service, version)
         msg = ("%s is not supported in %s." % (method, icatstr))
         super(VersionMethodError, self).__init__(msg)
 
