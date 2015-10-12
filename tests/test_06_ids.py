@@ -11,6 +11,7 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
+from icat.ids import DataSelection
 from conftest import DummyDatafile, UtcTimezone
 from conftest import require_icat_version, callscript
 
@@ -151,6 +152,22 @@ def test_download(tmpdirsec, icatconfigfile, case, method):
     else:
         raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
 
+@pytest.mark.parametrize(("case"), testdatasets)
+def test_getinfo(client, case):
+    """Call getStatus() and getSize() to get some informations on a dataset.
+    """
+    dfs = [ c for c in testdatafiles if c['dsname'] == case['dsname'] ]
+    query = Query(client, "Dataset", conditions={
+        "name": "= '%s'" % case['dsname'],
+        "investigation.name": "= '%s'" % case['invname'],
+    })
+    selection = DataSelection(client.assertedSearch(query))
+    size = client.ids.getSize(selection)
+    print("Size of dataset %s: %d" % (case['dsname'], size))
+    assert size == sum(f['size'] for f in dfs)
+    status = client.ids.getStatus(selection)
+    print("Status of dataset %s: %s" % (case['dsname'], status))
+    assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
 
 def test_putData_datafileCreateTime(tmpdirsec, client):
     """Call client.putData() with a datafile having datafileCreateTime set.
@@ -201,3 +218,44 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
     assert df.datafileCreateTime is not None
     if tzinfo is not None:
         assert df.datafileCreateTime == createTime
+
+@pytest.mark.parametrize(("case"), testdatasets)
+def test_archive(client, case):
+    """Call archive() on a dataset.
+    """
+    query = Query(client, "Dataset", conditions={
+        "name": "= '%s'" % case['dsname'],
+        "investigation.name": "= '%s'" % case['invname'],
+    })
+    selection = DataSelection(client.assertedSearch(query))
+    status = client.ids.getStatus(selection)
+    if status != "ONLINE":
+        pytest.skip("The dataset is not online")
+    client.ids.archive(selection)
+    print("Request archive of dataset %s" % (case['dsname']))
+    status = client.ids.getStatus(selection)
+    # Do not assert status == "ARCHIVED" because the archive could be
+    # deferred by the server or an other operation on the same dataset
+    # could intervene.  So, there is no guarantee whatsoever on the
+    # outcome of the archive() call.
+    print("Status of dataset %s is now %s" % (case['dsname'], status))
+
+@pytest.mark.parametrize(("case"), testdatasets)
+def test_restore(client, case):
+    """Call restore() on a dataset.
+    """
+    query = Query(client, "Dataset", conditions={
+        "name": "= '%s'" % case['dsname'],
+        "investigation.name": "= '%s'" % case['invname'],
+    })
+    selection = DataSelection(client.assertedSearch(query))
+    status = client.ids.getStatus(selection)
+    if status != "ARCHIVED":
+        pytest.skip("The dataset is not online")
+    client.ids.restore(selection)
+    print("Request restore of dataset %s" % (case['dsname']))
+    status = client.ids.getStatus(selection)
+    # Do not assert status == "RESTORING" because same remark as for
+    # archive() applies: there is no guarantee whatsoever on the
+    # outcome of the restore() call.
+    print("Status of dataset %s is now %s" % (case['dsname'], status))
