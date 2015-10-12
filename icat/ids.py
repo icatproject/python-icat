@@ -287,7 +287,9 @@ class IDSClient(object):
     def getStatus(self, selection):
         """Return the status of data.
         """
-        parameters = {"sessionId": self.sessionId}
+        parameters = {}
+        if self.sessionId:
+            parameters["sessionId"] = self.sessionId
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "getStatus", parameters)
         return self.default.open(req).read().decode('ascii')

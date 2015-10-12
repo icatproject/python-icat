@@ -14,6 +14,7 @@ from icat.query import Query
 from icat.ids import DataSelection
 from conftest import DummyDatafile, UtcTimezone
 from conftest import require_icat_version, callscript
+from conftest import tmpSessionId
 
 # test content has InvestigationGroup objects.
 require_icat_version("4.4.0")
@@ -166,6 +167,27 @@ def test_getinfo(client, case):
     print("Size of dataset %s: %d" % (case['dsname'], size))
     assert size == sum(f['size'] for f in dfs)
     status = client.ids.getStatus(selection)
+    print("Status of dataset %s: %s" % (case['dsname'], status))
+    assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
+
+@pytest.mark.parametrize(("case"), testdatasets)
+def test_status_no_sessionId(client, case):
+    """Call getStatus() while logged out.
+
+    IDS 1.5.0 and newer allow the sessionId to be omitted from the
+    getStatus() call.
+    """
+    if client.ids.apiversion < '1.5.0':
+        pytest.skip("IDS %s is too old, need 1.5.0 or newer" 
+                    % client.ids.apiversion)
+    dfs = [ c for c in testdatafiles if c['dsname'] == case['dsname'] ]
+    query = Query(client, "Dataset", conditions={
+        "name": "= '%s'" % case['dsname'],
+        "investigation.name": "= '%s'" % case['invname'],
+    })
+    selection = DataSelection(client.assertedSearch(query))
+    with tmpSessionId(client, None):
+        status = client.ids.getStatus(selection)
     print("Status of dataset %s: %s" % (case['dsname'], status))
     assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
 
