@@ -22,7 +22,7 @@ import getpass
 
 from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
 from icat.entity import Entity
-from icat.exception import IDSError, IDSResponseError, translateError
+from icat.exception import *
 
 __all__ = ['DataSelection', 'IDSClient']
 
@@ -248,7 +248,15 @@ class IDSClient(object):
         """Get the URL of the ICAT server connected to this IDS.
         """
         req = IDSRequest(self.url + "getIcatUrl", {})
-        return self.default.open(req).read().decode('ascii')
+        try:
+            return self.default.open(req).read().decode('ascii')
+        except (HTTPError, IDSError) as e:
+            if self.apiversion < '1.4':
+                raise stripCause(VersionMethodError("getIcatUrl", 
+                                                    version=self.apiversion, 
+                                                    service="IDS"))
+            else:
+                raise
 
     def isReadOnly(self):
         """See if the server is configured to be readonly.
