@@ -245,6 +245,8 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
 def test_archive(client, case):
     """Call archive() on a dataset.
     """
+    if not client.ids.isTwoLevel():
+        pytest.skip("This IDS does not use two levels of data storage")
     query = Query(client, "Dataset", conditions={
         "name": "= '%s'" % case['dsname'],
         "investigation.name": "= '%s'" % case['invname'],
@@ -266,6 +268,8 @@ def test_archive(client, case):
 def test_restore(client, case):
     """Call restore() on a dataset.
     """
+    if not client.ids.isTwoLevel():
+        pytest.skip("This IDS does not use two levels of data storage")
     query = Query(client, "Dataset", conditions={
         "name": "= '%s'" % case['dsname'],
         "investigation.name": "= '%s'" % case['invname'],
