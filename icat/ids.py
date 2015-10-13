@@ -341,6 +341,39 @@ class IDSClient(object):
         response = self.default.open(req).read().decode('ascii')
         return response.lower() == "true"
 
+    def getDatafileIds(self, selection):
+        """Get the list of data file id corresponding to the selection.
+        """
+        parameters = {"sessionId": self.sessionId}
+        selection.fillParams(parameters)
+        req = IDSRequest(self.url + "getDatafileIds", parameters)
+        try:
+            result = self.default.open(req).read().decode('ascii')
+            return json.loads(result)['ids']
+        except (HTTPError, IDSError) as e:
+            if self.apiversion < '1.5':
+                raise stripCause(VersionMethodError("getDatafileIds", 
+                                                    version=self.apiversion, 
+                                                    service="IDS"))
+            else:
+                raise
+
+    def getPreparedDatafileIds(self, preparedId):
+        """Get the list of data file id corresponding to the prepared Id.
+        """
+        parameters = {"preparedId": preparedId}
+        req = IDSRequest(self.url + "getDatafileIds", parameters)
+        try:
+            result = self.default.open(req).read().decode('ascii')
+            return json.loads(result)['ids']
+        except (HTTPError, IDSError) as e:
+            if self.apiversion < '1.5':
+                raise stripCause(VersionMethodError("getDatafileIds", 
+                                                    version=self.apiversion, 
+                                                    service="IDS"))
+            else:
+                raise
+
     def getData(self, selection, 
                 compressFlag=False, zipFlag=False, outname=None, offset=0):
         """Stream the requested data.
@@ -354,7 +387,7 @@ class IDSClient(object):
         if offset > 0:
             req.add_header("Range", "bytes=" + str(offset) + "-") 
         return self.default.open(req)
-    
+
     def getDataUrl(self, selection, 
                    compressFlag=False, zipFlag=False, outname=None):
         """Get the URL to retrieve the requested data.

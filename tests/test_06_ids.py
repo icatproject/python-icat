@@ -191,6 +191,24 @@ def test_status_no_sessionId(client, case):
     print("Status of dataset %s: %s" % (case['dsname'], status))
     assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
 
+@pytest.mark.parametrize(("case"), testdatasets)
+def test_getDatafileIds(client, case):
+    """Call getDatafileIds() to get the Datafile ids from a dataset.
+    """
+    if client.ids.apiversion < '1.5.0':
+        pytest.skip("IDS %s is too old, need 1.5.0 or newer" 
+                    % client.ids.apiversion)
+    query = Query(client, "Dataset", conditions={
+        "name": "= '%s'" % case['dsname'],
+        "investigation.name": "= '%s'" % case['invname'],
+    })
+    ds = client.assertedSearch(query)[0]
+    selection = DataSelection([ds])
+    dfids = client.ids.getDatafileIds(selection)
+    print("Datafile ids of dataset %s: %s" % (case['dsname'], str(dfids)))
+    query = "Datafile.id <-> Dataset [id=%d]" % ds.id
+    assert set(dfids) == set(client.search(query))
+
 def test_putData_datafileCreateTime(tmpdirsec, client):
     """Call client.putData() with a datafile having datafileCreateTime set.
     Issue #10.
