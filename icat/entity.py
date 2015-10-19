@@ -390,13 +390,13 @@ class Entity(object):
         """Call :meth:`icat.client.Client.create` to create the object in the
         ICAT.
         """ 
-        self.id = self.client.create(self.instance)
+        self.id = self.client.create(self)
 
     def update(self):
         """Call :meth:`icat.client.Client.update` to update the object in the
         ICAT.
         """ 
-        self.client.update(self.instance)
+        self.client.update(self)
 
     def get(self, query=None):
         """Call :meth:`icat.client.Client.get` to get the object from the
