@@ -354,12 +354,17 @@ class Client(suds.client.Client):
 
 
     def create(self, bean):
+        if bean.validate:
+            bean.validate()
         try:
             return self.service.create(self.sessionId, Entity.getInstance(bean))
         except suds.WebFault as e:
             raise translateError(e)
 
     def createMany(self, beans):
+        for b in beans:
+            if b.validate:
+                b.validate()
         try:
             return self.service.createMany(self.sessionId, Entity.getInstances(beans))
         except suds.WebFault as e:
