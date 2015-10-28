@@ -239,10 +239,13 @@ class Query(object):
         """Add related objects to build the INCLUDE clause from.
 
         :param includes: list of related objects to add to the INCLUDE
-            clause.
+            clause.  A special value of "1" may be used to set (the
+            equivalent of) an "INCLUDE 1" clause.
         :type includes: iterable of :class:`str`
         :raise ValueError: if any item in includes is not a related object.
         """
+        if includes == "1":
+            includes = list(self.entity.InstRel)
         if includes:
             for iobj in includes:
                 attrpath = _attrpath(self.client, self.entity, iobj)

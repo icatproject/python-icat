@@ -299,3 +299,14 @@ def test_query_metaattr(client):
     res = client.search(query)
     assert len(res) == 0
 
+def test_query_include_1(client):
+    """Test adding an "INCLUDE 1" clause.
+    """
+    query = Query(client, "Investigation", includes="1")
+    print(str(query))
+    res = client.search(query)
+    assert len(res) > 0
+    inv = res[0]
+    assert inv.BeanName == "Investigation"
+    assert inv.facility.BeanName == "Facility"
+    assert inv.type.BeanName == "InvestigationType"
