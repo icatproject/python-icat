@@ -354,7 +354,7 @@ class Client(suds.client.Client):
 
 
     def create(self, bean):
-        if bean.validate:
+        if getattr(bean, 'validate', None):
             bean.validate()
         try:
             return self.service.create(self.sessionId, Entity.getInstance(bean))
@@ -363,7 +363,7 @@ class Client(suds.client.Client):
 
     def createMany(self, beans):
         for b in beans:
-            if b.validate:
+            if getattr(b, 'validate', None):
                 b.validate()
         try:
             return self.service.createMany(self.sessionId, Entity.getInstances(beans))
