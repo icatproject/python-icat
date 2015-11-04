@@ -31,7 +31,7 @@ class Entity(object):
     classes."""
     Constraint = ('id',)
     """Attribute or relation names that form a uniqueness constraint."""
-    SelfAttr = frozenset(['client', 'instance'])
+    SelfAttr = frozenset(['client', 'instance', 'validate'])
     """Attributes stored in the Entity object itself."""
     InstAttr = frozenset(['id'])
     """Attributes of the entity in the ICAT schema, stored in the instance."""
@@ -45,7 +45,14 @@ class Entity(object):
     """Map of alias names for attributes and relationships."""
     SortAttrs = None
     """List of attributes used for sorting.  Uses Constraint if :const:`None`."""
+    validate = None
+    """Hook to add a pre create validation method.
 
+    This may be set to a function that expects one argument, the
+    entity object.  It will then be called before creating the object
+    at the ICAT server.  The function is expected to raise an
+    exception (preferably ValueError) in case of validation errors.
+    """
 
     @classmethod
     def getInstance(cls, obj):
@@ -390,13 +397,13 @@ class Entity(object):
         """Call :meth:`icat.client.Client.create` to create the object in the
         ICAT.
         """ 
-        self.id = self.client.create(self.instance)
+        self.id = self.client.create(self)
 
     def update(self):
         """Call :meth:`icat.client.Client.update` to update the object in the
         ICAT.
         """ 
-        self.client.update(self.instance)
+        self.client.update(self)
 
     def get(self, query=None):
         """Call :meth:`icat.client.Client.get` to get the object from the

@@ -7,26 +7,12 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import icat_version, gettestdata, callscript
 
 
 # Note: the number of objects returned in the queries and their
 # attributes obviously depend on the content of the ICAT and need to
 # be kept in sync with the reference input used in the setupicat
 # fixture.
-
-
-# The ICAT session as a fixture to be shared among all tests in this
-# module.  The user needs appropriate read permissions.
-user = "root"
-
-@pytest.fixture(scope="module")
-def client(setupicat, icatconfigfile):
-    args = ["-c", icatconfigfile, "-s", user]
-    conf = icat.config.Config().getconfig(args)
-    client = icat.Client(conf.url, **conf.client_kwargs)
-    client.login(conf.auth, conf.credentials)
-    return client
 
 
 investigation = None
@@ -313,3 +299,14 @@ def test_query_metaattr(client):
     res = client.search(query)
     assert len(res) == 0
 
+def test_query_include_1(client):
+    """Test adding an "INCLUDE 1" clause.
+    """
+    query = Query(client, "Investigation", includes="1")
+    print(str(query))
+    res = client.search(query)
+    assert len(res) > 0
+    inv = res[0]
+    assert inv.BeanName == "Investigation"
+    assert inv.facility.BeanName == "Facility"
+    assert inv.type.BeanName == "InvestigationType"

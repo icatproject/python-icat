@@ -3,7 +3,7 @@
 
 from warnings import warn
 import icat.entity
-from icat.exception import InternalError, QueryNullableOrderWarning
+from icat.exception import *
 
 __all__ = ['Query']
 
@@ -124,6 +124,9 @@ class Query(object):
             for details.
         """
 
+        if client.apiversion < '4.3':
+            raise VersionMethodError("Query", client.apiversion)
+
         super(Query, self).__init__()
         self._init = True
         self.client = client
@@ -236,10 +239,13 @@ class Query(object):
         """Add related objects to build the INCLUDE clause from.
 
         :param includes: list of related objects to add to the INCLUDE
-            clause.
+            clause.  A special value of "1" may be used to set (the
+            equivalent of) an "INCLUDE 1" clause.
         :type includes: iterable of :class:`str`
         :raise ValueError: if any item in includes is not a related object.
         """
+        if includes == "1":
+            includes = list(self.entity.InstRel)
         if includes:
             for iobj in includes:
                 attrpath = _attrpath(self.client, self.entity, iobj)

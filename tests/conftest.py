@@ -201,6 +201,17 @@ def setupicat(wipeicat, icatconfigfile):
     callscript("icatingest.py", args)
 
 
+@pytest.fixture(scope="module")
+def client(setupicat, icatconfigfile, request):
+    user = getattr(request.module, "client_user", "root")
+    confargs = getattr(request.module, "client_config", {})
+    args = ["-c", icatconfigfile, "-s", user]
+    conf = icat.config.Config(**confargs).getconfig(args)
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+    return client
+
+
 # ============================= hooks ================================
 
 def pytest_report_header(config):

@@ -11,23 +11,16 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
+from icat.ids import DataSelection
 from conftest import DummyDatafile, UtcTimezone
-from conftest import require_icat_version, gettestdata, callscript
+from conftest import require_icat_version, callscript
+from conftest import tmpSessionId
 
 # test content has InvestigationGroup objects.
 require_icat_version("4.4.0")
 
-# ============================= helper =============================
-
-user = "root"
-
-@pytest.fixture(scope="module")
-def client(setupicat, icatconfigfile):
-    args = ["-c", icatconfigfile, "-s", user]
-    conf = icat.config.Config(ids="mandatory").getconfig(args)
-    client = icat.Client(conf.url, **conf.client_kwargs)
-    client.login(conf.auth, conf.credentials)
-    return client
+# tell the client fixture that we need ids.
+client_config = {'ids': "mandatory"}
 
 
 # ============================= tests ==============================
@@ -160,6 +153,61 @@ def test_download(tmpdirsec, icatconfigfile, case, method):
     else:
         raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
 
+@pytest.mark.parametrize(("case"), testdatasets)
+def test_getinfo(client, case):
+    """Call getStatus() and getSize() to get some informations on a dataset.
+    """
+    dfs = [ c for c in testdatafiles if c['dsname'] == case['dsname'] ]
+    query = Query(client, "Dataset", conditions={
+        "name": "= '%s'" % case['dsname'],
+        "investigation.name": "= '%s'" % case['invname'],
+    })
+    selection = DataSelection(client.assertedSearch(query))
+    size = client.ids.getSize(selection)
+    print("Size of dataset %s: %d" % (case['dsname'], size))
+    assert size == sum(f['size'] for f in dfs)
+    status = client.ids.getStatus(selection)
+    print("Status of dataset %s: %s" % (case['dsname'], status))
+    assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
+
+@pytest.mark.parametrize(("case"), testdatasets)
+def test_status_no_sessionId(client, case):
+    """Call getStatus() while logged out.
+
+    IDS 1.5.0 and newer allow the sessionId to be omitted from the
+    getStatus() call.
+    """
+    if client.ids.apiversion < '1.5.0':
+        pytest.skip("IDS %s is too old, need 1.5.0 or newer" 
+                    % client.ids.apiversion)
+    dfs = [ c for c in testdatafiles if c['dsname'] == case['dsname'] ]
+    query = Query(client, "Dataset", conditions={
+        "name": "= '%s'" % case['dsname'],
+        "investigation.name": "= '%s'" % case['invname'],
+    })
+    selection = DataSelection(client.assertedSearch(query))
+    with tmpSessionId(client, None):
+        status = client.ids.getStatus(selection)
+    print("Status of dataset %s: %s" % (case['dsname'], status))
+    assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
+
+@pytest.mark.parametrize(("case"), testdatasets)
+def test_getDatafileIds(client, case):
+    """Call getDatafileIds() to get the Datafile ids from a dataset.
+    """
+    if client.ids.apiversion < '1.5.0':
+        pytest.skip("IDS %s is too old, need 1.5.0 or newer" 
+                    % client.ids.apiversion)
+    query = Query(client, "Dataset", conditions={
+        "name": "= '%s'" % case['dsname'],
+        "investigation.name": "= '%s'" % case['invname'],
+    })
+    ds = client.assertedSearch(query)[0]
+    selection = DataSelection([ds])
+    dfids = client.ids.getDatafileIds(selection)
+    print("Datafile ids of dataset %s: %s" % (case['dsname'], str(dfids)))
+    query = "Datafile.id <-> Dataset [id=%d]" % ds.id
+    assert set(dfids) == set(client.search(query))
 
 def test_putData_datafileCreateTime(tmpdirsec, client):
     """Call client.putData() with a datafile having datafileCreateTime set.
@@ -210,3 +258,48 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
     assert df.datafileCreateTime is not None
     if tzinfo is not None:
         assert df.datafileCreateTime == createTime
+
+@pytest.mark.parametrize(("case"), testdatasets)
+def test_archive(client, case):
+    """Call archive() on a dataset.
+    """
+    if not client.ids.isTwoLevel():
+        pytest.skip("This IDS does not use two levels of data storage")
+    query = Query(client, "Dataset", conditions={
+        "name": "= '%s'" % case['dsname'],
+        "investigation.name": "= '%s'" % case['invname'],
+    })
+    selection = DataSelection(client.assertedSearch(query))
+    status = client.ids.getStatus(selection)
+    if status != "ONLINE":
+        pytest.skip("The dataset is not online")
+    client.ids.archive(selection)
+    print("Request archive of dataset %s" % (case['dsname']))
+    status = client.ids.getStatus(selection)
+    # Do not assert status == "ARCHIVED" because the archive could be
+    # deferred by the server or an other operation on the same dataset
+    # could intervene.  So, there is no guarantee whatsoever on the
+    # outcome of the archive() call.
+    print("Status of dataset %s is now %s" % (case['dsname'], status))
+
+@pytest.mark.parametrize(("case"), testdatasets)
+def test_restore(client, case):
+    """Call restore() on a dataset.
+    """
+    if not client.ids.isTwoLevel():
+        pytest.skip("This IDS does not use two levels of data storage")
+    query = Query(client, "Dataset", conditions={
+        "name": "= '%s'" % case['dsname'],
+        "investigation.name": "= '%s'" % case['invname'],
+    })
+    selection = DataSelection(client.assertedSearch(query))
+    status = client.ids.getStatus(selection)
+    if status != "ARCHIVED":
+        pytest.skip("The dataset is not online")
+    client.ids.restore(selection)
+    print("Request restore of dataset %s" % (case['dsname']))
+    status = client.ids.getStatus(selection)
+    # Do not assert status == "RESTORING" because same remark as for
+    # archive() applies: there is no guarantee whatsoever on the
+    # outcome of the restore() call.
+    print("Status of dataset %s is now %s" % (case['dsname'], status))

@@ -354,12 +354,17 @@ class Client(suds.client.Client):
 
 
     def create(self, bean):
+        if getattr(bean, 'validate', None):
+            bean.validate()
         try:
             return self.service.create(self.sessionId, Entity.getInstance(bean))
         except suds.WebFault as e:
             raise translateError(e)
 
     def createMany(self, beans):
+        for b in beans:
+            if getattr(b, 'validate', None):
+                b.validate()
         try:
             return self.service.createMany(self.sessionId, Entity.getInstances(beans))
         except suds.WebFault as e:
@@ -544,10 +549,9 @@ class Client(suds.client.Client):
         :rtype: generator
         """
         if isinstance(query, Query):
-            q = query.copy()
-            q.setLimit( ("%d","%d") )
-            query = unicode(q)
-        elif query.startswith("SELECT"):
+            query = unicode(query)
+        query = query.replace('%', '%%')
+        if query.startswith("SELECT"):
             query += " LIMIT %d, %d"
         else:
             query = "%d, %d " + query

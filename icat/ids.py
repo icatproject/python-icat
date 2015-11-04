@@ -22,7 +22,7 @@ import getpass
 
 from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
 from icat.entity import Entity
-from icat.exception import IDSError, IDSResponseError, translateError
+from icat.exception import *
 
 __all__ = ['DataSelection', 'IDSClient']
 
@@ -248,7 +248,10 @@ class IDSClient(object):
         """Get the URL of the ICAT server connected to this IDS.
         """
         req = IDSRequest(self.url + "getIcatUrl", {})
-        return self.default.open(req).read().decode('ascii')
+        try:
+            return self.default.open(req).read().decode('ascii')
+        except (HTTPError, IDSError) as e:
+            raise self._versionMethodError("getIcatUrl", '1.4', e)
 
     def isReadOnly(self):
         """See if the server is configured to be readonly.
@@ -287,7 +290,9 @@ class IDSClient(object):
     def getStatus(self, selection):
         """Return the status of data.
         """
-        parameters = {"sessionId": self.sessionId}
+        parameters = {}
+        if self.sessionId:
+            parameters["sessionId"] = self.sessionId
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "getStatus", parameters)
         return self.default.open(req).read().decode('ascii')
@@ -331,6 +336,29 @@ class IDSClient(object):
         response = self.default.open(req).read().decode('ascii')
         return response.lower() == "true"
 
+    def getDatafileIds(self, selection):
+        """Get the list of data file id corresponding to the selection.
+        """
+        parameters = {"sessionId": self.sessionId}
+        selection.fillParams(parameters)
+        req = IDSRequest(self.url + "getDatafileIds", parameters)
+        try:
+            result = self.default.open(req).read().decode('ascii')
+            return json.loads(result)['ids']
+        except (HTTPError, IDSError) as e:
+            raise self._versionMethodError("getDatafileIds", '1.5', e)
+
+    def getPreparedDatafileIds(self, preparedId):
+        """Get the list of data file id corresponding to the prepared Id.
+        """
+        parameters = {"preparedId": preparedId}
+        req = IDSRequest(self.url + "getDatafileIds", parameters)
+        try:
+            result = self.default.open(req).read().decode('ascii')
+            return json.loads(result)['ids']
+        except (HTTPError, IDSError) as e:
+            raise self._versionMethodError("getDatafileIds", '1.5', e)
+
     def getData(self, selection, 
                 compressFlag=False, zipFlag=False, outname=None, offset=0):
         """Stream the requested data.
@@ -344,7 +372,7 @@ class IDSClient(object):
         if offset > 0:
             req.add_header("Range", "bytes=" + str(offset) + "-") 
         return self.default.open(req)
-    
+
     def getDataUrl(self, selection, 
                    compressFlag=False, zipFlag=False, outname=None):
         """Get the URL to retrieve the requested data.
@@ -438,3 +466,14 @@ class IDSClient(object):
 
     def _getDataUrl(self, parameters):
         return (self.url + "getData" + "?" + urlencode(parameters))
+
+    def _versionMethodError(self, method, minversion, orgexc):
+        """Prepare the proper exception if a method fails that is only
+        available in newer IDS versions.
+        """
+        if self.apiversion < minversion:
+            e = VersionMethodError(method, version=self.apiversion, 
+                                   service="IDS")
+            return stripCause(e)
+        else:
+            return orgexc

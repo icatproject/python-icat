@@ -23,7 +23,7 @@ DESCRIPTION      = DOCLINES[0]
 LONG_DESCRIPTION = "\n".join(DOCLINES[2:])
 VERSION          = icatinfo.__version__
 AUTHOR           = icatinfo.__author__
-URL              = "http://code.google.com/p/icatproject/wiki/PythonIcat"
+URL              = "http://icatproject.org/user-documentation/python-icat/"
 m = re.match(r"^(.*?)\s*<(.*)>$", AUTHOR)
 (AUTHOR_NAME, AUTHOR_EMAIL) = m.groups() if m else (AUTHOR, None)
 

@@ -1,9 +1,12 @@
-	    python-icat - Python interface to ICAT and IDS
-	    ==============================================
+python-icat - Python interface to ICAT and IDS
+==============================================
 
 This package provides a collection of modules for writing Python
-programs that access an ICAT[1] service using the SOAP interface.  It
+programs that access an `ICAT`_ service using the SOAP interface.  It
 is based on Suds and extends it with ICAT specific features.
+
+See also the home page of the package at
+http://icatproject.org/user-documentation/python-icat/
 
 
 System requirements
@@ -17,52 +20,63 @@ Python:
 
 Required Library packages:
 
- + Suds, either the original version[2] or the fork by Jurko
-   Gospodnetić[3].  The latter is recommended as the original version
+ + Suds, either the `original version`__ or the `fork by Jurko
+   Gospodnetić`__.  The latter is recommended as the original version
    is not maintained any more and contains bugs.  Python 3 requires
    the jurko fork.
 
- + argparse[4]
+ + `argparse`_
+
    Only if you are using Python 2.6 or 3.1, argparse became part of
    the Python standard library in 2.7 and 3.2 respectively.
 
 Optional library packages, only needed to use certain extra features,
 not required to install or use python-icat itself:
 
- + PyYAML[5]
+ + `PyYAML`_
+
    Only needed to use the YAML backend of icatdump.py and
    icatingest.py and to run the example scripts (see below).
 
- + lxml[6]
+ + `lxml`_
+
    Only needed to use the XML backend of icatdump.py and
    icatingest.py.
 
- + Requests[7]
+ + `Requests`_
+
    Only needed for the example scripts using the ICAT RESTful
    interface, icatexport.py and icatimport.py.
 
- + pytest[8]
+ + `pytest`_
+
    Only if you want to run the tests.
+
+.. __: `Suds`_
+.. __: `Suds jurko`_
 
 
 Installation
 ------------
 
 python-icat follows the standard Python conventions of packaging
-source distributions.  See the documentation on Installing Python
-Modules [9] for details or to customize the install process.
+source distributions.  See the documentation on `Installing Python
+Modules`_ for details or to customize the install process.
 
   1. Download the sources, unpack, and change into the source
      directory.
 
-  2. Build:
-     $ python setup.py build
+  2. Build::
 
-  3. Test (optional, see below):
-     $ python setup.py test
+       $ python setup.py build
 
-  4. Install:
-     $ python setup.py install
+  3. Test (optional, see below)::
+
+       $ python setup.py test
+
+  4. Install::
+
+       $ python setup.py install
 
 (If you are reading this, you probably already did the first step.)
 The last step might require admin privileges in order to write into
@@ -71,8 +85,9 @@ the site-packages directory of your Python installation.
 If you are using Python 2.6, apply python2_6.patch after the first
 step:
 
- 1a. Patch:
-     $ patch -p1 < python2_6.patch
+ 1a. Patch::
+
+       $ patch -p1 < python2_6.patch
 
 It removes the use of certain language features (dict comprehensions,
 curly braces notation of sets, bytes string literal prefix 'b') that
@@ -155,7 +170,7 @@ Bugs and limitations
    (The conversion to UTC is done correctly in Suds.)  As a result,
    all datetime values retrieved from the server will be in UTC, which
    at least is well defined.  You may either set the environment
-   variable TZ to 'UTC' before calling your script or add the lines
+   variable TZ to 'UTC' before calling your script or add the lines ::
 
      import os
      os.environ['TZ'] = 'UTC'
@@ -169,7 +184,7 @@ Bugs and limitations
    Note that the bug is fixed in the fork by Jurko Gospodnetić which
    is recommendated anyway.
 
- + With Python 3.1, icatdump.py emits a spurious error message like
+ + With Python 3.1, icatdump.py emits a spurious error message like ::
 
      Exception ValueError: 'I/O operation on closed file.' 
      in <_io.TextIOWrapper name='<stdout>' encoding='UTF-8'> ignored
@@ -182,40 +197,36 @@ Bugs and limitations
    in Python 3.1.
 
  + Misleading "context" is displayed in error tracebacks with Python
-   3.1 and 3.2.  Python 3 introduced a "feature" called "Exception
-   Chaining and Embedded Tracebacks"[10].  This causes irrelevant and
+   3.1 and 3.2.  Python 3 introduced a "feature" called `Exception
+   Chaining and Embedded Tracebacks`__.  This causes irrelevant and
    misleading "error context" to be displayed in the traceback of
    error messages.  python-icat tries to suppress this in the most
-   annoying cases, but this suppression mechanism is only available
-   with Python 3.3 and newer[11].
+   annoying cases, but this `suppression mechanism`__ is only
+   available with Python 3.3 and newer.
+
+.. __: `PEP 3134`_
+.. __: `Python Issue 6210`_
 
 
 Version numbering
 -----------------
 
 Version numbers of python-icat comply with Python standards as defined
-in PEP 440[12].  They try to adhere to the principles of Semantic
-Versioning[13], but may deviate from the formatting defined therein
+in `PEP 440`_.  They try to adhere to the principles of `Semantic
+Versioning`_, but may deviate from the formatting defined therein
 when it is incompatible with PEP 440.
 
 
-References
-----------
-
-[1]: http://www.icatproject.org/
-[2]: https://fedorahosted.org/suds/
-[3]: https://bitbucket.org/jurko/suds/
-[4]: https://code.google.com/p/argparse/
-[5]: http://pyyaml.org/wiki/PyYAML
-[6]: http://lxml.de/
-[7]: http://python-requests.org/
-[8]: http://pytest.org/
-[9]: https://docs.python.org/2.7/install/
-[10]: https://www.python.org/dev/peps/pep-3134/
-[11]: http://bugs.python.org/issue6210
-[12]: https://www.python.org/dev/peps/pep-0440/
-[13]: http://semver.org/
-
-# Local Variables:
-# mode: text
-# End:
+.. _ICAT: http://www.icatproject.org/
+.. _Suds: https://fedorahosted.org/suds/
+.. _Suds jurko: https://bitbucket.org/jurko/suds/
+.. _argparse: https://code.google.com/p/argparse/
+.. _PyYAML: http://pyyaml.org/wiki/PyYAML
+.. _lxml: http://lxml.de/
+.. _Requests: http://python-requests.org/
+.. _pytest: http://pytest.org/
+.. _Installing Python Modules: https://docs.python.org/2.7/install/
+.. _PEP 3134: https://www.python.org/dev/peps/pep-3134/
+.. _Python Issue 6210: http://bugs.python.org/issue6210
+.. _PEP 440: https://www.python.org/dev/peps/pep-0440/
+.. _Semantic Versioning: http://semver.org/
