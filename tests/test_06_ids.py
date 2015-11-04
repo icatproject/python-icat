@@ -168,7 +168,7 @@ def test_getinfo(client, case):
     assert size == sum(f['size'] for f in dfs)
     status = client.ids.getStatus(selection)
     print("Status of dataset %s: %s" % (case['dsname'], status))
-    assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
+    assert status in set(["ONLINE", "RESTORING", "ARCHIVED"])
 
 @pytest.mark.parametrize(("case"), testdatasets)
 def test_status_no_sessionId(client, case):
@@ -189,7 +189,7 @@ def test_status_no_sessionId(client, case):
     with tmpSessionId(client, None):
         status = client.ids.getStatus(selection)
     print("Status of dataset %s: %s" % (case['dsname'], status))
-    assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
+    assert status in set(["ONLINE", "RESTORING", "ARCHIVED"])
 
 @pytest.mark.parametrize(("case"), testdatasets)
 def test_getDatafileIds(client, case):
