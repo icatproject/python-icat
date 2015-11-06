@@ -10,6 +10,8 @@
 
  + Implement setting an "INCLUDE 1" clause equivalent in class Query.
 
+ + Add an optional argument includes to Client.searchMatching().
+
  + Add support for icat.server 4.6.0:
    - Add new exception class ICATNotImplementedError.
    (Note that at the moment of this writing, icat.server 4.6.0 is not
