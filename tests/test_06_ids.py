@@ -303,3 +303,22 @@ def test_restore(client, case):
     # archive() applies: there is no guarantee whatsoever on the
     # outcome of the restore() call.
     print("Status of dataset %s is now %s" % (case['dsname'], status))
+
+def test_exception(client):
+    """Test handling of exceptions raised by the IDS server.
+
+    There used to be bugs in the client that caused a HTTP error to be
+    raised rather then the corresponding IDSError exception.  (Fixed
+    in 56905f1.)
+    """
+    print("Provoke an IDSBadRequestError ...")
+    invalidid = '-=- INVALID ID -=-'
+    with pytest.raises(icat.IDSError) as err:
+        client.ids.isPrepared(invalidid)
+    print("error: %s" % str(err))
+    print("Provoke an IDSNotFoundError ...")
+    selection = DataSelection({'datasetIds':[-11]})
+    with pytest.raises(icat.IDSError) as err:
+        client.ids.getData(selection)
+    print("error: %s" % str(err))
+
