@@ -90,7 +90,9 @@ if client.ids:
         # Wait for the server to process all pending requests.  This
         # may be needed to avoid race conditions, see
         # https://code.google.com/p/icat-data-service/issues/detail?id=14
-        waitOpsQueue()
+        # The problem has been fixed in IDS 1.3.0.
+        if client.ids.apiversion < '1.3.0':
+            waitOpsQueue()
         # First step: delete everything that is currently online.
         for selection in getDfSelections("ONLINE"):
             client.deleteData(selection)
