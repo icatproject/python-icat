@@ -8,7 +8,7 @@ author.
 .. _IDS distribution: http://code.google.com/p/icat-data-service/
 """
 
-from collections import Mapping, Sequence
+from collections import Mapping, Iterable
 import ssl
 from urllib2 import Request, HTTPError
 from urllib2 import HTTPDefaultErrorHandler, ProxyHandler, HTTPSHandler
@@ -98,9 +98,9 @@ class DataSelection(object):
 
     def __init__(self, objs=None):
         super(DataSelection, self).__init__()
-        self.invIds = []
-        self.dsIds = []
-        self.dfIds = []
+        self.invIds = set()
+        self.dsIds = set()
+        self.dfIds = set()
         if objs:
             self.extend(objs)
 
@@ -123,37 +123,37 @@ class DataSelection(object):
             :class:`icat.ids.DataSelection`
         """
         if isinstance(objs, DataSelection):
-            self.invIds.extend(objs.invIds)
-            self.dsIds.extend(objs.dsIds)
-            self.dfIds.extend(objs.dfIds)
-        elif isinstance(objs, Sequence):
+            self.invIds.update(objs.invIds)
+            self.dsIds.update(objs.dsIds)
+            self.dfIds.update(objs.dfIds)
+        elif isinstance(objs, Mapping):
+            self.invIds.update(objs.get('investigationIds', []))
+            self.dsIds.update(objs.get('datasetIds', []))
+            self.dfIds.update(objs.get('datafileIds', []))
+        elif isinstance(objs, Iterable):
             for o in objs:
                 if isinstance(o, Entity):
                     if o.BeanName == 'Investigation':
-                        self.invIds.append(o.id) 
+                        self.invIds.add(o.id)
                     elif o.BeanName == 'Dataset':
-                        self.dsIds.append(o.id) 
+                        self.dsIds.add(o.id)
                     elif o.BeanName == 'Datafile':
-                        self.dfIds.append(o.id) 
+                        self.dfIds.add(o.id)
                     else:
                         raise ValueError("invalid object '%s'." % o.BeanName)
                 else:
                     raise TypeError("invalid object type '%s'." % type(o))
-        elif isinstance(objs, Mapping):
-            self.invIds.extend(objs.get('investigationIds', []))
-            self.dsIds.extend(objs.get('datasetIds', []))
-            self.dfIds.extend(objs.get('datafileIds', []))
         else:
             raise TypeError("objs must either be a list of objects or "
                             "a dict of ids.")
 
     def fillParams(self, params):
         if self.invIds:
-            params["investigationIds"] = ",".join(str(x) for x in self.invIds)
+            params["investigationIds"] = ",".join(str(i) for i in self.invIds)
         if self.dsIds:
-            params["datasetIds"] = ",".join(str(x) for x in self.dsIds)
+            params["datasetIds"] = ",".join(str(i) for i in self.dsIds)
         if self.dfIds:
-            params["datafileIds"] = ",".join(str(x) for x in self.dfIds)
+            params["datafileIds"] = ",".join(str(i) for i in self.dfIds)
 
 
 class IDSClient(object):
