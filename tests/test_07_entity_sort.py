@@ -210,3 +210,16 @@ def test_sort_datacollection_datafile_order_mrel(client):
     # Note that dc7, dc8, and dc9 are all equal and sort before dc2.
     dataCollections.sort(key=icat.entity.Entity.__sortkey__)
     assert dataCollections == [ dc6, dc3, dc5, dc7, dc8, dc9, dc2, dc1, dc4 ]
+
+
+@pytest.mark.xfail(raises=RuntimeError, reason="Bug #14")
+def test_datacollection_sortkey_max_recursion(client):
+    """Entity.__sortkey__() may enter in an infinite recursion.  Issue #14.
+    """
+    df1 = client.new("datafile", name="df_a")
+    dc1 = client.new("dataCollection")
+    dcdf1 = client.new("dataCollectionDatafile", 
+                       datafile=df1, dataCollection=dc1)
+    dc1.dataCollectionDatafiles.append(dcdf1)
+    df1.dataCollectionDatafiles.append(dcdf1)
+    print(dc1.__sortkey__())
