@@ -212,7 +212,6 @@ def test_sort_datacollection_datafile_order_mrel(client):
     assert dataCollections == [ dc6, dc3, dc5, dc7, dc8, dc9, dc2, dc1, dc4 ]
 
 
-@pytest.mark.xfail(raises=RuntimeError, reason="Bug #14")
 def test_datacollection_sortkey_max_recursion(client):
     """Entity.__sortkey__() may enter in an infinite recursion.  Issue #14.
     """
@@ -223,3 +222,39 @@ def test_datacollection_sortkey_max_recursion(client):
     dc1.dataCollectionDatafiles.append(dcdf1)
     df1.dataCollectionDatafiles.append(dcdf1)
     print(dc1.__sortkey__())
+
+
+def test_sortattrs_dependencies(client):
+    """Check that there are no circular dependencies for sort attributes.
+
+    The cause for Bug #14 was that DataCollections were sorted by
+    Datasets and Datafiles via DataCollectionDatafile and
+    DataCollectionDataset respectively and that sorting of the latter
+    was by DataCollection.  The fix was to break this circular
+    dependency.
+
+    This test verifies that there are no further circular dependencies
+    for sort attributes in the entity object classes.
+    """
+    def checkSortDependency(cls, recursionList=[]):
+        """Helper function."""
+        if cls.BeanName in recursionList:
+            raise RuntimeError("Circular sorting dependency detected: %s" 
+                               % " -> ".join(recursionList))
+        rl = list(recursionList)
+        rl.append(cls.BeanName)
+        deplist = []
+        sortAttrs = cls.SortAttrs or cls.Constraint
+        for a in sortAttrs:
+            if a in cls.InstRel or a in cls.InstMRel:
+                rname = cls.getAttrInfo(client, a).type
+                deplist.append(rname)
+                rcls = client.getEntityClass(rname)
+                deplist.extend(checkSortDependency(rcls, rl))
+        return deplist
+
+    for cls in client.typemap.values():
+        if cls.BeanName is None:
+            continue
+        deplist = checkSortDependency(cls)
+        print("%s: %s" % (cls.BeanName, ", ".join(deplist)))

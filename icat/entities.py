@@ -69,6 +69,7 @@ class DataCollectionDatafile(Entity):
     BeanName = 'DataCollectionDatafile'
     Constraint = ('dataCollection', 'datafile')
     InstRel = frozenset(['dataCollection', 'datafile'])
+    SortAttrs = ['datafile']
 
 
 class DataCollectionDataset(Entity):
@@ -77,6 +78,7 @@ class DataCollectionDataset(Entity):
     BeanName = 'DataCollectionDataset'
     Constraint = ('dataCollection', 'dataset')
     InstRel = frozenset(['dataCollection', 'dataset'])
+    SortAttrs = ['dataset']
 
 
 class DataCollectionParameter(Parameter):
