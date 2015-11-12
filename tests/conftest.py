@@ -19,6 +19,8 @@ try:
     from suds.sax.date import UtcTimezone
 except ImportError:
     UtcTimezone = None
+from icat.dumpfile import open_dumpfile
+import icat.dumpfile_yaml
 
 
 # Note that pytest captures stderr, so we won't see any logging by
@@ -198,6 +200,30 @@ def wipeicat(standardConfig):
 
 
 testcontent = gettestdata("icatdump.yaml")
+
+
+@pytest.fixture(scope="module")
+def testdata(request):
+    """Read the test data from the input file directly into memory,
+    without interfering with the ICAT server.
+    """
+    class TestData(object):
+        pass
+    # testcontent has InvestigationGroup objects.
+    require_icat_version("4.4.0")
+    conf = getConfig(needlogin=False)
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    data = TestData()
+    data.index = {}
+    data.objs = { t:[] for t in client.getEntityNames() }
+    idcount = 0
+    with open_dumpfile(client, testcontent, "YAML", 'r') as dumpfile:
+        for obj in dumpfile.getobjs(data.index):
+            idcount += 1
+            obj.id = idcount
+            data.objs[obj.BeanName].append(obj)
+    return data
+
 
 @pytest.fixture(scope="module")
 def setupicat(wipeicat, standardConfig):
