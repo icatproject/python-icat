@@ -7,20 +7,18 @@ external scripts.
 import pytest
 import icat
 import icat.config
-from conftest import callscript
+from conftest import getConfig, callscript
 
-def test_getversion(icatconfigfile):
+def test_getversion():
     """Get version info from the ICAT server.
     """
-
-    args = ["-c", icatconfigfile, "-s", "root"]
-    callscript("getversion.py", args)
+    conf = getConfig(needlogin=False)
+    callscript("getversion.py", conf.cmdargs)
 
 
 @pytest.mark.parametrize("user", ["root", "useroffice", "acord"])
-def test_login(icatconfigfile, user):
+def test_login(user):
     """Login to the ICAT server.
     """
-
-    args = ["-c", icatconfigfile, "-s", user]
-    callscript("login.py", args)
+    conf = getConfig(confSection=user)
+    callscript("login.py", conf.cmdargs)

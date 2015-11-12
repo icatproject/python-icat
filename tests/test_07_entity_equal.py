@@ -7,6 +7,7 @@ defined by the __hash__() method.
 import pytest
 import icat
 import icat.config
+from conftest import getConfig
 
 # the user to use by the client fixture.
 client_user = "root"
@@ -67,7 +68,7 @@ def test_equality_new(client):
     assert not (u1 != u2)
     assert hash(u1) == hash(u2)
 
-def test_equality_client(client, icatconfigfile):
+def test_equality_client(client):
     """Test that objects that belong to different clients are never equal.
 
     There used to be a bug such that the client was not taken into
@@ -75,8 +76,7 @@ def test_equality_client(client, icatconfigfile):
     """
     # Get a second client that is connected as the same user to the
     # same server and even shares the same ICAT session.
-    args = ["-c", icatconfigfile, "-s", client_user]
-    conf = icat.config.Config().getconfig(args)
+    conf = getConfig(confSection=client_user)
     client2 = icat.Client(conf.url, **conf.client_kwargs)
     client2.sessionId = client.sessionId
     u1 = client.assertedSearch("0,1 User")[0]

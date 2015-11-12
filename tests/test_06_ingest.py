@@ -8,12 +8,18 @@ from subprocess import CalledProcessError
 import icat
 import icat.config
 from icat.query import Query
-from conftest import DummyDatafile, gettestdata, callscript
+from conftest import DummyDatafile, gettestdata, getConfig, callscript
 
 
 # Test input
 ds_params = gettestdata("ingest-ds-params.xml")
 datafiles = gettestdata("ingest-datafiles.xml")
+
+@pytest.fixture(scope="module")
+def cmdargs():
+    conf = getConfig(confSection="acord")
+    return ["-c", conf.configFile[0], "-s", conf.configSection, "-f", "XML"]
+
 
 @pytest.fixture(scope="function")
 def dataset(client):
@@ -62,10 +68,10 @@ def verify_dataset_params(client, dataset, params):
     assert values == params
 
 
-def test_ingest_dataset_params(dataset, client, icatconfigfile):
+def test_ingest_dataset_params(dataset, client, cmdargs):
     """Ingest a file setting some dataset parameters.
     """
-    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", ds_params]
+    args = cmdargs + ["-i", ds_params]
     callscript("icatingest.py", args)
     verify_dataset_params(client, dataset, { 
         ("Magnetic field", 5.3, "T"), 
@@ -74,7 +80,7 @@ def test_ingest_dataset_params(dataset, client, icatconfigfile):
     })
 
 
-def test_ingest_duplicate_throw(dataset, client, icatconfigfile):
+def test_ingest_duplicate_throw(dataset, client, cmdargs):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but now place a duplicate object in the way.
@@ -83,7 +89,7 @@ def test_ingest_duplicate_throw(dataset, client, icatconfigfile):
     p = client.new("datasetParameter", numericValue=5.0, 
                    dataset=dataset, type=ptype)
     p.create()
-    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", ds_params]
+    args = cmdargs + ["-i", ds_params]
     # FIXME: should inspect stderr and verify ICATObjectExistsError.
     with pytest.raises(CalledProcessError) as err:
         callscript("icatingest.py", args)
@@ -97,7 +103,7 @@ def test_ingest_duplicate_throw(dataset, client, icatconfigfile):
     })
 
 
-def test_ingest_duplicate_ignore(dataset, client, icatconfigfile):
+def test_ingest_duplicate_ignore(dataset, client, cmdargs):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but now ignore the duplicate.
@@ -106,8 +112,7 @@ def test_ingest_duplicate_ignore(dataset, client, icatconfigfile):
     p = client.new("datasetParameter", numericValue=5.0, 
                    dataset=dataset, type=ptype)
     p.create()
-    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", ds_params, 
-            "--duplicate", "IGNORE"]
+    args = cmdargs + ["-i", ds_params, "--duplicate", "IGNORE"]
     callscript("icatingest.py", args)
     verify_dataset_params(client, dataset, { 
         ("Magnetic field", 5.3, "T"), 
@@ -116,7 +121,7 @@ def test_ingest_duplicate_ignore(dataset, client, icatconfigfile):
     })
 
 
-def test_ingest_duplicate_check_err(dataset, client, icatconfigfile):
+def test_ingest_duplicate_check_err(dataset, client, cmdargs):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but use CHECK which fails due to mismatch.
@@ -125,8 +130,7 @@ def test_ingest_duplicate_check_err(dataset, client, icatconfigfile):
     p = client.new("datasetParameter", numericValue=5.0, 
                    dataset=dataset, type=ptype)
     p.create()
-    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", ds_params, 
-            "--duplicate", "CHECK"]
+    args = cmdargs + ["-i", ds_params, "--duplicate", "CHECK"]
     # FIXME: should inspect stderr and verify ICATObjectExistsError.
     with pytest.raises(CalledProcessError) as err:
         callscript("icatingest.py", args)
@@ -136,7 +140,7 @@ def test_ingest_duplicate_check_err(dataset, client, icatconfigfile):
     })
 
 
-def test_ingest_duplicate_check_ok(dataset, client, icatconfigfile):
+def test_ingest_duplicate_check_ok(dataset, client, cmdargs):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but now it matches, so CHECK should return ok.
@@ -145,8 +149,7 @@ def test_ingest_duplicate_check_ok(dataset, client, icatconfigfile):
     p = client.new("datasetParameter", numericValue=10.0, 
                    dataset=dataset, type=ptype)
     p.create()
-    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", ds_params, 
-            "--duplicate", "CHECK"]
+    args = cmdargs + ["-i", ds_params, "--duplicate", "CHECK"]
     callscript("icatingest.py", args)
     verify_dataset_params(client, dataset, { 
         ("Magnetic field", 5.3, "T"), 
@@ -155,7 +158,7 @@ def test_ingest_duplicate_check_ok(dataset, client, icatconfigfile):
     })
 
 
-def test_ingest_duplicate_overwrite(dataset, client, icatconfigfile):
+def test_ingest_duplicate_overwrite(dataset, client, cmdargs):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but now overwrite the old value.
@@ -164,8 +167,7 @@ def test_ingest_duplicate_overwrite(dataset, client, icatconfigfile):
     p = client.new("datasetParameter", numericValue=5.0, 
                    dataset=dataset, type=ptype)
     p.create()
-    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", ds_params, 
-            "--duplicate", "OVERWRITE"]
+    args = cmdargs + ["-i", ds_params, "--duplicate", "OVERWRITE"]
     callscript("icatingest.py", args)
     verify_dataset_params(client, dataset, { 
         ("Magnetic field", 5.3, "T"), 
@@ -250,8 +252,7 @@ ingest_data_date = """<?xml version="1.0" encoding="utf-8"?>
     ingest_data_float,
     ingest_data_date,
 ])
-def test_ingest_duplicate_check_types(tmpdirsec, client, icatconfigfile, 
-                                      inputdata):
+def test_ingest_duplicate_check_types(tmpdirsec, client, cmdargs, inputdata):
     """Ingest with a collision of a duplicate object.
 
     Similar to test_ingest_duplicate_check_ok(), but trying several
@@ -262,18 +263,16 @@ def test_ingest_duplicate_check_types(tmpdirsec, client, icatconfigfile,
     inpfile = os.path.join(tmpdirsec.dir, "ingest.xml")
     with open(inpfile, "wt") as f:
         f.write(inputdata)
-    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", inpfile]
+    args = cmdargs + ["-i", inpfile]
     callscript("icatingest.py", args)
-    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", inpfile, 
-            "--duplicate", "CHECK"]
-    callscript("icatingest.py", args)
+    callscript("icatingest.py", args + ["--duplicate", "CHECK"])
 
 
-def test_ingest_datafiles(tmpdirsec, client, icatconfigfile):
+def test_ingest_datafiles(tmpdirsec, client, cmdargs):
     """Ingest a dataset with some datafiles.
     """
     dummyfiles = [ f['dfname'] for f in testdatafiles ]
-    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", datafiles]
+    args = cmdargs + ["-i", datafiles]
     callscript("icatingest.py", args)
     # Verify that the datafiles have been uploaded.
     conditions = {
@@ -295,7 +294,7 @@ def test_ingest_datafiles(tmpdirsec, client, icatconfigfile):
     client.delete(dataset)
 
 
-def test_ingest_datafiles_upload(tmpdirsec, client, icatconfigfile):
+def test_ingest_datafiles_upload(tmpdirsec, client, cmdargs):
     """Upload datafiles to IDS from icatingest.
 
     Same as last test, but set the --upload-datafiles flag so that
@@ -305,8 +304,8 @@ def test_ingest_datafiles_upload(tmpdirsec, client, icatconfigfile):
     dummyfiles = [ DummyDatafile(tmpdirsec.dir, 
                                  f['dfname'], f['size'], f['mtime'])
                    for f in testdatafiles ]
-    args = ["-c", icatconfigfile, "-s", "acord", "-f", "XML", "-i", datafiles, 
-            "--upload-datafiles", "--datafile-dir", tmpdirsec.dir]
+    args = cmdargs + ["-i", datafiles, "--upload-datafiles", 
+                      "--datafile-dir", tmpdirsec.dir]
     callscript("icatingest.py", args)
     # Verify that the datafiles have been uploaded.
     conditions = {

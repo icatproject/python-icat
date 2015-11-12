@@ -6,7 +6,7 @@ import filecmp
 import pytest
 import icat
 import icat.config
-from conftest import require_icat_version
+from conftest import getConfig, require_icat_version
 from conftest import gettestdata, callscript, filter_xml_dump, filter_yaml_dump
 
 # test content has InvestigationGroup objects.
@@ -30,16 +30,16 @@ for u in users:
     refsummary[u] = gettestdata("summary.%s" % u)
 
 
-def test_ingest_xml(icatconfigfile):
+def test_ingest_xml(standardConfig):
     """Restore the ICAT content from a XML dumpfile.
     """
-    callscript("wipeicat.py", ["-c", icatconfigfile, "-s", "root"])
+    callscript("wipeicat.py", standardConfig.cmdargs)
     refdump = backends["XML"]['refdump']
-    args = ["-c", icatconfigfile, "-s", "root", "-f", "XML", "-i", refdump]
+    args = standardConfig.cmdargs + ["-f", "XML", "-i", refdump]
     callscript("icatingest.py", args)
 
 @pytest.mark.parametrize(("backend"), sorted(backends.keys()))
-def test_check_content_xml(icatconfigfile, tmpdirsec, backend):
+def test_check_content_xml(standardConfig, tmpdirsec, backend):
     """Dump the content and check that we get the reference dump file back.
     """
     refdump = backends[backend]['refdump']
@@ -49,23 +49,22 @@ def test_check_content_xml(icatconfigfile, tmpdirsec, backend):
     fdump = os.path.join(tmpdirsec.dir, "dump-filter" + fileext)
     reffdump = os.path.join(tmpdirsec.dir, "dump-filter-ref" + fileext)
     ffilter(refdump, reffdump)
-    args = ["-c", icatconfigfile, "-s", "root", "-f", backend, "-o", dump]
+    args = standardConfig.cmdargs + ["-f", backend, "-o", dump]
     callscript("icatdump.py", args)
     ffilter(dump, fdump)
     assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
 
-def test_check_summary_root_xml(icatconfigfile, tmpdirsec):
+def test_check_summary_root_xml(standardConfig, tmpdirsec):
     """Check the number of objects for each class at the ICAT server.
     """
     summary = os.path.join(tmpdirsec.dir, "summary")
     ref = refsummary["root"]
-    args = ["-c", icatconfigfile, "-s", "root"]
     with open(summary, "wt") as out:
-        callscript("icatsummary.py", args, stdout=out)
+        callscript("icatsummary.py", standardConfig.cmdargs, stdout=out)
     assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
 
 @pytest.mark.parametrize(("user"), users)
-def test_check_summary_user_xml(icatconfigfile, tmpdirsec, user):
+def test_check_summary_user_xml(tmpdirsec, user):
     """Check the number of objects from a user's point of view.
 
     This checks which objects a given user may see and thus whether
@@ -73,22 +72,22 @@ def test_check_summary_user_xml(icatconfigfile, tmpdirsec, user):
     """
     summary = os.path.join(tmpdirsec.dir, "summary.%s" % user)
     ref = refsummary[user]
-    args = ["-c", icatconfigfile, "-s", user]
+    conf = getConfig(confSection=user)
     with open(summary, "wt") as out:
-        callscript("icatsummary.py", args, stdout=out)
+        callscript("icatsummary.py", conf.cmdargs, stdout=out)
     assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
 
 
-def test_ingest_yaml(icatconfigfile):
+def test_ingest_yaml(standardConfig):
     """Restore the ICAT content from a YAML dumpfile.
     """
-    callscript("wipeicat.py", ["-c", icatconfigfile, "-s", "root"])
+    callscript("wipeicat.py", standardConfig.cmdargs)
     refdump = backends["YAML"]['refdump']
-    args = ["-c", icatconfigfile, "-s", "root", "-f", "YAML", "-i", refdump]
+    args = standardConfig.cmdargs + ["-f", "YAML", "-i", refdump]
     callscript("icatingest.py", args)
 
 @pytest.mark.parametrize(("backend"), sorted(backends.keys()))
-def test_check_content_yaml(icatconfigfile, tmpdirsec, backend):
+def test_check_content_yaml(standardConfig, tmpdirsec, backend):
     """Dump the content and check that we get the reference dump file back.
     """
     refdump = backends[backend]['refdump']
@@ -98,23 +97,22 @@ def test_check_content_yaml(icatconfigfile, tmpdirsec, backend):
     fdump = os.path.join(tmpdirsec.dir, "dump-filter" + fileext)
     reffdump = os.path.join(tmpdirsec.dir, "dump-filter-ref" + fileext)
     ffilter(refdump, reffdump)
-    args = ["-c", icatconfigfile, "-s", "root", "-f", backend, "-o", dump]
+    args = standardConfig.cmdargs + ["-f", backend, "-o", dump]
     callscript("icatdump.py", args)
     ffilter(dump, fdump)
     assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
 
-def test_check_summary_root_yaml(icatconfigfile, tmpdirsec):
+def test_check_summary_root_yaml(standardConfig, tmpdirsec):
     """Check the number of objects for each class at the ICAT server.
     """
     summary = os.path.join(tmpdirsec.dir, "summary")
     ref = refsummary["root"]
-    args = ["-c", icatconfigfile, "-s", "root"]
     with open(summary, "wt") as out:
-        callscript("icatsummary.py", args, stdout=out)
+        callscript("icatsummary.py", standardConfig.cmdargs, stdout=out)
     assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
 
 @pytest.mark.parametrize(("user"), users)
-def test_check_summary_user_yaml(icatconfigfile, tmpdirsec, user):
+def test_check_summary_user_yaml(tmpdirsec, user):
     """Check the number of objects from a user's point of view.
 
     This checks which objects a given user may see and thus whether
@@ -122,7 +120,7 @@ def test_check_summary_user_yaml(icatconfigfile, tmpdirsec, user):
     """
     summary = os.path.join(tmpdirsec.dir, "summary.%s" % user)
     ref = refsummary[user]
-    args = ["-c", icatconfigfile, "-s", user]
+    conf = getConfig(confSection=user)
     with open(summary, "wt") as out:
-        callscript("icatsummary.py", args, stdout=out)
+        callscript("icatsummary.py", conf.cmdargs, stdout=out)
     assert filecmp.cmp(ref, summary), "ICAT content was not as expected"

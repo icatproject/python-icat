@@ -13,7 +13,7 @@ import icat.config
 from icat.query import Query
 from icat.ids import DataSelection
 from conftest import DummyDatafile, UtcTimezone
-from conftest import require_icat_version, callscript
+from conftest import require_icat_version, getConfig, callscript
 from conftest import tmpSessionId
 
 # test content has InvestigationGroup objects.
@@ -96,12 +96,13 @@ testdatasets = [
 ]
 
 @pytest.mark.parametrize(("case"), testdatafiles)
-def test_upload(tmpdirsec, icatconfigfile, client, case):
+def test_upload(tmpdirsec, client, case):
     f = DummyDatafile(tmpdirsec.dir, 
                       case['dfname'], case['size'], case['mtime'])
     print("\nUpload file %s" % case['dfname'])
-    args = ["-c", icatconfigfile, "-s", case['uluser'], 
-            case['invname'], case['dsname'], case['dfformat'], f.fname]
+    conf = getConfig(confSection=case['uluser'])
+    args = conf.cmdargs + [case['invname'], case['dsname'], 
+                           case['dfformat'], f.fname]
     callscript("addfile.py", args)
     query = Query(client, "Datafile", conditions={
         "name": "= '%s'" % case['dfname'],
@@ -121,14 +122,14 @@ def method(request):
     return request.param
 
 @pytest.mark.parametrize(("case"), testdatasets)
-def test_download(tmpdirsec, icatconfigfile, case, method):
+def test_download(tmpdirsec, case, method):
     dfs = [ c for c in testdatafiles if c['dsname'] == case['dsname'] ]
+    conf = getConfig(confSection=case['dluser'])
     if len(dfs) > 1:
         zfname = os.path.join(tmpdirsec.dir, "%s.zip" % case['dsname'])
         print("\nDownload %s to file %s" % (case['dsname'], zfname))
-        args = ["-c", icatconfigfile, "-s", case['dluser'], 
-                '--outputfile', zfname, case['invname'], case['dsname'], 
-                method]
+        args = conf.cmdargs + [ '--outputfile', zfname, 
+                                case['invname'], case['dsname'], method ]
         callscript("downloaddata.py", args)
         zf = zipfile.ZipFile(zfname, 'r')
         zinfos = zf.infolist()
@@ -145,9 +146,8 @@ def test_download(tmpdirsec, icatconfigfile, case, method):
     elif len(dfs) == 1:
         dfname = os.path.join(tmpdirsec.dir, "dl_%s" % dfs[0]['dfname'])
         print("\nDownload %s to file %s" % (case['dsname'], dfname))
-        args = ["-c", icatconfigfile, "-s", case['dluser'], 
-                '--outputfile', dfname, case['invname'], case['dsname'], 
-                method]
+        args = conf.cmdargs + [ '--outputfile', dfname, 
+                                case['invname'], case['dsname'], method ]
         callscript("downloaddata.py", args)
         assert filecmp.cmp(dfs[0]['testfile'].fname, dfname)
     else:
