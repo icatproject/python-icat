@@ -5,9 +5,14 @@ import sys
 import pytest
 import icat
 import icat.config
+from conftest import getConfig
 
-# the user to use by the client fixture.
-client_user = "root"
+
+@pytest.fixture(scope="module")
+def client():
+    conf = getConfig(needlogin=False)
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    return client
 
 
 def test_sort_users(client):

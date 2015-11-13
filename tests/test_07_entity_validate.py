@@ -4,9 +4,16 @@
 import pytest
 import icat
 import icat.config
+from conftest import getConfig
 
-# the user to use by the client fixture.
-client_user = "nbour"
+
+@pytest.fixture(scope="module")
+def client(setupicat):
+    conf = getConfig(confSection="nbour")
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+    return client
+
 
 def validate_param(self):
     """Validate parameter objects.

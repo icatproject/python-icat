@@ -16,10 +16,18 @@ ds_params = gettestdata("ingest-ds-params.xml")
 datafiles = gettestdata("ingest-datafiles.xml")
 
 @pytest.fixture(scope="module")
-def cmdargs():
-    conf = getConfig(confSection="acord")
-    return ["-c", conf.configFile[0], "-s", conf.configSection, "-f", "XML"]
+def conf(setupicat):
+    return getConfig(confSection="acord")
 
+@pytest.fixture(scope="module")
+def client(conf):
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+    return client
+
+@pytest.fixture(scope="module")
+def cmdargs(conf):
+    return conf.cmdargs + ["-f", "XML"]
 
 @pytest.fixture(scope="function")
 def dataset(client):
@@ -252,7 +260,7 @@ ingest_data_date = """<?xml version="1.0" encoding="utf-8"?>
     ingest_data_float,
     ingest_data_date,
 ])
-def test_ingest_duplicate_check_types(tmpdirsec, client, cmdargs, inputdata):
+def test_ingest_duplicate_check_types(tmpdirsec, cmdargs, inputdata):
     """Ingest with a collision of a duplicate object.
 
     Similar to test_ingest_duplicate_check_ok(), but trying several

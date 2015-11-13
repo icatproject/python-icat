@@ -12,6 +12,15 @@ import icat
 import icat.config
 import icat.exception
 from icat.query import Query
+from conftest import getConfig
+
+
+@pytest.fixture(scope="module")
+def client(setupicat):
+    conf = getConfig()
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+    return client
 
 
 # Note: the number of objects returned in the queries and their

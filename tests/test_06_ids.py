@@ -16,11 +16,13 @@ from conftest import DummyDatafile, UtcTimezone
 from conftest import require_icat_version, getConfig, callscript
 from conftest import tmpSessionId
 
-# test content has InvestigationGroup objects.
-require_icat_version("4.4.0")
 
-# tell the client fixture that we need ids.
-client_config = {'ids': "mandatory"}
+@pytest.fixture(scope="module")
+def client(setupicat):
+    conf = getConfig(ids="mandatory")
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+    return client
 
 
 # ============================= tests ==============================

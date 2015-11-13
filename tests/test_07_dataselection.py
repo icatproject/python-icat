@@ -5,9 +5,15 @@ import pytest
 import icat
 import icat.config
 from icat.ids import DataSelection
+from conftest import getConfig
 
-# the user to use by the client fixture.
-client_user = "root"
+
+@pytest.fixture(scope="module")
+def client(setupicat):
+    conf = getConfig(confSection="nbour")
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+    return client
 
 
 @pytest.mark.parametrize(("invIds", "dsIds", "dfIds"), [
@@ -120,12 +126,15 @@ def test_generator(client, query):
     assert selection.dfIds == set(dfIds)
 
 
-def test_selection():
+@pytest.mark.parametrize(("invIds", "dsIds", "dfIds"), [
+    ([42], [], []),
+    ([], [47,11], []),
+    ([], [], [6,666,66]),
+    ([42], [47,11], [6,666,66]),
+])
+def test_selection(invIds, dsIds, dfIds):
     """Initialize a DataSelection from another DataSelection.
     """
-    invIds = [42]
-    dsIds = [47,11]
-    dfIds = [6,666,66]
     objs = {
         'investigationIds': invIds,
         'datasetIds': dsIds,
