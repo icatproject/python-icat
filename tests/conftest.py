@@ -87,10 +87,23 @@ def gettestdata(fname):
     return fname
 
 
+def getConfig(confSection="root", **confArgs):
+    """Get the configuration, skip on ConfigError.
+    """
+    confFile = os.path.join(testdir, "data", "icat.cfg")
+    if not os.path.isfile(confFile):
+        pytest.skip("no test ICAT server configured")
+    try:
+        args = ["-c", confFile, "-s", confSection]
+        conf = icat.config.Config(**confArgs).getconfig(args)
+        conf.cmdargs = ["-c", conf.configFile[0], "-s", conf.configSection]
+        return conf
+    except icat.ConfigError as err:
+        pytest.skip(err.message)
+
+
 def get_icat_version():
-    fname = os.path.join(testdir, "data", "icat.cfg")
-    args = ["-c", fname, "-s", "root"]
-    conf = icat.config.Config(needlogin=False).getconfig(args)
+    conf = getConfig(needlogin=False)
     client = icat.Client(conf.url, **conf.client_kwargs)
     return client.apiversion
 
@@ -176,40 +189,19 @@ def tmpdirsec(request):
 
 
 @pytest.fixture(scope="session")
-def icatconfigfile():
-    fname = os.path.join(testdir, "data", "icat.cfg")
-    if not os.path.isfile(fname):
-        pytest.skip("no test ICAT server configured")
-    return fname
-
-
-@pytest.fixture(scope="module")
-def wipeicat(icatconfigfile):
-    # wipeicat uses JPQL search syntax.
-    require_icat_version("4.3.0")
-    callscript("wipeicat.py", ["-c", icatconfigfile, "-s", "root"])
+def standardConfig():
+    return getConfig()
 
 
 testcontent = gettestdata("icatdump.yaml")
 
-@pytest.fixture(scope="module")
-def setupicat(wipeicat, icatconfigfile):
+@pytest.fixture(scope="session")
+def setupicat(standardConfig):
     # testcontent has InvestigationGroup objects.
     require_icat_version("4.4.0")
-    args = ["-c", icatconfigfile, "-s", "root", 
-            "-f", "YAML", "-i", testcontent]
+    callscript("wipeicat.py", standardConfig.cmdargs)
+    args = standardConfig.cmdargs + ["-f", "YAML", "-i", testcontent]
     callscript("icatingest.py", args)
-
-
-@pytest.fixture(scope="module")
-def client(setupicat, icatconfigfile, request):
-    user = getattr(request.module, "client_user", "root")
-    confargs = getattr(request.module, "client_config", {})
-    args = ["-c", icatconfigfile, "-s", user]
-    conf = icat.config.Config(**confargs).getconfig(args)
-    client = icat.Client(conf.url, **conf.client_kwargs)
-    client.login(conf.auth, conf.credentials)
-    return client
 
 
 # ============================= hooks ================================

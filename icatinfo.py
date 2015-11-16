@@ -12,4 +12,4 @@ based on Suds and extends it with ICAT specific features.
 __author__    = "Rolf Krahl <rolf.krahl@helmholtz-berlin.de>"
 __copyright__ = """
 """
-__version__   = "0.10.0.dev1"
+__version__   = "0.10.0.dev3"

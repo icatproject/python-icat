@@ -7,6 +7,15 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
+from conftest import getConfig
+
+
+@pytest.fixture(scope="module")
+def client(setupicat):
+    conf = getConfig()
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+    return client
 
 
 # Note: the number of objects returned in the queries and their
@@ -186,7 +195,7 @@ def test_query_condition_list(client):
 
 def test_query_in_operator(client):
     """Using "id in (i)" rather then "id = i" also works.
-    (This may be needed to work around ICAT Issue 149.)
+    (This may be needed to work around ICAT Issue 128.)
     """
     query = Query(client, "Investigation", 
                   conditions={"id": "in (%d)" % investigation.id})

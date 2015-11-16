@@ -12,6 +12,15 @@ import icat
 import icat.config
 import icat.exception
 from icat.query import Query
+from conftest import getConfig
+
+
+@pytest.fixture(scope="module")
+def client(setupicat):
+    conf = getConfig()
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+    return client
 
 
 # Note: the number of objects returned in the queries and their
@@ -256,3 +265,32 @@ def test_searchMatching_simple(client):
     assert obj.id
     assert obj.name == "e208945"
     dataset = obj
+
+def test_searchMatching_include(client):
+    """Set an include clause with searchMatching()
+    """
+    facility = client.new("facility", name="ESNF")
+    obj = client.searchMatching(facility)
+    assert obj.BeanName == "Facility"
+    assert obj.id
+    assert obj.name == "ESNF"
+    facility = obj
+    investigation = client.new("investigation", 
+                               name="12100409-ST", visitId="1.1-P",
+                               facility=facility)
+    obj = client.searchMatching(investigation, includes="1")
+    assert obj.BeanName == "Investigation"
+    assert obj.id
+    assert obj.name == "12100409-ST"
+    assert obj.visitId == "1.1-P"
+    assert obj.type.id
+    assert obj.facility.id
+    investigation = obj
+    dataset = client.new("dataset", name="e208945", 
+                         investigation=investigation)
+    obj = client.searchMatching(dataset, includes=["datafiles"])
+    assert obj.BeanName == "Dataset"
+    assert obj.id
+    assert obj.name == "e208945"
+    assert len(obj.datafiles) > 0
+

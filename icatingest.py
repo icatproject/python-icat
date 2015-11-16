@@ -88,9 +88,9 @@ def check_duplicate(obj):
     # Allow IGNORE, CHECK, and OVERWRITE only on single objects
     for r in obj.InstMRel:
         if getattr(obj, r):
-            raise RuntimeError("Cannot %s duplicate on %s if %s is not empty."
-                               % (conf.duplicate, obj.BeanName, r))
-    dobj = client.searchMatching(obj)
+            raise ValueError("Cannot %s duplicate on %s if %s is not empty."
+                             % (conf.duplicate, obj.BeanName, r))
+    dobj = client.searchMatching(obj, includes="1")
     if conf.duplicate == "IGNORE":
         pass
     elif conf.duplicate == "CHECK":
@@ -99,7 +99,6 @@ def check_duplicate(obj):
             if v is not None and getattr(dobj, a) != v:
                 raise
     elif conf.duplicate == "OVERWRITE":
-        dobj.get()
         for a in obj.InstAttr:
             v = getattr(obj, a)
             if v is not None:

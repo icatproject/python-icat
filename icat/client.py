@@ -623,7 +623,7 @@ class Client(suds.client.Client):
             objindex[key] = obj
         return obj
 
-    def searchMatching(self, obj):
+    def searchMatching(self, obj, includes=None):
         """Search the matching object.
 
         Search the object from the ICAT server that matches the given
@@ -637,6 +637,10 @@ class Client(suds.client.Client):
         :param obj: an entity object having the attrinutes for the
             uniqueness constraint set accordingly.
         :type obj: :class:`icat.entity.Entity`
+        :param includes: list of related objects to add to the INCLUDE
+            clause of the search query.
+            See :meth:`icat.query.Query.addIncludes` for details.
+        :type includes: iterable of :class:`str`
         :return: the corresponding object.
         :rtype: :class:`icat.entity.Entity`
         :raise SearchResultError: if the object has not been found.
@@ -646,7 +650,7 @@ class Client(suds.client.Client):
         """
         if 'id' in obj.Constraint:
             raise ValueError("%s does not have a uniqueness constraint.")
-        query = Query(self, obj.BeanName)
+        query = Query(self, obj.BeanName, includes=includes)
         for a in obj.Constraint:
             v = getattr(obj, a)
             if v is None:

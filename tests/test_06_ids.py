@@ -13,14 +13,20 @@ import icat.config
 from icat.query import Query
 from icat.ids import DataSelection
 from conftest import DummyDatafile, UtcTimezone
-from conftest import require_icat_version, callscript
+from conftest import require_icat_version, getConfig, callscript
 from conftest import tmpSessionId
 
-# test content has InvestigationGroup objects.
-require_icat_version("4.4.0")
 
-# tell the client fixture that we need ids.
-client_config = {'ids': "mandatory"}
+@pytest.fixture(scope="module")
+def client(setupicat, request):
+    conf = getConfig(ids="mandatory")
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+    def cleanup():
+        query = "SELECT df FROM Datafile df WHERE df.location IS NOT NULL"
+        client.deleteData(client.search(query))
+    request.addfinalizer(cleanup)
+    return client
 
 
 # ============================= tests ==============================
@@ -96,12 +102,13 @@ testdatasets = [
 ]
 
 @pytest.mark.parametrize(("case"), testdatafiles)
-def test_upload(tmpdirsec, icatconfigfile, client, case):
+def test_upload(tmpdirsec, client, case):
     f = DummyDatafile(tmpdirsec.dir, 
                       case['dfname'], case['size'], case['mtime'])
     print("\nUpload file %s" % case['dfname'])
-    args = ["-c", icatconfigfile, "-s", case['uluser'], 
-            case['invname'], case['dsname'], case['dfformat'], f.fname]
+    conf = getConfig(confSection=case['uluser'])
+    args = conf.cmdargs + [case['invname'], case['dsname'], 
+                           case['dfformat'], f.fname]
     callscript("addfile.py", args)
     query = Query(client, "Datafile", conditions={
         "name": "= '%s'" % case['dfname'],
@@ -121,14 +128,14 @@ def method(request):
     return request.param
 
 @pytest.mark.parametrize(("case"), testdatasets)
-def test_download(tmpdirsec, icatconfigfile, case, method):
+def test_download(tmpdirsec, client, case, method):
     dfs = [ c for c in testdatafiles if c['dsname'] == case['dsname'] ]
+    conf = getConfig(confSection=case['dluser'])
     if len(dfs) > 1:
         zfname = os.path.join(tmpdirsec.dir, "%s.zip" % case['dsname'])
         print("\nDownload %s to file %s" % (case['dsname'], zfname))
-        args = ["-c", icatconfigfile, "-s", case['dluser'], 
-                '--outputfile', zfname, case['invname'], case['dsname'], 
-                method]
+        args = conf.cmdargs + [ '--outputfile', zfname, 
+                                case['invname'], case['dsname'], method ]
         callscript("downloaddata.py", args)
         zf = zipfile.ZipFile(zfname, 'r')
         zinfos = zf.infolist()
@@ -145,9 +152,8 @@ def test_download(tmpdirsec, icatconfigfile, case, method):
     elif len(dfs) == 1:
         dfname = os.path.join(tmpdirsec.dir, "dl_%s" % dfs[0]['dfname'])
         print("\nDownload %s to file %s" % (case['dsname'], dfname))
-        args = ["-c", icatconfigfile, "-s", case['dluser'], 
-                '--outputfile', dfname, case['invname'], case['dsname'], 
-                method]
+        args = conf.cmdargs + [ '--outputfile', dfname, 
+                                case['invname'], case['dsname'], method ]
         callscript("downloaddata.py", args)
         assert filecmp.cmp(dfs[0]['testfile'].fname, dfname)
     else:
@@ -303,3 +309,22 @@ def test_restore(client, case):
     # archive() applies: there is no guarantee whatsoever on the
     # outcome of the restore() call.
     print("Status of dataset %s is now %s" % (case['dsname'], status))
+
+def test_exception(client):
+    """Test handling of exceptions raised by the IDS server.
+
+    There used to be bugs in the client that caused a HTTP error to be
+    raised rather then the corresponding IDSError exception.  (Fixed
+    in 56905f1.)
+    """
+    print("Provoke an IDSBadRequestError ...")
+    invalidid = '-=- INVALID ID -=-'
+    with pytest.raises(icat.IDSError) as err:
+        client.ids.isPrepared(invalidid)
+    print("error: %s" % str(err))
+    print("Provoke an IDSNotFoundError ...")
+    selection = DataSelection({'datasetIds':[-11]})
+    with pytest.raises(icat.IDSError) as err:
+        client.ids.getData(selection)
+    print("error: %s" % str(err))
+

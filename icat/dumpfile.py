@@ -87,14 +87,23 @@ class DumpFileReader(object):
         """
         raise NotImplementedError
 
-    def getobjs(self):
+    def getobjs(self, objindex=None):
         """Iterate over the objects in the data file.
 
         Yield a new entity object in each iteration.  The object is
         initialized from the data, but not yet created at the client.
+
+        :param objindex: cache of previously retrieved objects, used
+            to resolve object relations.  See the
+            :meth:`icat.client.Client.searchUniqueKey` for details.
+            If this is :const:`None`, an internal cache will be used
+            that is purged at the start of every new data chunk.
+        :type objindex: :class:`dict`
         """
+        resetindex = (objindex is None)
         for data in self.getdata():
-            objindex = {}
+            if resetindex:
+                objindex = {}
             for key, obj in self.getobjs_from_data(data, objindex):
                 yield obj
                 obj.truncateRelations()
@@ -197,15 +206,21 @@ class DumpFileWriter(object):
                 k = obj.getUniqueKey(keyindex=keyindex)
             self.writeobj(k, obj, keyindex)
 
-    def writedata(self, objs):
+    def writedata(self, objs, keyindex=None):
         """Write a data chunk.
 
         :param objs: an iterable that yields either queries to search
             for the objects or object lists.  See
             :meth:`icat.dumpfile.DumpFileWriter.writeobjs` for
             details.
+        :param keyindex: cache of generated keys, see
+            :meth:`icat.dumpfile.DumpFileWriter.writeobjs` for
+            details.  If this is :const:`None`, an internal index will
+            be used.
+        :type keyindex: :class:`dict`
         """
-        keyindex = {}
+        if keyindex is None:
+            keyindex = {}
         self.startdata()
         for o in objs:
             self.writeobjs(o, keyindex)
