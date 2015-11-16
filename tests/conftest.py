@@ -219,7 +219,7 @@ def testdata(request):
     return data
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def setupicat(standardConfig):
     # testcontent has InvestigationGroup objects.
     require_icat_version("4.4.0")
