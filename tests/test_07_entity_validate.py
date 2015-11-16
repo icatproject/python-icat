@@ -14,6 +14,21 @@ def client(setupicat):
     client.login(conf.auth, conf.credentials)
     return client
 
+@pytest.fixture(scope="module")
+def dataset(client, request):
+    """Create a temporary Dataset for the tests.
+    """
+    inv = client.assertedSearch("Investigation [name='08100122-EF']")[0]
+    dstype = client.assertedSearch("DatasetType [name='raw']")[0]
+    dataset = client.new("dataset",
+                         name="test_07_entity_validate", complete=False,
+                         investigation=inv, type=dstype)
+    dataset.create()
+    def cleanup():
+        client.delete(dataset)
+    request.addfinalizer(cleanup)
+    return dataset
+
 
 def validate_param(self):
     """Validate parameter objects.
@@ -46,11 +61,10 @@ def validate_param(self):
         raise ValueError("Invalid valueType '%s'" % self.type.valueType)
 
 
-def test_invalid_string_value(client):
+def test_invalid_string_value(client, dataset):
     """Try setting stringValue on a NUMERIC parameter.
     """
     client.typemap['parameter'].validate = validate_param
-    dataset = client.assertedSearch("Dataset [name='e201215']")[0]
     ptype = client.assertedSearch("ParameterType [name='Magnetic field']")[0]
     assert ptype.valueType == "NUMERIC"
     param = client.new("datasetParameter", dataset=dataset, type=ptype)
@@ -61,11 +75,10 @@ def test_invalid_string_value(client):
     assert 'NUMERIC parameter cannot set stringValue' in str(err.value)
     assert param.id is None
 
-def test_invalid_missing_numeric_value(client):
+def test_invalid_missing_numeric_value(client, dataset):
     """Try creating a NUMERIC parameter without setting any value.
     """
     client.typemap['parameter'].validate = validate_param
-    dataset = client.assertedSearch("Dataset [name='e201215']")[0]
     ptype = client.assertedSearch("ParameterType [name='Magnetic field']")[0]
     assert ptype.valueType == "NUMERIC"
     param = client.new("datasetParameter", dataset=dataset, type=ptype)
@@ -74,11 +87,10 @@ def test_invalid_missing_numeric_value(client):
     assert 'NUMERIC parameter must set numericValue' in str(err.value)
     assert param.id is None
 
-def test_valid_numeric_value(client):
+def test_valid_numeric_value(client, dataset):
     """Create a valid NUMERIC parameter.
     """
     client.typemap['parameter'].validate = validate_param
-    dataset = client.assertedSearch("Dataset [name='e201215']")[0]
     ptype = client.assertedSearch("ParameterType [name='Magnetic field']")[0]
     assert ptype.valueType == "NUMERIC"
     param = client.new("datasetParameter", dataset=dataset, type=ptype)

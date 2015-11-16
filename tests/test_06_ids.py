@@ -18,10 +18,14 @@ from conftest import tmpSessionId
 
 
 @pytest.fixture(scope="module")
-def client(setupicat):
+def client(setupicat, request):
     conf = getConfig(ids="mandatory")
     client = icat.Client(conf.url, **conf.client_kwargs)
     client.login(conf.auth, conf.credentials)
+    def cleanup():
+        query = "SELECT df FROM Datafile df WHERE df.location IS NOT NULL"
+        client.deleteData(client.search(query))
+    request.addfinalizer(cleanup)
     return client
 
 
@@ -124,7 +128,7 @@ def method(request):
     return request.param
 
 @pytest.mark.parametrize(("case"), testdatasets)
-def test_download(tmpdirsec, case, method):
+def test_download(tmpdirsec, client, case, method):
     dfs = [ c for c in testdatafiles if c['dsname'] == case['dsname'] ]
     conf = getConfig(confSection=case['dluser'])
     if len(dfs) > 1:

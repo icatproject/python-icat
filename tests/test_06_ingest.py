@@ -17,7 +17,7 @@ datafiles = gettestdata("ingest-datafiles.xml")
 
 @pytest.fixture(scope="module")
 def conf(setupicat):
-    return getConfig(confSection="acord")
+    return getConfig(confSection="acord", ids="mandatory")
 
 @pytest.fixture(scope="module")
 def client(conf):
@@ -30,25 +30,39 @@ def cmdargs(conf):
     return conf.cmdargs + ["-f", "XML"]
 
 @pytest.fixture(scope="function")
-def dataset(client):
-    """Get the dataset to be used for ingest tests.
+def dataset(client, request):
+    """A dataset to be used in the test.
 
-    The ingest-ds-params.xml test input uses a Dataset that is assumed
-    to exist in the ICAT content as set up by the setupicat fixture.
-    This fixture retrieves this dataset from ICAT and deletes all
-    DatasetParameters related to it.
+    The dataset is not created by the fixture, it is assumed that the
+    test does it.  The dataset will be eventually be deleted after the
+    test.
     """
-    conditions = {
-        "name": "= 'e208341'", 
-        "investigation.name": "= '10100601-ST'",  
-        "investigation.visitId": "='1.1-N'"
-    }
-    query = Query(client, "Dataset", conditions=conditions)
-    ds = client.assertedSearch(query)[0]
-    query = Query(client, "DatasetParameter", 
-                  conditions={"dataset.id": "= %d" % ds.id})
-    client.deleteMany(client.search(query))
-    return ds
+    inv = client.assertedSearch("Investigation [name='10100601-ST']")[0]
+    dstype = client.assertedSearch("DatasetType [name='raw']")[0]
+    dataset = client.new("dataset",
+                         name="e208343", complete=False,
+                         investigation=inv, type=dstype)
+    def cleanup():
+        try:
+            ds = client.searchMatching(dataset)
+            dataset.id = ds.id
+        except icat.SearchResultError:
+            # Dataset not found, maybe the test failed, nothing to
+            # clean up then.
+            pass
+        else:
+            # If any datafile has been uploaded (i.e. the location is
+            # not NULL), need to delete it from IDS first.  Any other
+            # datafile or dataset parameter will be deleted
+            # automatically with the dataset by cascading in the ICAT
+            # server.
+            query = Query(client, "Datafile", 
+                          conditions={"dataset.id": "= %d" % dataset.id,
+                                      "location": "IS NOT NULL"})
+            client.deleteData(client.search(query))
+            client.delete(dataset)
+    request.addfinalizer(cleanup)
+    return dataset
 
 
 # Test datafiles to be created by test_ingest_datafiles:
@@ -76,9 +90,10 @@ def verify_dataset_params(client, dataset, params):
     assert values == params
 
 
-def test_ingest_dataset_params(dataset, client, cmdargs):
+def test_ingest_dataset_params(client, dataset, cmdargs):
     """Ingest a file setting some dataset parameters.
     """
+    dataset.create()
     args = cmdargs + ["-i", ds_params]
     callscript("icatingest.py", args)
     verify_dataset_params(client, dataset, { 
@@ -88,11 +103,12 @@ def test_ingest_dataset_params(dataset, client, cmdargs):
     })
 
 
-def test_ingest_duplicate_throw(dataset, client, cmdargs):
+def test_ingest_duplicate_throw(client, dataset, cmdargs):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but now place a duplicate object in the way.
     """
+    dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
     p = client.new("datasetParameter", numericValue=5.0, 
                    dataset=dataset, type=ptype)
@@ -111,11 +127,12 @@ def test_ingest_duplicate_throw(dataset, client, cmdargs):
     })
 
 
-def test_ingest_duplicate_ignore(dataset, client, cmdargs):
+def test_ingest_duplicate_ignore(client, dataset, cmdargs):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but now ignore the duplicate.
     """
+    dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
     p = client.new("datasetParameter", numericValue=5.0, 
                    dataset=dataset, type=ptype)
@@ -129,11 +146,12 @@ def test_ingest_duplicate_ignore(dataset, client, cmdargs):
     })
 
 
-def test_ingest_duplicate_check_err(dataset, client, cmdargs):
+def test_ingest_duplicate_check_err(client, dataset, cmdargs):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but use CHECK which fails due to mismatch.
     """
+    dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
     p = client.new("datasetParameter", numericValue=5.0, 
                    dataset=dataset, type=ptype)
@@ -148,11 +166,12 @@ def test_ingest_duplicate_check_err(dataset, client, cmdargs):
     })
 
 
-def test_ingest_duplicate_check_ok(dataset, client, cmdargs):
+def test_ingest_duplicate_check_ok(client, dataset, cmdargs):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but now it matches, so CHECK should return ok.
     """
+    dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
     p = client.new("datasetParameter", numericValue=10.0, 
                    dataset=dataset, type=ptype)
@@ -166,11 +185,12 @@ def test_ingest_duplicate_check_ok(dataset, client, cmdargs):
     })
 
 
-def test_ingest_duplicate_overwrite(dataset, client, cmdargs):
+def test_ingest_duplicate_overwrite(client, dataset, cmdargs):
     """Ingest with a collision of a duplicate object.
 
     Same test as above, but now overwrite the old value.
     """
+    dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
     p = client.new("datasetParameter", numericValue=5.0, 
                    dataset=dataset, type=ptype)
@@ -188,11 +208,13 @@ def test_ingest_duplicate_overwrite(dataset, client, cmdargs):
 ingest_data_string = """<?xml version="1.0" encoding="utf-8"?>
 <icatdata>
   <data>
+    <datasetRef id="Dataset_001" 
+		name="e208343" 
+		investigation.name="10100601-ST" 
+		investigation.visitId="1.1-N"/>
     <datafile>
       <name>dup_test_str.dat</name>
-      <dataset name="e201215" 
-	       investigation.name="08100122-EF"
-	       investigation.visitId="1.1-P"/>
+      <dataset ref="Dataset_001"/>
     </datafile>
   </data>
 </icatdata>
@@ -201,12 +223,14 @@ ingest_data_string = """<?xml version="1.0" encoding="utf-8"?>
 ingest_data_int = """<?xml version="1.0" encoding="utf-8"?>
 <icatdata>
   <data>
+    <datasetRef id="Dataset_001" 
+		name="e208343" 
+		investigation.name="10100601-ST" 
+		investigation.visitId="1.1-N"/>
     <datafile>
       <fileSize>42</fileSize>
       <name>dup_test_int.dat</name>
-      <dataset name="e201215" 
-	       investigation.name="08100122-EF"
-	       investigation.visitId="1.1-P"/>
+      <dataset ref="Dataset_001"/>
     </datafile>
   </data>
 </icatdata>
@@ -215,10 +239,10 @@ ingest_data_int = """<?xml version="1.0" encoding="utf-8"?>
 ingest_data_boolean = """<?xml version="1.0" encoding="utf-8"?>
 <icatdata>
   <data>
-    <dataset>
+    <dataset id="Dataset_001">
       <complete>false</complete>
-      <name>dup_test_bool</name>
-      <investigation name="08100122-EF" visitId="1.1-P"/>
+      <name>e208343</name>
+      <investigation name="10100601-ST" visitId="1.1-N"/>
       <type name="raw"/>
     </dataset>
   </data>
@@ -228,11 +252,13 @@ ingest_data_boolean = """<?xml version="1.0" encoding="utf-8"?>
 ingest_data_float = """<?xml version="1.0" encoding="utf-8"?>
 <icatdata>
   <data>
+    <datasetRef id="Dataset_001" 
+		name="e208343" 
+		investigation.name="10100601-ST" 
+		investigation.visitId="1.1-N"/>
     <datasetParameter>
       <numericValue>5.3</numericValue>
-      <dataset name="e201215" 
-	       investigation.name="08100122-EF"
-	       investigation.visitId="1.1-P"/>
+      <dataset ref="Dataset_001"/>
       <type name="Magnetic field" units="T"/>
     </datasetParameter>
   </data>
@@ -242,12 +268,14 @@ ingest_data_float = """<?xml version="1.0" encoding="utf-8"?>
 ingest_data_date = """<?xml version="1.0" encoding="utf-8"?>
 <icatdata>
   <data>
+    <datasetRef id="Dataset_001" 
+		name="e208343" 
+		investigation.name="10100601-ST" 
+		investigation.visitId="1.1-N"/>
     <datafile>
       <datafileCreateTime>2008-06-18T09:31:11+02:00</datafileCreateTime>
       <name>dup_test_date.dat</name>
-      <dataset name="e201215" 
-	       investigation.name="08100122-EF"
-	       investigation.visitId="1.1-P"/>
+      <dataset ref="Dataset_001"/>
     </datafile>
   </data>
 </icatdata>
@@ -260,12 +288,17 @@ ingest_data_date = """<?xml version="1.0" encoding="utf-8"?>
     ingest_data_float,
     ingest_data_date,
 ])
-def test_ingest_duplicate_check_types(tmpdirsec, cmdargs, inputdata):
+def test_ingest_duplicate_check_types(tmpdirsec, dataset, cmdargs, inputdata):
     """Ingest with a collision of a duplicate object.
 
     Similar to test_ingest_duplicate_check_ok(), but trying several
     input datasets that test different data types.  Issue #9.
     """
+    # Most input data create a datadile or a dataset parameter related
+    # to dataset and thus assume the dataset to already exist.  Only
+    # ingest_data_boolean creates the dataset itself.
+    if inputdata is not ingest_data_boolean:
+        dataset.create()
     # We simply ingest twice the same data, using duplicate=CHECK the
     # second time.  This obviously leads to matching duplicates.
     inpfile = os.path.join(tmpdirsec.dir, "ingest.xml")
@@ -276,20 +309,14 @@ def test_ingest_duplicate_check_types(tmpdirsec, cmdargs, inputdata):
     callscript("icatingest.py", args + ["--duplicate", "CHECK"])
 
 
-def test_ingest_datafiles(tmpdirsec, client, cmdargs):
+def test_ingest_datafiles(tmpdirsec, client, dataset, cmdargs):
     """Ingest a dataset with some datafiles.
     """
     dummyfiles = [ f['dfname'] for f in testdatafiles ]
     args = cmdargs + ["-i", datafiles]
     callscript("icatingest.py", args)
     # Verify that the datafiles have been uploaded.
-    conditions = {
-        "name": "= 'e208343'", 
-        "investigation.name": "= '10100601-ST'",  
-        "investigation.visitId": "='1.1-N'"
-    }
-    query = Query(client, "Dataset", conditions=conditions)
-    dataset = client.assertedSearch(query)[0]
+    dataset = client.searchMatching(dataset)
     for fname in dummyfiles:
         query = Query(client, "Datafile", conditions={
             "name": "= '%s'" % fname,
@@ -297,12 +324,9 @@ def test_ingest_datafiles(tmpdirsec, client, cmdargs):
         })
         df = client.assertedSearch(query)[0]
         assert df.location is None
-    # Delete the dataset together with the datafiles so that the next
-    # test gets a chance to creste them again.
-    client.delete(dataset)
 
 
-def test_ingest_datafiles_upload(tmpdirsec, client, cmdargs):
+def test_ingest_datafiles_upload(tmpdirsec, client, dataset, cmdargs):
     """Upload datafiles to IDS from icatingest.
 
     Same as last test, but set the --upload-datafiles flag so that
@@ -316,13 +340,7 @@ def test_ingest_datafiles_upload(tmpdirsec, client, cmdargs):
                       "--datafile-dir", tmpdirsec.dir]
     callscript("icatingest.py", args)
     # Verify that the datafiles have been uploaded.
-    conditions = {
-        "name": "= 'e208343'", 
-        "investigation.name": "= '10100601-ST'",  
-        "investigation.visitId": "='1.1-N'"
-    }
-    query = Query(client, "Dataset", conditions=conditions)
-    dataset = client.assertedSearch(query)[0]
+    dataset = client.searchMatching(dataset)
     for f in dummyfiles:
         query = Query(client, "Datafile", conditions={
             "name": "= '%s'" % f.name,
