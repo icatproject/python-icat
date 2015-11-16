@@ -28,6 +28,17 @@
  + Issue #13: Client.searchChunked() raises exception if the query
    contains a percent character.
 
+ + Issue #14: Entity.__sortkey__() may raise RuntimeError "maximum
+   recursion depth exceeded".
+
+ + Allow a DataSelection to be created from (almost) any Iterator, not
+   just a Sequence.  Store the object ids in DataSelection internally
+   in a set rather then a list.
+
+ + Add optional arguments objindex to DumpFileReader.getobjs() and
+   keyindex to DumpFileWriter.writedata() to allow the caller to
+   control these internal indices.
+
  + The constructor of class Query checks the version of the ICAT
    server and raises an error if too old.
 
