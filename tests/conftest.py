@@ -192,12 +192,6 @@ def tmpdirsec(request):
 def standardConfig():
     return getConfig()
 
-@pytest.fixture(scope="module")
-def wipeicat(standardConfig):
-    # wipeicat uses JPQL search syntax.
-    require_icat_version("4.3.0")
-    callscript("wipeicat.py", standardConfig.cmdargs)
-
 
 testcontent = gettestdata("icatdump.yaml")
 
@@ -226,9 +220,10 @@ def testdata(request):
 
 
 @pytest.fixture(scope="module")
-def setupicat(wipeicat, standardConfig):
+def setupicat(standardConfig):
     # testcontent has InvestigationGroup objects.
     require_icat_version("4.4.0")
+    callscript("wipeicat.py", standardConfig.cmdargs)
     args = standardConfig.cmdargs + ["-f", "YAML", "-i", testcontent]
     callscript("icatingest.py", args)
 

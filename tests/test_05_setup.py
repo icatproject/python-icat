@@ -26,9 +26,9 @@ for u in users:
     refsummary[u] = gettestdata("summary.%s" % u)
 
 
-def test_init(wipeicat, standardConfig):
-    args = standardConfig.cmdargs + [testinput]
-    callscript("init-icat.py", args)
+def test_init(standardConfig):
+    callscript("wipeicat.py", standardConfig.cmdargs)
+    callscript("init-icat.py", standardConfig.cmdargs + [testinput])
 
 
 @pytest.mark.parametrize("invname", [
