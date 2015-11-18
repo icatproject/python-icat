@@ -291,6 +291,23 @@ jobs:
           investigation: 12100409-ST
           name: e208945-2.nxs
 parameter_types:
+  comment:
+    applicableToDataCollection: True
+    applicableToDatafile: True
+    applicableToDataset: True
+    applicableToInvestigation: True
+    applicableToSample: True
+    facility: example_facility
+    name: Comment
+    units: N/A
+    valueType: STRING
+  lastaccess:
+    applicableToDatafile: True
+    applicableToDataset: True
+    facility: example_facility
+    name: Last access
+    units: N/A
+    valueType: DATE_AND_TIME
   magnetic_field:
     applicableToDataset: True
     facility: example_facility
@@ -298,6 +315,17 @@ parameter_types:
     units: T
     unitsFullName: Tesla
     valueType: NUMERIC
+  probe:
+    applicableToDataset: True
+    applicableToInvestigation: True
+    facility: example_facility
+    name: Probe
+    units: N/A
+    valueType: STRING
+    values:
+      - muon
+      - neutron
+      - photon
   reactor_power:
     applicableToDataset: True
     facility: example_facility
@@ -305,6 +333,12 @@ parameter_types:
     units: MW
     unitsFullName: Megawatt
     valueType: NUMERIC
+  sample_ref:
+    applicableToSample: True
+    facility: example_facility
+    name: Sample reference
+    units: N/A
+    valueType: STRING
   sample_temperature_c:
     applicableToDataset: True
     facility: example_facility
@@ -319,6 +353,16 @@ parameter_types:
     units: K
     unitsFullName: Kelvin
     valueType: NUMERIC
+  scoundrel:
+    applicableToInvestigation: True
+    facility: example_facility
+    name: Scoundrel
+    units: N/A
+    valueType: STRING
+    values:
+      - buono
+      - brutto
+      - cattivo
 sample_types:
   durol:
     facility: example_facility

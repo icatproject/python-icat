@@ -1,5 +1,5 @@
 %YAML 1.1
-# Date: Wed, 18 Nov 2015 10:27:35 +0000
+# Date: Wed, 18 Nov 2015 14:10:01 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 4.6a1
 # Generator: icatdump (python-icat 0.10.0.dev3)
@@ -695,6 +695,30 @@ investigationType:
     facility: Facility_name-ESNF
     name: Simulation
 parameterType:
+  ParameterType_facility-(name-ESNF)_name-Comment_units-N=2FA:
+    applicableToDataCollection: true
+    applicableToDatafile: true
+    applicableToDataset: true
+    applicableToInvestigation: true
+    applicableToSample: true
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Comment
+    units: N/A
+    valueType: STRING
+    verified: false
+  ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA:
+    applicableToDataCollection: false
+    applicableToDatafile: true
+    applicableToDataset: true
+    applicableToInvestigation: false
+    applicableToSample: false
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Last access
+    units: N/A
+    valueType: DATE_AND_TIME
+    verified: false
   ParameterType_facility-(name-ESNF)_name-Magnetic=20field_units-T:
     applicableToDataCollection: false
     applicableToDatafile: false
@@ -708,6 +732,22 @@ parameterType:
     unitsFullName: Tesla
     valueType: NUMERIC
     verified: false
+  ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA:
+    applicableToDataCollection: false
+    applicableToDatafile: false
+    applicableToDataset: true
+    applicableToInvestigation: true
+    applicableToSample: false
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Probe
+    permissibleStringValues:
+    - value: muon
+    - value: neutron
+    - value: photon
+    units: N/A
+    valueType: STRING
+    verified: false
   ParameterType_facility-(name-ESNF)_name-Reactor=20power_units-MW:
     applicableToDataCollection: false
     applicableToDatafile: false
@@ -720,6 +760,18 @@ parameterType:
     units: MW
     unitsFullName: Megawatt
     valueType: NUMERIC
+    verified: false
+  ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA:
+    applicableToDataCollection: false
+    applicableToDatafile: false
+    applicableToDataset: false
+    applicableToInvestigation: false
+    applicableToSample: true
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Sample reference
+    units: N/A
+    valueType: STRING
     verified: false
   ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-C:
     applicableToDataCollection: false
@@ -746,6 +798,22 @@ parameterType:
     units: K
     unitsFullName: Kelvin
     valueType: NUMERIC
+    verified: false
+  ParameterType_facility-(name-ESNF)_name-Scoundrel_units-N=2FA:
+    applicableToDataCollection: false
+    applicableToDatafile: false
+    applicableToDataset: false
+    applicableToInvestigation: true
+    applicableToSample: false
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Scoundrel
+    permissibleStringValues:
+    - value: brutto
+    - value: buono
+    - value: cattivo
+    units: N/A
+    valueType: STRING
     verified: false
 sampleType:
   SampleType_facility-(name-ESNF)_name-Durol=20SC_molecularFormula-C10H14:

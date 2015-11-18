@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2015-11-18T10:44:11Z</date>
+  <date>2015-11-18T14:18:11Z</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>4.6a1</apiversion>
   <generator>icatdump (python-icat 0.10.0.dev3)</generator>
@@ -713,6 +713,32 @@
       <user ref="User_name-acord"/>
     </instrumentScientists>
   </instrument>
+  <parameterType id="ParameterType_facility-(name-ESNF)_name-Comment_units-N=2FA">
+    <applicableToDataCollection>true</applicableToDataCollection>
+    <applicableToDatafile>true</applicableToDatafile>
+    <applicableToDataset>true</applicableToDataset>
+    <applicableToInvestigation>true</applicableToInvestigation>
+    <applicableToSample>true</applicableToSample>
+    <enforced>false</enforced>
+    <name>Comment</name>
+    <units>N/A</units>
+    <valueType>STRING</valueType>
+    <verified>false</verified>
+    <facility ref="Facility_name-ESNF"/>
+  </parameterType>
+  <parameterType id="ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA">
+    <applicableToDataCollection>false</applicableToDataCollection>
+    <applicableToDatafile>true</applicableToDatafile>
+    <applicableToDataset>true</applicableToDataset>
+    <applicableToInvestigation>false</applicableToInvestigation>
+    <applicableToSample>false</applicableToSample>
+    <enforced>false</enforced>
+    <name>Last access</name>
+    <units>N/A</units>
+    <valueType>DATE_AND_TIME</valueType>
+    <verified>false</verified>
+    <facility ref="Facility_name-ESNF"/>
+  </parameterType>
   <parameterType id="ParameterType_facility-(name-ESNF)_name-Magnetic=20field_units-T">
     <applicableToDataCollection>false</applicableToDataCollection>
     <applicableToDatafile>false</applicableToDatafile>
@@ -727,6 +753,28 @@
     <verified>false</verified>
     <facility ref="Facility_name-ESNF"/>
   </parameterType>
+  <parameterType id="ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA">
+    <applicableToDataCollection>false</applicableToDataCollection>
+    <applicableToDatafile>false</applicableToDatafile>
+    <applicableToDataset>true</applicableToDataset>
+    <applicableToInvestigation>true</applicableToInvestigation>
+    <applicableToSample>false</applicableToSample>
+    <enforced>false</enforced>
+    <name>Probe</name>
+    <units>N/A</units>
+    <valueType>STRING</valueType>
+    <verified>false</verified>
+    <facility ref="Facility_name-ESNF"/>
+    <permissibleStringValues>
+      <value>muon</value>
+    </permissibleStringValues>
+    <permissibleStringValues>
+      <value>neutron</value>
+    </permissibleStringValues>
+    <permissibleStringValues>
+      <value>photon</value>
+    </permissibleStringValues>
+  </parameterType>
   <parameterType id="ParameterType_facility-(name-ESNF)_name-Reactor=20power_units-MW">
     <applicableToDataCollection>false</applicableToDataCollection>
     <applicableToDatafile>false</applicableToDatafile>
@@ -738,6 +786,19 @@
     <units>MW</units>
     <unitsFullName>Megawatt</unitsFullName>
     <valueType>NUMERIC</valueType>
+    <verified>false</verified>
+    <facility ref="Facility_name-ESNF"/>
+  </parameterType>
+  <parameterType id="ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA">
+    <applicableToDataCollection>false</applicableToDataCollection>
+    <applicableToDatafile>false</applicableToDatafile>
+    <applicableToDataset>false</applicableToDataset>
+    <applicableToInvestigation>false</applicableToInvestigation>
+    <applicableToSample>true</applicableToSample>
+    <enforced>false</enforced>
+    <name>Sample reference</name>
+    <units>N/A</units>
+    <valueType>STRING</valueType>
     <verified>false</verified>
     <facility ref="Facility_name-ESNF"/>
   </parameterType>
@@ -768,6 +829,28 @@
     <valueType>NUMERIC</valueType>
     <verified>false</verified>
     <facility ref="Facility_name-ESNF"/>
+  </parameterType>
+  <parameterType id="ParameterType_facility-(name-ESNF)_name-Scoundrel_units-N=2FA">
+    <applicableToDataCollection>false</applicableToDataCollection>
+    <applicableToDatafile>false</applicableToDatafile>
+    <applicableToDataset>false</applicableToDataset>
+    <applicableToInvestigation>true</applicableToInvestigation>
+    <applicableToSample>false</applicableToSample>
+    <enforced>false</enforced>
+    <name>Scoundrel</name>
+    <units>N/A</units>
+    <valueType>STRING</valueType>
+    <verified>false</verified>
+    <facility ref="Facility_name-ESNF"/>
+    <permissibleStringValues>
+      <value>brutto</value>
+    </permissibleStringValues>
+    <permissibleStringValues>
+      <value>buono</value>
+    </permissibleStringValues>
+    <permissibleStringValues>
+      <value>cattivo</value>
+    </permissibleStringValues>
   </parameterType>
   <investigationType id="InvestigationType_name-Calibration_facility-(name-ESNF)">
     <name>Calibration</name>

@@ -387,6 +387,10 @@ for k in data['parameter_types'].keys():
     pt = client.new("parameterType")
     initobj(pt, data['parameter_types'][k])
     pt.facility = facilities[data['parameter_types'][k]['facility']]
+    if 'values' in data['parameter_types'][k]:
+        for v in data['parameter_types'][k]['values']:
+            psv = client.new('permissibleStringValue', value=v)
+            pt.permissibleStringValues.append(psv)
     param_types.append(pt)
 client.createMany(param_types)
 
