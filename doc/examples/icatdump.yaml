@@ -1,5 +1,5 @@
 %YAML 1.1
-# Date: Wed, 18 Nov 2015 14:10:01 +0000
+# Date: Wed, 18 Nov 2015 16:37:09 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 4.6a1
 # Generator: icatdump (python-icat 0.10.0.dev3)
@@ -838,6 +838,9 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215
     fileSize: 368369
     name: e201215.nxs
+    parameters:
+    - dateTimeValue: '2008-06-18T09:31:11+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215:
     complete: false
@@ -875,6 +878,9 @@ investigation:
     keywords:
     - name: Durol
     name: 08100122-EF
+    parameters:
+    - stringValue: photon
+      type: ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA
     startDate: '2008-03-13T11:39:42+01:00'
     title: Durol single crystal
     type: InvestigationType_name-Experiment_facility-(name-ESNF)
@@ -894,6 +900,9 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339
     fileSize: 446
     name: e208339.dat
+    parameters:
+    - dateTimeValue: '2010-10-01T08:51:56+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339)_name-e208339=2Enxs
   : checksum: 8b369ddc
     datafileCreateTime: '2010-10-01T08:52:22+02:00'
@@ -902,6 +911,9 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339
     fileSize: 73428
     name: e208339.nxs
+    parameters:
+    - dateTimeValue: '2012-07-12T16:45:26+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Edat
   : checksum: 284558f4
     datafileCreateTime: '2010-10-05T10:32:21+02:00'
@@ -910,6 +922,9 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341
     fileSize: 394
     name: e208341.dat
+    parameters:
+    - dateTimeValue: '2010-10-05T11:31:45+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs
   : checksum: 7c72b4bc
     datafileCreateTime: '2010-10-05T11:31:53+02:00'
@@ -918,12 +933,20 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341
     fileSize: 52857
     name: e208341.nxs
+    parameters:
+    - dateTimeValue: '2012-07-16T16:12:08+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339:
     complete: false
     endDate: '2010-10-01T08:17:48+02:00'
     investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
     name: e208339
+    parameters:
+    - numericValue: '7.3'
+      type: ParameterType_facility-(name-ESNF)_name-Magnetic=20field_units-T
+    - numericValue: '5.0'
+      type: ParameterType_facility-(name-ESNF)_name-Reactor=20power_units-MW
     sample: Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027
     startDate: '2010-09-30T12:27:24+02:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
@@ -932,6 +955,11 @@ dataset:
     endDate: '2010-10-05T10:32:21+02:00'
     investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
     name: e208341
+    parameters:
+    - numericValue: '2.7'
+      type: ParameterType_facility-(name-ESNF)_name-Magnetic=20field_units-T
+    - numericValue: '5.0'
+      type: ParameterType_facility-(name-ESNF)_name-Reactor=20power_units-MW
     sample: Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027
     startDate: '2010-10-02T04:00:21+02:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
@@ -965,6 +993,9 @@ investigation:
     - name: NiMnGa
     - name: Nickel
     name: 10100601-ST
+    parameters:
+    - stringValue: neutron
+      type: ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA
     startDate: '2010-09-30T12:27:24+02:00'
     title: Ni-Mn-Ga flat cone
     type: InvestigationType_name-Experiment_facility-(name-ESNF)
@@ -973,6 +1004,9 @@ sample:
   Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027:
     investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
     name: NiMnGa 991027
+    parameters:
+    - stringValue: 2046c9a7-ab07-4594-84a2-101617073a79
+      type: ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA
     type: SampleType_facility-(name-ESNF)_name-NiMnGa_molecularFormula-NiMnGa
 ---
 datafile:
@@ -984,6 +1018,9 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945
     fileSize: 459
     name: e208945.dat
+    parameters:
+    - dateTimeValue: '2014-10-02T14:32:51+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs
   : checksum: 1db15f18
     datafileCreateTime: '2013-06-03T12:22:43+02:00'
@@ -992,12 +1029,20 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945
     fileSize: 396430
     name: e208945.nxs
+    parameters:
+    - dateTimeValue: '2014-10-02T14:32:51+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945:
     complete: false
     endDate: '2012-07-30T03:10:08+02:00'
     investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
     name: e208945
+    parameters:
+    - numericValue: '3.92'
+      type: ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-C
+    - numericValue: '277.07'
+      type: ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-K
     sample: Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC
     startDate: '2012-07-26T17:44:24+02:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
@@ -1031,6 +1076,9 @@ investigation:
     - name: Nickel oxide
     - name: oxide
     name: 12100409-ST
+    parameters:
+    - stringValue: photon
+      type: ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA
     startDate: '2012-07-26T17:44:24+02:00'
     title: NiO SC OF1 JUH HHL
     type: InvestigationType_name-Experiment_facility-(name-ESNF)
@@ -1039,4 +1087,7 @@ sample:
   Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC:
     investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
     name: Nickel(II) oxide SC
+    parameters:
+    - stringValue: c1b0a101-03aa-4d02-a1a2-e2826ba7871b
+      type: ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA
     type: SampleType_facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO

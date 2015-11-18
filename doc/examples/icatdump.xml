@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2015-11-18T14:18:11Z</date>
+  <date>2015-11-18T16:49:27Z</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>4.6a1</apiversion>
   <generator>icatdump (python-icat 0.10.0.dev3)</generator>
@@ -970,6 +970,10 @@
     <keywords>
       <name>Durol</name>
     </keywords>
+    <parameters>
+      <stringValue>photon</stringValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA"/>
+    </parameters>
   </investigation>
   <sample id="Sample_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-Durol=20SC">
     <name>Durol SC</name>
@@ -1000,6 +1004,10 @@
     <name>e201215.nxs</name>
     <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215"/>
+    <parameters>
+      <dateTimeValue>2008-06-18T09:31:11+02:00</dateTimeValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA"/>
+    </parameters>
   </datafile>
 </data>
 <data>
@@ -1042,11 +1050,19 @@
     <keywords>
       <name>Nickel</name>
     </keywords>
+    <parameters>
+      <stringValue>neutron</stringValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA"/>
+    </parameters>
   </investigation>
   <sample id="Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027">
     <name>NiMnGa 991027</name>
     <investigation ref="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN"/>
     <type ref="SampleType_facility-(name-ESNF)_name-NiMnGa_molecularFormula-NiMnGa"/>
+    <parameters>
+      <stringValue>2046c9a7-ab07-4594-84a2-101617073a79</stringValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA"/>
+    </parameters>
   </sample>
   <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339">
     <complete>false</complete>
@@ -1056,6 +1072,14 @@
     <investigation ref="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN"/>
     <sample ref="Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-raw"/>
+    <parameters>
+      <numericValue>7.3</numericValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Magnetic=20field_units-T"/>
+    </parameters>
+    <parameters>
+      <numericValue>5.0</numericValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Reactor=20power_units-MW"/>
+    </parameters>
   </dataset>
   <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341">
     <complete>false</complete>
@@ -1065,6 +1089,14 @@
     <investigation ref="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN"/>
     <sample ref="Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-raw"/>
+    <parameters>
+      <numericValue>2.7</numericValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Magnetic=20field_units-T"/>
+    </parameters>
+    <parameters>
+      <numericValue>5.0</numericValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Reactor=20power_units-MW"/>
+    </parameters>
   </dataset>
   <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208342">
     <complete>false</complete>
@@ -1083,6 +1115,10 @@
     <name>e208339.dat</name>
     <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339"/>
+    <parameters>
+      <dateTimeValue>2010-10-01T08:51:56+02:00</dateTimeValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA"/>
+    </parameters>
   </datafile>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339)_name-e208339=2Enxs">
     <checksum>8b369ddc</checksum>
@@ -1092,6 +1128,10 @@
     <name>e208339.nxs</name>
     <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339"/>
+    <parameters>
+      <dateTimeValue>2012-07-12T16:45:26+02:00</dateTimeValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA"/>
+    </parameters>
   </datafile>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Edat">
     <checksum>284558f4</checksum>
@@ -1101,6 +1141,10 @@
     <name>e208341.dat</name>
     <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341"/>
+    <parameters>
+      <dateTimeValue>2010-10-05T11:31:45+02:00</dateTimeValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA"/>
+    </parameters>
   </datafile>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs">
     <checksum>7c72b4bc</checksum>
@@ -1110,6 +1154,10 @@
     <name>e208341.nxs</name>
     <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341"/>
+    <parameters>
+      <dateTimeValue>2012-07-16T16:12:08+02:00</dateTimeValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA"/>
+    </parameters>
   </datafile>
 </data>
 <data>
@@ -1152,11 +1200,19 @@
     <keywords>
       <name>oxide</name>
     </keywords>
+    <parameters>
+      <stringValue>photon</stringValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA"/>
+    </parameters>
   </investigation>
   <sample id="Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC">
     <name>Nickel(II) oxide SC</name>
     <investigation ref="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP"/>
     <type ref="SampleType_facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO"/>
+    <parameters>
+      <stringValue>c1b0a101-03aa-4d02-a1a2-e2826ba7871b</stringValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA"/>
+    </parameters>
   </sample>
   <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945">
     <complete>false</complete>
@@ -1166,6 +1222,14 @@
     <investigation ref="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP"/>
     <sample ref="Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-raw"/>
+    <parameters>
+      <numericValue>3.92</numericValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-C"/>
+    </parameters>
+    <parameters>
+      <numericValue>277.07</numericValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-K"/>
+    </parameters>
   </dataset>
   <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208946">
     <complete>false</complete>
@@ -1184,6 +1248,10 @@
     <name>e208945.dat</name>
     <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945"/>
+    <parameters>
+      <dateTimeValue>2014-10-02T14:32:51+02:00</dateTimeValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA"/>
+    </parameters>
   </datafile>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs">
     <checksum>1db15f18</checksum>
@@ -1193,6 +1261,10 @@
     <name>e208945.nxs</name>
     <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945"/>
+    <parameters>
+      <dateTimeValue>2014-10-02T14:32:51+02:00</dateTimeValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA"/>
+    </parameters>
   </datafile>
 </data>
 </icatdata>

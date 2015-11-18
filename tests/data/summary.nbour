@@ -9,9 +9,9 @@ DataCollectionDataset    : 0
 DataCollectionParameter  : 0
 Datafile                 : 7
 DatafileFormat           : 4
-DatafileParameter        : 0
+DatafileParameter        : 7
 Dataset                  : 7
-DatasetParameter         : 0
+DatasetParameter         : 6
 DatasetType              : 3
 Facility                 : 1
 FacilityCycle            : 0
@@ -21,7 +21,7 @@ InstrumentScientist      : 0
 Investigation            : 3
 InvestigationGroup       : 0
 InvestigationInstrument  : 0
-InvestigationParameter   : 0
+InvestigationParameter   : 3
 InvestigationType        : 5
 InvestigationUser        : 0
 Job                      : 0
@@ -33,7 +33,7 @@ Publication              : 0
 RelatedDatafile          : 0
 Rule                     : 0
 Sample                   : 3
-SampleParameter          : 0
+SampleParameter          : 2
 SampleType               : 3
 Shift                    : 0
 Study                    : 0

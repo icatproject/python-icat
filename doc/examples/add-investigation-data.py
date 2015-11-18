@@ -42,6 +42,15 @@ def initobj(obj, attrs):
         if a != 'id' and a in attrs:
             setattr(obj, a, attrs[a])
 
+def makeparam(t, pdata):
+    param = client.new(t)
+    initobj(param, pdata)
+    ptdata = data['parameter_types'][pdata['type']]
+    query = ("ParameterType [name='%s' AND units='%s']"
+             % (ptdata['name'], ptdata['units']))
+    param.type = client.assertedSearch(query)[0]
+    return param
+
 # ------------------------------------------------------------
 # Read input data
 # ------------------------------------------------------------
@@ -107,6 +116,9 @@ sample_type = client.assertedSearch(stsearch)[0]
 print("Sample: creating '%s' ..." % sampledata['name'])
 sample = client.new("sample", name=sampledata['name'], 
                     type=sample_type, investigation=investigation)
+if 'parameters' in sampledata:
+    for pdata in sampledata['parameters']:
+        sample.parameters.append(makeparam('sampleParameter', pdata))
 sample.create()
 
 
@@ -120,6 +132,9 @@ for datasetdata in investigationdata['datasets']:
     dataset.sample = sample
     dataset.investigation = investigation
     dataset.type = dataset_types[datasetdata['type']]
+    if 'parameters' in datasetdata:
+        for pdata in datasetdata['parameters']:
+            dataset.parameters.append(makeparam('datasetParameter', pdata))
 
     if not conf.skipfiles:
         for datafiledata in datasetdata['datafiles']:
@@ -127,6 +142,10 @@ for datasetdata in investigationdata['datasets']:
             datafile = client.new("datafile")
             initobj(datafile, datafiledata)
             datafile.datafileFormat = datafile_formats[datafiledata['format']]
+            if 'parameters' in datafiledata:
+                for pdata in datafiledata['parameters']:
+                    datafile.parameters.append(makeparam('datafileParameter', 
+                                                         pdata))
             dataset.datafiles.append(datafile)
 
     dataset.create()
