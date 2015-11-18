@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Mon, 27 Jul 2015 13:23:11 +0000
+# Date: Wed, 18 Nov 2015 10:27:35 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
-# ICAT-API: 4.5
-# Generator: icatdump (python-icat 0.8.0)
+# ICAT-API: 4.6a1
+# Generator: icatdump (python-icat 0.10.0.dev3)
 ---
 grouping:
   Grouping_name-investigation=5F08100122=2DEF=5Fowner:
@@ -144,419 +144,422 @@ rule:
     crudFlags: CRUD
     what: DataCollectionDataset <-> DataCollection [createId=:user]
   Rule_00000005:
-    crudFlags: R
-    what: DatafileFormat
+    crudFlags: CRUD
+    what: DataCollectionParameter <-> DataCollection [createId=:user]
   Rule_00000006:
     crudFlags: R
-    what: DatasetType
+    what: DatafileFormat
   Rule_00000007:
     crudFlags: R
-    what: Facility
+    what: DatasetType
   Rule_00000008:
     crudFlags: R
-    what: FacilityCycle
+    what: Facility
   Rule_00000009:
     crudFlags: R
-    what: Grouping <-> UserGroup <-> User[name=:user]
+    what: FacilityCycle
   Rule_00000010:
     crudFlags: R
-    what: Instrument
+    what: Grouping <-> UserGroup <-> User[name=:user]
   Rule_00000011:
     crudFlags: R
-    what: InvestigationType
+    what: Instrument
   Rule_00000012:
+    crudFlags: R
+    what: InvestigationType
+  Rule_00000013:
     crudFlags: CRUD
     what: Job [createId=:user]
-  Rule_00000013:
-    crudFlags: R
-    what: ParameterType
   Rule_00000014:
     crudFlags: R
-    what: PermissibleStringValue
+    what: ParameterType
   Rule_00000015:
+    crudFlags: R
+    what: PermissibleStringValue
+  Rule_00000016:
     crudFlags: CR
     what: SampleType
-  Rule_00000016:
+  Rule_00000017:
     crudFlags: R
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN ds.type AS s1 WHERE i.releaseDate < CURRENT_TIMESTAMP AND s1.name = 'raw'
-  Rule_00000017:
+  Rule_00000018:
     crudFlags: CUD
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS
       s3 JOIN s3.user AS s4 WHERE ds.complete = False AND s4.name = :user AND s1.role
       = 'writer'
-  Rule_00000018:
+  Rule_00000019:
     crudFlags: R
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS
       s3 JOIN s3.user AS s4 WHERE s4.name = :user
-  Rule_00000019:
+  Rule_00000020:
     crudFlags: CUD
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
       AS s3 JOIN s3.user AS s4 WHERE ds.complete = False AND s4.name = :user
-  Rule_00000020:
+  Rule_00000021:
     crudFlags: R
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
-  Rule_00000021:
+  Rule_00000022:
     crudFlags: R
     what: SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset
       AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationGroups AS s4 JOIN s4.grouping
       AS s5 JOIN s5.userGroups AS s6 JOIN s6.user AS s7 WHERE s7.name = :user
-  Rule_00000022:
+  Rule_00000023:
     crudFlags: CUD
     what: SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset
       AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationGroups AS s4 JOIN s4.grouping
       AS s5 JOIN s5.userGroups AS s6 JOIN s6.user AS s7 WHERE s7.name = :user AND
       s4.role = 'writer'
-  Rule_00000023:
-    crudFlags: CUD
-    what: SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset
-      AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationInstruments AS s4 JOIN
-      s4.instrument AS s5 JOIN s5.instrumentScientists AS s6 JOIN s6.user AS s7 WHERE
-      s7.name = :user
   Rule_00000024:
-    crudFlags: R
+    crudFlags: CUD
     what: SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset
       AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationInstruments AS s4 JOIN
       s4.instrument AS s5 JOIN s5.instrumentScientists AS s6 JOIN s6.user AS s7 WHERE
       s7.name = :user
   Rule_00000025:
+    crudFlags: R
+    what: SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset
+      AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationInstruments AS s4 JOIN
+      s4.instrument AS s5 JOIN s5.instrumentScientists AS s6 JOIN s6.user AS s7 WHERE
+      s7.name = :user
+  Rule_00000026:
     crudFlags: CUD
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       o.complete = False AND s4.name = :user AND s1.role = 'writer'
-  Rule_00000026:
+  Rule_00000027:
     crudFlags: R
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000027:
+  Rule_00000028:
     crudFlags: CUD
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE o.complete = False AND s4.name = :user
-  Rule_00000028:
+  Rule_00000029:
     crudFlags: R
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000029:
+  Rule_00000030:
     crudFlags: R
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN o.type AS t WHERE
       i.releaseDate < CURRENT_TIMESTAMP AND t.name = 'raw'
-  Rule_00000030:
+  Rule_00000031:
     crudFlags: R
     what: SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation
       AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
-  Rule_00000031:
+  Rule_00000032:
     crudFlags: CUD
     what: SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation
       AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user AND s1.role = 'writer'
-  Rule_00000032:
-    crudFlags: CUD
-    what: SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation
-      AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
-      AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
   Rule_00000033:
-    crudFlags: R
+    crudFlags: CUD
     what: SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation
       AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
   Rule_00000034:
     crudFlags: R
+    what: SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation
+      AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
+      AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
+  Rule_00000035:
+    crudFlags: R
     what: SELECT o FROM Grouping o JOIN o.investigationGroups AS ig JOIN ig.investigation
       AS s1 JOIN s1.investigationGroups AS s2 JOIN s2.grouping AS s3 JOIN s3.userGroups
       AS s4 JOIN s4.user AS s5 WHERE s5.name = :user AND s2.role = 'owner'
-  Rule_00000035:
+  Rule_00000036:
     crudFlags: R
     what: SELECT o FROM Investigation o JOIN o.investigationGroups AS ig JOIN ig.grouping
       AS s1 JOIN s1.userGroups AS s2 JOIN s2.user AS s3 WHERE s3.name = :user
-  Rule_00000036:
+  Rule_00000037:
     crudFlags: R
     what: SELECT o FROM Investigation o JOIN o.investigationInstruments AS ii JOIN
       ii.instrument AS s1 JOIN s1.instrumentScientists AS s2 JOIN s2.user AS s3 WHERE
       s3.name = :user
-  Rule_00000037:
+  Rule_00000038:
     crudFlags: R
     what: SELECT o FROM Investigation o WHERE o.releaseDate < CURRENT_TIMESTAMP
-  Rule_00000038:
+  Rule_00000039:
     crudFlags: R
     what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000039:
+  Rule_00000040:
     crudFlags: CUD
     what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user AND s1.role = 'writer'
-  Rule_00000040:
-    crudFlags: CUD
-    what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationInstruments
-      AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
-      AS s4 WHERE s4.name = :user
   Rule_00000041:
-    crudFlags: R
+    crudFlags: CUD
     what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
   Rule_00000042:
     crudFlags: R
+    what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationInstruments
+      AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
+      AS s4 WHERE s4.name = :user
+  Rule_00000043:
+    crudFlags: R
     what: SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000043:
+  Rule_00000044:
     crudFlags: R
     what: SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000044:
+  Rule_00000045:
     crudFlags: R
     what: SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000045:
+  Rule_00000046:
     crudFlags: R
     what: SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000046:
+  Rule_00000047:
     crudFlags: R
     what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000047:
+  Rule_00000048:
     crudFlags: CUD
     what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user AND s1.role = 'writer'
-  Rule_00000048:
-    crudFlags: CUD
-    what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationInstruments
-      AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
-      AS s4 WHERE s4.name = :user
   Rule_00000049:
-    crudFlags: R
+    crudFlags: CUD
     what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
   Rule_00000050:
     crudFlags: R
+    what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationInstruments
+      AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
+      AS s4 WHERE s4.name = :user
+  Rule_00000051:
+    crudFlags: R
     what: SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation
       AS s2 JOIN s2.investigationGroups AS s3 JOIN s3.grouping AS s4 JOIN s4.userGroups
       AS s5 JOIN s5.user AS s6 WHERE s6.name = :user
-  Rule_00000051:
+  Rule_00000052:
     crudFlags: CUD
     what: SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation
       AS s2 JOIN s2.investigationGroups AS s3 JOIN s3.grouping AS s4 JOIN s4.userGroups
       AS s5 JOIN s5.user AS s6 WHERE s6.name = :user AND s3.role = 'writer'
-  Rule_00000052:
-    crudFlags: CUD
-    what: SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation
-      AS s2 JOIN s2.investigationInstruments AS s3 JOIN s3.instrument AS s4 JOIN s4.instrumentScientists
-      AS s5 JOIN s5.user AS s6 WHERE s6.name = :user
   Rule_00000053:
-    crudFlags: R
+    crudFlags: CUD
     what: SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation
       AS s2 JOIN s2.investigationInstruments AS s3 JOIN s3.instrument AS s4 JOIN s4.instrumentScientists
       AS s5 JOIN s5.user AS s6 WHERE s6.name = :user
   Rule_00000054:
     crudFlags: R
+    what: SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation
+      AS s2 JOIN s2.investigationInstruments AS s3 JOIN s3.instrument AS s4 JOIN s4.instrumentScientists
+      AS s5 JOIN s5.user AS s6 WHERE s6.name = :user
+  Rule_00000055:
+    crudFlags: R
     what: SELECT o FROM Shift o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000055:
+  Rule_00000056:
     crudFlags: R
     what: SELECT o FROM Shift o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000056:
+  Rule_00000057:
     crudFlags: CRUD
     what: SELECT o FROM UserGroup o JOIN o.grouping AS g JOIN g.investigationGroups
       AS s1 JOIN s1.investigation AS s2 JOIN s2.investigationGroups AS s3 JOIN s3.grouping
       AS s4 JOIN s4.userGroups AS s5 JOIN s5.user AS s6 WHERE s6.name = :user AND
       s3.role = 'owner' AND s1.role in ('reader', 'writer')
-  Rule_00000057:
-    crudFlags: R
-    what: User
   Rule_00000058:
     crudFlags: R
-    grouping: Grouping_name-rall
-    what: DataCollection
+    what: User
   Rule_00000059:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataCollectionDatafile
+    what: DataCollection
   Rule_00000060:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataCollectionDataset
+    what: DataCollectionDatafile
   Rule_00000061:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataCollectionParameter
+    what: DataCollectionDataset
   Rule_00000062:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Datafile
+    what: DataCollectionParameter
   Rule_00000063:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DatafileParameter
+    what: Datafile
   Rule_00000064:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Dataset
+    what: DatafileParameter
   Rule_00000065:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DatasetParameter
+    what: Dataset
   Rule_00000066:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Grouping
+    what: DatasetParameter
   Rule_00000067:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InstrumentScientist
+    what: Grouping
   Rule_00000068:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Investigation
+    what: InstrumentScientist
   Rule_00000069:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationGroup
+    what: Investigation
   Rule_00000070:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationInstrument
+    what: InvestigationGroup
   Rule_00000071:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationParameter
+    what: InvestigationInstrument
   Rule_00000072:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationUser
+    what: InvestigationParameter
   Rule_00000073:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Job
+    what: InvestigationUser
   Rule_00000074:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Keyword
+    what: Job
   Rule_00000075:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Publication
+    what: Keyword
   Rule_00000076:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: PublicStep
+    what: Publication
   Rule_00000077:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: RelatedDatafile
+    what: PublicStep
   Rule_00000078:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Rule
+    what: RelatedDatafile
   Rule_00000079:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Sample
+    what: Rule
   Rule_00000080:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: SampleParameter
+    what: Sample
   Rule_00000081:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Shift
+    what: SampleParameter
   Rule_00000082:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Study
+    what: Shift
   Rule_00000083:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: StudyInvestigation
+    what: Study
   Rule_00000084:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: UserGroup
+    what: StudyInvestigation
   Rule_00000085:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: UserGroup
+  Rule_00000086:
     crudFlags: RU
     grouping: Grouping_name-scientific=5Fstaff
     what: Sample
-  Rule_00000086:
+  Rule_00000087:
     crudFlags: UD
     grouping: Grouping_name-scientific=5Fstaff
     what: SampleType
-  Rule_00000087:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: FacilityCycle
   Rule_00000088:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Grouping
+    what: FacilityCycle
   Rule_00000089:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InstrumentScientist
+    what: Grouping
   Rule_00000090:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Investigation
+    what: InstrumentScientist
   Rule_00000091:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationGroup
+    what: Investigation
   Rule_00000092:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationInstrument
+    what: InvestigationGroup
   Rule_00000093:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationParameter
+    what: InvestigationInstrument
   Rule_00000094:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationUser
+    what: InvestigationParameter
   Rule_00000095:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Keyword
+    what: InvestigationUser
   Rule_00000096:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Publication
+    what: Keyword
   Rule_00000097:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Shift
+    what: Publication
   Rule_00000098:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Study
+    what: Shift
   Rule_00000099:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: StudyInvestigation
+    what: Study
   Rule_00000100:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: User
+    what: StudyInvestigation
   Rule_00000101:
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: User
+  Rule_00000102:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: UserGroup

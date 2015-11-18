@@ -155,7 +155,8 @@ owndccond = "DataCollection [createId=:user]"
 owndc = [ s % owndccond for s in 
           [ "%s", 
             "DataCollectionDatafile <-> %s", 
-            "DataCollectionDataset <-> %s" ] ]
+            "DataCollectionDataset <-> %s", 
+            "DataCollectionParameter <-> %s" ] ]
 client.createRules("CRUD", owndc)
 client.createRules("CRUD", ["Job [createId=:user]"])
 
