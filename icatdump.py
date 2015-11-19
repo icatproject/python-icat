@@ -153,7 +153,7 @@ othertypes =  [Query(client, "Study", order=True,
                                 "investigation.facility"), 
                                ("dataCollectionDatafiles.datafile.dataset."
                                 "investigation.facility"), 
-                               "%s.type" % datacolparamname}), 
+                               "%s.type.facility" % datacolparamname}), 
                Query(client, "Job", order=True, 
                      includes={"application.facility", 
                                "inputDataCollection", "outputDataCollection"})]
