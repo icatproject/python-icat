@@ -61,6 +61,14 @@ def test_addinvdata(user, invname):
     args = conf.cmdargs + [testinput, invname]
     callscript("add-investigation-data.py", args)
 
+@pytest.mark.parametrize(("user", "jobname"), [
+    ("nbour", "job1"),
+])
+def test_addjob(user, jobname):
+    conf = getConfig(confSection=user)
+    args = conf.cmdargs + [testinput, jobname]
+    callscript("add-job.py", args)
+
 
 def test_check_content(standardConfig, tmpdirsec):
     """Dump the resulting content and compare with a reference dump.

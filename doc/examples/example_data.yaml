@@ -321,6 +321,9 @@ jobs:
         - dataset: e208945
           investigation: 12100409-ST
           name: e208945.nxs
+      parameters:
+        - stringValue: Make a synthesis of 10100601-ST and 12100409-ST
+          type: comment
     output:
       datasets:
         - complete: true
@@ -329,9 +332,12 @@ jobs:
               datafileModTime: '2012-07-16T16:30:17+02:00'
               fileSize: 14965
               format: nexus42
-              name: e208946.nxs
+              name: e208947.nxs
+              parameters:
+                - dateTimeValue: '2012-07-17T09:28:18+02:00'
+                  type: lastaccess
           investigation: 12100409-ST
-          name: e208946
+          name: e208947
           type: analyzed
       datafiles:
         - datafileCreateTime: '2012-07-16T16:30:17+02:00'
@@ -341,6 +347,9 @@ jobs:
           format: nexus42
           investigation: 12100409-ST
           name: e208945-2.nxs
+          parameters:
+            - dateTimeValue: '2014-10-02T14:32:51+02:00'
+              type: lastaccess
 parameter_types:
   comment:
     applicableToDataCollection: True

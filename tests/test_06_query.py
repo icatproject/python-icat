@@ -144,7 +144,7 @@ def test_query_datacollection(client):
     print(str(query))
     assert "id" in query.order
     res = client.search(query)
-    assert len(res) == 0
+    assert len(res) == 2
 
 def test_query_datafiles_datafileformat(client, recwarn):
     """Datafiles ordered by format.
@@ -158,7 +158,7 @@ def test_query_datafiles_datafileformat(client, recwarn):
     assert "datafileFormat" in str(w.message)
     print(str(query))
     res = client.search(query)
-    assert len(res) == 7
+    assert len(res) == 9
 
 def test_query_condition_greaterthen(client):
     """Other relations then equal may be used in the conditions too.
@@ -167,7 +167,7 @@ def test_query_condition_greaterthen(client):
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
     res = client.search(query)
-    assert len(res) == 2
+    assert len(res) == 4
     condition = {"datafileCreateTime": "< '2012-01-01'"}
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
@@ -182,7 +182,7 @@ def test_query_condition_list(client):
     print(str(query))
     qstr = str(query)
     res = client.search(query)
-    assert len(res) == 1
+    assert len(res) == 3
 
     # The last example also works by adding the conditions separately.
     query = Query(client, "Datafile")
@@ -191,7 +191,7 @@ def test_query_condition_list(client):
     print(str(query))
     assert str(query) == qstr
     res = client.search(query)
-    assert len(res) == 1
+    assert len(res) == 3
 
 def test_query_in_operator(client):
     """Using "id in (i)" rather then "id = i" also works.

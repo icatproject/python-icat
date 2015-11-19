@@ -1,5 +1,5 @@
 %YAML 1.1
-# Date: Wed, 18 Nov 2015 16:37:09 +0000
+# Date: Thu, 19 Nov 2015 12:37:17 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 4.6a1
 # Generator: icatdump (python-icat 0.10.0.dev3)
@@ -1010,6 +1010,16 @@ sample:
     type: SampleType_facility-(name-ESNF)_name-NiMnGa_molecularFormula-NiMnGa
 ---
 datafile:
+  ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs
+  : datafileCreateTime: '2012-07-16T16:30:17+02:00'
+    datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1
+    datafileModTime: '2012-07-16T16:30:17+02:00'
+    dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945
+    fileSize: 28937
+    name: e208945-2.nxs
+    parameters:
+    - dateTimeValue: '2014-10-02T14:32:51+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Edat
   : checksum: bd55affa
     datafileCreateTime: '2012-07-30T03:10:08+02:00'
@@ -1031,6 +1041,16 @@ datafile:
     name: e208945.nxs
     parameters:
     - dateTimeValue: '2014-10-02T14:32:51+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
+  ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947)_name-e208947=2Enxs
+  : datafileCreateTime: '2012-07-16T16:30:17+02:00'
+    datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1
+    datafileModTime: '2012-07-16T16:30:17+02:00'
+    dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947
+    fileSize: 14965
+    name: e208947.nxs
+    parameters:
+    - dateTimeValue: '2012-07-17T09:28:18+02:00'
       type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945:
@@ -1054,6 +1074,11 @@ dataset:
     sample: Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC
     startDate: '2012-08-02T07:30:00+02:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
+  Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947:
+    complete: true
+    investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
+    name: e208947
+    type: DatasetType_facility-(name-ESNF)_name-analyzed
 investigation:
   Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP:
     endDate: '2012-08-06T03:10:08+02:00'
@@ -1091,3 +1116,23 @@ sample:
     - stringValue: c1b0a101-03aa-4d02-a1a2-e2826ba7871b
       type: ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA
     type: SampleType_facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO
+---
+dataCollection:
+  DataCollection_00000001:
+    dataCollectionDatafiles:
+    - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs
+    dataCollectionDatasets:
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341
+    parameters:
+    - stringValue: Make a synthesis of 10100601-ST and 12100409-ST
+      type: ParameterType_facility-(name-ESNF)_name-Comment_units-N=2FA
+  DataCollection_00000002:
+    dataCollectionDatafiles:
+    - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs
+    dataCollectionDatasets:
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947
+job:
+  Job_00000001:
+    application: Application_facility-(name-ESNF)_name-gnomoanalytics_version-69
+    inputDataCollection: DataCollection_00000001
+    outputDataCollection: DataCollection_00000002

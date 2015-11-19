@@ -2,6 +2,7 @@
 """
 
 import os.path
+import re
 import filecmp
 import pytest
 import icat
@@ -30,6 +31,17 @@ refsummary = { "root": gettestdata("summary") }
 for u in users:
     refsummary[u] = gettestdata("summary.%s" % u)
 
+
+# Read permission on DataCollection, DataCollectionDatafile,
+# DataCollectionDataset, DataCollectionParameter, and Job is only
+# granted to the creator of the DataCollection or the Job
+# respectively.  But the createId is not preserved by an icatdump /
+# icatingest cycle, so this permission is lost.  Normal users will
+# thus always see zero objects of these types after a cycle.  For this
+# reason, we must filter out the numbers in the reference output for
+# this test.
+summary_filter = (re.compile(r"^((?:DataCollection(?:Datafile|Dataset|Parameter)?|Job)\s*) : \d+$"),
+                  r"\1 : 0")
 
 def test_ingest_xml(standardConfig):
     """Restore the ICAT content from a XML dumpfile.
@@ -72,10 +84,12 @@ def test_check_summary_user_xml(tmpdirsec, user):
     """
     summary = os.path.join(tmpdirsec.dir, "summary.%s" % user)
     ref = refsummary[user]
+    reff = os.path.join(tmpdirsec.dir, "summary-filter-ref.%s" % user)
+    filter_file(ref, reff, *summary_filter)
     conf = getConfig(confSection=user)
     with open(summary, "wt") as out:
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
-    assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
+    assert filecmp.cmp(reff, summary), "ICAT content was not as expected"
 
 
 def test_ingest_yaml(standardConfig):
@@ -119,7 +133,9 @@ def test_check_summary_user_yaml(tmpdirsec, user):
     """
     summary = os.path.join(tmpdirsec.dir, "summary.%s" % user)
     ref = refsummary[user]
+    reff = os.path.join(tmpdirsec.dir, "summary-filter-ref.%s" % user)
+    filter_file(ref, reff, *summary_filter)
     conf = getConfig(confSection=user)
     with open(summary, "wt") as out:
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
-    assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
+    assert filecmp.cmp(reff, summary), "ICAT content was not as expected"

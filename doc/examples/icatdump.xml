@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2015-11-18T16:49:27Z</date>
+  <date>2015-11-19T12:43:38Z</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>4.6a1</apiversion>
   <generator>icatdump (python-icat 0.10.0.dev3)</generator>
@@ -1240,6 +1240,24 @@
     <sample ref="Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-raw"/>
   </dataset>
+  <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947">
+    <complete>true</complete>
+    <name>e208947</name>
+    <investigation ref="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP"/>
+    <type ref="DatasetType_facility-(name-ESNF)_name-analyzed"/>
+  </dataset>
+  <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs">
+    <datafileCreateTime>2012-07-16T16:30:17+02:00</datafileCreateTime>
+    <datafileModTime>2012-07-16T16:30:17+02:00</datafileModTime>
+    <fileSize>28937</fileSize>
+    <name>e208945-2.nxs</name>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1"/>
+    <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945"/>
+    <parameters>
+      <dateTimeValue>2014-10-02T14:32:51+02:00</dateTimeValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA"/>
+    </parameters>
+  </datafile>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Edat">
     <checksum>bd55affa</checksum>
     <datafileCreateTime>2012-07-30T03:10:08+02:00</datafileCreateTime>
@@ -1266,5 +1284,44 @@
       <type ref="ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA"/>
     </parameters>
   </datafile>
+  <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947)_name-e208947=2Enxs">
+    <datafileCreateTime>2012-07-16T16:30:17+02:00</datafileCreateTime>
+    <datafileModTime>2012-07-16T16:30:17+02:00</datafileModTime>
+    <fileSize>14965</fileSize>
+    <name>e208947.nxs</name>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1"/>
+    <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947"/>
+    <parameters>
+      <dateTimeValue>2012-07-17T09:28:18+02:00</dateTimeValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA"/>
+    </parameters>
+  </datafile>
+</data>
+<data>
+  <dataCollection id="DataCollection_00000001">
+    <dataCollectionDatafiles>
+      <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs"/>
+    </dataCollectionDatafiles>
+    <dataCollectionDatasets>
+      <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341"/>
+    </dataCollectionDatasets>
+    <parameters>
+      <stringValue>Make a synthesis of 10100601-ST and 12100409-ST</stringValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Comment_units-N=2FA"/>
+    </parameters>
+  </dataCollection>
+  <dataCollection id="DataCollection_00000002">
+    <dataCollectionDatafiles>
+      <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs"/>
+    </dataCollectionDatafiles>
+    <dataCollectionDatasets>
+      <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947"/>
+    </dataCollectionDatasets>
+  </dataCollection>
+  <job id="Job_00000001">
+    <application ref="Application_facility-(name-ESNF)_name-gnomoanalytics_version-69"/>
+    <inputDataCollection ref="DataCollection_00000001"/>
+    <outputDataCollection ref="DataCollection_00000002"/>
+  </job>
 </data>
 </icatdata>
