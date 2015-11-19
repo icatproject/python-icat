@@ -127,37 +127,26 @@ def callscript(scriptname, args, stdin=None, stdout=None, stderr=None):
     subprocess.check_call(cmd, stdin=stdin, stdout=stdout, stderr=stderr)
 
 
-def filter_yaml_dump(infile, outfile):
-    """Strip the header information from a YAML dump file.
+yaml_filter = (re.compile(r"^# (Date|Service|ICAT-API|Generator): .*$"),
+               r"# \1: ###")
+xml_filter = (re.compile(r"^\s*<(date|service|apiversion|generator)>.*</\1>$"),
+              r"  <\1>###</\1>")
 
-    We need this because we want to compare the content of dump
-    files.  But the header information is supposed to change
-    independently of the content.
+def filter_file(infile, outfile, pattern, repl):
+    """Filter a text file.
+
+    This may be needed to compare some test output file with
+    predefined results, because some information in the file might not
+    depend on the actual test but rather dynamically change with each
+    call.  Such as the header of a dump file that contains date and
+    ICAT version.
     """
-    substre = re.compile(r"^# (Date|Service|ICAT-API|Generator): .*$")
     with open(infile, 'rt') as inf, open(outfile, 'wt') as outf:
         while True:
             l = inf.readline()
             if not l:
                 break
-            l = re.sub(substre, r"# \1: ###", l)
-            outf.write(l)
-
-
-def filter_xml_dump(infile, outfile):
-    """Strip the header information from a XML dump file.
-
-    We need this because we want to compare the content of dump
-    files.  But the header information is supposed to change
-    independently of the content.
-    """
-    substre = re.compile(r"^\s*<(date|service|apiversion|generator)>.*</\1>$")
-    with open(infile, 'rt') as inf, open(outfile, 'wt') as outf:
-        while True:
-            l = inf.readline()
-            if not l:
-                break
-            l = re.sub(substre, r"  <\1>###</\1>", l)
+            l = re.sub(pattern, repl, l)
             outf.write(l)
 
 

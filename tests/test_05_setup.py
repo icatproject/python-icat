@@ -12,8 +12,8 @@ import filecmp
 import pytest
 import icat
 import icat.config
-from conftest import require_icat_version
-from conftest import getConfig, gettestdata, callscript, filter_yaml_dump
+from conftest import getConfig, require_icat_version
+from conftest import gettestdata, callscript, filter_file, yaml_filter
 
 # wipeicat uses JPQL search syntax.
 require_icat_version("4.3.0")
@@ -68,10 +68,10 @@ def test_check_content(standardConfig, tmpdirsec):
     dump = os.path.join(tmpdirsec.dir, "dump.yaml")
     fdump = os.path.join(tmpdirsec.dir, "dump-filter.yaml")
     reffdump = os.path.join(tmpdirsec.dir, "dump-filter-ref.yaml")
-    filter_yaml_dump(refdump, reffdump)
+    filter_file(refdump, reffdump, *yaml_filter)
     args = standardConfig.cmdargs + ["-f", "YAML", "-o", dump]
     callscript("icatdump.py", args)
-    filter_yaml_dump(dump, fdump)
+    filter_file(dump, fdump, *yaml_filter)
     assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
 
 def test_check_summary_root(standardConfig, tmpdirsec):
