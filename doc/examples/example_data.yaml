@@ -43,6 +43,13 @@ facilities:
     fullName: Example Synchrotron and Neutron Facility
     name: ESNF
     url: http://www.esnf.example.org/
+facility_cycles:
+  - cycles:
+      - [2, 15, 8, 15]
+      - [8, 15, 2, 15]
+    endYear: 17
+    facility: example_facility
+    startYear: 7
 instruments:
   e2:
     description: >

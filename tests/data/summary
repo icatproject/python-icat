@@ -14,7 +14,7 @@ Dataset                  : 8
 DatasetParameter         : 6
 DatasetType              : 3
 Facility                 : 1
-FacilityCycle            : 0
+FacilityCycle            : 20
 Grouping                 : 12
 Instrument               : 3
 InstrumentScientist      : 3

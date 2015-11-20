@@ -1,5 +1,5 @@
 %YAML 1.1
-# Date: Thu, 19 Nov 2015 12:37:17 +0000
+# Date: Fri, 20 Nov 2015 09:55:29 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 4.6a1
 # Generator: icatdump (python-icat 0.10.0.dev3)
@@ -637,6 +637,107 @@ facility:
     fullName: Example Synchrotron and Neutron Facility
     name: ESNF
     url: http://www.esnf.example.org/
+facilityCycle:
+  FacilityCycle_facility-(name-ESNF)_name-071:
+    endDate: '2007-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '071'
+    startDate: '2007-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-072:
+    endDate: '2008-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '072'
+    startDate: '2007-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-081:
+    endDate: '2008-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: 081
+    startDate: '2008-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-082:
+    endDate: '2009-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: 082
+    startDate: '2008-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-091:
+    endDate: '2009-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: 091
+    startDate: '2009-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-092:
+    endDate: '2010-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: 092
+    startDate: '2009-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-101:
+    endDate: '2010-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '101'
+    startDate: '2010-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-102:
+    endDate: '2011-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '102'
+    startDate: '2010-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-111:
+    endDate: '2011-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '111'
+    startDate: '2011-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-112:
+    endDate: '2012-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '112'
+    startDate: '2011-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-121:
+    endDate: '2012-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '121'
+    startDate: '2012-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-122:
+    endDate: '2013-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '122'
+    startDate: '2012-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-131:
+    endDate: '2013-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '131'
+    startDate: '2013-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-132:
+    endDate: '2014-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '132'
+    startDate: '2013-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-141:
+    endDate: '2014-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '141'
+    startDate: '2014-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-142:
+    endDate: '2015-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '142'
+    startDate: '2014-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-151:
+    endDate: '2015-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '151'
+    startDate: '2015-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-152:
+    endDate: '2016-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '152'
+    startDate: '2015-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-161:
+    endDate: '2016-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '161'
+    startDate: '2016-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-162:
+    endDate: '2017-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '162'
+    startDate: '2016-08-15T00:00:00+02:00'
 instrument:
   Instrument_facility-(name-ESNF)_name-E2:
     description: 'A 3-dimensional part of the reciprocal space can be scanned in less

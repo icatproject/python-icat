@@ -13,6 +13,7 @@
 
 import sys
 import logging
+import datetime
 import yaml
 import icat
 import icat.config
@@ -403,4 +404,21 @@ for k in data['applications'].keys():
     applications.append(app)
 client.createMany(applications)
 
-
+# facilityCycles
+facility_cycles = []
+for fcdata in data['facility_cycles']:
+    for y in range(fcdata['startYear'],fcdata['endYear']):
+        year = 2000 + int(y)
+        c = 0
+        for p in fcdata['cycles']:
+            c += 1
+            cycle = client.new("facilityCycle")
+            cycle.name = "%02d%d" % (y, c)
+            cycle.startDate = datetime.date(year, p[0], p[1])
+            if p[2] > p[0]:
+                cycle.endDate = datetime.date(year, p[2], p[3])
+            else:
+                cycle.endDate = datetime.date(year+1, p[2], p[3])
+            cycle.facility = facilities[fcdata['facility']]
+            facility_cycles.append(cycle)
+client.createMany(facility_cycles)

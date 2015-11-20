@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2015-11-19T12:43:38Z</date>
+  <date>2015-11-20T10:32:38Z</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>4.6a1</apiversion>
   <generator>icatdump (python-icat 0.10.0.dev3)</generator>
@@ -926,6 +926,126 @@
     <version>N/A</version>
     <facility ref="Facility_name-ESNF"/>
   </datafileFormat>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-071">
+    <endDate>2007-08-15T00:00:00+02:00</endDate>
+    <name>071</name>
+    <startDate>2007-02-15T00:00:00+01:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-072">
+    <endDate>2008-02-15T00:00:00+01:00</endDate>
+    <name>072</name>
+    <startDate>2007-08-15T00:00:00+02:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-081">
+    <endDate>2008-08-15T00:00:00+02:00</endDate>
+    <name>081</name>
+    <startDate>2008-02-15T00:00:00+01:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-082">
+    <endDate>2009-02-15T00:00:00+01:00</endDate>
+    <name>082</name>
+    <startDate>2008-08-15T00:00:00+02:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-091">
+    <endDate>2009-08-15T00:00:00+02:00</endDate>
+    <name>091</name>
+    <startDate>2009-02-15T00:00:00+01:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-092">
+    <endDate>2010-02-15T00:00:00+01:00</endDate>
+    <name>092</name>
+    <startDate>2009-08-15T00:00:00+02:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-101">
+    <endDate>2010-08-15T00:00:00+02:00</endDate>
+    <name>101</name>
+    <startDate>2010-02-15T00:00:00+01:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-102">
+    <endDate>2011-02-15T00:00:00+01:00</endDate>
+    <name>102</name>
+    <startDate>2010-08-15T00:00:00+02:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-111">
+    <endDate>2011-08-15T00:00:00+02:00</endDate>
+    <name>111</name>
+    <startDate>2011-02-15T00:00:00+01:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-112">
+    <endDate>2012-02-15T00:00:00+01:00</endDate>
+    <name>112</name>
+    <startDate>2011-08-15T00:00:00+02:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-121">
+    <endDate>2012-08-15T00:00:00+02:00</endDate>
+    <name>121</name>
+    <startDate>2012-02-15T00:00:00+01:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-122">
+    <endDate>2013-02-15T00:00:00+01:00</endDate>
+    <name>122</name>
+    <startDate>2012-08-15T00:00:00+02:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-131">
+    <endDate>2013-08-15T00:00:00+02:00</endDate>
+    <name>131</name>
+    <startDate>2013-02-15T00:00:00+01:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-132">
+    <endDate>2014-02-15T00:00:00+01:00</endDate>
+    <name>132</name>
+    <startDate>2013-08-15T00:00:00+02:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-141">
+    <endDate>2014-08-15T00:00:00+02:00</endDate>
+    <name>141</name>
+    <startDate>2014-02-15T00:00:00+01:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-142">
+    <endDate>2015-02-15T00:00:00+01:00</endDate>
+    <name>142</name>
+    <startDate>2014-08-15T00:00:00+02:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-151">
+    <endDate>2015-08-15T00:00:00+02:00</endDate>
+    <name>151</name>
+    <startDate>2015-02-15T00:00:00+01:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-152">
+    <endDate>2016-02-15T00:00:00+01:00</endDate>
+    <name>152</name>
+    <startDate>2015-08-15T00:00:00+02:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-161">
+    <endDate>2016-08-15T00:00:00+02:00</endDate>
+    <name>161</name>
+    <startDate>2016-02-15T00:00:00+01:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
+  <facilityCycle id="FacilityCycle_facility-(name-ESNF)_name-162">
+    <endDate>2017-02-15T00:00:00+01:00</endDate>
+    <name>162</name>
+    <startDate>2016-08-15T00:00:00+02:00</startDate>
+    <facility ref="Facility_name-ESNF"/>
+  </facilityCycle>
   <application id="Application_facility-(name-ESNF)_name-gnomoanalytics_version-69">
     <name>gnomoanalytics</name>
     <version>69</version>
