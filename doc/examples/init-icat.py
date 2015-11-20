@@ -151,7 +151,8 @@ client.createRules("RU", ["Sample"], staff)
 
 # Everybody is allowed to create DataCollections.  But they are
 # private, so users are only allowed to read, update or delete
-# DataCollections they created themselves.  Similar thing for Job.
+# DataCollections they created themselves.  Similar thing for Job and
+# RelatedDatafile.
 owndccond = "DataCollection [createId=:user]"
 owndc = [ s % owndccond for s in 
           [ "%s", 
@@ -160,6 +161,7 @@ owndc = [ s % owndccond for s in
             "DataCollectionParameter <-> %s" ] ]
 client.createRules("CRUD", owndc)
 client.createRules("CRUD", ["Job [createId=:user]"])
+client.createRules("CRUD", ["RelatedDatafile [createId=:user]"])
 
 
 # ------------------------------------------------------------
