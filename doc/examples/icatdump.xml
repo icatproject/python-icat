@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2015-11-20T10:32:38Z</date>
+  <date>2015-11-20T11:50:38Z</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>4.6a1</apiversion>
   <generator>icatdump (python-icat 0.10.0.dev3)</generator>
@@ -1094,6 +1094,11 @@
       <stringValue>photon</stringValue>
       <type ref="ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA"/>
     </parameters>
+    <shifts>
+      <comment>Beamtime at HIKE</comment>
+      <endDate>2008-03-13T16:00:00+01:00</endDate>
+      <startDate>2008-03-13T08:00:00+01:00</startDate>
+    </shifts>
   </investigation>
   <sample id="Sample_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-Durol=20SC">
     <name>Durol SC</name>
@@ -1174,6 +1179,16 @@
       <stringValue>neutron</stringValue>
       <type ref="ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA"/>
     </parameters>
+    <shifts>
+      <comment>Beamtime at E2</comment>
+      <endDate>2010-10-06T08:00:00+02:00</endDate>
+      <startDate>2010-09-29T08:00:00+02:00</startDate>
+    </shifts>
+    <shifts>
+      <comment>Beamtime at E2</comment>
+      <endDate>2010-10-13T08:00:00+02:00</endDate>
+      <startDate>2010-10-09T08:00:00+02:00</startDate>
+    </shifts>
   </investigation>
   <sample id="Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027">
     <name>NiMnGa 991027</name>
@@ -1324,6 +1339,11 @@
       <stringValue>photon</stringValue>
       <type ref="ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA"/>
     </parameters>
+    <shifts>
+      <comment>Beamtime at EDDI</comment>
+      <endDate>2012-08-07T06:00:00+02:00</endDate>
+      <startDate>2012-07-24T06:00:00+02:00</startDate>
+    </shifts>
   </investigation>
   <sample id="Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC">
     <name>Nickel(II) oxide SC</name>

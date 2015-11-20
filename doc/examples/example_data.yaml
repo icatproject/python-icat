@@ -156,6 +156,10 @@ investigations:
     sample:
       name: Durol SC
       type: durol
+    shifts:
+    - comment: Beamtime at HIKE
+      endDate: '2008-03-13T16:00:00+01:00'        
+      startDate: '2008-03-13T08:00:00+01:00'        
     startDate: '2008-03-13T11:39:42+01:00'
     title: Durol single crystal
     type: experiment
@@ -250,6 +254,13 @@ investigations:
       - stringValue: 2046c9a7-ab07-4594-84a2-101617073a79
         type: sample_ref
       type: nimnga
+    shifts:
+    - comment: Beamtime at E2
+      endDate: '2010-10-06T08:00:00+02:00'
+      startDate: '2010-09-29T08:00:00+02:00'
+    - comment: Beamtime at E2
+      endDate: '2010-10-13T08:00:00+02:00'
+      startDate: '2010-10-09T08:00:00+02:00'
     startDate: '2010-09-30T12:27:24+02:00'
     title: Ni-Mn-Ga flat cone
     type: experiment
@@ -313,6 +324,10 @@ investigations:
       - stringValue: c1b0a101-03aa-4d02-a1a2-e2826ba7871b
         type: sample_ref
       type: nio
+    shifts:
+    - comment: Beamtime at EDDI
+      endDate: '2012-08-07T06:00:00+02:00'
+      startDate: '2012-07-24T06:00:00+02:00'
     startDate: '2012-07-26T17:44:24+02:00'
     title: NiO SC OF1 JUH HHL
     type: experiment

@@ -98,6 +98,11 @@ if 'parameters' in investigationdata:
                  % (ptdata['name'], ptdata['units']))
         ip.type = client.assertedSearch(query)[0]
         investigation.parameters.append(ip)
+if 'shifts' in investigationdata:
+    for sdata in investigationdata['shifts']:
+        s = client.new('shift')
+        initobj(s, sdata)
+        investigation.shifts.append(s)
 investigation.create()
 investigation.addInstrument(instrument)
 investigation.addKeywords(investigationdata['keywords'])
