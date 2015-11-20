@@ -135,7 +135,7 @@ def test_query_relateddatafile(client):
     query = Query(client, "RelatedDatafile", order=True)
     print(str(query))
     res = client.search(query)
-    assert len(res) == 0
+    assert len(res) == 1
 
 def test_query_datacollection(client):
     """There is no sensible order for DataCollection, fall back to id.
@@ -158,7 +158,7 @@ def test_query_datafiles_datafileformat(client, recwarn):
     assert "datafileFormat" in str(w.message)
     print(str(query))
     res = client.search(query)
-    assert len(res) == 9
+    assert len(res) == 10
 
 def test_query_condition_greaterthen(client):
     """Other relations then equal may be used in the conditions too.
@@ -172,7 +172,7 @@ def test_query_condition_greaterthen(client):
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
     res = client.search(query)
-    assert len(res) == 5
+    assert len(res) == 6
 
 def test_query_condition_list(client):
     """We may also add a list of conditions on a single attribute.

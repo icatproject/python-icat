@@ -9,9 +9,11 @@ dump file.
 
 import os.path
 import filecmp
+import yaml
 import pytest
 import icat
 import icat.config
+from icat.query import Query
 from conftest import getConfig, require_icat_version
 from conftest import gettestdata, callscript, filter_file, yaml_filter
 
@@ -24,6 +26,54 @@ users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
 refsummary = { "root": gettestdata("summary") }
 for u in users:
     refsummary[u] = gettestdata("summary.%s" % u)
+
+@pytest.fixture(scope="module")
+def data():
+    with open(testinput, 'r') as f:
+        return yaml.load(f)
+
+
+def initobj(obj, attrs):
+    """Initialize an entity object from a dict of attributes."""
+    for a in obj.InstAttr:
+        if a != 'id' and a in attrs:
+            setattr(obj, a, attrs[a])
+
+def get_datafile(client, df):
+    query = Query(client, "Datafile", conditions={
+        "name":"= '%s'" % df['name'], 
+        "dataset.name":"= '%s'" % df['dataset'], 
+        "dataset.investigation.name":"= '%s'" % df['investigation']
+    })
+    return client.assertedSearch(query)[0]
+
+def create_datafile(client, data, df):
+    query = Query(client, "Dataset", conditions={
+        "name":"= '%s'" % df['dataset'], 
+        "investigation.name":"= '%s'" % df['investigation']
+    })
+    dataset = client.assertedSearch(query)[0]
+    dff = data['datafile_formats'][df['format']]
+    query = Query(client, "DatafileFormat", conditions={
+        "name":"= '%s'" % dff['name'], 
+        "version":"= '%s'" % dff['version'], 
+    })
+    datafile_format = client.assertedSearch(query)[0]
+    datafile = client.new("datafile")
+    initobj(datafile, df)
+    datafile.dataset = dataset
+    datafile.datafileFormat = datafile_format
+    if 'parameters' in df:
+        for p in df['parameters']:
+            param = client.new('datafileParameter')
+            initobj(param, p)
+            ptdata = data['parameter_types'][p['type']]
+            query = ("ParameterType [name='%s' AND units='%s']"
+                     % (ptdata['name'], ptdata['units']))
+            param.type = client.assertedSearch(query)[0]
+            datafile.parameters.append(param)
+    datafile.create()
+    return datafile
 
 
 def test_init(standardConfig):
@@ -68,6 +118,20 @@ def test_addjob(user, jobname):
     conf = getConfig(confSection=user)
     args = conf.cmdargs + [testinput, jobname]
     callscript("add-job.py", args)
+
+@pytest.mark.parametrize(("user", "rdfname"), [
+    ("nbour", "rdf1"),
+])
+def test_add_relateddatafile(data, user, rdfname):
+    conf = getConfig(confSection=user)
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+    rdfdata = data['related_datafiles'][rdfname]
+    rdf = client.new("relatedDatafile")
+    initobj(rdf, rdfdata)
+    rdf.sourceDatafile = get_datafile(client, rdfdata['source'])
+    rdf.destDatafile = create_datafile(client, data, rdfdata['dest'])
+    rdf.create()
 
 
 def test_check_content(standardConfig, tmpdirsec):

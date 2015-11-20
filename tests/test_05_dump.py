@@ -40,7 +40,7 @@ for u in users:
 # thus always see zero objects of these types after a cycle.  For this
 # reason, we must filter out the numbers in the reference output for
 # this test.
-summary_filter = (re.compile(r"^((?:DataCollection(?:Datafile|Dataset|Parameter)?|Job)\s*) : \d+$"),
+summary_filter = (re.compile(r"^((?:DataCollection(?:Datafile|Dataset|Parameter)?|Job|RelatedDatafile)\s*) : \d+$"),
                   r"\1 : 0")
 
 def test_ingest_xml(standardConfig):

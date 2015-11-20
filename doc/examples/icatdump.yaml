@@ -1,5 +1,5 @@
 %YAML 1.1
-# Date: Fri, 20 Nov 2015 12:15:07 +0000
+# Date: Fri, 20 Nov 2015 13:44:33 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 4.6a1
 # Generator: icatdump (python-icat 0.10.0.dev3)
@@ -1125,6 +1125,17 @@ sample:
     type: SampleType_facility-(name-ESNF)_name-NiMnGa_molecularFormula-NiMnGa
 ---
 datafile:
+  ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs
+  : checksum: 7c72b4bc
+    datafileCreateTime: '2010-10-05T11:31:53+02:00'
+    datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0
+    datafileModTime: '2010-10-05T11:31:53+02:00'
+    dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945
+    fileSize: 52857
+    name: e208341.nxs
+    parameters:
+    - dateTimeValue: '2014-10-02T14:32:51+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs
   : datafileCreateTime: '2012-07-16T16:30:17+02:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1
@@ -1255,3 +1266,8 @@ job:
     application: Application_facility-(name-ESNF)_name-gnomoanalytics_version-69
     inputDataCollection: DataCollection_00000001
     outputDataCollection: DataCollection_00000002
+relatedDatafile:
+  ? RelatedDatafile_sourceDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs)_destDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs)
+  : destDatafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs
+    relation: copy
+    sourceDatafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs

@@ -445,6 +445,25 @@ parameter_types:
       - buono
       - brutto
       - cattivo
+related_datafiles:
+  rdf1:
+    dest:
+      checksum: 7c72b4bc
+      datafileCreateTime: '2010-10-05T11:31:53+02:00'
+      datafileModTime: '2010-10-05T11:31:53+02:00'
+      dataset: e208945
+      fileSize: 52857
+      format: nexus40
+      investigation: 12100409-ST
+      name: e208341.nxs
+      parameters:
+        - dateTimeValue: '2014-10-02T14:32:51+02:00'
+          type: lastaccess
+    relation: copy
+    source:
+      dataset: e208341
+      investigation: 10100601-ST
+      name: e208341.nxs
 sample_types:
   durol:
     facility: example_facility
