@@ -133,6 +133,40 @@ def test_add_relateddatafile(data, user, rdfname):
     rdf.destDatafile = create_datafile(client, data, rdfdata['dest'])
     rdf.create()
 
+@pytest.mark.parametrize(("user", "studyname"), [
+    ("useroffice", "study1"),
+])
+def test_add_study(data, user, studyname):
+    pytest.skip("Study disabled, see Issue icatproject/icat.server#155")
+    conf = getConfig(confSection=user)
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+    studydata = data['studies'][studyname]
+    study = client.new("study")
+    initobj(study, studydata)
+    query = "User [name='%s']" % studydata['user']
+    study.user = client.assertedSearch(query)[0]
+    for invname in studydata['investigations']:
+        query = "Investigation [name='%s']" % invname
+        si = client.new("studyInvestigation")
+        si.investigation = client.assertedSearch(query)[0]
+        study.studyInvestigations.append(si)
+    study.create()
+
+@pytest.mark.parametrize(("user", "pubname"), [
+    ("useroffice", "pub1"),
+])
+def test_add_publication(data, user, pubname):
+    conf = getConfig(confSection=user)
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+    pubdata = data['publications'][pubname]
+    publication = client.new("publication")
+    initobj(publication, pubdata)
+    query = "Investigation [name='%s']" % pubdata['investigation']
+    publication.investigation = client.assertedSearch(query)[0]
+    publication.create()
+
 
 def test_check_content(standardConfig, tmpdirsec):
     """Dump the resulting content and compare with a reference dump.

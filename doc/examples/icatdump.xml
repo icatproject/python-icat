@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2015-11-23T08:11:11Z</date>
+  <date>2015-11-23T14:48:41Z</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
-  <apiversion>4.6a1</apiversion>
+  <apiversion>4.5.1</apiversion>
   <generator>icatdump (python-icat 0.10.0.dev3)</generator>
 </head>
 <data>
@@ -1187,6 +1187,10 @@
       <stringValue>neutron</stringValue>
       <type ref="ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA"/>
     </parameters>
+    <publications>
+      <doi>0.1002/adma.201101001</doi>
+      <fullReference>A. Hau.  Properties of NiMnGa.  Adv. Mater. 2011, 1</fullReference>
+    </publications>
     <shifts>
       <comment>Beamtime at E2</comment>
       <endDate>2010-10-06T08:00:00+02:00</endDate>

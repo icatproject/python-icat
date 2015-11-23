@@ -445,6 +445,12 @@ parameter_types:
       - buono
       - brutto
       - cattivo
+publications:
+  pub1:
+    investigation: 10100601-ST
+    fullReference: >-
+      A. Hau.  Properties of NiMnGa.  Adv. Mater. 2011, 1
+    doi: 0.1002/adma.201101001
 related_datafiles:
   rdf1:
     dest:
@@ -477,6 +483,15 @@ sample_types:
     facility: example_facility
     molecularFormula: NiO
     name: Nickel(II) oxide SC
+studies:
+  study1:
+    investigations:
+      - 10100601-ST
+      - 12100409-ST
+    name: 12-008
+    startDate: '2012-07-09T08:00:00+02:00'
+    status: COMPLETE
+    user: nbour
 users:
   acord:
     fullName: Aelius Cordus

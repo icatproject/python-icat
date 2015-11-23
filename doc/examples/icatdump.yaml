@@ -1,7 +1,7 @@
 %YAML 1.1
-# Date: Mon, 23 Nov 2015 08:05:52 +0000
+# Date: Mon, 23 Nov 2015 14:43:21 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
-# ICAT-API: 4.6a1
+# ICAT-API: 4.5.1
 # Generator: icatdump (python-icat 0.10.0.dev3)
 ---
 grouping:
@@ -1107,6 +1107,9 @@ investigation:
     parameters:
     - stringValue: neutron
       type: ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA
+    publications:
+    - doi: 0.1002/adma.201101001
+      fullReference: A. Hau.  Properties of NiMnGa.  Adv. Mater. 2011, 1
     shifts:
     - comment: Beamtime at E2
       endDate: '2010-10-06T08:00:00+02:00'
