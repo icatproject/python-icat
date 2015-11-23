@@ -214,7 +214,7 @@ def test_query_rule_order(client):
     print(str(query))
     assert "id" in query.order
     res = client.search(query)
-    assert len(res) == 103
+    assert len(res) == 104
 
 def test_query_nullable_warning(client, recwarn):
     """Ordering on nullable relations emits a warning.

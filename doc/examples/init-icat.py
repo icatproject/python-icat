@@ -110,9 +110,10 @@ if client.apiversion < '4.3.99':
 # to anybody.  SampleType is a special case, dealt with below.
 client.createRules("R", pubtables - {"SampleType"})
 
-# Special rule: each user gets the permission to see the groups he
-# is in.
-client.createRules("R", [ "%s <-> UserGroup <-> User[name=:user]" % groupname ])
+# Special rules: each user gets the permission to see the groups he
+# is in and the studies he is leading.
+client.createRules("R", ["%s <-> UserGroup <-> User [name=:user]" % groupname])
+client.createRules("R", ["Study <-> User [name=:user]"])
 
 # Add a sepcial user to be configured as reader in ids.server.  This
 # user needs at least permission to read all datasets, datafiles,
