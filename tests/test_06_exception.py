@@ -86,7 +86,7 @@ def test_icat_exception_non_ascii(client):
     characters are always reproduced correctly, but the error handling
     must at least deal with them gracefully.
     """
-    keyword = b"Schl\xc3\xbcsselwort".decode('utf-8')
+    keyword = "Schl\xc3\xbcsselwort".decode('utf-8')
     print("Provoke an ICATParameterError ...")
     with pytest.raises(icat.ICATError) as einfo:
         client.getEntityInfo(keyword)
