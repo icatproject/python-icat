@@ -144,7 +144,7 @@ investtypes = [Query(client, "Investigation",
                                "parameters.type.facility"}) ]
 othertypes =  [Query(client, "Study", order=True, 
                      includes={"user", "studyInvestigations", 
-                               "studyInvestigations.investigation"}), 
+                               "studyInvestigations.investigation.facility"}), 
                Query(client, "RelatedDatafile", order=True, 
                      includes={"sourceDatafile.dataset.investigation.facility", 
                                "destDatafile.dataset.investigation.facility"}), 
