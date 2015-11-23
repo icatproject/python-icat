@@ -89,6 +89,20 @@ investigation = client.new("investigation")
 initobj(investigation, investigationdata)
 investigation.facility = facility
 investigation.type = investigation_type
+if 'parameters' in investigationdata:
+    for pdata in investigationdata['parameters']:
+        ip = client.new('investigationParameter')
+        initobj(ip, pdata)
+        ptdata = data['parameter_types'][pdata['type']]
+        query = ("ParameterType [name='%s' AND units='%s']"
+                 % (ptdata['name'], ptdata['units']))
+        ip.type = client.assertedSearch(query)[0]
+        investigation.parameters.append(ip)
+if 'shifts' in investigationdata:
+    for sdata in investigationdata['shifts']:
+        s = client.new('shift')
+        initobj(s, sdata)
+        investigation.shifts.append(s)
 investigation.create()
 investigation.addInstrument(instrument)
 investigation.addKeywords(investigationdata['keywords'])

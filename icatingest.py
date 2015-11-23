@@ -17,8 +17,6 @@
 #    id, createId, createTime, modId, and modTime of any objects.
 #    This is by design and cannot be fixed.  As a consequence, access
 #    rules that are based on object ids will not work after a restore.
-#  + Restoring of several entity types has not yet been
-#    tested.  See icatdump.py for a list.
 #  + Dealing with duplicates (option --duplicate) is only supported
 #    for single objects.  If the object contains related objects in
 #    one to many relationships that are to be created at once, the

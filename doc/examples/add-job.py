@@ -44,6 +44,15 @@ def initobj(obj, attrs):
         if a != 'id' and a in attrs:
             setattr(obj, a, attrs[a])
 
+def makeparam(t, pdata):
+    param = client.new(t)
+    initobj(param, pdata)
+    ptdata = data['parameter_types'][pdata['type']]
+    query = ("ParameterType [name='%s' AND units='%s']"
+             % (ptdata['name'], ptdata['units']))
+    param.type = client.assertedSearch(query)[0]
+    return param
+
 # ------------------------------------------------------------
 # Read input data
 # ------------------------------------------------------------
@@ -92,6 +101,11 @@ for df in jobdata['input']['datafiles']:
     dcf = client.new("dataCollectionDatafile", datafile=datafile)
     inputcollection.dataCollectionDatafiles.append(dcf)
 
+if 'parameters' in jobdata['input']:
+    for p in jobdata['input']['parameters']:
+        dcp = makeparam('dataCollectionParameter', p)
+        inputcollection.parameters.append(dcp)
+
 inputcollection.create()
 
 
@@ -115,6 +129,9 @@ for ds in jobdata['output']['datasets']:
     initobj(dataset, ds)
     dataset.investigation = investigation
     dataset.type = dataset_type
+    if 'parameters' in ds:
+        for p in ds['parameters']:
+            dataset.parameters.append(makeparam('datasetParameter', p))
 
     for df in ds['datafiles']:
         dff = data['datafile_formats'][df['format']]
@@ -127,6 +144,9 @@ for ds in jobdata['output']['datasets']:
         datafile = client.new("datafile")
         initobj(datafile, df)
         datafile.datafileFormat = datafile_format
+        if 'parameters' in df:
+            for p in df['parameters']:
+                datafile.parameters.append(makeparam('datafileParameter', p))
         dataset.datafiles.append(datafile)
 
     # Need to override the complete flag from the example data as we
@@ -157,9 +177,17 @@ for df in jobdata['output']['datafiles']:
     initobj(datafile, df)
     datafile.dataset = dataset
     datafile.datafileFormat = datafile_format
+    if 'parameters' in df:
+        for p in df['parameters']:
+            datafile.parameters.append(makeparam('datafileParameter', p))
     datafile.create()
     dcf = client.new("dataCollectionDatafile", datafile=datafile)
     outputcollection.dataCollectionDatafiles.append(dcf)
+
+if 'parameters' in jobdata['output']:
+    for p in jobdata['output']['parameters']:
+        dcp = makeparam('dataCollectionParameter', p)
+        outputcollection.parameters.append(dcp)
 
 outputcollection.create()
 

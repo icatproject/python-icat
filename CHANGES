@@ -12,6 +12,8 @@
 
  + Add an optional argument includes to Client.searchMatching().
 
+ + Add a method Entity.copy().
+
  + Add support for icat.server 4.6.0:
    - Add new exception class ICATNotImplementedError.
    (Note that at the moment of this writing, icat.server 4.6.0 is not
@@ -24,6 +26,9 @@
 ** Incompatible changes and deprecations
 
 ** Bug fixes and minor changes
+
+ + Issue #15: icatdump raises DataConsistencyError for
+   DataCollectionParameter.
 
  + Issue #13: Client.searchChunked() raises exception if the query
    contains a percent character.
@@ -44,7 +49,7 @@
 
  + The getIcatUrl() call checks the version of the IDS server.
 
- + Add some more tests.
+ + Add more tests.
 
 * Version 0.9.0 (2015-08-13)
 

@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Mon, 27 Jul 2015 13:23:11 +0000
+# Date: Mon, 23 Nov 2015 14:43:21 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
-# ICAT-API: 4.5
-# Generator: icatdump (python-icat 0.8.0)
+# ICAT-API: 4.5.1
+# Generator: icatdump (python-icat 0.10.0.dev3)
 ---
 grouping:
   Grouping_name-investigation=5F08100122=2DEF=5Fowner:
@@ -144,419 +144,428 @@ rule:
     crudFlags: CRUD
     what: DataCollectionDataset <-> DataCollection [createId=:user]
   Rule_00000005:
-    crudFlags: R
-    what: DatafileFormat
+    crudFlags: CRUD
+    what: DataCollectionParameter <-> DataCollection [createId=:user]
   Rule_00000006:
     crudFlags: R
-    what: DatasetType
+    what: DatafileFormat
   Rule_00000007:
     crudFlags: R
-    what: Facility
+    what: DatasetType
   Rule_00000008:
     crudFlags: R
-    what: FacilityCycle
+    what: Facility
   Rule_00000009:
     crudFlags: R
-    what: Grouping <-> UserGroup <-> User[name=:user]
+    what: FacilityCycle
   Rule_00000010:
     crudFlags: R
-    what: Instrument
+    what: Grouping <-> UserGroup <-> User [name=:user]
   Rule_00000011:
     crudFlags: R
-    what: InvestigationType
+    what: Instrument
   Rule_00000012:
+    crudFlags: R
+    what: InvestigationType
+  Rule_00000013:
     crudFlags: CRUD
     what: Job [createId=:user]
-  Rule_00000013:
-    crudFlags: R
-    what: ParameterType
   Rule_00000014:
     crudFlags: R
-    what: PermissibleStringValue
+    what: ParameterType
   Rule_00000015:
+    crudFlags: R
+    what: PermissibleStringValue
+  Rule_00000016:
+    crudFlags: CRUD
+    what: RelatedDatafile [createId=:user]
+  Rule_00000017:
     crudFlags: CR
     what: SampleType
-  Rule_00000016:
+  Rule_00000018:
     crudFlags: R
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN ds.type AS s1 WHERE i.releaseDate < CURRENT_TIMESTAMP AND s1.name = 'raw'
-  Rule_00000017:
+  Rule_00000019:
     crudFlags: CUD
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS
       s3 JOIN s3.user AS s4 WHERE ds.complete = False AND s4.name = :user AND s1.role
       = 'writer'
-  Rule_00000018:
+  Rule_00000020:
     crudFlags: R
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS
       s3 JOIN s3.user AS s4 WHERE s4.name = :user
-  Rule_00000019:
+  Rule_00000021:
     crudFlags: CUD
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
       AS s3 JOIN s3.user AS s4 WHERE ds.complete = False AND s4.name = :user
-  Rule_00000020:
+  Rule_00000022:
     crudFlags: R
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
-  Rule_00000021:
+  Rule_00000023:
     crudFlags: R
     what: SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset
       AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationGroups AS s4 JOIN s4.grouping
       AS s5 JOIN s5.userGroups AS s6 JOIN s6.user AS s7 WHERE s7.name = :user
-  Rule_00000022:
+  Rule_00000024:
     crudFlags: CUD
     what: SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset
       AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationGroups AS s4 JOIN s4.grouping
       AS s5 JOIN s5.userGroups AS s6 JOIN s6.user AS s7 WHERE s7.name = :user AND
       s4.role = 'writer'
-  Rule_00000023:
+  Rule_00000025:
     crudFlags: CUD
     what: SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset
       AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationInstruments AS s4 JOIN
       s4.instrument AS s5 JOIN s5.instrumentScientists AS s6 JOIN s6.user AS s7 WHERE
       s7.name = :user
-  Rule_00000024:
+  Rule_00000026:
     crudFlags: R
     what: SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset
       AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationInstruments AS s4 JOIN
       s4.instrument AS s5 JOIN s5.instrumentScientists AS s6 JOIN s6.user AS s7 WHERE
       s7.name = :user
-  Rule_00000025:
+  Rule_00000027:
     crudFlags: CUD
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       o.complete = False AND s4.name = :user AND s1.role = 'writer'
-  Rule_00000026:
+  Rule_00000028:
     crudFlags: R
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000027:
+  Rule_00000029:
     crudFlags: CUD
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE o.complete = False AND s4.name = :user
-  Rule_00000028:
+  Rule_00000030:
     crudFlags: R
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000029:
+  Rule_00000031:
     crudFlags: R
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN o.type AS t WHERE
       i.releaseDate < CURRENT_TIMESTAMP AND t.name = 'raw'
-  Rule_00000030:
+  Rule_00000032:
     crudFlags: R
     what: SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation
       AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
-  Rule_00000031:
+  Rule_00000033:
     crudFlags: CUD
     what: SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation
       AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user AND s1.role = 'writer'
-  Rule_00000032:
+  Rule_00000034:
     crudFlags: CUD
     what: SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation
       AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
-  Rule_00000033:
+  Rule_00000035:
     crudFlags: R
     what: SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation
       AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
-  Rule_00000034:
+  Rule_00000036:
     crudFlags: R
     what: SELECT o FROM Grouping o JOIN o.investigationGroups AS ig JOIN ig.investigation
       AS s1 JOIN s1.investigationGroups AS s2 JOIN s2.grouping AS s3 JOIN s3.userGroups
       AS s4 JOIN s4.user AS s5 WHERE s5.name = :user AND s2.role = 'owner'
-  Rule_00000035:
+  Rule_00000037:
     crudFlags: R
     what: SELECT o FROM Investigation o JOIN o.investigationGroups AS ig JOIN ig.grouping
       AS s1 JOIN s1.userGroups AS s2 JOIN s2.user AS s3 WHERE s3.name = :user
-  Rule_00000036:
+  Rule_00000038:
     crudFlags: R
     what: SELECT o FROM Investigation o JOIN o.investigationInstruments AS ii JOIN
       ii.instrument AS s1 JOIN s1.instrumentScientists AS s2 JOIN s2.user AS s3 WHERE
       s3.name = :user
-  Rule_00000037:
+  Rule_00000039:
     crudFlags: R
     what: SELECT o FROM Investigation o WHERE o.releaseDate < CURRENT_TIMESTAMP
-  Rule_00000038:
+  Rule_00000040:
     crudFlags: R
     what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000039:
+  Rule_00000041:
     crudFlags: CUD
     what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user AND s1.role = 'writer'
-  Rule_00000040:
+  Rule_00000042:
     crudFlags: CUD
     what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000041:
-    crudFlags: R
-    what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationInstruments
-      AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
-      AS s4 WHERE s4.name = :user
-  Rule_00000042:
-    crudFlags: R
-    what: SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationGroups
-      AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
-      s4.name = :user
   Rule_00000043:
     crudFlags: R
-    what: SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationInstruments
+    what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
   Rule_00000044:
     crudFlags: R
-    what: SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationGroups
+    what: SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
   Rule_00000045:
     crudFlags: R
-    what: SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationInstruments
+    what: SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
   Rule_00000046:
     crudFlags: R
-    what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationGroups
+    what: SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
   Rule_00000047:
+    crudFlags: R
+    what: SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationInstruments
+      AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
+      AS s4 WHERE s4.name = :user
+  Rule_00000048:
+    crudFlags: R
+    what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationGroups
+      AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
+      s4.name = :user
+  Rule_00000049:
     crudFlags: CUD
     what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user AND s1.role = 'writer'
-  Rule_00000048:
+  Rule_00000050:
     crudFlags: CUD
     what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000049:
+  Rule_00000051:
     crudFlags: R
     what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000050:
+  Rule_00000052:
     crudFlags: R
     what: SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation
       AS s2 JOIN s2.investigationGroups AS s3 JOIN s3.grouping AS s4 JOIN s4.userGroups
       AS s5 JOIN s5.user AS s6 WHERE s6.name = :user
-  Rule_00000051:
+  Rule_00000053:
     crudFlags: CUD
     what: SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation
       AS s2 JOIN s2.investigationGroups AS s3 JOIN s3.grouping AS s4 JOIN s4.userGroups
       AS s5 JOIN s5.user AS s6 WHERE s6.name = :user AND s3.role = 'writer'
-  Rule_00000052:
+  Rule_00000054:
     crudFlags: CUD
     what: SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation
       AS s2 JOIN s2.investigationInstruments AS s3 JOIN s3.instrument AS s4 JOIN s4.instrumentScientists
       AS s5 JOIN s5.user AS s6 WHERE s6.name = :user
-  Rule_00000053:
+  Rule_00000055:
     crudFlags: R
     what: SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation
       AS s2 JOIN s2.investigationInstruments AS s3 JOIN s3.instrument AS s4 JOIN s4.instrumentScientists
       AS s5 JOIN s5.user AS s6 WHERE s6.name = :user
-  Rule_00000054:
+  Rule_00000056:
     crudFlags: R
     what: SELECT o FROM Shift o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000055:
+  Rule_00000057:
     crudFlags: R
     what: SELECT o FROM Shift o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000056:
+  Rule_00000058:
     crudFlags: CRUD
     what: SELECT o FROM UserGroup o JOIN o.grouping AS g JOIN g.investigationGroups
       AS s1 JOIN s1.investigation AS s2 JOIN s2.investigationGroups AS s3 JOIN s3.grouping
       AS s4 JOIN s4.userGroups AS s5 JOIN s5.user AS s6 WHERE s6.name = :user AND
       s3.role = 'owner' AND s1.role in ('reader', 'writer')
-  Rule_00000057:
-    crudFlags: R
-    what: User
-  Rule_00000058:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: DataCollection
   Rule_00000059:
     crudFlags: R
-    grouping: Grouping_name-rall
-    what: DataCollectionDatafile
+    what: Study <-> User [name=:user]
   Rule_00000060:
     crudFlags: R
-    grouping: Grouping_name-rall
-    what: DataCollectionDataset
+    what: User
   Rule_00000061:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataCollectionParameter
+    what: DataCollection
   Rule_00000062:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Datafile
+    what: DataCollectionDatafile
   Rule_00000063:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DatafileParameter
+    what: DataCollectionDataset
   Rule_00000064:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Dataset
+    what: DataCollectionParameter
   Rule_00000065:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DatasetParameter
+    what: Datafile
   Rule_00000066:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Grouping
+    what: DatafileParameter
   Rule_00000067:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InstrumentScientist
+    what: Dataset
   Rule_00000068:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Investigation
+    what: DatasetParameter
   Rule_00000069:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationGroup
+    what: Grouping
   Rule_00000070:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationInstrument
+    what: InstrumentScientist
   Rule_00000071:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationParameter
+    what: Investigation
   Rule_00000072:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationUser
+    what: InvestigationGroup
   Rule_00000073:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Job
+    what: InvestigationInstrument
   Rule_00000074:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Keyword
+    what: InvestigationParameter
   Rule_00000075:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Publication
+    what: InvestigationUser
   Rule_00000076:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: PublicStep
+    what: Job
   Rule_00000077:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: RelatedDatafile
+    what: Keyword
   Rule_00000078:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Rule
+    what: Publication
   Rule_00000079:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Sample
+    what: PublicStep
   Rule_00000080:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: SampleParameter
+    what: RelatedDatafile
   Rule_00000081:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Shift
+    what: Rule
   Rule_00000082:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Study
+    what: Sample
   Rule_00000083:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: StudyInvestigation
+    what: SampleParameter
   Rule_00000084:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: UserGroup
+    what: Shift
   Rule_00000085:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: Study
+  Rule_00000086:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: StudyInvestigation
+  Rule_00000087:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: UserGroup
+  Rule_00000088:
     crudFlags: RU
     grouping: Grouping_name-scientific=5Fstaff
     what: Sample
-  Rule_00000086:
+  Rule_00000089:
     crudFlags: UD
     grouping: Grouping_name-scientific=5Fstaff
     what: SampleType
-  Rule_00000087:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: FacilityCycle
-  Rule_00000088:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: Grouping
-  Rule_00000089:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: InstrumentScientist
   Rule_00000090:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Investigation
+    what: FacilityCycle
   Rule_00000091:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationGroup
+    what: Grouping
   Rule_00000092:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationInstrument
+    what: InstrumentScientist
   Rule_00000093:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationParameter
+    what: Investigation
   Rule_00000094:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationUser
+    what: InvestigationGroup
   Rule_00000095:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Keyword
+    what: InvestigationInstrument
   Rule_00000096:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Publication
+    what: InvestigationParameter
   Rule_00000097:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Shift
+    what: InvestigationUser
   Rule_00000098:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Study
+    what: Keyword
   Rule_00000099:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: StudyInvestigation
+    what: Publication
   Rule_00000100:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: User
+    what: Shift
   Rule_00000101:
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: Study
+  Rule_00000102:
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: StudyInvestigation
+  Rule_00000103:
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: User
+  Rule_00000104:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: UserGroup
@@ -634,6 +643,107 @@ facility:
     fullName: Example Synchrotron and Neutron Facility
     name: ESNF
     url: http://www.esnf.example.org/
+facilityCycle:
+  FacilityCycle_facility-(name-ESNF)_name-071:
+    endDate: '2007-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '071'
+    startDate: '2007-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-072:
+    endDate: '2008-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '072'
+    startDate: '2007-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-081:
+    endDate: '2008-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: 081
+    startDate: '2008-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-082:
+    endDate: '2009-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: 082
+    startDate: '2008-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-091:
+    endDate: '2009-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: 091
+    startDate: '2009-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-092:
+    endDate: '2010-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: 092
+    startDate: '2009-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-101:
+    endDate: '2010-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '101'
+    startDate: '2010-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-102:
+    endDate: '2011-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '102'
+    startDate: '2010-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-111:
+    endDate: '2011-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '111'
+    startDate: '2011-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-112:
+    endDate: '2012-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '112'
+    startDate: '2011-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-121:
+    endDate: '2012-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '121'
+    startDate: '2012-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-122:
+    endDate: '2013-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '122'
+    startDate: '2012-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-131:
+    endDate: '2013-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '131'
+    startDate: '2013-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-132:
+    endDate: '2014-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '132'
+    startDate: '2013-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-141:
+    endDate: '2014-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '141'
+    startDate: '2014-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-142:
+    endDate: '2015-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '142'
+    startDate: '2014-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-151:
+    endDate: '2015-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '151'
+    startDate: '2015-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-152:
+    endDate: '2016-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '152'
+    startDate: '2015-08-15T00:00:00+02:00'
+  FacilityCycle_facility-(name-ESNF)_name-161:
+    endDate: '2016-08-15T00:00:00+02:00'
+    facility: Facility_name-ESNF
+    name: '161'
+    startDate: '2016-02-15T00:00:00+01:00'
+  FacilityCycle_facility-(name-ESNF)_name-162:
+    endDate: '2017-02-15T00:00:00+01:00'
+    facility: Facility_name-ESNF
+    name: '162'
+    startDate: '2016-08-15T00:00:00+02:00'
 instrument:
   Instrument_facility-(name-ESNF)_name-E2:
     description: 'A 3-dimensional part of the reciprocal space can be scanned in less
@@ -692,6 +802,30 @@ investigationType:
     facility: Facility_name-ESNF
     name: Simulation
 parameterType:
+  ParameterType_facility-(name-ESNF)_name-Comment_units-N=2FA:
+    applicableToDataCollection: true
+    applicableToDatafile: true
+    applicableToDataset: true
+    applicableToInvestigation: true
+    applicableToSample: true
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Comment
+    units: N/A
+    valueType: STRING
+    verified: false
+  ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA:
+    applicableToDataCollection: false
+    applicableToDatafile: true
+    applicableToDataset: true
+    applicableToInvestigation: false
+    applicableToSample: false
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Last access
+    units: N/A
+    valueType: DATE_AND_TIME
+    verified: false
   ParameterType_facility-(name-ESNF)_name-Magnetic=20field_units-T:
     applicableToDataCollection: false
     applicableToDatafile: false
@@ -705,6 +839,22 @@ parameterType:
     unitsFullName: Tesla
     valueType: NUMERIC
     verified: false
+  ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA:
+    applicableToDataCollection: false
+    applicableToDatafile: false
+    applicableToDataset: true
+    applicableToInvestigation: true
+    applicableToSample: false
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Probe
+    permissibleStringValues:
+    - value: muon
+    - value: neutron
+    - value: photon
+    units: N/A
+    valueType: STRING
+    verified: false
   ParameterType_facility-(name-ESNF)_name-Reactor=20power_units-MW:
     applicableToDataCollection: false
     applicableToDatafile: false
@@ -717,6 +867,18 @@ parameterType:
     units: MW
     unitsFullName: Megawatt
     valueType: NUMERIC
+    verified: false
+  ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA:
+    applicableToDataCollection: false
+    applicableToDatafile: false
+    applicableToDataset: false
+    applicableToInvestigation: false
+    applicableToSample: true
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Sample reference
+    units: N/A
+    valueType: STRING
     verified: false
   ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-C:
     applicableToDataCollection: false
@@ -744,6 +906,22 @@ parameterType:
     unitsFullName: Kelvin
     valueType: NUMERIC
     verified: false
+  ParameterType_facility-(name-ESNF)_name-Scoundrel_units-N=2FA:
+    applicableToDataCollection: false
+    applicableToDatafile: false
+    applicableToDataset: false
+    applicableToInvestigation: true
+    applicableToSample: false
+    enforced: false
+    facility: Facility_name-ESNF
+    name: Scoundrel
+    permissibleStringValues:
+    - value: brutto
+    - value: buono
+    - value: cattivo
+    units: N/A
+    valueType: STRING
+    verified: false
 sampleType:
   SampleType_facility-(name-ESNF)_name-Durol=20SC_molecularFormula-C10H14:
     facility: Facility_name-ESNF
@@ -767,6 +945,9 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215
     fileSize: 368369
     name: e201215.nxs
+    parameters:
+    - dateTimeValue: '2008-06-18T09:31:11+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215:
     complete: false
@@ -804,6 +985,13 @@ investigation:
     keywords:
     - name: Durol
     name: 08100122-EF
+    parameters:
+    - stringValue: photon
+      type: ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA
+    shifts:
+    - comment: Beamtime at HIKE
+      endDate: '2008-03-13T16:00:00+01:00'
+      startDate: '2008-03-13T08:00:00+01:00'
     startDate: '2008-03-13T11:39:42+01:00'
     title: Durol single crystal
     type: InvestigationType_name-Experiment_facility-(name-ESNF)
@@ -823,6 +1011,9 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339
     fileSize: 446
     name: e208339.dat
+    parameters:
+    - dateTimeValue: '2010-10-01T08:51:56+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339)_name-e208339=2Enxs
   : checksum: 8b369ddc
     datafileCreateTime: '2010-10-01T08:52:22+02:00'
@@ -831,6 +1022,9 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339
     fileSize: 73428
     name: e208339.nxs
+    parameters:
+    - dateTimeValue: '2012-07-12T16:45:26+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Edat
   : checksum: 284558f4
     datafileCreateTime: '2010-10-05T10:32:21+02:00'
@@ -839,6 +1033,9 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341
     fileSize: 394
     name: e208341.dat
+    parameters:
+    - dateTimeValue: '2010-10-05T11:31:45+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs
   : checksum: 7c72b4bc
     datafileCreateTime: '2010-10-05T11:31:53+02:00'
@@ -847,12 +1044,20 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341
     fileSize: 52857
     name: e208341.nxs
+    parameters:
+    - dateTimeValue: '2012-07-16T16:12:08+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339:
     complete: false
     endDate: '2010-10-01T08:17:48+02:00'
     investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
     name: e208339
+    parameters:
+    - numericValue: '7.3'
+      type: ParameterType_facility-(name-ESNF)_name-Magnetic=20field_units-T
+    - numericValue: '5.0'
+      type: ParameterType_facility-(name-ESNF)_name-Reactor=20power_units-MW
     sample: Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027
     startDate: '2010-09-30T12:27:24+02:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
@@ -861,6 +1066,11 @@ dataset:
     endDate: '2010-10-05T10:32:21+02:00'
     investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
     name: e208341
+    parameters:
+    - numericValue: '2.7'
+      type: ParameterType_facility-(name-ESNF)_name-Magnetic=20field_units-T
+    - numericValue: '5.0'
+      type: ParameterType_facility-(name-ESNF)_name-Reactor=20power_units-MW
     sample: Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027
     startDate: '2010-10-02T04:00:21+02:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
@@ -894,6 +1104,19 @@ investigation:
     - name: NiMnGa
     - name: Nickel
     name: 10100601-ST
+    parameters:
+    - stringValue: neutron
+      type: ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA
+    publications:
+    - doi: 0.1002/adma.201101001
+      fullReference: A. Hau.  Properties of NiMnGa.  Adv. Mater. 2011, 1
+    shifts:
+    - comment: Beamtime at E2
+      endDate: '2010-10-06T08:00:00+02:00'
+      startDate: '2010-09-29T08:00:00+02:00'
+    - comment: Beamtime at E2
+      endDate: '2010-10-13T08:00:00+02:00'
+      startDate: '2010-10-09T08:00:00+02:00'
     startDate: '2010-09-30T12:27:24+02:00'
     title: Ni-Mn-Ga flat cone
     type: InvestigationType_name-Experiment_facility-(name-ESNF)
@@ -902,9 +1125,33 @@ sample:
   Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027:
     investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
     name: NiMnGa 991027
+    parameters:
+    - stringValue: 2046c9a7-ab07-4594-84a2-101617073a79
+      type: ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA
     type: SampleType_facility-(name-ESNF)_name-NiMnGa_molecularFormula-NiMnGa
 ---
 datafile:
+  ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs
+  : checksum: 7c72b4bc
+    datafileCreateTime: '2010-10-05T11:31:53+02:00'
+    datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0
+    datafileModTime: '2010-10-05T11:31:53+02:00'
+    dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945
+    fileSize: 52857
+    name: e208341.nxs
+    parameters:
+    - dateTimeValue: '2014-10-02T14:32:51+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
+  ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs
+  : datafileCreateTime: '2012-07-16T16:30:17+02:00'
+    datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1
+    datafileModTime: '2012-07-16T16:30:17+02:00'
+    dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945
+    fileSize: 28937
+    name: e208945-2.nxs
+    parameters:
+    - dateTimeValue: '2014-10-02T14:32:51+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Edat
   : checksum: bd55affa
     datafileCreateTime: '2012-07-30T03:10:08+02:00'
@@ -913,6 +1160,9 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945
     fileSize: 459
     name: e208945.dat
+    parameters:
+    - dateTimeValue: '2014-10-02T14:32:51+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs
   : checksum: 1db15f18
     datafileCreateTime: '2013-06-03T12:22:43+02:00'
@@ -921,12 +1171,30 @@ datafile:
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945
     fileSize: 396430
     name: e208945.nxs
+    parameters:
+    - dateTimeValue: '2014-10-02T14:32:51+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
+  ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947)_name-e208947=2Enxs
+  : datafileCreateTime: '2012-07-16T16:30:17+02:00'
+    datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1
+    datafileModTime: '2012-07-16T16:30:17+02:00'
+    dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947
+    fileSize: 14965
+    name: e208947.nxs
+    parameters:
+    - dateTimeValue: '2012-07-17T09:28:18+02:00'
+      type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945:
     complete: false
     endDate: '2012-07-30T03:10:08+02:00'
     investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
     name: e208945
+    parameters:
+    - numericValue: '3.92'
+      type: ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-C
+    - numericValue: '277.07'
+      type: ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-K
     sample: Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC
     startDate: '2012-07-26T17:44:24+02:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
@@ -938,6 +1206,11 @@ dataset:
     sample: Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC
     startDate: '2012-08-02T07:30:00+02:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
+  Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947:
+    complete: true
+    investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
+    name: e208947
+    type: DatasetType_facility-(name-ESNF)_name-analyzed
 investigation:
   Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP:
     endDate: '2012-08-06T03:10:08+02:00'
@@ -960,6 +1233,13 @@ investigation:
     - name: Nickel oxide
     - name: oxide
     name: 12100409-ST
+    parameters:
+    - stringValue: photon
+      type: ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA
+    shifts:
+    - comment: Beamtime at EDDI
+      endDate: '2012-08-07T06:00:00+02:00'
+      startDate: '2012-07-24T06:00:00+02:00'
     startDate: '2012-07-26T17:44:24+02:00'
     title: NiO SC OF1 JUH HHL
     type: InvestigationType_name-Experiment_facility-(name-ESNF)
@@ -968,4 +1248,32 @@ sample:
   Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC:
     investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
     name: Nickel(II) oxide SC
+    parameters:
+    - stringValue: c1b0a101-03aa-4d02-a1a2-e2826ba7871b
+      type: ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA
     type: SampleType_facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO
+---
+dataCollection:
+  DataCollection_00000001:
+    dataCollectionDatafiles:
+    - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs
+    dataCollectionDatasets:
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341
+    parameters:
+    - stringValue: Make a synthesis of 10100601-ST and 12100409-ST
+      type: ParameterType_facility-(name-ESNF)_name-Comment_units-N=2FA
+  DataCollection_00000002:
+    dataCollectionDatafiles:
+    - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs
+    dataCollectionDatasets:
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947
+job:
+  Job_00000001:
+    application: Application_facility-(name-ESNF)_name-gnomoanalytics_version-69
+    inputDataCollection: DataCollection_00000001
+    outputDataCollection: DataCollection_00000002
+relatedDatafile:
+  ? RelatedDatafile_sourceDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs)_destDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs)
+  : destDatafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs
+    relation: copy
+    sourceDatafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs

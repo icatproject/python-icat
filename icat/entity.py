@@ -223,6 +223,39 @@ class Entity(object):
                                  (type(self).__name__, attr))
 
 
+    def copy(self):
+        """Return a shallow copy of this entity object.
+
+        Create a new object that has all attributes set to a copy of
+        the corresponding values of this object.  The relations are
+        copied by reference, i.e. the original and the copy refer to
+        the same related object.
+
+        >>> inv = client.new("investigation", name="Investigation A")
+        >>> ds = client.new("dataset", investigation=inv, name="Dataset X")
+        >>> cds = ds.copy()
+        >>> cds.name
+        'Dataset X'
+        >>> cds.investigation.name
+        'Investigation A'
+        >>> cds.name = "Dataset Y"
+        >>> cds.investigation.name = "Investigation B"
+        >>> ds.name
+        'Dataset X'
+        >>> ds.investigation.name
+        'Investigation B'
+        """
+        cobj = self.client.new(self.instance.__class__.__name__)
+        for attr in (self.InstAttr | self.InstRel):
+            value = getattr(self.instance, attr, None)
+            setattr(cobj.instance, attr, value)
+        for attr in self.InstMRel:
+            if hasattr(self.instance, attr):
+                values = getattr(self.instance, attr)
+                setattr(cobj.instance, attr, values[:])
+        return cobj
+
+
     def __eq__(self, e):
         if isinstance(e, Entity):
             return bool(id(self) == id(e) or 

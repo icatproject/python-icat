@@ -13,6 +13,7 @@
 
 import sys
 import logging
+import datetime
 import yaml
 import icat
 import icat.config
@@ -109,9 +110,10 @@ if client.apiversion < '4.3.99':
 # to anybody.  SampleType is a special case, dealt with below.
 client.createRules("R", pubtables - set(["SampleType"]))
 
-# Special rule: each user gets the permission to see the groups he
-# is in.
-client.createRules("R", [ "%s <-> UserGroup <-> User[name=:user]" % groupname ])
+# Special rules: each user gets the permission to see the groups he
+# is in and the studies he is leading.
+client.createRules("R", ["%s <-> UserGroup <-> User [name=:user]" % groupname])
+client.createRules("R", ["Study <-> User [name=:user]"])
 
 # Add a sepcial user to be configured as reader in ids.server.  This
 # user needs at least permission to read all datasets, datafiles,
@@ -150,14 +152,17 @@ client.createRules("RU", ["Sample"], staff)
 
 # Everybody is allowed to create DataCollections.  But they are
 # private, so users are only allowed to read, update or delete
-# DataCollections they created themselves.  Similar thing for Job.
+# DataCollections they created themselves.  Similar thing for Job and
+# RelatedDatafile.
 owndccond = "DataCollection [createId=:user]"
 owndc = [ s % owndccond for s in 
           [ "%s", 
             "DataCollectionDatafile <-> %s", 
-            "DataCollectionDataset <-> %s" ] ]
+            "DataCollectionDataset <-> %s", 
+            "DataCollectionParameter <-> %s" ] ]
 client.createRules("CRUD", owndc)
 client.createRules("CRUD", ["Job [createId=:user]"])
+client.createRules("CRUD", ["RelatedDatafile [createId=:user]"])
 
 
 # ------------------------------------------------------------
@@ -386,6 +391,10 @@ for k in data['parameter_types'].keys():
     pt = client.new("parameterType")
     initobj(pt, data['parameter_types'][k])
     pt.facility = facilities[data['parameter_types'][k]['facility']]
+    if 'values' in data['parameter_types'][k]:
+        for v in data['parameter_types'][k]['values']:
+            psv = client.new('permissibleStringValue', value=v)
+            pt.permissibleStringValues.append(psv)
     param_types.append(pt)
 client.createMany(param_types)
 
@@ -398,4 +407,21 @@ for k in data['applications'].keys():
     applications.append(app)
 client.createMany(applications)
 
-
+# facilityCycles
+facility_cycles = []
+for fcdata in data['facility_cycles']:
+    for y in range(fcdata['startYear'],fcdata['endYear']):
+        year = 2000 + int(y)
+        c = 0
+        for p in fcdata['cycles']:
+            c += 1
+            cycle = client.new("facilityCycle")
+            cycle.name = "%02d%d" % (y, c)
+            cycle.startDate = datetime.date(year, p[0], p[1])
+            if p[2] > p[0]:
+                cycle.endDate = datetime.date(year, p[2], p[3])
+            else:
+                cycle.endDate = datetime.date(year+1, p[2], p[3])
+            cycle.facility = facilities[fcdata['facility']]
+            facility_cycles.append(cycle)
+client.createMany(facility_cycles)

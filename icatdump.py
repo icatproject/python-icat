@@ -144,7 +144,7 @@ investtypes = [Query(client, "Investigation",
                                    "parameters.type.facility"])) ]
 othertypes =  [Query(client, "Study", order=True, 
                      includes=set(["user", "studyInvestigations", 
-                                   "studyInvestigations.investigation"])), 
+                                   "studyInvestigations.investigation.facility"])), 
                Query(client, "RelatedDatafile", order=True, 
                      includes=set(["sourceDatafile.dataset.investigation.facility", 
                                    "destDatafile.dataset.investigation.facility"])), 
@@ -153,7 +153,7 @@ othertypes =  [Query(client, "Study", order=True,
                                     "investigation.facility"), 
                                    ("dataCollectionDatafiles.datafile.dataset."
                                     "investigation.facility"), 
-                                   "%s.type" % datacolparamname])), 
+                                   "%s.type.facility" % datacolparamname])), 
                Query(client, "Job", order=True, 
                      includes=set(["application.facility", 
                                    "inputDataCollection", "outputDataCollection"]))]

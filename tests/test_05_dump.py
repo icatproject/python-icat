@@ -2,12 +2,14 @@
 """
 
 import os.path
+import re
 import filecmp
 import pytest
 import icat
 import icat.config
 from conftest import getConfig, require_icat_version
-from conftest import gettestdata, callscript, filter_xml_dump, filter_yaml_dump
+from conftest import gettestdata, callscript
+from conftest import filter_file, yaml_filter, xml_filter
 
 # test content has InvestigationGroup objects.
 require_icat_version("4.4.0")
@@ -16,12 +18,12 @@ backends = {
     'XML': {
         'refdump': gettestdata("icatdump.xml"),
         'fileext': '.xml',
-        'filter': filter_xml_dump,
+        'filter': xml_filter,
     },
     'YAML': {
         'refdump': gettestdata("icatdump.yaml"),
         'fileext': '.yaml',
-        'filter': filter_yaml_dump,
+        'filter': yaml_filter,
     },
 }
 users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
@@ -29,6 +31,17 @@ refsummary = { "root": gettestdata("summary") }
 for u in users:
     refsummary[u] = gettestdata("summary.%s" % u)
 
+
+# Read permission on DataCollection, DataCollectionDatafile,
+# DataCollectionDataset, DataCollectionParameter, and Job is only
+# granted to the creator of the DataCollection or the Job
+# respectively.  But the createId is not preserved by an icatdump /
+# icatingest cycle, so this permission is lost.  Normal users will
+# thus always see zero objects of these types after a cycle.  For this
+# reason, we must filter out the numbers in the reference output for
+# this test.
+summary_filter = (re.compile(r"^((?:DataCollection(?:Datafile|Dataset|Parameter)?|Job|RelatedDatafile)\s*) : \d+$"),
+                  r"\1 : 0")
 
 def test_ingest_xml(standardConfig):
     """Restore the ICAT content from a XML dumpfile.
@@ -44,14 +57,13 @@ def test_check_content_xml(standardConfig, tmpdirsec, backend):
     """
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']
-    ffilter = backends[backend]['filter']
     dump = os.path.join(tmpdirsec.dir, "dump" + fileext)
     fdump = os.path.join(tmpdirsec.dir, "dump-filter" + fileext)
     reffdump = os.path.join(tmpdirsec.dir, "dump-filter-ref" + fileext)
-    ffilter(refdump, reffdump)
+    filter_file(refdump, reffdump, *backends[backend]['filter'])
     args = standardConfig.cmdargs + ["-f", backend, "-o", dump]
     callscript("icatdump.py", args)
-    ffilter(dump, fdump)
+    filter_file(dump, fdump, *backends[backend]['filter'])
     assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
 
 def test_check_summary_root_xml(standardConfig, tmpdirsec):
@@ -72,10 +84,12 @@ def test_check_summary_user_xml(tmpdirsec, user):
     """
     summary = os.path.join(tmpdirsec.dir, "summary.%s" % user)
     ref = refsummary[user]
+    reff = os.path.join(tmpdirsec.dir, "summary-filter-ref.%s" % user)
+    filter_file(ref, reff, *summary_filter)
     conf = getConfig(confSection=user)
     with open(summary, "wt") as out:
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
-    assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
+    assert filecmp.cmp(reff, summary), "ICAT content was not as expected"
 
 
 def test_ingest_yaml(standardConfig):
@@ -92,14 +106,13 @@ def test_check_content_yaml(standardConfig, tmpdirsec, backend):
     """
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']
-    ffilter = backends[backend]['filter']
     dump = os.path.join(tmpdirsec.dir, "dump" + fileext)
     fdump = os.path.join(tmpdirsec.dir, "dump-filter" + fileext)
     reffdump = os.path.join(tmpdirsec.dir, "dump-filter-ref" + fileext)
-    ffilter(refdump, reffdump)
+    filter_file(refdump, reffdump, *backends[backend]['filter'])
     args = standardConfig.cmdargs + ["-f", backend, "-o", dump]
     callscript("icatdump.py", args)
-    ffilter(dump, fdump)
+    filter_file(dump, fdump, *backends[backend]['filter'])
     assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
 
 def test_check_summary_root_yaml(standardConfig, tmpdirsec):
@@ -120,7 +133,9 @@ def test_check_summary_user_yaml(tmpdirsec, user):
     """
     summary = os.path.join(tmpdirsec.dir, "summary.%s" % user)
     ref = refsummary[user]
+    reff = os.path.join(tmpdirsec.dir, "summary-filter-ref.%s" % user)
+    filter_file(ref, reff, *summary_filter)
     conf = getConfig(confSection=user)
     with open(summary, "wt") as out:
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
-    assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
+    assert filecmp.cmp(reff, summary), "ICAT content was not as expected"
