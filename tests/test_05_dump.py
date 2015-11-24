@@ -31,7 +31,6 @@ refsummary = { "root": gettestdata("summary") }
 for u in users:
     refsummary[u] = gettestdata("summary.%s" % u)
 
-
 # Read permission on DataCollection, DataCollectionDatafile,
 # DataCollectionDataset, DataCollectionParameter, and Job is only
 # granted to the creator of the DataCollection or the Job
@@ -42,6 +41,38 @@ for u in users:
 # this test.
 summary_filter = (re.compile(r"^((?:DataCollection(?:Datafile|Dataset|Parameter)?|Job|RelatedDatafile)\s*) : \d+$"),
                   r"\1 : 0")
+
+# Test queries and results for test_check_queries_xml() and
+# test_check_queries_yaml().  This is mostly to verify that object
+# relations are kept intact after an icatdump / icatingest cycle.
+queries = [
+    ("Datafile.name <-> Dataset <-> Investigation [name='12100409-ST']",
+     ['e208341.nxs', 'e208945-2.nxs', 'e208945.dat', 'e208945.nxs',
+      'e208947.nxs']),
+    ("SELECT p.numericValue FROM DatasetParameter p "
+     "JOIN p.dataset AS ds JOIN ds.investigation AS i JOIN p.type AS t "
+     "WHERE i.name = '10100601-ST' AND ds.name = 'e208339' "
+     "AND t.name = 'Magnetic field'",
+     [7.3]),
+    ("SELECT ds.name FROM Dataset ds "
+     "JOIN ds.dataCollectionDatasets AS dcds "
+     "JOIN dcds.dataCollection AS dc JOIN dc.jobsAsOutput AS j "
+     "WHERE j.id IS NOT NULL",
+     ["e208947"]),
+    ("SELECT df.name FROM Datafile df "
+     "JOIN df.dataCollectionDatafiles AS dcdf "
+     "JOIN dcdf.dataCollection AS dc JOIN dc.jobsAsInput AS j "
+     "WHERE j.id IS NOT NULL",
+     ["e208945.nxs"]),
+]
+
+@pytest.fixture(scope="module")
+def client():
+    conf = getConfig()
+    client = icat.Client(conf.url, **conf.client_kwargs)
+    client.login(conf.auth, conf.credentials)
+    return client
+
 
 def test_ingest_xml(standardConfig):
     """Restore the ICAT content from a XML dumpfile.
@@ -91,6 +122,13 @@ def test_check_summary_user_xml(tmpdirsec, user):
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
     assert filecmp.cmp(reff, summary), "ICAT content was not as expected"
 
+@pytest.mark.parametrize(("query","result"), queries)
+def test_check_queries_xml(client, query, result):
+    """Check the result for some queries.
+    """
+    res = client.search(query)
+    assert sorted(res) == result
+
 
 def test_ingest_yaml(standardConfig):
     """Restore the ICAT content from a YAML dumpfile.
@@ -139,3 +177,10 @@ def test_check_summary_user_yaml(tmpdirsec, user):
     with open(summary, "wt") as out:
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
     assert filecmp.cmp(reff, summary), "ICAT content was not as expected"
+
+@pytest.mark.parametrize(("query","result"), queries)
+def test_check_queries_yaml(client, query, result):
+    """Check the result for some queries.
+    """
+    res = client.search(query)
+    assert sorted(res) == result
