@@ -161,5 +161,9 @@ with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     investsearch = ("SELECT i.id FROM Investigation i JOIN i.facility f "
                     "ORDER BY f.name, i.name, i.visitId")
     for i in client.searchChunked(investsearch):
-        dumpfile.writedata([ str(q) % (i) for q in investtypes ])
+        # We fetch Dataset including DatasetParameter.  This may lead
+        # to a large total number of objects even for a small number
+        # of Datasets fetched at once.  Set a very small chunksize to
+        # avoid hitting the limit.
+        dumpfile.writedata([ str(q) % (i) for q in investtypes ], chunksize=5)
     dumpfile.writedata(othertypes)
