@@ -71,7 +71,7 @@ def test_assertedSearch_range_empty(client):
                                  assertmin=0, assertmax=10)
     assert len(objs) <= 10
 
-def test_assertedSearch_range_empty(client):
+def test_assertedSearch_range_indefinite(client):
     """Search for indefinite number of objects.
     """
     objs = client.assertedSearch("Datafile", assertmin=1, assertmax=None)
