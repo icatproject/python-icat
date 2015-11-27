@@ -112,7 +112,7 @@ def test_searchChunked_simple(client, query):
     """A simple search with searchChunked().
     """
     # Hack: the parametrize marker above cannot access client,
-    # must defer the constrictor call to here.
+    # must defer the constructor call to here.
     if isinstance(query, Callable):
         query = query(client)
     # Do a normal search as a reference first, the result from

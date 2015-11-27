@@ -294,7 +294,7 @@ def test_ingest_duplicate_check_types(tmpdirsec, dataset, cmdargs, inputdata):
     Similar to test_ingest_duplicate_check_ok(), but trying several
     input datasets that test different data types.  Issue #9.
     """
-    # Most input data create a datadile or a dataset parameter related
+    # Most input data create a datafile or a dataset parameter related
     # to dataset and thus assume the dataset to already exist.  Only
     # ingest_data_boolean creates the dataset itself.
     if inputdata is not ingest_data_boolean:
