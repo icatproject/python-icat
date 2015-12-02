@@ -10,6 +10,8 @@ from icat.query import Query
 from conftest import getConfig
 
 
+# FIXME: dependency of tests.
+
 @pytest.fixture(scope="module")
 def client(setupicat):
     conf = getConfig()

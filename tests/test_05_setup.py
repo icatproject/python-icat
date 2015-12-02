@@ -17,6 +17,9 @@ from icat.query import Query
 from conftest import getConfig, require_icat_version
 from conftest import gettestdata, callscript, filter_file, yaml_filter
 
+
+# FIXME: dependency of tests.
+
 # wipeicat uses JPQL search syntax.
 require_icat_version("4.3.0")
 

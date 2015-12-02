@@ -11,6 +11,9 @@ from conftest import getConfig, require_icat_version
 from conftest import gettestdata, callscript
 from conftest import filter_file, yaml_filter, xml_filter
 
+
+# FIXME: dependency of tests.
+
 # test content has InvestigationGroup objects.
 require_icat_version("4.4.0")
 

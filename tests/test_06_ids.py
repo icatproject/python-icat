@@ -17,6 +17,8 @@ from conftest import require_icat_version, getConfig, callscript
 from conftest import tmpSessionId
 
 
+# FIXME: dependency of tests.
+
 @pytest.fixture(scope="module")
 def client(setupicat, request):
     conf = getConfig(ids="mandatory")
