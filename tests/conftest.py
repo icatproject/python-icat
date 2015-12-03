@@ -210,7 +210,7 @@ class DependencyItemStatus(object):
         self.results[rep.when] = rep.outcome
 
     def isSuccess(self):
-        return self.results.values() == ['passed', 'passed', 'passed']
+        return list(self.results.values()) == ['passed', 'passed', 'passed']
 
 class DependencyManager(object):
     """Dependency manager, stores the results of tests.
