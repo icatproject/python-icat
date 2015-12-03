@@ -102,6 +102,8 @@ testdatasets = [
         'dsname': "e208946",
     },
 ]
+for ds in testdatasets:
+    ds['dfs'] = [ df for df in testdatafiles if df['dsname'] == ds['dsname'] ]
 
 @pytest.mark.parametrize(("case"), testdatafiles)
 def test_upload(tmpdirsec, client, case):
@@ -131,9 +133,8 @@ def method(request):
 
 @pytest.mark.parametrize(("case"), testdatasets)
 def test_download(tmpdirsec, client, case, method):
-    dfs = [ c for c in testdatafiles if c['dsname'] == case['dsname'] ]
     conf = getConfig(confSection=case['dluser'])
-    if len(dfs) > 1:
+    if len(case['dfs']) > 1:
         zfname = os.path.join(tmpdirsec.dir, "%s.zip" % case['dsname'])
         print("\nDownload %s to file %s" % (case['dsname'], zfname))
         args = conf.cmdargs + [ '--outputfile', zfname, 
@@ -141,8 +142,8 @@ def test_download(tmpdirsec, client, case, method):
         callscript("downloaddata.py", args)
         zf = zipfile.ZipFile(zfname, 'r')
         zinfos = zf.infolist()
-        assert len(zinfos) == len(dfs)
-        for df in dfs:
+        assert len(zinfos) == len(case['dfs'])
+        for df in case['dfs']:
             zi = None
             for i in zinfos:
                 if i.filename.endswith(df['dfname']):
@@ -151,13 +152,14 @@ def test_download(tmpdirsec, client, case, method):
             assert zi is not None
             assert "%x" % (zi.CRC & 0xffffffff) == df['testfile'].crc32
             assert zi.file_size == df['testfile'].size
-    elif len(dfs) == 1:
-        dfname = os.path.join(tmpdirsec.dir, "dl_%s" % dfs[0]['dfname'])
+    elif len(case['dfs']) == 1:
+        df = case['dfs'][0]
+        dfname = os.path.join(tmpdirsec.dir, "dl_%s" % df['dfname'])
         print("\nDownload %s to file %s" % (case['dsname'], dfname))
         args = conf.cmdargs + [ '--outputfile', dfname, 
                                 case['invname'], case['dsname'], method ]
         callscript("downloaddata.py", args)
-        assert filecmp.cmp(dfs[0]['testfile'].fname, dfname)
+        assert filecmp.cmp(df['testfile'].fname, dfname)
     else:
         raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
 
@@ -165,7 +167,6 @@ def test_download(tmpdirsec, client, case, method):
 def test_getinfo(client, case):
     """Call getStatus() and getSize() to get some informations on a dataset.
     """
-    dfs = [ c for c in testdatafiles if c['dsname'] == case['dsname'] ]
     query = Query(client, "Dataset", conditions={
         "name": "= '%s'" % case['dsname'],
         "investigation.name": "= '%s'" % case['invname'],
@@ -173,7 +174,7 @@ def test_getinfo(client, case):
     selection = DataSelection(client.assertedSearch(query))
     size = client.ids.getSize(selection)
     print("Size of dataset %s: %d" % (case['dsname'], size))
-    assert size == sum(f['size'] for f in dfs)
+    assert size == sum(f['size'] for f in case['dfs'])
     status = client.ids.getStatus(selection)
     print("Status of dataset %s: %s" % (case['dsname'], status))
     assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
@@ -188,7 +189,6 @@ def test_status_no_sessionId(client, case):
     if client.ids.apiversion < '1.5.0':
         pytest.skip("IDS %s is too old, need 1.5.0 or newer" 
                     % client.ids.apiversion)
-    dfs = [ c for c in testdatafiles if c['dsname'] == case['dsname'] ]
     query = Query(client, "Dataset", conditions={
         "name": "= '%s'" % case['dsname'],
         "investigation.name": "= '%s'" % case['invname'],
