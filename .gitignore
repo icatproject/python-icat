@@ -12,6 +12,7 @@ __pycache__/
 /icat.cfg
 /icat/__init__.py
 /python2_6.patch
+/tests/.cache/
 /tests/data/example_data.yaml
 /tests/data/icat.cfg
 /tests/data/icatdump.xml
