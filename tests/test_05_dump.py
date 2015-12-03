@@ -12,8 +12,6 @@ from conftest import gettestdata, callscript
 from conftest import filter_file, yaml_filter, xml_filter
 
 
-# FIXME: dependency of tests.
-
 # test content has InvestigationGroup objects.
 require_icat_version("4.4.0")
 
@@ -77,6 +75,7 @@ def client():
     return client
 
 
+@pytest.mark.dependency()
 def test_ingest_xml(standardConfig):
     """Restore the ICAT content from a XML dumpfile.
     """
@@ -85,6 +84,7 @@ def test_ingest_xml(standardConfig):
     args = standardConfig.cmdargs + ["-f", "XML", "-i", refdump]
     callscript("icatingest.py", args)
 
+@pytest.mark.dependency(depends=["test_ingest_xml"])
 @pytest.mark.parametrize(("backend"), sorted(backends.keys()))
 def test_check_content_xml(standardConfig, tmpdirsec, backend):
     """Dump the content and check that we get the reference dump file back.
@@ -100,6 +100,7 @@ def test_check_content_xml(standardConfig, tmpdirsec, backend):
     filter_file(dump, fdump, *backends[backend]['filter'])
     assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
 
+@pytest.mark.dependency(depends=["test_ingest_xml"])
 def test_check_summary_root_xml(standardConfig, tmpdirsec):
     """Check the number of objects for each class at the ICAT server.
     """
@@ -109,6 +110,7 @@ def test_check_summary_root_xml(standardConfig, tmpdirsec):
         callscript("icatsummary.py", standardConfig.cmdargs, stdout=out)
     assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
 
+@pytest.mark.dependency(depends=["test_ingest_xml"])
 @pytest.mark.parametrize(("user"), users)
 def test_check_summary_user_xml(tmpdirsec, user):
     """Check the number of objects from a user's point of view.
@@ -125,6 +127,7 @@ def test_check_summary_user_xml(tmpdirsec, user):
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
     assert filecmp.cmp(reff, summary), "ICAT content was not as expected"
 
+@pytest.mark.dependency(depends=["test_ingest_xml"])
 @pytest.mark.parametrize(("query","result"), queries)
 def test_check_queries_xml(client, query, result):
     """Check the result for some queries.
@@ -133,6 +136,7 @@ def test_check_queries_xml(client, query, result):
     assert sorted(res) == result
 
 
+@pytest.mark.dependency()
 def test_ingest_yaml(standardConfig):
     """Restore the ICAT content from a YAML dumpfile.
     """
@@ -141,6 +145,7 @@ def test_ingest_yaml(standardConfig):
     args = standardConfig.cmdargs + ["-f", "YAML", "-i", refdump]
     callscript("icatingest.py", args)
 
+@pytest.mark.dependency(depends=["test_ingest_yaml"])
 @pytest.mark.parametrize(("backend"), sorted(backends.keys()))
 def test_check_content_yaml(standardConfig, tmpdirsec, backend):
     """Dump the content and check that we get the reference dump file back.
@@ -156,6 +161,7 @@ def test_check_content_yaml(standardConfig, tmpdirsec, backend):
     filter_file(dump, fdump, *backends[backend]['filter'])
     assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
 
+@pytest.mark.dependency(depends=["test_ingest_yaml"])
 def test_check_summary_root_yaml(standardConfig, tmpdirsec):
     """Check the number of objects for each class at the ICAT server.
     """
@@ -165,6 +171,7 @@ def test_check_summary_root_yaml(standardConfig, tmpdirsec):
         callscript("icatsummary.py", standardConfig.cmdargs, stdout=out)
     assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
 
+@pytest.mark.dependency(depends=["test_ingest_yaml"])
 @pytest.mark.parametrize(("user"), users)
 def test_check_summary_user_yaml(tmpdirsec, user):
     """Check the number of objects from a user's point of view.
@@ -181,6 +188,7 @@ def test_check_summary_user_yaml(tmpdirsec, user):
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
     assert filecmp.cmp(reff, summary), "ICAT content was not as expected"
 
+@pytest.mark.dependency(depends=["test_ingest_yaml"])
 @pytest.mark.parametrize(("query","result"), queries)
 def test_check_queries_yaml(client, query, result):
     """Check the result for some queries.
