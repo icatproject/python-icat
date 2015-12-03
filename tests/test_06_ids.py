@@ -17,8 +17,6 @@ from conftest import require_icat_version, getConfig, callscript
 from conftest import tmpSessionId
 
 
-# FIXME: dependency of tests.
-
 @pytest.fixture(scope="module")
 def client(setupicat, request):
     conf = getConfig(ids="mandatory")
@@ -31,7 +29,7 @@ def client(setupicat, request):
     return client
 
 
-# ============================= tests ==============================
+# ============================ testdata ============================
 
 testdatafiles = [
     {
@@ -105,7 +103,21 @@ testdatasets = [
 for ds in testdatasets:
     ds['dfs'] = [ df for df in testdatafiles if df['dsname'] == ds['dsname'] ]
 
-@pytest.mark.parametrize(("case"), testdatafiles)
+# Enriched versions of testdatafiles and testdatasets, decorated
+# with appropriate dependency markers, such that the datasets
+# depend on the datafiles they contain.
+markeddatafiles = [
+    pytest.mark.dependency(name=df['dfname'])(df) for df in testdatafiles
+]
+markeddatasets = [
+    pytest.mark.dependency(depends=[df['dfname'] for df in ds['dfs']])(ds)
+    for ds in testdatasets
+]
+
+
+# ============================= tests ==============================
+
+@pytest.mark.parametrize(("case"), markeddatafiles)
 def test_upload(tmpdirsec, client, case):
     f = DummyDatafile(tmpdirsec.dir, 
                       case['dfname'], case['size'], case['mtime'])
@@ -131,7 +143,7 @@ def test_upload(tmpdirsec, client, case):
 def method(request):
     return request.param
 
-@pytest.mark.parametrize(("case"), testdatasets)
+@pytest.mark.parametrize(("case"), markeddatasets)
 def test_download(tmpdirsec, client, case, method):
     conf = getConfig(confSection=case['dluser'])
     if len(case['dfs']) > 1:
@@ -163,7 +175,7 @@ def test_download(tmpdirsec, client, case, method):
     else:
         raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
 
-@pytest.mark.parametrize(("case"), testdatasets)
+@pytest.mark.parametrize(("case"), markeddatasets)
 def test_getinfo(client, case):
     """Call getStatus() and getSize() to get some informations on a dataset.
     """
@@ -179,7 +191,7 @@ def test_getinfo(client, case):
     print("Status of dataset %s: %s" % (case['dsname'], status))
     assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
 
-@pytest.mark.parametrize(("case"), testdatasets)
+@pytest.mark.parametrize(("case"), markeddatasets)
 def test_status_no_sessionId(client, case):
     """Call getStatus() while logged out.
 
@@ -199,7 +211,7 @@ def test_status_no_sessionId(client, case):
     print("Status of dataset %s: %s" % (case['dsname'], status))
     assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
 
-@pytest.mark.parametrize(("case"), testdatasets)
+@pytest.mark.parametrize(("case"), markeddatasets)
 def test_getDatafileIds(client, case):
     """Call getDatafileIds() to get the Datafile ids from a dataset.
     """
@@ -267,7 +279,7 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
     if tzinfo is not None:
         assert df.datafileCreateTime == createTime
 
-@pytest.mark.parametrize(("case"), testdatasets)
+@pytest.mark.parametrize(("case"), markeddatasets)
 def test_archive(client, case):
     """Call archive() on a dataset.
     """
@@ -290,7 +302,7 @@ def test_archive(client, case):
     # outcome of the archive() call.
     print("Status of dataset %s is now %s" % (case['dsname'], status))
 
-@pytest.mark.parametrize(("case"), testdatasets)
+@pytest.mark.parametrize(("case"), markeddatasets)
 def test_restore(client, case):
     """Call restore() on a dataset.
     """
