@@ -17,6 +17,7 @@ from icat.query import Query
 from conftest import getConfig, require_icat_version
 from conftest import gettestdata, callscript, filter_file, yaml_filter
 
+
 # wipeicat uses JPQL search syntax.
 require_icat_version("4.3.0")
 
@@ -26,6 +27,10 @@ users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
 refsummary = { "root": gettestdata("summary") }
 for u in users:
     refsummary[u] = gettestdata("summary.%s" % u)
+# Labels used in test dependencies.
+alldata = ["init", "sample_durol", "sample_nimnga", "sample_nio", "inv_081",
+           "inv_101", "inv_121", "invdata_081", "invdata_101", "invdata_121",
+           "job1", "rdf1", "pub1"]
 
 @pytest.fixture(scope="module")
 def data():
@@ -76,15 +81,16 @@ def create_datafile(client, data, df):
     return datafile
 
 
+@pytest.mark.dependency(name="init")
 def test_init(standardConfig):
     callscript("wipeicat.py", standardConfig.cmdargs)
     callscript("init-icat.py", standardConfig.cmdargs + [testinput])
 
 
 @pytest.mark.parametrize("invname", [
-    "08100122-EF", 
-    "10100601-ST", 
-    "12100409-ST"
+    pytest.mark.dependency(name="inv_081", depends=["init"])("08100122-EF"),
+    pytest.mark.dependency(name="inv_101", depends=["init"])("10100601-ST"),
+    pytest.mark.dependency(name="inv_121", depends=["init"])("12100409-ST")
 ])
 def test_create_investigation(invname):
     conf = getConfig(confSection="useroffice")
@@ -92,9 +98,12 @@ def test_create_investigation(invname):
     callscript("create-investigation.py", args)
 
 @pytest.mark.parametrize(("user", "sample"), [
-    ("jbotu", "durol"), 
-    ("ahau",  "nimnga"), 
-    ("nbour", "nio")
+    pytest.mark.dependency(name="sample_durol", depends=["init"])(
+        ("jbotu", "durol")),
+    pytest.mark.dependency(name="sample_nimnga", depends=["init"])(
+        ("ahau",  "nimnga")),
+    pytest.mark.dependency(name="sample_nio", depends=["init"])(
+        ("nbour", "nio"))
 ])
 def test_create_sampletype(user, sample):
     conf = getConfig(confSection=user)
@@ -102,9 +111,15 @@ def test_create_sampletype(user, sample):
     callscript("create-sampletype.py", args)
 
 @pytest.mark.parametrize(("user", "invname"), [
-    ("nbour", "08100122-EF"), 
-    ("ahau",  "10100601-ST"), 
-    ("nbour", "12100409-ST")
+    pytest.mark.dependency(
+        name="invdata_081", depends=["inv_081", "sample_durol"])(
+            ("nbour", "08100122-EF")),
+    pytest.mark.dependency(
+        name="invdata_101", depends=["inv_101", "sample_nimnga"])(
+            ("ahau",  "10100601-ST")),
+    pytest.mark.dependency(
+        name="invdata_121", depends=["inv_121", "sample_nio"])(
+            ("nbour", "12100409-ST"))
 ])
 def test_addinvdata(user, invname):
     conf = getConfig(confSection=user)
@@ -112,7 +127,9 @@ def test_addinvdata(user, invname):
     callscript("add-investigation-data.py", args)
 
 @pytest.mark.parametrize(("user", "jobname"), [
-    ("nbour", "job1"),
+    pytest.mark.dependency(
+        name="job1", depends=["invdata_101", "invdata_121"])(
+            ("nbour", "job1")),
 ])
 def test_addjob(user, jobname):
     conf = getConfig(confSection=user)
@@ -120,7 +137,9 @@ def test_addjob(user, jobname):
     callscript("add-job.py", args)
 
 @pytest.mark.parametrize(("user", "rdfname"), [
-    ("nbour", "rdf1"),
+    pytest.mark.dependency(
+        name="rdf1", depends=["invdata_101", "invdata_121"])(
+            ("nbour", "rdf1")),
 ])
 def test_add_relateddatafile(data, user, rdfname):
     conf = getConfig(confSection=user)
@@ -134,7 +153,9 @@ def test_add_relateddatafile(data, user, rdfname):
     rdf.create()
 
 @pytest.mark.parametrize(("user", "studyname"), [
-    ("useroffice", "study1"),
+    pytest.mark.dependency(
+        name="study1", depends=["inv_101", "inv_121"])(
+            ("useroffice", "study1")),
 ])
 def test_add_study(data, user, studyname):
     pytest.skip("Study disabled, see Issue icatproject/icat.server#155")
@@ -154,7 +175,8 @@ def test_add_study(data, user, studyname):
     study.create()
 
 @pytest.mark.parametrize(("user", "pubname"), [
-    ("useroffice", "pub1"),
+    pytest.mark.dependency(name="pub1", depends=["inv_101"])(
+        ("useroffice", "pub1")),
 ])
 def test_add_publication(data, user, pubname):
     conf = getConfig(confSection=user)
@@ -168,6 +190,7 @@ def test_add_publication(data, user, pubname):
     publication.create()
 
 
+@pytest.mark.dependency(depends=alldata)
 def test_check_content(standardConfig, tmpdirsec):
     """Dump the resulting content and compare with a reference dump.
     """
@@ -180,6 +203,7 @@ def test_check_content(standardConfig, tmpdirsec):
     filter_file(dump, fdump, *yaml_filter)
     assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
 
+@pytest.mark.dependency(depends=alldata)
 def test_check_summary_root(standardConfig, tmpdirsec):
     """Check the number of objects for each class at the ICAT server.
     """
@@ -189,6 +213,7 @@ def test_check_summary_root(standardConfig, tmpdirsec):
         callscript("icatsummary.py", standardConfig.cmdargs, stdout=out)
     assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
 
+@pytest.mark.dependency(depends=alldata)
 @pytest.mark.parametrize(("user"), users)
 def test_check_summary_user(tmpdirsec, user):
     """Check the number of objects from a user's point of view.

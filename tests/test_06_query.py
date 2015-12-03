@@ -26,6 +26,7 @@ def client(setupicat):
 
 investigation = None
 
+@pytest.mark.dependency(name='get_investigation')
 def test_query_simple(client):
     """A simple query for an investigation by name.
     """
@@ -76,6 +77,7 @@ def test_query_datafile(client):
     assert len(res) == 1
     assert res[0] == df
 
+@pytest.mark.dependency(depends=['get_investigation'])
 def test_query_investigation_includes(client):
     """Query lots of information about one single investigation.
     """
@@ -101,6 +103,7 @@ def test_query_investigation_includes(client):
     assert len(inv.investigationUsers) > 0
     assert len(inv.investigationGroups) > 0
 
+@pytest.mark.dependency(depends=['get_investigation'])
 def test_query_instruments(client):
     """Query the instruments related to a given investigation.
     """
@@ -116,6 +119,7 @@ def test_query_instruments(client):
     assert instr.BeanName == "Instrument"
     assert instr.facility.BeanName == "Facility"
 
+@pytest.mark.dependency(depends=['get_investigation'])
 def test_query_datafile_by_investigation(client):
     """The datafiles related to a given investigation in natural order.
     """
@@ -193,6 +197,7 @@ def test_query_condition_list(client):
     res = client.search(query)
     assert len(res) == 3
 
+@pytest.mark.dependency(depends=['get_investigation'])
 def test_query_in_operator(client):
     """Using "id in (i)" rather then "id = i" also works.
     (This may be needed to work around ICAT Issue 128.)
@@ -281,6 +286,7 @@ def test_query_non_ascii(client):
     res = client.search(query)
     assert len(res) == 1
 
+@pytest.mark.dependency(depends=['get_investigation'])
 def test_query_str(client):
     """Test the __str__() operator.  It should have no side effects.
 
