@@ -48,7 +48,7 @@ not required to install or use python-icat itself:
    Only needed for the example scripts using the ICAT RESTful
    interface, icatexport.py and icatimport.py.
 
- + `pytest`_
+ + `pytest`_ >= 2.8
 
    Only if you want to run the tests.
 
