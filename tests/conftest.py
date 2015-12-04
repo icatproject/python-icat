@@ -201,7 +201,7 @@ class DependencyItemStatus(object):
     Phases = ('setup', 'call', 'teardown')
 
     def __init__(self):
-        self.results = { w:None for w in self.Phases }
+        self.results = dict([ (w,None) for w in self.Phases ])
 
     def __str__(self):
         l = ["%s: %s" % (w, self.results[w]) for w in self.Phases]
