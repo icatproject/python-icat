@@ -27,6 +27,7 @@ clean:
 	rm -rf tests/scripts
 
 distclean: clean
+	rm -rf tests/.cache
 	rm -f MANIFEST
 	rm -rf python_icat.egg-info
 	rm -f *.pyc icat/*.pyc tests/*.pyc

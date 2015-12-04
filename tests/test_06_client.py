@@ -71,7 +71,7 @@ def test_assertedSearch_range_empty(client):
                                  assertmin=0, assertmax=10)
     assert len(objs) <= 10
 
-def test_assertedSearch_range_empty(client):
+def test_assertedSearch_range_indefinite(client):
     """Search for indefinite number of objects.
     """
     objs = client.assertedSearch("Datafile", assertmin=1, assertmax=None)
@@ -112,7 +112,7 @@ def test_searchChunked_simple(client, query):
     """A simple search with searchChunked().
     """
     # Hack: the parametrize marker above cannot access client,
-    # must defer the constrictor call to here.
+    # must defer the constructor call to here.
     if isinstance(query, Callable):
         query = query(client)
     # Do a normal search as a reference first, the result from

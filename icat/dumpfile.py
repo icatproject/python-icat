@@ -152,7 +152,7 @@ class DumpFileWriter(object):
         """Finalize the data file."""
         raise NotImplementedError
 
-    def writeobjs(self, objs, keyindex):
+    def writeobjs(self, objs, keyindex, chunksize=100):
         """Write some entity objects to the current data chunk.
 
         The objects are searched from the ICAT server.  The key index
@@ -184,9 +184,12 @@ class DumpFileWriter(object):
             to unique keys.  See the
             :meth:`icat.entity.Entity.getUniqueKey` for details.
         :type keyindex: :class:`dict`
+        :param chunksize: tuning parameter, see
+            :meth:`icat.client.Client.searchChunked` for details.
+        :type chunksize: :class:`int`
         """
         if isinstance(objs, Query) or isinstance(objs, basestring):
-            objs = self.client.searchChunked(objs)
+            objs = self.client.searchChunked(objs, chunksize=chunksize)
         else:
             objs.sort(key=icat.entity.Entity.__sortkey__)
         for obj in objs:
@@ -206,7 +209,7 @@ class DumpFileWriter(object):
                 k = obj.getUniqueKey(keyindex=keyindex)
             self.writeobj(k, obj, keyindex)
 
-    def writedata(self, objs, keyindex=None):
+    def writedata(self, objs, keyindex=None, chunksize=100):
         """Write a data chunk.
 
         :param objs: an iterable that yields either queries to search
@@ -218,12 +221,15 @@ class DumpFileWriter(object):
             details.  If this is :const:`None`, an internal index will
             be used.
         :type keyindex: :class:`dict`
+        :param chunksize: tuning parameter, see
+            :meth:`icat.client.Client.searchChunked` for details.
+        :type chunksize: :class:`int`
         """
         if keyindex is None:
             keyindex = {}
         self.startdata()
         for o in objs:
-            self.writeobjs(o, keyindex)
+            self.writeobjs(o, keyindex, chunksize=chunksize)
 
 
 # ------------------------------------------------------------

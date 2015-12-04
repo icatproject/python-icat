@@ -1,37 +1,33 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.10.0 (not yet released)
+* Version 0.10.0 (2015-12-??)
 
 ** New features
 
- + Add a hook for a custom method to validate entity objects before
-   creating them at the ICAT server.
+ + Add a method Entity.copy().
 
  + Implement setting an "INCLUDE 1" clause equivalent in class Query.
 
  + Add an optional argument includes to Client.searchMatching().
 
- + Add a method Entity.copy().
-
- + Add support for icat.server 4.6.0:
-   - Add new exception class ICATNotImplementedError.
-   (Note that at the moment of this writing, icat.server 4.6.0 is not
-   yet released.  There is a snapshot version though.)
+ + Add a hook for a custom method to validate entity objects before
+   creating them at the ICAT server.
 
  + Add support for ids.server 1.5.0:
    - Add getDatafileIds() and getPreparedDatafileIds() calls.
    - IDSClient.getStatus() allows sessionId to be None.
 
-** Incompatible changes and deprecations
+ + Add new exception class ICATNotImplementedError that is supposed to
+   be raised by the upcoming version 4.6.0 of icat.server.
 
 ** Bug fixes and minor changes
 
- + Issue #15: icatdump raises DataConsistencyError for
-   DataCollectionParameter.
-
  + Issue #13: Client.searchChunked() raises exception if the query
    contains a percent character.
+
+ + Issue #15: icatdump raises DataConsistencyError for
+   DataCollectionParameter.
 
  + Issue #14: Entity.__sortkey__() may raise RuntimeError "maximum
    recursion depth exceeded".
@@ -44,12 +40,14 @@
    keyindex to DumpFileWriter.writedata() to allow the caller to
    control these internal indices.
 
+ + Add optional argument chunksize to DumpFileWriter.writedata().
+
  + The constructor of class Query checks the version of the ICAT
    server and raises an error if too old.
 
  + The getIcatUrl() call checks the version of the IDS server.
 
- + Add more tests.
+ + Some changes in the test suite, add more tests.
 
 * Version 0.9.0 (2015-08-13)
 
@@ -112,7 +110,7 @@
    This need to be taken into account in module icat.icatcheck.
 
  + The last fix in 0.8.0 on the string representation operator
-     str  () of Query was not complete, the operator still had
+   __str__() of Query was not complete, the operator still had
    unwanted side effects.
 
  + Fix a bug in the handling of errors raised from the ICAT or the
@@ -208,11 +206,11 @@
    characters in error messages.  Add a common abstract base class
    ICATException that cares about this.
 
- + Fix: the string representation operator   str  () of Query should
+ + Fix: the string representation operator __str__() of Query should
    not modify the query object.
 
  + Cosmetic improvement in the formal representation operator
-     repr  () of Query.
+   __repr__() of Query.
 
 * Version 0.7.0 (2015-02-11)
 
@@ -326,7 +324,7 @@
    meaningful in the past.
 
  + Slightly modified the "==" and "!=" operator for Entity objects.
-   Add a   hash  () method to the Entity class.  The latter means
+   Add a __hash__() method to the Entity class.  The latter means
    that you will more likely get what you expect when you create a
    set of Entity objects or use them as keys in a dict.
 
@@ -341,7 +339,7 @@
  + Add missing MANIFEST.in in the source distribution.
 
  + Remove the work around the Suds datetime value bug (setting the
-   environment variable TZ to "UTC") from   init  .py.  Instead,
+   environment variable TZ to "UTC") from __init__.py.  Instead,
    document it along with other known issues in the README.
 
  + Minor fixes in the sorting of entity objects.

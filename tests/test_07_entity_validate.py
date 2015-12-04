@@ -14,7 +14,7 @@ def client(setupicat):
     client.login(conf.auth, conf.credentials)
     return client
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def dataset(client, request):
     """Create a temporary Dataset for the tests.
     """
