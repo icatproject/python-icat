@@ -78,7 +78,6 @@ Modules`_ for details or to customize the install process.
 
        $ python setup.py install
 
-(If you are reading this, you probably already did the first step.)
 The last step might require admin privileges in order to write into
 the site-packages directory of your Python installation.
 
@@ -133,7 +132,7 @@ authentication plugin must also have these users configured.
 from the test server and replace it with example content.  Do not
 configure the tests to access a production server!
 
-You can sefely run the tests without configuring any test server.  You
+You can safely run the tests without configuring any test server.  You
 will just get many skipped tests then.
 
 
@@ -215,6 +214,37 @@ Version numbers of python-icat comply with Python standards as defined
 in `PEP 440`_.  They try to adhere to the principles of `Semantic
 Versioning`_, but may deviate from the formatting defined therein
 when it is incompatible with PEP 440.
+
+Copyright and License
+---------------------
+
+Copyright 2013, 2014, 2015
+Helmholtz-Zentrum Berlin fuer Materialien und Energie GmbH
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in
+    the documentation and/or other materials provided with the
+    distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 .. _ICAT: http://www.icatproject.org/
