@@ -1,5 +1,4 @@
 PYTHON   = python
-DOCTESTS = icat/helper.doctest icat/listproxy.doctest
 
 
 sdist: init.py python2_6.patch doc-html
@@ -15,8 +14,6 @@ doc-pdf: init.py
 
 test: init.py
 	$(PYTHON) setup.py test
-
-doctest: $(DOCTESTS)
 
 
 clean:
@@ -50,9 +47,4 @@ python2_6.patch:
 	git diff `git merge-base master python2_6` python2_6 > $@
 
 
-%.doctest: %.py
-	$(PYTHON) -m doctest $<
-
-
-.PHONY: sdist init.py doc-html doc-pdf test doctest \
-	clean distclean gitversion $(DOCTESTS)
+.PHONY: sdist init.py doc-html doc-pdf test clean distclean gitversion
