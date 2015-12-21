@@ -1,6 +1,8 @@
 :mod:`icat.dumpfile_yaml` --- YAML data file backend
 ====================================================
 
+.. py:module:: icat.dumpfile_yaml
+
 .. autoclass:: icat.dumpfile_yaml.YAMLDumpFileReader
     :members:
     :show-inheritance:

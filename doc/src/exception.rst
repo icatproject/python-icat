@@ -1,6 +1,8 @@
 :mod:`icat.exception` --- Exception handling
 ============================================
 
+.. py:module:: icat.exception
+
 Helper
 ------
 

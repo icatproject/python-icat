@@ -1,6 +1,8 @@
 :mod:`icat.helper` --- A collection of internal helper routines
 ===============================================================
 
+.. py:module:: icat.helper
+
 .. note::
    This module is intended for the internal use in python-icat and is
    not considered to be part of the API.  No effort will be made to

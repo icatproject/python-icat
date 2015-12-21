@@ -1,6 +1,8 @@
 :mod:`icat.config` --- Manage configuration
 ===========================================
 
+.. py:module:: icat.config
+
 This module reads configuration variables from different sources, such
 as command line arguments, environment variables, and configuration
 files.  A set of configuration variables that any ICAT client program

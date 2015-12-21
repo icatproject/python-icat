@@ -1,6 +1,8 @@
 :mod:`icat.client` --- Provide the Client class
 ===============================================
 
+.. py:module:: icat.client
+
 .. autoclass:: icat.client.Client
     :show-inheritance:
 
