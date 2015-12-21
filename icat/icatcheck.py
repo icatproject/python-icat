@@ -247,9 +247,9 @@ class ICATChecker(object):
     def checkExceptions(self):
         """Check consistency of exceptions.
 
-        Check that the exception types defined in icat.exception
-        correspond to the icatExceptionType as defined in the schema.
-        Report any abnormalities as warnings to the logger.  Returns
+        Check that all icatExceptionTypes defined in the WSDL have a
+        corresponding exception class defined in icat.exception.
+        Report missing exceptions as a warning to the logger.  Return
         the number of warnings emitted.
         """
 
@@ -261,10 +261,6 @@ class ICATChecker(object):
         missing = schemaexceptions - clientexceptions
         if missing:
             log.warning("missing exception types: %s", list(missing))
-            nwarn += 1
-        spurious = clientexceptions - schemaexceptions
-        if spurious:
-            log.warning("spurious exception types: %s", list(spurious))
             nwarn += 1
 
         return nwarn
