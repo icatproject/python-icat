@@ -242,8 +242,19 @@ class ICATChecker(object):
             log.debug("checking entity type %s ...", n)
             nwarn += self.schema[n].check(self.client.typemap[n])
 
-        # Check that the ICAT exception types correspond to the
-        # icatExceptionType as defined in the schema.
+        return nwarn
+
+    def checkExceptions(self):
+        """Check consistency of exceptions.
+
+        Check that the exception types defined in icat.exception
+        correspond to the icatExceptionType as defined in the schema.
+        Report any abnormalities as warnings to the logger.  Returns
+        the number of warnings emitted.
+        """
+
+        nwarn = 0
+
         icatExceptionType = self.client.factory.create('icatExceptionType')
         schemaexceptions = set(icatExceptionType.__keylist__)
         clientexceptions = set(icat.exception.IcatExceptionTypeMap.keys())

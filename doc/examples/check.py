@@ -27,6 +27,7 @@ retcode = 0
 
 if conf.test:
     nwarn = checker.check()
+    nwarn += checker.checkExceptions()
     if nwarn:
         logging.warning("%d warnings", nwarn)
         retcode = 1
