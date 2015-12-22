@@ -29,9 +29,8 @@ config.add_variable('format', ("-f", "--format"),
 config.add_variable('investigation', ("investigation",), 
                     dict(help="name and optionally visit id "
                          "(separated by a colon) of the investigation"))
-conf = config.getconfig()
+client, conf = config.getconfig()
 
-client = icat.Client(conf.url, **conf.client_kwargs)
 if client.apiversion < '4.3.99':
     raise RuntimeError("Sorry, ICAT version %s is too old, need 4.4.0 or newer."
                        % client.apiversion)

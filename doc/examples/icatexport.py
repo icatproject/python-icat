@@ -41,9 +41,8 @@ config.add_variable('attributes', ("--attributes",),
                     dict(help="attributes to include in the output", 
                          choices=["ALL", "USER"]),
                     default='USER')
-conf = config.getconfig()
+client, conf = config.getconfig()
 
-client = icat.Client(conf.url, **conf.client_kwargs)
 if client.apiversion < '4.3.99':
     raise RuntimeError("Sorry, ICAT version %s is too old, need 4.4.0 or newer."
                        % client.apiversion)

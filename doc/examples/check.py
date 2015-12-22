@@ -18,9 +18,7 @@ config.add_variable('test', ("-t", "--test"),
 config.add_variable('python', ("-p", "--python"), 
                     dict(help="Generate Python source code that match the server", 
                          action='store_true'))
-conf = config.getconfig()
-
-client = icat.Client(conf.url, **conf.client_kwargs)
+client, conf = config.getconfig()
 checker = ICATChecker(client)
 
 retcode = 0

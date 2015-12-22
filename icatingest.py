@@ -63,7 +63,7 @@ config.add_variable('duplicate', ("--duplicate",),
                     dict(help="behavior in case of duplicate objects",
                          choices=["THROW", "IGNORE", "CHECK", "OVERWRITE"]), 
                     default='THROW')
-conf = config.getconfig()
+client, conf = config.getconfig()
 
 if conf.uploadDatafiles:
     if conf.idsurl is None:
@@ -71,7 +71,6 @@ if conf.uploadDatafiles:
                                "but required for uploadDatafiles.")
     conf.dataDir = os.path.abspath(conf.dataDir)
 
-client = icat.Client(conf.url, **conf.client_kwargs)
 if client.apiversion < '4.3':
     raise RuntimeError("Sorry, ICAT version %s is too old, need 4.3.0 or newer."
                        % client.apiversion)
