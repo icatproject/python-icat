@@ -88,11 +88,6 @@ A few derived variables are also set in
   `configDir`
     the directory where (the last) configFile has been found.
 
-  `client_kwargs`
-    contains the proxy settings and other configuration that should be
-    passed as the keyword arguments to the constructor of
-    :class:`icat.client.Client`.
-
   `credentials`
     contains username and password suitable to be passed to
     :meth:`icat.client.Client.login`.

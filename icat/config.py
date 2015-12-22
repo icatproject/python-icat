@@ -7,6 +7,7 @@ import os.path
 import getpass
 import argparse
 import ConfigParser
+from icat.client import Client
 from icat.exception import stripCause, ConfigError
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
@@ -208,12 +209,16 @@ class Config(object):
         variable, if this is set to :const:`False`, to "mandatory", or
         to "optional" respectively.
     :type ids: :class:`bool` or :class:`str`
+    :param args: list of command line arguments or :const:`None`.  If
+        not set, the command line arguments will be taken from
+        :data:`sys.argv`.
+    :type args: :class:`list` of :class:`str`
     """
 
-    ReservedVariables = ['configDir', 'client_kwargs', 'credentials']
+    ReservedVariables = ['configDir', 'credentials']
     """Reserved names of configuration variables."""
 
-    def __init__(self, needlogin=True, ids=False):
+    def __init__(self, needlogin=True, ids=False, args=None):
         """Initialize the object.
         """
         super(Config, self).__init__()
@@ -222,8 +227,10 @@ class Config(object):
         self.ids = ids
         self.confvariables = []
         self.confvariable = {}
+        self.args = args
         self.argparser = argparse.ArgumentParser()
         self._add_basic_variables()
+        self.client = self._setup_client()
         if self.needlogin:
             self._add_cred_variables()
 
@@ -326,7 +333,7 @@ class Config(object):
         self.confvariable[name] = var
         self.confvariables.append(var)
 
-    def getconfig(self, args=None):
+    def getconfig(self):
         """Get the configuration.
 
         Parse the command line arguments, evaluate environment
@@ -335,20 +342,18 @@ class Config(object):
         configuration variable.  The first defined value found will be
         taken.
 
-        :param args: list of command line arguments or :const:`None`.
-            If not set, the command line arguments will be taken from
-            :data:`sys.argv`.
-        :type args: :class:`list` of :class:`str`
-        :return: an object having the configuration values set as
+        :return: a tuple with two items, a client initialized to
+            connect to an ICAT server according to the configuration
+            and an object having the configuration values set as
             attributes.
-        :rtype: :class:`icat.config.Configuration`
+        :rtype: :class:`tuple` of :class:`icat.client.Client` and
+            :class:`icat.config.Configuration`
         :raise ConfigError: if `configFile` is defined but the file by
             this name can not be read, if `configSection` is defined
             but no section by this name could be found in the
             configuration file, if an invalid value is given to a
             variable, or if a mandatory variable is not defined.
         """
-        self.args = args
         config = self._getconfig()
 
         if self.needlogin:
@@ -362,23 +367,7 @@ class Config(object):
             config.credentials = { 'username':config.username, 
                                    'password':config.password }
 
-        config.client_kwargs = {}
-        if self.ids:
-            config.client_kwargs['idsurl'] = config.idsurl
-        config.client_kwargs['checkCert'] = config.checkCert
-        if config.http_proxy or config.https_proxy:
-            proxy={}
-            if config.http_proxy:
-                proxy['http'] = config.http_proxy
-                os.environ['http_proxy'] = config.http_proxy
-            if config.https_proxy:
-                proxy['https'] = config.https_proxy
-                os.environ['https_proxy'] = config.https_proxy
-            config.client_kwargs['proxy'] = proxy
-        if config.no_proxy:
-                os.environ['no_proxy'] = config.no_proxy
-
-        return config
+        return (self.client, config)
 
     def _add_basic_variables(self):
         """The basic variables needed to setup the client.
@@ -434,6 +423,27 @@ class Config(object):
                           dict(help="prompt for the password", 
                                action='store_true'), 
                           type=boolean, optional=True)
+
+    def _setup_client(self):
+        """Initialize the client.
+        """
+        config = self._getconfig(partial=True)
+        client_kwargs = {}
+        if self.ids:
+            client_kwargs['idsurl'] = config.idsurl
+        client_kwargs['checkCert'] = config.checkCert
+        if config.http_proxy or config.https_proxy:
+            proxy={}
+            if config.http_proxy:
+                proxy['http'] = config.http_proxy
+                os.environ['http_proxy'] = config.http_proxy
+            if config.https_proxy:
+                proxy['https'] = config.https_proxy
+                os.environ['https_proxy'] = config.https_proxy
+            client_kwargs['proxy'] = proxy
+        if config.no_proxy:
+            os.environ['no_proxy'] = config.no_proxy
+        return Client(config.url, **client_kwargs)
 
     def _getconfig(self, partial=False):
         """Get the configuration.
