@@ -54,6 +54,25 @@ flag = object()
 """Special boolean variable type that defines two command line arguments."""
 
 
+class _argparserDisableExit:
+    """Temporarily redirect stdout to devnull and disable exit from an
+    ArgumentParser.  Needed during partially parsing of command line.
+    """
+    def __init__(self, parser):
+        self._parser = parser
+    def __enter__(self):
+        def noexit(status=0, message=None):
+            raise ConfigError("ArgumentParser exit (%d%s)" % (status, message))
+        self._old_target = sys.stdout
+        sys.stdout = open(os.devnull, "wt")
+        self._parser.exit = noexit
+        return self._parser
+    def __exit__(self, exctype, excinst, exctb):
+        del self._parser.exit
+        sys.stdout.close()
+        sys.stdout = self._old_target
+
+
 class ConfigVariable(object):
     """Describe a configuration variable.
     """
@@ -427,7 +446,11 @@ class Config(object):
     def _setup_client(self):
         """Initialize the client.
         """
-        config = self._getconfig(partial=True)
+        try:
+            with _argparserDisableExit(self.argparser):
+                config = self._getconfig(partial=True)
+        except ConfigError:
+            return None
         client_kwargs = {}
         if self.ids:
             client_kwargs['idsurl'] = config.idsurl
