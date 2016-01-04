@@ -94,17 +94,16 @@ def getConfig(confSection="root", **confArgs):
     if not os.path.isfile(confFile):
         pytest.skip("no test ICAT server configured")
     try:
-        args = ["-c", confFile, "-s", confSection]
-        conf = icat.config.Config(**confArgs).getconfig(args)
+        confArgs['args'] = ["-c", confFile, "-s", confSection]
+        client, conf = icat.config.Config(**confArgs).getconfig()
         conf.cmdargs = ["-c", conf.configFile[0], "-s", conf.configSection]
-        return conf
+        return (client, conf)
     except icat.ConfigError as err:
         pytest.skip(err.message)
 
 
 def get_icat_version():
-    conf = getConfig(needlogin=False)
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, _ = getConfig(needlogin=False)
     return client.apiversion
 
 # ICAT server version we talk to.  Ignore any errors from
@@ -176,18 +175,19 @@ def tmpdirsec(request):
 
 
 @pytest.fixture(scope="session")
-def standardConfig():
-    return getConfig()
+def standardCmdArgs():
+    _, conf = getConfig()
+    return conf.cmdargs
 
 
 testcontent = gettestdata("icatdump.yaml")
 
 @pytest.fixture(scope="session")
-def setupicat(standardConfig):
+def setupicat(standardCmdArgs):
     # testcontent has InvestigationGroup objects.
     require_icat_version("4.4.0")
-    callscript("wipeicat.py", standardConfig.cmdargs)
-    args = standardConfig.cmdargs + ["-f", "YAML", "-i", testcontent]
+    callscript("wipeicat.py", standardCmdArgs)
+    args = standardCmdArgs + ["-f", "YAML", "-i", testcontent]
     callscript("icatingest.py", args)
 
 

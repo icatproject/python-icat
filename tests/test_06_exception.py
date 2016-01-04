@@ -11,8 +11,7 @@ from conftest import require_icat_version, getConfig, tmpSessionId
 
 @pytest.fixture(scope="module")
 def client(setupicat):
-    conf = getConfig(ids="optional")
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig(ids="optional")
     client.login(conf.auth, conf.credentials)
     return client
 

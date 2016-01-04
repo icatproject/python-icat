@@ -19,8 +19,7 @@ from conftest import tmpSessionId
 
 @pytest.fixture(scope="module")
 def client(setupicat, request):
-    conf = getConfig(ids="mandatory")
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig(ids="mandatory")
     client.login(conf.auth, conf.credentials)
     def cleanup():
         query = "SELECT df FROM Datafile df WHERE df.location IS NOT NULL"
@@ -122,7 +121,7 @@ def test_upload(tmpdirsec, client, case):
     f = DummyDatafile(tmpdirsec.dir, 
                       case['dfname'], case['size'], case['mtime'])
     print("\nUpload file %s" % case['dfname'])
-    conf = getConfig(confSection=case['uluser'])
+    _, conf = getConfig(confSection=case['uluser'])
     args = conf.cmdargs + [case['invname'], case['dsname'], 
                            case['dfformat'], f.fname]
     callscript("addfile.py", args)
@@ -145,7 +144,7 @@ def method(request):
 
 @pytest.mark.parametrize(("case"), markeddatasets)
 def test_download(tmpdirsec, client, case, method):
-    conf = getConfig(confSection=case['dluser'])
+    _, conf = getConfig(confSection=case['dluser'])
     if len(case['dfs']) > 1:
         zfname = os.path.join(tmpdirsec.dir, "%s.zip" % case['dsname'])
         print("\nDownload %s to file %s" % (case['dsname'], zfname))
