@@ -63,14 +63,18 @@ class _argparserDisableExit:
     def __enter__(self):
         def noexit(status=0, message=None):
             raise ConfigError("ArgumentParser exit (%d%s)" % (status, message))
-        self._old_target = sys.stdout
+        self._old_stdout = sys.stdout
         sys.stdout = open(os.devnull, "wt")
+        self._old_stderr = sys.stderr
+        sys.stderr = open(os.devnull, "wt")
         self._parser.exit = noexit
         return self._parser
     def __exit__(self, exctype, excinst, exctb):
         del self._parser.exit
         sys.stdout.close()
-        sys.stdout = self._old_target
+        sys.stdout = self._old_stdout
+        sys.stderr.close()
+        sys.stderr = self._old_stderr
 
 
 class ConfigVariable(object):
