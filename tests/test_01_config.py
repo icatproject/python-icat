@@ -207,7 +207,7 @@ def test_config_askpass(fakeClient, tmpconfigfile, monkeypatch):
     assert conf.auth == "db"
     assert conf.username == "rbeck"
     assert conf.password == "mockpass"
-    assert conf.promptPass == True
+    assert conf.promptPass == False
     assert conf.credentials == {'username': 'rbeck', 'password': 'mockpass'}
 
 

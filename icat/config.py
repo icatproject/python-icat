@@ -92,6 +92,24 @@ def post_configSection(config, configuration):
     """
     config.conffile.setsection(configuration.configSection)
 
+def post_promptPass(config, configuration):
+    """Postprocess promptPass: move the interactive source in front if set.
+    """
+    promptsrc = config.confvariable['promptPass'].source
+    usersrc = config.confvariable['username'].source
+    if (isinstance(promptsrc, ConfigSourceDefault) and 
+        isinstance(usersrc, ConfigSourceCmdArgs)):
+        # special rule: if the username was given in the command line
+        # and password not, prompt for the password.  Move the
+        # interactive source on second position right after cmdargs.
+        config.sources.remove(config.interactive)
+        config.sources.insert(1, config.interactive)
+    elif configuration.promptPass:
+        # promptPass was explicitly requested.  Move the interactive
+        # source on first position.
+        config.sources.remove(config.interactive)
+        config.sources.insert(0, config.interactive)
+
 
 class ConfigVariable(object):
     """Describe a configuration variable.
@@ -103,6 +121,7 @@ class ConfigVariable(object):
         self.default = default
         self.convert = convert
         self.subst = subst
+        self.interactive = False
         self.postprocess = None
         self.source = None
     def get(self, value):
@@ -187,6 +206,16 @@ class ConfigSourceFile(ConfigSource):
             except ConfigParser.NoOptionError:
                 pass
         return variable.get(value)
+
+
+class ConfigSourceInteractive(ConfigSource):
+    """Prompt the user for a value.
+    """
+    def get(self, variable):
+        if not variable.interactive:
+            return None
+        else:
+            return variable.get(getpass.getpass("%s: " % variable.name))
 
 
 class ConfigSourceDefault(ConfigSource):
@@ -408,16 +437,6 @@ class Config(object):
         config = self._getconfig()
 
         if self.needlogin:
-            # special rule: if the username was given in the command
-            # line and password not, this always implies promptPass.
-            usersrc = self.confvariable['username'].source
-            passsrc = self.confvariable['password'].source
-            if ((isinstance(usersrc, ConfigSourceCmdArgs) and 
-                 not isinstance(passsrc, ConfigSourceCmdArgs)) 
-                or not config.password):
-                config.promptPass = True
-            if config.promptPass:
-                config.password = getpass.getpass()
             config.credentials = { 'username':config.username, 
                                    'password':config.password }
 
@@ -472,13 +491,14 @@ class Config(object):
         self.add_variable('username', ("-u", "--user"), 
                           dict(help="username"),
                           envvar='ICAT_USER')
-        self.add_variable('password', ("-p", "--pass"), 
-                          dict(help="password"), 
-                          optional=True)
-        self.add_variable('promptPass', ("-P", "--prompt-pass"), 
-                          dict(help="prompt for the password", 
-                               action='store_const', const=True), 
-                          type=boolean, default=False)
+        var = self.add_variable('promptPass', ("-P", "--prompt-pass"), 
+                                dict(help="prompt for the password", 
+                                     action='store_const', const=True), 
+                                type=boolean, default=False)
+        var.postprocess = post_promptPass
+        var = self.add_variable('password', ("-p", "--pass"), 
+                                dict(help="password"))
+        var.interactive = True
 
     def _setup_client(self):
         """Initialize the client.
@@ -511,9 +531,10 @@ class Config(object):
         self.cmdargs = ConfigSourceCmdArgs(self.argparser, self.args, partial)
         self.environ = ConfigSourceEnvironment()
         self.conffile = ConfigSourceFile(self.defaultFiles)
+        self.interactive = ConfigSourceInteractive()
         self.defaults = ConfigSourceDefault()
         self.sources = [ self.cmdargs, self.environ, self.conffile, 
-                         self.defaults ]
+                         self.interactive, self.defaults ]
         # this code relies on the fact, that the first two variables in
         # self.confvariables are 'configFile' and 'configSection' in that
         # order.
