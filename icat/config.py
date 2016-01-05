@@ -77,6 +77,22 @@ class _argparserDisableExit:
         sys.stderr = self._old_stderr
 
 
+def post_configFile(config, configuration):
+    """Postprocess configFile: read the configuration file.
+    """
+    configuration.configFile = config.conffile.read(configuration.configFile)
+    if configuration.configFile:
+        f = configuration.configFile[-1]
+        configuration.configDir = os.path.dirname(os.path.abspath(f))
+    else:
+        configuration.configDir = None
+
+def post_configSection(config, configuration):
+    """Postprocess configSection: set the configuration section.
+    """
+    config.conffile.setsection(configuration.configSection)
+
+
 class ConfigVariable(object):
     """Describe a configuration variable.
     """
@@ -87,6 +103,7 @@ class ConfigVariable(object):
         self.default = default
         self.convert = convert
         self.subst = subst
+        self.postprocess = None
     def get(self, value):
         if self.convert and value is not None:
             try:
@@ -364,6 +381,7 @@ class Config(object):
         var = ConfigVariable(name, envvar, optional, default, type, subst)
         self.confvariable[name] = var
         self.confvariables.append(var)
+        return var
 
     def getconfig(self):
         """Get the configuration.
@@ -404,14 +422,16 @@ class Config(object):
     def _add_basic_variables(self):
         """The basic variables needed to setup the client.
         """
-        self.add_variable('configFile', ("-c", "--configfile"), 
-                          dict(help="config file"),
-                          envvar='ICAT_CFG', optional=True)
-        self.add_variable('configSection', ("-s", "--configsection"), 
-                          dict(help="section in the config file", 
-                               metavar='SECTION'), 
-                          envvar='ICAT_CFG_SECTION', optional=True, 
-                          default=defaultsection)
+        var = self.add_variable('configFile', ("-c", "--configfile"), 
+                                dict(help="config file"),
+                                envvar='ICAT_CFG', optional=True)
+        var.postprocess = post_configFile
+        var = self.add_variable('configSection', ("-s", "--configsection"), 
+                                dict(help="section in the config file", 
+                                     metavar='SECTION'), 
+                                envvar='ICAT_CFG_SECTION', optional=True, 
+                                default=defaultsection)
+        var.postprocess = post_configSection
         self.add_variable('url', ("-w", "--url"), 
                           dict(help="URL to the web service description"),
                           envvar='ICAT_SERVICE')
@@ -502,13 +522,6 @@ class Config(object):
             if value is not None and var.subst:
                 value = value % config.as_dict()
             setattr(config, var.name, value)
-            if var.name == 'configFile':
-                config.configFile = self.conffile.read(config.configFile)
-                if config.configFile:
-                    f = config.configFile[-1]
-                    config.configDir = os.path.dirname(os.path.abspath(f))
-                else:
-                    config.configDir = None
-            elif var.name == 'configSection':
-                self.conffile.setsection(config.configSection)
+            if var.postprocess:
+                var.postprocess(self, config)
         return config
