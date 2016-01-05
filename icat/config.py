@@ -104,6 +104,7 @@ class ConfigVariable(object):
         self.convert = convert
         self.subst = subst
         self.postprocess = None
+        self.source = None
     def get(self, value):
         if self.convert and value is not None:
             try:
@@ -409,7 +410,10 @@ class Config(object):
         if self.needlogin:
             # special rule: if the username was given in the command
             # line and password not, this always implies promptPass.
-            if ((self.cmdargs.args.username and not self.cmdargs.args.password) 
+            usersrc = self.confvariable['username'].source
+            passsrc = self.confvariable['password'].source
+            if ((isinstance(usersrc, ConfigSourceCmdArgs) and 
+                 not isinstance(passsrc, ConfigSourceCmdArgs)) 
                 or not config.password):
                 config.promptPass = True
             if config.promptPass:
@@ -518,6 +522,7 @@ class Config(object):
             for source in self.sources:
                 value = source.get(var)
                 if value is not None:
+                    var.source = source
                     break
             if value is not None and var.subst:
                 value = value % config.as_dict()
