@@ -263,6 +263,15 @@ class Config(object):
 
         """Defines a new configuration variable.
 
+        Note that the value of some configuration variable may
+        influence the evaluation of other variables.  For instance,
+        if `configFile` and `configSection` are set, the values for
+        other configuration variables are searched in this
+        configuration file.  Thus, the evaluation order of the
+        configuration variables is important.  The variables are
+        evaluated in the order that this method is called to define
+        the respective variable.
+
         Call :meth:`argparse.ArgumentParser.add_argument` to add a new
         command line argument if `arg_opts` is set.
 
