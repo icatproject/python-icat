@@ -233,7 +233,6 @@ def test_config_nopass_askpass(tmpconfigfile, monkeypatch):
     assert conf.credentials == {'username': 'nbour', 'password': 'mockpass'}
 
 
-@pytest.mark.xfail(reason="Bug #21")
 def test_config_askpass_file(tmpconfigfile, monkeypatch):
     """
     Set promptPass in the configuration file.  This should force
@@ -261,7 +260,7 @@ def test_config_askpass_file(tmpconfigfile, monkeypatch):
     assert conf.username == "root"
     assert conf.password == "mockpass"
     assert conf.promptPass == True
-    assert conf.credentials == {'username': 'nbour', 'password': 'mockpass'}
+    assert conf.credentials == {'username': 'root', 'password': 'mockpass'}
 
 
 def test_config_environment(tmpconfigfile, monkeypatch):

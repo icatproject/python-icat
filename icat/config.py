@@ -263,8 +263,8 @@ class Config(object):
                               optional=True)
             self.add_variable('promptPass', ("-P", "--prompt-pass"), 
                               dict(help="prompt for the password", 
-                                   action='store_true'), 
-                              type=boolean, optional=True)
+                                   action='store_const', const=True), 
+                              type=boolean, default=False)
 
     def add_variable(self, name, arg_opts=(), arg_kws=dict(), 
                      envvar=None, optional=False, default=None, type=None, 
