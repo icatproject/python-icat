@@ -8,7 +8,7 @@ import getpass
 import argparse
 import ConfigParser
 from icat.client import Client
-from icat.exception import stripCause, ConfigError
+from icat.exception import stripCause, ConfigError, VersionMethodError
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
 
@@ -95,20 +95,27 @@ def post_configSection(config, configuration):
 def post_promptPass(config, configuration):
     """Postprocess promptPass: move the interactive source in front if set.
     """
-    promptsrc = config.confvariable['promptPass'].source
-    usersrc = config.confvariable['username'].source
-    if (isinstance(promptsrc, ConfigSourceDefault) and 
-        isinstance(usersrc, ConfigSourceCmdArgs)):
-        # special rule: if the username was given in the command line
-        # and password not, prompt for the password.  Move the
-        # interactive source on second position right after cmdargs.
-        config.sources.remove(config.interactive)
-        config.sources.insert(1, config.interactive)
-    elif configuration.promptPass:
+    if configuration.promptPass:
         # promptPass was explicitly requested.  Move the interactive
         # source on first position.
         config.sources.remove(config.interactive)
         config.sources.insert(0, config.interactive)
+    elif isinstance(config.confvariable['promptPass'].source, 
+                    ConfigSourceDefault):
+        # promptPass was not specified.  Special rule: if any of the
+        # non-interactive credentials was given in the command line,
+        # disregard environment and file for the interactive
+        # credentials.  Move the interactive source on second position
+        # right after cmdargs.
+        for var in config.credentialKey.values():
+            if isinstance(var.source, ConfigSourceCmdArgs):
+                prompt = True
+                break
+        else:
+            prompt = False
+        if prompt:
+            config.sources.remove(config.interactive)
+            config.sources.insert(1, config.interactive)
 
 
 class ConfigVariable(object):
@@ -440,8 +447,22 @@ class Config(object):
         config = self._getconfig()
 
         if self.needlogin:
-            config.credentials = { 'username':config.username, 
-                                   'password':config.password }
+            if self.authenticatorInfo is not None:
+                for info in self.authenticatorInfo:
+                    if info.mnemonic == config.auth:
+                        if info.description:
+                            keys = [k.name for k in info.description.keys]
+                        else:
+                            keys = []
+                        break
+                else:
+                    raise ConfigError("auth: invalid value: %s" % config.auth)
+            else:
+                keys = ['username', 'password']
+            config.credentials = {}
+            for k in keys:
+                v = getattr(config, self.credentialKey[k].name)
+                config.credentials[k] = v
 
         return (self.client, config)
 
@@ -488,22 +509,65 @@ class Config(object):
     def _add_cred_variables(self):
         """The variables that define the credentials needed for login.
         """
-        self.add_variable('auth', ("-a", "--auth"), 
-                          dict(help="authentication plugin"),
-                          envvar='ICAT_AUTH')
-        var = self.add_variable('username', ("-u", "--user"), 
-                                dict(help="username"),
-                                envvar='ICAT_USER')
-        var.key = 'username'
-        var = self.add_variable('promptPass', ("-P", "--prompt-pass"), 
-                                dict(help="prompt for the password", 
-                                     action='store_const', const=True), 
-                                type=boolean, default=False)
-        var.postprocess = post_promptPass
-        var = self.add_variable('password', ("-p", "--pass"), 
-                                dict(help="password"))
-        var.key = 'password'
-        var.interactive = True
+        self.credentialKey = {}
+        self.authenticatorInfo = None
+        if self.client:
+            try:
+                self.authenticatorInfo = self.client.getAuthenticatorInfo()
+            except VersionMethodError:
+                pass
+        if self.authenticatorInfo is not None:
+            authnames = []
+            keys = set()
+            hidden = set()
+            for info in self.authenticatorInfo:
+                authnames.append(info.mnemonic)
+                if info.description:
+                    for k in info.description.keys:
+                        keys.add(k.name)
+                        if getattr(k, "hide", False):
+                            hidden.add(k.name)
+        else:
+            authnames = None
+            keys = { "username", "password" }
+            hidden = { "password" }
+
+        if authnames is not None:
+            self.add_variable('auth', ("-a", "--auth"), 
+                              dict(help="authentication plugin", 
+                                   choices=authnames),
+                              envvar='ICAT_AUTH')
+        else:
+            self.add_variable('auth', ("-a", "--auth"), 
+                              dict(help="authentication plugin"),
+                              envvar='ICAT_AUTH')
+
+        for key in (keys - hidden):
+            self._add_credential_key(key)
+        if hidden:
+            var = self.add_variable('promptPass', ("-P", "--prompt-pass"), 
+                                    dict(help="prompt for the password", 
+                                         action='store_const', const=True), 
+                                    type=boolean, default=False)
+            var.postprocess = post_promptPass
+        for key in hidden:
+            self._add_credential_key(key, hide=True)
+
+    def _add_credential_key(self, key, hide=False):
+        if key == 'username' and not hide:
+            var = self.add_variable('username', ("-u", "--user"), 
+                                    dict(help="username"),
+                                    envvar='ICAT_USER')
+        elif key == 'password' and hide:
+            var = self.add_variable('password', ("-p", "--pass"), 
+                                    dict(help="password"))
+        else:
+            var = self.add_variable('cred_' + key, ("--cred_" + key,), 
+                                    dict(help=key))
+        var.key = key
+        if hide:
+            var.interactive = True
+        self.credentialKey[key] = var
 
     def _setup_client(self):
         """Initialize the client.

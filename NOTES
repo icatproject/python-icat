@@ -96,7 +96,7 @@ should be:
 
 + Add configuration variables for the non-hidden credential keys.  If
   any of them has the name "username", take this as the variable
-  name, otherwise use "cred:<name>" to avoid possible conflicts with
+  name, otherwise use "cred_<name>" to avoid possible conflicts with
   other configuration variable names.  Set the disabled flag.
 
 + Add the promptPass configuration variable.  Set a function as
@@ -106,7 +106,7 @@ should be:
 
 + Add configuration variables for the hidden credential keys.  If
   any of them has the name "password", take this as the variable
-  name, otherwise use "cred:<name>" to avoid possible conflicts with
+  name, otherwise use "cred_<name>" to avoid possible conflicts with
   other configuration variable names.  Set the disabled flag.
 
 + Return from the Config constructor.  The caller may set up
