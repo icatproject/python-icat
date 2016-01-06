@@ -477,8 +477,8 @@ class Config(object):
                           optional=True)
         self.add_variable('promptPass', ("-P", "--prompt-pass"), 
                           dict(help="prompt for the password", 
-                               action='store_true'), 
-                          type=boolean, optional=True)
+                               action='store_const', const=True), 
+                          type=boolean, default=False)
 
     def _setup_client(self):
         """Initialize the client.
