@@ -121,6 +121,7 @@ class ConfigVariable(object):
         self.default = default
         self.convert = convert
         self.subst = subst
+        self.key = None
         self.interactive = False
         self.postprocess = None
         self.source = None
@@ -215,7 +216,8 @@ class ConfigSourceInteractive(ConfigSource):
         if not variable.interactive:
             return None
         else:
-            return variable.get(getpass.getpass("%s: " % variable.name))
+            prompt = "%s: " % variable.key.capitalize()
+            return variable.get(getpass.getpass(prompt))
 
 
 class ConfigSourceDefault(ConfigSource):
@@ -488,9 +490,10 @@ class Config(object):
         self.add_variable('auth', ("-a", "--auth"), 
                           dict(help="authentication plugin"),
                           envvar='ICAT_AUTH')
-        self.add_variable('username', ("-u", "--user"), 
-                          dict(help="username"),
-                          envvar='ICAT_USER')
+        var = self.add_variable('username', ("-u", "--user"), 
+                                dict(help="username"),
+                                envvar='ICAT_USER')
+        var.key = 'username'
         var = self.add_variable('promptPass', ("-P", "--prompt-pass"), 
                                 dict(help="prompt for the password", 
                                      action='store_const', const=True), 
@@ -498,6 +501,7 @@ class Config(object):
         var.postprocess = post_promptPass
         var = self.add_variable('password', ("-p", "--pass"), 
                                 dict(help="password"))
+        var.key = 'password'
         var.interactive = True
 
     def _setup_client(self):
