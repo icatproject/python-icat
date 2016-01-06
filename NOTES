@@ -31,6 +31,8 @@ configuration variables.
   first.  After evaluating auth, the keys valid for this authenticator
   will be enabled.
 
+  >>> Done.
+
 + Add another ConfigSource ConfigSourceInteractive that will prompt
   the user for the value.  By default, this source will be ordered
   after ConfigSourceFile and before ConfigSourceDefault.  This source
@@ -86,9 +88,9 @@ should be:
   call, proceed using the old set of default configuration variables.
 
 + Add the auth configuration variable with choices set to the names of
-  available autheticators and a postprocessor described above.
+  available authenticators and a postprocessor described above.
 
-+ Collect all credential keys from all available autheticators.
++ Collect all credential keys from all available authenticators.
   Distinguish between those having the "hide" flag set in the
   autheticator info and those that don't.
 

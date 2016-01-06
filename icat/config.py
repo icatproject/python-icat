@@ -124,6 +124,7 @@ class ConfigVariable(object):
         self.key = None
         self.interactive = False
         self.postprocess = None
+        self.disabled = False
         self.source = None
     def get(self, value):
         if self.convert and value is not None:
@@ -544,6 +545,8 @@ class Config(object):
         # order.
         config = Configuration(self)
         for var in self.confvariables:
+            if var.disabled:
+                continue
             for source in self.sources:
                 value = source.get(var)
                 if value is not None:

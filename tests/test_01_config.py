@@ -677,3 +677,30 @@ def test_config_positional(fakeClient, tmpconfigfile):
     assert conf.promptPass == False
     assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
     assert conf.datafile == "test.dat"
+
+
+def test_config_disable(fakeClient, tmpconfigfile):
+    """Configuration variables may be disabled.
+
+    Note that this feature is used internally in config and not
+    intended to be used in client code.
+    """
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_root"]
+    config = icat.config.Config(args=args)
+    config.confvariable['auth'].disabled = True
+    _, conf = config.getconfig()
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'checkCert', 'configDir', 'configFile', 'configSection', 
+                      'credentials', 'http_proxy', 'https_proxy', 'no_proxy', 
+                      'password', 'promptPass', 'url', 'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_root"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.username == "root"
+    assert conf.password == "secret"
+    assert conf.promptPass == False
+    assert conf.credentials == {'username': 'root', 'password': 'secret'}
