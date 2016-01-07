@@ -69,9 +69,7 @@ configuration variables.
     ConfigSource order.
   - auth: enable the credential keys defined for this authenticator.
 
-  >>> Mostly done: the mechanism is implemented and works.  The
-      postprocessors for configFile, configSection, and promptPass are
-      done.
+  >>> Done.
 
 * Set configuration variables according for the credential keys
 

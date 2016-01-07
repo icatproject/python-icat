@@ -93,6 +93,16 @@ def post_configSection(config, configuration):
     """
     config.conffile.setsection(configuration.configSection)
 
+def post_auth(config, configuration):
+    """Postprocess auth: enable credential keys for the selected authenticator.
+    """
+    try:
+        keys = config.authenticatorInfo.getCredentialKeys(configuration.auth)
+    except KeyError as e:
+        raise stripCause(ConfigError(e.message))
+    for k in keys:
+        config.credentialKey[k].disabled = False
+
 def post_promptPass(config, configuration):
     """Postprocess promptPass: move the interactive source in front if set.
     """
@@ -512,8 +522,9 @@ class Config(object):
         else:
             self.authenticatorInfo = LegacyAuthenticatorInfo()
 
-        self.add_variable('auth', ("-a", "--auth"), authArgOpts,
-                          envvar='ICAT_AUTH')
+        var = self.add_variable('auth', ("-a", "--auth"), authArgOpts,
+                                envvar='ICAT_AUTH')
+        var.postprocess = post_auth
         for key in self.authenticatorInfo.getCredentialKeys(None, hide=False):
             self._add_credential_key(key)
         hidden = self.authenticatorInfo.getCredentialKeys(None, hide=True)
@@ -540,6 +551,7 @@ class Config(object):
         var.key = key
         if hide:
             var.interactive = True
+        var.disabled = True
         self.credentialKey[key] = var
 
     def _setup_client(self):

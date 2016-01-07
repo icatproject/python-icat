@@ -761,6 +761,42 @@ def test_config_authinfo_simple(fakeClient, monkeypatch, tmpconfigfile):
     assert conf.credentials == {'username': 'root', 'password': 'secret'}
 
 
+def test_config_authinfo_anon(fakeClient, monkeypatch, tmpconfigfile):
+    """Anon login example.
+
+    Same as last test, but selecting the anon authenticator this time.
+    """
+
+    userkey = Namespace(name='username')
+    passkey = Namespace(name='password', hide=True)
+    authInfo = [
+        Namespace(mnemonic="simple", admin=True, 
+                  description=Namespace(keys=[userkey, passkey])),
+        Namespace(mnemonic="db", 
+                  description=Namespace(keys=[userkey, passkey])),
+        Namespace(mnemonic="anon", description=""),
+    ]
+    monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_root", "-a", "anon"]
+    config = icat.config.Config(args=args)
+    assert list(config.authenticatorInfo) == authInfo
+    _, conf = config.getconfig()
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'checkCert', 'configDir', 'configFile', 
+                      'configSection', 'credentials', 'http_proxy', 
+                      'https_proxy', 'no_proxy', 'promptPass', 'url' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_root"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "anon"
+    assert conf.promptPass == False
+    assert conf.credentials == {}
+
+
 def test_config_authinfo_anon_only(fakeClient, monkeypatch, tmpconfigfile):
     """
     Talk to a server that supports getAuthenticatorInfo and has only
