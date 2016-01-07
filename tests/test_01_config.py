@@ -703,21 +703,22 @@ def test_config_disable(fakeClient, tmpconfigfile):
 
     args = ["-c", tmpconfigfile.path, "-s", "example_root"]
     config = icat.config.Config(args=args)
-    config.confvariable['auth'].disabled = True
+    config.confvariable['promptPass'].disabled = True
     _, conf = config.getconfig()
 
     attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'checkCert', 'configDir', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'no_proxy', 
-                      'password', 'promptPass', 'url', 'username' ]
+    assert attrs == [ 'auth', 'checkCert', 'configDir', 'configFile', 
+                      'configSection', 'credentials', 'http_proxy', 
+                      'https_proxy', 'no_proxy', 'password', 'url', 
+                      'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
     assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_root"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "simple"
     assert conf.username == "root"
     assert conf.password == "secret"
-    assert conf.promptPass == False
     assert conf.credentials == {'username': 'root', 'password': 'secret'}
 
 
@@ -740,7 +741,7 @@ def test_config_authinfo_simple(fakeClient, monkeypatch, tmpconfigfile):
 
     args = ["-c", tmpconfigfile.path, "-s", "example_root"]
     config = icat.config.Config(args=args)
-    assert config.authenticatorInfo == authInfo
+    assert list(config.authenticatorInfo) == authInfo
     _, conf = config.getconfig()
 
     attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
@@ -773,7 +774,7 @@ def test_config_authinfo_anon_only(fakeClient, monkeypatch, tmpconfigfile):
 
     args = ["-c", tmpconfigfile.path, "-s", "example_anon"]
     config = icat.config.Config(args=args)
-    assert config.authenticatorInfo == authInfo
+    assert list(config.authenticatorInfo) == authInfo
     _, conf = config.getconfig()
 
     attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
@@ -806,7 +807,7 @@ def test_config_authinfo_strange(fakeClient, monkeypatch, tmpconfigfile):
     args = ["-c", tmpconfigfile.path, "-s", "example_root", 
             "-a", "quirks", "--cred_secret", "geheim"]
     config = icat.config.Config(args=args)
-    assert config.authenticatorInfo == authInfo
+    assert list(config.authenticatorInfo) == authInfo
     _, conf = config.getconfig()
 
     attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]

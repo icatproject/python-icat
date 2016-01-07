@@ -8,6 +8,7 @@ import getpass
 import argparse
 import ConfigParser
 from icat.client import Client
+from icat.authinfo import AuthenticatorInfo, LegacyAuthenticatorInfo
 from icat.exception import stripCause, ConfigError, VersionMethodError
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
@@ -447,22 +448,10 @@ class Config(object):
         config = self._getconfig()
 
         if self.needlogin:
-            if self.authenticatorInfo is not None:
-                for info in self.authenticatorInfo:
-                    if info.mnemonic == config.auth:
-                        if info.description:
-                            keys = [k.name for k in info.description.keys]
-                        else:
-                            keys = []
-                        break
-                else:
-                    raise ConfigError("auth: invalid value: %s" % config.auth)
-            else:
-                keys = ['username', 'password']
-            config.credentials = {}
-            for k in keys:
-                v = getattr(config, self.credentialKey[k].name)
-                config.credentials[k] = v
+            config.credentials = { 
+                k: getattr(config, self.credentialKey[k].name)
+                for k in self.authenticatorInfo.getCredentialKeys(config.auth)
+            }
 
         return (self.client, config)
 
@@ -510,40 +499,24 @@ class Config(object):
         """The variables that define the credentials needed for login.
         """
         self.credentialKey = {}
-        self.authenticatorInfo = None
+        authInfo = None
         if self.client:
             try:
-                self.authenticatorInfo = self.client.getAuthenticatorInfo()
+                authInfo = self.client.getAuthenticatorInfo()
             except VersionMethodError:
                 pass
-        if self.authenticatorInfo is not None:
-            authnames = []
-            keys = set()
-            hidden = set()
-            for info in self.authenticatorInfo:
-                authnames.append(info.mnemonic)
-                if info.description:
-                    for k in info.description.keys:
-                        keys.add(k.name)
-                        if getattr(k, "hide", False):
-                            hidden.add(k.name)
+        authArgOpts = dict(help="authentication plugin")
+        if authInfo:
+            self.authenticatorInfo = AuthenticatorInfo(authInfo)
+            authArgOpts['choices'] = self.authenticatorInfo.getAuthNames()
         else:
-            authnames = None
-            keys = { "username", "password" }
-            hidden = { "password" }
+            self.authenticatorInfo = LegacyAuthenticatorInfo()
 
-        if authnames is not None:
-            self.add_variable('auth', ("-a", "--auth"), 
-                              dict(help="authentication plugin", 
-                                   choices=authnames),
-                              envvar='ICAT_AUTH')
-        else:
-            self.add_variable('auth', ("-a", "--auth"), 
-                              dict(help="authentication plugin"),
-                              envvar='ICAT_AUTH')
-
-        for key in (keys - hidden):
+        self.add_variable('auth', ("-a", "--auth"), authArgOpts,
+                          envvar='ICAT_AUTH')
+        for key in self.authenticatorInfo.getCredentialKeys(None, hide=False):
             self._add_credential_key(key)
+        hidden = self.authenticatorInfo.getCredentialKeys(None, hide=True)
         if hidden:
             var = self.add_variable('promptPass', ("-P", "--prompt-pass"), 
                                     dict(help="prompt for the password", 
