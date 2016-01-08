@@ -1,6 +1,12 @@
 PYTHON   = python
 
 
+build: init.py
+	$(PYTHON) setup.py build
+
+test: init.py
+	$(PYTHON) setup.py test
+
 sdist: init.py python2_6.patch doc-html
 	$(PYTHON) setup.py sdist
 
@@ -11,9 +17,6 @@ doc-html: init.py
 
 doc-pdf: init.py
 	$(MAKE) -C doc latexpdf
-
-test: init.py
-	$(PYTHON) setup.py test
 
 
 clean:
@@ -47,4 +50,4 @@ python2_6.patch:
 	git diff `git merge-base master python2_6` python2_6 > $@
 
 
-.PHONY: sdist init.py doc-html doc-pdf test clean distclean gitversion
+.PHONY: build test sdist init.py doc-html doc-pdf clean distclean gitversion
