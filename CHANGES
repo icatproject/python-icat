@@ -1,6 +1,28 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version ? (not yet released)
+
+** Incompatible changes
+
+ + Remove the autoget argument from Entity.getUniqueKey().
+   Deprecated since 0.9.0.
+
+** Bug fixes and minor changes
+
+ + Issue #21: configuration variable promptPass is ignored when set in
+   the configuration file.
+
+ + Issue #18: Documentation: missing stuff in the module index.
+
+ + Issue #20: Add test on compatibility with icat.server.
+
+ + Fix a missing import in the icatexport.py example script.
+
+ + icat.icatcheck: Move checking of exceptions into a separate method
+   checkExceptions().  Do not report exceptions defined in the client,
+   but not found in the schema.
+
 * Version 0.10.0 (2015-12-06)
 
 ** New features
@@ -178,7 +200,7 @@
    derived from IDSError any more.  IDSServerError has been removed.
 
    I.e., replace all references to IDSServerError by IDSError in your
-   code. Furthermore, if you catch IDSError in your code with the
+   code.  Furthermore, if you catch IDSError in your code with the
    intention to catch both, errors from the IDS server and
    IDSResponseError in one branch, replace:
 

@@ -1,6 +1,8 @@
 :mod:`icat.icatcheck` --- Check compatibility with the ICAT server
 ==================================================================
 
+.. py:module:: icat.icatcheck
+
 .. note::
    This module provides tests to check the compatibility of the client
    with the WSDL description got from the ICAT server.  It is mainly

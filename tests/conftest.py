@@ -269,6 +269,15 @@ def pytest_runtest_setup(item):
             manager.checkDepend(depends)
 
 
+def require_servertest():
+    if not pytest.config.getoption("--servertests"):
+        pytest.skip("need --servertests option to run")
+
+def pytest_addoption(parser):
+    parser.addoption("--servertests", action="store_true",
+                     help="run tests for testing the server.")
+
+
 def pytest_report_header(config):
     """Add information on the icat package used in the tests.
     """

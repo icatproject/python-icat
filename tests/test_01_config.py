@@ -40,6 +40,13 @@ flag2 = off
 url = https://icat.example.com/ICATService/ICAT?wsdl
 auth = ldap
 username = nbour
+
+[test21]
+url = https://icat.example.com/ICATService/ICAT?wsdl
+auth = simple
+username = root
+password = secret
+promptPass = Yes
 """
 
 class ConfigFile(object):
@@ -168,7 +175,7 @@ def test_config_askpass(tmpconfigfile, monkeypatch):
     prompt for the password.
     """
 
-    def mockgetpass():
+    def mockgetpass(prompt='Password: '):
         return "mockpass"
     monkeypatch.setattr(getpass, "getpass", mockgetpass)
 
@@ -202,7 +209,7 @@ def test_config_nopass_askpass(tmpconfigfile, monkeypatch):
     67e91ed.)
     """
 
-    def mockgetpass():
+    def mockgetpass(prompt='Password: '):
         return "mockpass"
     monkeypatch.setattr(getpass, "getpass", mockgetpass)
 
@@ -224,6 +231,36 @@ def test_config_nopass_askpass(tmpconfigfile, monkeypatch):
     assert conf.password == "mockpass"
     assert conf.promptPass == True
     assert conf.credentials == {'username': 'nbour', 'password': 'mockpass'}
+
+
+def test_config_askpass_file(tmpconfigfile, monkeypatch):
+    """
+    Set promptPass in the configuration file.  This should force
+    prompting for the password.  Issue #21.
+    """
+
+    def mockgetpass(prompt='Password: '):
+        return "mockpass"
+    monkeypatch.setattr(getpass, "getpass", mockgetpass)
+
+    args = ["-c", tmpconfigfile.path, "-s", "test21"]
+    conf = icat.config.Config().getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'checkCert', 'client_kwargs', 'configDir', 
+                      'configFile', 'configSection', 'credentials', 
+                      'http_proxy', 'https_proxy', 'no_proxy', 
+                      'password', 'promptPass', 'url', 'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "test21"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "simple"
+    assert conf.username == "root"
+    assert conf.password == "mockpass"
+    assert conf.promptPass == True
+    assert conf.credentials == {'username': 'root', 'password': 'mockpass'}
 
 
 def test_config_environment(tmpconfigfile, monkeypatch):

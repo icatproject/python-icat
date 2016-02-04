@@ -346,8 +346,8 @@ class Entity(object):
             delattr(self, r)
         
 
-    def getUniqueKey(self, autoget=False, keyindex=None):
-        """Return a unique kay.
+    def getUniqueKey(self, keyindex=None):
+        """Return a unique key.
 
         The key is a string that is guaranteed to be unique for all
         entities in the ICAT.  All attributes that form the uniqueness
@@ -360,28 +360,12 @@ class Entity(object):
         That means, it may happen that this method fails to create a
         unique key when connected to an old server.
 
-        If `autoget` is :const:`True` the method will call
-        :meth:`icat.client.Client.get` with the appropriate arguments
-        to fill the relations needed for the constraint.  Note that
-        this may discard information on other relations currently
-        present in the entity object.
-
-        .. deprecated:: 0.9
-            Using the `autoget` argument is obsolete.  Call
-            :meth:`icat.client.Client.search` or
-            :meth:`icat.client.Client.get` with the appropriate
-            INCLUDE statement instead.
-
         if `keyindex` is not :const:`None`, it is used as a cache of
         previously generated keys.  It must be a dict that maps entity
         ids to the keys returned by previous calls of
         :meth:`icat.entity.Entity.getUniqueKey` on other entity
         objects.  The newly generated key will be added to this index.
 
-        :param autoget: flag whether :meth:`icat.client.Client.get`
-            shall be called in order to have all needed attributes
-            set.
-        :type autoget: :class:`bool`
         :param keyindex: cache of generated keys.
         :type keyindex: :class:`dict`
         :return: a unique key.
@@ -394,17 +378,6 @@ class Entity(object):
         if keyindex is not None and kid in keyindex:
             return keyindex[kid]
 
-        if autoget:
-            warn("The autoget argument is deprecated.", DeprecationWarning, 2)
-            inclattr = [a for a in self.Constraint if a in self.InstRel]
-            if inclattr:
-                info = self.client.getEntityInfo(self.BeanName)
-                incltypes = [f.type for f in info.fields if f.name in inclattr]
-                self.get("%s INCLUDE %s" 
-                         % (self.BeanName, ", ".join(incltypes)))
-            else:
-                self.get(self.BeanName)
-
         key = self.BeanName
         for c in self.Constraint:
             key += "_"
@@ -413,7 +386,7 @@ class Entity(object):
             elif c in self.InstRel:
                 e = getattr(self, c, None)
                 if e:
-                    ek = e.getUniqueKey(autoget, keyindex)
+                    ek = e.getUniqueKey(keyindex)
                     key += "%s-(%s)" % (c, re.sub(r'^[A-Z-a-z]+_', '', ek))
                 else:
                     raise DataConsistencyError("Required relation '%s' "
