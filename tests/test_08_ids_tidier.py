@@ -68,7 +68,7 @@ def printStatus(client, objs):
         selection = DataSelection([o])
         status = client.ids.getStatus(selection)
         print("Status of %s: %s" % (o.name, status))
-        assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
+        assert status in ["ONLINE", "RESTORING", "ARCHIVED"]
 
 # ============================= tests ==============================
 
