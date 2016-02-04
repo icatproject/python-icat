@@ -3,6 +3,11 @@
 
 * Version ? (not yet released)
 
+** Incompatible changes
+
+ + Remove the autoget argument from Entity.getUniqueKey().
+   Deprecated since 0.9.0.
+
 ** Bug fixes and minor changes
 
  + Issue #21: configuration variable promptPass is ignored when set in

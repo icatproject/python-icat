@@ -290,10 +290,9 @@ def test_archive(client, case):
     })
     selection = DataSelection(client.assertedSearch(query))
     status = client.ids.getStatus(selection)
-    if status != "ONLINE":
-        pytest.skip("The dataset is not online")
-    client.ids.archive(selection)
+    print("Status of dataset %s is %s" % (case['dsname'], status))
     print("Request archive of dataset %s" % (case['dsname']))
+    client.ids.archive(selection)
     status = client.ids.getStatus(selection)
     # Do not assert status == "ARCHIVED" because the archive could be
     # deferred by the server or an other operation on the same dataset
@@ -313,10 +312,9 @@ def test_restore(client, case):
     })
     selection = DataSelection(client.assertedSearch(query))
     status = client.ids.getStatus(selection)
-    if status != "ARCHIVED":
-        pytest.skip("The dataset is not online")
-    client.ids.restore(selection)
+    print("Status of dataset %s is %s" % (case['dsname'], status))
     print("Request restore of dataset %s" % (case['dsname']))
+    client.ids.restore(selection)
     status = client.ids.getStatus(selection)
     # Do not assert status == "RESTORING" because same remark as for
     # archive() applies: there is no guarantee whatsoever on the

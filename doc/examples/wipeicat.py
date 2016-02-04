@@ -84,22 +84,24 @@ def getDfSelections(status=None):
 
 if client.ids:
     while True:
-        action = False
         # Wait for the server to process all pending requests.  This
         # may be needed to avoid race conditions, see
-        # https://code.google.com/p/icat-data-service/issues/detail?id=14
+        # https://github.com/icatproject/ids.server/issues/14
         # The problem has been fixed in IDS 1.3.0.
         if client.ids.apiversion < '1.3.0':
             waitOpsQueue()
         # First step: delete everything that is currently online.
         for selection in getDfSelections("ONLINE"):
             client.deleteData(selection)
-            action = True
         # Second step: request a restore of all remaining datasets.
-        for selection in getDfSelections():
+        for selection in getDfSelections("ARCHIVED"):
             client.ids.restore(selection)
-            action = True
-        if not action:
+        # If any Datafile is left we need to continue the loop.
+        query = ("SELECT df FROM Datafile df "
+                 "WHERE df.location IS NOT NULL LIMIT 0,1")
+        if client.search(query):
+            time.sleep(30)
+        else:
             break
 
 
