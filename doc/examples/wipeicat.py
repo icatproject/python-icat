@@ -11,6 +11,7 @@ import logging
 import icat
 from icat.ids import DataSelection
 import icat.config
+from icat.query import Query
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -27,9 +28,9 @@ searchlimit = 200
 def deletetype(t):
     """Delete all objects of some type t.
     """
-    searchexp = "SELECT o FROM %s o LIMIT 0, %d" % (t, searchlimit)
+    query = Query(client, t, limit=(0, searchlimit))
     while True:
-        objs = client.search(searchexp)
+        objs = client.search(query)
         if not objs:
             break
         client.deleteMany(objs)
@@ -69,18 +70,24 @@ def getDfSelections(status=None):
     """
     skip = 0
     while True:
-        searchexp = ("SELECT o FROM Dataset o INCLUDE o.datafiles "
-                     "LIMIT %d, %d" % (skip, searchlimit))
+        query = Query(client, "Datafile", 
+                      conditions={"location": "IS NOT NULL"}, 
+                      limit=(skip, searchlimit))
+        datafiles = client.search(query)
         skip += searchlimit
-        datasets = client.search(searchexp)
-        if not datasets:
+        if not datafiles:
             break
         selection = DataSelection()
-        for ds in datasets:
-            dfs = [df for df in ds.datafiles if df.location is not None]
-            if dfs and (not status or 
-                        client.ids.getStatus(DataSelection([ds])) == status):
-                selection.extend(dfs)
+        # It is certainly not very efficient to query the status of
+        # every single Datafile individually rather then that of
+        # entire Datasets.  But querying the status of a Dataset may
+        # fail if it has many Datafiles, see
+        # https://github.com/icatproject/ids.server/issues/42
+        for df in datafiles:
+            if (status and 
+                client.ids.getStatus(DataSelection([df])) != status):
+                continue
+            selection.extend([df])
         if selection:
             yield selection
 
@@ -99,8 +106,8 @@ if client.ids:
         for selection in getDfSelections("ARCHIVED"):
             client.ids.restore(selection)
         # If any Datafile is left we need to continue the loop.
-        query = ("SELECT df FROM Datafile df "
-                 "WHERE df.location IS NOT NULL LIMIT 0,1")
+        query = Query(client, "Datafile", 
+                      conditions={"location": "IS NOT NULL"}, limit=(0, 1))
         if client.search(query):
             time.sleep(30)
         else:
