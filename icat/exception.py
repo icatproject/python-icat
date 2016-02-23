@@ -342,11 +342,13 @@ class SearchAssertionError(SearchResultError):
         # one for all other cases.
         if num == 0:
             msg = 'Nothing found on query: "%s"' % query
-        elif assertmax is None:
-            msg = ('Number of objects found (%d) is not within '
-                   'the expected bounds between %d and infinity '
-                   'on query: "%s"'
+        elif num < assertmin:
+            msg = ('Less objects found then expected (%d < %d) on query: "%s"'
                    % (num, assertmin, query))
+        elif assertmax == 1:
+            msg = ('Search result is not unique, '
+                   '%d objects found on query: "%s"'
+                   % (num, query))
         else:
             msg = ('Number of objects found (%d) is not within '
                    'the expected bounds between %d and %d on query: "%s"'

@@ -31,35 +31,18 @@ from conftest import DummyDatafile, getConfig, require_servertest
 require_servertest()
 
 @pytest.fixture(scope="module")
-def client(setupicat, request):
+def client(setupicat):
     conf = getConfig(ids="mandatory")
     client = icat.Client(conf.url, **conf.client_kwargs)
     client.login(conf.auth, conf.credentials)
-    def cleanup():
-        query = ("SELECT ds FROM Dataset ds "
-                 "WHERE ds.name LIKE 'test_idsVolume_%'")
-        while True:
-            datasets = client.search(query)
-            if not datasets:
-                break
-            restore = False
-            for ds in datasets:
-                try:
-                    client.deleteData([ds])
-                    client.delete(ds)
-                except IDSDataNotOnlineError:
-                    restore = True
-            if restore:
-                time.sleep(30)
-    request.addfinalizer(cleanup)
     return client
-
 
 KiB = 1024
 MiB = 1024*KiB
 df_size = 30*MiB
-ds_sizes = [3, 2, 1, 4, 2, 2, 5 ]
+ds_sizes = [3, 2, 1, 4, 2, 2, 5, 4]
 testdatasets = []
+
 
 # ============================= helper =============================
 
@@ -70,10 +53,17 @@ def printStatus(client, objs):
         print("Status of %s: %s" % (o.name, status))
         assert status in ["ONLINE", "RESTORING", "ARCHIVED"]
 
+def wait(client, minutes):
+    for i in range(2*minutes):
+        time.sleep(30)
+        printStatus(client, testdatasets)
+
 # ============================= tests ==============================
 
 @pytest.mark.dependency(name='upload')
 def test_upload(tmpdirsec, client):
+    """Upload some large datasets.
+    """
     inv = client.assertedSearch("Investigation [name='12100409-ST']")[0]
     datasetType = client.assertedSearch("DatasetType [name='raw']")[0]
     datafileFormat = client.assertedSearch("DatafileFormat [name='raw']")[0]
@@ -92,3 +82,48 @@ def test_upload(tmpdirsec, client):
         print("Dataset %s created." % dataset.name)
         testdatasets.append(dataset)
         printStatus(client, testdatasets)
+    wait(client, 5)
+
+@pytest.mark.dependency(depends=['upload'])
+def test_restore_all(client):
+    """Request restoring of all datasets at once.
+    """
+    print("Request restore all.")
+    selection = DataSelection(testdatasets)
+    client.ids.restore(selection)
+    printStatus(client, testdatasets)
+    wait(client, 5)
+
+@pytest.mark.dependency(depends=['upload'])
+def test_restore_order(client):
+    """Request restoring of all datasets one at a time.
+    """
+    for ds in testdatasets:
+        print("Request restore %s." % ds.name)
+        selection = DataSelection([ds])
+        client.ids.restore(selection)
+        printStatus(client, testdatasets)
+        time.sleep(30)
+    wait(client, 1)
+
+@pytest.mark.dependency(depends=['upload'])
+def test_delete(client):
+    """Delete the datasets.
+    """
+    print("Delete datasets.")
+    datasets = testdatasets
+    while True:
+        rest = []
+        printStatus(client, datasets)
+        for ds in datasets:
+            try:
+                client.deleteData([ds])
+                client.delete(ds)
+            except IDSDataNotOnlineError:
+                rest.append(ds)
+        if rest:
+            datasets = rest
+            printStatus(client, datasets)
+            time.sleep(60)
+        else:
+            break
