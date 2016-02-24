@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2015-11-23T14:48:41Z</date>
+  <date>2016-02-24T07:56:55Z</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
-  <apiversion>4.5.1</apiversion>
-  <generator>icatdump (python-icat 0.10.0.dev3)</generator>
+  <apiversion>4.6</apiversion>
+  <generator>icatdump (python-icat 0.10.0)</generator>
 </head>
 <data>
   <user id="User_name-acord">
@@ -1394,7 +1394,9 @@
   </dataset>
   <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947">
     <complete>true</complete>
+    <endDate>2012-07-16T16:30:17+02:00</endDate>
     <name>e208947</name>
+    <startDate>2012-07-16T13:42:05+02:00</startDate>
     <investigation ref="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-analyzed"/>
   </dataset>

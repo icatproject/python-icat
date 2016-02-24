@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Mon, 23 Nov 2015 14:43:21 +0000
+# Date: Wed, 24 Feb 2016 07:45:14 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
-# ICAT-API: 4.5.1
-# Generator: icatdump (python-icat 0.10.0.dev3)
+# ICAT-API: 4.6
+# Generator: icatdump (python-icat 0.10.0)
 ---
 grouping:
   Grouping_name-investigation=5F08100122=2DEF=5Fowner:
@@ -1208,8 +1208,10 @@ dataset:
     type: DatasetType_facility-(name-ESNF)_name-raw
   Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947:
     complete: true
+    endDate: '2012-07-16T16:30:17+02:00'
     investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
     name: e208947
+    startDate: '2012-07-16T13:42:05+02:00'
     type: DatasetType_facility-(name-ESNF)_name-analyzed
 investigation:
   Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP:
