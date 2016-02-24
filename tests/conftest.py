@@ -114,9 +114,10 @@ try:
 except:
     icat_version = "0"
 
-def require_icat_version(minversion):
+def require_icat_version(minversion, reason):
     if icat_version < minversion:
-        pytest.skip("need ICAT server version %s or newer" % minversion)
+        pytest.skip("need ICAT server version %s or newer: %s" 
+                    % (minversion, reason))
 
 
 def callscript(scriptname, args, stdin=None, stdout=None, stderr=None):
@@ -184,8 +185,7 @@ testcontent = gettestdata("icatdump.yaml")
 
 @pytest.fixture(scope="session")
 def setupicat(standardCmdArgs):
-    # testcontent has InvestigationGroup objects.
-    require_icat_version("4.4.0")
+    require_icat_version("4.4.0", "need InvestigationGroup")
     callscript("wipeicat.py", standardCmdArgs)
     args = standardCmdArgs + ["-f", "YAML", "-i", testcontent]
     callscript("icatingest.py", args)

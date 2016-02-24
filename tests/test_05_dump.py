@@ -12,8 +12,7 @@ from conftest import gettestdata, callscript
 from conftest import filter_file, yaml_filter, xml_filter
 
 
-# test content has InvestigationGroup objects.
-require_icat_version("4.4.0")
+require_icat_version("4.4.0", "need InvestigationGroup")
 
 backends = {
     'XML': {
@@ -88,6 +87,7 @@ def test_ingest_xml(standardCmdArgs):
 def test_check_content_xml(standardCmdArgs, tmpdirsec, backend):
     """Dump the content and check that we get the reference dump file back.
     """
+    require_icat_version("4.6.0", "Issue icatproject/icat.server#155")
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']
     dump = os.path.join(tmpdirsec.dir, "dump" + fileext)
@@ -149,6 +149,7 @@ def test_ingest_yaml(standardCmdArgs):
 def test_check_content_yaml(standardCmdArgs, tmpdirsec, backend):
     """Dump the content and check that we get the reference dump file back.
     """
+    require_icat_version("4.6.0", "Issue icatproject/icat.server#155")
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']
     dump = os.path.join(tmpdirsec.dir, "dump" + fileext)
