@@ -29,7 +29,7 @@ for u in users:
 # Labels used in test dependencies.
 alldata = ["init", "sample_durol", "sample_nimnga", "sample_nio", "inv_081",
            "inv_101", "inv_121", "invdata_081", "invdata_101", "invdata_121",
-           "job1", "rdf1", "pub1"]
+           "job1", "rdf1", "study1", "pub1"]
 
 @pytest.fixture(scope="module")
 def data():
@@ -157,7 +157,6 @@ def test_add_relateddatafile(data, user, rdfname):
             ("useroffice", "study1")),
 ])
 def test_add_study(data, user, studyname):
-    pytest.skip("Study disabled, see Issue icatproject/icat.server#155")
     conf = getConfig(confSection=user)
     client = icat.Client(conf.url, **conf.client_kwargs)
     client.login(conf.auth, conf.credentials)
@@ -193,6 +192,7 @@ def test_add_publication(data, user, pubname):
 def test_check_content(standardConfig, tmpdirsec):
     """Dump the resulting content and compare with a reference dump.
     """
+    require_icat_version("4.6.0", "Issue icatproject/icat.server#155")
     dump = os.path.join(tmpdirsec.dir, "dump.yaml")
     fdump = os.path.join(tmpdirsec.dir, "dump-filter.yaml")
     reffdump = os.path.join(tmpdirsec.dir, "dump-filter-ref.yaml")

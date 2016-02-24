@@ -1,5 +1,5 @@
 %YAML 1.1
-# Date: Wed, 24 Feb 2016 07:45:14 +0000
+# Date: Wed, 24 Feb 2016 08:40:42 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 4.6
 # Generator: icatdump (python-icat 0.10.0)
@@ -1279,3 +1279,12 @@ relatedDatafile:
   : destDatafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs
     relation: copy
     sourceDatafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs
+study:
+  Study_00000001:
+    name: 12-008
+    startDate: '2012-07-09T08:00:00+02:00'
+    status: COMPLETE
+    studyInvestigations:
+    - investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
+    - investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
+    user: User_name-nbour
