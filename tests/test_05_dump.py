@@ -12,8 +12,7 @@ from conftest import gettestdata, callscript
 from conftest import filter_file, yaml_filter, xml_filter
 
 
-# test content has InvestigationGroup objects.
-require_icat_version("4.4.0")
+require_icat_version("4.4.0", "need InvestigationGroup")
 
 backends = {
     'XML': {

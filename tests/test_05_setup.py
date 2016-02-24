@@ -18,8 +18,7 @@ from conftest import getConfig, require_icat_version
 from conftest import gettestdata, callscript, filter_file, yaml_filter
 
 
-# wipeicat uses JPQL search syntax.
-require_icat_version("4.3.0")
+require_icat_version("4.3.0", "need JPQL query syntax")
 
 testinput = gettestdata("example_data.yaml")
 refdump = gettestdata("icatdump.yaml")
