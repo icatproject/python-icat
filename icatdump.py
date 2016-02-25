@@ -29,6 +29,8 @@
 #    about this.  A database dump is a snapshot after all.  The
 #    picture will be blurred if the subject is moving while we take
 #    it.
+#  + icatdump fails for Study if ICAT is older then 4.6.0.  This is a
+#    bug in icat.server, see Issue icatproject/icat.server#155.
 #
 
 import logging

@@ -358,8 +358,10 @@ jobs:
               parameters:
                 - dateTimeValue: '2012-07-17T09:28:18+02:00'
                   type: lastaccess
+          endDate: '2012-07-16T16:30:17+02:00'
           investigation: 12100409-ST
           name: e208947
+          startDate: '2012-07-16T13:42:05+02:00'
           type: analyzed
       datafiles:
         - datafileCreateTime: '2012-07-16T16:30:17+02:00'
