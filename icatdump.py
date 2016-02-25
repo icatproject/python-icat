@@ -17,12 +17,6 @@
 #  + The partition of the data into chunks ist static.  It should
 #    rather be dynamic, e.g. chunks should be splitted if the number
 #    of objects in them grows too large.
-#  + The serialization of the following entity types has not yet been
-#    tested: DataCollectionParameter, DatafileParameter,
-#    DatasetParameter, FacilityCycle, InvestigationParameter,
-#    ParameterType, PermissibleStringValue, Publication,
-#    RelatedDatafile, SampleParameter, Shift, Study,
-#    StudyInvestigation.
 #  + The data in the ICAT server must not be modified while this
 #    script is retrieving it.  Otherwise the script may fail or the
 #    dumpfile be inconsistent.  There is not too much that can be done
