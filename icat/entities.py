@@ -63,6 +63,14 @@ class DataCollection431(DataCollection):
     AttrAlias = {'dataCollectionParameters':'parameters'}
 
 
+class DataCollection47(DataCollection431):
+    """A set of Datafiles and Datasets which can span investigations
+    and facilities.  Note that it has no constraint fields.  It is
+    expected that a DataCollection would be identified by its
+    parameters or its relationship to a Job."""
+    InstAttr = frozenset(['id', 'doi'])
+
+
 class DataCollectionDatafile(Entity):
     """Represents a many-to-many relationship between a DataCollection
     and its Datafiles."""

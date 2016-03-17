@@ -124,6 +124,12 @@ TypeMap44.update( grouping = icat.entities.Group44,
                   investigationGroup = icat.entities.InvestigationGroup, 
                   investigationUser = icat.entities.InvestigationUser44 )
 
+TypeMap47 = TypeMap44.copy()
+"""Map instance types defined in the WSDL to Python classes (ICAT 4.7.0)."""
+del TypeMap47['log']
+TypeMap47.update( dataCollection = icat.entities.DataCollection47 )
+
+
 class Client(suds.client.Client):
  
     """A client accessing an ICAT service.
@@ -199,7 +205,7 @@ class Client(suds.client.Client):
             self.typemap = TypeMap44.copy()
         else:
             warn(ClientVersionWarning(self.apiversion, "too new"))
-            self.typemap = TypeMap44.copy()
+            self.typemap = TypeMap47.copy()
 
         self.ids = None
         self.sessionId = None
