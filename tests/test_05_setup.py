@@ -125,6 +125,7 @@ def test_addinvdata(user, invname):
     args = conf.cmdargs + [testinput, invname]
     callscript("add-investigation-data.py", args)
 
+@pytest.mark.xfail(reason="See discussion on icatproject/icat.server#127")
 @pytest.mark.parametrize(("user", "jobname"), [
     pytest.mark.dependency(
         name="job1", depends=["invdata_101", "invdata_121"])(
