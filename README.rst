@@ -219,7 +219,7 @@ Copyright and License
 ---------------------
 
 Copyright 2013-2016
-Helmholtz-Zentrum Berlin fuer Materialien und Energie GmbH
+Helmholtz-Zentrum Berlin für Materialien und Energie GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License"); you
 may not use this file except in compliance with the License.  You may
