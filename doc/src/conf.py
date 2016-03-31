@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'python-icat'
-copyright = (u'2013-2015, '
+copyright = (u'2013-2016, '
              'Helmholtz-Zentrum Berlin fuer Materialien und Energie GmbH')
 
 # The version info for the project you're documenting, acts as replacement for

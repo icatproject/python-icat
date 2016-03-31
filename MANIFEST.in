@@ -1,5 +1,4 @@
 include CHANGES
-include COPYING
 include MANIFEST.in
 include README.rst
 include icatinfo.py
