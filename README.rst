@@ -52,6 +52,10 @@ not required to install or use python-icat itself:
 
    Only if you want to run the tests.
 
+ + `distutils-pytest`_
+
+   Only if you want to run the tests.
+
 .. __: `Suds`_
 .. __: `Suds jurko`_
 
@@ -242,6 +246,7 @@ permissions and limitations under the License.
 .. _lxml: http://lxml.de/
 .. _Requests: http://python-requests.org/
 .. _pytest: http://pytest.org/
+.. _distutils-pytest: https://pythonhosted.org/distutils-pytest/
 .. _Installing Python Modules: https://docs.python.org/2.7/install/
 .. _PEP 3134: https://www.python.org/dev/peps/pep-3134/
 .. _Python Issue 6210: http://bugs.python.org/issue6210
