@@ -602,6 +602,11 @@ class User(Entity):
                           'userGroups', 'studies'])
 
 
+class User47(User):
+    """A user of the facility."""
+    InstAttr = frozenset(['id', 'name', 'fullName', 'orcidId', 'email'])
+
+
 class UserGroup(Entity):
     """Many to many relationship between user and group."""
     BeanName = 'UserGroup'
