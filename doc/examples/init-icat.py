@@ -18,6 +18,17 @@ import yaml
 import icat
 import icat.config
 from icat.query import Query
+try:
+    cet = datetime.timezone(datetime.timedelta(hours=1))
+    cest = datetime.timezone(datetime.timedelta(hours=2))
+except AttributeError:
+    try:
+        from suds.sax.date import FixedOffsetTimezone
+        cet = FixedOffsetTimezone(datetime.timedelta(hours=1))
+        cest = FixedOffsetTimezone(datetime.timedelta(hours=2))
+    except ImportError:
+        cet = None
+        cest = None
 
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
@@ -408,6 +419,14 @@ for k in data['applications'].keys():
 client.createMany(applications)
 
 # facilityCycles
+def gettz(month):
+    """Very simplified switch between DST on and off.
+    """
+    if 3 < month <= 10:
+        return cest
+    else:
+        return cet
+
 facility_cycles = []
 for fcdata in data['facility_cycles']:
     for y in range(fcdata['startYear'],fcdata['endYear']):
@@ -417,11 +436,14 @@ for fcdata in data['facility_cycles']:
             c += 1
             cycle = client.new("facilityCycle")
             cycle.name = "%02d%d" % (y, c)
-            cycle.startDate = datetime.date(year, p[0], p[1])
+            cycle.startDate = datetime.datetime(year, p[0], p[1], 
+                                                tzinfo=gettz(p[0]))
             if p[2] > p[0]:
-                cycle.endDate = datetime.date(year, p[2], p[3])
+                cycle.endDate = datetime.datetime(year, p[2], p[3], 
+                                                  tzinfo=gettz(p[2]))
             else:
-                cycle.endDate = datetime.date(year+1, p[2], p[3])
+                cycle.endDate = datetime.datetime(year+1, p[2], p[3], 
+                                                  tzinfo=gettz(p[2]))
             cycle.facility = facilities[fcdata['facility']]
             facility_cycles.append(cycle)
 client.createMany(facility_cycles)
