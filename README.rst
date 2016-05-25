@@ -5,7 +5,11 @@ This package provides a collection of modules for writing Python
 programs that access an `ICAT`_ service using the SOAP interface.  It
 is based on Suds and extends it with ICAT specific features.
 
-See also the home page of the package at
+Download
+--------
+
+The latest release version and online documentation can be found at
+the home page of the package at
 http://icatproject.org/user-documentation/python-icat/
 
 
@@ -49,6 +53,10 @@ not required to install or use python-icat itself:
    interface, icatexport.py and icatimport.py.
 
  + `pytest`_ >= 2.8
+
+   Only if you want to run the tests.
+
+ + `distutils-pytest`_
 
    Only if you want to run the tests.
 
@@ -111,6 +119,22 @@ dynamic and site specific and thus not suitable, neither for testing
 nor for the inclusion into example scripts.  So its easier to have
 just one blob of dummy input data in one single file.  That is also
 the reason why the example scripts require PyYAML.
+
+
+Building from development sources
+---------------------------------
+
+For production use it is always recommended to use the latest release
+version from the home page, see above.  If you need some not yet
+released bleeding edge feature or if you want to participate in the
+development, you may also clone the `source repository from GitHub`__.
+
+Note that some source files are dynamically created and thus missing
+in the development sources.  If you want to build from the development
+sources, you may use the provided Makefile.  E.g. type ``make build``,
+``make test``, and ``make sdist``.
+
+.. __: `GitHub repository`_
 
 
 Test
@@ -218,33 +242,20 @@ when it is incompatible with PEP 440.
 Copyright and License
 ---------------------
 
-Copyright 2013, 2014, 2015
-Helmholtz-Zentrum Berlin fuer Materialien und Energie GmbH
-All rights reserved.
+Copyright 2013-2016
+Helmholtz-Zentrum Berlin für Materialien und Energie GmbH
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
+Licensed under the Apache License, Version 2.0 (the "License"); you
+may not use this file except in compliance with the License.  You may
+obtain a copy of the License at
 
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
+    http://www.apache.org/licenses/LICENSE-2.0
 
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in
-    the documentation and/or other materials provided with the
-    distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied.  See the License for the specific language governing
+permissions and limitations under the License.
 
 
 .. _ICAT: http://www.icatproject.org/
@@ -255,7 +266,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .. _lxml: http://lxml.de/
 .. _Requests: http://python-requests.org/
 .. _pytest: http://pytest.org/
+.. _distutils-pytest: https://pythonhosted.org/distutils-pytest/
 .. _Installing Python Modules: https://docs.python.org/2.7/install/
+.. _GitHub repository: https://github.com/icatproject/python-icat
 .. _PEP 3134: https://www.python.org/dev/peps/pep-3134/
 .. _Python Issue 6210: http://bugs.python.org/issue6210
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/

@@ -39,7 +39,7 @@ distclean: clean
 
 
 icat/__init__.py: icatinfo.py icatinit.py gitversion
-	(sed -e '/__copyright__/ r COPYING' icatinfo.py; \
+	(cat icatinfo.py; \
 	echo "__revision__  = \"`git describe --always --dirty`\""; \
 	cat icatinit.py) > icat/__init__.py
 

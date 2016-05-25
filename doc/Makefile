@@ -11,22 +11,33 @@ PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) src
 
-html:
+# Subdirectories of src that are supposed to be there but that may be
+# empty and may thus be missing after a git checkout.
+SRCDIRS = src/_static src/_templates
+
+
+html: $(SRCDIRS)
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) html
 
-latex:
+latex: $(SRCDIRS)
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) latex
 
 latexpdf: latex
 	$(MAKE) -C latex all-pdf
 
-linkcheck:
+linkcheck: $(SRCDIRS)
 	$(SPHINXBUILD) -b linkcheck $(ALLSPHINXOPTS) linkcheck
 
-doctest:
+doctest: $(SRCDIRS)
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) doctest
 
 distclean:
 	rm -rf doctrees html latex linkcheck doctest
+
+src/_static:
+	mkdir $@
+
+src/_templates:
+	mkdir $@
 
 .PHONY: html latex latexpdf linkcheck doctest distclean

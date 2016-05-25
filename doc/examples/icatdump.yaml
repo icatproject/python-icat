@@ -1,7 +1,7 @@
 %YAML 1.1
-# Date: Wed, 24 Feb 2016 08:40:42 +0000
+# Date: Mon, 09 May 2016 11:13:47 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
-# ICAT-API: 4.6
+# ICAT-API: 4.6.1
 # Generator: icatdump (python-icat 0.10.0)
 ---
 grouping:
@@ -645,105 +645,105 @@ facility:
     url: http://www.esnf.example.org/
 facilityCycle:
   FacilityCycle_facility-(name-ESNF)_name-071:
-    endDate: '2007-08-15T00:00:00+02:00'
+    endDate: '2007-08-14T22:00:00+00:00'
     facility: Facility_name-ESNF
     name: '071'
-    startDate: '2007-02-15T00:00:00+01:00'
+    startDate: '2007-02-14T23:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-072:
-    endDate: '2008-02-15T00:00:00+01:00'
+    endDate: '2008-02-14T23:00:00+00:00'
     facility: Facility_name-ESNF
     name: '072'
-    startDate: '2007-08-15T00:00:00+02:00'
+    startDate: '2007-08-14T22:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-081:
-    endDate: '2008-08-15T00:00:00+02:00'
+    endDate: '2008-08-14T22:00:00+00:00'
     facility: Facility_name-ESNF
     name: 081
-    startDate: '2008-02-15T00:00:00+01:00'
+    startDate: '2008-02-14T23:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-082:
-    endDate: '2009-02-15T00:00:00+01:00'
+    endDate: '2009-02-14T23:00:00+00:00'
     facility: Facility_name-ESNF
     name: 082
-    startDate: '2008-08-15T00:00:00+02:00'
+    startDate: '2008-08-14T22:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-091:
-    endDate: '2009-08-15T00:00:00+02:00'
+    endDate: '2009-08-14T22:00:00+00:00'
     facility: Facility_name-ESNF
     name: 091
-    startDate: '2009-02-15T00:00:00+01:00'
+    startDate: '2009-02-14T23:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-092:
-    endDate: '2010-02-15T00:00:00+01:00'
+    endDate: '2010-02-14T23:00:00+00:00'
     facility: Facility_name-ESNF
     name: 092
-    startDate: '2009-08-15T00:00:00+02:00'
+    startDate: '2009-08-14T22:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-101:
-    endDate: '2010-08-15T00:00:00+02:00'
+    endDate: '2010-08-14T22:00:00+00:00'
     facility: Facility_name-ESNF
     name: '101'
-    startDate: '2010-02-15T00:00:00+01:00'
+    startDate: '2010-02-14T23:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-102:
-    endDate: '2011-02-15T00:00:00+01:00'
+    endDate: '2011-02-14T23:00:00+00:00'
     facility: Facility_name-ESNF
     name: '102'
-    startDate: '2010-08-15T00:00:00+02:00'
+    startDate: '2010-08-14T22:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-111:
-    endDate: '2011-08-15T00:00:00+02:00'
+    endDate: '2011-08-14T22:00:00+00:00'
     facility: Facility_name-ESNF
     name: '111'
-    startDate: '2011-02-15T00:00:00+01:00'
+    startDate: '2011-02-14T23:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-112:
-    endDate: '2012-02-15T00:00:00+01:00'
+    endDate: '2012-02-14T23:00:00+00:00'
     facility: Facility_name-ESNF
     name: '112'
-    startDate: '2011-08-15T00:00:00+02:00'
+    startDate: '2011-08-14T22:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-121:
-    endDate: '2012-08-15T00:00:00+02:00'
+    endDate: '2012-08-14T22:00:00+00:00'
     facility: Facility_name-ESNF
     name: '121'
-    startDate: '2012-02-15T00:00:00+01:00'
+    startDate: '2012-02-14T23:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-122:
-    endDate: '2013-02-15T00:00:00+01:00'
+    endDate: '2013-02-14T23:00:00+00:00'
     facility: Facility_name-ESNF
     name: '122'
-    startDate: '2012-08-15T00:00:00+02:00'
+    startDate: '2012-08-14T22:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-131:
-    endDate: '2013-08-15T00:00:00+02:00'
+    endDate: '2013-08-14T22:00:00+00:00'
     facility: Facility_name-ESNF
     name: '131'
-    startDate: '2013-02-15T00:00:00+01:00'
+    startDate: '2013-02-14T23:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-132:
-    endDate: '2014-02-15T00:00:00+01:00'
+    endDate: '2014-02-14T23:00:00+00:00'
     facility: Facility_name-ESNF
     name: '132'
-    startDate: '2013-08-15T00:00:00+02:00'
+    startDate: '2013-08-14T22:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-141:
-    endDate: '2014-08-15T00:00:00+02:00'
+    endDate: '2014-08-14T22:00:00+00:00'
     facility: Facility_name-ESNF
     name: '141'
-    startDate: '2014-02-15T00:00:00+01:00'
+    startDate: '2014-02-14T23:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-142:
-    endDate: '2015-02-15T00:00:00+01:00'
+    endDate: '2015-02-14T23:00:00+00:00'
     facility: Facility_name-ESNF
     name: '142'
-    startDate: '2014-08-15T00:00:00+02:00'
+    startDate: '2014-08-14T22:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-151:
-    endDate: '2015-08-15T00:00:00+02:00'
+    endDate: '2015-08-14T22:00:00+00:00'
     facility: Facility_name-ESNF
     name: '151'
-    startDate: '2015-02-15T00:00:00+01:00'
+    startDate: '2015-02-14T23:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-152:
-    endDate: '2016-02-15T00:00:00+01:00'
+    endDate: '2016-02-14T23:00:00+00:00'
     facility: Facility_name-ESNF
     name: '152'
-    startDate: '2015-08-15T00:00:00+02:00'
+    startDate: '2015-08-14T22:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-161:
-    endDate: '2016-08-15T00:00:00+02:00'
+    endDate: '2016-08-14T22:00:00+00:00'
     facility: Facility_name-ESNF
     name: '161'
-    startDate: '2016-02-15T00:00:00+01:00'
+    startDate: '2016-02-14T23:00:00+00:00'
   FacilityCycle_facility-(name-ESNF)_name-162:
-    endDate: '2017-02-15T00:00:00+01:00'
+    endDate: '2017-02-14T23:00:00+00:00'
     facility: Facility_name-ESNF
     name: '162'
-    startDate: '2016-08-15T00:00:00+02:00'
+    startDate: '2016-08-14T22:00:00+00:00'
 instrument:
   Instrument_facility-(name-ESNF)_name-E2:
     description: 'A 3-dimensional part of the reciprocal space can be scanned in less
@@ -939,14 +939,14 @@ sampleType:
 datafile:
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215)_name-e201215=2Enxs
   : checksum: ac69460a
-    datafileCreateTime: '2008-06-18T09:31:11+02:00'
+    datafileCreateTime: '2008-06-18T07:31:11+00:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0
-    datafileModTime: '2008-06-18T09:31:11+02:00'
+    datafileModTime: '2008-06-18T07:31:11+00:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215
     fileSize: 368369
     name: e201215.nxs
     parameters:
-    - dateTimeValue: '2008-06-18T09:31:11+02:00'
+    - dateTimeValue: '2008-06-18T07:31:11+00:00'
       type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215:
@@ -954,14 +954,14 @@ dataset:
     investigation: Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP
     name: e201215
     sample: Sample_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-Durol=20SC
-    startDate: '2008-03-13T11:39:42+01:00'
+    startDate: '2008-03-13T10:39:42+00:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
   Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201216:
     complete: false
     investigation: Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP
     name: e201216
     sample: Sample_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-Durol=20SC
-    startDate: '2008-03-20T08:20:00+01:00'
+    startDate: '2008-03-20T07:20:00+00:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
 investigation:
   Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP:
@@ -990,9 +990,9 @@ investigation:
       type: ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA
     shifts:
     - comment: Beamtime at HIKE
-      endDate: '2008-03-13T16:00:00+01:00'
-      startDate: '2008-03-13T08:00:00+01:00'
-    startDate: '2008-03-13T11:39:42+01:00'
+      endDate: '2008-03-13T15:00:00+00:00'
+      startDate: '2008-03-13T07:00:00+00:00'
+    startDate: '2008-03-13T10:39:42+00:00'
     title: Durol single crystal
     type: InvestigationType_name-Experiment_facility-(name-ESNF)
     visitId: 1.1-P
@@ -1005,52 +1005,52 @@ sample:
 datafile:
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339)_name-e208339=2Edat
   : checksum: 81c44870
-    datafileCreateTime: '2010-10-01T08:17:48+02:00'
+    datafileCreateTime: '2010-10-01T06:17:48+00:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA
-    datafileModTime: '2010-10-01T08:17:48+02:00'
+    datafileModTime: '2010-10-01T06:17:48+00:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339
     fileSize: 446
     name: e208339.dat
     parameters:
-    - dateTimeValue: '2010-10-01T08:51:56+02:00'
+    - dateTimeValue: '2010-10-01T06:51:56+00:00'
       type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339)_name-e208339=2Enxs
   : checksum: 8b369ddc
-    datafileCreateTime: '2010-10-01T08:52:22+02:00'
+    datafileCreateTime: '2010-10-01T06:52:22+00:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0
-    datafileModTime: '2010-10-01T08:52:22+02:00'
+    datafileModTime: '2010-10-01T06:52:22+00:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339
     fileSize: 73428
     name: e208339.nxs
     parameters:
-    - dateTimeValue: '2012-07-12T16:45:26+02:00'
+    - dateTimeValue: '2012-07-12T14:45:26+00:00'
       type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Edat
   : checksum: 284558f4
-    datafileCreateTime: '2010-10-05T10:32:21+02:00'
+    datafileCreateTime: '2010-10-05T08:32:21+00:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA
-    datafileModTime: '2010-10-05T10:32:21+02:00'
+    datafileModTime: '2010-10-05T08:32:21+00:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341
     fileSize: 394
     name: e208341.dat
     parameters:
-    - dateTimeValue: '2010-10-05T11:31:45+02:00'
+    - dateTimeValue: '2010-10-05T09:31:45+00:00'
       type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs
   : checksum: 7c72b4bc
-    datafileCreateTime: '2010-10-05T11:31:53+02:00'
+    datafileCreateTime: '2010-10-05T09:31:53+00:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0
-    datafileModTime: '2010-10-05T11:31:53+02:00'
+    datafileModTime: '2010-10-05T09:31:53+00:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341
     fileSize: 52857
     name: e208341.nxs
     parameters:
-    - dateTimeValue: '2012-07-16T16:12:08+02:00'
+    - dateTimeValue: '2012-07-16T14:12:08+00:00'
       type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339:
     complete: false
-    endDate: '2010-10-01T08:17:48+02:00'
+    endDate: '2010-10-01T06:17:48+00:00'
     investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
     name: e208339
     parameters:
@@ -1059,11 +1059,11 @@ dataset:
     - numericValue: '5.0'
       type: ParameterType_facility-(name-ESNF)_name-Reactor=20power_units-MW
     sample: Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027
-    startDate: '2010-09-30T12:27:24+02:00'
+    startDate: '2010-09-30T10:27:24+00:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
   Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341:
     complete: false
-    endDate: '2010-10-05T10:32:21+02:00'
+    endDate: '2010-10-05T08:32:21+00:00'
     investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
     name: e208341
     parameters:
@@ -1072,19 +1072,19 @@ dataset:
     - numericValue: '5.0'
       type: ParameterType_facility-(name-ESNF)_name-Reactor=20power_units-MW
     sample: Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027
-    startDate: '2010-10-02T04:00:21+02:00'
+    startDate: '2010-10-02T02:00:21+00:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
   Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208342:
     complete: false
-    endDate: '2010-10-12T17:00:00+02:00'
+    endDate: '2010-10-12T15:00:00+00:00'
     investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
     name: e208342
     sample: Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027
-    startDate: '2010-10-09T07:00:00+02:00'
+    startDate: '2010-10-09T05:00:00+00:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
 investigation:
   Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN:
-    endDate: '2010-10-12T17:00:00+02:00'
+    endDate: '2010-10-12T15:00:00+00:00'
     facility: Facility_name-ESNF
     investigationGroups:
     - grouping: Grouping_name-investigation=5F10100601=2DST=5Fowner
@@ -1112,12 +1112,12 @@ investigation:
       fullReference: A. Hau.  Properties of NiMnGa.  Adv. Mater. 2011, 1
     shifts:
     - comment: Beamtime at E2
-      endDate: '2010-10-06T08:00:00+02:00'
-      startDate: '2010-09-29T08:00:00+02:00'
+      endDate: '2010-10-06T06:00:00+00:00'
+      startDate: '2010-09-29T06:00:00+00:00'
     - comment: Beamtime at E2
-      endDate: '2010-10-13T08:00:00+02:00'
-      startDate: '2010-10-09T08:00:00+02:00'
-    startDate: '2010-09-30T12:27:24+02:00'
+      endDate: '2010-10-13T06:00:00+00:00'
+      startDate: '2010-10-09T06:00:00+00:00'
+    startDate: '2010-09-30T10:27:24+00:00'
     title: Ni-Mn-Ga flat cone
     type: InvestigationType_name-Experiment_facility-(name-ESNF)
     visitId: 1.1-N
@@ -1133,61 +1133,61 @@ sample:
 datafile:
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs
   : checksum: 7c72b4bc
-    datafileCreateTime: '2010-10-05T11:31:53+02:00'
+    datafileCreateTime: '2010-10-05T09:31:53+00:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0
-    datafileModTime: '2010-10-05T11:31:53+02:00'
+    datafileModTime: '2010-10-05T09:31:53+00:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945
     fileSize: 52857
     name: e208341.nxs
     parameters:
-    - dateTimeValue: '2014-10-02T14:32:51+02:00'
+    - dateTimeValue: '2014-10-02T12:32:51+00:00'
       type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs
-  : datafileCreateTime: '2012-07-16T16:30:17+02:00'
+  : datafileCreateTime: '2012-07-16T14:30:17+00:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1
-    datafileModTime: '2012-07-16T16:30:17+02:00'
+    datafileModTime: '2012-07-16T14:30:17+00:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945
     fileSize: 28937
     name: e208945-2.nxs
     parameters:
-    - dateTimeValue: '2014-10-02T14:32:51+02:00'
+    - dateTimeValue: '2014-10-02T12:32:51+00:00'
       type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Edat
   : checksum: bd55affa
-    datafileCreateTime: '2012-07-30T03:10:08+02:00'
+    datafileCreateTime: '2012-07-30T01:10:08+00:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA
-    datafileModTime: '2012-07-30T03:10:08+02:00'
+    datafileModTime: '2012-07-30T01:10:08+00:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945
     fileSize: 459
     name: e208945.dat
     parameters:
-    - dateTimeValue: '2014-10-02T14:32:51+02:00'
+    - dateTimeValue: '2014-10-02T12:32:51+00:00'
       type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs
   : checksum: 1db15f18
-    datafileCreateTime: '2013-06-03T12:22:43+02:00'
+    datafileCreateTime: '2013-06-03T10:22:43+00:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1
-    datafileModTime: '2013-06-03T12:22:43+02:00'
+    datafileModTime: '2013-06-03T10:22:43+00:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945
     fileSize: 396430
     name: e208945.nxs
     parameters:
-    - dateTimeValue: '2014-10-02T14:32:51+02:00'
+    - dateTimeValue: '2014-10-02T12:32:51+00:00'
       type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947)_name-e208947=2Enxs
-  : datafileCreateTime: '2012-07-16T16:30:17+02:00'
+  : datafileCreateTime: '2012-07-16T14:30:17+00:00'
     datafileFormat: DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1
-    datafileModTime: '2012-07-16T16:30:17+02:00'
+    datafileModTime: '2012-07-16T14:30:17+00:00'
     dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947
     fileSize: 14965
     name: e208947.nxs
     parameters:
-    - dateTimeValue: '2012-07-17T09:28:18+02:00'
+    - dateTimeValue: '2012-07-17T07:28:18+00:00'
       type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945:
     complete: false
-    endDate: '2012-07-30T03:10:08+02:00'
+    endDate: '2012-07-30T01:10:08+00:00'
     investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
     name: e208945
     parameters:
@@ -1196,26 +1196,26 @@ dataset:
     - numericValue: '277.07'
       type: ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-K
     sample: Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC
-    startDate: '2012-07-26T17:44:24+02:00'
+    startDate: '2012-07-26T15:44:24+00:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
   Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208946:
     complete: false
-    endDate: '2012-08-06T03:10:08+02:00'
+    endDate: '2012-08-06T01:10:08+00:00'
     investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
     name: e208946
     sample: Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC
-    startDate: '2012-08-02T07:30:00+02:00'
+    startDate: '2012-08-02T05:30:00+00:00'
     type: DatasetType_facility-(name-ESNF)_name-raw
   Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947:
     complete: true
-    endDate: '2012-07-16T16:30:17+02:00'
+    endDate: '2012-07-16T14:30:17+00:00'
     investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
     name: e208947
-    startDate: '2012-07-16T13:42:05+02:00'
+    startDate: '2012-07-16T11:42:05+00:00'
     type: DatasetType_facility-(name-ESNF)_name-analyzed
 investigation:
   Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP:
-    endDate: '2012-08-06T03:10:08+02:00'
+    endDate: '2012-08-06T01:10:08+00:00'
     facility: Facility_name-ESNF
     investigationGroups:
     - grouping: Grouping_name-investigation=5F12100409=2DST=5Fowner
@@ -1240,9 +1240,9 @@ investigation:
       type: ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA
     shifts:
     - comment: Beamtime at EDDI
-      endDate: '2012-08-07T06:00:00+02:00'
-      startDate: '2012-07-24T06:00:00+02:00'
-    startDate: '2012-07-26T17:44:24+02:00'
+      endDate: '2012-08-07T04:00:00+00:00'
+      startDate: '2012-07-24T04:00:00+00:00'
+    startDate: '2012-07-26T15:44:24+00:00'
     title: NiO SC OF1 JUH HHL
     type: InvestigationType_name-Experiment_facility-(name-ESNF)
     visitId: 1.1-P
@@ -1282,7 +1282,7 @@ relatedDatafile:
 study:
   Study_00000001:
     name: 12-008
-    startDate: '2012-07-09T08:00:00+02:00'
+    startDate: '2012-07-09T06:00:00+00:00'
     status: COMPLETE
     studyInvestigations:
     - investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
