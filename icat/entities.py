@@ -63,6 +63,14 @@ class DataCollection431(DataCollection):
     AttrAlias = {'dataCollectionParameters':'parameters'}
 
 
+class DataCollection47(DataCollection431):
+    """A set of Datafiles and Datasets which can span investigations
+    and facilities.  Note that it has no constraint fields.  It is
+    expected that a DataCollection would be identified by its
+    parameters or its relationship to a Job."""
+    InstAttr = frozenset(['id', 'doi'])
+
+
 class DataCollectionDatafile(Entity):
     """Represents a many-to-many relationship between a DataCollection
     and its Datafiles."""
@@ -592,6 +600,11 @@ class User(Entity):
     InstAttr = frozenset(['id', 'name', 'fullName'])
     InstMRel = frozenset(['investigationUsers', 'instrumentScientists', 
                           'userGroups', 'studies'])
+
+
+class User47(User):
+    """A user of the facility."""
+    InstAttr = frozenset(['id', 'name', 'fullName', 'orcidId', 'email'])
 
 
 class UserGroup(Entity):
