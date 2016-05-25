@@ -1,7 +1,11 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version ? (not yet released)
+* Version 0.11.0 (not yet released)
+
+** New features
+
+ + Issues #12 and #23: add support for ICAT 4.7.0 and IDS 1.6.0.
 
 ** Incompatible changes
 
@@ -15,13 +19,27 @@
 
  + Issue #18: Documentation: missing stuff in the module index.
 
- + Issue #20: Add test on compatibility with icat.server.
+ + Issue #20: add test on compatibility with icat.server.
+
+ + Issues #24 and #25: test failures caused by different timezone
+   settings of the test server.
+
+ + Use a separate module distutils_pytest for "setup.py test".
+
+ + icat.icatcheck: move checking of exceptions into a separate method
+   checkExceptions().  Do not report exceptions defined in the client,
+   but not found in the schema.
+
+ + Many fixes in the example script wipeicat.py.
 
  + Fix a missing import in the icatexport.py example script.
 
- + icat.icatcheck: Move checking of exceptions into a separate method
-   checkExceptions().  Do not report exceptions defined in the client,
-   but not found in the schema.
+ + Somewhat clearer error messages for some special cases of
+   SearchAssertionError.
+
+** Misc
+
+ + Change license to Apache 2.0.
 
 * Version 0.10.0 (2015-12-06)
 
