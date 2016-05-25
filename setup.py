@@ -9,8 +9,10 @@ try:
 except ImportError:
     # Python 2.x
     from distutils.command.build_py import build_py
-from distutils import log
-from distutils.spawn import spawn
+try:
+    import distutils_pytest
+except ImportError:
+    pass
 import icatinfo
 import re
 
@@ -28,79 +30,19 @@ m = re.match(r"^(.*?)\s*<(.*)>$", AUTHOR)
 (AUTHOR_NAME, AUTHOR_EMAIL) = m.groups() if m else (AUTHOR, None)
 
 
-class tmpchdir:
-    """Temporarily change the working directory.
+class build_test(Command):
+    """Copy all stuff needed for the tests (example scripts, test data)
+    into the test directory.
     """
-    def __init__(self, wdir):
-        self.savedir = os.getcwd()
-        self.wdir = wdir
-    def __enter__(self):
-        os.chdir(self.wdir)
-        return os.getcwd()
-    def __exit__(self, type, value, tb):
-        os.chdir(self.savedir)
-
-
-class test(Command):
-
-    description = "run the tests"
-    user_options = [
-        ('build-lib=', 'd', "directory to \"build\" (copy) to"),
-        ('skip-build', None,
-         "skip rebuilding everything (for testing/debugging)"),
-        ('test-args=', None, "extra arguments to pass to pytest"),
-    ]
-    boolean_options = ['skip-build']
-
+    description = "set up test environment"
+    user_options = []
     def initialize_options(self):
-        self.build_lib = None
-        self.skip_build = 0
-        self.test_args = None
-
+        pass
     def finalize_options(self):
-        self.set_undefined_options('build', ('build_lib', 'build_lib'))
-
+        pass
     def run(self):
-        if not self.skip_build:
-            self.run_command('build_py')
-
         self.copy_test_scripts()
         self.copy_test_data()
-
-        # Add build_lib to the module search path to make sure the
-        # built package can be imported by the tests.  Manipulate
-        # both, sys.path to affect the current running Python, and
-        # os.environ['PYTHONPATH'] to affect subprocesses spawned by
-        # the tests.
-        build_lib = os.path.abspath(self.build_lib)
-        sys.path.insert(0,build_lib)
-        try:
-            # if PYTHONPATH is already set, prepend build_lib.
-            os.environ['PYTHONPATH'] = "%s:%s" % (build_lib,
-                                                  os.environ['PYTHONPATH'])
-        except KeyError:
-            # no, PYTHONPATH was not set.
-            os.environ['PYTHONPATH'] = build_lib
-
-        # Do not create byte code during test.
-        sys.dont_write_bytecode = True
-        os.environ['PYTHONDONTWRITEBYTECODE'] = "1"
-
-        import icat
-        log.info("Version: python-icat %s (%s)", 
-                 icat.__version__, icat.__revision__)
-
-        # Must change the directory, otherwise the icat package in the
-        # cwd would override the one from build_lib.  Alas, there seem
-        # to be no way to tell Python not to put the cwd in front of
-        # $PYTHONPATH in sys.path.
-        testcmd = [sys.executable, "-m", "pytest"]
-        if self.test_args:
-            testcmd.extend(self.test_args.split())
-        if self.dry_run:
-            testcmd.append("--collect-only")
-        with tmpchdir("tests"):
-            spawn(testcmd)
 
     def copy_test_scripts(self):
         destdir = os.path.join("tests", "scripts")
@@ -131,7 +73,7 @@ setup(
     author = AUTHOR_NAME,
     author_email = AUTHOR_EMAIL,
     url = URL,
-    license = "BSD-2-Clause",
+    license = "Apache-2.0",
     requires = ["suds"],
     packages = ["icat"],
     scripts = ["icatdump.py", "icatingest.py"],
@@ -150,10 +92,10 @@ setup(
         "Programming Language :: Python :: 3.5",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: BSD License",
+        "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         "Topic :: Software Development :: Libraries :: Python Modules",
         ],
-    cmdclass = {'build_py': build_py, 'test': test},
+    cmdclass = {'build_py': build_py, 'build_test': build_test},
 )
 

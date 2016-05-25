@@ -52,6 +52,10 @@ not required to install or use python-icat itself:
 
    Only if you want to run the tests.
 
+ + `distutils-pytest`_
+
+   Only if you want to run the tests.
+
 .. __: `Suds`_
 .. __: `Suds jurko`_
 
@@ -218,33 +222,20 @@ when it is incompatible with PEP 440.
 Copyright and License
 ---------------------
 
-Copyright 2013, 2014, 2015
-Helmholtz-Zentrum Berlin fuer Materialien und Energie GmbH
-All rights reserved.
+Copyright 2013-2016
+Helmholtz-Zentrum Berlin für Materialien und Energie GmbH
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
+Licensed under the Apache License, Version 2.0 (the "License"); you
+may not use this file except in compliance with the License.  You may
+obtain a copy of the License at
 
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
+    http://www.apache.org/licenses/LICENSE-2.0
 
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in
-    the documentation and/or other materials provided with the
-    distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+implied.  See the License for the specific language governing
+permissions and limitations under the License.
 
 
 .. _ICAT: http://www.icatproject.org/
@@ -255,6 +246,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 .. _lxml: http://lxml.de/
 .. _Requests: http://python-requests.org/
 .. _pytest: http://pytest.org/
+.. _distutils-pytest: https://pythonhosted.org/distutils-pytest/
 .. _Installing Python Modules: https://docs.python.org/2.7/install/
 .. _PEP 3134: https://www.python.org/dev/peps/pep-3134/
 .. _Python Issue 6210: http://bugs.python.org/issue6210

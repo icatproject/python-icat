@@ -5,6 +5,14 @@ import datetime
 import yaml
 import icat
 import icat.dumpfile
+try:
+    utc = datetime.timezone.utc
+except AttributeError:
+    try:
+        from suds.sax.date import UtcTimezone
+        utc = UtcTimezone()
+    except ImportError:
+        utc = None
 
 
 # ------------------------------------------------------------
@@ -70,8 +78,13 @@ def _entity2dict(obj, keyindex):
             v = int(v)
         elif isinstance(v, datetime.datetime):
             if v.tzinfo is not None and v.tzinfo.utcoffset(v) is not None:
-                # v has timezone info, assume v.isoformat() to have a
-                # valid timezone suffix.
+                # v has timezone info.  This will be the timezone set
+                # in the ICAT server.  Convert it to UTC to avoid
+                # dependency of server settings in the dumpfile.
+                # Assume v.isoformat() to have a valid timezone
+                # suffix.
+                if utc:
+                    v = v.astimezone(utc)
                 v = v.isoformat()
             else:
                 # v has no timezone info, assume it to be UTC, append

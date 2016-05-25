@@ -33,7 +33,14 @@ def deletetype(t):
         objs = client.search(query)
         if not objs:
             break
-        client.deleteMany(objs)
+        # Deleting Study on ICAT 4.4.0 throws ICATInternalError.  The
+        # deletion succeeds though, at least, the Study object is gone
+        # afterwards.  This seem to be fixed in recent ICAT versions.
+        # As a work around, just ignore ICATInternalError here.
+        try:
+            client.deleteMany(objs)
+        except icat.ICATInternalError:
+            pass
 
 def waitOpsQueue():
     """Wait for the opsQueue in the service status to drain.
