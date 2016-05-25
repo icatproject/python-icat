@@ -131,8 +131,8 @@ development, you may also clone the `source repository from GitHub`__.
 
 Note that some source files are dynamically created and thus missing
 in the development sources.  If you want to build from the development
-sources, you may use the provided Makefile.  E.g. type `make build`,
-`make test`, and `make sdist`.
+sources, you may use the provided Makefile.  E.g. type ``make build``,
+``make test``, and ``make sdist``.
 
 .. __: `GitHub repository`_
 
