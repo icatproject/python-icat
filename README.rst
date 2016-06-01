@@ -5,8 +5,13 @@ This package provides a collection of modules for writing Python
 programs that access an `ICAT`_ service using the SOAP interface.  It
 is based on Suds and extends it with ICAT specific features.
 
-See also the home page of the package at
-http://icatproject.org/user-documentation/python-icat/
+Download
+--------
+
+The latest release version and online documentation can be found at
+the home page of the package at
+
+    http://icatproject.org/user-documentation/python-icat/
 
 
 System requirements
@@ -63,9 +68,10 @@ not required to install or use python-icat itself:
 Installation
 ------------
 
-python-icat follows the standard Python conventions of packaging
-source distributions.  See the documentation on `Installing Python
-Modules`_ for details or to customize the install process.
+python-icat uses the distutils Python standard library package and
+follows its conventions of packaging source distributions.  See the
+documentation on `Installing Python Modules`_ for details or to
+customize the install process.
 
   1. Download the sources, unpack, and change into the source
      directory.
@@ -115,6 +121,22 @@ dynamic and site specific and thus not suitable, neither for testing
 nor for the inclusion into example scripts.  So its easier to have
 just one blob of dummy input data in one single file.  That is also
 the reason why the example scripts require PyYAML.
+
+
+Building from development sources
+---------------------------------
+
+For production use it is always recommended to use the latest release
+version from the home page, see above.  If you need some not yet
+released bleeding edge feature or if you want to participate in the
+development, you may also clone the `source repository from GitHub`__.
+
+Note that some source files are dynamically created and thus missing
+in the development sources.  If you want to build from the development
+sources, you may use the provided Makefile.  E.g. type ``make build``,
+``make test``, and ``make sdist``.
+
+.. __: `GitHub repository`_
 
 
 Test
@@ -240,14 +262,15 @@ permissions and limitations under the License.
 
 .. _ICAT: http://www.icatproject.org/
 .. _Suds: https://fedorahosted.org/suds/
-.. _Suds jurko: https://bitbucket.org/jurko/suds/
-.. _argparse: https://code.google.com/p/argparse/
+.. _Suds jurko: https://bitbucket.org/jurko/suds
+.. _argparse: https://pypi.python.org/pypi/argparse/
 .. _PyYAML: http://pyyaml.org/wiki/PyYAML
 .. _lxml: http://lxml.de/
 .. _Requests: http://python-requests.org/
 .. _pytest: http://pytest.org/
 .. _distutils-pytest: https://pythonhosted.org/distutils-pytest/
 .. _Installing Python Modules: https://docs.python.org/2.7/install/
+.. _GitHub repository: https://github.com/icatproject/python-icat
 .. _PEP 3134: https://www.python.org/dev/peps/pep-3134/
 .. _Python Issue 6210: http://bugs.python.org/issue6210
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/
