@@ -1,11 +1,13 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.11.0 (not yet released)
+* Version 0.11.0 (2016-06-01)
 
 ** New features
 
- + Issues #12 and #23: add support for ICAT 4.7.0 and IDS 1.6.0.
+ + Issues #12 and #23: add support for ICAT 4.7.0 and IDS 1.6.0.  ICAT
+   4.7.0 had some small schema changes that have been taken into
+   account.
 
 ** Incompatible changes
 

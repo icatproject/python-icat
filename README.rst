@@ -68,9 +68,10 @@ not required to install or use python-icat itself:
 Installation
 ------------
 
-python-icat follows the standard Python conventions of packaging
-source distributions.  See the documentation on `Installing Python
-Modules`_ for details or to customize the install process.
+python-icat uses the distutils Python standard library package and
+follows its conventions of packaging source distributions.  See the
+documentation on `Installing Python Modules`_ for details or to
+customize the install process.
 
   1. Download the sources, unpack, and change into the source
      directory.
@@ -261,8 +262,8 @@ permissions and limitations under the License.
 
 .. _ICAT: http://www.icatproject.org/
 .. _Suds: https://fedorahosted.org/suds/
-.. _Suds jurko: https://bitbucket.org/jurko/suds/
-.. _argparse: https://code.google.com/p/argparse/
+.. _Suds jurko: https://bitbucket.org/jurko/suds
+.. _argparse: https://pypi.python.org/pypi/argparse/
 .. _PyYAML: http://pyyaml.org/wiki/PyYAML
 .. _lxml: http://lxml.de/
 .. _Requests: http://python-requests.org/
