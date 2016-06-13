@@ -11,7 +11,7 @@ Download
 The latest release version and online documentation can be found at
 the home page of the package at
 
-    http://icatproject.org/user-documentation/python-icat/
+    https://icatproject.org/user-documentation/python-icat/
 
 
 System requirements
