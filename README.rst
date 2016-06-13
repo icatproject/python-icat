@@ -126,7 +126,7 @@ the reason why the example scripts require PyYAML.
 Building from development sources
 ---------------------------------
 
-For production use it is always recommended to use the latest release
+For production use, it is always recommended to use the latest release
 version from the home page, see above.  If you need some not yet
 released bleeding edge feature or if you want to participate in the
 development, you may also clone the `source repository from GitHub`__.
