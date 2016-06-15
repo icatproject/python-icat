@@ -29,7 +29,7 @@ __all__ = ['DataSelection', 'IDSClient']
 
 class IDSRequest(Request):
 
-    def __init__(self, url, parameters, data=None, headers={}, method=None):
+    def __init__(self, url, parameters={}, data=None, headers={}, method=None):
 
         if parameters:
             parameters = urlencode(parameters)
@@ -205,7 +205,7 @@ class IDSClient(object):
     def ping(self):
         """Check that the server is alive and is an IDS server.
         """
-        req = IDSRequest(self.url + "ping", {})
+        req = IDSRequest(self.url + "ping")
         result = self.default.open(req).read().decode('ascii')
         if result != "IdsOK": 
             raise IDSResponseError("unexpected response to ping: %s" % result)
@@ -223,7 +223,7 @@ class IDSClient(object):
         cases.
         """
         try:
-            req = IDSRequest(self.url + "getApiVersion", {})
+            req = IDSRequest(self.url + "getApiVersion")
             return self.default.open(req).read().decode('ascii')
         except (HTTPError, IDSError):
             pass
@@ -247,7 +247,7 @@ class IDSClient(object):
     def getIcatUrl(self):
         """Get the URL of the ICAT server connected to this IDS.
         """
-        req = IDSRequest(self.url + "getIcatUrl", {})
+        req = IDSRequest(self.url + "getIcatUrl")
         try:
             return self.default.open(req).read().decode('ascii')
         except (HTTPError, IDSError) as e:
@@ -256,14 +256,14 @@ class IDSClient(object):
     def isReadOnly(self):
         """See if the server is configured to be readonly.
         """
-        req = IDSRequest(self.url + "isReadOnly", {})
+        req = IDSRequest(self.url + "isReadOnly")
         response = self.default.open(req).read().decode('ascii')
         return response.lower() == "true"
 
     def isTwoLevel(self):
         """See if the server is configured to use both main and archive storage.
         """
-        req = IDSRequest(self.url + "isTwoLevel", {})
+        req = IDSRequest(self.url + "isTwoLevel")
         response = self.default.open(req).read().decode('ascii')
         return response.lower() == "true"
 
