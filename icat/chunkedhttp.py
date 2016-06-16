@@ -17,15 +17,12 @@ from httplib import HTTPConnection, HTTPSConnection
 from urllib2 import URLError, HTTPHandler, HTTPSHandler
 
 
-def stringiterator(buffer, chunksize):
-    """Yield the content of a string by chunks of a given size at a time."""
-    while len(buffer) > chunksize:
-        yield buffer[:chunksize]
-        buffer = buffer[chunksize:]
+def stringiterator(buffer):
+    """Wrap a string in an iterator that yields it in one single chunk."""
     if len(buffer) > 0:
         yield buffer
 
-def fileiterator(f, chunksize):
+def fileiterator(f, chunksize=8192):
     """Yield the content of a file by chunks of a given size at a time."""
     while True:
         chunk = f.read(chunksize)
@@ -39,8 +36,6 @@ class ChunkedHTTPConnectionMixin:
     This is designed as a mixin class to modify either HTTPConnection
     or HTTPSConnection accordingly.
     """
-
-    default_chunk_size = 8192
 
     def _send_request(self, method, url, body, headers):
         # This method is taken and modified from the Python 2.7
@@ -68,14 +63,12 @@ class ChunkedHTTPConnectionMixin:
         been sent before calling this method.
         """
         if message_body is not None:
-            chunksize = getattr(self, 'chunksize', self.default_chunk_size)
             if isinstance(message_body, type(b'')):
-                bodyiter = stringiterator(message_body, chunksize)
+                bodyiter = stringiterator(message_body)
             elif isinstance(message_body, type(u'')):
-                bodyiter = stringiterator(message_body.encode('ascii'), 
-                                          chunksize)
+                bodyiter = stringiterator(message_body.encode('ascii'))
             elif hasattr(message_body, 'read'):
-                bodyiter = fileiterator(message_body, chunksize)
+                bodyiter = fileiterator(message_body)
             elif hasattr(message_body, '__iter__'):
                 bodyiter = message_body
             else:
