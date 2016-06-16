@@ -11,7 +11,7 @@ author.
 from collections import Mapping, Iterable
 import ssl
 from urllib2 import Request, HTTPError
-from urllib2 import HTTPDefaultErrorHandler, ProxyHandler, HTTPSHandler
+from urllib2 import HTTPDefaultErrorHandler, ProxyHandler
 from urllib2 import build_opener
 from urllib import urlencode
 import json
@@ -20,7 +20,7 @@ import re
 from distutils.version import StrictVersion as Version
 import getpass
 
-from icat.chunkedhttp import ChunkedHTTPHandler, ChunkedHTTPSHandler
+from icat.chunkedhttp import HTTPHandler, HTTPSHandler
 from icat.entity import Entity
 from icat.exception import *
 
@@ -175,27 +175,19 @@ class IDSClient(object):
             try:
                 httpsHandler = HTTPSHandler(context=sslContext, 
                                             check_hostname=verify)
-                chunkedHTTPSHandler = ChunkedHTTPSHandler(context=sslContext, 
-                                                          check_hostname=verify)
             except TypeError:
                 # Python 2.7.9 HTTPSHandler does not accept the
                 # check_hostname keyword argument.
                 httpsHandler = HTTPSHandler(context=sslContext)
-                chunkedHTTPSHandler = ChunkedHTTPSHandler(context=sslContext)
         else:
             httpsHandler = HTTPSHandler()
-            chunkedHTTPSHandler = ChunkedHTTPSHandler()
         if proxy:
             proxyhandler = ProxyHandler(proxy)
-            self.default = build_opener(proxyhandler, httpsHandler, 
-                                        IDSHTTPErrorHandler)
-            self.chunked = build_opener(proxyhandler, 
-                                        ChunkedHTTPHandler, chunkedHTTPSHandler,
-                                        IDSHTTPErrorHandler)
+            self.opener = build_opener(proxyhandler, HTTPHandler, 
+                                       httpsHandler, IDSHTTPErrorHandler)
         else:
-            self.default = build_opener(httpsHandler, IDSHTTPErrorHandler)
-            self.chunked = build_opener(ChunkedHTTPHandler, chunkedHTTPSHandler,
-                                        IDSHTTPErrorHandler)
+            self.opener = build_opener(HTTPHandler, httpsHandler, 
+                                       IDSHTTPErrorHandler)
         apiversion = self.getApiVersion()
         # Translate a version having a trailing '-SNAPSHOT' into
         # something that StrictVersion would accept.
@@ -206,7 +198,7 @@ class IDSClient(object):
         """Check that the server is alive and is an IDS server.
         """
         req = IDSRequest(self.url + "ping")
-        result = self.default.open(req).read().decode('ascii')
+        result = self.opener.open(req).read().decode('ascii')
         if result != "IdsOK": 
             raise IDSResponseError("unexpected response to ping: %s" % result)
 
@@ -224,7 +216,7 @@ class IDSClient(object):
         """
         try:
             req = IDSRequest(self.url + "getApiVersion")
-            return self.default.open(req).read().decode('ascii')
+            return self.opener.open(req).read().decode('ascii')
         except (HTTPError, IDSError):
             pass
 
@@ -249,7 +241,7 @@ class IDSClient(object):
         """
         req = IDSRequest(self.url + "getIcatUrl")
         try:
-            return self.default.open(req).read().decode('ascii')
+            return self.opener.open(req).read().decode('ascii')
         except (HTTPError, IDSError) as e:
             raise self._versionMethodError("getIcatUrl", '1.4', e)
 
@@ -257,14 +249,14 @@ class IDSClient(object):
         """See if the server is configured to be readonly.
         """
         req = IDSRequest(self.url + "isReadOnly")
-        response = self.default.open(req).read().decode('ascii')
+        response = self.opener.open(req).read().decode('ascii')
         return response.lower() == "true"
 
     def isTwoLevel(self):
         """See if the server is configured to use both main and archive storage.
         """
         req = IDSRequest(self.url + "isTwoLevel")
-        response = self.default.open(req).read().decode('ascii')
+        response = self.opener.open(req).read().decode('ascii')
         return response.lower() == "true"
 
     def getServiceStatus(self):
@@ -276,7 +268,7 @@ class IDSClient(object):
         """
         parameters = {"sessionId": self.sessionId}
         req = IDSRequest(self.url + "getServiceStatus", parameters)
-        result = self.default.open(req).read().decode('ascii')
+        result = self.opener.open(req).read().decode('ascii')
         return json.loads(result)
     
     def getSize(self, selection):
@@ -285,7 +277,7 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "getSize", parameters)
-        return long(self.default.open(req).read().decode('ascii'))
+        return long(self.opener.open(req).read().decode('ascii'))
     
     def getStatus(self, selection):
         """Return the status of data.
@@ -295,7 +287,7 @@ class IDSClient(object):
             parameters["sessionId"] = self.sessionId
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "getStatus", parameters)
-        return self.default.open(req).read().decode('ascii')
+        return self.opener.open(req).read().decode('ascii')
     
     def archive(self, selection):
         """Archive data.
@@ -303,7 +295,7 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "archive", parameters, method="POST")
-        self.default.open(req)
+        self.opener.open(req)
 
     def restore(self, selection):
         """Restore data.
@@ -311,7 +303,7 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "restore", parameters, method="POST")
-        self.default.open(req)
+        self.opener.open(req)
 
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
         """Prepare data for a subsequent
@@ -322,7 +314,7 @@ class IDSClient(object):
         if zipFlag:  parameters["zip"] = "true"
         if compressFlag: parameters["compress"] = "true"
         req = IDSRequest(self.url + "prepareData", parameters, method="POST")
-        return self.default.open(req).read().decode('ascii')
+        return self.opener.open(req).read().decode('ascii')
     
     def isPrepared(self, preparedId):
         """Check if data is ready.
@@ -333,7 +325,7 @@ class IDSClient(object):
         """
         parameters = {"preparedId": preparedId}
         req = IDSRequest(self.url + "isPrepared", parameters)
-        response = self.default.open(req).read().decode('ascii')
+        response = self.opener.open(req).read().decode('ascii')
         return response.lower() == "true"
 
     def getDatafileIds(self, selection):
@@ -343,7 +335,7 @@ class IDSClient(object):
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "getDatafileIds", parameters)
         try:
-            result = self.default.open(req).read().decode('ascii')
+            result = self.opener.open(req).read().decode('ascii')
             return json.loads(result)['ids']
         except (HTTPError, IDSError) as e:
             raise self._versionMethodError("getDatafileIds", '1.5', e)
@@ -354,7 +346,7 @@ class IDSClient(object):
         parameters = {"preparedId": preparedId}
         req = IDSRequest(self.url + "getDatafileIds", parameters)
         try:
-            result = self.default.open(req).read().decode('ascii')
+            result = self.opener.open(req).read().decode('ascii')
             return json.loads(result)['ids']
         except (HTTPError, IDSError) as e:
             raise self._versionMethodError("getDatafileIds", '1.5', e)
@@ -371,7 +363,7 @@ class IDSClient(object):
         req = IDSRequest(self.url + "getData", parameters)
         if offset > 0:
             req.add_header("Range", "bytes=" + str(offset) + "-") 
-        return self.default.open(req)
+        return self.opener.open(req)
 
     def getDataUrl(self, selection, 
                    compressFlag=False, zipFlag=False, outname=None):
@@ -395,7 +387,7 @@ class IDSClient(object):
         req = IDSRequest(self.url + "getData", parameters)
         if offset > 0:
             req.add_header("Range", "bytes=" + str(offset) + "-") 
-        return self.default.open(req)
+        return self.opener.open(req)
     
     def getPreparedDataUrl(self, preparedId, outname=None):
         """Get the URL to retrieve prepared data.
@@ -419,7 +411,7 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId, 
                       "datafileId" : datafileId, "username": username }
         req = IDSRequest(self.url + "getLink", parameters, method="POST")
-        return self.default.open(req).read().decode('ascii')
+        return self.opener.open(req).read().decode('ascii')
     
     def put(self, inputStream, name, datasetId, datafileFormatId, 
             description=None, doi=None, datafileCreateTime=None, 
@@ -449,7 +441,7 @@ class IDSClient(object):
         req = IDSRequest(self.url + "put", parameters, 
                          data=inputreader, method="PUT")
         req.add_header('Content-Type', 'application/octet-stream')
-        result = self.chunked.open(req).read().decode('ascii')
+        result = self.opener.open(req).read().decode('ascii')
         crc = inputreader.crc32 & 0xffffffff
         om = json.loads(result)
         if om["checksum"] != crc:
@@ -462,7 +454,7 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "delete", parameters, method="DELETE")
-        self.default.open(req)
+        self.opener.open(req)
 
     def _getDataUrl(self, parameters):
         return (self.url + "getData" + "?" + urlencode(parameters))

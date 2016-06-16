@@ -1,9 +1,18 @@
 """HTTP with chunked transfer encoding for urllib.
 
-This module provides the handlers ChunkedHTTPHandler and
-ChunkedHTTPSHandler that are suitable to be used as openers for
-urllib.  These handlers differ from the standard counterparts in that
-they send the data using chunked transfer encoding to the HTTP server.
+This module provides modified versions of HTTPHandler and HTTPSHandler
+from urllib.  These handlers differ from the standard counterparts in
+that they are able to send the data using chunked transfer encoding to
+the HTTP server.
+
+Note that although the handlers are designed as drop in replacements
+for the standard counterparts, we do not intent to to catch all corner
+cases and be fully compatible in all situations.  The implementations
+here shall be just good enough for the use cases in IDSClient.  There
+is an open issue in Python to add chunked HTTP transfer to the
+standard lib.  This may eventually obsolete this module.  See the
+patches submitted there for a more complete implementation: 
+`Issue 12319`_.
 
 **Note**: This module might be useful independently of python-icat.
 It is included here because python-icat uses it internally, but it is
@@ -11,10 +20,12 @@ not considered to be part of the API.  Changes in this module are not
 considered API changes of python-icat.  It may even be removed from
 future versions of the python-icat distribution without further
 notice.
+
+.. Issue 12319_: https://bugs.python.org/issue12319
 """
 
-from httplib import HTTPConnection, HTTPSConnection
-from urllib2 import URLError, HTTPHandler, HTTPSHandler
+import httplib
+import urllib2
 
 
 # We always set the Content-Length header for these methods because some
@@ -34,7 +45,7 @@ def fileiterator(f, chunksize=8192):
             break
         yield chunk
 
-class ChunkedHTTPConnectionMixin:
+class HTTPConnectionMixin:
     """Implement chunked transfer encoding in HTTP.
 
     This is designed as a mixin class to modify either HTTPConnection
@@ -60,7 +71,7 @@ class ChunkedHTTPConnectionMixin:
             if headers[header_names['transfer-encoding']] == 'chunked':
                 chunked = True
             else:
-                raise HTTPException("Invalid Transfer-Encoding")
+                raise httplib.HTTPException("Invalid Transfer-Encoding")
 
         for hdr, value in headers.iteritems():
             self.putheader(hdr, value)
@@ -94,14 +105,14 @@ class ChunkedHTTPConnectionMixin:
                 for chunk in bodyiter:
                     self.send(chunk)
 
-class ChunkedHTTPConnection(ChunkedHTTPConnectionMixin, HTTPConnection):
+class HTTPConnection(HTTPConnectionMixin, httplib.HTTPConnection):
     pass
 
-class ChunkedHTTPSConnection(ChunkedHTTPConnectionMixin, HTTPSConnection):
+class HTTPSConnection(HTTPConnectionMixin, httplib.HTTPSConnection):
     pass
 
 
-class ChunkedHTTPHandlerMixin:
+class HTTPHandlerMixin:
     """Internal helper class.
 
     This is designed as a mixin class to modify either HTTPHandler or
@@ -126,11 +137,11 @@ class ChunkedHTTPHandlerMixin:
         except AttributeError:
             host = request.host
         if not host:
-            raise URLError('no host given')
+            raise urllib2.URLError('no host given')
 
         if request.data is not None:
             if not request.has_header('Content-type'):
-                raise URLError('no Content-type header given')
+                raise urllib2.URLError('no Content-type header given')
             if not request.has_header('Content-length'):
                 if isinstance(request.data, (type(b''), type(u''))):
                     request.add_unredirected_header(
@@ -160,28 +171,28 @@ class ChunkedHTTPHandlerMixin:
 
         return request
 
-class ChunkedHTTPHandler(ChunkedHTTPHandlerMixin, HTTPHandler):
+class HTTPHandler(HTTPHandlerMixin, urllib2.HTTPHandler):
 
     def http_open(self, req):
-        return self.do_open(ChunkedHTTPConnection, req)
+        return self.do_open(HTTPConnection, req)
 
-    http_request = ChunkedHTTPHandlerMixin.do_request_
+    http_request = HTTPHandlerMixin.do_request_
 
-class ChunkedHTTPSHandler(ChunkedHTTPHandlerMixin, HTTPSHandler):
+class HTTPSHandler(HTTPHandlerMixin, urllib2.HTTPSHandler):
 
     def https_open(self, req):
         if hasattr(self, '_context') and hasattr(self, '_check_hostname'):
             # Python 3.2 and newer
-            return self.do_open(ChunkedHTTPSConnection, req,
+            return self.do_open(HTTPSConnection, req,
                                 context=self._context, 
                                 check_hostname=self._check_hostname)
         elif hasattr(self, '_context'):
             # Python 2.7.9
-            return self.do_open(ChunkedHTTPSConnection, req,
+            return self.do_open(HTTPSConnection, req,
                                 context=self._context)
         else:
             # Python 2.7.8 or 3.1 and older
-            return self.do_open(ChunkedHTTPSConnection, req)
+            return self.do_open(HTTPSConnection, req)
 
-    https_request = ChunkedHTTPHandlerMixin.do_request_
+    https_request = HTTPHandlerMixin.do_request_
 
