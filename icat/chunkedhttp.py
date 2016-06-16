@@ -17,6 +17,10 @@ from httplib import HTTPConnection, HTTPSConnection
 from urllib2 import URLError, HTTPHandler, HTTPSHandler
 
 
+# We always set the Content-Length header for these methods because some
+# servers will otherwise respond with a 411
+_METHODS_EXPECTING_BODY = {'PATCH', 'POST', 'PUT'}
+
 def stringiterator(buffer):
     """Wrap a string in an iterator that yields it in one single chunk."""
     if len(buffer) > 0:
@@ -40,9 +44,9 @@ class ChunkedHTTPConnectionMixin:
     def _send_request(self, method, url, body, headers):
         # This method is taken and modified from the Python 2.7
         # httplib.py to prevent it from trying to set a Content-length
-        # header and to hook in our send_body_chunked() method.
+        # header and to hook in our send_body() method.
         # Admitted, it's an evil hack.
-        header_names = dict.fromkeys([k.lower() for k in headers])
+        header_names = {k.lower(): k for k in headers.keys()}
         skips = {}
         if 'host' in header_names:
             skips['skip_host'] = 1
@@ -51,33 +55,44 @@ class ChunkedHTTPConnectionMixin:
 
         self.putrequest(method, url, **skips)
 
+        chunked = False
+        if 'transfer-encoding' in header_names:
+            if headers[header_names['transfer-encoding']] == 'chunked':
+                chunked = True
+            else:
+                raise HTTPException("Invalid Transfer-Encoding")
+
         for hdr, value in headers.iteritems():
             self.putheader(hdr, value)
         self.endheaders()
-        self.send_body_chunked(body)
+        self.send_body(body, chunked)
 
-    def send_body_chunked(self, message_body=None):
-        """Send the message_body with chunked transfer encoding.
+    def send_body(self, body, chunked):
+        """Send the body, either as is or chunked.
 
         The empty line separating the headers from the body must have
         been sent before calling this method.
         """
-        if message_body is not None:
-            if isinstance(message_body, type(b'')):
-                bodyiter = stringiterator(message_body)
-            elif isinstance(message_body, type(u'')):
-                bodyiter = stringiterator(message_body.encode('ascii'))
-            elif hasattr(message_body, 'read'):
-                bodyiter = fileiterator(message_body)
-            elif hasattr(message_body, '__iter__'):
-                bodyiter = message_body
+        if body is not None:
+            if isinstance(body, type(b'')):
+                bodyiter = stringiterator(body)
+            elif isinstance(body, type(u'')):
+                bodyiter = stringiterator(body.encode('ascii'))
+            elif hasattr(body, 'read'):
+                bodyiter = fileiterator(body)
+            elif hasattr(body, '__iter__'):
+                bodyiter = body
             else:
                 raise TypeError("expect either a string, a file, "
                                 "or an iterable")
-            for chunk in bodyiter:
-                self.send(hex(len(chunk))[2:].encode('ascii') 
-                          + b"\r\n" + chunk + b"\r\n")
-            self.send(b"0\r\n\r\n")
+            if chunked:
+                for chunk in bodyiter:
+                    self.send(hex(len(chunk))[2:].encode('ascii') 
+                              + b"\r\n" + chunk + b"\r\n")
+                self.send(b"0\r\n\r\n")
+            else:
+                for chunk in bodyiter:
+                    self.send(chunk)
 
 class ChunkedHTTPConnection(ChunkedHTTPConnectionMixin, HTTPConnection):
     pass
@@ -113,17 +128,19 @@ class ChunkedHTTPHandlerMixin:
         if not host:
             raise URLError('no host given')
 
-        if request.data is None:
-            raise URLError('no data given')
-
-        if not request.has_header('Content-type'):
-            raise URLError('no Content-type header given')
-
-        if request.has_header('Content-length'):
-            raise URLError('must not set a Content-length header')
-
-        if not request.has_header('Transfer-Encoding'):
-            request.add_unredirected_header('Transfer-Encoding', 'chunked')
+        if request.data is not None:
+            if not request.has_header('Content-type'):
+                raise URLError('no Content-type header given')
+            if not request.has_header('Content-length'):
+                if isinstance(request.data, (type(b''), type(u''))):
+                    request.add_unredirected_header(
+                        'Content-length', '%d' % len(request.data))
+                else:
+                    request.add_unredirected_header(
+                        'Transfer-Encoding', 'chunked')
+        else:
+            if request.get_method().upper() in _METHODS_EXPECTING_BODY:
+                request.add_unredirected_header('Content-length', '0')
 
         sel_host = host
         if request.has_proxy():
