@@ -20,9 +20,18 @@ import re
 from distutils.version import StrictVersion as Version
 import getpass
 
-from icat.chunkedhttp import HTTPHandler, HTTPSHandler
 from icat.entity import Entity
 from icat.exception import *
+
+# Does the standard lib already supports chunked transfer encoding?
+# Note that this tests whether Issue 12319 has been solved in the way
+# issue12319_7.patch suggests.  Will need to review this as soon as
+# the issue is closed.
+import httplib
+if hasattr(httplib.HTTPConnection, 'get_content_length'):
+    from urllib2 import HTTPHandler, HTTPSHandler
+else:
+    from icat.chunkedhttp import HTTPHandler, HTTPSHandler
 
 __all__ = ['DataSelection', 'IDSClient']
 
