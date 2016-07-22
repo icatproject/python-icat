@@ -102,7 +102,8 @@ class Query(object):
     """
 
     def __init__(self, client, entity, 
-                 order=None, conditions=None, includes=None, limit=None):
+                 attribute=None, order=None, 
+                 conditions=None, includes=None, limit=None):
         """Initialize the query.
 
         :param client: the ICAT client.
@@ -110,6 +111,9 @@ class Query(object):
         :param entity: the type of objects to search for.  This may
             either be an :class:`icat.entity.Entity` subclass or the
             name of an entity type.
+        :param attribute: the attribute that the query shall return.
+            See the :meth:`icat.query.Query.setAttribute` method for
+            details.
         :param order: the sorting attributes to build the ORDER BY
             clause from.  See the :meth:`icat.query.Query.setOrder`
             method for details.
@@ -142,6 +146,7 @@ class Query(object):
         else:
             raise TypeError("Invalid entity type '%s'." % type(entity))
 
+        self.setAttribute(attribute)
         self.conditions = dict()
         self.addConditions(conditions)
         self.includes = set()
@@ -149,6 +154,20 @@ class Query(object):
         self.setOrder(order)
         self.setLimit(limit)
         self._init = None
+
+    def setAttribute(self, attribute):
+        """Set the attribute that the query shall return.
+
+        :param attribute: the name of the attribute.  The result of
+            the query will be a list of attribute values for the
+            matching entity objects.  If attribute is :const:`None`,
+            the result will be the list of matching objects instead.
+        :type attribute: :class:`str`
+        """
+        # Get the attribute path only to verify that the attribute is valid.
+        if attribute is not None:
+            attrpath = list(_attrpath(self.client, self.entity, attribute))
+        self.attribute = attribute
 
     def setOrder(self, order):
         """Set the order to build the ORDER BY clause from.
@@ -287,7 +306,11 @@ class Query(object):
         non-ascii characters working.  For Python 3, there is no
         distinction between Unicode and string objects anyway.
         """
-        base = "SELECT o FROM %s o" % self.entity.BeanName
+        if self.attribute is None:
+            res = "o"
+        else:
+            res = "o.%s" % self.attribute
+        base = "SELECT %s FROM %s o" % (res, self.entity.BeanName)
         joinattrs = set(self.order) | set(self.conditions.keys())
         subst = _makesubst(joinattrs)
         joins = ""
@@ -329,6 +352,7 @@ class Query(object):
         """Return an independent clone of this query.
         """
         q = Query(self.client, self.entity)
+        q.attribute = self.attribute
         q.order = list(self.order)
         q.conditions = self.conditions.copy()
         q.includes = self.includes.copy()
