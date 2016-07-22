@@ -325,3 +325,19 @@ def test_query_include_1(client):
     assert inv.BeanName == "Investigation"
     assert inv.facility.BeanName == "Facility"
     assert inv.type.BeanName == "InvestigationType"
+
+@pytest.mark.dependency(depends=['get_investigation'])
+def test_query_attribute_datafile_name(client):
+    """The datafiles names related to a given investigation in natural order.
+
+    Querying attributes rather then entire objects is a new feature
+    added in Issue #28.
+    """
+    query = Query(client, "Datafile", attribute="name", order=True, 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 4
+    for n in res:
+        assert not isinstance(n, icat.entity.Entity)
