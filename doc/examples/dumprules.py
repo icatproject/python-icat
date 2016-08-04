@@ -6,6 +6,7 @@
 import logging
 import icat
 import icat.config
+from icat.query import Query
 from icat.dumpfile import open_dumpfile
 try:
     import icat.dumpfile_xml
@@ -39,7 +40,11 @@ if client.apiversion < '4.2.99':
 client.login(conf.auth, conf.credentials)
 
 
-rules = ["SELECT r FROM Rule r ORDER BY r.id INCLUDE r.grouping"]
+rules = [Query(client, "Rule", order=["what", "id"], 
+               conditions={"grouping":"IS NULL"}), 
+         Query(client, "Rule", order=["grouping.name", "what", "id"], 
+               conditions={"grouping":"IS NOT NULL"}, 
+               includes={"grouping"}) ]
 
 with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     dumpfile.writedata(rules)
