@@ -321,7 +321,7 @@ class IDSClient(object):
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "reset", parameters, method="POST")
         try:
-            self.default.open(req)
+            self.opener.open(req)
         except (HTTPError, IDSError) as e:
             raise self._versionMethodError("reset", '1.6', e)
 
@@ -331,7 +331,7 @@ class IDSClient(object):
         parameters = {"preparedId": preparedId}
         req = IDSRequest(self.url + "reset", parameters, method="POST")
         try:
-            self.default.open(req)
+            self.opener.open(req)
         except (HTTPError, IDSError) as e:
             raise self._versionMethodError("reset", '1.6', e)
 
