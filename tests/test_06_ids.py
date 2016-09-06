@@ -321,3 +321,27 @@ def test_restore(client, case):
     # archive() applies: there is no guarantee whatsoever on the
     # outcome of the restore() call.
     print("Status of dataset %s is now %s" % (case['dsname'], status))
+
+@pytest.mark.parametrize(("case"), markeddatasets)
+def test_reset(client, case):
+    """Call reset() on a dataset.
+
+    Note that we just test if we can make the call without an error.
+    We do not test whether the call has any effect.  This call resets
+    the internal state of the data after an error in ids.server.  This
+    is out of scope of testing the client.
+    """
+    if client.ids.apiversion < '1.6.0':
+        pytest.skip("IDS %s is too old, need 1.6.0 or newer" 
+                    % client.ids.apiversion)
+    if not client.ids.isTwoLevel():
+        pytest.skip("This IDS does not use two levels of data storage")
+    query = Query(client, "Dataset", conditions={
+        "name": "= '%s'" % case['dsname'],
+        "investigation.name": "= '%s'" % case['invname'],
+    })
+    selection = DataSelection(client.assertedSearch(query))
+    print("Request reset of dataset %s" % (case['dsname']))
+    client.ids.reset(selection)
+    status = client.ids.getStatus(selection)
+    print("Status of dataset %s is now %s" % (case['dsname'], status))

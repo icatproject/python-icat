@@ -1,8 +1,8 @@
 """Provide the ListProxy class.
 
-**Note**: This module is mostly intended for the internal use in
-python-icat.  Most users will not need to use it directly or even care
-about it.
+.. note::
+   This module is mostly intended for the internal use in python-icat.
+   Most users will not need to use it directly or even care about it.
 """
 
 from collections import MutableSequence

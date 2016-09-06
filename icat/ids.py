@@ -314,6 +314,27 @@ class IDSClient(object):
         req = IDSRequest(self.url + "restore", parameters, method="POST")
         self.opener.open(req)
 
+    def reset(self, selection):
+        """Reset data so that they can be queried again.
+        """
+        parameters = {"sessionId": self.sessionId}
+        selection.fillParams(parameters)
+        req = IDSRequest(self.url + "reset", parameters, method="POST")
+        try:
+            self.default.open(req)
+        except (HTTPError, IDSError) as e:
+            raise self._versionMethodError("reset", '1.6', e)
+
+    def resetPrepared(self, preparedId):
+        """Reset prepared data so that they can be queried again.
+        """
+        parameters = {"preparedId": preparedId}
+        req = IDSRequest(self.url + "reset", parameters, method="POST")
+        try:
+            self.default.open(req)
+        except (HTTPError, IDSError) as e:
+            raise self._versionMethodError("reset", '1.6', e)
+
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
         """Prepare data for a subsequent
         :meth:`icat.ids.IDSClient.getPreparedData` call.

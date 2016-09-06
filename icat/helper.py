@@ -1,8 +1,9 @@
 """A collection of internal helper routines.
 
-**Note**: This module is intended for the internal use in python-icat
-and is not considered to be part of the API.  No effort will be made
-to keep anything in here compatible between different versions.
+.. note::
+   This module is intended for the internal use in python-icat and is
+   not considered to be part of the API.  No effort will be made to
+   keep anything in here compatible between different versions.
 
 >>> name = 'rbeck'
 >>> qps = simpleqp_quote(name)

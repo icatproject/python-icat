@@ -14,12 +14,13 @@ standard lib.  This may eventually obsolete this module.  See the
 patches submitted there for a more complete implementation: 
 `Issue 12319`_.
 
-**Note**: This module might be useful independently of python-icat.
-It is included here because python-icat uses it internally, but it is
-not considered to be part of the API.  Changes in this module are not
-considered API changes of python-icat.  It may even be removed from
-future versions of the python-icat distribution without further
-notice.
+.. note::
+   This module might be useful independently of python-icat.  It is
+   included here because python-icat uses it internally, but it is not
+   considered to be part of the API.  Changes in this module are not
+   considered API changes of python-icat.  It may even be removed from
+   future versions of the python-icat distribution without further
+   notice.
 
 .. Issue 12319_: https://bugs.python.org/issue12319
 """
