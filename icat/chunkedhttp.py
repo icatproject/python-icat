@@ -5,12 +5,13 @@ ChunkedHTTPSHandler that are suitable to be used as openers for
 urllib.  These handlers differ from the standard counterparts in that
 they send the data using chunked transfer encoding to the HTTP server.
 
-**Note**: This module might be useful independently of python-icat.
-It is included here because python-icat uses it internally, but it is
-not considered to be part of the API.  Changes in this module are not
-considered API changes of python-icat.  It may even be removed from
-future versions of the python-icat distribution without further
-notice.
+.. note::
+   This module might be useful independently of python-icat.  It is
+   included here because python-icat uses it internally, but it is not
+   considered to be part of the API.  Changes in this module are not
+   considered API changes of python-icat.  It may even be removed from
+   future versions of the python-icat distribution without further
+   notice.
 """
 
 from httplib import HTTPConnection, HTTPSConnection
