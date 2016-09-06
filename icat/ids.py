@@ -8,6 +8,7 @@ author.
 .. _IDS distribution: http://code.google.com/p/icat-data-service/
 """
 
+import sys
 from collections import Mapping, Iterable
 import ssl
 from urllib2 import Request, HTTPError
@@ -23,15 +24,14 @@ import getpass
 from icat.entity import Entity
 from icat.exception import *
 
-# Does the standard lib already supports chunked transfer encoding?
-# Note that this tests whether Issue 12319 has been solved in the way
-# issue12319_7.patch suggests.  Will need to review this as soon as
-# the issue is closed.
-import httplib
-if hasattr(httplib.HTTPConnection, 'get_content_length'):
-    from urllib2 import HTTPHandler, HTTPSHandler
-else:
+# For Python versions older then 3.6.0b1, the standard library does
+# not support sending the body using chunked transfer encoding.  Need
+# to replace the HTTPHandler with our modified versions from
+# icat.chunkedhttp in this case.
+if sys.version_info < (3, 6, 0, 'beta'):
     from icat.chunkedhttp import HTTPHandler, HTTPSHandler
+else:
+    from urllib2 import HTTPHandler, HTTPSHandler
 
 __all__ = ['DataSelection', 'IDSClient']
 
