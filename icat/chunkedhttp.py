@@ -8,19 +8,19 @@ the HTTP server.
 Note that although the handlers are designed as drop in replacements
 for the standard counterparts, we do not intent to to catch all corner
 cases and be fully compatible in all situations.  The implementations
-here shall be just good enough for the use cases in IDSClient.  There
-is an open issue in Python to add chunked HTTP transfer to the
-standard lib.  This may eventually obsolete this module.  See the
-patches submitted there for a more complete implementation: 
-`Issue 12319`_.
+here shall be just good enough for the use cases in IDSClient.
+
+Starting with Python 3.6.0, support for chunked transfer encoding has
+been added to the standard library, see `Issue 12319`_.  As a result,
+this module is obsolete for newer Python versions and you should use
+the handlers from the standard library instead.
 
 .. note::
-   This module might be useful independently of python-icat.  It is
-   included here because python-icat uses it internally, but it is not
-   considered to be part of the API.  Changes in this module are not
-   considered API changes of python-icat.  It may even be removed from
-   future versions of the python-icat distribution without further
-   notice.
+   This module is included here because python-icat uses it
+   internally, but it is not considered to be part of the API.
+   Changes in this module are not considered API changes of
+   python-icat.  It may even be removed from future versions of the
+   python-icat distribution without further notice.
 
 .. Issue 12319_: https://bugs.python.org/issue12319
 """
