@@ -77,7 +77,8 @@ class ServerError(Exception):
             try:
                 icatexception = error.fault.detail.IcatException
             except AttributeError:
-                pass
+                self.type = None
+                self.offset = None
             else:
                 self.type = getattr(icatexception, 'type', None)
                 self.offset = getattr(icatexception, 'offset', None)
