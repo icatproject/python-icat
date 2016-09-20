@@ -31,7 +31,7 @@ import urllib2
 
 # We always set the Content-Length header for these methods because some
 # servers will otherwise respond with a 411
-_METHODS_EXPECTING_BODY = {'PATCH', 'POST', 'PUT'}
+_METHODS_EXPECTING_BODY = set(['PATCH', 'POST', 'PUT'])
 
 def stringiterator(buffer):
     """Wrap a string in an iterator that yields it in one single chunk."""
@@ -58,7 +58,7 @@ class HTTPConnectionMixin:
         # httplib.py to prevent it from trying to set a Content-length
         # header and to hook in our send_body() method.
         # Admitted, it's an evil hack.
-        header_names = {k.lower(): k for k in headers.keys()}
+        header_names = dict([ (k.lower(), k) for k in headers.keys()])
         skips = {}
         if 'host' in header_names:
             skips['skip_host'] = 1
