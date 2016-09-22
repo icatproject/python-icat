@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2016-09-22T08:58:47+00:00</date>
+  <date>2016-09-22T10:15:04+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>4.7</apiversion>
   <generator>icatdump (python-icat 0.11.0)</generator>
@@ -712,7 +712,7 @@
     </instrumentScientists>
   </instrument>
   <instrument id="Instrument_facility-(name-ESNF)_name-HIKE">
-    <description>The system is designed for hard X-ray high kinetic energy photoelectron spectroscopy (HAXPES or HIKE) experiments in the excitation energy range from 2 keV to 12 keV with an optimized recorded kinetic energy range from 150 eV to 10000 eV.  The typical experiments running on the HIKE end station are investigations of bulk electronic properties &#8211; core levels and valence band, buried interfaces and x-ray standing waves.
+    <description>The system is designed for hard X-ray high kinetic energy photoelectron spectroscopy (HAXPES or HIKE) experiments in the excitation energy range from 2 keV to 12 keV with an optimized recorded kinetic energy range from 150 eV to 10000 eV.  The typical experiments running on the HIKE end station are investigations of bulk electronic properties - core levels and valence band, buried interfaces and x-ray standing waves.
 </description>
     <fullName>HIKE - High Kinetic Energy Photoelectron Spectroscopy</fullName>
     <name>HIKE</name>

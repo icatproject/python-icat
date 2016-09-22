@@ -1,5 +1,5 @@
 %YAML 1.1
-# Date: Thu, 22 Sep 2016 09:04:45 +0000
+# Date: Thu, 22 Sep 2016 10:11:15 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 4.7
 # Generator: icatdump (python-icat 0.11.0)
@@ -774,12 +774,14 @@ instrument:
     - user: User_name-acord
     name: EDDI
   Instrument_facility-(name-ESNF)_name-HIKE:
-    description: "The system is designed for hard X-ray high kinetic energy photoelectron\
-      \ spectroscopy (HAXPES or HIKE) experiments in the excitation energy range from\
-      \ 2 keV to 12 keV with an optimized recorded kinetic energy range from 150 eV\
-      \ to 10000 eV.  The typical experiments running on the HIKE end station are\
-      \ investigations of bulk electronic properties \u2013 core levels and valence\
-      \ band, buried interfaces and x-ray standing waves.\n"
+    description: 'The system is designed for hard X-ray high kinetic energy photoelectron
+      spectroscopy (HAXPES or HIKE) experiments in the excitation energy range from
+      2 keV to 12 keV with an optimized recorded kinetic energy range from 150 eV
+      to 10000 eV.  The typical experiments running on the HIKE end station are investigations
+      of bulk electronic properties - core levels and valence band, buried interfaces
+      and x-ray standing waves.
+
+      '
     facility: Facility_name-ESNF
     fullName: HIKE - High Kinetic Energy Photoelectron Spectroscopy
     instrumentScientists:
