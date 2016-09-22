@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2016-05-09T11:14:02+00:00</date>
+  <date>2016-09-22T08:58:47+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
-  <apiversion>4.6.1</apiversion>
-  <generator>icatdump (python-icat 0.10.0)</generator>
+  <apiversion>4.7</apiversion>
+  <generator>icatdump (python-icat 0.11.0)</generator>
 </head>
 <data>
   <user id="User_name-acord">
@@ -192,172 +192,172 @@
     <what>RelatedDatafile [createId=:user]</what>
   </rule>
   <rule id="Rule_00000017">
-    <crudFlags>CR</crudFlags>
-    <what>SampleType</what>
-  </rule>
-  <rule id="Rule_00000018">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN ds.type AS s1 WHERE i.releaseDate &lt; CURRENT_TIMESTAMP AND s1.name = 'raw'</what>
   </rule>
-  <rule id="Rule_00000019">
+  <rule id="Rule_00000018">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE ds.complete = False AND s4.name = :user AND s1.role = 'writer'</what>
   </rule>
-  <rule id="Rule_00000020">
+  <rule id="Rule_00000019">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000021">
+  <rule id="Rule_00000020">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE ds.complete = False AND s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000022">
+  <rule id="Rule_00000021">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000023">
+  <rule id="Rule_00000022">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationGroups AS s4 JOIN s4.grouping AS s5 JOIN s5.userGroups AS s6 JOIN s6.user AS s7 WHERE s7.name = :user</what>
   </rule>
-  <rule id="Rule_00000024">
+  <rule id="Rule_00000023">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationGroups AS s4 JOIN s4.grouping AS s5 JOIN s5.userGroups AS s6 JOIN s6.user AS s7 WHERE s7.name = :user AND s4.role = 'writer'</what>
   </rule>
-  <rule id="Rule_00000025">
+  <rule id="Rule_00000024">
     <crudFlags>CUD</crudFlags>
+    <what>SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationInstruments AS s4 JOIN s4.instrument AS s5 JOIN s5.instrumentScientists AS s6 JOIN s6.user AS s7 WHERE s7.name = :user</what>
+  </rule>
+  <rule id="Rule_00000025">
+    <crudFlags>R</crudFlags>
     <what>SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationInstruments AS s4 JOIN s4.instrument AS s5 JOIN s5.instrumentScientists AS s6 JOIN s6.user AS s7 WHERE s7.name = :user</what>
   </rule>
   <rule id="Rule_00000026">
-    <crudFlags>R</crudFlags>
-    <what>SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationInstruments AS s4 JOIN s4.instrument AS s5 JOIN s5.instrumentScientists AS s6 JOIN s6.user AS s7 WHERE s7.name = :user</what>
-  </rule>
-  <rule id="Rule_00000027">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE o.complete = False AND s4.name = :user AND s1.role = 'writer'</what>
   </rule>
-  <rule id="Rule_00000028">
+  <rule id="Rule_00000027">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000029">
+  <rule id="Rule_00000028">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE o.complete = False AND s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000030">
+  <rule id="Rule_00000029">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000031">
+  <rule id="Rule_00000030">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Dataset o JOIN o.investigation AS i JOIN o.type AS t WHERE i.releaseDate &lt; CURRENT_TIMESTAMP AND t.name = 'raw'</what>
   </rule>
-  <rule id="Rule_00000032">
+  <rule id="Rule_00000031">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000033">
+  <rule id="Rule_00000032">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user AND s1.role = 'writer'</what>
   </rule>
-  <rule id="Rule_00000034">
+  <rule id="Rule_00000033">
     <crudFlags>CUD</crudFlags>
+    <what>SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
+  </rule>
+  <rule id="Rule_00000034">
+    <crudFlags>R</crudFlags>
     <what>SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
   <rule id="Rule_00000035">
     <crudFlags>R</crudFlags>
-    <what>SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
+    <what>SELECT o FROM Grouping o JOIN o.investigationGroups AS ig JOIN ig.investigation AS s1 JOIN s1.investigationGroups AS s2 JOIN s2.grouping AS s3 JOIN s3.userGroups AS s4 JOIN s4.user AS s5 WHERE s5.name = :user AND s2.role = 'owner'</what>
   </rule>
   <rule id="Rule_00000036">
     <crudFlags>R</crudFlags>
-    <what>SELECT o FROM Grouping o JOIN o.investigationGroups AS ig JOIN ig.investigation AS s1 JOIN s1.investigationGroups AS s2 JOIN s2.grouping AS s3 JOIN s3.userGroups AS s4 JOIN s4.user AS s5 WHERE s5.name = :user AND s2.role = 'owner'</what>
+    <what>SELECT o FROM Investigation o JOIN o.investigationGroups AS ig JOIN ig.grouping AS s1 JOIN s1.userGroups AS s2 JOIN s2.user AS s3 WHERE s3.name = :user</what>
   </rule>
   <rule id="Rule_00000037">
     <crudFlags>R</crudFlags>
-    <what>SELECT o FROM Investigation o JOIN o.investigationGroups AS ig JOIN ig.grouping AS s1 JOIN s1.userGroups AS s2 JOIN s2.user AS s3 WHERE s3.name = :user</what>
+    <what>SELECT o FROM Investigation o JOIN o.investigationInstruments AS ii JOIN ii.instrument AS s1 JOIN s1.instrumentScientists AS s2 JOIN s2.user AS s3 WHERE s3.name = :user</what>
   </rule>
   <rule id="Rule_00000038">
     <crudFlags>R</crudFlags>
-    <what>SELECT o FROM Investigation o JOIN o.investigationInstruments AS ii JOIN ii.instrument AS s1 JOIN s1.instrumentScientists AS s2 JOIN s2.user AS s3 WHERE s3.name = :user</what>
+    <what>SELECT o FROM Investigation o WHERE o.releaseDate &lt; CURRENT_TIMESTAMP</what>
   </rule>
   <rule id="Rule_00000039">
     <crudFlags>R</crudFlags>
-    <what>SELECT o FROM Investigation o WHERE o.releaseDate &lt; CURRENT_TIMESTAMP</what>
-  </rule>
-  <rule id="Rule_00000040">
-    <crudFlags>R</crudFlags>
     <what>SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000041">
+  <rule id="Rule_00000040">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user AND s1.role = 'writer'</what>
   </rule>
-  <rule id="Rule_00000042">
+  <rule id="Rule_00000041">
     <crudFlags>CUD</crudFlags>
+    <what>SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
+  </rule>
+  <rule id="Rule_00000042">
+    <crudFlags>R</crudFlags>
     <what>SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
   <rule id="Rule_00000043">
     <crudFlags>R</crudFlags>
-    <what>SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
+    <what>SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
   <rule id="Rule_00000044">
     <crudFlags>R</crudFlags>
-    <what>SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
+    <what>SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
   <rule id="Rule_00000045">
     <crudFlags>R</crudFlags>
-    <what>SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
+    <what>SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
   <rule id="Rule_00000046">
     <crudFlags>R</crudFlags>
-    <what>SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
+    <what>SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
   <rule id="Rule_00000047">
     <crudFlags>R</crudFlags>
-    <what>SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
-  </rule>
-  <rule id="Rule_00000048">
-    <crudFlags>R</crudFlags>
     <what>SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000049">
+  <rule id="Rule_00000048">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user AND s1.role = 'writer'</what>
   </rule>
-  <rule id="Rule_00000050">
+  <rule id="Rule_00000049">
     <crudFlags>CUD</crudFlags>
+    <what>SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
+  </rule>
+  <rule id="Rule_00000050">
+    <crudFlags>R</crudFlags>
     <what>SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
   <rule id="Rule_00000051">
     <crudFlags>R</crudFlags>
-    <what>SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
-  </rule>
-  <rule id="Rule_00000052">
-    <crudFlags>R</crudFlags>
     <what>SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation AS s2 JOIN s2.investigationGroups AS s3 JOIN s3.grouping AS s4 JOIN s4.userGroups AS s5 JOIN s5.user AS s6 WHERE s6.name = :user</what>
   </rule>
-  <rule id="Rule_00000053">
+  <rule id="Rule_00000052">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation AS s2 JOIN s2.investigationGroups AS s3 JOIN s3.grouping AS s4 JOIN s4.userGroups AS s5 JOIN s5.user AS s6 WHERE s6.name = :user AND s3.role = 'writer'</what>
   </rule>
-  <rule id="Rule_00000054">
+  <rule id="Rule_00000053">
     <crudFlags>CUD</crudFlags>
+    <what>SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation AS s2 JOIN s2.investigationInstruments AS s3 JOIN s3.instrument AS s4 JOIN s4.instrumentScientists AS s5 JOIN s5.user AS s6 WHERE s6.name = :user</what>
+  </rule>
+  <rule id="Rule_00000054">
+    <crudFlags>R</crudFlags>
     <what>SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation AS s2 JOIN s2.investigationInstruments AS s3 JOIN s3.instrument AS s4 JOIN s4.instrumentScientists AS s5 JOIN s5.user AS s6 WHERE s6.name = :user</what>
   </rule>
   <rule id="Rule_00000055">
     <crudFlags>R</crudFlags>
-    <what>SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation AS s2 JOIN s2.investigationInstruments AS s3 JOIN s3.instrument AS s4 JOIN s4.instrumentScientists AS s5 JOIN s5.user AS s6 WHERE s6.name = :user</what>
+    <what>SELECT o FROM Shift o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
   <rule id="Rule_00000056">
     <crudFlags>R</crudFlags>
-    <what>SELECT o FROM Shift o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
-  </rule>
-  <rule id="Rule_00000057">
-    <crudFlags>R</crudFlags>
     <what>SELECT o FROM Shift o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000058">
+  <rule id="Rule_00000057">
     <crudFlags>CRUD</crudFlags>
     <what>SELECT o FROM UserGroup o JOIN o.grouping AS g JOIN g.investigationGroups AS s1 JOIN s1.investigation AS s2 JOIN s2.investigationGroups AS s3 JOIN s3.grouping AS s4 JOIN s4.userGroups AS s5 JOIN s5.user AS s6 WHERE s6.name = :user AND s3.role = 'owner' AND s1.role in ('reader', 'writer')</what>
+  </rule>
+  <rule id="Rule_00000058">
+    <crudFlags>CR</crudFlags>
+    <what>SampleType</what>
   </rule>
   <rule id="Rule_00000059">
     <crudFlags>R</crudFlags>
@@ -454,12 +454,12 @@
   </rule>
   <rule id="Rule_00000078">
     <crudFlags>R</crudFlags>
-    <what>Publication</what>
+    <what>PublicStep</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000079">
     <crudFlags>R</crudFlags>
-    <what>PublicStep</what>
+    <what>Publication</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000080">
@@ -885,14 +885,14 @@
     <name>Durol SC</name>
     <facility ref="Facility_name-ESNF"/>
   </sampleType>
-  <sampleType id="SampleType_facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO">
-    <molecularFormula>NiO</molecularFormula>
-    <name>Nickel(II) oxide SC</name>
-    <facility ref="Facility_name-ESNF"/>
-  </sampleType>
   <sampleType id="SampleType_facility-(name-ESNF)_name-NiMnGa_molecularFormula-NiMnGa">
     <molecularFormula>NiMnGa</molecularFormula>
     <name>NiMnGa</name>
+    <facility ref="Facility_name-ESNF"/>
+  </sampleType>
+  <sampleType id="SampleType_facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO">
+    <molecularFormula>NiO</molecularFormula>
+    <name>Nickel(II) oxide SC</name>
     <facility ref="Facility_name-ESNF"/>
   </sampleType>
   <datasetType id="DatasetType_facility-(name-ESNF)_name-analyzed">
