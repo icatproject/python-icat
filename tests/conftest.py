@@ -81,6 +81,22 @@ class tmpSessionId:
     def __exit__(self, type, value, tb):
         self.client.sessionId = self.saveSessionId
 
+class tmpLogin:
+    """Temporarily login as another user in an ICAT client.
+    """
+    def __init__(self, client, auth, credentials):
+        self.client = client
+        self.saveSessionId = client.sessionId
+        self.auth = auth
+        self.credentials = credentials
+    def __enter__(self):
+        self.client.sessionId = None
+        self.client.login(self.auth, self.credentials)
+        return self.client
+    def __exit__(self, type, value, tb):
+        self.client.logout()
+        self.client.sessionId = self.saveSessionId
+
 
 def gettestdata(fname):
     fname = os.path.join(testdir, "data", fname)
