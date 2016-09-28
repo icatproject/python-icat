@@ -12,7 +12,7 @@ it and get its version.  We'll combine both in a simple program::
   
   url = "https://icat.example.com:8181/ICATService/ICAT?wsdl"
   client = icat.client.Client(url)
-  print("Connect to %s\nICAT version %s\n" % (url, client.apiversion))
+  print("Connect to %s\nICAT version %s" % (url, client.apiversion))
 
 If you run this script, you should get something like the following as
 output::
@@ -45,5 +45,5 @@ this class.  For this reason, the class is imported by default in the
   
   url = "https://icat.example.com:8181/ICATService/ICAT?wsdl"
   client = icat.Client(url)
-  print("Connect to %s\nICAT version %s\n" % (url, client.apiversion))
+  print("Connect to %s\nICAT version %s" % (url, client.apiversion))
 

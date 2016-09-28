@@ -1,14 +1,15 @@
 Configuration
 ~~~~~~~~~~~~~
 
-It is certainly not the best idea to hard code the URL of the ICAT
-service in the program.  You could make it a command line argument,
-but then you would need to indicate it each time you call the program,
-which is also not very convenient.  The module :mod:`icat.config` has
-been created to solve this.  It defines several configuration
-variables that most ICAT client programs need.
+The example from the last section had the URL of the ICAT service hard
+coded in the program.  This is certainly not the best way to do it.
+You could make it a command line argument, but then you would need to
+indicate it each time you run the program, which is also not very
+convenient.  The module :mod:`icat.config` has been created to solve
+this.  It manages several configuration variables that most ICAT
+client programs need.
 
-Lets modify the example program from the last section as follows::
+Lets modify the example program as follows::
 
   #! /usr/bin/python
   
@@ -19,7 +20,7 @@ Lets modify the example program from the last section as follows::
   conf = icat.config.Config(needlogin=False).getconfig()
   
   client = icat.Client(conf.url, **conf.client_kwargs)
-  print("Connect to %s\nICAT version %s\n" % (conf.url, client.apiversion))
+  print("Connect to %s\nICAT version %s" % (conf.url, client.apiversion))
 
 If we run this without any command line arguments, we get an error::
 
@@ -52,14 +53,14 @@ program now accepts::
                           proxy to use for https requests
     --no-proxy NO_PROXY   list of exclusions for proxy use
 
-So there is a command line option `-w URL`.  Let's try::
+So there is a command line option ``-w URL``.  Let's try::
 
   $ python hello3.py -w 'https://icat.example.com:8181/ICATService/ICAT?wsdl'
   Connect to https://icat.example.com:8181/ICATService/ICAT?wsdl
   ICAT version 4.7
 
 This does the job.  But as mentioned above, it's not very convenient
-having to indicate the URL each time you call the program.  But in the
+having to indicate the URL each time you run the program.  But in the
 command line arguments, there is also a mention of a configuration
 file.  Create a text file named ``icat.cfg`` in the current working
 directory with the following content::
@@ -73,15 +74,12 @@ Now you can do the following::
   Connect to https://icat.example.com:8181/ICATService/ICAT?wsdl
   ICAT version 4.7
 
-The command line option `-s SECTION` selects a section in the
+The command line option ``-s SECTION`` selects a section in the
 configuration file to read options from.
 
-Until now, we only connected the ICAT server to query its version.
-This doesn't require a login to the server and hence the flag
-`needlogin=False` in the constructor call of
-:class:`icat.config.Config` in our example program.  If we leave this
-flag at the default value `True`, we get a bunch of new configuration
-variables.  Consider the following example program::
+python-icat is not only a client for ICAT, but also for IDS.  Since
+both my be on a different server, we need to tell python-icat also
+about the URL to IDS.  Modify the example program to read as::
 
   #! /usr/bin/python
   
@@ -89,7 +87,52 @@ variables.  Consider the following example program::
   import icat
   import icat.config
   
-  conf = icat.config.Config().getconfig()
+  conf = icat.config.Config(needlogin=False, ids="optional").getconfig()
+  
+  client = icat.Client(conf.url, **conf.client_kwargs)
+  print("Connect to %s\nICAT version %s" % (conf.url, client.apiversion))
+  if conf.idsurl:
+      print("Connect to %s\nIDS version %s" 
+            % (conf.idsurl, client.ids.apiversion))
+  else:
+      print("No IDS configured")
+
+If you run this in the same way as above, you'll get::
+
+  $ python hello4.py -s myicat
+  Connect to https://icat.example.com:8181/ICATService/ICAT?wsdl
+  ICAT version 4.7
+  No IDS configured
+
+But if you indicate the URL to IDS with the command line option
+``--idsurl``, or even better in the configuration file as follows::
+
+  [myicat]
+  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  idsurl = https://icat.example.com:8181/ids
+
+You'll get something like::
+
+  $ python hello4.py -s myicat
+  Connect to https://icat.example.com:8181/ICATService/ICAT?wsdl
+  ICAT version 4.7
+  Connect to https://icat.example.com:8181/ids
+  IDS version 1.6
+
+Until now, we only connected the ICAT server to query its version.
+This doesn't require a login to the server and hence the flag
+``needlogin=False`` in the constructor call of
+:class:`icat.config.Config` in our example program.  If we leave this
+flag at the default value ``True``, we get a bunch of new
+configuration variables.  Consider the following example program::
+
+  #! /usr/bin/python
+  
+  from __future__ import print_function
+  import icat
+  import icat.config
+  
+  conf = icat.config.Config(ids="optional").getconfig()
   
   client = icat.Client(conf.url, **conf.client_kwargs)
   client.login(conf.auth, conf.credentials)
@@ -112,6 +155,7 @@ Let's check the available command line options now::
     -s SECTION, --configsection SECTION
                           section in the config file
     -w URL, --url URL     URL to the web service description
+    --idsurl IDSURL       URL to the ICAT Data Service
     --no-check-certificate
                           don't verify the server certificate
     --http-proxy HTTP_PROXY
@@ -147,16 +191,17 @@ All configuration variables aside from `configFile` and
 `configSection` can be set in the configuration file.  Edit your
 ``icat.cfg`` file to read::
 
-  [myicat]
+  [myicat_jdoe]
   url = https://icat.example.com:8181/ICATService/ICAT?wsdl
   auth = db
   username = jdoe
   password = secret
+  idsurl = https://icat.example.com:8181/ids
 
 You should protect this file from unauthorized read access if you
 store passwords in it.  Now you can do::
 
-  $ python login.py -s myicat
+  $ python login.py -s myicat_jdoe
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
   User: db/jdoe
 
@@ -164,10 +209,90 @@ Command line options override the settings in the configuration file.
 This way, you can still log in as another user not configured in the
 file::
 
-  $ python login.py -s myicat -u nbour
+  $ python login.py -s myicat_jdoe -u nbour
   Password: 
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
   User: db/nbour
+
+Configuration files can have many sections.  It may come handy to be
+able to quickly switch between different users to log into the ICAT.
+Edit ``icat.cfg`` again to read as follows::
+
+  [myicat_root]
+  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  auth = simple
+  username = root
+  password = secret
+  idsurl = https://icat.example.com:8181/ids
+  # uncomment, if your server does not have a trusted certificate
+  #checkCert = No
+  
+  [myicat_idsreader]
+  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  auth = simple
+  username = idsreader
+  password = secret
+  idsurl = https://icat.example.com:8181/ids
+  #checkCert = No
+  
+  [myicat_useroffice]
+  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  auth = simple
+  username = useroffice
+  password = secret
+  idsurl = https://icat.example.com:8181/ids
+  #checkCert = No
+  
+  [myicat_acord]
+  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  auth = db
+  username = acord
+  password = secret
+  idsurl = https://icat.example.com:8181/ids
+  #checkCert = No
+  
+  [myicat_ahau]
+  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  auth = db
+  username = ahau
+  password = secret
+  idsurl = https://icat.example.com:8181/ids
+  #checkCert = No
+  
+  [myicat_jbotu]
+  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  auth = db
+  username = jbotu
+  password = secret
+  idsurl = https://icat.example.com:8181/ids
+  #checkCert = No
+  
+  [myicat_jdoe]
+  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  auth = db
+  username = jdoe
+  password = secret
+  idsurl = https://icat.example.com:8181/ids
+  #checkCert = No
+  
+  [myicat_nbour]
+  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  auth = db
+  username = nbour
+  password = secret
+  idsurl = https://icat.example.com:8181/ids
+  #checkCert = No
+  
+  [myicat_rbeck]
+  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  auth = db
+  username = rbeck
+  password = secret
+  idsurl = https://icat.example.com:8181/ids
+  #checkCert = No
+
+Do not forget to adapt the URLs, the authenticator names, and the
+passwords to what is configured in your ICAT.
 
 Programs may also define their own custom configuration variables.
 Lets add the option to redirect the output of our example program to a
@@ -180,7 +305,7 @@ file::
   import icat
   import icat.config
   
-  config = icat.config.Config()
+  config = icat.config.Config(ids="optional")
   config.add_variable('outfile', ("-o", "--outputfile"), 
                       dict(help="output file name or '-' for stdout"),
                       default='-')
@@ -200,9 +325,9 @@ file::
   out.close()
 
 This adds a new configuration variable `outfile`.  It can be specified
-on the command line as `-o OUTFILE` or `--outputfile OUTFILE` and it
-defaults to the string ``-`` if not specified.  We can check this on
-the list of available command line options::
+on the command line as ``-o OUTFILE`` or ``--outputfile OUTFILE`` and
+it defaults to the string ``-`` if not specified.  We can check this
+on the list of available command line options::
 
   $ python login2.py -h
   usage: login2.py [-h] [-c CONFIGFILE] [-s SECTION] [-w URL]
@@ -217,6 +342,7 @@ the list of available command line options::
     -s SECTION, --configsection SECTION
                           section in the config file
     -w URL, --url URL     URL to the web service description
+    --idsurl IDSURL       URL to the ICAT Data Service
     --no-check-certificate
                           don't verify the server certificate
     --http-proxy HTTP_PROXY
@@ -235,13 +361,13 @@ the list of available command line options::
 
 This new option is optional, so the program can be used as before::
 
-  $ python login2.py -s myicat
+  $ python login2.py -s myicat_jdoe
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
   User: db/jdoe
 
 If we add the option on the command line, it has the expected effect::
 
-  $ python login2.py -s myicat -o out.txt
+  $ python login2.py -s myicat_jdoe -o out.txt
   $ cat out.txt
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
   User: db/jdoe
