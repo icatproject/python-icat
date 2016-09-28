@@ -12,4 +12,5 @@ The tutorial contains the following sections:
    :maxdepth: 2
 
    tutorial-hello
+   tutorial-config
 
