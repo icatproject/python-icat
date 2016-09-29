@@ -55,18 +55,23 @@ program now accepts::
 
 So there is a command line option ``-w URL``.  Let's try::
 
-  $ python hello3.py -w 'https://icat.example.com:8181/ICATService/ICAT?wsdl'
+  $ python hello3.py -w 'https://icat.example.com:8181/ICATService/ICAT?wsdl' --no-check-certificate
   Connect to https://icat.example.com:8181/ICATService/ICAT?wsdl
   ICAT version 4.7
 
-This does the job.  But as mentioned above, it's not very convenient
-having to indicate the URL each time you run the program.  But in the
-command line arguments, there is also a mention of a configuration
-file.  Create a text file named ``icat.cfg`` in the current working
-directory with the following content::
+(Again, the ``--no-check-certificate`` flag is only needed if your
+ICAT server does not have a trusted SSL certificate and if you are
+using Python 2.7.9 or newer.)  This does the job.  But as mentioned
+above, it's not very convenient having to indicate the URL each time
+you run the program.  But in the command line arguments, there is also
+a mention of a configuration file.  Create a text file named
+``icat.cfg`` in the current working directory with the following
+content::
 
   [myicat]
   url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  # uncomment, if your server does not have a trusted certificate
+  #checkCert = No
 
 Now you can do the following::
 
@@ -78,7 +83,7 @@ The command line option ``-s SECTION`` selects a section in the
 configuration file to read options from.
 
 python-icat is not only a client for ICAT, but also for IDS.  Since
-both my be on a different server, we need to tell python-icat also
+both may be on a different server, we need to tell python-icat also
 about the URL to IDS.  Modify the example program to read as::
 
   #! /usr/bin/python
@@ -110,6 +115,8 @@ But if you indicate the URL to IDS with the command line option
   [myicat]
   url = https://icat.example.com:8181/ICATService/ICAT?wsdl
   idsurl = https://icat.example.com:8181/ids
+  # uncomment, if your server does not have a trusted certificate
+  #checkCert = No
 
 You'll get something like::
 
@@ -123,8 +130,8 @@ Until now, we only connected the ICAT server to query its version.
 This doesn't require a login to the server and hence the flag
 ``needlogin=False`` in the constructor call of
 :class:`icat.config.Config` in our example program.  If we leave this
-flag at the default value ``True``, we get a bunch of new
-configuration variables.  Consider the following example program::
+flag out, we get a bunch of new configuration variables.  Consider the
+following example program::
 
   #! /usr/bin/python
   
@@ -143,7 +150,7 @@ configuration variables.  Consider the following example program::
 Let's check the available command line options now::
 
   $ python login.py -h
-  usage: login.py [-h] [-c CONFIGFILE] [-s SECTION] [-w URL]
+  usage: login.py [-h] [-c CONFIGFILE] [-s SECTION] [-w URL] [--idsurl IDSURL]
                   [--no-check-certificate] [--http-proxy HTTP_PROXY]
                   [--https-proxy HTTPS_PROXY] [--no-proxy NO_PROXY] [-a AUTH]
                   [-u USERNAME] [-p PASSWORD] [-P]
@@ -197,6 +204,8 @@ All configuration variables aside from `configFile` and
   username = jdoe
   password = secret
   idsurl = https://icat.example.com:8181/ids
+  # uncomment, if your server does not have a trusted certificate
+  #checkCert = No
 
 You should protect this file from unauthorized read access if you
 store passwords in it.  Now you can do::
@@ -225,14 +234,6 @@ Edit ``icat.cfg`` again to read as follows::
   password = secret
   idsurl = https://icat.example.com:8181/ids
   # uncomment, if your server does not have a trusted certificate
-  #checkCert = No
-  
-  [myicat_idsreader]
-  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
-  auth = simple
-  username = idsreader
-  password = secret
-  idsurl = https://icat.example.com:8181/ids
   #checkCert = No
   
   [myicat_useroffice]
@@ -291,8 +292,9 @@ Edit ``icat.cfg`` again to read as follows::
   idsurl = https://icat.example.com:8181/ids
   #checkCert = No
 
-Do not forget to adapt the URLs, the authenticator names, and the
-passwords to what is configured in your ICAT.
+We shall use some of this configuration in the following sections of
+the tutorial.  Do not forget to adapt the URLs, the authenticator
+names, and the passwords to what is configured in your ICAT.
 
 Programs may also define their own custom configuration variables.
 Lets add the option to redirect the output of our example program to a
@@ -330,7 +332,7 @@ it defaults to the string ``-`` if not specified.  We can check this
 on the list of available command line options::
 
   $ python login2.py -h
-  usage: login2.py [-h] [-c CONFIGFILE] [-s SECTION] [-w URL]
+  usage: login2.py [-h] [-c CONFIGFILE] [-s SECTION] [-w URL] [--idsurl IDSURL]
                    [--no-check-certificate] [--http-proxy HTTP_PROXY]
                    [--https-proxy HTTPS_PROXY] [--no-proxy NO_PROXY] [-a AUTH]
                    [-u USERNAME] [-p PASSWORD] [-P] [-o OUTFILE]
