@@ -86,7 +86,7 @@ instruments:
       excitation energy range from 2 keV to 12 keV with an optimized
       recorded kinetic energy range from 150 eV to 10000 eV.  The
       typical experiments running on the HIKE end station are
-      investigations of bulk electronic properties – core levels and
+      investigations of bulk electronic properties - core levels and
       valence band, buried interfaces and x-ray standing waves.
     facility: example_facility
     fullName: HIKE - High Kinetic Energy Photoelectron Spectroscopy

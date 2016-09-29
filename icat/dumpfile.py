@@ -190,9 +190,7 @@ class DumpFileWriter(object):
         """
         if isinstance(objs, Query) or isinstance(objs, basestring):
             objs = self.client.searchChunked(objs, chunksize=chunksize)
-        else:
-            objs.sort(key=icat.entity.Entity.__sortkey__)
-        for obj in objs:
+        for obj in sorted(objs, key=icat.entity.Entity.__sortkey__):
             # Entities without a constraint will use their id to form
             # the unique key as a last resort.  But we want the keys
             # not to depend on volatile attributes such as the id.
