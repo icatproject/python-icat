@@ -119,6 +119,7 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
         super(XMLDumpFileReader, self).__init__(client, infile)
         # need binary mode for infile
         self.infile = os.fdopen(os.dup(infile.fileno()), 'rb')
+        infile.close()
         self.insttypemap = { c.BeanName:t 
                              for t,c in self.client.typemap.iteritems() }
 
@@ -166,6 +167,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         super(XMLDumpFileWriter, self).__init__(client, outfile)
         # need binary mode for outfile
         self.outfile = os.fdopen(os.dup(outfile.fileno()), 'wb')
+        outfile.close()
         self.data = etree.Element("data")
 
     def head(self):
@@ -202,7 +204,6 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         """Finalize the data file."""
         self.startdata()
         self.outfile.write(b"</icatdata>\n")
-        self.outfile.close()
 
 
 icat.dumpfile.register_backend("XML", XMLDumpFileReader, XMLDumpFileWriter)

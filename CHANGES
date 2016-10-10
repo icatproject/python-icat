@@ -1,6 +1,36 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.12.0 (2010-10-10)
+
+** New features
+
+ + Verify support for ICAT 4.8.0 and IDS 1.7.0.
+
+ + Add IDSClient methods reset() and resetPrepared().
+
+ + Issue #28: Add support for searching for attributes in class Query.
+
+** Bug fixes and minor changes
+
+ + Sort objects in icatdump.py before writing them to the dump file.
+   This keeps the order independent from the collation used in the
+   ICAT database backend.
+
+ + Issue #2: for Python 3.6 (expected to be released in Dec 2016) and
+   newer, use the support for chunked transfer encoding in the standard
+   lib.  Keep our own implementation in module icat.chunkedhttp only
+   for compatibility with older Python versions.
+
+ + Improved the example script wipeicat.py.
+
+ + Add an example script dumprules.py.
+
+ + Add missing schema definition for the ICAT XML data file format for
+   ICAT 4.7.
+
+ + Fix an AttributeError during error handling.
+
 * Version 0.11.0 (2016-06-01)
 
 ** New features
