@@ -1,17 +1,15 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.12.0 (not yet released)
+* Version 0.12.0 (2010-10-10)
 
 ** New features
+
+ + Verify support for ICAT 4.8.0 and IDS 1.7.0.
 
  + Add IDSClient methods reset() and resetPrepared().
 
  + Issue #28: Add support for searching for attributes in class Query.
-
-** Incompatible changes
-
-None so far.
 
 ** Bug fixes and minor changes
 
