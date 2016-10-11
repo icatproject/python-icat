@@ -2,6 +2,9 @@
 #
 # Delete all content from an ICAT.
 #
+# This is surprisingly involved to do it reliably.  See the comments
+# below for the issues that need to be taken into account.
+#
 # This script uses the JPQL syntax for searching in the ICAT.  It thus
 # requires ICAT version 4.3.0 or greater.
 #
@@ -49,24 +52,20 @@ def waitOpsQueue():
             break
         time.sleep(30)
 
-# Entity types needed for access permissions.  Must be deleted last,
-# otherwise we might take delete permission from ourselves.
-authztables = [ "Grouping", "Rule", "User", "UserGroup", ]
-
 
 # First step, delete all Datafiles from IDS.
 # 
 # This is somewhat tricky: if the Datafile has been created with IDS
 # by a file upload then we MUST delete it with IDS, otherwise it would
-# leave an orphan file in the IDS.  If the Datafile has been created
-# in the ICAT client without IDS, we cannot delete it with IDS,
-# because IDS will not find the actual file and will throw a server
-# error.  But there is no reliable way to tell the one from the other.
-# As a rule, we will assume that the file has been created with IDS if
-# the location attribute is set.  Furthermore, we must restore the
-# datasets first, because IDS can only delete datafiles that are
-# online.  But restoring one dataset may cause another one to get
-# archived if free main storage is low.  So we might need several
+# leave an orphan file in the storage.  If the Datafile has been
+# created in the ICAT client without IDS, we cannot delete it with
+# IDS, because IDS will not find the actual file and will throw a
+# server error.  But there is no reliable way to tell the one from the
+# other.  As a rule, we will assume that the file has been created
+# with IDS if the location attribute is set.  Furthermore, we must
+# restore the datasets first, because IDS can only delete datafiles
+# that are online.  But restoring one dataset may cause another one to
+# get archived if free main storage is low.  So we might need several
 # sweeps to get everything deleted.  In each sweep, we delete
 # everything that is currently online in a first step and file a
 # restore request for all the rest in a second step.
@@ -119,16 +118,32 @@ if client.ids:
             break
 
 
-# Second step, delete all Facilities.  By cascading, this already
-# wipes almost everything.
-client.deleteMany(client.search("Facility"))
+# Second step, delete most content from ICAT.
+#
+# In theory, this could be done by just deleting the Facilities.  By
+# cascading, this would already wipe almost everything.  Practical
+# experience show that the object tree related to a single facility
+# may be too large to be deleted in one single run, resulting in
+# strange errors from the database backend.  Thus, we start little by
+# little, deleting all Investigations individually first.  This
+# already removes a major part of all content.  Then we delete the
+# Facilities which removes most of the rest by cascading.  Finally we
+# got for all the remaining bits, not related to a facility, such as
+# DataCollection and Study.
+#
+# But we must take care not to delete the authz tables now, because
+# with old ICAT versions before 4.4.0, the root user has only
+# unconditional write access to the authz tables.  For the other
+# stuff, he needs a rule in place that allows him access.  If we
+# remove the authz tables too early, we may take away delete
+# permission from ourselves.
 
-# Third step, delete almost all remaining bits, keep only
-# authztables.  This will hit stuff not directly linked to Facility,
-# such as Study, Log, and PublicStep.
-for t in client.getEntityNames():
-    if t not in authztables:
-        deletetype(t)
+authztables = [ "Grouping", "Rule", "User", "UserGroup", ]
+alltables = client.getEntityNames()
+tables = ["Investigation", "Facility"] + list(set(alltables) - set(authztables))
+for t in tables:
+    deletetype(t)
+
 
 # Last step, delete the authztables.
 for t in authztables:

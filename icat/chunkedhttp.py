@@ -1,31 +1,44 @@
 """HTTP with chunked transfer encoding for urllib.
 
-This module provides the handlers ChunkedHTTPHandler and
-ChunkedHTTPSHandler that are suitable to be used as openers for
-urllib.  These handlers differ from the standard counterparts in that
-they send the data using chunked transfer encoding to the HTTP server.
+This module provides modified versions of HTTPHandler and HTTPSHandler
+from urllib.  These handlers differ from the standard counterparts in
+that they are able to send the data using chunked transfer encoding to
+the HTTP server.
 
-**Note**: This module might be useful independently of python-icat.
-It is included here because python-icat uses it internally, but it is
-not considered to be part of the API.  Changes in this module are not
-considered API changes of python-icat.  It may even be removed from
-future versions of the python-icat distribution without further
-notice.
+Note that although the handlers are designed as drop in replacements
+for the standard counterparts, we do not intent to to catch all corner
+cases and be fully compatible in all situations.  The implementations
+here shall be just good enough for the use cases in IDSClient.
+
+Starting with Python 3.6.0, support for chunked transfer encoding has
+been added to the standard library, see `Issue 12319`_.  As a result,
+this module is obsolete for newer Python versions and you should use
+the handlers from the standard library instead.
+
+.. note::
+   This module is included here because python-icat uses it
+   internally, but it is not considered to be part of the API.
+   Changes in this module are not considered API changes of
+   python-icat.  It may even be removed from future versions of the
+   python-icat distribution without further notice.
+
+.. Issue 12319_: https://bugs.python.org/issue12319
 """
 
-from httplib import HTTPConnection, HTTPSConnection
-from urllib2 import URLError, HTTPHandler, HTTPSHandler
+import httplib
+import urllib2
 
 
-def stringiterator(buffer, chunksize):
-    """Yield the content of a string by chunks of a given size at a time."""
-    while len(buffer) > chunksize:
-        yield buffer[:chunksize]
-        buffer = buffer[chunksize:]
+# We always set the Content-Length header for these methods because some
+# servers will otherwise respond with a 411
+_METHODS_EXPECTING_BODY = {'PATCH', 'POST', 'PUT'}
+
+def stringiterator(buffer):
+    """Wrap a string in an iterator that yields it in one single chunk."""
     if len(buffer) > 0:
         yield buffer
 
-def fileiterator(f, chunksize):
+def fileiterator(f, chunksize=8192):
     """Yield the content of a file by chunks of a given size at a time."""
     while True:
         chunk = f.read(chunksize)
@@ -33,21 +46,19 @@ def fileiterator(f, chunksize):
             break
         yield chunk
 
-class ChunkedHTTPConnectionMixin:
+class HTTPConnectionMixin:
     """Implement chunked transfer encoding in HTTP.
 
     This is designed as a mixin class to modify either HTTPConnection
     or HTTPSConnection accordingly.
     """
 
-    default_chunk_size = 8192
-
     def _send_request(self, method, url, body, headers):
         # This method is taken and modified from the Python 2.7
         # httplib.py to prevent it from trying to set a Content-length
-        # header and to hook in our send_body_chunked() method.
+        # header and to hook in our send_body() method.
         # Admitted, it's an evil hack.
-        header_names = dict.fromkeys([k.lower() for k in headers])
+        header_names = {k.lower(): k for k in headers.keys()}
         skips = {}
         if 'host' in header_names:
             skips['skip_host'] = 1
@@ -56,44 +67,53 @@ class ChunkedHTTPConnectionMixin:
 
         self.putrequest(method, url, **skips)
 
+        chunked = False
+        if 'transfer-encoding' in header_names:
+            if headers[header_names['transfer-encoding']] == 'chunked':
+                chunked = True
+            else:
+                raise httplib.HTTPException("Invalid Transfer-Encoding")
+
         for hdr, value in headers.iteritems():
             self.putheader(hdr, value)
         self.endheaders()
-        self.send_body_chunked(body)
+        self.send_body(body, chunked)
 
-    def send_body_chunked(self, message_body=None):
-        """Send the message_body with chunked transfer encoding.
+    def send_body(self, body, chunked):
+        """Send the body, either as is or chunked.
 
         The empty line separating the headers from the body must have
         been sent before calling this method.
         """
-        if message_body is not None:
-            chunksize = getattr(self, 'chunksize', self.default_chunk_size)
-            if isinstance(message_body, type(b'')):
-                bodyiter = stringiterator(message_body, chunksize)
-            elif isinstance(message_body, type(u'')):
-                bodyiter = stringiterator(message_body.encode('ascii'), 
-                                          chunksize)
-            elif hasattr(message_body, 'read'):
-                bodyiter = fileiterator(message_body, chunksize)
-            elif hasattr(message_body, '__iter__'):
-                bodyiter = message_body
+        if body is not None:
+            if isinstance(body, type(b'')):
+                bodyiter = stringiterator(body)
+            elif isinstance(body, type(u'')):
+                bodyiter = stringiterator(body.encode('ascii'))
+            elif hasattr(body, 'read'):
+                bodyiter = fileiterator(body)
+            elif hasattr(body, '__iter__'):
+                bodyiter = body
             else:
                 raise TypeError("expect either a string, a file, "
                                 "or an iterable")
-            for chunk in bodyiter:
-                self.send(hex(len(chunk))[2:].encode('ascii') 
-                          + b"\r\n" + chunk + b"\r\n")
-            self.send(b"0\r\n\r\n")
+            if chunked:
+                for chunk in bodyiter:
+                    self.send(hex(len(chunk))[2:].encode('ascii') 
+                              + b"\r\n" + chunk + b"\r\n")
+                self.send(b"0\r\n\r\n")
+            else:
+                for chunk in bodyiter:
+                    self.send(chunk)
 
-class ChunkedHTTPConnection(ChunkedHTTPConnectionMixin, HTTPConnection):
+class HTTPConnection(HTTPConnectionMixin, httplib.HTTPConnection):
     pass
 
-class ChunkedHTTPSConnection(ChunkedHTTPConnectionMixin, HTTPSConnection):
+class HTTPSConnection(HTTPConnectionMixin, httplib.HTTPSConnection):
     pass
 
 
-class ChunkedHTTPHandlerMixin:
+class HTTPHandlerMixin:
     """Internal helper class.
 
     This is designed as a mixin class to modify either HTTPHandler or
@@ -118,19 +138,21 @@ class ChunkedHTTPHandlerMixin:
         except AttributeError:
             host = request.host
         if not host:
-            raise URLError('no host given')
+            raise urllib2.URLError('no host given')
 
-        if request.data is None:
-            raise URLError('no data given')
-
-        if not request.has_header('Content-type'):
-            raise URLError('no Content-type header given')
-
-        if request.has_header('Content-length'):
-            raise URLError('must not set a Content-length header')
-
-        if not request.has_header('Transfer-Encoding'):
-            request.add_unredirected_header('Transfer-Encoding', 'chunked')
+        if request.data is not None:
+            if not request.has_header('Content-type'):
+                raise urllib2.URLError('no Content-type header given')
+            if not request.has_header('Content-length'):
+                if isinstance(request.data, (type(b''), type(u''))):
+                    request.add_unredirected_header(
+                        'Content-length', '%d' % len(request.data))
+                else:
+                    request.add_unredirected_header(
+                        'Transfer-Encoding', 'chunked')
+        else:
+            if request.get_method().upper() in _METHODS_EXPECTING_BODY:
+                request.add_unredirected_header('Content-length', '0')
 
         sel_host = host
         if request.has_proxy():
@@ -150,28 +172,28 @@ class ChunkedHTTPHandlerMixin:
 
         return request
 
-class ChunkedHTTPHandler(ChunkedHTTPHandlerMixin, HTTPHandler):
+class HTTPHandler(HTTPHandlerMixin, urllib2.HTTPHandler):
 
     def http_open(self, req):
-        return self.do_open(ChunkedHTTPConnection, req)
+        return self.do_open(HTTPConnection, req)
 
-    http_request = ChunkedHTTPHandlerMixin.do_request_
+    http_request = HTTPHandlerMixin.do_request_
 
-class ChunkedHTTPSHandler(ChunkedHTTPHandlerMixin, HTTPSHandler):
+class HTTPSHandler(HTTPHandlerMixin, urllib2.HTTPSHandler):
 
     def https_open(self, req):
         if hasattr(self, '_context') and hasattr(self, '_check_hostname'):
             # Python 3.2 and newer
-            return self.do_open(ChunkedHTTPSConnection, req,
+            return self.do_open(HTTPSConnection, req,
                                 context=self._context, 
                                 check_hostname=self._check_hostname)
         elif hasattr(self, '_context'):
             # Python 2.7.9
-            return self.do_open(ChunkedHTTPSConnection, req,
+            return self.do_open(HTTPSConnection, req,
                                 context=self._context)
         else:
             # Python 2.7.8 or 3.1 and older
-            return self.do_open(ChunkedHTTPSConnection, req)
+            return self.do_open(HTTPSConnection, req)
 
-    https_request = ChunkedHTTPHandlerMixin.do_request_
+    https_request = HTTPHandlerMixin.do_request_
 

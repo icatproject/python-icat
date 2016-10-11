@@ -4,6 +4,7 @@
 from __future__ import print_function
 import os
 import os.path
+import time
 import zipfile
 import filecmp
 import datetime
@@ -13,8 +14,8 @@ import icat.config
 from icat.query import Query
 from icat.ids import DataSelection
 from conftest import DummyDatafile, UtcTimezone
-from conftest import require_icat_version, getConfig, callscript
-from conftest import tmpSessionId
+from conftest import require_icat_version, getConfig
+from conftest import tmpSessionId, tmpClient
 
 
 @pytest.fixture(scope="module")
@@ -113,6 +114,42 @@ markeddatasets = [
     for ds in testdatasets
 ]
 
+# ============================= helper =============================
+
+def getDataset(client, case):
+    query = Query(client, "Dataset", conditions={
+        "investigation.name": "= '%s'" % case['invname'],
+        "name": "= '%s'" % case['dsname'],
+    })
+    return (client.assertedSearch(query)[0])
+
+def getDatafileFormat(client, case):
+    l = case['dfformat'].split(':')
+    query = Query(client, "DatafileFormat", conditions={
+        "name": "= '%s'" % l[0],
+    })
+    if len(l) > 1:
+        query.addConditions({"version": "= '%s'" % l[1]})
+    return (client.assertedSearch(query)[0])
+
+def getDatafile(client, case, dfname=None):
+    if dfname is None:
+        dfname = case['dfname']
+    query = Query(client, "Datafile", conditions={
+        "name": "= '%s'" % dfname,
+        "dataset.name": "= '%s'" % case['dsname'],
+        "dataset.investigation.name": "= '%s'" % case['invname'],
+    })
+    return (client.assertedSearch(query)[0])
+
+def copyfile(infile, outfile, chunksize=8192):
+    """Read all data from infile and write them to outfile.
+    """
+    while True:
+        chunk = infile.read(chunksize)
+        if not chunk:
+            break
+        outfile.write(chunk)
 
 # ============================= tests ==============================
 
@@ -121,22 +158,21 @@ def test_upload(tmpdirsec, client, case):
     f = DummyDatafile(tmpdirsec.dir, 
                       case['dfname'], case['size'], case['mtime'])
     print("\nUpload file %s" % case['dfname'])
-    _, conf = getConfig(confSection=case['uluser'])
-    args = conf.cmdargs + [case['invname'], case['dsname'], 
-                           case['dfformat'], f.fname]
-    callscript("addfile.py", args)
-    query = Query(client, "Datafile", conditions={
-        "name": "= '%s'" % case['dfname'],
-        "dataset.name": "= '%s'" % case['dsname'],
-        "dataset.investigation.name": "= '%s'" % case['invname'],
-    })
-    df = client.assertedSearch(query)[0]
-    assert df.location is not None
-    assert df.fileSize == f.size
-    assert df.checksum == f.crc32
-    if f.mtime:
-        assert df.datafileModTime == f.mtime
-    case['testfile'] = f
+    with tmpClient(confSection=case['uluser'], ids="mandatory") as tclient:
+        dataset = getDataset(tclient, case)
+        datafileformat = getDatafileFormat(tclient, case)
+        datafile = tclient.new("datafile", name=os.path.basename(f.fname), 
+                               dataset=dataset, datafileFormat=datafileformat)
+        tclient.putData(f.fname, datafile)
+        df = getDatafile(tclient, case)
+        assert df.location is not None
+        assert df.fileSize == f.size
+        assert df.checksum == f.crc32
+        if f.mtime:
+            assert df.datafileModTime == f.mtime
+        assert df.createId == case['uluser']
+        assert df.modId == case['uluser']
+        case['testfile'] = f
 
 @pytest.fixture(scope='function', params=["getData", "getPreparedData"])
 def method(request):
@@ -144,45 +180,59 @@ def method(request):
 
 @pytest.mark.parametrize(("case"), markeddatasets)
 def test_download(tmpdirsec, client, case, method):
-    _, conf = getConfig(confSection=case['dluser'])
-    if len(case['dfs']) > 1:
-        zfname = os.path.join(tmpdirsec.dir, "%s.zip" % case['dsname'])
-        print("\nDownload %s to file %s" % (case['dsname'], zfname))
-        args = conf.cmdargs + [ '--outputfile', zfname, 
-                                case['invname'], case['dsname'], method ]
-        callscript("downloaddata.py", args)
-        zf = zipfile.ZipFile(zfname, 'r')
-        zinfos = zf.infolist()
-        assert len(zinfos) == len(case['dfs'])
-        for df in case['dfs']:
-            zi = None
-            for i in zinfos:
-                if i.filename.endswith(df['dfname']):
-                    zi = i
-                    break
-            assert zi is not None
-            assert "%x" % (zi.CRC & 0xffffffff) == df['testfile'].crc32
-            assert zi.file_size == df['testfile'].size
-    elif len(case['dfs']) == 1:
-        df = case['dfs'][0]
-        dfname = os.path.join(tmpdirsec.dir, "dl_%s" % df['dfname'])
-        print("\nDownload %s to file %s" % (case['dsname'], dfname))
-        args = conf.cmdargs + [ '--outputfile', dfname, 
-                                case['invname'], case['dsname'], method ]
-        callscript("downloaddata.py", args)
-        assert filecmp.cmp(df['testfile'].fname, dfname)
-    else:
-        raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
+    with tmpClient(confSection=case['dluser'], ids="mandatory") as tclient:
+        if len(case['dfs']) > 1:
+            zfname = os.path.join(tmpdirsec.dir, "%s.zip" % case['dsname'])
+            print("\nDownload %s to file %s" % (case['dsname'], zfname))
+            dataset = getDataset(tclient, case)
+            query = "Datafile <-> Dataset [id=%d]" % dataset.id
+            datafiles = tclient.search(query)
+            if method == 'getData':
+                response = tclient.getData(datafiles)
+            elif method == 'getPreparedData':
+                prepid = tclient.prepareData(datafiles)
+                while not tclient.isDataPrepared(prepid):
+                    time.sleep(5)
+                response = tclient.getPreparedData(prepid)
+            with open(zfname, 'wb') as f:
+                copyfile(response, f)
+            zf = zipfile.ZipFile(zfname, 'r')
+            zinfos = zf.infolist()
+            assert len(zinfos) == len(case['dfs'])
+            for df in case['dfs']:
+                zi = None
+                for i in zinfos:
+                    if i.filename.endswith(df['dfname']):
+                        zi = i
+                        break
+                assert zi is not None
+                assert "%x" % (zi.CRC & 0xffffffff) == df['testfile'].crc32
+                assert zi.file_size == df['testfile'].size
+        elif len(case['dfs']) == 1:
+            df = case['dfs'][0]
+            dfname = os.path.join(tmpdirsec.dir, "dl_%s" % df['dfname'])
+            print("\nDownload %s to file %s" % (case['dsname'], dfname))
+            dataset = getDataset(tclient, case)
+            query = "Datafile <-> Dataset [id=%d]" % dataset.id
+            datafiles = tclient.search(query)
+            if method == 'getData':
+                response = tclient.getData(datafiles)
+            elif method == 'getPreparedData':
+                prepid = tclient.prepareData(datafiles)
+                while not tclient.isDataPrepared(prepid):
+                    time.sleep(5)
+                response = tclient.getPreparedData(prepid)
+            with open(dfname, 'wb') as f:
+                copyfile(response, f)
+            assert filecmp.cmp(df['testfile'].fname, dfname)
+        else:
+            raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
 
 @pytest.mark.parametrize(("case"), markeddatasets)
 def test_getinfo(client, case):
     """Call getStatus() and getSize() to get some informations on a dataset.
     """
-    query = Query(client, "Dataset", conditions={
-        "name": "= '%s'" % case['dsname'],
-        "investigation.name": "= '%s'" % case['invname'],
-    })
-    selection = DataSelection(client.assertedSearch(query))
+    selection = DataSelection([getDataset(client, case)])
     size = client.ids.getSize(selection)
     print("Size of dataset %s: %d" % (case['dsname'], size))
     assert size == sum(f['size'] for f in case['dfs'])
@@ -200,11 +250,7 @@ def test_status_no_sessionId(client, case):
     if client.ids.apiversion < '1.5.0':
         pytest.skip("IDS %s is too old, need 1.5.0 or newer" 
                     % client.ids.apiversion)
-    query = Query(client, "Dataset", conditions={
-        "name": "= '%s'" % case['dsname'],
-        "investigation.name": "= '%s'" % case['invname'],
-    })
-    selection = DataSelection(client.assertedSearch(query))
+    selection = DataSelection([getDataset(client, case)])
     with tmpSessionId(client, None):
         status = client.ids.getStatus(selection)
     print("Status of dataset %s: %s" % (case['dsname'], status))
@@ -217,11 +263,7 @@ def test_getDatafileIds(client, case):
     if client.ids.apiversion < '1.5.0':
         pytest.skip("IDS %s is too old, need 1.5.0 or newer" 
                     % client.ids.apiversion)
-    query = Query(client, "Dataset", conditions={
-        "name": "= '%s'" % case['dsname'],
-        "investigation.name": "= '%s'" % case['invname'],
-    })
-    ds = client.assertedSearch(query)[0]
+    ds = getDataset(client, case)
     selection = DataSelection([ds])
     dfids = client.ids.getDatafileIds(selection)
     print("Datafile ids of dataset %s: %s" % (case['dsname'], str(dfids)))
@@ -233,11 +275,7 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
     Issue #10.
     """
     case = testdatafiles[0]
-    query = Query(client, "Dataset", conditions={
-        "name": "= '%s'" % case['dsname'], 
-        "investigation.name": "= '%s'" % case['invname'], 
-    })
-    dataset = client.assertedSearch(query)[0]
+    dataset = getDataset(client, case)
     datafileformat = client.assertedSearch("DatafileFormat [name='raw']")[0]
     tzinfo = UtcTimezone() if UtcTimezone else None
     createTime = datetime.datetime(2008, 6, 18, 9, 31, 11, tzinfo=tzinfo)
@@ -247,12 +285,7 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
                           dataset=dataset, datafileFormat=datafileformat)
     datafile.datafileCreateTime = createTime
     client.putData(f.fname, datafile)
-    query = Query(client, "Datafile", conditions={
-        "name": "= '%s'" % dfname,
-        "dataset.name": "= '%s'" % case['dsname'],
-        "dataset.investigation.name": "= '%s'" % case['invname'],
-    })
-    df = client.assertedSearch(query)[0]
+    df = getDatafile(client, case, dfname)
     assert df.datafileCreateTime is not None
     # The handling of date value in original Suds is buggy, so we
     # cannot expect to be able to reliably compare date values.  If
@@ -268,12 +301,7 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
                           dataset=dataset, datafileFormat=datafileformat)
     datafile.datafileCreateTime = createTime.isoformat()
     client.putData(f.fname, datafile)
-    query = Query(client, "Datafile", conditions={
-        "name": "= '%s'" % dfname,
-        "dataset.name": "= '%s'" % case['dsname'],
-        "dataset.investigation.name": "= '%s'" % case['invname'],
-    })
-    df = client.assertedSearch(query)[0]
+    df = getDatafile(client, case, dfname)
     assert df.datafileCreateTime is not None
     if tzinfo is not None:
         assert df.datafileCreateTime == createTime
@@ -284,11 +312,7 @@ def test_archive(client, case):
     """
     if not client.ids.isTwoLevel():
         pytest.skip("This IDS does not use two levels of data storage")
-    query = Query(client, "Dataset", conditions={
-        "name": "= '%s'" % case['dsname'],
-        "investigation.name": "= '%s'" % case['invname'],
-    })
-    selection = DataSelection(client.assertedSearch(query))
+    selection = DataSelection([getDataset(client, case)])
     status = client.ids.getStatus(selection)
     print("Status of dataset %s is %s" % (case['dsname'], status))
     print("Request archive of dataset %s" % (case['dsname']))
@@ -306,11 +330,7 @@ def test_restore(client, case):
     """
     if not client.ids.isTwoLevel():
         pytest.skip("This IDS does not use two levels of data storage")
-    query = Query(client, "Dataset", conditions={
-        "name": "= '%s'" % case['dsname'],
-        "investigation.name": "= '%s'" % case['invname'],
-    })
-    selection = DataSelection(client.assertedSearch(query))
+    selection = DataSelection([getDataset(client, case)])
     status = client.ids.getStatus(selection)
     print("Status of dataset %s is %s" % (case['dsname'], status))
     print("Request restore of dataset %s" % (case['dsname']))
@@ -319,4 +339,24 @@ def test_restore(client, case):
     # Do not assert status == "RESTORING" because same remark as for
     # archive() applies: there is no guarantee whatsoever on the
     # outcome of the restore() call.
+    print("Status of dataset %s is now %s" % (case['dsname'], status))
+
+@pytest.mark.parametrize(("case"), markeddatasets)
+def test_reset(client, case):
+    """Call reset() on a dataset.
+
+    Note that we just test if we can make the call without an error.
+    We do not test whether the call has any effect.  This call resets
+    the internal state of the data after an error in ids.server.  This
+    is out of scope of testing the client.
+    """
+    if client.ids.apiversion < '1.6.0':
+        pytest.skip("IDS %s is too old, need 1.6.0 or newer" 
+                    % client.ids.apiversion)
+    if not client.ids.isTwoLevel():
+        pytest.skip("This IDS does not use two levels of data storage")
+    selection = DataSelection([getDataset(client, case)])
+    print("Request reset of dataset %s" % (case['dsname']))
+    client.ids.reset(selection)
+    status = client.ids.getStatus(selection)
     print("Status of dataset %s is now %s" % (case['dsname'], status))

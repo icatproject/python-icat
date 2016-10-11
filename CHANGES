@@ -1,7 +1,43 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version ? (not yet released)
+* Version 0.12.0 (2010-10-10)
+
+** New features
+
+ + Verify support for ICAT 4.8.0 and IDS 1.7.0.
+
+ + Add IDSClient methods reset() and resetPrepared().
+
+ + Issue #28: Add support for searching for attributes in class Query.
+
+** Bug fixes and minor changes
+
+ + Sort objects in icatdump.py before writing them to the dump file.
+   This keeps the order independent from the collation used in the
+   ICAT database backend.
+
+ + Issue #2: for Python 3.6 (expected to be released in Dec 2016) and
+   newer, use the support for chunked transfer encoding in the standard
+   lib.  Keep our own implementation in module icat.chunkedhttp only
+   for compatibility with older Python versions.
+
+ + Improved the example script wipeicat.py.
+
+ + Add an example script dumprules.py.
+
+ + Add missing schema definition for the ICAT XML data file format for
+   ICAT 4.7.
+
+ + Fix an AttributeError during error handling.
+
+* Version 0.11.0 (2016-06-01)
+
+** New features
+
+ + Issues #12 and #23: add support for ICAT 4.7.0 and IDS 1.6.0.  ICAT
+   4.7.0 had some small schema changes that have been taken into
+   account.
 
 ** Incompatible changes
 
@@ -15,13 +51,27 @@
 
  + Issue #18: Documentation: missing stuff in the module index.
 
- + Issue #20: Add test on compatibility with icat.server.
+ + Issue #20: add test on compatibility with icat.server.
+
+ + Issues #24 and #25: test failures caused by different timezone
+   settings of the test server.
+
+ + Use a separate module distutils_pytest for "setup.py test".
+
+ + icat.icatcheck: move checking of exceptions into a separate method
+   checkExceptions().  Do not report exceptions defined in the client,
+   but not found in the schema.
+
+ + Many fixes in the example script wipeicat.py.
 
  + Fix a missing import in the icatexport.py example script.
 
- + icat.icatcheck: Move checking of exceptions into a separate method
-   checkExceptions().  Do not report exceptions defined in the client,
-   but not found in the schema.
+ + Somewhat clearer error messages for some special cases of
+   SearchAssertionError.
+
+** Misc
+
+ + Change license to Apache 2.0.
 
 * Version 0.10.0 (2015-12-06)
 

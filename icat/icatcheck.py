@@ -1,8 +1,9 @@
 """Check the compatibility of the client with the ICAT server.
 
-**Note**: This module provides tests to check the compatibility of the
-client with the WSDL description got from the ICAT server.  It is
-mainly useful for the package maintainer.
+.. note::
+   This module provides tests to check the compatibility of the client
+   with the WSDL description got from the ICAT server.  It is mainly
+   useful for the package maintainer.
 """
 
 import re

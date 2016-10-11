@@ -12,6 +12,7 @@ import subprocess
 import shutil
 import tempfile
 import logging
+from distutils.version import StrictVersion as Version
 import pytest
 import icat
 import icat.config
@@ -67,25 +68,6 @@ class DummyDatafile(object):
         else:
             self.mtime = None
 
-class tmpSessionId:
-    """Temporarily switch to another sessionId in an ICAT client.
-    """
-    def __init__(self, client, sessionId):
-        self.client = client
-        self.saveSessionId = client.sessionId
-        self.sessionId = sessionId
-    def __enter__(self):
-        self.client.sessionId = self.sessionId
-        return self.client
-    def __exit__(self, type, value, tb):
-        self.client.sessionId = self.saveSessionId
-
-
-def gettestdata(fname):
-    fname = os.path.join(testdir, "data", fname)
-    assert os.path.isfile(fname)
-    return fname
-
 
 def getConfig(confSection="root", **confArgs):
     """Get the configuration, skip on ConfigError.
@@ -102,6 +84,38 @@ def getConfig(confSection="root", **confArgs):
         pytest.skip(err.message)
 
 
+class tmpSessionId:
+    """Temporarily switch to another sessionId in an ICAT client.
+    """
+    def __init__(self, client, sessionId):
+        self.client = client
+        self.saveSessionId = client.sessionId
+        self.sessionId = sessionId
+    def __enter__(self):
+        self.client.sessionId = self.sessionId
+        return self.client
+    def __exit__(self, type, value, tb):
+        self.client.sessionId = self.saveSessionId
+
+class tmpClient:
+    """A temporary client using an own configuration,
+    such as login as another user.
+    """
+    def __init__(self, **confArgs):
+        (self.client, self.conf) = getConfig(**confArgs)
+    def __enter__(self):
+        self.client.login(self.conf.auth, self.conf.credentials)
+        return self.client
+    def __exit__(self, type, value, tb):
+        self.client.logout()
+
+
+def gettestdata(fname):
+    fname = os.path.join(testdir, "data", fname)
+    assert os.path.isfile(fname)
+    return fname
+
+
 def get_icat_version():
     client, _ = getConfig(needlogin=False)
     return client.apiversion
@@ -112,7 +126,7 @@ def get_icat_version():
 try:
     icat_version = get_icat_version()
 except:
-    icat_version = "0"
+    icat_version = Version("0.0")
 
 def require_icat_version(minversion, reason):
     if icat_version < minversion:
@@ -281,5 +295,10 @@ def pytest_report_header(config):
     """Add information on the icat package used in the tests.
     """
     modpath = os.path.dirname(os.path.abspath(icat.__file__))
+    if icat_version > "0.0":
+        server = icat_version
+    else:
+        server = "-"
     return [ "python-icat: %s (%s)" % (icat.__version__, icat.__revision__), 
-             "             %s" % (modpath) ]
+             "             %s" % (modpath),
+             "icat.server: %s" % server]

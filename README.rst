@@ -10,7 +10,8 @@ Download
 
 The latest release version and online documentation can be found at
 the home page of the package at
-http://icatproject.org/user-documentation/python-icat/
+
+    https://icatproject.org/user-documentation/python-icat/
 
 
 System requirements
@@ -67,9 +68,10 @@ not required to install or use python-icat itself:
 Installation
 ------------
 
-python-icat follows the standard Python conventions of packaging
-source distributions.  See the documentation on `Installing Python
-Modules`_ for details or to customize the install process.
+python-icat uses the distutils Python standard library package and
+follows its conventions of packaging source distributions.  See the
+documentation on `Installing Python Modules`_ for details or to
+customize the install process.
 
   1. Download the sources, unpack, and change into the source
      directory.
@@ -124,7 +126,7 @@ the reason why the example scripts require PyYAML.
 Building from development sources
 ---------------------------------
 
-For production use it is always recommended to use the latest release
+For production use, it is always recommended to use the latest release
 version from the home page, see above.  If you need some not yet
 released bleeding edge feature or if you want to participate in the
 development, you may also clone the `source repository from GitHub`__.
@@ -260,8 +262,8 @@ permissions and limitations under the License.
 
 .. _ICAT: http://www.icatproject.org/
 .. _Suds: https://fedorahosted.org/suds/
-.. _Suds jurko: https://bitbucket.org/jurko/suds/
-.. _argparse: https://code.google.com/p/argparse/
+.. _Suds jurko: https://bitbucket.org/jurko/suds
+.. _argparse: https://pypi.python.org/pypi/argparse/
 .. _PyYAML: http://pyyaml.org/wiki/PyYAML
 .. _lxml: http://lxml.de/
 .. _Requests: http://python-requests.org/
