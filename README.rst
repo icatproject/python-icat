@@ -145,7 +145,7 @@ Test
 There is no need to run the tests at all.  The test suite is mostly
 useful to the maintainer of python-icat.
 
-Mosts tests require a test ICAT server to talk to.  These tests are
+Most tests require a test ICAT server to talk to.  These tests are
 disabled by default, unless you configure such a test server.  To do
 so, place an icat.cfg file into tests/data.  This file must have at
 least the configuration sections "root", "useroffice", "acord",
@@ -165,6 +165,17 @@ will just get many skipped tests then.
 Bugs and limitations
 --------------------
 
+ + If supported by the ICAT server (icat.server 4.9.0 and newer), the
+   icat.config module queries the server for information on available
+   authenticators and the credential key they require for login.  The
+   configuration variables for these keys are then adapted
+   accordingly.  Therefore, the set of configuration variables depends
+   on the ICAT server and the available authentication plugins.  But
+   the help message displayed by the `--help` command line option is
+   static.  As a result, this help message is not always accurate.  It
+   may happen that different configuration variables are effective
+   then those shown by the help message.
+
  + For Python 2, the return value of the string representation
    operator of class Query may be a Unicode object if any of the
    conditions contains Unicode.  This violates the specification that
@@ -180,7 +191,7 @@ Bugs and limitations
    a domain component.  E.g. setting no_proxy=ion.example.org will not
    only exclude icat.ion.example.org, but also lion.example.org,
    although the latter is not in the ion.example.org domain.  IP
-   adresses are not supported in no_proxy.  This is a limitation in
+   addresses are not supported in no_proxy.  This is a limitation in
    the implementation of the underlying Python library.
 
  + There is a bug in the original version of Suds: the way it deals
@@ -207,7 +218,7 @@ Bugs and limitations
    not contain time zone information to be UTC.
 
    Note that the bug is fixed in the fork by Jurko Gospodnetić which
-   is recommendated anyway.
+   is recommended anyway.
 
  + With Python 3.1, icatdump.py emits a spurious error message like ::
 
