@@ -411,7 +411,11 @@ class Client(suds.client.Client):
         except suds.WebFault as e:
             raise translateError(e)
         except suds.MethodNotFound as e:
-            raise VersionMethodError("getAuthenticatorInfo")
+            if self.apiversion < '4.9':
+                raise VersionMethodError("getAuthenticatorInfo", 
+                                         self.apiversion)
+            else:
+                raise
 
     def getEntityInfo(self, beanName):
         if self.entityInfoCache and beanName in self.entityInfoCache:
