@@ -860,3 +860,32 @@ def test_config_authinfo_strange(fakeClient, monkeypatch, tmpconfigfile):
     assert conf.promptPass == False
     assert conf.cred_secret == "geheim"
     assert conf.credentials == {'secret': 'geheim'}
+
+
+def test_config_authinfo_no_authinfo(fakeClient, monkeypatch, tmpconfigfile):
+    """
+    Talk to an old server that does not support getAuthenticatorInfo.
+    """
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_root"]
+    config = icat.config.Config(args=args)
+    client, conf = config.getconfig()
+
+    with pytest.raises(icat.exception.VersionMethodError) as err:
+        authInfo = client.getAuthenticatorInfo()
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'checkCert', 'configDir', 'configFile', 
+                      'configSection', 'credentials', 'http_proxy', 
+                      'https_proxy', 'no_proxy', 'password', 'promptPass', 
+                      'url', 'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_root"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "simple"
+    assert conf.username == "root"
+    assert conf.password == "secret"
+    assert conf.promptPass == False
+    assert conf.credentials == {'username': 'root', 'password': 'secret'}
