@@ -33,10 +33,9 @@ class AuthenticatorInfo(Sequence):
             if auth and info.mnemonic != auth:
                 continue
             found = True
-            if info.description:
-                for k in info.description.keys:
-                    if hide is None or getattr(k, "hide", False) == hide:
-                        keys.add(k.name)
+            for k in getattr(info, "keys", []):
+                if hide is None or getattr(k, "hide", False) == hide:
+                    keys.add(k.name)
         if auth and not found:
             raise KeyError("No such authenticator '%s'." % auth)
         return keys

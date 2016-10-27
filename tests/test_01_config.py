@@ -732,10 +732,10 @@ def test_config_authinfo_simple(fakeClient, monkeypatch, tmpconfigfile):
     passkey = Namespace(name='password', hide=True)
     authInfo = [
         Namespace(mnemonic="simple", admin=True, 
-                  description=Namespace(keys=[userkey, passkey])),
+                  keys=[userkey, passkey]),
         Namespace(mnemonic="db", 
-                  description=Namespace(keys=[userkey, passkey])),
-        Namespace(mnemonic="anon", description=""),
+                  keys=[userkey, passkey]),
+        Namespace(mnemonic="anon"),
     ]
     monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
 
@@ -771,10 +771,10 @@ def test_config_authinfo_anon(fakeClient, monkeypatch, tmpconfigfile):
     passkey = Namespace(name='password', hide=True)
     authInfo = [
         Namespace(mnemonic="simple", admin=True, 
-                  description=Namespace(keys=[userkey, passkey])),
+                  keys=[userkey, passkey]),
         Namespace(mnemonic="db", 
-                  description=Namespace(keys=[userkey, passkey])),
-        Namespace(mnemonic="anon", description=""),
+                  keys=[userkey, passkey]),
+        Namespace(mnemonic="anon"),
     ]
     monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
 
@@ -804,7 +804,7 @@ def test_config_authinfo_anon_only(fakeClient, monkeypatch, tmpconfigfile):
     """
 
     authInfo = [
-        Namespace(mnemonic="anon", description=""),
+        Namespace(mnemonic="anon"),
     ]
     monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
 
@@ -836,7 +836,7 @@ def test_config_authinfo_strange(fakeClient, monkeypatch, tmpconfigfile):
     secretkey = Namespace(name='secret', hide=True)
     authInfo = [
         Namespace(mnemonic="quirks", 
-                  description=Namespace(keys=[secretkey])),
+                  keys=[secretkey]),
     ]
     monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
 
