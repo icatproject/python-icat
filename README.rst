@@ -167,14 +167,15 @@ Bugs and limitations
 
  + If supported by the ICAT server (icat.server 4.9.0 and newer), the
    icat.config module queries the server for information on available
-   authenticators and the credential key they require for login.  The
+   authenticators and the credential keys they require for login.  The
    configuration variables for these keys are then adapted
    accordingly.  Therefore, the set of configuration variables depends
    on the ICAT server and the available authentication plugins.  But
    the help message displayed by the `--help` command line option is
-   static.  As a result, this help message is not always accurate.  It
-   may happen that different configuration variables are effective
-   then those shown by the help message.
+   static.  As a result, this help message is not always accurate.
+   When connecting to a specific ICAT service, it may happen that
+   different configuration variables and thus command line arguments
+   are effective then those shown by the generic help message.
 
  + For Python 2, the return value of the string representation
    operator of class Query may be a Unicode object if any of the
