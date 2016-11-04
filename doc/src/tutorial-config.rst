@@ -55,18 +55,17 @@ program now accepts::
 
 So there is a command line option ``-w URL``.  Let's try::
 
-  $ python hello3.py -w 'https://icat.example.com:8181/ICATService/ICAT?wsdl' --no-check-certificate
+  $ python hello3.py -w 'https://icat.example.com:8181/ICATService/ICAT?wsdl'
   Connect to https://icat.example.com:8181/ICATService/ICAT?wsdl
   ICAT version 4.7
 
-(Again, the ``--no-check-certificate`` flag is only needed if your
-ICAT server does not have a trusted SSL certificate and if you are
-using Python 2.7.9 or newer.)  This does the job.  But as mentioned
-above, it's not very convenient having to indicate the URL each time
-you run the program.  But in the command line arguments, there is also
-a mention of a configuration file.  Create a text file named
-``icat.cfg`` in the current working directory with the following
-content::
+(Again, you may need to add the ``--no-check-certificate`` flag to the
+command line if your ICAT server does not have a trusted SSL
+certificate.)  This does the job.  But as mentioned above, it's not
+very convenient having to indicate the URL each time you run the
+program.  But in the command line arguments, there is also a mention
+of a configuration file.  Create a text file named ``icat.cfg`` in the
+current working directory with the following content::
 
   [myicat]
   url = https://icat.example.com:8181/ICATService/ICAT?wsdl

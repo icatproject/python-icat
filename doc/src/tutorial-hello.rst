@@ -11,7 +11,7 @@ it and get its version.  We'll combine both in a simple program::
   import icat.client
   
   url = "https://icat.example.com:8181/ICATService/ICAT?wsdl"
-  client = icat.client.Client(url, checkCert=False)
+  client = icat.client.Client(url)
   print("Connect to %s\nICAT version %s" % (url, client.apiversion))
 
 If you run this script, you should get something like the following as
@@ -27,13 +27,31 @@ version and stores the result to the attribute :attr:`apiversion` of
 the client object.  Obviously, you'll need to change the variable
 `url` in this example to point to your ICAT server.
 
-The ``checkCert=False`` flag in the constructor call to
-:class:`icat.client.Client` is only needed if your ICAT server does
-not have a trusted SSL certificate and if you are using Python 2.7.9
-or newer.  The future statement at the beginning of the example is
-only needed to compile `print` as a built-in function rather then a
-statement.  We'll use it throughout the tutorial to ensure that the
-examples will work with Python 2 as well as with Python 3.
+If your ICAT server does not have a trusted SSL certificate you may
+get (depending on your Python version) an error instead::
+
+  $ python hello.py
+  Traceback (most recent call last):
+    ...
+  urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:548)>
+
+In this case, you may either install a trusted certificate in your
+server now or modify your hello program and add a flag
+``checkCert=False`` to the constructor call like this::
+
+  #! /usr/bin/python
+
+  from __future__ import print_function
+  import icat.client
+  
+  url = "https://icat.example.com:8181/ICATService/ICAT?wsdl"
+  client = icat.client.Client(url, checkCert=False)
+  print("Connect to %s\nICAT version %s" % (url, client.apiversion))
+
+The future statement at the beginning of the example is only needed to
+compile `print` as a built-in function rather then a statement.  We'll
+use it throughout the tutorial to ensure that the examples will work
+with Python 2 as well as with Python 3.
 
 The class :class:`icat.client.Client` plays the central role in
 python-icat programs.  Most of your code will deal with objects of
@@ -46,6 +64,6 @@ this class.  For this reason, the class is imported by default in the
   import icat
   
   url = "https://icat.example.com:8181/ICATService/ICAT?wsdl"
-  client = icat.Client(url, checkCert=False)
+  client = icat.Client(url)
   print("Connect to %s\nICAT version %s" % (url, client.apiversion))
 
