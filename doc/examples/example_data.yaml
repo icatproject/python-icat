@@ -497,20 +497,20 @@ studies:
 users:
   acord:
     fullName: Aelius Cordus
-    name: acord
+    name: db/acord
   ahau:
     fullName: Arnold Hau
-    name: ahau
+    name: db/ahau
   jbotu:
     fullName: Jean-Baptiste Botul
-    name: jbotu
+    name: db/jbotu
   jdoe:
     fullName: John Doe
-    name: jdoe
+    name: db/jdoe
   nbour:
     fullName: Nicolas Bourbaki
-    name: nbour
+    name: db/nbour
   rbeck:
     fullName: Rudolph Beck-Dülmen
-    name: rbeck
+    name: db/rbeck
 

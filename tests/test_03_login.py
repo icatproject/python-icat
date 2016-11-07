@@ -21,7 +21,7 @@ def test_login(user):
     assert sessionId
     assert sessionId == client.sessionId
     username = client.getUserName()
-    assert username == user
+    assert username == "%s/%s" % (conf.auth, user)
     print("\nLogged in as %s to %s." % (user, conf.url))
     client.logout()
     assert client.sessionId is None
