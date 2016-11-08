@@ -207,3 +207,109 @@ As expected, we get a list of two ``ParameterType`` objects as result,
 one of them related to a couple of ``PermissibleStringValue`` objects
 that have been created at the same time as the related
 ``ParameterType`` object.
+
+Access rules
+------------
+
+Until now, we connected the ICAT server as the ``root`` user.  Let's
+try what happens if we choose another user::
+
+  $ python -i login.py -s myicat_jdoe
+  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  User: db/jdoe
+  >>> client.search("SELECT pt FROM ParameterType pt INCLUDE pt.facility")
+  []
+
+We can't get any of the objects created above from ICAT.  The reason
+is that we don't have the permission to access these objects.  ICAT
+has a default deny access policy: only the ``root`` user has read and
+write access to everything, all other users get only access, if there
+is a rule that explicitely allows it.
+
+Let's add some rules to allow public read access to some object
+types.  Connect again as ``root`` and enter::
+
+  $ python -i login.py -s myicat_root
+  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  User: simple/root
+  >>> publicTables = [ "Application", "DatafileFormat", "DatasetType", 
+  ...                  "Facility", "FacilityCycle", "Instrument", 
+  ...                  "InvestigationType", "ParameterType", 
+  ...                  "PermissibleStringValue", "SampleType", ]
+  >>> queries = [ "SELECT o FROM %s o" % t for t in publicTables ]
+  >>> client.createRules("R", queries)
+  [1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L]
+
+The :meth:`~icat.client.Client.createRules` takes an access mode and a
+list of search queries (and optionally a group) as arguments.  It will
+add rules the allow access to all objects that are yield by a search
+for any of the queries.  The access mode is ``"R"`` for read access in
+this example.  :meth:`~icat.client.Client.createRules` is a
+convenience method in python-icat roughly equivalent to::
+
+  >>> rules = []
+  >>> for w in queries:
+  ...     r = client.new("rule", crudFlags="R", what=w)
+  ...     rules.append(r)
+  ... 
+  >>> client.createMany(rules)
+
+If we now try again to search for the objects as normal user, we get::
+
+  $ python -i login.py -s myicat_jdoe
+  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  User: db/jdoe
+  >>> client.search("SELECT pt FROM ParameterType pt INCLUDE pt.facility")
+  [(parameterType){
+     createId = "simple/root"
+     createTime = 2016-11-07 15:50:44+00:00
+     id = 1
+     modId = "simple/root"
+     modTime = 2016-11-07 15:50:44+00:00
+     applicableToDataCollection = False
+     applicableToDatafile = False
+     applicableToDataset = False
+     applicableToInvestigation = False
+     applicableToSample = False
+     enforced = False
+     facility = 
+	(facility){
+	   createId = "simple/root"
+	   createTime = 2016-11-07 14:34:08+00:00
+	   id = 1
+	   modId = "simple/root"
+	   modTime = 2016-11-07 14:34:08+00:00
+	   fullName = "Facility 1"
+	   name = "Test1"
+	}
+     name = "Test parameter type 1"
+     units = "pct"
+     valueType = "NUMERIC"
+     verified = False
+   }, (parameterType){
+     createId = "simple/root"
+     createTime = 2016-11-07 16:00:21+00:00
+     id = 2
+     modId = "simple/root"
+     modTime = 2016-11-07 16:00:21+00:00
+     applicableToDataCollection = False
+     applicableToDatafile = False
+     applicableToDataset = False
+     applicableToInvestigation = False
+     applicableToSample = False
+     enforced = False
+     facility = 
+	(facility){
+	   createId = "simple/root"
+	   createTime = 2016-11-07 14:34:08+00:00
+	   id = 1
+	   modId = "simple/root"
+	   modTime = 2016-11-07 14:34:08+00:00
+	   fullName = "Facility 1"
+	   name = "Test1"
+	}
+     name = "Test parameter type 2"
+     units = "N/A"
+     valueType = "STRING"
+     verified = False
+   }]
