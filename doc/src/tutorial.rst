@@ -18,4 +18,5 @@ following sections:
 
    tutorial-hello
    tutorial-config
+   tutorial-create
 
