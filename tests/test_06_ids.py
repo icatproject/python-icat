@@ -172,8 +172,8 @@ def test_upload(tmpdirsec, client, case):
         assert df.checksum == f.crc32
         if f.mtime:
             assert df.datafileModTime == f.mtime
-        assert df.createId == case['uluser']
-        assert df.modId == case['uluser']
+        assert df.createId == "%s/%s" % (conf.auth, case['uluser'])
+        assert df.modId == "%s/%s" % (conf.auth, case['uluser'])
         case['testfile'] = f
 
 @pytest.fixture(scope='function', params=["getData", "getPreparedData"])
