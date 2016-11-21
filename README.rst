@@ -143,7 +143,7 @@ Test
 There is no need to run the tests at all.  The test suite is mostly
 useful to the maintainer of python-icat.
 
-Mosts tests require a test ICAT server to talk to.  These tests are
+Most tests require a test ICAT server to talk to.  These tests are
 disabled by default, unless you configure such a test server.  To do
 so, place an icat.cfg file into tests/data.  This file must have at
 least the configuration sections "root", "useroffice", "acord",
@@ -178,8 +178,8 @@ Bugs and limitations
   domain component.  E.g. setting no_proxy=ion.example.org will not
   only exclude icat.ion.example.org, but also lion.example.org,
   although the latter is not in the ion.example.org domain.  IP
-  adresses are not supported in no_proxy.  This is a limitation in the
-  implementation of the underlying Python library.
+  addresses are not supported in no_proxy.  This is a limitation in
+  the implementation of the underlying Python library.
 
 + There is a bug in the original version of Suds: the way it deals
   with datetime values is broken.  Suds converts all incoming datetime
@@ -205,7 +205,7 @@ Bugs and limitations
   not contain time zone information to be UTC.
 
   Note that the bug is fixed in the fork by Jurko Gospodnetić which is
-  recommendated anyway.
+  recommended anyway.
 
 + With Python 3.1, icatdump.py emits a spurious error message like ::
 
