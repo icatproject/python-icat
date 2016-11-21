@@ -161,7 +161,7 @@ def test_add_study(data, user, studyname):
     studydata = data['studies'][studyname]
     study = client.new("study")
     initobj(study, studydata)
-    query = "User [name='%s']" % studydata['user']
+    query = "User [name='%s']" % data['users'][studydata['user']]['name']
     study.user = client.assertedSearch(query)[0]
     for invname in studydata['investigations']:
         query = "Investigation [name='%s']" % invname

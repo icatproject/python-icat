@@ -109,7 +109,7 @@ else:
 # permissions to continue this script further on.  With ICAT 4.4 and
 # newer this is not needed, as the root user already has CRUD
 # permission on everything built in.
-root = client.createUser("root", fullName="Root")
+root = client.createUser("simple/root", fullName="Root")
 if client.apiversion < '4.3.99':
     rootgroup = client.createGroup("root", [ root ])
     client.createRules("CRUD", alltables, rootgroup)
@@ -128,7 +128,7 @@ client.createRules("R", ["Study <-> User [name=:user]"])
 # user needs at least permission to read all datasets, datafiles,
 # investigations and facilities.  But well, then we can make live
 # simple by giving him read all permissions.
-idsreader = client.createUser("idsreader", fullName="IDS reader")
+idsreader = client.createUser("simple/idsreader", fullName="IDS reader")
 rallgroup = client.createGroup("rall", [ idsreader ])
 client.createRules("R", alltables - pubtables - {"Log"}, rallgroup)
 
@@ -136,7 +136,7 @@ client.createRules("R", alltables - pubtables - {"Log"}, rallgroup)
 # Investigations and to setup access permissions for them.  Note that
 # this requires the useroffice to have write permission to authz
 # tables which basically gives useroffice root power.
-useroffice = client.createUser("useroffice", fullName="User Office")
+useroffice = client.createUser("simple/useroffice", fullName="User Office")
 uogroup = client.createGroup("useroffice", [ useroffice ])
 client.createRules("CRUD", uotables, uogroup)
 

@@ -1,14 +1,14 @@
 """Stress the IDS Tidier.
 
-If the uploads are large enough, one upload will trigger automatical
-archiving of former uploads.  This tests are mainly useful to test the
-IDS server, in particular the Tidier, rather then to test the client.
-That is why they are disabled by default.  Consequently, there are no
-assert statements to test success.  The relevant outcome of the test
-can only be verified checking the server logs.
+If the uploads are large enough, one upload will trigger automatic
+archiving of former uploads.  These tests are mainly useful to test
+the IDS server, in particular the Tidier, rather then to test the
+client.  That is why they are disabled by default.  Consequently,
+there are no assert statements to test success.  The relevant outcome
+of the test can only be verified checking the server logs.
 
-The size of the test data has been adjusted such the effect is visible
-for an IDS server having
+The size of the test data has been adjusted such that the effect is
+best visible for an IDS server having
 
   startArchivingLevel1024bytes = 250000 (= 244.14 MiB) and 
   stopArchivingLevel1024bytes =  200000 (= 195.31 MiB)
