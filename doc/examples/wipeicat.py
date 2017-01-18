@@ -6,32 +6,48 @@
 # below for the issues that need to be taken into account.
 #
 # This script uses the JPQL syntax for searching in the ICAT.  It thus
-# requires ICAT version 4.3.0 or greater.
+# requires icat.server version 4.3.0 or greater.
+#
+# The recommended version of ids.server is 1.6.0 or greater.  The
+# script does not take any particular measure to work around issues
+# in ids.server older than that.  In particular, the script mail fail
+# or leave rubbish behind in to the following situations:
+# - ids.server is older then 1.6.0 and there is any dataset with many
+#   datafiles, Issue icatproject/ids.server#42.
+# - ids.server is older then 1.3.0 and restoring of any dataset takes a
+#   significant amount of time, Issue icatproject/ids.server#14.
 #
 
 import time
 import logging
+from warnings import warn
 import icat
 from icat.ids import DataSelection
 import icat.config
 from icat.query import Query
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config(ids="optional")
 conf = config.getconfig()
 
 client = icat.Client(conf.url, **conf.client_kwargs)
+if client.apiversion < '4.3.0':
+    raise RuntimeError("Sorry, icat.server version %s is too old, "
+                       "need 4.3.0 or newer." % client.apiversion)
+if client.ids and client.ids.apiversion < '1.6.0':
+    warn("ids.server %s is older then the recommended minimal version 1.6.0."
+         % client.ids.apiversion)
 client.login(conf.auth, conf.credentials)
 
-# Limit of the number of objects to be searched at a time.
-searchlimit = 200
+# Limit of the number of objects to be dealt with at a time.
+objlimit = 200
 
-def deletetype(t):
-    """Delete all objects of some type t.
+
+def deleteobjs(query):
+    """Delete all objects of matching the query.
     """
-    query = Query(client, t, limit=(0, searchlimit))
+    query.setLimit( (0, objlimit) )
     while True:
         objs = client.search(query)
         if not objs:
@@ -45,77 +61,58 @@ def deletetype(t):
         except icat.ICATInternalError:
             pass
 
-def waitOpsQueue():
-    """Wait for the opsQueue in the service status to drain.
-    """
-    while True:
-        status = client.ids.getServiceStatus()
-        if len(status['opsQueue']) == 0:
-            break
-        time.sleep(30)
 
-
-# First step, delete all Datafiles from IDS.
+# First step, delete all Datafiles.
 # 
 # This is somewhat tricky: if the Datafile has been created with IDS
 # by a file upload then we MUST delete it with IDS, otherwise it would
 # leave an orphan file in the storage.  If the Datafile has been
-# created in the ICAT client without IDS, we cannot delete it with
+# created directly in the ICAT without IDS, we cannot delete it with
 # IDS, because IDS will not find the actual file and will throw a
 # server error.  But there is no reliable way to tell the one from the
 # other.  As a rule, we will assume that the file has been created
-# with IDS if the location attribute is set.  Furthermore, we must
-# restore the datasets first, because IDS can only delete datafiles
-# that are online.  But restoring one dataset may cause another one to
-# get archived if free main storage is low.  So we might need several
-# sweeps to get everything deleted.  In each sweep, we delete
-# everything that is currently online in a first step and file a
-# restore request for all the rest in a second step.
-def getDfSelections(status=None):
-    """Yield selections of Datafiles.
-    """
-    skip = 0
-    while True:
-        query = Query(client, "Datafile", 
-                      conditions={"location": "IS NOT NULL"}, 
-                      limit=(skip, searchlimit))
-        datafiles = client.search(query)
-        skip += searchlimit
-        if not datafiles:
-            break
-        selection = DataSelection()
-        # It is certainly not very efficient to query the status of
-        # every single Datafile individually rather then that of
-        # entire Datasets.  But querying the status of a Dataset may
-        # fail if it has many Datafiles, see
-        # https://github.com/icatproject/ids.server/issues/42
-        for df in datafiles:
-            if (status and 
-                client.ids.getStatus(DataSelection([df])) != status):
-                continue
-            selection.extend([df])
-        if selection:
-            yield selection
+# with IDS if the location attribute is set.
 
+# Delete all datafiles having location not set directly from ICAT
+# first, because they would cause trouble when we try to delete the
+# remaining datafiles from IDS, see Issue icatproject/ids.server#63.
+deleteobjs(Query(client, "Datafile", conditions={"location": "IS NULL"}))
+
+# To delete datafiles from IDS, we must restore the datasets first,
+# because IDS can only delete datafiles that are online.  But
+# restoring one dataset may cause another one to get archived if free
+# main storage is low.  So we might need several sweeps to get
+# everything deleted.  In each sweep, we delete everything that is
+# currently online in a first step and file a restore request for some
+# remaining datasets in a second step.
 if client.ids:
+    dfquery = Query(client, "Datafile", 
+                    conditions={"location": "IS NOT NULL"}, limit=(0, 1))
     while True:
-        # Wait for the server to process all pending requests.  This
-        # may be needed to avoid race conditions, see
-        # https://github.com/icatproject/ids.server/issues/14
-        # The problem has been fixed in IDS 1.3.0.
-        if client.ids.apiversion < '1.3.0':
-            waitOpsQueue()
-        # First step: delete everything that is currently online.
-        for selection in getDfSelections("ONLINE"):
-            client.deleteData(selection)
-        # Second step: request a restore of all remaining datasets.
-        for selection in getDfSelections("ARCHIVED"):
-            client.ids.restore(selection)
+        deleteDatasets = []
+        restoreDatasets = []
+        for ds in client.searchChunked("Dataset", chunksize=objlimit):
+            status = client.ids.getStatus(DataSelection([ds]))
+            if status == "ONLINE":
+                deleteDatasets.append(ds)
+                if len(deleteDatasets) >= objlimit:
+                    client.deleteData(deleteDatasets)
+                    client.deleteMany(deleteDatasets)
+                    deleteDatasets = []
+            elif status == "ARCHIVED":
+                if len(restoreDatasets) < objlimit:
+                    restoreDatasets.append(ds)
+        if len(deleteDatasets) > 0:
+            client.deleteData(deleteDatasets)
+            client.deleteMany(deleteDatasets)
+        if len(restoreDatasets) > 0:
+            client.ids.restore(DataSelection(restoreDatasets))
+        # This whole loop may take a significant amount of time, make
+        # sure our session does not time out.
+        client.refresh()
         # If any Datafile is left we need to continue the loop.
-        query = Query(client, "Datafile", 
-                      conditions={"location": "IS NOT NULL"}, limit=(0, 1))
-        if client.search(query):
-            time.sleep(30)
+        if client.search(dfquery):
+            time.sleep(60)
         else:
             break
 
@@ -130,7 +127,7 @@ if client.ids:
 # little, deleting all Investigations individually first.  This
 # already removes a major part of all content.  Then we delete the
 # Facilities which removes most of the rest by cascading.  Finally we
-# got for all the remaining bits, not related to a facility, such as
+# go for all the remaining bits, not related to a facility, such as
 # DataCollection and Study.
 #
 # But we must take care not to delete the authz tables now, because
@@ -144,9 +141,9 @@ authztables = [ "Grouping", "Rule", "User", "UserGroup", ]
 alltables = client.getEntityNames()
 tables = ["Investigation", "Facility"] + list(set(alltables) - set(authztables))
 for t in tables:
-    deletetype(t)
+    deleteobjs(Query(client, t))
 
 
 # Last step, delete the authztables.
 for t in authztables:
-    deletetype(t)
+    deleteobjs(Query(client, t))
