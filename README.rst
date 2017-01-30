@@ -56,6 +56,10 @@ not required to install or use python-icat itself:
 
   Only if you want to run the tests.
 
++ `pytest-dependency`_
+
+  Only if you want to run the tests.
+
 + `distutils-pytest`_
 
   Only if you want to run the tests.
@@ -266,6 +270,7 @@ permissions and limitations under the License.
 .. _lxml: http://lxml.de/
 .. _Requests: http://python-requests.org/
 .. _pytest: http://pytest.org/
+.. _pytest-dependency: https://pypi.python.org/pypi/pytest_dependency/
 .. _distutils-pytest: https://pythonhosted.org/distutils-pytest/
 .. _Installing Python Modules: https://docs.python.org/2.7/install/
 .. _GitHub repository: https://github.com/icatproject/python-icat
