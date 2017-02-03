@@ -91,8 +91,13 @@ if client.ids:
     while True:
         deleteDatasets = []
         restoreDatasets = []
+        errorDatasets = []
         for ds in client.searchChunked("Dataset", chunksize=objlimit):
-            status = client.ids.getStatus(DataSelection([ds]))
+            try:
+                status = client.ids.getStatus(DataSelection([ds]))
+            except icat.IDSInternalError:
+                errorDatasets.append(ds)
+                continue
             if status == "ONLINE":
                 deleteDatasets.append(ds)
                 if len(deleteDatasets) >= objlimit:
@@ -107,6 +112,8 @@ if client.ids:
             client.deleteMany(deleteDatasets)
         if len(restoreDatasets) > 0:
             client.ids.restore(DataSelection(restoreDatasets))
+        if len(errorDatasets) > 0:
+            client.ids.reset(DataSelection(errorDatasets))
         # This whole loop may take a significant amount of time, make
         # sure our session does not time out.
         client.refresh()
