@@ -1,14 +1,19 @@
 """Common Gateway Interface support for ICAT.
 
 This module provides tools for writing CGI scripts acting as ICAT clients.
+
+.. deprecated:: 0.13
+   This module is deprecated and will be removed in version 1.0.
 """
 
+from warnings import warn
 from Cookie import SimpleCookie
 import os
 import re
 import icat.client
 from icat.exception import *
 
+warn("The module icat.cgi is deprecated.", DeprecationWarning, 2)
 
 class SessionCookie(SimpleCookie):
     """A cookie to store an ICAT session id.

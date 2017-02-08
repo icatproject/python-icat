@@ -1,130 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2016-09-22T10:15:04+00:00</date>
+  <date>2016-11-07T12:26:05+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
-  <apiversion>4.7</apiversion>
-  <generator>icatdump (python-icat 0.11.0)</generator>
+  <apiversion>4.8</apiversion>
+  <generator>icatdump (python-icat 0.12.0)</generator>
 </head>
 <data>
-  <user id="User_name-acord">
+  <user id="User_name-db=2Facord">
     <fullName>Aelius Cordus</fullName>
-    <name>acord</name>
+    <name>db/acord</name>
   </user>
-  <user id="User_name-ahau">
+  <user id="User_name-db=2Fahau">
     <fullName>Arnold Hau</fullName>
-    <name>ahau</name>
+    <name>db/ahau</name>
   </user>
-  <user id="User_name-idsreader">
-    <fullName>IDS reader</fullName>
-    <name>idsreader</name>
-  </user>
-  <user id="User_name-jbotu">
+  <user id="User_name-db=2Fjbotu">
     <fullName>Jean-Baptiste Botul</fullName>
-    <name>jbotu</name>
+    <name>db/jbotu</name>
   </user>
-  <user id="User_name-jdoe">
+  <user id="User_name-db=2Fjdoe">
     <fullName>John Doe</fullName>
-    <name>jdoe</name>
+    <name>db/jdoe</name>
   </user>
-  <user id="User_name-nbour">
+  <user id="User_name-db=2Fnbour">
     <fullName>Nicolas Bourbaki</fullName>
-    <name>nbour</name>
+    <name>db/nbour</name>
   </user>
-  <user id="User_name-rbeck">
+  <user id="User_name-db=2Frbeck">
     <fullName>Rudolph Beck-D&#252;lmen</fullName>
-    <name>rbeck</name>
+    <name>db/rbeck</name>
   </user>
-  <user id="User_name-root">
+  <user id="User_name-simple=2Fidsreader">
+    <fullName>IDS reader</fullName>
+    <name>simple/idsreader</name>
+  </user>
+  <user id="User_name-simple=2Froot">
     <fullName>Root</fullName>
-    <name>root</name>
+    <name>simple/root</name>
   </user>
-  <user id="User_name-useroffice">
+  <user id="User_name-simple=2Fuseroffice">
     <fullName>User Office</fullName>
-    <name>useroffice</name>
+    <name>simple/useroffice</name>
   </user>
   <grouping id="Grouping_name-investigation=5F08100122=2DEF=5Fowner">
     <name>investigation_08100122-EF_owner</name>
     <userGroups>
-      <user ref="User_name-jbotu"/>
+      <user ref="User_name-db=2Fjbotu"/>
     </userGroups>
   </grouping>
   <grouping id="Grouping_name-investigation=5F08100122=2DEF=5Freader">
     <name>investigation_08100122-EF_reader</name>
     <userGroups>
-      <user ref="User_name-jdoe"/>
+      <user ref="User_name-db=2Fjdoe"/>
     </userGroups>
   </grouping>
   <grouping id="Grouping_name-investigation=5F08100122=2DEF=5Fwriter">
     <name>investigation_08100122-EF_writer</name>
     <userGroups>
-      <user ref="User_name-jbotu"/>
+      <user ref="User_name-db=2Fjbotu"/>
     </userGroups>
     <userGroups>
-      <user ref="User_name-nbour"/>
+      <user ref="User_name-db=2Fnbour"/>
     </userGroups>
     <userGroups>
-      <user ref="User_name-rbeck"/>
+      <user ref="User_name-db=2Frbeck"/>
     </userGroups>
   </grouping>
   <grouping id="Grouping_name-investigation=5F10100601=2DST=5Fowner">
     <name>investigation_10100601-ST_owner</name>
     <userGroups>
-      <user ref="User_name-ahau"/>
+      <user ref="User_name-db=2Fahau"/>
     </userGroups>
   </grouping>
   <grouping id="Grouping_name-investigation=5F10100601=2DST=5Freader">
     <name>investigation_10100601-ST_reader</name>
     <userGroups>
-      <user ref="User_name-jbotu"/>
+      <user ref="User_name-db=2Fjbotu"/>
     </userGroups>
     <userGroups>
-      <user ref="User_name-jdoe"/>
+      <user ref="User_name-db=2Fjdoe"/>
     </userGroups>
     <userGroups>
-      <user ref="User_name-nbour"/>
+      <user ref="User_name-db=2Fnbour"/>
     </userGroups>
   </grouping>
   <grouping id="Grouping_name-investigation=5F10100601=2DST=5Fwriter">
     <name>investigation_10100601-ST_writer</name>
     <userGroups>
-      <user ref="User_name-ahau"/>
+      <user ref="User_name-db=2Fahau"/>
     </userGroups>
   </grouping>
   <grouping id="Grouping_name-investigation=5F12100409=2DST=5Fowner">
     <name>investigation_12100409-ST_owner</name>
     <userGroups>
-      <user ref="User_name-nbour"/>
+      <user ref="User_name-db=2Fnbour"/>
     </userGroups>
   </grouping>
   <grouping id="Grouping_name-investigation=5F12100409=2DST=5Freader">
     <name>investigation_12100409-ST_reader</name>
     <userGroups>
-      <user ref="User_name-rbeck"/>
+      <user ref="User_name-db=2Frbeck"/>
     </userGroups>
   </grouping>
   <grouping id="Grouping_name-investigation=5F12100409=2DST=5Fwriter">
     <name>investigation_12100409-ST_writer</name>
     <userGroups>
-      <user ref="User_name-nbour"/>
+      <user ref="User_name-db=2Fnbour"/>
     </userGroups>
   </grouping>
   <grouping id="Grouping_name-rall">
     <name>rall</name>
     <userGroups>
-      <user ref="User_name-idsreader"/>
+      <user ref="User_name-simple=2Fidsreader"/>
     </userGroups>
   </grouping>
   <grouping id="Grouping_name-scientific=5Fstaff">
     <name>scientific_staff</name>
     <userGroups>
-      <user ref="User_name-acord"/>
+      <user ref="User_name-db=2Facord"/>
     </userGroups>
   </grouping>
   <grouping id="Grouping_name-useroffice">
     <name>useroffice</name>
     <userGroups>
-      <user ref="User_name-useroffice"/>
+      <user ref="User_name-simple=2Fuseroffice"/>
     </userGroups>
   </grouping>
   <rule id="Rule_00000001">
@@ -698,7 +698,7 @@
     <name>E2</name>
     <facility ref="Facility_name-ESNF"/>
     <instrumentScientists>
-      <user ref="User_name-acord"/>
+      <user ref="User_name-db=2Facord"/>
     </instrumentScientists>
   </instrument>
   <instrument id="Instrument_facility-(name-ESNF)_name-EDDI">
@@ -708,7 +708,7 @@
     <name>EDDI</name>
     <facility ref="Facility_name-ESNF"/>
     <instrumentScientists>
-      <user ref="User_name-acord"/>
+      <user ref="User_name-db=2Facord"/>
     </instrumentScientists>
   </instrument>
   <instrument id="Instrument_facility-(name-ESNF)_name-HIKE">
@@ -718,7 +718,7 @@
     <name>HIKE</name>
     <facility ref="Facility_name-ESNF"/>
     <instrumentScientists>
-      <user ref="User_name-acord"/>
+      <user ref="User_name-db=2Facord"/>
     </instrumentScientists>
   </instrument>
   <parameterType id="ParameterType_facility-(name-ESNF)_name-Comment_units-N=2FA">
@@ -1085,15 +1085,15 @@
     </investigationInstruments>
     <investigationUsers>
       <role>Principal Investigator</role>
-      <user ref="User_name-jbotu"/>
+      <user ref="User_name-db=2Fjbotu"/>
     </investigationUsers>
     <investigationUsers>
       <role>Investigator</role>
-      <user ref="User_name-nbour"/>
+      <user ref="User_name-db=2Fnbour"/>
     </investigationUsers>
     <investigationUsers>
       <role>Investigator</role>
-      <user ref="User_name-rbeck"/>
+      <user ref="User_name-db=2Frbeck"/>
     </investigationUsers>
     <keywords>
       <name>Durol</name>
@@ -1169,7 +1169,7 @@
     </investigationInstruments>
     <investigationUsers>
       <role>Principal Investigator</role>
-      <user ref="User_name-ahau"/>
+      <user ref="User_name-db=2Fahau"/>
     </investigationUsers>
     <keywords>
       <name>Gallium</name>
@@ -1333,7 +1333,7 @@
     </investigationInstruments>
     <investigationUsers>
       <role>Principal Investigator</role>
-      <user ref="User_name-nbour"/>
+      <user ref="User_name-db=2Fnbour"/>
     </investigationUsers>
     <keywords>
       <name>NiO</name>
@@ -1469,7 +1469,7 @@
     <name>12-008</name>
     <startDate>2012-07-09T06:00:00+00:00</startDate>
     <status>COMPLETE</status>
-    <user ref="User_name-nbour"/>
+    <user ref="User_name-db=2Fnbour"/>
     <studyInvestigations>
       <investigation ref="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN"/>
     </studyInvestigations>

@@ -19,47 +19,50 @@ System requirements
 
 Python:
 
- + Python 2.6, 2.7, or 3.1 and newer.
-   Python 2.6 requires patching the sources, see below.
-   Python 2.5 is too old and will not work.
++ Python 2.6, 2.7, or 3.1 and newer.
+  Python 2.6 requires patching the sources, see below.
+  Python 2.5 is too old and will not work.
 
 Required Library packages:
 
- + Suds, either the `original version`__ or the `fork by Jurko
-   Gospodnetić`__.  The latter is recommended as the original version
-   is not maintained any more and contains bugs.  Python 3 requires
-   the jurko fork.
++ Suds, either the `original version`__ or the `fork by Jurko
+  Gospodnetić`__.  The latter is recommended as the original version
+  is not maintained any more and contains bugs.  Python 3 requires the
+  jurko fork.
 
- + `argparse`_
++ `argparse`_
 
-   Only if you are using Python 2.6 or 3.1, argparse became part of
-   the Python standard library in 2.7 and 3.2 respectively.
+  Only if you are using Python 2.6 or 3.1, argparse became part of the
+  Python standard library in 2.7 and 3.2 respectively.
 
 Optional library packages, only needed to use certain extra features,
 not required to install or use python-icat itself:
 
- + `PyYAML`_
++ `PyYAML`_
 
-   Only needed to use the YAML backend of icatdump.py and
-   icatingest.py and to run the example scripts (see below).
+  Only needed to use the YAML backend of icatdump.py and icatingest.py
+  and to run the example scripts (see below).
 
- + `lxml`_
++ `lxml`_
 
-   Only needed to use the XML backend of icatdump.py and
-   icatingest.py.
+  Only needed to use the XML backend of icatdump.py and icatingest.py.
 
- + `Requests`_
++ `Requests`_
 
-   Only needed for the example scripts using the ICAT RESTful
-   interface, icatexport.py and icatimport.py.
+  Only needed for the example scripts using the ICAT RESTful
+  interface, icatexport.py and icatimport.py.
 
- + `pytest`_ >= 2.8
++ `pytest`_ >= 2.8
 
-   Only if you want to run the tests.
+  Only if you want to run the tests.
 
- + `distutils-pytest`_
++ `pytest-dependency`_
 
-   Only if you want to run the tests.
+  Only if you want to run the tests.
+
++ `distutils-pytest`_
+
+  Only if you want to run the tests.
 
 .. __: `Suds`_
 .. __: `Suds jurko`_
@@ -73,20 +76,19 @@ follows its conventions of packaging source distributions.  See the
 documentation on `Installing Python Modules`_ for details or to
 customize the install process.
 
-  1. Download the sources, unpack, and change into the source
-     directory.
+1. Download the sources, unpack, and change into the source directory.
 
-  2. Build::
+2. Build::
 
-       $ python setup.py build
+     $ python setup.py build
 
-  3. Test (optional, see below)::
+3. Test (optional, see below)::
 
-       $ python setup.py test
+     $ python setup.py test
 
-  4. Install::
+4. Install::
 
-       $ python setup.py install
+     $ python setup.py install
 
 The last step might require admin privileges in order to write into
 the site-packages directory of your Python installation.
@@ -94,9 +96,9 @@ the site-packages directory of your Python installation.
 If you are using Python 2.6, apply python2_6.patch after the first
 step:
 
- 1a. Patch::
+1a. Patch::
 
-       $ patch -p1 < python2_6.patch
+     $ patch -p1 < python2_6.patch
 
 It removes the use of certain language features (dict comprehensions,
 curly braces notation of sets, bytes string literal prefix 'b') that
@@ -145,7 +147,7 @@ Test
 There is no need to run the tests at all.  The test suite is mostly
 useful to the maintainer of python-icat.
 
-Mosts tests require a test ICAT server to talk to.  These tests are
+Most tests require a test ICAT server to talk to.  These tests are
 disabled by default, unless you configure such a test server.  To do
 so, place an icat.cfg file into tests/data.  This file must have at
 least the configuration sections "root", "useroffice", "acord",
@@ -165,69 +167,69 @@ will just get many skipped tests then.
 Bugs and limitations
 --------------------
 
- + For Python 2, the return value of the string representation
-   operator of class Query may be a Unicode object if any of the
-   conditions contains Unicode.  This violates the specification that
-   requires the result to be a string object.  But it makes non-ascii
-   characters in queries work.  A formal correct implementation would
-   be much more cumbersome and less useful.  For Python 3, there is no
-   distinction between Unicode and string objects anyway.
++ For Python 2, the return value of the string representation operator
+  of class Query may be a Unicode object if any of the conditions
+  contains Unicode.  This violates the specification that requires the
+  result to be a string object.  But it makes non-ascii characters in
+  queries work.  A formal correct implementation would be much more
+  cumbersome and less useful.  For Python 3, there is no distinction
+  between Unicode and string objects anyway.
 
- + The entries in the no_proxy configuration variable are matched
-   against the host part of the URL by simple string comparison.  The
-   host is excluded from proxy use if its name ends with any item in
-   no_proxy.  It is not checked whether the matching part starts with
-   a domain component.  E.g. setting no_proxy=ion.example.org will not
-   only exclude icat.ion.example.org, but also lion.example.org,
-   although the latter is not in the ion.example.org domain.  IP
-   adresses are not supported in no_proxy.  This is a limitation in
-   the implementation of the underlying Python library.
++ The entries in the no_proxy configuration variable are matched
+  against the host part of the URL by simple string comparison.  The
+  host is excluded from proxy use if its name ends with any item in
+  no_proxy.  It is not checked whether the matching part starts with a
+  domain component.  E.g. setting no_proxy=ion.example.org will not
+  only exclude icat.ion.example.org, but also lion.example.org,
+  although the latter is not in the ion.example.org domain.  IP
+  addresses are not supported in no_proxy.  This is a limitation in
+  the implementation of the underlying Python library.
 
- + There is a bug in the original version of Suds: the way it deals
-   with datetime values is broken.  Suds converts all incoming
-   datetime values from the server into what it believes to be local
-   time and then throws all time zone information away.  The problem
-   is that Suds' conception of the local time is flawed such that the
-   result from this conversion may be wrong.  There is no reliable way
-   to fix the values afterwards.
++ There is a bug in the original version of Suds: the way it deals
+  with datetime values is broken.  Suds converts all incoming datetime
+  values from the server into what it believes to be local time and
+  then throws all time zone information away.  The problem is that
+  Suds' conception of the local time is flawed such that the result
+  from this conversion may be wrong.  There is no reliable way to fix
+  the values afterwards.
 
-   One can work around this by setting the local time zone to UTC.
-   (The conversion to UTC is done correctly in Suds.)  As a result,
-   all datetime values retrieved from the server will be in UTC, which
-   at least is well defined.  You may either set the environment
-   variable TZ to 'UTC' before calling your script or add the lines ::
+  One can work around this by setting the local time zone to UTC.
+  (The conversion to UTC is done correctly in Suds.)  As a result, all
+  datetime values retrieved from the server will be in UTC, which at
+  least is well defined.  You may either set the environment variable
+  TZ to 'UTC' before calling your script or add the lines ::
 
-     import os
-     os.environ['TZ'] = 'UTC'
+    import os
+    os.environ['TZ'] = 'UTC'
 
-   at the beginning of your script.  This must be set before importing
-   other modules (in particular suds) in order to be effective.
+  at the beginning of your script.  This must be set before importing
+  other modules (in particular suds) in order to be effective.
 
-   As a general rule, python-icat assumes all datetime values that do
-   not contain time zone information to be UTC.
+  As a general rule, python-icat assumes all datetime values that do
+  not contain time zone information to be UTC.
 
-   Note that the bug is fixed in the fork by Jurko Gospodnetić which
-   is recommendated anyway.
+  Note that the bug is fixed in the fork by Jurko Gospodnetić which is
+  recommended anyway.
 
- + With Python 3.1, icatdump.py emits a spurious error message like ::
++ With Python 3.1, icatdump.py emits a spurious error message like ::
 
-     Exception ValueError: 'I/O operation on closed file.' 
-     in <_io.TextIOWrapper name='<stdout>' encoding='UTF-8'> ignored
+    Exception ValueError: 'I/O operation on closed file.' 
+    in <_io.TextIOWrapper name='<stdout>' encoding='UTF-8'> ignored
 
-   on exit when writing the dump file to stdout (the default).  You
-   can happily ignore this message.  The cause is that icatdump.py
-   closes its output file when finished and that Python 3.1 emits this
-   error message on exit whenever stdout has been closed, even if
-   there was no further output after closing.  I assume this is a bug
-   in Python 3.1.
+  on exit when writing the dump file to stdout (the default).  You can
+  happily ignore this message.  The cause is that icatdump.py closes
+  its output file when finished and that Python 3.1 emits this error
+  message on exit whenever stdout has been closed, even if there was
+  no further output after closing.  I assume this is a bug in Python
+  3.1.
 
- + Misleading "context" is displayed in error tracebacks with Python
-   3.1 and 3.2.  Python 3 introduced a "feature" called `Exception
-   Chaining and Embedded Tracebacks`__.  This causes irrelevant and
-   misleading "error context" to be displayed in the traceback of
-   error messages.  python-icat tries to suppress this in the most
-   annoying cases, but this `suppression mechanism`__ is only
-   available with Python 3.3 and newer.
++ Misleading "context" is displayed in error tracebacks with Python
+  3.1 and 3.2.  Python 3 introduced a "feature" called `Exception
+  Chaining and Embedded Tracebacks`__.  This causes irrelevant and
+  misleading "error context" to be displayed in the traceback of error
+  messages.  python-icat tries to suppress this in the most annoying
+  cases, but this `suppression mechanism`__ is only available with
+  Python 3.3 and newer.
 
 .. __: `PEP 3134`_
 .. __: `Python Issue 6210`_
@@ -268,6 +270,7 @@ permissions and limitations under the License.
 .. _lxml: http://lxml.de/
 .. _Requests: http://python-requests.org/
 .. _pytest: http://pytest.org/
+.. _pytest-dependency: https://pypi.python.org/pypi/pytest_dependency/
 .. _distutils-pytest: https://pythonhosted.org/distutils-pytest/
 .. _Installing Python Modules: https://docs.python.org/2.7/install/
 .. _GitHub repository: https://github.com/icatproject/python-icat

@@ -1,62 +1,62 @@
 %YAML 1.1
-# Date: Thu, 22 Sep 2016 10:11:15 +0000
+# Date: Mon, 07 Nov 2016 12:18:50 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
-# ICAT-API: 4.7
-# Generator: icatdump (python-icat 0.11.0)
+# ICAT-API: 4.8
+# Generator: icatdump (python-icat 0.12.0)
 ---
 grouping:
   Grouping_name-investigation=5F08100122=2DEF=5Fowner:
     name: investigation_08100122-EF_owner
     userGroups:
-    - user: User_name-jbotu
+    - user: User_name-db=2Fjbotu
   Grouping_name-investigation=5F08100122=2DEF=5Freader:
     name: investigation_08100122-EF_reader
     userGroups:
-    - user: User_name-jdoe
+    - user: User_name-db=2Fjdoe
   Grouping_name-investigation=5F08100122=2DEF=5Fwriter:
     name: investigation_08100122-EF_writer
     userGroups:
-    - user: User_name-jbotu
-    - user: User_name-nbour
-    - user: User_name-rbeck
+    - user: User_name-db=2Fjbotu
+    - user: User_name-db=2Fnbour
+    - user: User_name-db=2Frbeck
   Grouping_name-investigation=5F10100601=2DST=5Fowner:
     name: investigation_10100601-ST_owner
     userGroups:
-    - user: User_name-ahau
+    - user: User_name-db=2Fahau
   Grouping_name-investigation=5F10100601=2DST=5Freader:
     name: investigation_10100601-ST_reader
     userGroups:
-    - user: User_name-jbotu
-    - user: User_name-jdoe
-    - user: User_name-nbour
+    - user: User_name-db=2Fjbotu
+    - user: User_name-db=2Fjdoe
+    - user: User_name-db=2Fnbour
   Grouping_name-investigation=5F10100601=2DST=5Fwriter:
     name: investigation_10100601-ST_writer
     userGroups:
-    - user: User_name-ahau
+    - user: User_name-db=2Fahau
   Grouping_name-investigation=5F12100409=2DST=5Fowner:
     name: investigation_12100409-ST_owner
     userGroups:
-    - user: User_name-nbour
+    - user: User_name-db=2Fnbour
   Grouping_name-investigation=5F12100409=2DST=5Freader:
     name: investigation_12100409-ST_reader
     userGroups:
-    - user: User_name-rbeck
+    - user: User_name-db=2Frbeck
   Grouping_name-investigation=5F12100409=2DST=5Fwriter:
     name: investigation_12100409-ST_writer
     userGroups:
-    - user: User_name-nbour
+    - user: User_name-db=2Fnbour
   Grouping_name-rall:
     name: rall
     userGroups:
-    - user: User_name-idsreader
+    - user: User_name-simple=2Fidsreader
   Grouping_name-scientific=5Fstaff:
     name: scientific_staff
     userGroups:
-    - user: User_name-acord
+    - user: User_name-db=2Facord
   Grouping_name-useroffice:
     name: useroffice
     userGroups:
-    - user: User_name-useroffice
+    - user: User_name-simple=2Fuseroffice
 publicStep:
   PublicStep_origin-DataCollection_field-dataCollectionDatafiles:
     field: dataCollectionDatafiles
@@ -570,33 +570,33 @@ rule:
     grouping: Grouping_name-useroffice
     what: UserGroup
 user:
-  User_name-acord:
+  User_name-db=2Facord:
     fullName: Aelius Cordus
-    name: acord
-  User_name-ahau:
+    name: db/acord
+  User_name-db=2Fahau:
     fullName: Arnold Hau
-    name: ahau
-  User_name-idsreader:
-    fullName: IDS reader
-    name: idsreader
-  User_name-jbotu:
+    name: db/ahau
+  User_name-db=2Fjbotu:
     fullName: Jean-Baptiste Botul
-    name: jbotu
-  User_name-jdoe:
+    name: db/jbotu
+  User_name-db=2Fjdoe:
     fullName: John Doe
-    name: jdoe
-  User_name-nbour:
+    name: db/jdoe
+  User_name-db=2Fnbour:
     fullName: Nicolas Bourbaki
-    name: nbour
-  User_name-rbeck:
+    name: db/nbour
+  User_name-db=2Frbeck:
     fullName: "Rudolph Beck-D\xFClmen"
-    name: rbeck
-  User_name-root:
+    name: db/rbeck
+  User_name-simple=2Fidsreader:
+    fullName: IDS reader
+    name: simple/idsreader
+  User_name-simple=2Froot:
     fullName: Root
-    name: root
-  User_name-useroffice:
+    name: simple/root
+  User_name-simple=2Fuseroffice:
     fullName: User Office
-    name: useroffice
+    name: simple/useroffice
 ---
 application:
   Application_facility-(name-ESNF)_name-gnomoanalytics_version-69:
@@ -755,7 +755,7 @@ instrument:
     facility: Facility_name-ESNF
     fullName: E2 - Flat-Cone Diffractometer
     instrumentScientists:
-    - user: User_name-acord
+    - user: User_name-db=2Facord
     name: E2
   Instrument_facility-(name-ESNF)_name-EDDI:
     description: 'The experimental station EDDI (Energy Dispersive Diffraction) is
@@ -771,7 +771,7 @@ instrument:
     facility: Facility_name-ESNF
     fullName: EDDI - Energy Dispersive Diffraction
     instrumentScientists:
-    - user: User_name-acord
+    - user: User_name-db=2Facord
     name: EDDI
   Instrument_facility-(name-ESNF)_name-HIKE:
     description: 'The system is designed for hard X-ray high kinetic energy photoelectron
@@ -785,7 +785,7 @@ instrument:
     facility: Facility_name-ESNF
     fullName: HIKE - High Kinetic Energy Photoelectron Spectroscopy
     instrumentScientists:
-    - user: User_name-acord
+    - user: User_name-db=2Facord
     name: HIKE
 investigationType:
   InvestigationType_name-Calibration_facility-(name-ESNF):
@@ -979,11 +979,11 @@ investigation:
     - instrument: Instrument_facility-(name-ESNF)_name-HIKE
     investigationUsers:
     - role: Principal Investigator
-      user: User_name-jbotu
+      user: User_name-db=2Fjbotu
     - role: Investigator
-      user: User_name-nbour
+      user: User_name-db=2Fnbour
     - role: Investigator
-      user: User_name-rbeck
+      user: User_name-db=2Frbeck
     keywords:
     - name: Durol
     name: 08100122-EF
@@ -1099,7 +1099,7 @@ investigation:
     - instrument: Instrument_facility-(name-ESNF)_name-E2
     investigationUsers:
     - role: Principal Investigator
-      user: User_name-ahau
+      user: User_name-db=2Fahau
     keywords:
     - name: Gallium
     - name: Manganese
@@ -1230,7 +1230,7 @@ investigation:
     - instrument: Instrument_facility-(name-ESNF)_name-EDDI
     investigationUsers:
     - role: Principal Investigator
-      user: User_name-nbour
+      user: User_name-db=2Fnbour
     keywords:
     - name: NiO
     - name: Nickel
@@ -1289,4 +1289,4 @@ study:
     studyInvestigations:
     - investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
     - investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
-    user: User_name-nbour
+    user: User_name-db=2Fnbour

@@ -1,7 +1,25 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.12.0 (2010-10-10)
+* Version 0.13.0 (not yet released)
+
+** New features
+
+ + Review wipeicat.py.  This was an example script, but is now
+   promoted to be a regular utility script that gets installed.
+
+** Incompatible changes and deprecations
+
+ + Deprecate support for ICAT 4.2.*.
+
+ + Deprecate module icat.cgi.
+
+** Bug fixes and minor changes
+
+ + Improved client.searchChunked().  This version is not susceptible
+   to Issue icatproject/icat.server#128 anymore.
+
+* Version 0.12.0 (2016-10-10)
 
 ** New features
 

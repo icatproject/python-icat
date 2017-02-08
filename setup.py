@@ -76,7 +76,7 @@ setup(
     license = "Apache-2.0",
     requires = ["suds"],
     packages = ["icat"],
-    scripts = ["icatdump.py", "icatingest.py"],
+    scripts = ["icatdump.py", "icatingest.py", "wipeicat.py"],
     # I never tested Python 3.0, any feedback welcome.  Python 3.*
     # requires the jurko fork of Suds.
     classifiers = [
@@ -90,7 +90,8 @@ setup(
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
-        "Development Status :: 4 - Beta",
+        "Programming Language :: Python :: 3.6",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
