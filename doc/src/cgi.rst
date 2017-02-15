@@ -5,6 +5,9 @@
 
 This module provides tools for writing CGI scripts acting as ICAT clients.
 
+.. deprecated:: 0.13
+   This module is deprecated and will be removed in version 1.0.
+
 .. autoclass:: icat.cgi.SessionCookie
     :members:
     :show-inheritance:

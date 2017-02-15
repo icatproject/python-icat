@@ -197,6 +197,9 @@ class Client(suds.client.Client):
             warn(ClientVersionWarning(self.apiversion, "too old"))
             self.typemap = TypeMap42.copy()
         elif self.apiversion < '4.2.9':
+            warn("Support for ICAT version 4.2.* is deprecated "
+                 "and will be removed in python-icat 1.0.", 
+                 DeprecationWarning)
             self.typemap = TypeMap42.copy()
         elif self.apiversion <= '4.3.0':
             self.typemap = TypeMap43.copy()
@@ -580,13 +583,15 @@ class Client(suds.client.Client):
         while True:
             if count is not None and count - delivered < chunksize:
                 chunksize = count - delivered
+            if chunksize == 0:
+                break
             items = self.search(query % (skip, chunksize))
             skip += chunksize
-            if not items:
-                break
             for o in items:
                 yield o
                 delivered += 1
+            if len(items) < chunksize:
+                break
 
     def searchUniqueKey(self, key, objindex=None):
         """Search the object that belongs to a unique key.
