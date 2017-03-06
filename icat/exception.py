@@ -98,7 +98,7 @@ class ServerError(Exception):
             message = self._convertmsg(error)
             super(ServerError, self).__init__(message)
             self.status = None
-            self.message = None
+            self.message = message
             self.type = None
             self.offset = None
         else:
