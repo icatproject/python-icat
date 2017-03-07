@@ -314,6 +314,14 @@ class IDSClient(object):
         req = IDSRequest(self.url + "restore", parameters, method="POST")
         self.opener.open(req)
 
+    def write(self, selection):
+        """Write data.
+        """
+        parameters = {"sessionId": self.sessionId}
+        selection.fillParams(parameters)
+        req = IDSRequest(self.url + "write", parameters, method="POST")
+        self.opener.open(req)
+
     def reset(self, selection):
         """Reset data so that they can be queried again.
         """
