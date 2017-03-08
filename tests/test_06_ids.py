@@ -2,7 +2,6 @@
 """
 
 from __future__ import print_function
-import os
 import os.path
 import time
 import zipfile
@@ -14,8 +13,7 @@ import icat.config
 from icat.query import Query
 from icat.ids import DataSelection
 from conftest import DummyDatafile, UtcTimezone
-from conftest import require_icat_version, getConfig
-from conftest import tmpSessionId, tmpLogin
+from conftest import getConfig, tmpSessionId, tmpLogin
 
 
 @pytest.fixture(scope="module")
