@@ -311,6 +311,29 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
         assert df.datafileCreateTime == createTime
 
 @pytest.mark.parametrize(("case"), markeddatasets)
+def test_write(client, case):
+    """Call write() on a dataset.
+    """
+    # FIXME: the write API method is not yet in IDS.  Update the
+    # version to compare with as soon as this call has been added to
+    # IDS and it is foreseeable which release version will support it.
+    if client.ids.apiversion < '1.7.0':
+        pytest.skip("IDS %s is too old, need 1.7.0 or newer" 
+                    % client.ids.apiversion)
+    if not client.ids.isTwoLevel():
+        pytest.skip("This IDS does not use two levels of data storage")
+    selection = DataSelection([getDataset(client, case)])
+    status = client.ids.getStatus(selection)
+    print("Status of dataset %s is %s" % (case['dsname'], status))
+    if status != "ONLINE":
+        pytest.skip("Dataset %s is not ONLINE" % (case['dsname']))
+    print("Request write of dataset %s" % (case['dsname']))
+    client.ids.write(selection)
+    # Note that there is no effect whatsoever of the write request
+    # visible at the client side.  The only thing that we can test
+    # here is that IDS did accept the call without raising an error.
+
+@pytest.mark.parametrize(("case"), markeddatasets)
 def test_archive(client, case):
     """Call archive() on a dataset.
     """
