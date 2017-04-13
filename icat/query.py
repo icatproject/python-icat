@@ -45,24 +45,6 @@ aggregate_fcts = frozenset([
 :meth:`icat.query.Query.setAggregate` method.
 """
 
-# ======================== Internal helper ===========================
-
-def _parents(obj):
-    """Iterate over the parents of obj as dot separated components.
-
-    >>> list(_parents("a.bb.c.ddd.e.ff"))
-    ['a', 'a.bb', 'a.bb.c', 'a.bb.c.ddd', 'a.bb.c.ddd.e']
-    >>> list(_parents("abc"))
-    []
-    """
-    s = 0
-    while True:
-        i = obj.find('.', s)
-        if i < 0:
-            break
-        yield obj[:i]
-        s = i+1
-
 # ========================== class Query =============================
 
 class Query(object):
@@ -135,7 +117,12 @@ class Query(object):
         the components.
         """
         rclass = self.entity
+        pattr = ""
         for attr in attrname.split('.'):
+            if pattr:
+                pattr += ".%s" % attr
+            else:
+                pattr = attr
             if rclass is None:
                 # Last component was not a relation, no further components
                 # in the name allowed.
@@ -149,14 +136,14 @@ class Query(object):
                 rclass = self.client.getEntityClass(attrInfo.type)
             else:
                 raise InternalError("Invalid relType: '%s'" % attrInfo.relType)
-            yield (attrInfo, rclass)
+            yield (pattr, attrInfo, rclass)
 
     def _makesubst(self, objs):
         subst = {}
         substcount = 0
         for obj in sorted(objs):
-            for o in _parents(obj):
-                if o not in subst:
+            for (o, attrInfo, oclass) in self._attrpath(obj):
+                if oclass and o not in subst:
                     if o in substnames and substnames[o] not in subst.values():
                         subst[o] = substnames[o]
                     else:
@@ -165,6 +152,8 @@ class Query(object):
         return subst
 
     def _dosubst(self, obj, subst, addas=True):
+        if not addas and obj in subst:
+            return subst[obj]
         i = obj.rfind('.')
         if i < 0:
             n = "o.%s" % (obj)
@@ -185,7 +174,7 @@ class Query(object):
         """
         if attribute is not None:
             # Get the attribute path only to verify that the attribute is valid.
-            for (attrInfo, rclass) in self._attrpath(attribute):
+            for (pattr, attrInfo, rclass) in self._attrpath(attribute):
                 pass
         self.attribute = attribute
 
@@ -235,12 +224,7 @@ class Query(object):
             self.order = []
             for obj in order:
 
-                pattr = ""
-                for (attrInfo, rclass) in self._attrpath(obj):
-                    if pattr:
-                        pattr += ".%s" % attrInfo.name
-                    else:
-                        pattr = attrInfo.name
+                for (pattr, attrInfo, rclass) in self._attrpath(obj):
                     if attrInfo.relType == "ONE":
                         if (not attrInfo.notNullable and 
                             pattr not in self.conditions):
@@ -281,7 +265,7 @@ class Query(object):
         """
         if conditions:
             for a in conditions.keys():
-                for (attrInfo, rclass) in self._attrpath(a):
+                for (pattr, attrInfo, rclass) in self._attrpath(a):
                     pass
                 if a in self.conditions:
                     conds = []
@@ -310,7 +294,7 @@ class Query(object):
             includes = list(self.entity.InstRel)
         if includes:
             for iobj in includes:
-                for (attrInfo, rclass) in self._attrpath(iobj):
+                for (pattr, attrInfo, rclass) in self._attrpath(iobj):
                     pass
                 if rclass is None:
                     raise ValueError("%s.%s is not a related object." 
