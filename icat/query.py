@@ -333,9 +333,11 @@ class Query(object):
     def __repr__(self):
         """Return a formal representation of the query.
         """
-        return ("%s(%s, %s, order=%s, conditions=%s, includes=%s, limit=%s)"
+        return ("%s(%s, %s, attribute=%s, aggregate=%s, order=%s, "
+                "conditions=%s, includes=%s, limit=%s)"
                 % (self.__class__.__name__, 
                    repr(self.client), repr(self.entity.BeanName), 
+                   repr(self.attribute), repr(self.aggregate), 
                    repr(self.order), repr(self.conditions), 
                    repr(self.includes), repr(self.limit)))
 
