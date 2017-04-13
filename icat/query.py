@@ -30,6 +30,21 @@ search expressions somewhat better readable.  There is no need for
 completeness here.
 """
 
+aggregate_fcts = frozenset([
+    "DISTINCT",
+    "COUNT",
+    "COUNT:DISTINCT",
+    "MIN",
+    "MAX",
+    "AVG",
+    "AVG:DISTINCT",
+    "SUM",
+    "SUM:DISTINCT",
+])
+"""Allowed values for the `function` argument to the
+:meth:`icat.query.Query.setAggregate` method.
+"""
+
 # ======================== Internal helper ===========================
 
 def _parents(obj):
@@ -102,7 +117,7 @@ class Query(object):
     """
 
     def __init__(self, client, entity, 
-                 attribute=None, order=None, 
+                 attribute=None, aggregate=None, order=None, 
                  conditions=None, includes=None, limit=None):
         """Initialize the query.
 
@@ -114,6 +129,9 @@ class Query(object):
         :param attribute: the attribute that the query shall return.
             See the :meth:`icat.query.Query.setAttribute` method for
             details.
+        :param aggregate: the aggregate function to be applied in the
+            SELECT clause, if any.  See the
+            :meth:`icat.query.Query.setAggregate` method for details.
         :param order: the sorting attributes to build the ORDER BY
             clause from.  See the :meth:`icat.query.Query.setOrder`
             method for details.
@@ -147,6 +165,7 @@ class Query(object):
             raise TypeError("Invalid entity type '%s'." % type(entity))
 
         self.setAttribute(attribute)
+        self.setAggregate(aggregate)
         self.conditions = dict()
         self.addConditions(conditions)
         self.includes = set()
@@ -168,6 +187,31 @@ class Query(object):
         if attribute is not None:
             attrpath = list(_attrpath(self.client, self.entity, attribute))
         self.attribute = attribute
+
+    def setAggregate(self, function):
+        """Set the aggregate function to be applied to the result.
+
+        Note that the Query class does not verify whether the
+        aggregate function makes any sense for the selected result.
+        E.g. the SUM of entity objects or the AVG of strings will
+        certainly not work in an ICAT search expression, but it is not
+        within the scope of the Query class to reject such nonsense
+        beforehand.
+
+        :param function: the aggregate function to be applied in the
+            SELECT clause, if any.  Valid values are "DISTINCT",
+            "COUNT", "MIN", "MAX", "AVG", "SUM", or :const:`None`.
+            ":DISTINCT", may be appended to "COUNT", "AVG", and "SUM"
+            to combine the respective function with "DISTINCT".
+        :type function: :class:`str`
+        :raise ValueError: if function is not a valid.
+        """
+        if function:
+            if function not in aggregate_fcts:
+                raise ValueError("Invalid aggregate function '%s'" % function)
+            self.aggregate = function
+        else:
+            self.aggregate = None
 
     def setOrder(self, order):
         """Set the order to build the ORDER BY clause from.
@@ -310,6 +354,9 @@ class Query(object):
             res = "o"
         else:
             res = "o.%s" % self.attribute
+        if self.aggregate:
+            for fct in reversed(self.aggregate.split(':')):
+                res = "%s(%s)" % (fct, res)
         base = "SELECT %s FROM %s o" % (res, self.entity.BeanName)
         joinattrs = set(self.order) | set(self.conditions.keys())
         subst = _makesubst(joinattrs)
@@ -353,6 +400,7 @@ class Query(object):
         """
         q = Query(self.client, self.entity)
         q.attribute = self.attribute
+        q.aggregate = self.aggregate
         q.order = list(self.order)
         q.conditions = self.conditions.copy()
         q.includes = self.includes.copy()
