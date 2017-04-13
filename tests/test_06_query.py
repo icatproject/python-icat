@@ -214,6 +214,15 @@ def test_query_in_operator(client):
     assert inv.id == investigation.id
     assert inv.name == investigation.name
 
+def test_query_condition_obj(client):
+    """We may place conditions on related objects.
+    This is in particular useful to test whether a relation is null.
+    """
+    query = Query(client, "Rule", conditions={"grouping": "IS NULL"})
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 60
+
 def test_query_rule_order(client):
     """Rule does not have a constraint, id is included in the natural order.
     """
