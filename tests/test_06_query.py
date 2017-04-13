@@ -3,11 +3,12 @@
 
 from __future__ import print_function
 import sys
+import datetime
 import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import getConfig
+from conftest import getConfig, UtcTimezone
 
 
 @pytest.fixture(scope="module")
@@ -25,6 +26,7 @@ def client(setupicat):
 
 
 investigation = None
+tzinfo = UtcTimezone() if UtcTimezone else None
 
 @pytest.mark.dependency(name='get_investigation')
 def test_query_simple(client):
@@ -341,3 +343,78 @@ def test_query_attribute_datafile_name(client):
     assert len(res) == 4
     for n in res:
         assert not isinstance(n, icat.entity.Entity)
+
+@pytest.mark.dependency(depends=['get_investigation'])
+def test_query_aggregate_distinct(client):
+    """Test DISTINCT in search results.
+
+    Support for adding aggregate functions has been added in
+    Issue #32.
+    """
+    query = Query(client, "Datafile", 
+                  attribute="datafileFormat", 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 4
+    for n in res:
+        assert isinstance(n, icat.entity.Entity)
+    query.setAggregate("DISTINCT")
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 2
+    for n in res:
+        assert isinstance(n, icat.entity.Entity)
+
+    query = Query(client, "Datafile", 
+                  attribute="datafileFormat.name", 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    res = client.search(query)
+    assert sorted(res) == ["NeXus", "NeXus", "raw", "raw"]
+    query.setAggregate("DISTINCT")
+    print(str(query))
+    res = client.search(query)
+    assert sorted(res) == ["NeXus", "raw"]
+
+@pytest.mark.dependency(depends=['get_investigation'])
+@pytest.mark.parametrize(("attribute", "aggregate", "expected"), [
+    (None, "COUNT", 4),
+    (None, "COUNT:DISTINCT", 4),
+    ("datafileFormat", "COUNT", 4),
+    ("datafileFormat", "COUNT:DISTINCT", 2),
+    ("datafileFormat.name", "COUNT", 4),
+    ("datafileFormat.name", "COUNT:DISTINCT", 2),
+    ("fileSize", "MAX", 73428),
+    ("fileSize", "MIN", 394),
+    ("fileSize", "SUM", 127125),
+    # Note that the number of datafiles is four which is a power of
+    # two.  Therefore we may assume the double representation of an
+    # avarage of integers is exact, so we may even dare to compare
+    # the double value for equality.
+    ("fileSize", "AVG", 31781.25),
+    ("name", "MAX", "e208341.nxs"),
+    ("name", "MIN", "e208339.dat"),
+    pytest.mark.skipif("tzinfo is None")((
+        "datafileCreateTime", "MIN", datetime.datetime(2010, 10, 1, 6, 17, 48, 
+                                                       tzinfo=tzinfo))),
+    pytest.mark.skipif("tzinfo is None")((
+        "datafileCreateTime", "MAX", datetime.datetime(2010, 10, 5, 9, 31, 53, 
+                                                       tzinfo=tzinfo))),
+])
+def test_query_aggregate_misc(client, attribute, aggregate, expected):
+    """Try some working aggregate results for the datafiles.
+
+    Support for adding aggregate functions has been added in
+    Issue #32.
+    """
+    query = Query(client, "Datafile", attribute=attribute, aggregate=aggregate,
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 1
+    assert res[0] == expected
+
