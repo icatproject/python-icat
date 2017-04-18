@@ -59,9 +59,31 @@ class ConfigFile(object):
         with open(self.path, "w") as f:
             f.write(content)
 
+class TmpFiles(object):
+    def __init__(self):
+        self.files = []
+    def cleanup(self):
+        for p in self.files:
+            os.unlink(p)
+    def addfile(self, path, content):
+        path = os.path.abspath(path)
+        try:
+            os.makedirs(os.path.dirname(path))
+        except OSError:
+            pass
+        with open(path, "wt") as f:
+            f.write(content)
+        self.files.append(path)
+
 @pytest.fixture(scope="module")
 def tmpconfigfile(tmpdirsec):
     return ConfigFile(tmpdirsec.dir, configfilestr)
+
+@pytest.fixture(scope="function")
+def tmpfiles(request):
+    files = TmpFiles()
+    request.addfinalizer(files.cleanup)
+    return files
 
 # ============================= tests ==============================
 
@@ -693,3 +715,149 @@ def test_config_positional(tmpconfigfile):
     assert conf.promptPass == False
     assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
     assert conf.datafile == "test.dat"
+
+
+def test_config_cfgpath_default(tmpconfigfile, monkeypatch, tmpfiles):
+    """Test a cfgpath configuration variable.
+
+    This searches a file in the default configuration directories.
+    Feature added in Issue #30.
+    """
+
+    # Manipulate the default search path.
+    monkeypatch.setenv("HOME", tmpconfigfile.home)
+    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
+                os.path.expanduser("~/.icat"), 
+                "", ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(tmpconfigfile.home)
+    cpath = os.path.expanduser("~/.config/icat/control.dat")
+    tmpfiles.addfile(cpath, "control\n")
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    config = icat.config.Config()
+    config.add_variable('controlfile', ("--control",), 
+                    dict(metavar="control.dat", help="control file"), 
+                    default="control.dat", type=icat.config.cfgpath)
+    conf = config.getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'checkCert', 'client_kwargs', 'configDir', 
+                      'configFile', 'configSection', 'controlfile', 
+                      'credentials', 'http_proxy', 'https_proxy', 
+                      'no_proxy', 'password', 'promptPass', 'url', 
+                      'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_jdoe"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "ldap"
+    assert conf.username == "jdoe"
+    assert conf.password == "pass"
+    assert conf.promptPass == False
+    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
+    assert conf.controlfile == cpath
+    assert os.path.isfile(conf.controlfile)
+
+
+def test_config_cfgpath_cwd(tmpconfigfile, monkeypatch, tmpfiles):
+    """Test a cfgpath configuration variable.
+
+    Same as test_config_cfgpath_default() but a file in the current
+    working directory takes precedence of the one in the configuration
+    directory.
+    """
+
+    # Manipulate the default search path.
+    monkeypatch.setenv("HOME", tmpconfigfile.home)
+    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
+                os.path.expanduser("~/.icat"), 
+                "", ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(tmpconfigfile.home)
+    cpath = os.path.expanduser("~/.config/icat/control.dat")
+    tmpfiles.addfile(cpath, "control config dir\n")
+    hpath = os.path.join(tmpconfigfile.home, "control.dat")
+    tmpfiles.addfile(hpath, "control home\n")
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    config = icat.config.Config()
+    config.add_variable('controlfile', ("--control",), 
+                    dict(metavar="control.dat", help="control file"), 
+                    default="control.dat", type=icat.config.cfgpath)
+    conf = config.getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'checkCert', 'client_kwargs', 'configDir', 
+                      'configFile', 'configSection', 'controlfile', 
+                      'credentials', 'http_proxy', 'https_proxy', 
+                      'no_proxy', 'password', 'promptPass', 'url', 
+                      'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_jdoe"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "ldap"
+    assert conf.username == "jdoe"
+    assert conf.password == "pass"
+    assert conf.promptPass == False
+    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
+    assert conf.controlfile == "control.dat"
+    assert os.path.isfile(conf.controlfile)
+
+
+@pytest.mark.parametrize('abspath', [True, False])
+def test_config_cfgpath_cmdline(tmpconfigfile, monkeypatch, tmpfiles, abspath):
+    """Test a cfgpath configuration variable.
+
+    Same as test_config_cfgpath_cwd() but override the path on the
+    command line.
+    """
+
+    # Manipulate the default search path.
+    monkeypatch.setenv("HOME", tmpconfigfile.home)
+    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
+                os.path.expanduser("~/.icat"), 
+                "", ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(tmpconfigfile.home)
+    cpath = os.path.expanduser("~/.config/icat/control.dat")
+    tmpfiles.addfile(cpath, "control config dir\n")
+    hpath = os.path.join(tmpconfigfile.home, "control.dat")
+    tmpfiles.addfile(hpath, "control home\n")
+    if abspath:
+        apath = os.path.expanduser("~/custom/cl.dat")
+        cfarg = apath
+    else:
+        apath = os.path.expanduser("~/.config/icat/cl.dat")
+        cfarg = "cl.dat"
+    tmpfiles.addfile(apath, "control cmdline\n")
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", 
+            "--control", cfarg]
+    config = icat.config.Config()
+    config.add_variable('controlfile', ("--control",), 
+                    dict(metavar="control.dat", help="control file"), 
+                    default="control.dat", type=icat.config.cfgpath)
+    conf = config.getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'checkCert', 'client_kwargs', 'configDir', 
+                      'configFile', 'configSection', 'controlfile', 
+                      'credentials', 'http_proxy', 'https_proxy', 
+                      'no_proxy', 'password', 'promptPass', 'url', 
+                      'username' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_jdoe"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.auth == "ldap"
+    assert conf.username == "jdoe"
+    assert conf.password == "pass"
+    assert conf.promptPass == False
+    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
+    assert conf.controlfile == apath
+    assert os.path.isfile(conf.controlfile)
