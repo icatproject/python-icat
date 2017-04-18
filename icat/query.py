@@ -338,16 +338,18 @@ class Query(object):
         non-ascii characters working.  For Python 3, there is no
         distinction between Unicode and string objects anyway.
         """
-        if self.attribute is None:
-            res = "o"
+        joinattrs = set(self.order) | set(self.conditions.keys())
+        if self.attribute:
+            joinattrs.add(self.attribute)
+        subst = self._makesubst(joinattrs)
+        if self.attribute:
+            res = self._dosubst(self.attribute, subst, False)
         else:
-            res = "o.%s" % self.attribute
+            res = "o"
         if self.aggregate:
             for fct in reversed(self.aggregate.split(':')):
                 res = "%s(%s)" % (fct, res)
         base = "SELECT %s FROM %s o" % (res, self.entity.BeanName)
-        joinattrs = set(self.order) | set(self.conditions.keys())
-        subst = self._makesubst(joinattrs)
         joins = ""
         for obj in sorted(subst.keys()):
             joins += " JOIN %s" % self._dosubst(obj, subst)
