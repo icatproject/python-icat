@@ -1,6 +1,7 @@
 """Test module icat.config
 """
 
+import os
 import os.path
 import getpass
 import pytest
@@ -51,8 +52,10 @@ promptPass = Yes
 
 class ConfigFile(object):
     def __init__(self, confdir, content):
-        self.dir = confdir
+        self.home = confdir
+        self.dir = os.path.join(self.home, ".icat")
         self.path = os.path.join(self.dir, "icat.cfg")
+        os.mkdir(self.dir)
         with open(self.path, "w") as f:
             f.write(content)
 
@@ -97,7 +100,7 @@ def test_config_minimal_file(tmpconfigfile, monkeypatch):
 
     # Let the config file be found in the default location, but
     # manipulate the search path such that only the cwd exists.
-    cfgdirs = [ os.path.join(tmpconfigfile.dir, ".icat"), ""]
+    cfgdirs = [ os.path.join(tmpconfigfile.dir, "wobble"), "" ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
     monkeypatch.chdir(tmpconfigfile.dir)
 
@@ -110,6 +113,36 @@ def test_config_minimal_file(tmpconfigfile, monkeypatch):
                       'https_proxy', 'no_proxy', 'url' ]
 
     assert conf.configFile == ["icat.cfg"]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_root"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+
+
+def test_config_minimal_defaultfile(tmpconfigfile, monkeypatch):
+    """Minimal example.
+
+    Almost the same as test_config_minimal_file(), but let the
+    configuration file be found in the default search path rather then
+    pointing to the full path.
+    """
+
+    # Manipulate the default search path.
+    monkeypatch.setenv("HOME", tmpconfigfile.home)
+    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
+                os.path.expanduser("~/.icat"), 
+                "", ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(tmpconfigfile.home)
+
+    args = ["-s", "example_root"]
+    conf = icat.config.Config(needlogin=False).getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'checkCert', 'client_kwargs', 'configDir', 
+                      'configFile', 'configSection', 'http_proxy', 
+                      'https_proxy', 'no_proxy', 'url' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
     assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_root"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
