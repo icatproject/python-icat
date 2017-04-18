@@ -7,6 +7,7 @@ import os.path
 import getpass
 import argparse
 import ConfigParser
+from warnings import warn
 from icat.exception import *
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
@@ -187,6 +188,16 @@ class Configuration(object):
     def __init__(self, config):
         super(Configuration, self).__init__()
         self._config = config
+
+    def __getattr__(self, attr):
+        if attr == "configDir":
+            warn("The 'configDir' configuration variable is deprecated "
+                 "and will be removed in python-icat 1.0.", 
+                 DeprecationWarning)
+            return self._configDir
+        else:
+            raise AttributeError("%s object has no attribute %s" % 
+                                 (type(self).__name__, attr))
 
     def __str__(self):
         typename = type(self).__name__
@@ -436,9 +447,9 @@ class Config(object):
                 config.configFile = self.file.read(config.configFile)
                 if config.configFile:
                     f = config.configFile[-1]
-                    config.configDir = os.path.dirname(os.path.abspath(f))
+                    config._configDir = os.path.dirname(os.path.abspath(f))
                 else:
-                    config.configDir = None
+                    config._configDir = None
             elif var.name == 'configSection':
                 self.file.setsection(config.configSection)
 
