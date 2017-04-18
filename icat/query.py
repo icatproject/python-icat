@@ -142,8 +142,12 @@ class Query(object):
         subst = {}
         substcount = 0
         for obj in sorted(objs):
+            i = obj.rfind('.')
+            if i < 0:
+                continue
+            obj = obj[:i]
             for (o, attrInfo, oclass) in self._attrpath(obj):
-                if oclass and o not in subst:
+                if o not in subst:
                     if o in substnames and substnames[o] not in subst.values():
                         subst[o] = substnames[o]
                     else:
