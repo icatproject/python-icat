@@ -69,7 +69,7 @@ def cfgpath(p):
         return p
     else:
         for d in reversed(cfgdirs):
-            fp = os.path.join(d, p)
+            fp = os.path.abspath(os.path.join(d, p))
             if os.path.isfile(fp):
                 return fp
         else:

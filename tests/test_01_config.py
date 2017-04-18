@@ -804,7 +804,7 @@ def test_config_cfgpath_cwd(tmpconfigfile, monkeypatch, tmpfiles):
     assert conf.password == "pass"
     assert conf.promptPass == False
     assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
-    assert conf.controlfile == "control.dat"
+    assert conf.controlfile == hpath
     assert os.path.isfile(conf.controlfile)
 
 
