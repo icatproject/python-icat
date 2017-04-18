@@ -52,6 +52,29 @@ def boolean(value):
 flag = object()
 """Special boolean variable type that defines two command line arguments."""
 
+def cfgpath(p):
+    """Search for a file in some default directories.
+
+    The argument `p` should be a file path name.  If `p` is absolut,
+    it will be returned unchanged.  Otherwise, `p` will be resolved
+    against the directories in :data:`cfgdirs` in reversed order.  If
+    a file with the resulting path is found to exist, this path will
+    be returned, first match wins.  If no file exists in any of the
+    directories, `p` will be returned unchanged.
+
+    This function is suitable to be passed as `type` argument to
+    :meth:`icat.config.Config.add_variable`.
+    """
+    if os.path.isabs(p):
+        return p
+    else:
+        for d in reversed(cfgdirs):
+            fp = os.path.join(d, p)
+            if os.path.isfile(fp):
+                return fp
+        else:
+            return p
+
 
 class ConfigVariable(object):
     """Describe a configuration variable.
