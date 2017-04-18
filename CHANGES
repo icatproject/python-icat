@@ -8,6 +8,9 @@
  + Review wipeicat.py.  This was an example script, but is now
    promoted to be a regular utility script that gets installed.
 
+ + Issue #32: Add support for using aggregate functions in class
+   Query.
+
 ** Incompatible changes and deprecations
 
  + Deprecate support for ICAT 4.2.*.
@@ -18,6 +21,9 @@
 
  + Improved client.searchChunked().  This version is not susceptible
    to Issue icatproject/icat.server#128 anymore.
+
+ + Move the management of dependencies of tests into a separate
+   package pytest-dependency that is distributed independently.
 
 * Version 0.12.0 (2016-10-10)
 
