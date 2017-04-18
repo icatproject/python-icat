@@ -11,11 +11,38 @@
  + Issue #32: Add support for using aggregate functions in class
    Query.
 
+ + Issue #30: Add a predefined config variable type cfgpath.
+
 ** Incompatible changes and deprecations
 
  + Deprecate support for ICAT 4.2.*.
 
  + Deprecate module icat.cgi.
+
+ + Deprecate the predefined configuration variable "configDir".
+
+   The main use case for this variable was to be substituted in the
+   default value for the path of an additional configuration file.  The
+   typical usage was the definition of a configuration variable like:
+
+         config = icat.config.Config()
+         config.add_variable('extracfg', ("--extracfg",), 
+                             dict(help="Extra config file"),
+                             default="%(configDir)s/extra.xml", subst=True)
+         conf = config.getconfig()
+
+   This set the default path for the extra config file to the same
+   directory the main configuration file was found in.  Using the new
+   config variable type cfgpath you can replace this by:
+
+         config = icat.config.Config()
+         config.add_variable('extracfg', ("--extracfg",), 
+                             dict(help="Extra config file"),
+                             default="extra.xml", type=icat.config.cfgpath)
+         conf = config.getconfig()
+
+   This will search the extra config file in all the default config
+   directories, regardless where the main configuration file was found.
 
 ** Bug fixes and minor changes
 

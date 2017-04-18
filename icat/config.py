@@ -7,6 +7,7 @@ import os.path
 import getpass
 import argparse
 import ConfigParser
+from warnings import warn
 from icat.exception import *
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
@@ -51,6 +52,29 @@ def boolean(value):
 
 flag = object()
 """Special boolean variable type that defines two command line arguments."""
+
+def cfgpath(p):
+    """Search for a file in some default directories.
+
+    The argument `p` should be a file path name.  If `p` is absolut,
+    it will be returned unchanged.  Otherwise, `p` will be resolved
+    against the directories in :data:`icat.config.cfgdirs` in reversed
+    order.  If a file with the resulting path is found to exist, this
+    path will be returned, first match wins.  If no file exists in any
+    of the directories, `p` will be returned unchanged.
+
+    This function is suitable to be passed as `type` argument to
+    :meth:`icat.config.Config.add_variable`.
+    """
+    if os.path.isabs(p):
+        return p
+    else:
+        for d in reversed(cfgdirs):
+            fp = os.path.abspath(os.path.join(d, p))
+            if os.path.isfile(fp):
+                return fp
+        else:
+            return p
 
 
 class ConfigVariable(object):
@@ -164,6 +188,16 @@ class Configuration(object):
     def __init__(self, config):
         super(Configuration, self).__init__()
         self._config = config
+
+    def __getattr__(self, attr):
+        if attr == "configDir":
+            warn("The 'configDir' configuration variable is deprecated "
+                 "and will be removed in python-icat 1.0.", 
+                 DeprecationWarning)
+            return self._configDir
+        else:
+            raise AttributeError("%s object has no attribute %s" % 
+                                 (type(self).__name__, attr))
 
     def __str__(self):
         typename = type(self).__name__
@@ -413,9 +447,9 @@ class Config(object):
                 config.configFile = self.file.read(config.configFile)
                 if config.configFile:
                     f = config.configFile[-1]
-                    config.configDir = os.path.dirname(os.path.abspath(f))
+                    config._configDir = os.path.dirname(os.path.abspath(f))
                 else:
-                    config.configDir = None
+                    config._configDir = None
             elif var.name == 'configSection':
                 self.file.setsection(config.configSection)
 
