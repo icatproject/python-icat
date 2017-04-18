@@ -58,10 +58,10 @@ def cfgpath(p):
 
     The argument `p` should be a file path name.  If `p` is absolut,
     it will be returned unchanged.  Otherwise, `p` will be resolved
-    against the directories in :data:`cfgdirs` in reversed order.  If
-    a file with the resulting path is found to exist, this path will
-    be returned, first match wins.  If no file exists in any of the
-    directories, `p` will be returned unchanged.
+    against the directories in :data:`icat.config.cfgdirs` in reversed
+    order.  If a file with the resulting path is found to exist, this
+    path will be returned, first match wins.  If no file exists in any
+    of the directories, `p` will be returned unchanged.
 
     This function is suitable to be passed as `type` argument to
     :meth:`icat.config.Config.add_variable`.
