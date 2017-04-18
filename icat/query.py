@@ -45,68 +45,6 @@ aggregate_fcts = frozenset([
 :meth:`icat.query.Query.setAggregate` method.
 """
 
-# ======================== Internal helper ===========================
-
-def _parents(obj):
-    """Iterate over the parents of obj as dot separated components.
-
-    >>> list(_parents("a.bb.c.ddd.e.ff"))
-    ['a', 'a.bb', 'a.bb.c', 'a.bb.c.ddd', 'a.bb.c.ddd.e']
-    >>> list(_parents("abc"))
-    []
-    """
-    s = 0
-    while True:
-        i = obj.find('.', s)
-        if i < 0:
-            break
-        yield obj[:i]
-        s = i+1
-
-def _attrpath(client, entity, attrname):
-    """Follow the attribute path along related objects and iterate over
-    the components.
-    """
-    rclass = entity
-    for attr in attrname.split('.'):
-        if rclass is None:
-            # Last component was not a relation, no further components
-            # in the name allowed.
-            raise ValueError("Invalid attrname '%s' for %s." 
-                             % (attrname, entity.BeanName))
-        attrInfo = rclass.getAttrInfo(client, attr)
-        if attrInfo.relType == "ATTRIBUTE":
-            rclass = None
-        elif (attrInfo.relType == "ONE" or 
-              attrInfo.relType == "MANY"):
-            rclass = client.getEntityClass(attrInfo.type)
-        else:
-            raise InternalError("Invalid relType: '%s'" % attrInfo.relType)
-        yield (attrInfo, rclass)
-
-def _makesubst(objs):
-    subst = {}
-    substcount = 0
-    for obj in sorted(objs):
-        for o in _parents(obj):
-            if o not in subst:
-                if o in substnames and substnames[o] not in subst.values():
-                    subst[o] = substnames[o]
-                else:
-                    substcount += 1
-                    subst[o] = "s%d" % substcount
-    return subst
-
-def _dosubst(obj, subst, addas=True):
-    i = obj.rfind('.')
-    if i < 0:
-        n = "o.%s" % (obj)
-    else:
-        n = "%s.%s" % (subst[obj[:i]], obj[i+1:])
-    if addas and obj in subst:
-        n += " AS %s" % (subst[obj])
-    return n
-
 # ========================== class Query =============================
 
 class Query(object):
@@ -174,6 +112,61 @@ class Query(object):
         self.setLimit(limit)
         self._init = None
 
+    def _attrpath(self, attrname):
+        """Follow the attribute path along related objects and iterate over
+        the components.
+        """
+        rclass = self.entity
+        pattr = ""
+        for attr in attrname.split('.'):
+            if pattr:
+                pattr += ".%s" % attr
+            else:
+                pattr = attr
+            if rclass is None:
+                # Last component was not a relation, no further components
+                # in the name allowed.
+                raise ValueError("Invalid attrname '%s' for %s." 
+                                 % (attrname, self.entity.BeanName))
+            attrInfo = rclass.getAttrInfo(self.client, attr)
+            if attrInfo.relType == "ATTRIBUTE":
+                rclass = None
+            elif (attrInfo.relType == "ONE" or 
+                  attrInfo.relType == "MANY"):
+                rclass = self.client.getEntityClass(attrInfo.type)
+            else:
+                raise InternalError("Invalid relType: '%s'" % attrInfo.relType)
+            yield (pattr, attrInfo, rclass)
+
+    def _makesubst(self, objs):
+        subst = {}
+        substcount = 0
+        for obj in sorted(objs):
+            i = obj.rfind('.')
+            if i < 0:
+                continue
+            obj = obj[:i]
+            for (o, attrInfo, oclass) in self._attrpath(obj):
+                if o not in subst:
+                    if o in substnames and substnames[o] not in subst.values():
+                        subst[o] = substnames[o]
+                    else:
+                        substcount += 1
+                        subst[o] = "s%d" % substcount
+        return subst
+
+    def _dosubst(self, obj, subst, addas=True):
+        if not addas and obj in subst:
+            return subst[obj]
+        i = obj.rfind('.')
+        if i < 0:
+            n = "o.%s" % (obj)
+        else:
+            n = "%s.%s" % (subst[obj[:i]], obj[i+1:])
+        if addas and obj in subst:
+            n += " AS %s" % (subst[obj])
+        return n
+
     def setAttribute(self, attribute):
         """Set the attribute that the query shall return.
 
@@ -183,9 +176,10 @@ class Query(object):
             the result will be the list of matching objects instead.
         :type attribute: :class:`str`
         """
-        # Get the attribute path only to verify that the attribute is valid.
         if attribute is not None:
-            attrpath = list(_attrpath(self.client, self.entity, attribute))
+            # Get the attribute path only to verify that the attribute is valid.
+            for (pattr, attrInfo, rclass) in self._attrpath(attribute):
+                pass
         self.attribute = attribute
 
     def setAggregate(self, function):
@@ -234,13 +228,7 @@ class Query(object):
             self.order = []
             for obj in order:
 
-                pattr = ""
-                attrpath = _attrpath(self.client, self.entity, obj)
-                for (attrInfo, rclass) in attrpath:
-                    if pattr:
-                        pattr += ".%s" % attrInfo.name
-                    else:
-                        pattr = attrInfo.name
+                for (pattr, attrInfo, rclass) in self._attrpath(obj):
                     if attrInfo.relType == "ONE":
                         if (not attrInfo.notNullable and 
                             pattr not in self.conditions):
@@ -281,8 +269,7 @@ class Query(object):
         """
         if conditions:
             for a in conditions.keys():
-                attrpath = _attrpath(self.client, self.entity, a)
-                for (attrInfo, rclass) in attrpath:
+                for (pattr, attrInfo, rclass) in self._attrpath(a):
                     pass
                 if a in self.conditions:
                     conds = []
@@ -311,8 +298,7 @@ class Query(object):
             includes = list(self.entity.InstRel)
         if includes:
             for iobj in includes:
-                attrpath = _attrpath(self.client, self.entity, iobj)
-                for (attrInfo, rclass) in attrpath:
+                for (pattr, attrInfo, rclass) in self._attrpath(iobj):
                     pass
                 if rclass is None:
                     raise ValueError("%s.%s is not a related object." 
@@ -352,23 +338,25 @@ class Query(object):
         non-ascii characters working.  For Python 3, there is no
         distinction between Unicode and string objects anyway.
         """
-        if self.attribute is None:
-            res = "o"
+        joinattrs = set(self.order) | set(self.conditions.keys())
+        if self.attribute:
+            joinattrs.add(self.attribute)
+        subst = self._makesubst(joinattrs)
+        if self.attribute:
+            res = self._dosubst(self.attribute, subst, False)
         else:
-            res = "o.%s" % self.attribute
+            res = "o"
         if self.aggregate:
             for fct in reversed(self.aggregate.split(':')):
                 res = "%s(%s)" % (fct, res)
         base = "SELECT %s FROM %s o" % (res, self.entity.BeanName)
-        joinattrs = set(self.order) | set(self.conditions.keys())
-        subst = _makesubst(joinattrs)
         joins = ""
         for obj in sorted(subst.keys()):
-            joins += " JOIN %s" % _dosubst(obj, subst)
+            joins += " JOIN %s" % self._dosubst(obj, subst)
         if self.conditions:
             conds = []
             for a in sorted(self.conditions.keys()):
-                attr = _dosubst(a, subst, False)
+                attr = self._dosubst(a, subst, False)
                 cond = self.conditions[a]
                 if isinstance(cond, basestring):
                     conds.append("%s %s" % (attr, cond))
@@ -379,15 +367,15 @@ class Query(object):
         else:
             where = ""
         if self.order:
-            orders = [ _dosubst(a, subst, False) for a in self.order ]
+            orders = [ self._dosubst(a, subst, False) for a in self.order ]
             order = " ORDER BY " + ", ".join(orders)
         else:
             order = ""
         if self.includes:
-            subst = _makesubst(self.includes)
+            subst = self._makesubst(self.includes)
             includes = set(self.includes)
             includes.update(subst.keys())
-            incl = [ _dosubst(obj, subst) for obj in sorted(includes) ]
+            incl = [ self._dosubst(obj, subst) for obj in sorted(includes) ]
             include = " INCLUDE " + ", ".join(incl)
         else:
             include = ""
