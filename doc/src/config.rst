@@ -27,6 +27,8 @@ added.  The main class that client programs interact with is
     line arguments to switch the value on and off respectively.  May
     be passed as type to :meth:`icat.config.Config.add_variable`.
 
+.. autofunction:: icat.config.cfgpath
+
 .. autoclass:: icat.config.Configuration
     :members:
     :show-inheritance:
@@ -97,6 +99,10 @@ A few derived variables are also set in
     contains username and password suitable to be passed to
     :meth:`icat.client.Client.login`.
 
+.. deprecated:: 0.13
+   The derived variable `configDir` is deprecated and will be removed
+   in version 1.0.
+
 The command line arguments, environment variables, and default values
 for the configuration variables are as follows:
 
@@ -149,3 +155,10 @@ The method :meth:`icat.config.Config.getconfig` will prompt the user
 for a password if `promptPass` is :const:`True`, if `password` is
 :const:`None`, or if the `username`, but not the `password` has been
 provided by command line arguments.
+
+If the argument `defaultvars` to the constructor of
+:class:`icat.config.Config` is set to :const:`False`, no default
+configuration variables other then `configFile` and `configSection`
+will be defined.  The configuration mechanism is still intact.  In
+particular, custom configuration variables may be defined and reading
+the configuration file still works.

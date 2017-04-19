@@ -7,6 +7,7 @@ import os.path
 import getpass
 import argparse
 import ConfigParser
+import warnings
 from icat.exception import *
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
@@ -51,6 +52,29 @@ def boolean(value):
 
 flag = object()
 """Special boolean variable type that defines two command line arguments."""
+
+def cfgpath(p):
+    """Search for a file in some default directories.
+
+    The argument `p` should be a file path name.  If `p` is absolut,
+    it will be returned unchanged.  Otherwise, `p` will be resolved
+    against the directories in :data:`icat.config.cfgdirs` in reversed
+    order.  If a file with the resulting path is found to exist, this
+    path will be returned, first match wins.  If no file exists in any
+    of the directories, `p` will be returned unchanged.
+
+    This function is suitable to be passed as `type` argument to
+    :meth:`icat.config.Config.add_variable`.
+    """
+    if os.path.isabs(p):
+        return p
+    else:
+        for d in reversed(cfgdirs):
+            fp = os.path.abspath(os.path.join(d, p))
+            if os.path.isfile(fp):
+                return fp
+        else:
+            return p
 
 
 class ConfigVariable(object):
@@ -165,21 +189,40 @@ class Configuration(object):
         super(Configuration, self).__init__()
         self._config = config
 
+    def __getattr__(self, attr):
+        if attr == "configDir":
+            warnings.warn("The 'configDir' configuration variable is "
+                          "deprecated and will be removed in python-icat 1.0.", 
+                          DeprecationWarning)
+            if getattr(self, "configFile", None):
+                f = self.configFile[-1]
+                return os.path.dirname(os.path.abspath(f))
+            else:
+                return None
+        else:
+            raise AttributeError("%s object has no attribute %s" % 
+                                 (type(self).__name__, attr))
+
     def __str__(self):
         typename = type(self).__name__
         arg_strings = []
         vars = [var.name for var in self._config.confvariables] \
             + self._config.ReservedVariables
-        for f in vars:
-            if hasattr(self, f):
-                arg_strings.append('%s=%r' % (f, getattr(self, f)))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            for f in vars:
+                if hasattr(self, f):
+                    arg_strings.append('%s=%r' % (f, getattr(self, f)))
         return '%s(%s)' % (typename, ', '.join(arg_strings))
 
     def as_dict(self):
         """Return the configuration as a dict."""
         vars = [var.name for var in self._config.confvariables] \
             + self._config.ReservedVariables
-        return dict([ (f,getattr(self, f)) for f in vars if hasattr(self, f) ])
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            d = dict([ (f,getattr(self, f)) for f in vars if hasattr(self, f) ])
+        return d
 
 
 class Config(object):
@@ -198,7 +241,7 @@ class Config(object):
     ReservedVariables = ['configDir', 'client_kwargs', 'credentials']
     """Reserved names of configuration variables."""
 
-    def __init__(self, needlogin=True, ids=False):
+    def __init__(self, defaultvars=True, needlogin=True, ids="optional"):
         """Initialize the object.
 
         Setup the predefined configuration variables.  If `needlogin`
@@ -211,8 +254,9 @@ class Config(object):
         """
         super(Config, self).__init__()
         self.defaultFiles = [os.path.join(d, cfgfile) for d in cfgdirs]
-        self.needlogin = needlogin
-        self.ids = ids
+        self.defaultvars = defaultvars
+        self.needlogin = None
+        self.ids = None
         self.confvariables = []
         self.confvariable = {}
 
@@ -225,46 +269,49 @@ class Config(object):
                                metavar='SECTION'), 
                           envvar='ICAT_CFG_SECTION', optional=True, 
                           default=defaultsection)
-        self.add_variable('url', ("-w", "--url"), 
-                          dict(help="URL to the web service description"),
-                          envvar='ICAT_SERVICE')
-        if self.ids:
-            if self.ids == "mandatory":
-                idsopt = False
-            elif self.ids == "optional":
-                idsopt = True
-            else:
-                raise ValueError("invalid value '%s' for argument ids." 
-                                 % self.ids) 
-            self.add_variable('idsurl', ("--idsurl",), 
-                              dict(help="URL to the ICAT Data Service"),
-                              envvar='ICAT_DATA_SERVICE', optional=idsopt)
-        self.add_variable('checkCert', ("--check-certificate",), 
-                          dict(help="don't verify the server certificate"), 
-                          type=flag, default=True)
-        self.add_variable('http_proxy', ("--http-proxy",), 
-                          dict(help="proxy to use for http requests"),
-                          envvar='http_proxy', optional=True)
-        self.add_variable('https_proxy', ("--https-proxy",), 
-                          dict(help="proxy to use for https requests"),
-                          envvar='https_proxy', optional=True)
-        self.add_variable('no_proxy', ("--no-proxy",), 
-                          dict(help="list of exclusions for proxy use"),
-                          envvar='no_proxy', optional=True)
-        if self.needlogin:
-            self.add_variable('auth', ("-a", "--auth"), 
-                              dict(help="authentication plugin"),
-                              envvar='ICAT_AUTH')
-            self.add_variable('username', ("-u", "--user"), 
-                              dict(help="username"),
-                              envvar='ICAT_USER')
-            self.add_variable('password', ("-p", "--pass"), 
-                              dict(help="password"), 
-                              optional=True)
-            self.add_variable('promptPass', ("-P", "--prompt-pass"), 
-                              dict(help="prompt for the password", 
-                                   action='store_const', const=True), 
-                              type=boolean, default=False)
+        if self.defaultvars:
+            self.needlogin = needlogin
+            self.ids = ids
+            self.add_variable('url', ("-w", "--url"), 
+                              dict(help="URL to the web service description"),
+                              envvar='ICAT_SERVICE')
+            if self.ids:
+                if self.ids == "mandatory":
+                    idsopt = False
+                elif self.ids == "optional":
+                    idsopt = True
+                else:
+                    raise ValueError("invalid value '%s' for argument ids." 
+                                     % self.ids) 
+                self.add_variable('idsurl', ("--idsurl",), 
+                                  dict(help="URL to the ICAT Data Service"),
+                                  envvar='ICAT_DATA_SERVICE', optional=idsopt)
+            self.add_variable('checkCert', ("--check-certificate",), 
+                              dict(help="don't verify the server certificate"), 
+                              type=flag, default=True)
+            self.add_variable('http_proxy', ("--http-proxy",), 
+                              dict(help="proxy to use for http requests"),
+                              envvar='http_proxy', optional=True)
+            self.add_variable('https_proxy', ("--https-proxy",), 
+                              dict(help="proxy to use for https requests"),
+                              envvar='https_proxy', optional=True)
+            self.add_variable('no_proxy', ("--no-proxy",), 
+                              dict(help="list of exclusions for proxy use"),
+                              envvar='no_proxy', optional=True)
+            if self.needlogin:
+                self.add_variable('auth', ("-a", "--auth"), 
+                                  dict(help="authentication plugin"),
+                                  envvar='ICAT_AUTH')
+                self.add_variable('username', ("-u", "--user"), 
+                                  dict(help="username"),
+                                  envvar='ICAT_USER')
+                self.add_variable('password', ("-p", "--pass"), 
+                                  dict(help="password"), 
+                                  optional=True)
+                self.add_variable('promptPass', ("-P", "--prompt-pass"), 
+                                  dict(help="prompt for the password", 
+                                       action='store_const', const=True), 
+                                  type=boolean, default=False)
 
     def add_variable(self, name, arg_opts=(), arg_kws=dict(), 
                      envvar=None, optional=False, default=None, type=None, 
@@ -411,11 +458,6 @@ class Config(object):
 
             if var.name == 'configFile':
                 config.configFile = self.file.read(config.configFile)
-                if config.configFile:
-                    f = config.configFile[-1]
-                    config.configDir = os.path.dirname(os.path.abspath(f))
-                else:
-                    config.configDir = None
             elif var.name == 'configSection':
                 self.file.setsection(config.configSection)
 
@@ -430,20 +472,21 @@ class Config(object):
             config.credentials = { 'username':config.username, 
                                    'password':config.password }
 
-        config.client_kwargs = {}
-        if self.ids:
-            config.client_kwargs['idsurl'] = config.idsurl
-        config.client_kwargs['checkCert'] = config.checkCert
-        if config.http_proxy or config.https_proxy:
-            proxy={}
-            if config.http_proxy:
-                proxy['http'] = config.http_proxy
-                os.environ['http_proxy'] = config.http_proxy
-            if config.https_proxy:
-                proxy['https'] = config.https_proxy
-                os.environ['https_proxy'] = config.https_proxy
-            config.client_kwargs['proxy'] = proxy
-        if config.no_proxy:
-                os.environ['no_proxy'] = config.no_proxy
+        if self.defaultvars:
+            config.client_kwargs = {}
+            if self.ids:
+                config.client_kwargs['idsurl'] = config.idsurl
+            config.client_kwargs['checkCert'] = config.checkCert
+            if config.http_proxy or config.https_proxy:
+                proxy={}
+                if config.http_proxy:
+                    proxy['http'] = config.http_proxy
+                    os.environ['http_proxy'] = config.http_proxy
+                if config.https_proxy:
+                    proxy['https'] = config.https_proxy
+                    os.environ['https_proxy'] = config.https_proxy
+                config.client_kwargs['proxy'] = proxy
+            if config.no_proxy:
+                    os.environ['no_proxy'] = config.no_proxy
 
         return config
