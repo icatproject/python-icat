@@ -7,7 +7,7 @@ import os.path
 import getpass
 import argparse
 import ConfigParser
-from warnings import warn
+import warnings
 from icat.exception import *
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
@@ -191,9 +191,9 @@ class Configuration(object):
 
     def __getattr__(self, attr):
         if attr == "configDir":
-            warn("The 'configDir' configuration variable is deprecated "
-                 "and will be removed in python-icat 1.0.", 
-                 DeprecationWarning)
+            warnings.warn("The 'configDir' configuration variable is "
+                          "deprecated and will be removed in python-icat 1.0.", 
+                          DeprecationWarning)
             return self._configDir
         else:
             raise AttributeError("%s object has no attribute %s" % 
@@ -204,16 +204,21 @@ class Configuration(object):
         arg_strings = []
         vars = [var.name for var in self._config.confvariables] \
             + self._config.ReservedVariables
-        for f in vars:
-            if hasattr(self, f):
-                arg_strings.append('%s=%r' % (f, getattr(self, f)))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            for f in vars:
+                if hasattr(self, f):
+                    arg_strings.append('%s=%r' % (f, getattr(self, f)))
         return '%s(%s)' % (typename, ', '.join(arg_strings))
 
     def as_dict(self):
         """Return the configuration as a dict."""
         vars = [var.name for var in self._config.confvariables] \
             + self._config.ReservedVariables
-        return { f:getattr(self, f) for f in vars if hasattr(self, f) }
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            d = { f:getattr(self, f) for f in vars if hasattr(self, f) }
+        return d
 
 
 class Config(object):
