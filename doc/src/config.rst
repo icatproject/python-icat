@@ -155,3 +155,10 @@ The method :meth:`icat.config.Config.getconfig` will prompt the user
 for a password if `promptPass` is :const:`True`, if `password` is
 :const:`None`, or if the `username`, but not the `password` has been
 provided by command line arguments.
+
+If the argument `defaultvars` to the constructor of
+:class:`icat.config.Config` is set to :const:`False`, no default
+configuration variables other then `configFile` and `configSection`
+will be defined.  The configuration mechanism is still intact.  In
+particular, custom configuration variables may be defined and reading
+the configuration file still works.

@@ -170,6 +170,43 @@ def test_config_minimal_defaultfile(tmpconfigfile, monkeypatch):
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
 
 
+def test_config_no_defaultvars(tmpconfigfile, monkeypatch):
+    """Config object with no default variables.
+
+    If `defaultvars=False` is passed to the constructor of Config, no
+    default configuration variables will be defined other then
+    `configFile` and `configSection`.  The configuration mechanism is
+    still intact.  In particular, custom configuration variables may
+    be defined and reading the configuration file still works.
+    """
+
+    # Manipulate the default search path.
+    monkeypatch.setenv("HOME", tmpconfigfile.home)
+    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
+                os.path.expanduser("~/.icat"), 
+                "", ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(tmpconfigfile.home)
+
+    args = ["-s", "example_root"]
+    config = icat.config.Config(defaultvars=False)
+    config.add_variable('url', ("-w", "--url"), 
+                        dict(help="URL to the web service description"))
+    config.add_variable('wobble', ("--wobble",), 
+                        dict(help="Strange thing"), 
+                        optional=True)
+    conf = config.getconfig(args)
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'configFile', 'configSection', 'url', 'wobble' ]
+
+    assert conf.configFile == [tmpconfigfile.path]
+    assert conf.configDir == tmpconfigfile.dir
+    assert conf.configSection == "example_root"
+    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert conf.wobble is None
+
+
 def test_config_simple_login(tmpconfigfile):
     """Simple login example.
 
