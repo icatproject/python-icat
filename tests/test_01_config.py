@@ -135,7 +135,6 @@ def test_config_minimal_file(tmpconfigfile, monkeypatch):
                       'no_proxy', 'url' ]
 
     assert conf.configFile == ["icat.cfg"]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_root"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
 
@@ -165,7 +164,6 @@ def test_config_minimal_defaultfile(tmpconfigfile, monkeypatch):
                       'no_proxy', 'url' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_root"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
 
@@ -201,7 +199,6 @@ def test_config_no_defaultvars(tmpconfigfile, monkeypatch):
     assert attrs == [ 'configFile', 'configSection', 'url', 'wobble' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_root"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.wobble is None
@@ -223,7 +220,6 @@ def test_config_simple_login(tmpconfigfile):
                       'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_root"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.idsurl == "https://icat.example.com/ids"
@@ -251,7 +247,6 @@ def test_config_override(tmpconfigfile):
                       'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_root"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.idsurl == "https://icat.example.com/ids"
@@ -284,7 +279,6 @@ def test_config_askpass(tmpconfigfile, monkeypatch):
                       'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_root"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.idsurl == "https://icat.example.com/ids"
@@ -318,7 +312,6 @@ def test_config_nopass_askpass(tmpconfigfile, monkeypatch):
                       'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_nbour"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.auth == "ldap"
@@ -348,7 +341,6 @@ def test_config_askpass_file(tmpconfigfile, monkeypatch):
                       'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "test21"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.auth == "simple"
@@ -378,7 +370,6 @@ def test_config_environment(tmpconfigfile, monkeypatch):
                       'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_root"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.idsurl == "https://icat.example.com/ids"
@@ -413,7 +404,6 @@ def test_config_ids(tmpconfigfile):
                       'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_root"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.idsurl == "https://icat.example.com/ids"
@@ -435,7 +425,6 @@ def test_config_ids(tmpconfigfile):
                       'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.idsurl == None
@@ -473,7 +462,6 @@ def test_config_custom_var(tmpconfigfile):
                       'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_root"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.idsurl == "https://icat.example.com/ids"
@@ -507,7 +495,6 @@ def test_config_subst_nosubst(tmpconfigfile):
                       'password', 'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.auth == "ldap"
@@ -538,7 +525,6 @@ def test_config_subst(tmpconfigfile):
                       'password', 'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.auth == "ldap"
@@ -571,7 +557,6 @@ def test_config_subst_cmdline(tmpconfigfile):
                       'password', 'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.auth == "ldap"
@@ -623,7 +608,6 @@ def test_config_type_int(tmpconfigfile):
                       'idsurl', 'no_proxy', 'num', 'url' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.num == 42
@@ -664,7 +648,6 @@ def test_config_type_boolean(tmpconfigfile):
                       'https_proxy', 'idsurl', 'no_proxy', 'url' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.flag1 == True
@@ -680,7 +663,6 @@ def test_config_type_boolean(tmpconfigfile):
                       'https_proxy', 'idsurl', 'no_proxy', 'url' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.flag1 == True
@@ -705,7 +687,6 @@ def test_config_type_flag(tmpconfigfile):
                       'https_proxy', 'idsurl', 'no_proxy', 'url' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.flag1 == True
@@ -722,7 +703,6 @@ def test_config_type_flag(tmpconfigfile):
                       'https_proxy', 'idsurl', 'no_proxy', 'url' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.flag1 == False
@@ -750,7 +730,6 @@ def test_config_positional(tmpconfigfile):
                       'password', 'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.auth == "ldap"
@@ -792,7 +771,6 @@ def test_config_cfgpath_default(tmpconfigfile, monkeypatch, tmpfiles):
                       'password', 'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.auth == "ldap"
@@ -838,7 +816,6 @@ def test_config_cfgpath_cwd(tmpconfigfile, monkeypatch, tmpfiles):
                       'password', 'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.auth == "ldap"
@@ -892,7 +869,6 @@ def test_config_cfgpath_cmdline(tmpconfigfile, monkeypatch, tmpfiles, abspath):
                       'password', 'promptPass', 'url', 'username' ]
 
     assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
     assert conf.configSection == "example_jdoe"
     assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
     assert conf.auth == "ldap"
