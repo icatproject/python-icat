@@ -7,6 +7,7 @@ import os.path
 import getpass
 import argparse
 import ConfigParser
+import warnings
 from icat.client import Client
 from icat.authinfo import AuthenticatorInfo, LegacyAuthenticatorInfo
 from icat.exception import stripCause, ConfigError, VersionMethodError
@@ -54,6 +55,29 @@ def boolean(value):
 flag = object()
 """Special boolean variable type that defines two command line arguments."""
 
+def cfgpath(p):
+    """Search for a file in some default directories.
+
+    The argument `p` should be a file path name.  If `p` is absolut,
+    it will be returned unchanged.  Otherwise, `p` will be resolved
+    against the directories in :data:`icat.config.cfgdirs` in reversed
+    order.  If a file with the resulting path is found to exist, this
+    path will be returned, first match wins.  If no file exists in any
+    of the directories, `p` will be returned unchanged.
+
+    This function is suitable to be passed as `type` argument to
+    :meth:`icat.config.Config.add_variable`.
+    """
+    if os.path.isabs(p):
+        return p
+    else:
+        for d in reversed(cfgdirs):
+            fp = os.path.abspath(os.path.join(d, p))
+            if os.path.isfile(fp):
+                return fp
+        else:
+            return p
+
 
 class _argparserDisableExit:
     """Temporarily redirect stdout to devnull and disable exit from an
@@ -82,11 +106,6 @@ def post_configFile(config, configuration):
     """Postprocess configFile: read the configuration file.
     """
     configuration.configFile = config.conffile.read(configuration.configFile)
-    if configuration.configFile:
-        f = configuration.configFile[-1]
-        configuration.configDir = os.path.dirname(os.path.abspath(f))
-    else:
-        configuration.configDir = None
 
 def post_configSection(config, configuration):
     """Postprocess configSection: set the configuration section.
@@ -260,21 +279,40 @@ class Configuration(object):
         super(Configuration, self).__init__()
         self._config = config
 
+    def __getattr__(self, attr):
+        if attr == "configDir":
+            warnings.warn("The 'configDir' configuration variable is "
+                          "deprecated and will be removed in python-icat 1.0.", 
+                          DeprecationWarning)
+            if getattr(self, "configFile", None):
+                f = self.configFile[-1]
+                return os.path.dirname(os.path.abspath(f))
+            else:
+                return None
+        else:
+            raise AttributeError("%s object has no attribute %s" % 
+                                 (type(self).__name__, attr))
+
     def __str__(self):
         typename = type(self).__name__
         arg_strings = []
         vars = [var.name for var in self._config.confvariables] \
             + self._config.ReservedVariables
-        for f in vars:
-            if hasattr(self, f):
-                arg_strings.append('%s=%r' % (f, getattr(self, f)))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            for f in vars:
+                if hasattr(self, f):
+                    arg_strings.append('%s=%r' % (f, getattr(self, f)))
         return '%s(%s)' % (typename, ', '.join(arg_strings))
 
     def as_dict(self):
         """Return the configuration as a dict."""
         vars = [var.name for var in self._config.confvariables] \
             + self._config.ReservedVariables
-        return { f:getattr(self, f) for f in vars if hasattr(self, f) }
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            d = { f:getattr(self, f) for f in vars if hasattr(self, f) }
+        return d
 
 
 class Config(object):
@@ -291,6 +329,11 @@ class Config(object):
 
     The constructor sets up some predefined configuration variables.
 
+    :param defaultvars: if set to :const:`False`, no default
+        configuration variables other then `configFile` and
+        `configSection` will be defined.  The arguments `needlogin`
+        and `ids` will be ignored in this case.
+    :type defaultvars: :class:`bool`
     :param needlogin: if set to :const:`False`, the configuration
         variables `auth`, `username`, `password`, `promptPass`, and
         `credentials` will be left out.
@@ -309,21 +352,30 @@ class Config(object):
     ReservedVariables = ['configDir', 'credentials']
     """Reserved names of configuration variables."""
 
-    def __init__(self, needlogin=True, ids=False, args=None):
+    def __init__(self, defaultvars=True, needlogin=True, ids="optional", 
+                 args=None):
         """Initialize the object.
         """
         super(Config, self).__init__()
         self.defaultFiles = [os.path.join(d, cfgfile) for d in cfgdirs]
-        self.needlogin = needlogin
-        self.ids = ids
+        self.defaultvars = defaultvars
         self.confvariables = []
         self.confvariable = {}
         self.args = args
         self.argparser = argparse.ArgumentParser()
-        self._add_basic_variables()
-        self.client = self._setup_client()
-        if self.needlogin:
-            self._add_cred_variables()
+        self._add_fundamental_variables()
+        if self.defaultvars:
+            self.needlogin = needlogin
+            self.ids = ids
+            self._add_basic_variables()
+            self.client = self._setup_client()
+            if self.needlogin:
+                self._add_cred_variables()
+        else:
+            self.needlogin = None
+            self.ids = None
+            self.client = None
+
 
     def add_variable(self, name, arg_opts=(), arg_kws=dict(), 
                      envvar=None, optional=False, default=None, type=None, 
@@ -446,7 +498,8 @@ class Config(object):
         :return: a tuple with two items, a client initialized to
             connect to an ICAT server according to the configuration
             and an object having the configuration values set as
-            attributes.
+            attributes.  The client will be :const:`None` if the
+            `defaultvars` constructor argument was :const:`False`.
         :rtype: :class:`tuple` of :class:`icat.client.Client` and
             :class:`icat.config.Configuration`
         :raise ConfigError: if `configFile` is defined but the file by
@@ -465,8 +518,8 @@ class Config(object):
 
         return (self.client, config)
 
-    def _add_basic_variables(self):
-        """The basic variables needed to setup the client.
+    def _add_fundamental_variables(self):
+        """The fundamental variables that are always needed.
         """
         var = self.add_variable('configFile', ("-c", "--configfile"), 
                                 dict(help="config file"),
@@ -478,6 +531,10 @@ class Config(object):
                                 envvar='ICAT_CFG_SECTION', optional=True, 
                                 default=defaultsection)
         var.postprocess = post_configSection
+
+    def _add_basic_variables(self):
+        """The basic variables needed to setup the client.
+        """
         self.add_variable('url', ("-w", "--url"), 
                           dict(help="URL to the web service description"),
                           envvar='ICAT_SERVICE')

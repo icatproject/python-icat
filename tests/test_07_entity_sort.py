@@ -1,7 +1,6 @@
 """Test sorting of entity objects.
 """
 
-import sys
 import pytest
 import icat
 import icat.config

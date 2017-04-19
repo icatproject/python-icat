@@ -15,7 +15,7 @@ def test_get_icat_version():
     configured and that we can connect to it.
     """
 
-    client, conf = getConfig(needlogin=False)
+    client, conf = getConfig(needlogin=False, ids=False)
     # python-icat supports ICAT server 4.2 or newer.  But actually, we
     # just want to check that client.apiversion is set and supports
     # comparison with version strings.

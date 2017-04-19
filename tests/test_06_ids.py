@@ -2,7 +2,6 @@
 """
 
 from __future__ import print_function
-import os
 import os.path
 import time
 import zipfile
@@ -14,8 +13,7 @@ import icat.config
 from icat.query import Query
 from icat.ids import DataSelection
 from conftest import DummyDatafile, UtcTimezone
-from conftest import require_icat_version, getConfig
-from conftest import tmpSessionId, tmpClient
+from conftest import getConfig, tmpSessionId, tmpClient
 
 
 @pytest.fixture(scope="module")
@@ -159,6 +157,7 @@ def test_upload(tmpdirsec, client, case):
                       case['dfname'], case['size'], case['mtime'])
     print("\nUpload file %s" % case['dfname'])
     with tmpClient(confSection=case['uluser'], ids="mandatory") as tclient:
+        username = tclient.getUserName()
         dataset = getDataset(tclient, case)
         datafileformat = getDatafileFormat(tclient, case)
         datafile = tclient.new("datafile", name=os.path.basename(f.fname), 
@@ -170,8 +169,8 @@ def test_upload(tmpdirsec, client, case):
         assert df.checksum == f.crc32
         if f.mtime:
             assert df.datafileModTime == f.mtime
-        assert df.createId == "%s/%s" % (conf.auth, case['uluser'])
-        assert df.modId == "%s/%s" % (conf.auth, case['uluser'])
+        assert df.createId == username
+        assert df.modId == username
         case['testfile'] = f
 
 @pytest.fixture(scope='function', params=["getData", "getPreparedData"])
