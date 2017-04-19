@@ -49,6 +49,9 @@
 
 ** Bug fixes and minor changes
 
+ + Changed the default for the Config constructor argument ids from
+   False to "optional".
+
  + Improved client.searchChunked().  This version is not susceptible
    to Issue icatproject/icat.server#128 anymore.
 

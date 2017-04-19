@@ -232,7 +232,7 @@ class Config(object):
     ReservedVariables = ['configDir', 'client_kwargs', 'credentials']
     """Reserved names of configuration variables."""
 
-    def __init__(self, defaultvars=True, needlogin=True, ids=False):
+    def __init__(self, defaultvars=True, needlogin=True, ids="optional"):
         """Initialize the object.
 
         Setup the predefined configuration variables.  If `needlogin`
