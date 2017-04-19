@@ -194,7 +194,11 @@ class Configuration(object):
             warnings.warn("The 'configDir' configuration variable is "
                           "deprecated and will be removed in python-icat 1.0.", 
                           DeprecationWarning)
-            return self._configDir
+            if getattr(self, "configFile", None):
+                f = self.configFile[-1]
+                return os.path.dirname(os.path.abspath(f))
+            else:
+                return None
         else:
             raise AttributeError("%s object has no attribute %s" % 
                                  (type(self).__name__, attr))
@@ -454,11 +458,6 @@ class Config(object):
 
             if var.name == 'configFile':
                 config.configFile = self.file.read(config.configFile)
-                if config.configFile:
-                    f = config.configFile[-1]
-                    config._configDir = os.path.dirname(os.path.abspath(f))
-                else:
-                    config._configDir = None
             elif var.name == 'configSection':
                 self.file.setsection(config.configSection)
 
