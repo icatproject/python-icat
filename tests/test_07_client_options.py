@@ -5,14 +5,29 @@ from __future__ import print_function
 import pytest
 import icat
 import icat.config
-import icat.sslcontext
+from icat.sslcontext import create_ssl_context, HTTPSTransport
 from conftest import getConfig
+
+
+@pytest.mark.xfail(reason="Issue #34")
+def test_client_sslContext_kwarg(setupicat):
+    """Set the `sslContext` keyword argument to the Client constructor.
+    Issue #34.
+    """
+    conf = getConfig()
+    kwargs = dict(conf.client_kwargs)
+    sslverify = kwargs.pop('checkCert', True)
+    cafile = kwargs.pop('caFile', None)
+    capath = kwargs.pop('caPath', None)
+    kwargs['sslContext'] = create_ssl_context(sslverify, cafile, capath)
+    client = icat.Client(conf.url, **kwargs)
+    client.login(conf.auth, conf.credentials)
 
 
 # Define an HTTPSTransport that counts the messages sent to the server,
 # just to have any behavior that we can observe from outside in order
 # to verify that we were able to set a custom HttpTransport.
-class MyHTTPSTransport(icat.sslcontext.HTTPSTransport):
+class MyHTTPSTransport(HTTPSTransport):
     def __init__(self, context, **kwargs):
         super(MyHTTPSTransport, self).__init__(context, **kwargs)
         self.sendCounter = 0
