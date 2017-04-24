@@ -174,7 +174,7 @@ class Client(suds.client.Client):
         cafile = kwargs.pop('caFile', None)
         capath = kwargs.pop('caPath', None)
         if 'sslContext' in kwargs:
-            self.sslContext = kwargs.pop(['sslContext'])
+            self.sslContext = kwargs.pop('sslContext')
         else:
             self.sslContext = create_ssl_context(sslverify, cafile, capath)
 

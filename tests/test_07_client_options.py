@@ -9,7 +9,6 @@ from icat.sslcontext import create_ssl_context, HTTPSTransport
 from conftest import getConfig
 
 
-@pytest.mark.xfail(reason="Issue #34")
 def test_client_sslContext_kwarg(setupicat):
     """Set the `sslContext` keyword argument to the Client constructor.
     Issue #34.
