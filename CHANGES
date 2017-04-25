@@ -58,6 +58,9 @@
  + Move the management of dependencies of tests into a separate
    package pytest-dependency that is distributed independently.
 
+ + Issue #34: TypeError in the Client constructor if setting
+   the sslContext keyword argument.
+
 * Version 0.12.0 (2016-10-10)
 
 ** New features

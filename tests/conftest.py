@@ -81,7 +81,7 @@ def getConfig(confSection="root", **confArgs):
         conf.cmdargs = ["-c", conf.configFile[0], "-s", conf.configSection]
         return (client, conf)
     except icat.ConfigError as err:
-        pytest.skip(err.message)
+        pytest.skip(str(err))
 
 
 class tmpSessionId:
