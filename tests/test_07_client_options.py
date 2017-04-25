@@ -28,10 +28,10 @@ def test_client_sslContext_kwarg(setupicat):
 # to verify that we were able to set a custom HttpTransport.
 class MyHTTPSTransport(HTTPSTransport):
     def __init__(self, context, **kwargs):
-        super(MyHTTPSTransport, self).__init__(context, **kwargs)
+        HTTPSTransport.__init__(self, context, **kwargs)
         self.sendCounter = 0
     def send(self, request):
-        result = super(MyHTTPSTransport, self).send(request)
+        result = HTTPSTransport.send(self, request)
         self.sendCounter += 1
         return result
 
