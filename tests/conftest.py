@@ -116,7 +116,7 @@ def getConfig(confSection="root", **confArgs):
         conf.cmdargs = ["-c", conf.configFile[0], "-s", conf.configSection]
         return conf
     except icat.ConfigError as err:
-        pytest.skip(err.message)
+        pytest.skip(str(err))
 
 
 def get_icat_version():
