@@ -69,7 +69,16 @@ class DumpFileReader(object):
 
     def __init__(self, client, infile):
         self.client = client
-        self.infile = infile
+        if isinstance(infile, basestring):
+            self.infile = self._file_open(infile)
+        else:
+            self.infile = infile
+
+    def _file_open(self, filename):
+        if filename == "-":
+            return sys.stdin
+        else:
+            return open(filename, self.mode)
 
     def __enter__(self):
         return self
@@ -135,8 +144,17 @@ class DumpFileWriter(object):
 
     def __init__(self, client, outfile):
         self.client = client
-        self.outfile = outfile
+        if isinstance(outfile, basestring):
+            self.outfile = self._file_open(outfile)
+        else:
+            self.outfile = outfile
         self.idcounter = {}
+
+    def _file_open(self, filename):
+        if filename == "-":
+            return sys.stdout
+        else:
+            return open(filename, self.mode)
 
     def __enter__(self):
         self.head()
@@ -310,29 +328,9 @@ def open_dumpfile(client, f, formatname, mode):
         raise ValueError("Unknown data file format '%s'" % formatname)
     if mode == 'r':
         cls = Backends[formatname][0]
-        if isinstance(f, basestring):
-            if f == "-":
-                if 'b' in cls.mode:
-                    # backend requires binary mode
-                    f = os.fdopen(os.dup(sys.stdin.fileno()), cls.mode)
-                    sys.stdin.close()
-                else:
-                    f = sys.stdin
-            else:
-                f = open(f, cls.mode)
         return cls(client, f)
     elif mode == 'w':
         cls = Backends[formatname][1]
-        if isinstance(f, basestring):
-            if f == "-":
-                if 'b' in cls.mode:
-                    # backend requires binary mode
-                    f = os.fdopen(os.dup(sys.stdout.fileno()), cls.mode)
-                    sys.stdout.close()
-                else:
-                    f = sys.stdout
-            else:
-                f = open(f, cls.mode)
         return cls(client, f)
     else:
         raise ValueError("Invalid file mode '%s'" % mode)

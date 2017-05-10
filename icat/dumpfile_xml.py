@@ -1,6 +1,7 @@
 """XML data file backend for icatdump.py and icatingest.py.
 """
 
+import sys
 import os
 import datetime
 from lxml import etree
@@ -32,6 +33,15 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
         super(XMLDumpFileReader, self).__init__(client, infile)
         self.insttypemap = { c.BeanName:t 
                              for t,c in self.client.typemap.iteritems() }
+
+    def _file_open(self, filename):
+        if filename == "-":
+            # lxml requires binary mode
+            f = os.fdopen(os.dup(sys.stdin.fileno()), self.mode)
+            sys.stdin.close()
+            return f
+        else:
+            return open(filename, self.mode)
 
     def _searchByReference(self, element, objtype, objindex):
         """Search for a referenced object.
@@ -114,6 +124,15 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     def __init__(self, client, outfile):
         super(XMLDumpFileWriter, self).__init__(client, outfile)
         self.data = etree.Element("data")
+
+    def _file_open(self, filename):
+        if filename == "-":
+            # lxml requires binary mode
+            f = os.fdopen(os.dup(sys.stdout.fileno()), self.mode)
+            sys.stdout.close()
+            return f
+        else:
+            return open(filename, self.mode)
 
     def _entity2elem(self, obj, tag, keyindex):
         """Convert an entity object to an etree.Element."""
