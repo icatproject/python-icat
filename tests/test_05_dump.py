@@ -37,7 +37,7 @@ for u in users:
 # file and writing it back as YAML to stdout.
 cases = [ (b, t) 
           for b in backends.keys() 
-          for t in ('FILE',) ]
+          for t in ('FILE', 'STDINOUT') ]
 caseids = [ "%s-%s" % t for t in cases ]
 
 # Read permission on DataCollection, DataCollectionDatafile,
@@ -104,6 +104,10 @@ def test_ingest(ingestcase, standardConfig):
     if filetype == 'FILE':
         args = standardConfig.cmdargs + ["-f", backend, "-i", refdump]
         callscript("icatingest.py", args)
+    elif filetype == 'STDINOUT':
+        args = standardConfig.cmdargs + ["-f", backend]
+        with open(refdump, "rt") as infile:
+            callscript("icatingest.py", args, stdin=infile)
     else:
         raise RuntimeError("Invalid file type %s" % filetype)
 
@@ -122,6 +126,10 @@ def test_check_content(ingestcheck, standardConfig, tmpdirsec, case):
     if filetype == 'FILE':
         args = standardConfig.cmdargs + ["-f", backend, "-o", dump]
         callscript("icatdump.py", args)
+    elif filetype == 'STDINOUT':
+        args = standardConfig.cmdargs + ["-f", backend]
+        with open(dump, "wt") as outfile:
+            callscript("icatdump.py", args, stdout=outfile)
     else:
         raise RuntimeError("Invalid file type %s" % filetype)
     filter_file(dump, fdump, *backends[backend]['filter'])
