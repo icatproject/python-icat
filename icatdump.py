@@ -158,8 +158,8 @@ with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     dumpfile.writedata(authtypes)
     dumpfile.writedata(statictypes)
     # Dump the investigations each in their own chunk
-    investsearch = ("SELECT i.id FROM Investigation i JOIN i.facility f "
-                    "ORDER BY f.name, i.name, i.visitId")
+    investsearch = Query(client, "Investigation", attribute="id", 
+                         order=["facility.name", "name", "visitId"])
     for i in client.searchChunked(investsearch):
         # We fetch Dataset including DatasetParameter.  This may lead
         # to a large total number of objects even for a small number
