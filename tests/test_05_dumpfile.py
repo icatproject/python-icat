@@ -5,6 +5,7 @@ rather then calling icatdump and icatingest as external scripts, it
 uses the internal API icat.dumpfile.
 """
 
+import io
 import os.path
 import filecmp
 import pytest
@@ -42,7 +43,7 @@ assert backends.keys() == icat.dumpfile.Backends.keys()
 # file and writing it back as YAML to stdout.
 cases = [ (b, t) 
           for b in backends.keys() 
-          for t in ('FILE',) ]
+          for t in ('FILE', 'MEMORY') ]
 caseids = [ "%s-%s" % t for t in cases ]
 
 # Test queries and results for test_check_queries().  This is mostly
@@ -117,6 +118,13 @@ def test_ingest(ingestcase, client):
     refdump = backends[backend]['refdump']
     if filetype == 'FILE':
         icatingest(client, refdump, backend)
+    elif filetype == 'MEMORY':
+        if backend == "XML":
+            pytest.xfail(reason="Issue #35")
+        with open(refdump, "rt") as f:
+            icatdata = f.read()
+        stream = io.StringIO(icatdata)
+        icatingest(client, stream, backend)
     else:
         raise RuntimeError("Invalid file type %s" % filetype)
 
@@ -134,6 +142,13 @@ def test_check_content(ingestcheck, client, tmpdirsec, case):
     filter_file(refdump, reffdump, *backends[backend]['filter'])
     if filetype == 'FILE':
         icatdump(client, dump, backend)
+    elif filetype == 'MEMORY':
+        pytest.xfail(reason="Issue #36")
+        stream = io.StringIO()
+        icatdump(client, stream, backend)
+        icatdata = stream.getvalue()
+        with open(dump, "wt") as f:
+            f.write(icatdata)
     else:
         raise RuntimeError("Invalid file type %s" % filetype)
     filter_file(dump, fdump, *backends[backend]['filter'])
