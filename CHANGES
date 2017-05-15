@@ -47,6 +47,10 @@
    This will search the extra config file in all the default config
    directories, regardless where the main configuration file was found.
 
+ + The fixes of Issues #35 and #36 require some changes in the
+   semantics in the f and the mode argument to open_dumpfile() in
+   icat.dumpfile.  Most users will probably not notice the difference.
+
 ** Bug fixes and minor changes
 
  + Changed the default for the Config constructor argument ids from
@@ -60,6 +64,11 @@
 
  + Issue #34: TypeError in the Client constructor if setting
    the sslContext keyword argument.
+
+ + Issue #35: UnsupportedOperation is raised if open_dumpfile() is
+   called with an in-memory stream.
+
+ + Issue #36: dumpfile must not close file.
 
 * Version 0.12.0 (2016-10-10)
 

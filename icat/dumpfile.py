@@ -48,6 +48,7 @@ file.  The related object must have its own list entry.
 """
 
 import sys
+import os
 import icat
 from icat.query import Query
 
@@ -59,15 +60,34 @@ from icat.query import Query
 class DumpFileReader(object):
     """Base class for backends that read a data file."""
 
+    mode = "r"
+    """File mode suitable for the backend.
+
+    Subclasses should override this with either "rt" or "rb",
+    according to the mode required for the backend.
+    """
+
     def __init__(self, client, infile):
         self.client = client
-        self.infile = infile
+        self._closefile = False
+        if isinstance(infile, basestring):
+            self.infile = self._file_open(infile)
+            self._closefile = True
+        else:
+            self.infile = infile
+
+    def _file_open(self, filename):
+        if filename == "-":
+            return sys.stdin
+        else:
+            return open(filename, self.mode)
 
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
-        self.infile.close()
+        if self._closefile:
+            self.infile.close()
 
     def getdata(self):
         """Iterate over the chunks in the data file.
@@ -118,10 +138,28 @@ class DumpFileReader(object):
 class DumpFileWriter(object):
     """Base class for backends that write a data file."""
 
+    mode = "w"
+    """File mode suitable for the backend.
+
+    Subclasses should override this with either "wt" or "wb",
+    according to the mode required for the backend.
+    """
+
     def __init__(self, client, outfile):
         self.client = client
-        self.outfile = outfile
+        self._closefile = False
+        if isinstance(outfile, basestring):
+            self.outfile = self._file_open(outfile)
+            self._closefile = True
+        else:
+            self.outfile = outfile
         self.idcounter = {}
+
+    def _file_open(self, filename):
+        if filename == "-":
+            return sys.stdout
+        else:
+            return open(filename, self.mode)
 
     def __enter__(self):
         self.head()
@@ -130,7 +168,8 @@ class DumpFileWriter(object):
     def __exit__(self, type, value, traceback):
         if type is None:
             self.finalize()
-        self.outfile.close()
+        if self._closefile:
+            self.outfile.close()
 
     def head(self):
         """Write a header with some meta information to the data file."""
@@ -256,10 +295,17 @@ def register_backend(formatname, reader, writer):
 def open_dumpfile(client, f, formatname, mode):
     """Open a data file, either for reading or for writing.
 
-    Note that (subclasses of) :class:`icat.dumpfile.DumpFileReader`
-    and :class:`icat.dumpfile.DumpFileWriter` may be used as context
-    managers.  This function is suitable to be used in the
-    :obj:`with` statement.
+    Note that depending on the backend, the file must either be opened
+    in binary or in text mode.  If f is a file object, it must have
+    been opened in the appropriate mode according to the backend
+    selected by formatname.  The backend classes define a
+    corresponding class attribute `mode`.  If f is a file name, the
+    file will be opened in the appropriate mode.
+
+    The subclasses of :class:`icat.dumpfile.DumpFileReader` and
+    :class:`icat.dumpfile.DumpFileWriter` may be used as context
+    managers.  This function is suitable to be used in the :obj:`with`
+    statement.
 
     >>> with open_dumpfile(client, f, "XML", 'r') as dumpfile:
     ...     for obj in dumpfile.getobjs():
@@ -275,32 +321,21 @@ def open_dumpfile(client, f, formatname, mode):
     :param formatname: name of the file format that has been registered by
         the backend.
     :type formatname: :class:`str`
-    :param mode: a string indicating how the file is to be opened.
-        The first character must be either "r" or "w" for reading or
-        writing respectively.
+    :param mode: either "r" or "w" to indicate that the file should be
+        opened for reading or writing respectively.
     :type mode: :class:`str`
     :return: an instance of the appropriate class.  This is either the
         reader or the writer class, according to the mode, that has
         been registered by the backend.
-    :raise ValueError: if the format is not known or if the mode does
-        not start with "r" or "w".
+    :raise ValueError: if the format is not known or if the mode is
+        not "r" or "w".
     """
     if formatname not in Backends:
         raise ValueError("Unknown data file format '%s'" % formatname)
-    if mode[0] == 'r':
-        if isinstance(f, basestring):
-            if f == "-":
-                f = sys.stdin
-            else:
-                f = open(f, mode)
+    if mode == 'r':
         cls = Backends[formatname][0]
         return cls(client, f)
-    elif mode[0] == 'w':
-        if isinstance(f, basestring):
-            if f == "-":
-                f = sys.stdout
-            else:
-                f = open(f, mode)
+    elif mode == 'w':
         cls = Backends[formatname][1]
         return cls(client, f)
     else:
