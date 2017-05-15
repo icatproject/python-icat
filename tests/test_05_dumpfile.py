@@ -126,6 +126,7 @@ def test_ingest(ingestcase, client):
         else:
             stream = io.StringIO(icatdata.decode('ascii'))
         icatingest(client, stream, backend)
+        stream.close()
     else:
         raise RuntimeError("Invalid file type %s" % filetype)
 
@@ -144,15 +145,16 @@ def test_check_content(ingestcheck, client, tmpdirsec, case):
     if filetype == 'FILE':
         icatdump(client, dump, backend)
     elif filetype == 'MEMORY':
-        pytest.xfail(reason="Issue #36")
         if 'b' in icat.dumpfile.Backends[backend][0].mode:
             stream = io.BytesIO()
             icatdump(client, stream, backend)
             icatdata = stream.getvalue()
+            stream.close()
         else:
             stream = io.StringIO()
             icatdump(client, stream, backend)
             icatdata = stream.getvalue().encode('ascii')
+            stream.close()
         with open(dump, "wb") as f:
             f.write(icatdata)
     else:

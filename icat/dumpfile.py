@@ -69,8 +69,10 @@ class DumpFileReader(object):
 
     def __init__(self, client, infile):
         self.client = client
+        self._closefile = False
         if isinstance(infile, basestring):
             self.infile = self._file_open(infile)
+            self._closefile = True
         else:
             self.infile = infile
 
@@ -84,7 +86,8 @@ class DumpFileReader(object):
         return self
 
     def __exit__(self, type, value, traceback):
-        self.infile.close()
+        if self._closefile:
+            self.infile.close()
 
     def getdata(self):
         """Iterate over the chunks in the data file.
@@ -144,8 +147,10 @@ class DumpFileWriter(object):
 
     def __init__(self, client, outfile):
         self.client = client
+        self._closefile = False
         if isinstance(outfile, basestring):
             self.outfile = self._file_open(outfile)
+            self._closefile = True
         else:
             self.outfile = outfile
         self.idcounter = {}
@@ -163,7 +168,8 @@ class DumpFileWriter(object):
     def __exit__(self, type, value, traceback):
         if type is None:
             self.finalize()
-        self.outfile.close()
+        if self._closefile:
+            self.outfile.close()
 
     def head(self):
         """Write a header with some meta information to the data file."""
