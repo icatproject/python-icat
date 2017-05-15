@@ -17,6 +17,7 @@ Module reference
    cgi
    client
    config
+   dump_queries
    dumpfile
    dumpfile_xml
    dumpfile_yaml
