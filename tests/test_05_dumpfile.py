@@ -119,11 +119,12 @@ def test_ingest(ingestcase, client):
     if filetype == 'FILE':
         icatingest(client, refdump, backend)
     elif filetype == 'MEMORY':
-        if backend == "XML":
-            pytest.xfail(reason="Issue #35")
-        with open(refdump, "rt") as f:
+        with open(refdump, "rb") as f:
             icatdata = f.read()
-        stream = io.StringIO(icatdata)
+        if 'b' in icat.dumpfile.Backends[backend][0].mode:
+            stream = io.BytesIO(icatdata)
+        else:
+            stream = io.StringIO(icatdata.decode('ascii'))
         icatingest(client, stream, backend)
     else:
         raise RuntimeError("Invalid file type %s" % filetype)
@@ -144,10 +145,15 @@ def test_check_content(ingestcheck, client, tmpdirsec, case):
         icatdump(client, dump, backend)
     elif filetype == 'MEMORY':
         pytest.xfail(reason="Issue #36")
-        stream = io.StringIO()
-        icatdump(client, stream, backend)
-        icatdata = stream.getvalue()
-        with open(dump, "wt") as f:
+        if 'b' in icat.dumpfile.Backends[backend][0].mode:
+            stream = io.BytesIO()
+            icatdump(client, stream, backend)
+            icatdata = stream.getvalue()
+        else:
+            stream = io.StringIO()
+            icatdump(client, stream, backend)
+            icatdata = stream.getvalue().encode('ascii')
+        with open(dump, "wb") as f:
             f.write(icatdata)
     else:
         raise RuntimeError("Invalid file type %s" % filetype)

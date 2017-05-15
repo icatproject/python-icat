@@ -24,11 +24,12 @@ except AttributeError:
 class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
     """Backend for icatingest.py to read a XML data file."""
 
+    mode = "rb"
+    """File mode suitable for this backend.
+    """
+
     def __init__(self, client, infile):
         super(XMLDumpFileReader, self).__init__(client, infile)
-        # need binary mode for infile
-        self.infile = os.fdopen(os.dup(infile.fileno()), 'rb')
-        infile.close()
         self.insttypemap = { c.BeanName:t 
                              for t,c in self.client.typemap.iteritems() }
 
@@ -106,11 +107,12 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
 class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     """Backend for icatdump.py to write a XML data file."""
 
+    mode = "wb"
+    """File mode suitable for this backend.
+    """
+
     def __init__(self, client, outfile):
         super(XMLDumpFileWriter, self).__init__(client, outfile)
-        # need binary mode for outfile
-        self.outfile = os.fdopen(os.dup(outfile.fileno()), 'wb')
-        outfile.close()
         self.data = etree.Element("data")
 
     def _entity2elem(self, obj, tag, keyindex):
