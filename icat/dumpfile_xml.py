@@ -23,7 +23,13 @@ except AttributeError:
 # ------------------------------------------------------------
 
 class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
-    """Backend for icatingest.py to read a XML data file."""
+    """Backend for icatingest.py to read a XML data file.
+
+    This backend accepts a file object, a filename, or a XML tree
+    object (:class:`lxml.etree._ElementTree`) as input.  Note that the
+    latter case requires by definition the complete input to be at
+    once in memory.  This is only useful if the input is small enough.
+    """
 
     mode = "rb"
     """File mode suitable for this backend.
@@ -33,6 +39,10 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
         super(XMLDumpFileReader, self).__init__(client, infile)
         self.insttypemap = { c.BeanName:t 
                              for t,c in self.client.typemap.iteritems() }
+        if isinstance(self.infile, etree._ElementTree):
+            self.getdata = self.getdata_etree
+        else:
+            self.getdata = self.getdata_file
 
     def _file_open(self, filename):
         if filename == "-":
@@ -79,12 +89,19 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
                                  % (subelem.tag, element.tag))
         return obj
 
-    def getdata(self):
+    def getdata_file(self):
         """Iterate over the chunks in the data file.
         """
         for event, data in etree.iterparse(self.infile, tag='data'):
             yield data
             data.clear()
+
+    def getdata_etree(self):
+        """Iterate over the chunks from a XML tree object.
+        """
+        for elem in self.infile.getroot():
+            if elem.tag == 'data':
+                yield elem
 
     def getobjs_from_data(self, data, objindex):
         """Iterate over the objects in a data chunk.
