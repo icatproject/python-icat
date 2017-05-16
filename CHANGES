@@ -16,6 +16,8 @@
  + Issue #31: Add a flag to add the default variables to the Config
    constructor (default: True).
 
+ + XMLDumpFileReader also accepts a XML tree object as input.
+
 ** Incompatible changes and deprecations
 
  + Deprecate support for ICAT 4.2.*.
