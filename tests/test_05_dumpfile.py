@@ -8,6 +8,7 @@ uses the internal API icat.dumpfile.
 import io
 import os.path
 import filecmp
+from lxml import etree
 import pytest
 import icat
 import icat.config
@@ -44,7 +45,9 @@ assert backends.keys() == icat.dumpfile.Backends.keys()
 cases = [ (b, t) 
           for b in backends.keys() 
           for t in ('FILE', 'MEMORY') ]
-caseids = [ "%s-%s" % t for t in cases ]
+icases = cases + [ ('XML','ETREE') ]
+icaseids = [ "%s-%s" % t for t in icases ]
+ocases = cases
 
 # Test queries and results for test_check_queries().  This is mostly
 # to verify that object relations are kept intact after an icatdump /
@@ -96,7 +99,7 @@ def client():
     client.login(conf.auth, conf.credentials)
     return client
 
-@pytest.fixture(scope="module", params=cases, ids=caseids)
+@pytest.fixture(scope="module", params=icases, ids=icaseids)
 def ingestcase(request, standardConfig):
     param = request.param
     callscript("wipeicat.py", standardConfig.cmdargs)
@@ -127,10 +130,14 @@ def test_ingest(ingestcase, client):
             stream = io.StringIO(icatdata.decode('ascii'))
         icatingest(client, stream, backend)
         stream.close()
+    elif filetype == 'ETREE':
+        with open(refdump, "rb") as f:
+            icatdata = etree.parse(f)
+        icatingest(client, icatdata, backend)
     else:
         raise RuntimeError("Invalid file type %s" % filetype)
 
-@pytest.mark.parametrize(("case"), cases)
+@pytest.mark.parametrize(("case"), ocases)
 def test_check_content(ingestcheck, client, tmpdirsec, case):
     """Dump the content and check that we get the reference dump file back.
     """
