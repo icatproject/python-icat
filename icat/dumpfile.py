@@ -313,11 +313,11 @@ def open_dumpfile(client, f, formatname, mode):
 
     :param client: the ICAT client.
     :type client: :class:`icat.client.Client`
-    :param f: a file object or the name of file.  In the former case,
-        the file must be opened in the appropriate mode, in the latter
-        case a file by that name is opened using `mode`.  The special
-        value of "-" may be used as an alias for :data:`sys.stdin` or
-        :data:`sys.stdout`.
+    :param f: the object to read the data from or write the data to,
+        according to mode.  What object types are supported depends on
+        the backend.  All backends support at least a file object or
+        the name of file.  The special value of "-" may be used as an
+        alias for :data:`sys.stdin` or :data:`sys.stdout`.
     :param formatname: name of the file format that has been registered by
         the backend.
     :type formatname: :class:`str`
