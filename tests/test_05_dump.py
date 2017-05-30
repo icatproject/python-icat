@@ -5,11 +5,16 @@ import os.path
 import re
 import filecmp
 import pytest
+try:
+    from pytest_dependency import depends
+except ImportError:
+    def depends(request, other_tests):
+        pass
 import icat
 import icat.config
 from conftest import getConfig, require_icat_version
 from conftest import gettestdata, callscript
-from conftest import filter_file, yaml_filter, xml_filter, depends
+from conftest import filter_file, yaml_filter, xml_filter
 
 
 require_icat_version("4.4.0", "need InvestigationGroup")

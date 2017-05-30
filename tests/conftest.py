@@ -207,19 +207,6 @@ def setupicat(standardConfig):
     args = standardConfig.cmdargs + ["-f", "YAML", "-i", testcontent]
     callscript("icatingest.py", args)
 
-# ========================== dependencies ============================
-
-# pytest-dependency lacks a function to add dependencies to a test at
-# runtime, see https://github.com/RKrahl/pytest-dependency/issues/4.
-
-try:
-    from pytest_dependency import DependencyManager
-    def depends(request, other_tests):
-        DependencyManager.getManager(request.node).checkDepend(other_tests)
-except ImportError:
-    def depends(request, other_tests):
-        pass
-
 # ============================= hooks ================================
 
 def pytest_report_header(config):
