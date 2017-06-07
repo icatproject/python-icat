@@ -5,6 +5,15 @@
 
 ** New features
 
+ + Issue #11: Support discovery of info about available ICAT
+   authenticators.
+
+   If supported by the ICAT server (icat.server 4.9.0 and newer), the
+   icat.config module queries the server for information on available
+   authenticators and the credential keys they require for login.  The
+   configuration variables for these keys are then adapted
+   accordingly.  Note incompatible changes below.
+
  + Review wipeicat.py.  This was an example script, but is now
    promoted to be a regular utility script that gets installed.
 
@@ -23,6 +32,34 @@
 
 ** Incompatible changes and deprecations
 
+ + As a consequence of the discovery of available authenticators, the
+   workflow during configuration need to be changed.  Until now, the
+   beginning of a typical python-icat program would look like:
+
+         config = icat.config.Config()
+         # Optionally, add custom configuration variables:
+         # config.add_variable(...)
+         conf = config.getconfig()
+         client = icat.Client(conf.url, **conf.client_kwargs)
+
+   E.g. first the configuration variables are set up, then the
+   configuration is applied and finally the Client object is created
+   using the configuration values.  With the discovery of
+   authenticators, the Config object itself need a working Client
+   object in order to connect to the ICAT server and query the
+   authenticator info.  The Client object will now be created in the
+   Config constructor and returned along with the configuration values
+   by getconfig().  You will need to replace the code from above by:
+
+         config = icat.config.Config()
+         # Optionally, add custom configuration variables:
+         # config.add_variable(...)
+         client, conf = config.getconfig()
+
+   The derived configuration variable "client_kwargs" that was used to
+   pass additional arguments from the configuration to the Client
+   constructor is no longer needed and has been removed.
+
  + Deprecate support for ICAT 4.2.*.
 
  + Deprecate module icat.cgi.
@@ -37,7 +74,6 @@
          config.add_variable('extracfg', ("--extracfg",), 
                              dict(help="Extra config file"),
                              default="%(configDir)s/extra.xml", subst=True)
-         conf = config.getconfig()
 
    This set the default path for the extra config file to the same
    directory the main configuration file was found in.  Using the new
@@ -47,7 +83,6 @@
          config.add_variable('extracfg', ("--extracfg",), 
                              dict(help="Extra config file"),
                              default="extra.xml", type=icat.config.cfgpath)
-         conf = config.getconfig()
 
    This will search the extra config file in all the default config
    directories, regardless where the main configuration file was found.

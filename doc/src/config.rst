@@ -90,11 +90,6 @@ A few derived variables are also set in
   `configDir`
     the directory where (the last) configFile has been found.
 
-  `client_kwargs`
-    contains the proxy settings and other configuration that should be
-    passed as the keyword arguments to the constructor of
-    :class:`icat.client.Client`.
-
   `credentials`
     contains username and password suitable to be passed to
     :meth:`icat.client.Client.login`.
@@ -130,7 +125,7 @@ for the configuration variables are as follows:
 +-----------------+-----------------------------+-----------------------+----------------+-----------+
 | `username`      | ``-u``, ``--user``          | ``ICAT_USER``         |                | yes       |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+
-| `password`      | ``-p``, ``--pass``          |                       | :const:`None`  | no        |
+| `password`      | ``-p``, ``--pass``          |                       | interactive    | yes       |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+
 | `promptPass`    | ``-P``, ``--prompt-pass``   |                       | :const:`False` | no        |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+
@@ -151,10 +146,10 @@ and `credentials` will be left out.  The configuration variable
 an optional variable, if the `ids` argument is set to :const:`False`,
 to "mandatory", or to "optional" respectively.
 
-The method :meth:`icat.config.Config.getconfig` will prompt the user
-for a password if `promptPass` is :const:`True`, if `password` is
-:const:`None`, or if the `username`, but not the `password` has been
-provided by command line arguments.
+The user will be prompted for the password if `promptPass` is
+:const:`True`, if no `password` is provided in the command line or the
+configuration file, or if the `username`, but not the `password` has
+been provided by command line arguments.
 
 If the argument `defaultvars` to the constructor of
 :class:`icat.config.Config` is set to :const:`False`, no default

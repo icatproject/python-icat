@@ -1,0 +1,116 @@
+Implementation notes for discovery of available ICAT authenticators
+===================================================================
+
+* Change the workflow and dependencies between the Config and Client
+
+As already described in the issue, Config needs an active Client to
+talk to the server and query authenticator info.  This is now
+implemented as of writing this note. 
+
+* Get rid of special treatment of password
+
+The password configuration variable is treated specially in that the
+user may be prompted for the value and we have another configuration
+variable promptPass to control this.  However, authenticators may have
+more then one "hidden" credential key or no password credential key at
+all.  So we need to generalize this special treatment to arbitrary
+configuration variables.
+
++ Add a new attribute "interactive" to ConfigVariable that defaults to
+  False.  In the default set of configuration variables, only password
+  will have this interactive flag set.  Later, in the general case,
+  all hidden credential keys will have interactive set.
+
+  >>> Done.
+
++ Add a new attribute "disabled" to ConfigVariable that defaults to
+  False.  If this flag is set, the variable will be skipped in the
+  evaluation loop in _getconfig().  In the default set of
+  configuration variables, no variable will have this flag set.
+  Later, in the general case, all credential keys will be disabled at
+  first.  After evaluating auth, the keys valid for this authenticator
+  will be enabled.
+
+  >>> Done.
+
++ Add another ConfigSource ConfigSourceInteractive that will prompt
+  the user for the value.  By default, this source will be ordered
+  after ConfigSourceFile and before ConfigSourceDefault.  This source
+  ignores all variables with interactive set to a false value.
+
+  >>> Done.
+
++ Record for each configuration variable the source that this
+  variable has been set from.  The best place to store this
+  information is probably another attribute in the ConfigVariable
+  instance.
+
+  >>> Done.
+
++ Allow a callable as default for a configuration variable.  This will
+  be called with the Config instance as argument.  This allows us to
+  get rid of the special rule to for setting promptPass in getconfig().
+
+  >>> It turns out that this is not needed, as the same effect can be
+      archived in a postprocessor for promptPass.  Nevertheless,
+      allowing a callable as a default is a lovely idea, although we
+      don't have a use case at hand now.  Keep the idea in mind.
+
++ Add a new attribute "postprocess" to ConfigVariable that defaults to
+  None.  If set, this should be a callable that gets the Config and
+  the Configuration instance as arguments.  It will be called from the
+  evaluation loop in _getconfig() after evaluating the value.  It is
+  intended for the configuration the variables that need to intervene
+  in the processing of other configuration variables in some way.  It
+  should be set for the following variables:
+  - configFile: read the configuration file.
+  - configSection: set the configuration section.
+  - promptPass: move ConfigSourceInteractive in front in the
+    ConfigSource order.
+  - auth: enable the credential keys defined for this authenticator.
+
+  >>> Done.
+
+* Set configuration variables according for the credential keys
+
+After having set up the basic configuration needed to establish the
+connection to the server, the client is set up.  The following steps
+should be:
+
++ Add a credentialKeys attribute to the Config instance.  It should be
+  a dict that maps the key name from the authenticator info to
+  corresponding ConfigVariables.
+
++ Connect the server and discover available authenticators.  If this
+  fails, probably because of an old server that does not support the
+  call, proceed using the old set of default configuration variables.
+
++ Add the auth configuration variable with choices set to the names of
+  available authenticators and a postprocessor described above.
+
++ Collect all credential keys from all available authenticators.
+  Distinguish between those having the "hide" flag set in the
+  autheticator info and those that don't.
+
++ Add configuration variables for the non-hidden credential keys.  If
+  any of them has the name "username", take this as the variable
+  name, otherwise use "cred_<name>" to avoid possible conflicts with
+  other configuration variable names.  Set the disabled flag.
+
++ Add the promptPass configuration variable.  Set a function as
+  default that checks all non-hidden credential keys.  If any of them
+  has been set from the command line return True, otherwise False.
+  Set a postprocessor as described above.
+
++ Add configuration variables for the hidden credential keys.  If
+  any of them has the name "password", take this as the variable
+  name, otherwise use "cred_<name>" to avoid possible conflicts with
+  other configuration variable names.  Set the disabled flag.
+
++ Return from the Config constructor.  The caller may set up
+  additional configuration variables abd will eventually call
+  getconfig().
+
++ As last action in getconfig() set up the credentials derived
+  variable: collect the values for all keys defined for the selected
+  authenticator.

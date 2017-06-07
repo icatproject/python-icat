@@ -25,9 +25,8 @@ config.add_variable('datafile', ("datafile",),
                          help="name of the input datafile"))
 config.add_variable('jobname', ("jobname",), 
                     dict(help="name of the job to add"))
-conf = config.getconfig()
+client, conf = config.getconfig()
 
-client = icat.Client(conf.url, **conf.client_kwargs)
 if client.apiversion < '4.3':
     raise RuntimeError("Sorry, ICAT version %s is too old, need 4.3.0 or newer."
                        % client.apiversion)

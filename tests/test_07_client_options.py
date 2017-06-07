@@ -9,12 +9,24 @@ from icat.sslcontext import create_ssl_context, HTTPSTransport
 from conftest import getConfig
 
 
+def getClientKWargs(conf):
+    kwargs = { 'idsurl': conf.idsurl, 'checkCert': conf.checkCert }
+    if conf.http_proxy or conf.https_proxy:
+        proxy={}
+        if conf.http_proxy:
+            proxy['http'] = conf.http_proxy
+        if conf.https_proxy:
+            proxy['https'] = conf.https_proxy
+        kwargs['proxy'] = proxy
+    return kwargs
+
+
 def test_client_sslContext_kwarg(setupicat):
     """Set the `sslContext` keyword argument to the Client constructor.
     Issue #34.
     """
-    conf = getConfig()
-    kwargs = dict(conf.client_kwargs)
+    _, conf = getConfig()
+    kwargs = getClientKWargs(conf)
     sslverify = kwargs.pop('checkCert', True)
     cafile = kwargs.pop('caFile', None)
     capath = kwargs.pop('caPath', None)
@@ -39,8 +51,9 @@ def test_client_set_transport(setupicat):
     """Try setting a custom transport in the client using set_options().
     See Issue #33 why this is relevant.
     """
-    conf = getConfig()
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    _, conf = getConfig()
+    kwargs = getClientKWargs(conf)
+    client = icat.Client(conf.url, **kwargs)
     proxy = {}
     if conf.http_proxy:
         proxy['http'] = config.http_proxy

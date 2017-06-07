@@ -68,6 +68,22 @@ class DummyDatafile(object):
         else:
             self.mtime = None
 
+
+def getConfig(confSection="root", **confArgs):
+    """Get the configuration, skip on ConfigError.
+    """
+    confFile = os.path.join(testdir, "data", "icat.cfg")
+    if not os.path.isfile(confFile):
+        pytest.skip("no test ICAT server configured")
+    try:
+        confArgs['args'] = ["-c", confFile, "-s", confSection]
+        client, conf = icat.config.Config(**confArgs).getconfig()
+        conf.cmdargs = ["-c", conf.configFile[0], "-s", conf.configSection]
+        return (client, conf)
+    except icat.ConfigError as err:
+        pytest.skip(str(err))
+
+
 class tmpSessionId:
     """Temporarily switch to another sessionId in an ICAT client.
     """
@@ -81,21 +97,17 @@ class tmpSessionId:
     def __exit__(self, type, value, tb):
         self.client.sessionId = self.saveSessionId
 
-class tmpLogin:
-    """Temporarily login as another user in an ICAT client.
+class tmpClient:
+    """A temporary client using an own configuration,
+    such as login as another user.
     """
-    def __init__(self, client, auth, credentials):
-        self.client = client
-        self.saveSessionId = client.sessionId
-        self.auth = auth
-        self.credentials = credentials
+    def __init__(self, **confArgs):
+        (self.client, self.conf) = getConfig(**confArgs)
     def __enter__(self):
-        self.client.sessionId = None
-        self.client.login(self.auth, self.credentials)
+        self.client.login(self.conf.auth, self.conf.credentials)
         return self.client
     def __exit__(self, type, value, tb):
         self.client.logout()
-        self.client.sessionId = self.saveSessionId
 
 
 def gettestdata(fname):
@@ -104,24 +116,8 @@ def gettestdata(fname):
     return fname
 
 
-def getConfig(confSection="root", **confArgs):
-    """Get the configuration, skip on ConfigError.
-    """
-    confFile = os.path.join(testdir, "data", "icat.cfg")
-    if not os.path.isfile(confFile):
-        pytest.skip("no test ICAT server configured")
-    try:
-        args = ["-c", confFile, "-s", confSection]
-        conf = icat.config.Config(**confArgs).getconfig(args)
-        conf.cmdargs = ["-c", conf.configFile[0], "-s", conf.configSection]
-        return conf
-    except icat.ConfigError as err:
-        pytest.skip(str(err))
-
-
 def get_icat_version():
-    conf = getConfig(needlogin=False)
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, _ = getConfig(needlogin=False)
     return client.apiversion
 
 # ICAT server version we talk to.  Ignore any errors from
@@ -194,17 +190,18 @@ def tmpdirsec(request):
 
 
 @pytest.fixture(scope="session")
-def standardConfig():
-    return getConfig()
+def standardCmdArgs():
+    _, conf = getConfig()
+    return conf.cmdargs
 
 
 testcontent = gettestdata("icatdump.yaml")
 
 @pytest.fixture(scope="session")
-def setupicat(standardConfig):
+def setupicat(standardCmdArgs):
     require_icat_version("4.4.0", "need InvestigationGroup")
-    callscript("wipeicat.py", standardConfig.cmdargs)
-    args = standardConfig.cmdargs + ["-f", "YAML", "-i", testcontent]
+    callscript("wipeicat.py", standardCmdArgs)
+    args = standardCmdArgs + ["-f", "YAML", "-i", testcontent]
     callscript("icatingest.py", args)
 
 # ============================= hooks ================================

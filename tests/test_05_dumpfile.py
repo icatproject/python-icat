@@ -99,15 +99,14 @@ def icatdump(client, f, backend):
 
 @pytest.fixture(scope="module")
 def client():
-    conf = getConfig()
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig()
     client.login(conf.auth, conf.credentials)
     return client
 
 @pytest.fixture(scope="module", params=icases, ids=icaseids)
-def ingestcase(request, standardConfig):
+def ingestcase(request, standardCmdArgs):
     param = request.param
-    callscript("wipeicat.py", standardConfig.cmdargs)
+    callscript("wipeicat.py", standardCmdArgs)
     return param
 
 @pytest.fixture(scope="function")

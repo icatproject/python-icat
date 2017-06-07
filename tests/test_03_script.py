@@ -12,7 +12,7 @@ from conftest import getConfig, callscript
 def test_getversion():
     """Get version info from the ICAT server.
     """
-    conf = getConfig(needlogin=False)
+    _, conf = getConfig(needlogin=False)
     callscript("getversion.py", conf.cmdargs)
 
 
@@ -20,5 +20,5 @@ def test_getversion():
 def test_login(user):
     """Login to the ICAT server.
     """
-    conf = getConfig(confSection=user)
+    _, conf = getConfig(confSection=user)
     callscript("login.py", conf.cmdargs)

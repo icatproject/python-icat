@@ -82,15 +82,14 @@ queries = [
 
 @pytest.fixture(scope="module")
 def client():
-    conf = getConfig()
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig()
     client.login(conf.auth, conf.credentials)
     return client
 
 @pytest.fixture(scope="module", params=cases, ids=caseids)
-def ingestcase(request, standardConfig):
+def ingestcase(request, standardCmdArgs):
     param = request.param
-    callscript("wipeicat.py", standardConfig.cmdargs)
+    callscript("wipeicat.py", standardCmdArgs)
     return param
 
 @pytest.fixture(scope="function")
@@ -101,23 +100,23 @@ def ingestcheck(ingestcase, request):
 
 
 @pytest.mark.dependency()
-def test_ingest(ingestcase, standardConfig):
+def test_ingest(ingestcase, standardCmdArgs):
     """Restore the ICAT content from a dumpfile.
     """
     backend, filetype = ingestcase
     refdump = backends[backend]['refdump']
     if filetype == 'FILE':
-        args = standardConfig.cmdargs + ["-f", backend, "-i", refdump]
+        args = standardCmdArgs + ["-f", backend, "-i", refdump]
         callscript("icatingest.py", args)
     elif filetype == 'STDINOUT':
-        args = standardConfig.cmdargs + ["-f", backend]
+        args = standardCmdArgs + ["-f", backend]
         with open(refdump, "rt") as infile:
             callscript("icatingest.py", args, stdin=infile)
     else:
         raise RuntimeError("Invalid file type %s" % filetype)
 
 @pytest.mark.parametrize(("case"), cases)
-def test_check_content(ingestcheck, standardConfig, tmpdirsec, case):
+def test_check_content(ingestcheck, standardCmdArgs, tmpdirsec, case):
     """Dump the content and check that we get the reference dump file back.
     """
     require_icat_version("4.6.0", "Issue icatproject/icat.server#155")
@@ -129,10 +128,10 @@ def test_check_content(ingestcheck, standardConfig, tmpdirsec, case):
     reffdump = os.path.join(tmpdirsec.dir, "dump-filter-ref" + fileext)
     filter_file(refdump, reffdump, *backends[backend]['filter'])
     if filetype == 'FILE':
-        args = standardConfig.cmdargs + ["-f", backend, "-o", dump]
+        args = standardCmdArgs + ["-f", backend, "-o", dump]
         callscript("icatdump.py", args)
     elif filetype == 'STDINOUT':
-        args = standardConfig.cmdargs + ["-f", backend]
+        args = standardCmdArgs + ["-f", backend]
         with open(dump, "wt") as outfile:
             callscript("icatdump.py", args, stdout=outfile)
     else:
@@ -140,13 +139,13 @@ def test_check_content(ingestcheck, standardConfig, tmpdirsec, case):
     filter_file(dump, fdump, *backends[backend]['filter'])
     assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
 
-def test_check_summary_root(ingestcheck, standardConfig, tmpdirsec):
+def test_check_summary_root(ingestcheck, standardCmdArgs, tmpdirsec):
     """Check the number of objects for each class at the ICAT server.
     """
     summary = os.path.join(tmpdirsec.dir, "summary")
     ref = refsummary["root"]
     with open(summary, "wt") as out:
-        callscript("icatsummary.py", standardConfig.cmdargs, stdout=out)
+        callscript("icatsummary.py", standardCmdArgs, stdout=out)
     assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
 
 @pytest.mark.parametrize(("user"), users)
@@ -160,7 +159,7 @@ def test_check_summary_user(ingestcheck, tmpdirsec, user):
     ref = refsummary[user]
     reff = os.path.join(tmpdirsec.dir, "summary-filter-ref.%s" % user)
     filter_file(ref, reff, *summary_filter)
-    conf = getConfig(confSection=user)
+    _, conf = getConfig(confSection=user)
     with open(summary, "wt") as out:
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
     assert filecmp.cmp(reff, summary), "ICAT content was not as expected"

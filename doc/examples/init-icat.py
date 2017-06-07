@@ -37,9 +37,7 @@ config = icat.config.Config()
 config.add_variable('datafile', ("datafile",), 
                     dict(metavar="inputdata.yaml", 
                          help="name of the input datafile"))
-conf = config.getconfig()
-
-client = icat.Client(conf.url, **conf.client_kwargs)
+client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
 
 
