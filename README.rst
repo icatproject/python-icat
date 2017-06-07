@@ -56,7 +56,7 @@ not required to install or use python-icat itself:
 
   Only if you want to run the tests.
 
-+ `pytest-dependency`_
++ `pytest-dependency`_ >= 0.2
 
   Only if you want to run the tests.
 

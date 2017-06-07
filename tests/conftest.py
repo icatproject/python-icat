@@ -204,7 +204,6 @@ def setupicat(standardCmdArgs):
     args = standardCmdArgs + ["-f", "YAML", "-i", testcontent]
     callscript("icatingest.py", args)
 
-
 # ============================= hooks ================================
 
 def pytest_report_header(config):
@@ -218,3 +217,4 @@ def pytest_report_header(config):
     return [ "python-icat: %s (%s)" % (icat.__version__, icat.__revision__), 
              "             %s" % (modpath),
              "icat.server: %s" % server]
+
