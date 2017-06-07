@@ -1,6 +1,7 @@
 """XML data file backend for icatdump.py and icatingest.py.
 """
 
+import sys
 import os
 import datetime
 from lxml import etree
@@ -22,15 +23,35 @@ except AttributeError:
 # ------------------------------------------------------------
 
 class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
-    """Backend for icatingest.py to read a XML data file."""
+    """Backend for icatingest.py to read a XML data file.
+
+    This backend accepts a file object, a filename, or a XML tree
+    object (:class:`lxml.etree._ElementTree`) as input.  Note that the
+    latter case requires by definition the complete input to be at
+    once in memory.  This is only useful if the input is small enough.
+    """
+
+    mode = "rb"
+    """File mode suitable for this backend.
+    """
 
     def __init__(self, client, infile):
         super(XMLDumpFileReader, self).__init__(client, infile)
-        # need binary mode for infile
-        self.infile = os.fdopen(os.dup(infile.fileno()), 'rb')
-        infile.close()
         self.insttypemap = dict([ (c.BeanName,t) 
                                   for t,c in self.client.typemap.iteritems() ])
+        if isinstance(self.infile, etree._ElementTree):
+            self.getdata = self.getdata_etree
+        else:
+            self.getdata = self.getdata_file
+
+    def _file_open(self, filename):
+        if filename == "-":
+            # lxml requires binary mode
+            f = os.fdopen(os.dup(sys.stdin.fileno()), self.mode)
+            sys.stdin.close()
+            return f
+        else:
+            return open(filename, self.mode)
 
     def _searchByReference(self, element, objtype, objindex):
         """Search for a referenced object.
@@ -68,12 +89,19 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
                                  % (subelem.tag, element.tag))
         return obj
 
-    def getdata(self):
+    def getdata_file(self):
         """Iterate over the chunks in the data file.
         """
         for event, data in etree.iterparse(self.infile, tag='data'):
             yield data
             data.clear()
+
+    def getdata_etree(self):
+        """Iterate over the chunks from a XML tree object.
+        """
+        for elem in self.infile.getroot():
+            if elem.tag == 'data':
+                yield elem
 
     def getobjs_from_data(self, data, objindex):
         """Iterate over the objects in a data chunk.
@@ -106,12 +134,22 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
 class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     """Backend for icatdump.py to write a XML data file."""
 
+    mode = "wb"
+    """File mode suitable for this backend.
+    """
+
     def __init__(self, client, outfile):
         super(XMLDumpFileWriter, self).__init__(client, outfile)
-        # need binary mode for outfile
-        self.outfile = os.fdopen(os.dup(outfile.fileno()), 'wb')
-        outfile.close()
         self.data = etree.Element("data")
+
+    def _file_open(self, filename):
+        if filename == "-":
+            # lxml requires binary mode
+            f = os.fdopen(os.dup(sys.stdout.fileno()), self.mode)
+            sys.stdout.close()
+            return f
+        else:
+            return open(filename, self.mode)
 
     def _entity2elem(self, obj, tag, keyindex):
         """Convert an entity object to an etree.Element."""

@@ -15,8 +15,7 @@ def test_get_icat_version():
     configured and that we can connect to it.
     """
 
-    conf = getConfig(needlogin=False, ids=False)
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig(needlogin=False, ids=False)
     # python-icat supports ICAT server 4.2 or newer.  But actually, we
     # just want to check that client.apiversion is set and supports
     # comparison with version strings.
@@ -31,8 +30,7 @@ def test_get_ids_version():
     properly configured and that we can connect to them.
     """
 
-    conf = getConfig(needlogin=False, ids="mandatory")
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig(needlogin=False, ids="mandatory")
     # python-icat supports all publicly released IDS server version,
     # e.g. 1.0.0 or newer.  But actually, we just want to check that
     # client.apiversion is set and supports comparison with version

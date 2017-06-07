@@ -81,9 +81,9 @@ def create_datafile(client, data, df):
 
 
 @pytest.mark.dependency(name="init")
-def test_init(standardConfig):
-    callscript("wipeicat.py", standardConfig.cmdargs)
-    callscript("init-icat.py", standardConfig.cmdargs + [testinput])
+def test_init(standardCmdArgs):
+    callscript("wipeicat.py", standardCmdArgs)
+    callscript("init-icat.py", standardCmdArgs + [testinput])
 
 
 @pytest.mark.parametrize("invname", [
@@ -92,7 +92,7 @@ def test_init(standardConfig):
     pytest.mark.dependency(name="inv_121", depends=["init"])("12100409-ST")
 ])
 def test_create_investigation(invname):
-    conf = getConfig(confSection="useroffice")
+    _, conf = getConfig(confSection="useroffice")
     args = conf.cmdargs + [testinput, invname]
     callscript("create-investigation.py", args)
 
@@ -105,7 +105,7 @@ def test_create_investigation(invname):
         ("nbour", "nio"))
 ])
 def test_create_sampletype(user, sample):
-    conf = getConfig(confSection=user)
+    _, conf = getConfig(confSection=user)
     args = conf.cmdargs + [testinput, sample]
     callscript("create-sampletype.py", args)
 
@@ -121,7 +121,7 @@ def test_create_sampletype(user, sample):
             ("nbour", "12100409-ST"))
 ])
 def test_addinvdata(user, invname):
-    conf = getConfig(confSection=user)
+    _, conf = getConfig(confSection=user)
     args = conf.cmdargs + [testinput, invname]
     callscript("add-investigation-data.py", args)
 
@@ -131,7 +131,7 @@ def test_addinvdata(user, invname):
             ("nbour", "job1")),
 ])
 def test_addjob(user, jobname):
-    conf = getConfig(confSection=user)
+    _, conf = getConfig(confSection=user)
     args = conf.cmdargs + [testinput, jobname]
     callscript("add-job.py", args)
 
@@ -141,8 +141,7 @@ def test_addjob(user, jobname):
             ("nbour", "rdf1")),
 ])
 def test_add_relateddatafile(data, user, rdfname):
-    conf = getConfig(confSection=user)
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig(confSection=user)
     client.login(conf.auth, conf.credentials)
     rdfdata = data['related_datafiles'][rdfname]
     rdf = client.new("relatedDatafile")
@@ -157,8 +156,7 @@ def test_add_relateddatafile(data, user, rdfname):
             ("useroffice", "study1")),
 ])
 def test_add_study(data, user, studyname):
-    conf = getConfig(confSection=user)
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig(confSection=user)
     client.login(conf.auth, conf.credentials)
     studydata = data['studies'][studyname]
     study = client.new("study")
@@ -177,8 +175,7 @@ def test_add_study(data, user, studyname):
         ("useroffice", "pub1")),
 ])
 def test_add_publication(data, user, pubname):
-    conf = getConfig(confSection=user)
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig(confSection=user)
     client.login(conf.auth, conf.credentials)
     pubdata = data['publications'][pubname]
     publication = client.new("publication")
@@ -189,7 +186,7 @@ def test_add_publication(data, user, pubname):
 
 
 @pytest.mark.dependency(depends=alldata)
-def test_check_content(standardConfig, tmpdirsec):
+def test_check_content(standardCmdArgs, tmpdirsec):
     """Dump the resulting content and compare with a reference dump.
     """
     require_icat_version("4.6.0", "Issue icatproject/icat.server#155")
@@ -197,19 +194,19 @@ def test_check_content(standardConfig, tmpdirsec):
     fdump = os.path.join(tmpdirsec.dir, "dump-filter.yaml")
     reffdump = os.path.join(tmpdirsec.dir, "dump-filter-ref.yaml")
     filter_file(refdump, reffdump, *yaml_filter)
-    args = standardConfig.cmdargs + ["-f", "YAML", "-o", dump]
+    args = standardCmdArgs + ["-f", "YAML", "-o", dump]
     callscript("icatdump.py", args)
     filter_file(dump, fdump, *yaml_filter)
     assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
 
 @pytest.mark.dependency(depends=alldata)
-def test_check_summary_root(standardConfig, tmpdirsec):
+def test_check_summary_root(standardCmdArgs, tmpdirsec):
     """Check the number of objects for each class at the ICAT server.
     """
     summary = os.path.join(tmpdirsec.dir, "summary")
     ref = refsummary["root"]
     with open(summary, "wt") as out:
-        callscript("icatsummary.py", standardConfig.cmdargs, stdout=out)
+        callscript("icatsummary.py", standardCmdArgs, stdout=out)
     assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
 
 @pytest.mark.dependency(depends=alldata)
@@ -222,7 +219,7 @@ def test_check_summary_user(tmpdirsec, user):
     """
     summary = os.path.join(tmpdirsec.dir, "summary.%s" % user)
     ref = refsummary[user]
-    conf = getConfig(confSection=user)
+    _, conf = getConfig(confSection=user)
     with open(summary, "wt") as out:
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
     assert filecmp.cmp(ref, summary), "ICAT content was not as expected"

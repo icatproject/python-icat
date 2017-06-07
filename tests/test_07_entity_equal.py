@@ -12,8 +12,7 @@ from conftest import getConfig
 
 @pytest.fixture(scope="module")
 def client():
-    conf = getConfig(needlogin=False)
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, _ = getConfig(needlogin=False)
     return client
 
 
@@ -66,8 +65,7 @@ def test_equality_client(client):
     account, fixed in c9a1be6.
     """
     # Get a second client that is connected to the same server.
-    conf = getConfig(needlogin=False)
-    client2 = icat.Client(conf.url, **conf.client_kwargs)
+    client2, _ = getConfig(needlogin=False)
     u1 = client.new("user", id=728, name="u_a")
     u2 = client2.new("user", id=728, name="u_a")
     # u1 and u2 have all attributes, including the id the same.

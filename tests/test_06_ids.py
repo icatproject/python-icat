@@ -13,13 +13,12 @@ import icat.config
 from icat.query import Query
 from icat.ids import DataSelection
 from conftest import DummyDatafile, UtcTimezone
-from conftest import getConfig, tmpSessionId, tmpLogin
+from conftest import getConfig, tmpSessionId, tmpClient
 
 
 @pytest.fixture(scope="module")
 def client(setupicat, request):
-    conf = getConfig(ids="mandatory")
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig(ids="mandatory")
     client.login(conf.auth, conf.credentials)
     def cleanup():
         query = "SELECT df FROM Datafile df WHERE df.location IS NOT NULL"
@@ -157,21 +156,21 @@ def test_upload(tmpdirsec, client, case):
     f = DummyDatafile(tmpdirsec.dir, 
                       case['dfname'], case['size'], case['mtime'])
     print("\nUpload file %s" % case['dfname'])
-    conf = getConfig(confSection=case['uluser'])
-    with tmpLogin(client, conf.auth, conf.credentials):
-        dataset = getDataset(client, case)
-        datafileformat = getDatafileFormat(client, case)
-        datafile = client.new("datafile", name=os.path.basename(f.fname), 
-                          dataset=dataset, datafileFormat=datafileformat)
-        client.putData(f.fname, datafile)
-        df = getDatafile(client, case)
+    with tmpClient(confSection=case['uluser'], ids="mandatory") as tclient:
+        username = tclient.getUserName()
+        dataset = getDataset(tclient, case)
+        datafileformat = getDatafileFormat(tclient, case)
+        datafile = tclient.new("datafile", name=os.path.basename(f.fname), 
+                               dataset=dataset, datafileFormat=datafileformat)
+        tclient.putData(f.fname, datafile)
+        df = getDatafile(tclient, case)
         assert df.location is not None
         assert df.fileSize == f.size
         assert df.checksum == f.crc32
         if f.mtime:
             assert df.datafileModTime == f.mtime
-        assert df.createId == "%s/%s" % (conf.auth, case['uluser'])
-        assert df.modId == "%s/%s" % (conf.auth, case['uluser'])
+        assert df.createId == username
+        assert df.modId == username
         case['testfile'] = f
 
 @pytest.fixture(scope='function', params=["getData", "getPreparedData"])
@@ -180,55 +179,53 @@ def method(request):
 
 @pytest.mark.parametrize(("case"), markeddatasets)
 def test_download(tmpdirsec, client, case, method):
-    conf = getConfig(confSection=case['dluser'])
-    if len(case['dfs']) > 1:
-        zfname = os.path.join(tmpdirsec.dir, "%s.zip" % case['dsname'])
-        print("\nDownload %s to file %s" % (case['dsname'], zfname))
-        with tmpLogin(client, conf.auth, conf.credentials):
-            dataset = getDataset(client, case)
+    with tmpClient(confSection=case['dluser'], ids="mandatory") as tclient:
+        if len(case['dfs']) > 1:
+            zfname = os.path.join(tmpdirsec.dir, "%s.zip" % case['dsname'])
+            print("\nDownload %s to file %s" % (case['dsname'], zfname))
+            dataset = getDataset(tclient, case)
             query = "Datafile <-> Dataset [id=%d]" % dataset.id
-            datafiles = client.search(query)
+            datafiles = tclient.search(query)
             if method == 'getData':
-                response = client.getData(datafiles)
+                response = tclient.getData(datafiles)
             elif method == 'getPreparedData':
-                prepid = client.prepareData(datafiles)
-                while not client.isDataPrepared(prepid):
+                prepid = tclient.prepareData(datafiles)
+                while not tclient.isDataPrepared(prepid):
                     time.sleep(5)
-                response = client.getPreparedData(prepid)
+                response = tclient.getPreparedData(prepid)
             with open(zfname, 'wb') as f:
                 copyfile(response, f)
-        zf = zipfile.ZipFile(zfname, 'r')
-        zinfos = zf.infolist()
-        assert len(zinfos) == len(case['dfs'])
-        for df in case['dfs']:
-            zi = None
-            for i in zinfos:
-                if i.filename.endswith(df['dfname']):
-                    zi = i
-                    break
-            assert zi is not None
-            assert "%x" % (zi.CRC & 0xffffffff) == df['testfile'].crc32
-            assert zi.file_size == df['testfile'].size
-    elif len(case['dfs']) == 1:
-        df = case['dfs'][0]
-        dfname = os.path.join(tmpdirsec.dir, "dl_%s" % df['dfname'])
-        print("\nDownload %s to file %s" % (case['dsname'], dfname))
-        with tmpLogin(client, conf.auth, conf.credentials):
-            dataset = getDataset(client, case)
+            zf = zipfile.ZipFile(zfname, 'r')
+            zinfos = zf.infolist()
+            assert len(zinfos) == len(case['dfs'])
+            for df in case['dfs']:
+                zi = None
+                for i in zinfos:
+                    if i.filename.endswith(df['dfname']):
+                        zi = i
+                        break
+                assert zi is not None
+                assert "%x" % (zi.CRC & 0xffffffff) == df['testfile'].crc32
+                assert zi.file_size == df['testfile'].size
+        elif len(case['dfs']) == 1:
+            df = case['dfs'][0]
+            dfname = os.path.join(tmpdirsec.dir, "dl_%s" % df['dfname'])
+            print("\nDownload %s to file %s" % (case['dsname'], dfname))
+            dataset = getDataset(tclient, case)
             query = "Datafile <-> Dataset [id=%d]" % dataset.id
-            datafiles = client.search(query)
+            datafiles = tclient.search(query)
             if method == 'getData':
-                response = client.getData(datafiles)
+                response = tclient.getData(datafiles)
             elif method == 'getPreparedData':
-                prepid = client.prepareData(datafiles)
-                while not client.isDataPrepared(prepid):
+                prepid = tclient.prepareData(datafiles)
+                while not tclient.isDataPrepared(prepid):
                     time.sleep(5)
-                response = client.getPreparedData(prepid)
+                response = tclient.getPreparedData(prepid)
             with open(dfname, 'wb') as f:
                 copyfile(response, f)
-        assert filecmp.cmp(df['testfile'].fname, dfname)
-    else:
-        raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
+            assert filecmp.cmp(df['testfile'].fname, dfname)
+        else:
+            raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
 
 @pytest.mark.parametrize(("case"), markeddatasets)
 def test_getinfo(client, case):

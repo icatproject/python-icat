@@ -25,10 +25,7 @@ config.add_variable('ldap_base', ("-b", "--ldap-base"),
 config.add_variable('ldap_filter', ("-f", "--ldap-filter"), 
                     dict(help="search filter to select the user entries"),
                     default='(uid=*)')
-conf = config.getconfig()
-
-
-client = icat.Client(conf.url, **conf.client_kwargs)
+client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
 
 icatuser = dict([ (u.name,u) for u in client.search("User") ])

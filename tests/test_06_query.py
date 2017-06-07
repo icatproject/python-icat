@@ -13,8 +13,7 @@ from conftest import getConfig, UtcTimezone
 
 @pytest.fixture(scope="module")
 def client(setupicat):
-    conf = getConfig()
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig()
     client.login(conf.auth, conf.credentials)
     return client
 

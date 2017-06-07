@@ -9,8 +9,7 @@ from conftest import getConfig
 
 @pytest.fixture(scope="module")
 def client():
-    conf = getConfig(needlogin=False)
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, _ = getConfig(needlogin=False)
     return client
 
 

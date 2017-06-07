@@ -66,6 +66,10 @@ entitytypes = [
 class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
     """Backend for icatingest.py to read a YAML data file."""
 
+    mode = "rt"
+    """File mode suitable for this backend.
+    """
+
     def __init__(self, client, infile):
         super(YAMLDumpFileReader, self).__init__(client, infile)
         self.insttypemap = dict([ (c.BeanName,t) 
@@ -123,6 +127,10 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
 
 class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     """Backend for icatdump.py to write a YAML data file."""
+
+    mode = "wt"
+    """File mode suitable for this backend.
+    """
 
     def __init__(self, client, outfile):
         super(YAMLDumpFileWriter, self).__init__(client, outfile)

@@ -29,9 +29,8 @@ from icat.query import Query
 logging.basicConfig(level=logging.INFO)
 
 config = icat.config.Config(ids="optional")
-conf = config.getconfig()
+client, conf = config.getconfig()
 
-client = icat.Client(conf.url, **conf.client_kwargs)
 if client.apiversion < '4.3.0':
     raise RuntimeError("Sorry, icat.server version %s is too old, "
                        "need 4.3.0 or newer." % client.apiversion)
