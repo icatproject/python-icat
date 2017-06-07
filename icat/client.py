@@ -207,7 +207,7 @@ class Client(suds.client.Client):
             self.typemap = TypeMap431.copy()
         elif self.apiversion < '4.6.9':
             self.typemap = TypeMap44.copy()
-        elif self.apiversion < '4.8.9':
+        elif self.apiversion < '4.9.9':
             self.typemap = TypeMap47.copy()
         else:
             warn(ClientVersionWarning(self.apiversion, "too new"))
@@ -453,6 +453,14 @@ class Client(suds.client.Client):
             return self.service.getUserName(self.sessionId)
         except suds.WebFault as e:
             raise translateError(e)
+
+    def getVersion(self):
+        try:
+            return self.service.getVersion()
+        except suds.WebFault as e:
+            raise translateError(e)
+        except suds.MethodNotFound as e:
+            return self.getApiVersion()
 
     def isAccessAllowed(self, bean, accessType):
         try:

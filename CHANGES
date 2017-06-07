@@ -18,6 +18,9 @@
 
  + XMLDumpFileReader also accepts a XML tree object as input.
 
+ + Verify support for ICAT 4.9.0.
+   Add new ICAT API method getVersion().
+
 ** Incompatible changes and deprecations
 
  + Deprecate support for ICAT 4.2.*.
