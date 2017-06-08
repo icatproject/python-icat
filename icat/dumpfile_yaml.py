@@ -1,6 +1,7 @@
 """YAML data file backend for icatdump.py and icatingest.py.
 """
 
+import sys
 import datetime
 import yaml
 import icat
@@ -66,7 +67,7 @@ entitytypes = [
 class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
     """Backend for icatingest.py to read a YAML data file."""
 
-    mode = "rt"
+    mode = "rt" if sys.version_info > (3, 0) else "rb"
     """File mode suitable for this backend.
     """
 
@@ -128,7 +129,7 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
 class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     """Backend for icatdump.py to write a YAML data file."""
 
-    mode = "wt"
+    mode = "wt" if sys.version_info > (3, 0) else "wb"
     """File mode suitable for this backend.
     """
 

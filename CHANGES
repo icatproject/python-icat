@@ -123,6 +123,9 @@
 
  + Issue #36: dumpfile must not close file.
 
+ + Issue #37: TypeError is raised when writing a YAML dumpfile to
+   io.StringIO.
+
 * Version 0.12.0 (2016-10-10)
 
 ** New features
