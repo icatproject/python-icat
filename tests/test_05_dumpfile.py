@@ -5,7 +5,6 @@ rather then calling icatdump and icatingest as external scripts, it
 uses the internal API icat.dumpfile.
 """
 
-import sys
 import io
 import os.path
 import filecmp
@@ -148,8 +147,6 @@ def test_check_content(ingestcheck, client, tmpdirsec, case):
     """
     require_icat_version("4.6.0", "Issue icatproject/icat.server#155")
     backend, filetype = case
-    if sys.version_info < (3, 0) and filetype == 'MEMORY' and backend == 'YAML':
-        pytest.xfail("Issue #37")
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']
     dump = os.path.join(tmpdirsec.dir, "dump" + fileext)
