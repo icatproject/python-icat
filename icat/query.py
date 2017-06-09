@@ -198,7 +198,9 @@ class Query(object):
         E.g. the SUM of entity objects or the AVG of strings will
         certainly not work in an ICAT search expression, but it is not
         within the scope of the Query class to reject such nonsense
-        beforehand.
+        beforehand.  Furthermore, "DISTINCT" requires icat.server
+        4.7.0 or newer to work.  Again, this is not checked by the
+        Query class.
 
         :param function: the aggregate function to be applied in the
             SELECT clause, if any.  Valid values are "DISTINCT",

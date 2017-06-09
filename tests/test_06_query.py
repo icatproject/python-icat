@@ -8,7 +8,7 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import getConfig, UtcTimezone
+from conftest import getConfig, require_icat_version, UtcTimezone
 
 
 @pytest.fixture(scope="module")
@@ -359,6 +359,7 @@ def test_query_aggregate_distinct_attribute(client):
     Support for adding aggregate functions has been added in
     Issue #32.
     """
+    require_icat_version("4.7.0", "SELECT DISTINCT in queries")
     query = Query(client, "Datafile", 
                   attribute="datafileFormat.name", 
                   conditions={ "dataset.investigation.id":
@@ -378,6 +379,7 @@ def test_query_aggregate_distinct_related_obj(client):
     Support for adding aggregate functions has been added in
     Issue #32.
     """
+    require_icat_version("4.7.0", "SELECT DISTINCT in queries")
     query = Query(client, "Datafile", 
                   attribute="datafileFormat", 
                   conditions={ "dataset.investigation.id":
@@ -425,6 +427,8 @@ def test_query_aggregate_misc(client, attribute, aggregate, expected):
     Support for adding aggregate functions has been added in
     Issue #32.
     """
+    if "DISTINCT" in aggregate:
+        require_icat_version("4.7.0", "SELECT DISTINCT in queries")
     query = Query(client, "Datafile", attribute=attribute, aggregate=aggregate,
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
