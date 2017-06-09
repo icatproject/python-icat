@@ -340,12 +340,13 @@ class Query(object):
     def __str__(self):
         """Return a string representation of the query.
 
-        Note for Python 2: the result will be an Unicode object, if
-        any of the conditions in the query contains unicode.  This
+        Note for Python 2: the result will be an unicode object if any
+        of the conditions in the query contains unicode.  This
         violates the specification of the string representation
         operator that requires the return value to be a string object.
         But it is the *right thing* to do to get queries with
-        non-ascii characters working.  For Python 3, there is no
+        non-ascii characters working.  So this operator favours
+        usefulness over formal correctness.  For Python 3, there is no
         distinction between Unicode and string objects anyway.
         """
         joinattrs = set(self.order) | set(self.conditions.keys())

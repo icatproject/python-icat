@@ -11,7 +11,7 @@
 # The recommended version of ids.server is 1.6.0 or greater.  The
 # script does not take any particular measure to work around issues
 # in ids.server older than that.  In particular, the script mail fail
-# or leave rubbish behind in to the following situations:
+# or leave rubbish behind in the following situations:
 # - ids.server is older then 1.6.0 and there is any dataset with many
 #   datafiles, Issue icatproject/ids.server#42.
 # - ids.server is older then 1.3.0 and restoring of any dataset takes a
