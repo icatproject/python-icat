@@ -164,12 +164,6 @@ class Query(object):
         #
         # will raise an ICATParameterError with icat.server 4.6.1 and
         # older, while it will work for icat.server 4.7.0 and newer.
-        # The analogue problem exists for the object to be searched in
-        # the SELECT clause, e.g.
-        #
-        #   SELECT dff FROM Datafile o JOIN o.datafileFormat AS dff 
-        #   WHERE dff.name = 'NeXus'
-        #
         # To remain compatible with the old versions, we always keep
         # one dot after substitution.
         i = obj.rfind('.')
@@ -357,7 +351,12 @@ class Query(object):
             joinattrs.add(self.attribute)
         subst = self._makesubst(joinattrs)
         if self.attribute:
-            res = self._dosubst(self.attribute, subst, False)
+            if self.client.apiversion >= "4.7.0":
+                res = self._dosubst(self.attribute, subst, False)
+            else:
+                # Old versions of icat.server do not accept
+                # substitution in the SELECT clause.
+                res = "o.%s" % self.attribute
         else:
             res = "o"
         if self.aggregate:
