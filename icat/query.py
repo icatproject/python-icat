@@ -156,8 +156,22 @@ class Query(object):
         return subst
 
     def _dosubst(self, obj, subst, addas=True):
-        if not addas and obj in subst:
-            return subst[obj]
+        # Note: some old versions of icat.server require the path
+        # mentioned in the WHERE clause to contain at least one dot.
+        # So the query
+        #
+        #   SELECT o FROM Rule o JOIN o.grouping AS g WHERE g IS NOT NULL
+        #
+        # will raise an ICATParameterError with icat.server 4.6.1 and
+        # older, while it will work for icat.server 4.7.0 and newer.
+        # The analogue problem exists for the object to be searched in
+        # the SELECT clause, e.g.
+        #
+        #   SELECT dff FROM Datafile o JOIN o.datafileFormat AS dff 
+        #   WHERE dff.name = 'NeXus'
+        #
+        # To remain compatible with the old versions, we always keep
+        # one dot after substitution.
         i = obj.rfind('.')
         if i < 0:
             n = "o.%s" % (obj)
