@@ -353,8 +353,27 @@ def test_query_attribute_datafile_name(client):
         assert not isinstance(n, icat.entity.Entity)
 
 @pytest.mark.dependency(depends=['get_investigation'])
-def test_query_aggregate_distinct(client):
-    """Test DISTINCT in search results.
+def test_query_aggregate_distinct_attribute(client):
+    """Test DISTINCT on an attribute in the search result.
+
+    Support for adding aggregate functions has been added in
+    Issue #32.
+    """
+    query = Query(client, "Datafile", 
+                  attribute="datafileFormat.name", 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    res = client.search(query)
+    assert sorted(res) == ["NeXus", "NeXus", "raw", "raw"]
+    query.setAggregate("DISTINCT")
+    print(str(query))
+    res = client.search(query)
+    assert sorted(res) == ["NeXus", "raw"]
+
+@pytest.mark.dependency(depends=['get_investigation'])
+def test_query_aggregate_distinct_related_obj(client):
+    """Test DISTINCT on a related object in the search result.
 
     Support for adding aggregate functions has been added in
     Issue #32.
@@ -374,18 +393,6 @@ def test_query_aggregate_distinct(client):
     assert len(res) == 2
     for n in res:
         assert isinstance(n, icat.entity.Entity)
-
-    query = Query(client, "Datafile", 
-                  attribute="datafileFormat.name", 
-                  conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id })
-    print(str(query))
-    res = client.search(query)
-    assert sorted(res) == ["NeXus", "NeXus", "raw", "raw"]
-    query.setAggregate("DISTINCT")
-    print(str(query))
-    res = client.search(query)
-    assert sorted(res) == ["NeXus", "raw"]
 
 @pytest.mark.dependency(depends=['get_investigation'])
 @pytest.mark.parametrize(("attribute", "aggregate", "expected"), [
