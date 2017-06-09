@@ -1,7 +1,7 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.13.0 (not yet released)
+* Version 0.13.0 (2017-06-09)
 
 ** New features
 
@@ -45,7 +45,7 @@
    E.g. first the configuration variables are set up, then the
    configuration is applied and finally the Client object is created
    using the configuration values.  With the discovery of
-   authenticators, the Config object itself need a working Client
+   authenticators, the Config object itself needs a working Client
    object in order to connect to the ICAT server and query the
    authenticator info.  The Client object will now be created in the
    Config constructor and returned along with the configuration values
@@ -60,9 +60,30 @@
    pass additional arguments from the configuration to the Client
    constructor is no longer needed and has been removed.
 
+   The optional argument "args" has been moved from the getconfig()
+   call to the Config constructor, retaining the same semantics.
+   E.g. you must change in your code:
+
+         config = icat.config.Config()
+         conf = config.getconfig(args)
+         client = icat.Client(conf.url, **conf.client_kwargs)
+
+   to:
+
+         config = icat.config.Config(args)
+         client, conf = config.getconfig()
+
  + Deprecate support for ICAT 4.2.*.
 
+   Note that already now significant parts of python-icat require
+   features from ICAT 4.3 such as the JPQL like query language.  The
+   only workaround is to upgrade your icat.server.
+
  + Deprecate module icat.cgi.
+
+   It is assumed that this has never actually been used in production.
+   For web applications it is recommended to use the Python Web Server
+   Gateway Interface (WSGI) rather then CGI.
 
  + Deprecate the predefined configuration variable "configDir".
 
@@ -109,6 +130,9 @@
    called with an in-memory stream.
 
  + Issue #36: dumpfile must not close file.
+
+ + Issue #37: TypeError is raised when writing a YAML dumpfile to
+   io.StringIO.
 
 * Version 0.12.0 (2016-10-10)
 

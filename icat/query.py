@@ -156,8 +156,16 @@ class Query(object):
         return subst
 
     def _dosubst(self, obj, subst, addas=True):
-        if not addas and obj in subst:
-            return subst[obj]
+        # Note: some old versions of icat.server require the path
+        # mentioned in the WHERE clause to contain at least one dot.
+        # So the query
+        #
+        #   SELECT o FROM Rule o JOIN o.grouping AS g WHERE g IS NOT NULL
+        #
+        # will raise an ICATParameterError with icat.server 4.6.1 and
+        # older, while it will work for icat.server 4.7.0 and newer.
+        # To remain compatible with the old versions, we always keep
+        # one dot after substitution.
         i = obj.rfind('.')
         if i < 0:
             n = "o.%s" % (obj)
@@ -190,7 +198,9 @@ class Query(object):
         E.g. the SUM of entity objects or the AVG of strings will
         certainly not work in an ICAT search expression, but it is not
         within the scope of the Query class to reject such nonsense
-        beforehand.
+        beforehand.  Furthermore, "DISTINCT" requires icat.server
+        4.7.0 or newer to work.  Again, this is not checked by the
+        Query class.
 
         :param function: the aggregate function to be applied in the
             SELECT clause, if any.  Valid values are "DISTINCT",
@@ -330,12 +340,13 @@ class Query(object):
     def __str__(self):
         """Return a string representation of the query.
 
-        Note for Python 2: the result will be an Unicode object, if
-        any of the conditions in the query contains unicode.  This
+        Note for Python 2: the result will be an unicode object if any
+        of the conditions in the query contains unicode.  This
         violates the specification of the string representation
         operator that requires the return value to be a string object.
         But it is the *right thing* to do to get queries with
-        non-ascii characters working.  For Python 3, there is no
+        non-ascii characters working.  So this operator favours
+        usefulness over formal correctness.  For Python 3, there is no
         distinction between Unicode and string objects anyway.
         """
         joinattrs = set(self.order) | set(self.conditions.keys())
@@ -343,7 +354,12 @@ class Query(object):
             joinattrs.add(self.attribute)
         subst = self._makesubst(joinattrs)
         if self.attribute:
-            res = self._dosubst(self.attribute, subst, False)
+            if self.client.apiversion >= "4.7.0":
+                res = self._dosubst(self.attribute, subst, False)
+            else:
+                # Old versions of icat.server do not accept
+                # substitution in the SELECT clause.
+                res = "o.%s" % self.attribute
         else:
             res = "o"
         if self.aggregate:

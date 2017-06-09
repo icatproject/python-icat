@@ -89,6 +89,8 @@ Java Client documentation for details.
 
 .. automethod:: icat.client.Client.getUserName
 
+.. automethod:: icat.client.Client.getVersion
+
 .. automethod:: icat.client.Client.isAccessAllowed
 
 .. automethod:: icat.client.Client.refresh

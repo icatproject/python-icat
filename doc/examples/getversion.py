@@ -9,7 +9,8 @@ import icat.config
 logging.basicConfig(level=logging.INFO)
 #logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
-client, conf = icat.config.Config(needlogin=False, ids="optional").getconfig()
+config = icat.config.Config(needlogin=False, ids="optional")
+client, conf = config.getconfig()
 
 print("Python %s\n" % (sys.version))
 print("python-icat version %s (%s)\n" % (icat.__version__, icat.__revision__))
