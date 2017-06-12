@@ -6,12 +6,14 @@ python-icat provides the following modules:
 .. toctree::
    :maxdepth: 2
 
+   authinfo
    cgi
    client
    config
    dumpfile
    dumpfile_xml
    dumpfile_yaml
+   dump_queries
    entities
    entity
    eval
@@ -22,5 +24,3 @@ python-icat provides the following modules:
    listproxy
    query
    sslcontext
-
-
