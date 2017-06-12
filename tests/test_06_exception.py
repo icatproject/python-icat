@@ -11,8 +11,7 @@ from conftest import require_icat_version, getConfig, tmpSessionId
 
 @pytest.fixture(scope="module")
 def client(setupicat):
-    conf = getConfig(ids="optional")
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig(ids="optional")
     client.login(conf.auth, conf.credentials)
     return client
 
@@ -131,3 +130,17 @@ def test_ids_exception(client, errcond):
     assert hasattr(err, 'type')
     assert err.offset is None
     assert getattr(err, '__cause__', None) is None
+
+
+def test_server_error_from_string():
+    """The constructor of ServerError also accepts a string argument.
+
+    This simplifies raising ICATErrors and IDSErrors from custom code
+    which is mainly useful for testing.
+    """
+    msg = "foo error"
+    err = icat.ICATInternalError(msg)
+    print(repr(err))
+    assert isinstance(err, icat.exception.ServerError)
+    assert err.message == msg
+    assert err.offset is None

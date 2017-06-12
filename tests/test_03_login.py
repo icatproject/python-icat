@@ -15,8 +15,7 @@ def test_login(user):
     """Login to the ICAT server.
     """
 
-    conf = getConfig(confSection=user)
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig(confSection=user)
     sessionId = client.login(conf.auth, conf.credentials)
     assert sessionId
     assert sessionId == client.sessionId

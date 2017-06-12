@@ -41,9 +41,7 @@ config.add_variable('datafileformat', ("datafileformat",),
                          "(separated by a colon) of the datafile format"))
 config.add_variable('files', ("files",), 
                     dict(help="name of the files to upload", nargs="+"))
-conf = config.getconfig()
-
-client = icat.Client(conf.url, **conf.client_kwargs)
+client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
 
 

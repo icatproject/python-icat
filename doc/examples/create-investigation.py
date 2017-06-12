@@ -21,9 +21,7 @@ config.add_variable('datafile', ("datafile",),
                          help="name of the input datafile"))
 config.add_variable('investigationname', ("investigationname",), 
                     dict(help="name of the investigation to add"))
-conf = config.getconfig()
-
-client = icat.Client(conf.url, **conf.client_kwargs)
+client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
 
 

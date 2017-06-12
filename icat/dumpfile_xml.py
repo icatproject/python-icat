@@ -1,6 +1,7 @@
 """XML data file backend for icatdump.py and icatingest.py.
 """
 
+import sys
 import os
 import datetime
 from lxml import etree
@@ -18,117 +19,89 @@ except AttributeError:
 
 
 # ------------------------------------------------------------
-# Helper
-# ------------------------------------------------------------
-
-def _entity2elem(obj, tag, keyindex):
-    """Convert an entity object to an etree.Element."""
-    if tag is None:
-        tag = obj.instancetype
-    d = etree.Element(tag)
-
-    for attr in sorted(obj.InstAttr):
-        if attr == 'id':
-            continue
-        v = getattr(obj, attr, None)
-        if v is None:
-            continue
-        elif isinstance(v, bool):
-            v = str(v).lower()
-        elif isinstance(v, (int, long)):
-            v = str(v)
-        elif isinstance(v, datetime.datetime):
-            if v.tzinfo is not None and v.tzinfo.utcoffset(v) is not None:
-                # v has timezone info.  This will be the timezone set
-                # in the ICAT server.  Convert it to UTC to avoid
-                # dependency of server settings in the dumpfile.
-                # Assume v.isoformat() to have a valid timezone
-                # suffix.
-                if utc:
-                    v = v.astimezone(utc)
-                v = v.isoformat()
-            else:
-                # v has no timezone info, assume it to be UTC, append
-                # the corresponding timezone suffix.
-                v = v.isoformat() + 'Z'
-        else:
-            try:
-                v = str(v)
-            except UnicodeError:
-                v = unicode(v)
-        etree.SubElement(d, attr).text = v
-
-    for attr in sorted(obj.InstRel):
-        o = getattr(obj, attr, None)
-        if o is not None:
-            k = o.getUniqueKey(keyindex=keyindex)
-            etree.SubElement(d, attr, ref=k)
-
-    for attr in sorted(obj.InstMRel):
-        for o in sorted(getattr(obj, attr), 
-                        key=icat.entity.Entity.__sortkey__):
-            d.append(_entity2elem(o, tag=attr, keyindex=keyindex))
-
-    return d
-
-def _searchByReference(client, element, objtype, objindex):
-    """Search for a referenced object.
-    """
-    ref = element.get('ref')
-    if ref:
-        # object is referenced by key.
-        return client.searchUniqueKey(ref, objindex)
-    else:
-        # object is referenced by attributes.
-        attrs = set(element.keys()) - {'id'}
-        conditions = { a: "= '%s'" % element.get(a) for a in attrs }
-        query = Query(client, objtype, conditions=conditions)
-        return client.assertedSearch(query)[0]
-
-def _elem2entity(client, insttypemap, element, objtype, objindex):
-    """Create an entity object from XML element data."""
-    obj = client.new(insttypemap[objtype])
-    for subelem in element:
-        attr = subelem.tag
-        if attr in obj.AttrAlias:
-            attr = obj.AttrAlias[attr]
-        if attr in obj.InstAttr:
-            setattr(obj, attr, subelem.text)
-        elif attr in obj.InstRel:
-            rtype = obj.getAttrType(attr)
-            robj = _searchByReference(client, subelem, rtype, objindex)
-            setattr(obj, attr, robj)
-        elif attr in obj.InstMRel:
-            rtype = obj.getAttrType(attr)
-            robj = _elem2entity(client, insttypemap, subelem, rtype, objindex)
-            getattr(obj, attr).append(robj)
-        else:
-            raise ValueError("invalid subelement '%s' in '%s'" 
-                             % (subelem.tag, element.tag))
-    return obj
-
-
-# ------------------------------------------------------------
 # XMLDumpFileReader
 # ------------------------------------------------------------
 
 class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
-    """Backend for icatingest.py to read a XML data file."""
+    """Backend for icatingest.py to read a XML data file.
+
+    This backend accepts a file object, a filename, or a XML tree
+    object (:class:`lxml.etree._ElementTree`) as input.  Note that the
+    latter case requires by definition the complete input to be at
+    once in memory.  This is only useful if the input is small enough.
+    """
+
+    mode = "rb"
+    """File mode suitable for this backend.
+    """
 
     def __init__(self, client, infile):
         super(XMLDumpFileReader, self).__init__(client, infile)
-        # need binary mode for infile
-        self.infile = os.fdopen(os.dup(infile.fileno()), 'rb')
-        infile.close()
         self.insttypemap = { c.BeanName:t 
                              for t,c in self.client.typemap.iteritems() }
+        if isinstance(self.infile, etree._ElementTree):
+            self.getdata = self.getdata_etree
+        else:
+            self.getdata = self.getdata_file
 
-    def getdata(self):
+    def _file_open(self, filename):
+        if filename == "-":
+            # lxml requires binary mode
+            f = os.fdopen(os.dup(sys.stdin.fileno()), self.mode)
+            sys.stdin.close()
+            return f
+        else:
+            return open(filename, self.mode)
+
+    def _searchByReference(self, element, objtype, objindex):
+        """Search for a referenced object.
+        """
+        ref = element.get('ref')
+        if ref:
+            # object is referenced by key.
+            return self.client.searchUniqueKey(ref, objindex)
+        else:
+            # object is referenced by attributes.
+            attrs = set(element.keys()) - {'id'}
+            conditions = { a: "= '%s'" % element.get(a) for a in attrs }
+            query = Query(self.client, objtype, conditions=conditions)
+            return self.client.assertedSearch(query)[0]
+
+    def _elem2entity(self, element, objtype, objindex):
+        """Create an entity object from XML element data."""
+        obj = self.client.new(self.insttypemap[objtype])
+        for subelem in element:
+            attr = subelem.tag
+            if attr in obj.AttrAlias:
+                attr = obj.AttrAlias[attr]
+            if attr in obj.InstAttr:
+                setattr(obj, attr, subelem.text)
+            elif attr in obj.InstRel:
+                rtype = obj.getAttrType(attr)
+                robj = self._searchByReference(subelem, rtype, objindex)
+                setattr(obj, attr, robj)
+            elif attr in obj.InstMRel:
+                rtype = obj.getAttrType(attr)
+                robj = self._elem2entity(subelem, rtype, objindex)
+                getattr(obj, attr).append(robj)
+            else:
+                raise ValueError("invalid subelement '%s' in '%s'" 
+                                 % (subelem.tag, element.tag))
+        return obj
+
+    def getdata_file(self):
         """Iterate over the chunks in the data file.
         """
         for event, data in etree.iterparse(self.infile, tag='data'):
             yield data
             data.clear()
+
+    def getdata_etree(self):
+        """Iterate over the chunks from a XML tree object.
+        """
+        for elem in self.infile.getroot():
+            if elem.tag == 'data':
+                yield elem
 
     def getobjs_from_data(self, data, objindex):
         """Iterate over the objects in a data chunk.
@@ -146,13 +119,11 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
                 # from other objects.
                 if key:
                     objtype = self.client.typemap[tag[0:-3]].BeanName
-                    obj = _searchByReference(self.client, elem, objtype, 
-                                             objindex)
+                    obj = self._searchByReference(elem, objtype, objindex)
                     objindex[key] = obj
             else:
                 objtype = self.client.typemap[tag].BeanName
-                obj = _elem2entity(self.client, self.insttypemap, 
-                                   elem, objtype, objindex)
+                obj = self._elem2entity(elem, objtype, objindex)
                 yield key, obj
 
 
@@ -163,12 +134,68 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
 class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     """Backend for icatdump.py to write a XML data file."""
 
+    mode = "wb"
+    """File mode suitable for this backend.
+    """
+
     def __init__(self, client, outfile):
         super(XMLDumpFileWriter, self).__init__(client, outfile)
-        # need binary mode for outfile
-        self.outfile = os.fdopen(os.dup(outfile.fileno()), 'wb')
-        outfile.close()
         self.data = etree.Element("data")
+
+    def _file_open(self, filename):
+        if filename == "-":
+            # lxml requires binary mode
+            f = os.fdopen(os.dup(sys.stdout.fileno()), self.mode)
+            sys.stdout.close()
+            return f
+        else:
+            return open(filename, self.mode)
+
+    def _entity2elem(self, obj, tag, keyindex):
+        """Convert an entity object to an etree.Element."""
+        if tag is None:
+            tag = obj.instancetype
+        d = etree.Element(tag)
+        for attr in sorted(obj.InstAttr):
+            if attr == 'id':
+                continue
+            v = getattr(obj, attr, None)
+            if v is None:
+                continue
+            elif isinstance(v, bool):
+                v = str(v).lower()
+            elif isinstance(v, (int, long)):
+                v = str(v)
+            elif isinstance(v, datetime.datetime):
+                if v.tzinfo is not None and v.tzinfo.utcoffset(v) is not None:
+                    # v has timezone info.  This will be the timezone set
+                    # in the ICAT server.  Convert it to UTC to avoid
+                    # dependency of server settings in the dumpfile.
+                    # Assume v.isoformat() to have a valid timezone
+                    # suffix.
+                    if utc:
+                        v = v.astimezone(utc)
+                    v = v.isoformat()
+                else:
+                    # v has no timezone info, assume it to be UTC, append
+                    # the corresponding timezone suffix.
+                    v = v.isoformat() + 'Z'
+            else:
+                try:
+                    v = str(v)
+                except UnicodeError:
+                    v = unicode(v)
+            etree.SubElement(d, attr).text = v
+        for attr in sorted(obj.InstRel):
+            o = getattr(obj, attr, None)
+            if o is not None:
+                k = o.getUniqueKey(keyindex=keyindex)
+                etree.SubElement(d, attr, ref=k)
+        for attr in sorted(obj.InstMRel):
+            for o in sorted(getattr(obj, attr), 
+                            key=icat.entity.Entity.__sortkey__):
+                d.append(self._entity2elem(o, tag=attr, keyindex=keyindex))
+        return d
 
     def head(self):
         """Write a header with some meta information to the data file."""
@@ -196,7 +223,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
 
     def writeobj(self, key, obj, keyindex):
         """Add an entity object to the current data chunk."""
-        elem = _entity2elem(obj, None, keyindex)
+        elem = self._entity2elem(obj, None, keyindex)
         elem.set('id', key)
         self.data.append(elem)
 

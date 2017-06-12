@@ -60,7 +60,7 @@ class ServerError(Exception):
     and :exc:`icat.exception.IDSError`, it is not intented to be
     raised directly.
     """
-    def __init__(self, error, status):
+    def __init__(self, error, status=None):
         """Expecept either a suds.WebFault or a Mapping with the keys 'code',
         'message', and 'offset'.
         """
@@ -91,6 +91,16 @@ class ServerError(Exception):
             self.message = message
             self.type = str(error['code'])
             self.offset = error.get('offset', None)
+        elif isinstance(error, basestring):
+            # For compatibility with other exception classes, also
+            # allow the constructor to be called with just a message
+            # string as argument.
+            message = self._convertmsg(error)
+            super(ServerError, self).__init__(message)
+            self.status = None
+            self.message = message
+            self.type = None
+            self.offset = None
         else:
             raise TypeError("Invalid argument type '%s'." % type(error))
 

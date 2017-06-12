@@ -68,6 +68,22 @@ class DummyDatafile(object):
         else:
             self.mtime = None
 
+
+def getConfig(confSection="root", **confArgs):
+    """Get the configuration, skip on ConfigError.
+    """
+    confFile = os.path.join(testdir, "data", "icat.cfg")
+    if not os.path.isfile(confFile):
+        pytest.skip("no test ICAT server configured")
+    try:
+        confArgs['args'] = ["-c", confFile, "-s", confSection]
+        client, conf = icat.config.Config(**confArgs).getconfig()
+        conf.cmdargs = ["-c", conf.configFile[0], "-s", conf.configSection]
+        return (client, conf)
+    except icat.ConfigError as err:
+        pytest.skip(str(err))
+
+
 class tmpSessionId:
     """Temporarily switch to another sessionId in an ICAT client.
     """
@@ -81,21 +97,17 @@ class tmpSessionId:
     def __exit__(self, type, value, tb):
         self.client.sessionId = self.saveSessionId
 
-class tmpLogin:
-    """Temporarily login as another user in an ICAT client.
+class tmpClient:
+    """A temporary client using an own configuration,
+    such as login as another user.
     """
-    def __init__(self, client, auth, credentials):
-        self.client = client
-        self.saveSessionId = client.sessionId
-        self.auth = auth
-        self.credentials = credentials
+    def __init__(self, **confArgs):
+        (self.client, self.conf) = getConfig(**confArgs)
     def __enter__(self):
-        self.client.sessionId = None
-        self.client.login(self.auth, self.credentials)
+        self.client.login(self.conf.auth, self.conf.credentials)
         return self.client
     def __exit__(self, type, value, tb):
         self.client.logout()
-        self.client.sessionId = self.saveSessionId
 
 
 def gettestdata(fname):
@@ -104,24 +116,8 @@ def gettestdata(fname):
     return fname
 
 
-def getConfig(confSection="root", **confArgs):
-    """Get the configuration, skip on ConfigError.
-    """
-    confFile = os.path.join(testdir, "data", "icat.cfg")
-    if not os.path.isfile(confFile):
-        pytest.skip("no test ICAT server configured")
-    try:
-        args = ["-c", confFile, "-s", confSection]
-        conf = icat.config.Config(**confArgs).getconfig(args)
-        conf.cmdargs = ["-c", conf.configFile[0], "-s", conf.configSection]
-        return conf
-    except icat.ConfigError as err:
-        pytest.skip(err.message)
-
-
 def get_icat_version():
-    conf = getConfig(needlogin=False)
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, _ = getConfig(needlogin=False)
     return client.apiversion
 
 # ICAT server version we talk to.  Ignore any errors from
@@ -194,105 +190,21 @@ def tmpdirsec(request):
 
 
 @pytest.fixture(scope="session")
-def standardConfig():
-    return getConfig()
+def standardCmdArgs():
+    _, conf = getConfig()
+    return conf.cmdargs
 
 
 testcontent = gettestdata("icatdump.yaml")
 
 @pytest.fixture(scope="session")
-def setupicat(standardConfig):
+def setupicat(standardCmdArgs):
     require_icat_version("4.4.0", "need InvestigationGroup")
-    callscript("wipeicat.py", standardConfig.cmdargs)
-    args = standardConfig.cmdargs + ["-f", "YAML", "-i", testcontent]
+    callscript("wipeicat.py", standardCmdArgs)
+    args = standardCmdArgs + ["-f", "YAML", "-i", testcontent]
     callscript("icatingest.py", args)
 
-
 # ============================= hooks ================================
-
-class DependencyItemStatus(object):
-    """Status of a test item in a dependency manager.
-    """
-
-    Phases = ('setup', 'call', 'teardown')
-
-    def __init__(self):
-        self.results = { w:None for w in self.Phases }
-
-    def __str__(self):
-        l = ["%s: %s" % (w, self.results[w]) for w in self.Phases]
-        return "Status(%s)" % ", ".join(l)
-
-    def addResult(self, rep):
-        self.results[rep.when] = rep.outcome
-
-    def isSuccess(self):
-        return list(self.results.values()) == ['passed', 'passed', 'passed']
-
-class DependencyManager(object):
-    """Dependency manager, stores the results of tests.
-    """
-
-    ScopeCls = {'module':pytest.Module, 'session':pytest.Session}
-
-    @classmethod
-    def getManager(cls, item, scope='module'):
-        """Get the DependencyManager object from the node at scope level.
-        Create it, if not yet present.
-        """
-        node = item.getparent(cls.ScopeCls[scope])
-        if not hasattr(node, 'dependencyManager'):
-            node.dependencyManager = cls()
-        return node.dependencyManager
-
-    def __init__(self):
-        self.results = {}
-
-    def addResult(self, item, marker, rep):
-        name = marker.kwargs.get('name')
-        if not name:
-            name = item.name
-        status = self.results.setdefault(name, DependencyItemStatus())
-        status.addResult(rep)
-
-    def checkDepend(self, depends):
-        for i in depends:
-            if not(i in self.results and self.results[i].isSuccess()):
-                pytest.skip("depends on %s" % i)
-
-
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    """Store the test outcome if this item is marked "dependency".
-    """
-    outcome = yield
-    marker = item.get_marker("dependency")
-    if marker is not None:
-        rep = outcome.get_result()
-        manager = DependencyManager.getManager(item)
-        manager.addResult(item, marker, rep)
-
-
-def pytest_runtest_setup(item):
-    """Check dependencies if this item is marked "dependency".
-    Skip if any of the dependencies has not been run successfully.
-    """
-    marker = item.get_marker("dependency")
-    if marker is not None:
-        depends = marker.kwargs.get('depends')
-        if depends:
-            manager = DependencyManager.getManager(item)
-            manager.checkDepend(depends)
-
-
-def require_servertest():
-    if not pytest.config.getoption("--servertests"):
-        pytest.skip("need --servertests option to run")
-
-def pytest_addoption(parser):
-    parser.addoption("--servertests", action="store_true",
-                     help="run tests for testing the server.")
-
 
 def pytest_report_header(config):
     """Add information on the icat package used in the tests.
@@ -305,3 +217,4 @@ def pytest_report_header(config):
     return [ "python-icat: %s (%s)" % (icat.__version__, icat.__revision__), 
              "             %s" % (modpath),
              "icat.server: %s" % server]
+

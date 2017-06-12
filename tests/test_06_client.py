@@ -17,8 +17,7 @@ from conftest import getConfig
 
 @pytest.fixture(scope="module")
 def client(setupicat):
-    conf = getConfig()
-    client = icat.Client(conf.url, **conf.client_kwargs)
+    client, conf = getConfig()
     client.login(conf.auth, conf.credentials)
     return client
 
@@ -181,6 +180,33 @@ def test_searchChunked_percent(client, query):
     assert isinstance(res, Iterable)
     objs = list(res)
     assert objs == users
+
+@pytest.mark.parametrize(("query",), [
+    ("SELECT o FROM Investigation o WHERE o.id = %d",),
+    ("SELECT o FROM Investigation o WHERE o.id in (%d)",),
+])
+def test_searchChunked_id(client, query):
+    """Search by id with searchChunked().
+
+    There is a bug in some versions of icat.server causing the LIMIT
+    clause in a query to have no effect when searching by id
+    (icatproject/icat.server#125).  This used to break searchChunked()
+    that fully relies on the LIMIT clause.  It can be worked around
+    reformulating the query, see the second version of the query.
+    Now, there is an improvement version of searchChunked() that also
+    works around this for the standard formulation of the query
+    (9901ec6).
+    """
+    refq = Query(client, "Investigation", attribute="id", limit=(0,1),
+                 conditions={"name": "= '08100122-EF'"})
+    id = client.assertedSearch(refq)[0]
+    # The search by id must return exactly one result.  The broken
+    # version returns the same object over and over again in an
+    # endless loop.
+    count = 0
+    for obj in client.searchChunked(str(query) % id):
+        count += 1
+        assert count == 1
 
 # ==================== test searchUniqueKey() ======================
 
