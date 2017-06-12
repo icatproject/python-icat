@@ -47,9 +47,7 @@ config.add_variable('method', ("method",),
                     dict(choices=['getData', 'getDataUrl', 
                                   'getPreparedData', 'getPreparedDataUrl'], 
                          help="download method"))
-conf = config.getconfig()
-
-client = icat.Client(conf.url, **conf.client_kwargs)
+client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
 client.ids.ping()
 

@@ -77,6 +77,8 @@ Java Client documentation for details.
 
 .. automethod:: icat.client.Client.getApiVersion
 
+.. automethod:: icat.client.Client.getAuthenticatorInfo
+
 .. automethod:: icat.client.Client.getEntityInfo
 
 .. automethod:: icat.client.Client.getEntityNames
@@ -86,6 +88,8 @@ Java Client documentation for details.
 .. automethod:: icat.client.Client.getRemainingMinutes
 
 .. automethod:: icat.client.Client.getUserName
+
+.. automethod:: icat.client.Client.getVersion
 
 .. automethod:: icat.client.Client.isAccessAllowed
 

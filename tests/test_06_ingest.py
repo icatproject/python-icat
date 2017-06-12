@@ -16,17 +16,14 @@ ds_params = gettestdata("ingest-ds-params.xml")
 datafiles = gettestdata("ingest-datafiles.xml")
 
 @pytest.fixture(scope="module")
-def conf(setupicat):
-    return getConfig(confSection="acord", ids="mandatory")
-
-@pytest.fixture(scope="module")
-def client(conf):
-    client = icat.Client(conf.url, **conf.client_kwargs)
+def client(setupicat):
+    client, conf = getConfig(confSection="acord", ids="mandatory")
     client.login(conf.auth, conf.credentials)
     return client
 
 @pytest.fixture(scope="module")
-def cmdargs(conf):
+def cmdargs(setupicat):
+    _, conf = getConfig(confSection="acord", ids="mandatory")
     return conf.cmdargs + ["-f", "XML"]
 
 @pytest.fixture(scope="function")
