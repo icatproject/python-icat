@@ -26,12 +26,18 @@ class Namespace(object):
 class FakeClient(object):
     AuthInfo = None
     def __init__(self, url, **kwargs):
-        pass
+        self.url = url
+        self.kwargs = kwargs
     def getAuthenticatorInfo(self):
         if self.AuthInfo:
             return self.AuthInfo
         else:
             raise icat.exception.VersionMethodError("getAuthenticatorInfo")
+    def __eq__(self, other):
+        if isinstance(other, FakeClient):
+            return self.url == other.url and self.kwargs == other.kwargs
+        else:
+            return NotImplemented
 
 @pytest.fixture(scope="function")
 def fakeClient(monkeypatch):
@@ -1099,3 +1105,39 @@ def test_config_cfgpath_cmdline(fakeClient, tmpconfigfile, monkeypatch,
     assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
     assert conf.controlfile == apath
     assert os.path.isfile(conf.controlfile)
+
+
+def test_config_client_kwargs(fakeClient, tmpconfigfile, monkeypatch):
+    """Test client_kwargs attribute of config.
+
+    Issue #38: There should be a way to access the kwargs used to
+    create the client in config.  The resolution was to add this
+    attribute to the config object.
+    """
+
+    # Manipulate the default search path.
+    monkeypatch.setenv("HOME", tmpconfigfile.home)
+    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
+                os.path.expanduser("~/.icat"), 
+                "", ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(tmpconfigfile.home)
+
+    # Add proxy settings just to have non-trivial content in client_kwargs.
+    monkeypatch.setenv("http_proxy", "http://www-cache.example.org:3128/")
+    monkeypatch.setenv("https_proxy", "http://www-cache.example.org:3128/")
+    monkeypatch.setenv("no_proxy", "localhost, .example.org")
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_root"]
+    config = icat.config.Config(args=args)
+    client, conf = config.getconfig()
+
+    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
+    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
+                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
+                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
+
+    # create a second, independent client object and check that it
+    # has been created using the same arguments.
+    client2 = FakeClient(conf.url, **config.client_kwargs)
+    assert client2 == client
