@@ -368,12 +368,13 @@ class Config(object):
             self.needlogin = needlogin
             self.ids = ids
             self._add_basic_variables()
-            self.client = self._setup_client()
+            self.client_kwargs, self.client = self._setup_client()
             if self.needlogin:
                 self._add_cred_variables()
         else:
             self.needlogin = None
             self.ids = None
+            self.client_kwargs = None
             self.client = None
 
 
@@ -634,7 +635,7 @@ class Config(object):
             client_kwargs['proxy'] = proxy
         if config.no_proxy:
             os.environ['no_proxy'] = config.no_proxy
-        return Client(config.url, **client_kwargs)
+        return client_kwargs, Client(config.url, **client_kwargs)
 
     def _getconfig(self, partial=False):
         """Get the configuration.
