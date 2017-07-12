@@ -619,7 +619,7 @@ class Config(object):
             with _argparserDisableExit(self.argparser):
                 config = self._getconfig(partial=True)
         except ConfigError:
-            return None
+            return None, None
         client_kwargs = {}
         if self.ids:
             client_kwargs['idsurl'] = config.idsurl
