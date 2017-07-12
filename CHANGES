@@ -1,6 +1,13 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.13.1 (2017-07-12)
+
+** Bug fixes and minor changes
+
+ + Issue #38: There should be a way to access the kwargs used to
+   create the client in config.
+
 * Version 0.13.0 (2017-06-09)
 
 ** New features
