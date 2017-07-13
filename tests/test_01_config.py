@@ -141,6 +141,17 @@ def tmpfiles(request):
 
 # ============================= tests ==============================
 
+def test_config_missing_mandatory(fakeClient):
+    """Not providing any config at all.
+
+    This throws an error as url is mandatory.
+    """
+    config = icat.config.Config(needlogin=False, ids=False, args=[])
+    with pytest.raises(icat.exception.ConfigError) as err:
+        _, conf = config.getconfig()
+    assert "Config option 'url' not given" in str(err.value)
+
+
 def test_config_minimal(fakeClient):
     """Minimal example.
 
