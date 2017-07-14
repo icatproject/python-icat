@@ -25,17 +25,14 @@ class Namespace(object):
 
 class ExpectedConf(Namespace):
     def __le__(self, other):
-        if isinstance(other, icat.config.Configuration):
-            for attr in self.__dict__.keys():
-                try:
-                    if not getattr(other, attr) == getattr(self, attr):
-                        return False
-                except AttributeError:
+        for attr in self.__dict__.keys():
+            try:
+                if not getattr(other, attr) == getattr(self, attr):
                     return False
-            else:
-                return True
+            except AttributeError:
+                return False
         else:
-            return NotImplemented
+            return True
 
 class FakeClient(object):
     AuthInfo = None
