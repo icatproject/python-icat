@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2016-11-07T12:26:05+00:00</date>
+  <date>2017-09-07T07:24:27+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
-  <apiversion>4.8</apiversion>
-  <generator>icatdump (python-icat 0.12.0)</generator>
+  <apiversion>4.9</apiversion>
+  <generator>icatdump (python-icat 0.13.1)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
@@ -900,9 +900,9 @@
     <name>analyzed</name>
     <facility ref="Facility_name-ESNF"/>
   </datasetType>
-  <datasetType id="DatasetType_facility-(name-ESNF)_name-generic">
-    <description>generic data</description>
-    <name>generic</name>
+  <datasetType id="DatasetType_facility-(name-ESNF)_name-other">
+    <description>data not belonging to any other category</description>
+    <name>other</name>
     <facility ref="Facility_name-ESNF"/>
   </datasetType>
   <datasetType id="DatasetType_facility-(name-ESNF)_name-raw">
@@ -910,27 +910,37 @@
     <name>raw</name>
     <facility ref="Facility_name-ESNF"/>
   </datasetType>
-  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0">
-    <description>A common data format for neutron, x-ray and muon science</description>
-    <name>NeXus</name>
-    <version>4.0.0</version>
+  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-CSV_version-N=2FA">
+    <description>Comma separated values</description>
+    <name>CSV</name>
+    <type>text/csv</type>
+    <version>N/A</version>
     <facility ref="Facility_name-ESNF"/>
   </datafileFormat>
-  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1">
+  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-N=2FA">
     <description>A common data format for neutron, x-ray and muon science</description>
     <name>NeXus</name>
-    <version>4.2.1</version>
+    <type>application/x-hdf</type>
+    <version>N/A</version>
     <facility ref="Facility_name-ESNF"/>
   </datafileFormat>
-  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E3=2E1">
-    <description>A common data format for neutron, x-ray and muon science</description>
-    <name>NeXus</name>
-    <version>4.3.1</version>
+  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-Text_version-N=2FA">
+    <description>Plain text file</description>
+    <name>Text</name>
+    <type>text/plain</type>
+    <version>N/A</version>
     <facility ref="Facility_name-ESNF"/>
   </datafileFormat>
-  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA">
-    <description>Raw data</description>
-    <name>raw</name>
+  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-XML_version-N=2FA">
+    <description>XML document text</description>
+    <name>XML</name>
+    <type>application/xml</type>
+    <version>N/A</version>
+    <facility ref="Facility_name-ESNF"/>
+  </datafileFormat>
+  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-other_version-N=2FA">
+    <description>Unknown file format</description>
+    <name>other</name>
     <version>N/A</version>
     <facility ref="Facility_name-ESNF"/>
   </datafileFormat>
@@ -1135,7 +1145,7 @@
     <datafileModTime>2008-06-18T07:31:11+00:00</datafileModTime>
     <fileSize>368369</fileSize>
     <name>e201215.nxs</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215"/>
     <parameters>
       <dateTimeValue>2008-06-18T07:31:11+00:00</dateTimeValue>
@@ -1260,7 +1270,7 @@
     <datafileModTime>2010-10-01T06:17:48+00:00</datafileModTime>
     <fileSize>446</fileSize>
     <name>e208339.dat</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-other_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339"/>
     <parameters>
       <dateTimeValue>2010-10-01T06:51:56+00:00</dateTimeValue>
@@ -1273,7 +1283,7 @@
     <datafileModTime>2010-10-01T06:52:22+00:00</datafileModTime>
     <fileSize>73428</fileSize>
     <name>e208339.nxs</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339"/>
     <parameters>
       <dateTimeValue>2012-07-12T14:45:26+00:00</dateTimeValue>
@@ -1286,7 +1296,7 @@
     <datafileModTime>2010-10-05T08:32:21+00:00</datafileModTime>
     <fileSize>394</fileSize>
     <name>e208341.dat</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-other_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341"/>
     <parameters>
       <dateTimeValue>2010-10-05T09:31:45+00:00</dateTimeValue>
@@ -1299,7 +1309,7 @@
     <datafileModTime>2010-10-05T09:31:53+00:00</datafileModTime>
     <fileSize>52857</fileSize>
     <name>e208341.nxs</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341"/>
     <parameters>
       <dateTimeValue>2012-07-16T14:12:08+00:00</dateTimeValue>
@@ -1406,7 +1416,7 @@
     <datafileModTime>2010-10-05T09:31:53+00:00</datafileModTime>
     <fileSize>52857</fileSize>
     <name>e208341.nxs</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E0=2E0"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945"/>
     <parameters>
       <dateTimeValue>2014-10-02T12:32:51+00:00</dateTimeValue>
@@ -1418,7 +1428,7 @@
     <datafileModTime>2012-07-16T14:30:17+00:00</datafileModTime>
     <fileSize>28937</fileSize>
     <name>e208945-2.nxs</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945"/>
     <parameters>
       <dateTimeValue>2014-10-02T12:32:51+00:00</dateTimeValue>
@@ -1431,7 +1441,7 @@
     <datafileModTime>2012-07-30T01:10:08+00:00</datafileModTime>
     <fileSize>459</fileSize>
     <name>e208945.dat</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-raw_version-N=2FA"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-other_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945"/>
     <parameters>
       <dateTimeValue>2014-10-02T12:32:51+00:00</dateTimeValue>
@@ -1444,7 +1454,7 @@
     <datafileModTime>2013-06-03T10:22:43+00:00</datafileModTime>
     <fileSize>396430</fileSize>
     <name>e208945.nxs</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945"/>
     <parameters>
       <dateTimeValue>2014-10-02T12:32:51+00:00</dateTimeValue>
@@ -1456,7 +1466,7 @@
     <datafileModTime>2012-07-16T14:30:17+00:00</datafileModTime>
     <fileSize>14965</fileSize>
     <name>e208947.nxs</name>
-    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-4=2E2=2E1"/>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-N=2FA"/>
     <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947"/>
     <parameters>
       <dateTimeValue>2012-07-17T07:28:18+00:00</dateTimeValue>

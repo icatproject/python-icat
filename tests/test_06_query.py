@@ -366,7 +366,7 @@ def test_query_related_obj_attribute(client):
     res = client.search(query)
     assert len(res) == 4
     for n in res:
-        assert n in ['raw', 'NeXus']
+        assert n in ['other', 'NeXus']
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_aggregate_distinct_attribute(client):
@@ -382,11 +382,11 @@ def test_query_aggregate_distinct_attribute(client):
                                "= %d" % investigation.id })
     print(str(query))
     res = client.search(query)
-    assert sorted(res) == ["NeXus", "NeXus", "raw", "raw"]
+    assert sorted(res) == ["NeXus", "NeXus", "other", "other"]
     query.setAggregate("DISTINCT")
     print(str(query))
     res = client.search(query)
-    assert sorted(res) == ["NeXus", "raw"]
+    assert sorted(res) == ["NeXus", "other"]
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_aggregate_distinct_related_obj(client):
