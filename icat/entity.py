@@ -361,12 +361,7 @@ class Entity(object):
         entities in the ICAT.  All attributes that form the uniqueness
         constraint must be set.  A :meth:`icat.client.Client.search`
         or :meth:`icat.client.Client.get` with the appropriate INCLUDE
-        statement may be required before calling this method.  Note
-        that this may be a problem with ICAT versions older then
-        4.3.0, because in these versions, the schema did allow
-        constraint attributes and relations to be NULL in some cases.
-        That means, it may happen that this method fails to create a
-        unique key when connected to an old server.
+        statement may be required before calling this method.
 
         if `keyindex` is not :const:`None`, it is used as a cache of
         previously generated keys.  It must be a dict that maps entity

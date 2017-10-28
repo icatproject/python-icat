@@ -18,8 +18,6 @@ from conftest import getConfig, require_icat_version
 from conftest import gettestdata, callscript, filter_file, yaml_filter
 
 
-require_icat_version("4.3.0", "need JPQL query syntax")
-
 testinput = gettestdata("example_data.yaml")
 refdump = gettestdata("icatdump.yaml")
 users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]

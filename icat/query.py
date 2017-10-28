@@ -84,9 +84,6 @@ class Query(object):
             for details.
         """
 
-        if client.apiversion < '4.3':
-            raise VersionMethodError("Query", client.apiversion)
-
         super(Query, self).__init__()
         self._init = True
         self.client = client

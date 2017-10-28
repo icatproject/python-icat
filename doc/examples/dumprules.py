@@ -34,9 +34,6 @@ config.add_variable('format', ("-f", "--format"),
 conf = config.getconfig()
 
 client = icat.Client(conf.url, **conf.client_kwargs)
-if client.apiversion < '4.2.99':
-    raise RuntimeError("Sorry, ICAT version %s is too old, need 4.3.0 or newer."
-                       % client.apiversion)
 client.login(conf.auth, conf.credentials)
 
 

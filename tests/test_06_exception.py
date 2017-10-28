@@ -6,7 +6,7 @@ import pytest
 import icat
 import icat.config
 from icat.ids import DataSelection
-from conftest import require_icat_version, getConfig, tmpSessionId
+from conftest import getConfig, tmpSessionId
 
 
 @pytest.fixture(scope="module")

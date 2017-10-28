@@ -29,9 +29,13 @@ __all__ = ['Client']
 
 log = logging.getLogger(__name__)
 
-TypeMap42 = {
+TypeMap43 = {
     'entityBaseBean': Entity,
     'application': icat.entities.Application,
+    'dataCollection': icat.entities.DataCollection,
+    'dataCollectionDatafile': icat.entities.DataCollectionDatafile,
+    'dataCollectionDataset': icat.entities.DataCollectionDataset,
+    'dataCollectionParameter': icat.entities.DataCollectionParameter,
     'datafile': icat.entities.Datafile,
     'datafileFormat': icat.entities.DatafileFormat,
     'datafileParameter': icat.entities.DatafileParameter,
@@ -40,23 +44,21 @@ TypeMap42 = {
     'datasetType': icat.entities.DatasetType,
     'facility': icat.entities.Facility,
     'facilityCycle': icat.entities.FacilityCycle,
-    'group': icat.entities.Group,
-    'inputDatafile': icat.entities.InputDatafile,
-    'inputDataset': icat.entities.InputDataset,
+    'grouping': icat.entities.Group,
     'instrument': icat.entities.Instrument,
     'instrumentScientist': icat.entities.InstrumentScientist,
     'investigation': icat.entities.Investigation,
+    'investigationInstrument': icat.entities.InvestigationInstrument,
     'investigationParameter': icat.entities.InvestigationParameter,
     'investigationType': icat.entities.InvestigationType,
     'investigationUser': icat.entities.InvestigationUser,
     'job': icat.entities.Job,
     'keyword': icat.entities.Keyword,
-    'notificationRequest': icat.entities.NotificationRequest,
-    'outputDatafile': icat.entities.OutputDatafile,
-    'outputDataset': icat.entities.OutputDataset,
+    'log': icat.entities.Log,
     'parameter': icat.entities.Parameter,
     'parameterType': icat.entities.ParameterType,
     'permissibleStringValue': icat.entities.PermissibleStringValue,
+    'publicStep': icat.entities.PublicStep,
     'publication': icat.entities.Publication,
     'relatedDatafile': icat.entities.RelatedDatafile,
     'rule': icat.entities.Rule,
@@ -68,50 +70,6 @@ TypeMap42 = {
     'studyInvestigation': icat.entities.StudyInvestigation,
     'user': icat.entities.User,
     'userGroup': icat.entities.UserGroup,
-    }
-"""Map instance types defined in the WSDL to Python classes (ICAT 4.2.*)."""
-
-TypeMap43 = {
-    'entityBaseBean': Entity,
-    'application': icat.entities.Application43,
-    'dataCollection': icat.entities.DataCollection,
-    'dataCollectionDatafile': icat.entities.DataCollectionDatafile,
-    'dataCollectionDataset': icat.entities.DataCollectionDataset,
-    'dataCollectionParameter': icat.entities.DataCollectionParameter,
-    'datafile': icat.entities.Datafile43,
-    'datafileFormat': icat.entities.DatafileFormat,
-    'datafileParameter': icat.entities.DatafileParameter,
-    'dataset': icat.entities.Dataset43,
-    'datasetParameter': icat.entities.DatasetParameter,
-    'datasetType': icat.entities.DatasetType,
-    'facility': icat.entities.Facility43,
-    'facilityCycle': icat.entities.FacilityCycle43,
-    'grouping': icat.entities.Group43,
-    'instrument': icat.entities.Instrument43,
-    'instrumentScientist': icat.entities.InstrumentScientist,
-    'investigation': icat.entities.Investigation43,
-    'investigationInstrument': icat.entities.InvestigationInstrument,
-    'investigationParameter': icat.entities.InvestigationParameter,
-    'investigationType': icat.entities.InvestigationType,
-    'investigationUser': icat.entities.InvestigationUser,
-    'job': icat.entities.Job43,
-    'keyword': icat.entities.Keyword,
-    'log': icat.entities.Log,
-    'parameter': icat.entities.Parameter,
-    'parameterType': icat.entities.ParameterType43,
-    'permissibleStringValue': icat.entities.PermissibleStringValue,
-    'publicStep': icat.entities.PublicStep,
-    'publication': icat.entities.Publication,
-    'relatedDatafile': icat.entities.RelatedDatafile,
-    'rule': icat.entities.Rule43,
-    'sample': icat.entities.Sample43,
-    'sampleParameter': icat.entities.SampleParameter,
-    'sampleType': icat.entities.SampleType43,
-    'shift': icat.entities.Shift,
-    'study': icat.entities.Study,
-    'studyInvestigation': icat.entities.StudyInvestigation,
-    'user': icat.entities.User,
-    'userGroup': icat.entities.UserGroup43,
     }
 """Map instance types defined in the WSDL to Python classes (ICAT 4.3.0)."""
 
@@ -232,15 +190,9 @@ class Client(suds.client.Client):
         # version.  Currently 4.2.* and 4.3.* are supported.  For
         # other versions, use the closest known TypeMap and hope for
         # the best.
-        if self.apiversion < '4.1.9':
+        if self.apiversion < '4.3':
             warn(ClientVersionWarning(self.apiversion, "too old"))
-            self.typemap = TypeMap42.copy()
-        elif self.apiversion < '4.2.9':
-            warn("Support for ICAT version 4.2.* is deprecated "
-                 "and will be removed in python-icat 1.0.", 
-                 DeprecationWarning)
-            self.typemap = TypeMap42.copy()
-        elif self.apiversion <= '4.3.0':
+        if self.apiversion <= '4.3.0':
             self.typemap = TypeMap43.copy()
         elif self.apiversion < '4.3.9':
             self.typemap = TypeMap431.copy()
@@ -493,27 +445,16 @@ class Client(suds.client.Client):
         return info
 
     def getEntityNames(self):
-        if self.apiversion < '4.3':
-            entitynames = [e.BeanName for e in self.typemap.values() 
-                           if (e is not None and e.BeanName is not None)]
-            entitynames.sort()
-            return entitynames
-        else:
-            try:
-                return self.service.getEntityNames()
-            except suds.WebFault as e:
-                raise translateError(e)
+        try:
+            return self.service.getEntityNames()
+        except suds.WebFault as e:
+            raise translateError(e)
 
     def getProperties(self):
         try:
             return self.service.getProperties(self.sessionId)
         except suds.WebFault as e:
             raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("getProperties", self.apiversion)
-            else:
-                raise
 
     def getRemainingMinutes(self):
         try:
@@ -540,22 +481,12 @@ class Client(suds.client.Client):
             return self.service.isAccessAllowed(self.sessionId, Entity.getInstance(bean), accessType)
         except suds.WebFault as e:
             raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("isAccessAllowed", self.apiversion)
-            else:
-                raise
 
     def refresh(self):
         try:
             self.service.refresh(self.sessionId)
         except suds.WebFault as e:
             raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("refresh", self.apiversion)
-            else:
-                raise
 
     def search(self, query):
         try:
@@ -721,9 +652,6 @@ class Client(suds.client.Client):
         keys to Entity objects.  The object retrieved by this method
         call will be added to this index.
 
-        This method uses the JPQL inspired query syntax introduced
-        with ICAT 4.3.0.  It won't work with older ICAT servers.
-
         :param key: the unique key of the object to search for.
         :type key: :class:`str`
         :param objindex: cache of Entity objects.
@@ -732,12 +660,8 @@ class Client(suds.client.Client):
         :rtype: :class:`icat.entity.Entity`
         :raise SearchResultError: if the object has not been found.
         :raise ValueError: if the key is not well formed.
-        :raise VersionMethodError: if connected to an ICAT server
-            older then 4.3.0.
         """
 
-        if self.apiversion < '4.3':
-            raise VersionMethodError("searchUniqueKey", self.apiversion)
         if objindex is not None and key in objindex:
             return objindex[key]
         us = key.index('_')
@@ -840,10 +764,7 @@ class Client(suds.client.Client):
         :rtype: :class:`icat.entity.Entity`
         """
         log.info("Group: creating '%s'", name)
-        if self.apiversion < '4.3':
-            g = self.new("group", name=name)
-        else:
-            g = self.new("grouping", name=name)
+        g = self.new("grouping", name=name)
         g.create()
         g.addUsers(users)
         return g

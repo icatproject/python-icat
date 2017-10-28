@@ -13,6 +13,8 @@ New features
 Incompatible changes and deprecations
 -------------------------------------
 
++ Drop support for ICAT 4.2.*, deprecated in 0.13.0.
+
 + Deprecate support for Python 2.
 
 Bug fixes and minor changes
