@@ -1,6 +1,12 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.13.2 (not yet released)
+
+** Bug fixes and minor changes
+
+ + IDSClient: add the version API call introduced in ids.server 1.8.0.
+
 * Version 0.13.1 (2017-07-12)
 
 ** Bug fixes and minor changes
