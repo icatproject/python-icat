@@ -844,6 +844,31 @@ def test_config_authinfo_no_authinfo(fakeClient, monkeypatch, tmpconfigfile):
     assert ex <= conf
 
 
+def test_config_authinfo_invalid_auth(fakeClient, monkeypatch, tmpconfigfile):
+    """
+    Try to use an invalid authenticator.
+
+    Issue #41: AttributeError is raised during internal error handling.
+    """
+
+    userkey = Namespace(name='username')
+    passkey = Namespace(name='password', hide=True)
+    authInfo = [
+        Namespace(mnemonic="simple", admin=True, 
+                  keys=[userkey, passkey]),
+        Namespace(mnemonic="db", 
+                  keys=[userkey, passkey]),
+        Namespace(mnemonic="anon"),
+    ]
+    monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    config = icat.config.Config(args=args)
+    with pytest.raises(icat.exception.ConfigError) as err:
+        _, conf = config.getconfig()
+    assert "No such authenticator 'ldap'" in str(err.value)
+
+
 def test_config_cfgpath_default(fakeClient, tmpconfigfile, monkeypatch, 
                                 tmpfiles):
     """Test a cfgpath configuration variable.
