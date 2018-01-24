@@ -1,6 +1,7 @@
 """Test module icat.config
 """
 
+import sys
 import os
 import os.path
 import getpass
@@ -842,6 +843,32 @@ def test_config_authinfo_no_authinfo(fakeClient, monkeypatch, tmpconfigfile):
                       promptPass=False,
                       credentials={'username': 'root', 'password': 'secret'})
     assert ex <= conf
+
+
+@pytest.mark.xfail(sys.version_info > (3,), reason="Issue #41")
+def test_config_authinfo_invalid_auth(fakeClient, monkeypatch, tmpconfigfile):
+    """
+    Try to use an invalid authenticator.
+
+    Issue #41: AttributeError is raised during internal error handling.
+    """
+
+    userkey = Namespace(name='username')
+    passkey = Namespace(name='password', hide=True)
+    authInfo = [
+        Namespace(mnemonic="simple", admin=True, 
+                  keys=[userkey, passkey]),
+        Namespace(mnemonic="db", 
+                  keys=[userkey, passkey]),
+        Namespace(mnemonic="anon"),
+    ]
+    monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    config = icat.config.Config(args=args)
+    with pytest.raises(icat.exception.ConfigError) as err:
+        _, conf = config.getconfig()
+    assert "No such authenticator 'ldap'" in str(err.value)
 
 
 def test_config_cfgpath_default(fakeClient, tmpconfigfile, monkeypatch, 
