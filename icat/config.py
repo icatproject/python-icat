@@ -10,7 +10,7 @@ import ConfigParser
 import warnings
 from icat.client import Client
 from icat.authinfo import AuthenticatorInfo, LegacyAuthenticatorInfo
-from icat.exception import stripCause, ConfigError, VersionMethodError
+from icat.exception import ConfigError, VersionMethodError
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
 
@@ -118,7 +118,7 @@ def post_auth(config, configuration):
     try:
         keys = config.authenticatorInfo.getCredentialKeys(configuration.auth)
     except KeyError as e:
-        raise stripCause(ConfigError(str(e)))
+        raise ConfigError(str(e))
     for k in keys:
         config.credentialKey[k].disabled = False
 
@@ -169,9 +169,8 @@ class ConfigVariable(object):
                 return self.convert(value)
             except (TypeError, ValueError):
                 typename = getattr(self.convert, "__name__", str(self.convert))
-                err = ConfigError("%s: invalid %s value: %r" 
+                raise ConfigError("%s: invalid %s value: %r" 
                                   % (self.name, typename, value))
-                raise stripCause(err)
         else:
             return value
 

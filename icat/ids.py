@@ -513,8 +513,7 @@ class IDSClient(object):
         available in newer IDS versions.
         """
         if self.apiversion < minversion:
-            e = VersionMethodError(method, version=self.apiversion, 
-                                   service="IDS")
-            return stripCause(e)
+            return VersionMethodError(method, version=self.apiversion, 
+                                      service="IDS")
         else:
             return orgexc

@@ -285,16 +285,14 @@ class Client(suds.client.Client):
             try:
                 Class = self.typemap[instancetype]
             except KeyError:
-                raise stripCause(TypeError("Invalid instance type '%s'." 
-                                           % instancetype))
+                raise TypeError("Invalid instance type '%s'." % instancetype)
         elif isinstance(obj, basestring):
             # obj is the name of an instance type, create the instance
             instancetype = obj
             try:
                 Class = self.typemap[instancetype]
             except KeyError:
-                raise stripCause(TypeError("Invalid instance type '%s'." 
-                                           % instancetype))
+                raise TypeError("Invalid instance type '%s'." % instancetype)
             instance = self.factory.create(instancetype)
             # The factory creates a whole tree of dummy objects for
             # all relationships of the instance object and the

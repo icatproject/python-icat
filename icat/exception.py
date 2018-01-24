@@ -2,12 +2,11 @@
 """
 
 import sys
+import warnings
 from collections import Mapping
 import suds
 
 __all__ = [
-    # helper
-    'stripCause', 
     # Exceptions thrown by the ICAT or IDS server
     'ServerError', 
     'ICATError', 'ICATParameterError', 'ICATInternalError', 
@@ -33,19 +32,33 @@ __all__ = [
     ]
 
 
-# ======================== helper function =========================
+# =========================== base class ===========================
+
+class _BaseException(Exception):
+    """An exception that tries to suppress misleading context.
+
+    `Exception Chaining and Embedded Tracebacks`_ has been introduced
+    with Python 3.  Unfortunately the result is completely misleading
+    most of the times.  This class tries to strip the context from the
+    exception traceback.  This works with Python 3.3 and newer, but
+    has no effect with Python 3.1 and 3.2.
+
+    .. _Exception Chaining and Embedded Tracebacks: http://legacy.python.org/dev/peps/pep-3134/
+    """
+    def __init__(self, *args):
+        super(_BaseException, self).__init__(*args)
+        if hasattr(self, '__cause__'):
+            self.__cause__ = None
+
 
 def stripCause(e):
     """Try to suppress misleading context from an exception.
 
-    `Exception Chaining and Embedded Tracebacks`_ has been introduced
-    with Python 3.  Unfortunately the result is completely misleading
-    most of the times.  Try to suppress the context from the exception
-    traceback.  This works with Python 3.3 and newer, but has no
-    effect with Python 3.1 and 3.2.
-
-    .. _Exception Chaining and Embedded Tracebacks: http://legacy.python.org/dev/peps/pep-3134/
+    .. deprecated:: 0.14.0
+       Not needed any more, embedded in
+       :exc:`icat.exception._BaseException` now.
     """
+    warnings.warn("stripCause() is deprecated.", DeprecationWarning, 2)
     if hasattr(e, '__cause__'):
         e.__cause__ = None
     return e
@@ -53,7 +66,7 @@ def stripCause(e):
 
 # ========== Exceptions thrown by the ICAT or IDS server ===========
 
-class ServerError(Exception):
+class ServerError(_BaseException):
     """Errors raised by either the ICAT or the IDS server.
 
     This is the common base class for :exc:`icat.exception.ICATError`
@@ -262,12 +275,12 @@ def translateError(error, status=None, server="ICAT"):
     else:
         raise TypeError("Invalid argument type '%s'." % type(error))
 
-    return stripCause(Class(error, status))
+    return Class(error, status)
 
 
 # ========================= Internal error =========================
 
-class InternalError(Exception):
+class InternalError(_BaseException):
     """An error that reveals a bug in python-icat.
     """
     pass
@@ -275,7 +288,7 @@ class InternalError(Exception):
 
 # ================ Exceptions raised in icat.config ================
 
-class ConfigError(Exception):
+class ConfigError(_BaseException):
     """Error getting configuration options."""
     pass
 
@@ -323,7 +336,7 @@ class ICATDeprecationWarning(DeprecationWarning):
                % (feature, icatstr))
         super(ICATDeprecationWarning, self).__init__(msg)
 
-class VersionMethodError(Exception):
+class VersionMethodError(_BaseException):
     """Call of an API method that is not supported in the version
     of the server.
     """
@@ -335,7 +348,7 @@ class VersionMethodError(Exception):
         msg = ("%s is not supported in %s." % (method, icatstr))
         super(VersionMethodError, self).__init__(msg)
 
-class SearchResultError(Exception):
+class SearchResultError(_BaseException):
     """A search result does not conform to what should have been expected.
     """
     pass
@@ -370,14 +383,14 @@ class SearchAssertionError(SearchResultError):
         self.assertmax = assertmax
         self.num = num
 
-class DataConsistencyError(Exception):
+class DataConsistencyError(_BaseException):
     """Some data is not consistent with rules or constraints."""
     pass
 
 
 # ================= Exceptions raised in icat.ids ==================
 
-class IDSResponseError(Exception):
+class IDSResponseError(_BaseException):
     """The response from the IDS was not what should have been expected.
     """
     pass
@@ -385,7 +398,7 @@ class IDSResponseError(Exception):
 
 # ============== Exceptions raised in icat.icatcheck ===============
 
-class GenealogyError(Exception):
+class GenealogyError(_BaseException):
     """Error in the genealogy of entity types."""
     pass
 
