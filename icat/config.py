@@ -118,7 +118,7 @@ def post_auth(config, configuration):
     try:
         keys = config.authenticatorInfo.getCredentialKeys(configuration.auth)
     except KeyError as e:
-        raise stripCause(ConfigError(e.message))
+        raise stripCause(ConfigError(str(e)))
     for k in keys:
         config.credentialKey[k].disabled = False
 

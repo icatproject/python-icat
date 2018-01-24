@@ -1,7 +1,6 @@
 """Test module icat.config
 """
 
-import sys
 import os
 import os.path
 import getpass
@@ -845,7 +844,6 @@ def test_config_authinfo_no_authinfo(fakeClient, monkeypatch, tmpconfigfile):
     assert ex <= conf
 
 
-@pytest.mark.xfail(sys.version_info > (3,), reason="Issue #41")
 def test_config_authinfo_invalid_auth(fakeClient, monkeypatch, tmpconfigfile):
     """
     Try to use an invalid authenticator.
