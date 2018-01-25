@@ -1,13 +1,23 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.13.2 (not yet released)
+* Version 0.14.0 (not yet released)
+
+** Incompatible changes and deprecations
+
+ + Deprecate function icat.exception.stripCause()
+
+   This was an internal helper function not really meant to be part
+   of the API.  The functionality has been moved in a base class of
+   the exception hierarchy.
 
 ** Bug fixes and minor changes
 
  + IDSClient: add the version API call introduced in ids.server 1.8.0.
 
- + Issue #41: Incomprehensible error messages with Python 3
+ + Issue #41: Incomprehensible error messages with Python 3.
+
+ + Minor changes in the error handling.  Add new exception EntityTypeError.
 
 * Version 0.13.1 (2017-07-12)
 
