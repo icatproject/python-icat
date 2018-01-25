@@ -23,8 +23,9 @@ __all__ = [
     # icat.query
     'QueryNullableOrderWarning', 
     # icat.client, icat.entity
-    'ClientVersionWarning', 'ICATDeprecationWarning', 'VersionMethodError', 
-    'SearchResultError', 'SearchAssertionError', 'DataConsistencyError', 
+    'ClientVersionWarning', 'ICATDeprecationWarning', 
+    'EntityTypeError', 'VersionMethodError', 'SearchResultError', 
+    'SearchAssertionError', 'DataConsistencyError', 
     # icat.ids
     'IDSResponseError', 
     # icat.icatcheck
@@ -335,6 +336,10 @@ class ICATDeprecationWarning(DeprecationWarning):
         msg = ("%s has been deprecated and is expected to get removed in %s." 
                % (feature, icatstr))
         super(ICATDeprecationWarning, self).__init__(msg)
+
+class EntityTypeError(_BaseException):
+    """An invalid entity type has been used."""
+    pass
 
 class VersionMethodError(_BaseException):
     """Call of an API method that is not supported in the version

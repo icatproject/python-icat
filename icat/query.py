@@ -98,9 +98,10 @@ class Query(object):
                 entity.BeanName is not None):
                 self.entity = entity
             else:
-                raise TypeError("Invalid entity type '%s'." % entity.__name__)
+                raise EntityTypeError("Invalid entity type '%s'." 
+                                      % entity.__name__)
         else:
-            raise TypeError("Invalid entity type '%s'." % type(entity))
+            raise EntityTypeError("Invalid entity type '%s'." % type(entity))
 
         self.setAttribute(attribute)
         self.setAggregate(aggregate)
