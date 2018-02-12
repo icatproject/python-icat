@@ -312,6 +312,14 @@ class Entity(object):
             s.append(v)
         return s
 
+    def as_dict(self):
+        """Return a dict with the object's attributes.
+        """
+        d = {}
+        for a in self.InstAttr | self.MetaAttr:
+            d[a] = getattr(self, a)
+        return d
+
 
     def getAttrType(self, attr):
         """Get the type of an attribute.
