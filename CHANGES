@@ -3,6 +3,10 @@
 
 * Version 0.14.0 (not yet released)
 
+** New features
+
+ + #44: Add a method Entity.as_dict().
+
 ** Incompatible changes and deprecations
 
  + Deprecate function icat.exception.stripCause()
