@@ -12,7 +12,7 @@ import icat
 import icat.config
 import icat.exception
 from icat.query import Query
-from conftest import getConfig
+from conftest import getConfig, tmpSessionId
 
 
 @pytest.fixture(scope="module")
@@ -27,6 +27,15 @@ def client(setupicat):
 # be kept in sync with the reference input used in the setupicat
 # fixture.
 
+
+# ======================== test logout() ===========================
+
+@pytest.mark.xfail(reason="Issue #43", raises=icat.ICATSessionError)
+def test_logout_no_session_error(client):
+    """Issue #43: logout() should silently ignore ICATSessionError.
+    """
+    with tmpSessionId(client, "-=- Invalid -=-"):
+        client.logout()
 
 # ==================== test assertedSearch() =======================
 
