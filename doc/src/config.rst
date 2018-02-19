@@ -34,8 +34,32 @@ added.  The main class that client programs interact with is
     :show-inheritance:
 
 .. autoclass:: icat.config.Config
-    :members:
     :show-inheritance:
+
+    Class attributes (read only):
+
+    .. attribute:: ReservedVariables = ['configDir', 'credentials']
+
+        Reserved names of configuration variables.
+
+    Instance attributes (read only):
+
+    .. attribute:: client
+
+        The :class:`icat.client.Client` object initialized according to
+	the configuration.  This is also the first element in the
+	return value if :meth:`getconfig`.
+
+    .. attribute:: client_kwargs
+
+        The keyword arguments that have been passed to the constructor
+        of :attr:`client`.
+
+    Instance methods:
+
+    .. automethod:: icat.config.Config.add_variable
+
+    .. automethod:: icat.config.Config.getconfig
 
 
 Predefined configuration variables

@@ -353,6 +353,22 @@ def test_query_attribute_datafile_name(client):
         assert not isinstance(n, icat.entity.Entity)
 
 @pytest.mark.dependency(depends=['get_investigation'])
+def test_query_related_obj_attribute(client):
+    """We may query attributes of related objects in the SELECT clause.
+
+    This requires icat.server 4.5 or newer to work.
+    """
+    require_icat_version("4.5.0", "SELECT related object's attribute")
+    query = Query(client, "Datafile", attribute="datafileFormat.name", 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 4
+    for n in res:
+        assert n in ['other', 'NeXus']
+
+@pytest.mark.dependency(depends=['get_investigation'])
 def test_query_aggregate_distinct_attribute(client):
     """Test DISTINCT on an attribute in the search result.
 
@@ -366,11 +382,11 @@ def test_query_aggregate_distinct_attribute(client):
                                "= %d" % investigation.id })
     print(str(query))
     res = client.search(query)
-    assert sorted(res) == ["NeXus", "NeXus", "raw", "raw"]
+    assert sorted(res) == ["NeXus", "NeXus", "other", "other"]
     query.setAggregate("DISTINCT")
     print(str(query))
     res = client.search(query)
-    assert sorted(res) == ["NeXus", "raw"]
+    assert sorted(res) == ["NeXus", "other"]
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_aggregate_distinct_related_obj(client):
@@ -427,6 +443,8 @@ def test_query_aggregate_misc(client, attribute, aggregate, expected):
     Support for adding aggregate functions has been added in
     Issue #32.
     """
+    if attribute is not None and "." in attribute:
+        require_icat_version("4.5.0", "SELECT related object's attribute")
     if "DISTINCT" in aggregate:
         require_icat_version("4.7.0", "SELECT DISTINCT in queries")
     query = Query(client, "Datafile", attribute=attribute, aggregate=aggregate,

@@ -10,7 +10,7 @@ import ConfigParser
 import warnings
 from icat.client import Client
 from icat.authinfo import AuthenticatorInfo, LegacyAuthenticatorInfo
-from icat.exception import stripCause, ConfigError, VersionMethodError
+from icat.exception import ConfigError, VersionMethodError
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
 
@@ -118,7 +118,7 @@ def post_auth(config, configuration):
     try:
         keys = config.authenticatorInfo.getCredentialKeys(configuration.auth)
     except KeyError as e:
-        raise stripCause(ConfigError(e.message))
+        raise ConfigError(str(e))
     for k in keys:
         config.credentialKey[k].disabled = False
 
@@ -169,9 +169,8 @@ class ConfigVariable(object):
                 return self.convert(value)
             except (TypeError, ValueError):
                 typename = getattr(self.convert, "__name__", str(self.convert))
-                err = ConfigError("%s: invalid %s value: %r" 
+                raise ConfigError("%s: invalid %s value: %r" 
                                   % (self.name, typename, value))
-                raise stripCause(err)
         else:
             return value
 
@@ -368,12 +367,13 @@ class Config(object):
             self.needlogin = needlogin
             self.ids = ids
             self._add_basic_variables()
-            self.client = self._setup_client()
+            self.client_kwargs, self.client = self._setup_client()
             if self.needlogin:
                 self._add_cred_variables()
         else:
             self.needlogin = None
             self.ids = None
+            self.client_kwargs = None
             self.client = None
 
 
@@ -618,7 +618,7 @@ class Config(object):
             with _argparserDisableExit(self.argparser):
                 config = self._getconfig(partial=True)
         except ConfigError:
-            return None
+            return None, None
         client_kwargs = {}
         if self.ids:
             client_kwargs['idsurl'] = config.idsurl
@@ -634,7 +634,7 @@ class Config(object):
             client_kwargs['proxy'] = proxy
         if config.no_proxy:
             os.environ['no_proxy'] = config.no_proxy
-        return Client(config.url, **client_kwargs)
+        return client_kwargs, Client(config.url, **client_kwargs)
 
     def _getconfig(self, partial=False):
         """Get the configuration.

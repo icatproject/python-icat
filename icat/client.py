@@ -274,8 +274,8 @@ class Client(suds.client.Client):
             :class:`icat.entity.Entity`.
         :return: the new entity object or :const:`None`.
         :rtype: :class:`icat.entity.Entity`
-        :raise TypeError: if obj is neither a valid instance object,
-            nor a valid name of an entity type, nor None.
+        :raise EntityTypeError: if obj is neither a valid instance
+            object, nor a valid name of an entity type, nor None.
         """
 
         if isinstance(obj, suds.sudsobject.Object):
@@ -285,16 +285,16 @@ class Client(suds.client.Client):
             try:
                 Class = self.typemap[instancetype]
             except KeyError:
-                raise stripCause(TypeError("Invalid instance type '%s'." 
-                                           % instancetype))
+                raise EntityTypeError("Invalid instance type '%s'." 
+                                      % instancetype)
         elif isinstance(obj, basestring):
             # obj is the name of an instance type, create the instance
             instancetype = obj
             try:
                 Class = self.typemap[instancetype]
             except KeyError:
-                raise stripCause(TypeError("Invalid instance type '%s'." 
-                                           % instancetype))
+                raise EntityTypeError("Invalid instance type '%s'." 
+                                      % instancetype)
             instance = self.factory.create(instancetype)
             # The factory creates a whole tree of dummy objects for
             # all relationships of the instance object and the
@@ -305,14 +305,14 @@ class Client(suds.client.Client):
         elif obj is None:
             return None
         else:
-            raise TypeError("Invalid argument type '%s'." % type(obj))
+            raise EntityTypeError("Invalid argument type '%s'." % type(obj))
 
         if Class is None:
-            raise TypeError("Instance type '%s' is not supported." % 
-                            instancetype)
+            raise EntityTypeError("Instance type '%s' is not supported." 
+                                  % instancetype)
         if Class.BeanName is None:
-            raise TypeError("Refuse to create an instance of "
-                            "abstract type '%s'." % instancetype)
+            raise EntityTypeError("Refuse to create an instance of "
+                                  "abstract type '%s'." % instancetype)
 
         return Class(self, instance, **kwargs)
 
@@ -323,7 +323,7 @@ class Client(suds.client.Client):
             if name == c.BeanName:
                 return c
         else:
-            raise ValueError("Invalid entity type '%s'." % name)
+            raise EntityTypeError("Invalid entity type '%s'." % name)
 
     def getEntity(self, obj):
         """Get the corresponding :class:`icat.entity.Entity` for an object.

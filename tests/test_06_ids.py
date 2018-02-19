@@ -34,7 +34,7 @@ testdatafiles = [
         'uluser': "rbeck",
         'invname': "08100122-EF",
         'dsname': "e201216",
-        'dfformat': "NeXus:4.0.0",
+        'dfformat': "NeXus",
         'dfname': "e201216.nxs",
         'size': 368369,
         'mtime': 1213774271,
@@ -44,7 +44,7 @@ testdatafiles = [
         'uluser': "acord",
         'invname': "10100601-ST",
         'dsname': "e208342",
-        'dfformat': "raw",
+        'dfformat': "other",
         'dfname': "e208342.dat",
         'size': 394,
         'mtime': 1286600400,
@@ -54,7 +54,7 @@ testdatafiles = [
         'uluser': "ahau",
         'invname': "10100601-ST",
         'dsname': "e208342",
-        'dfformat': "NeXus:4.0.0",
+        'dfformat': "NeXus",
         'dfname': "e208342.nxs",
         'size': 52857,
         'mtime': 1286600400,
@@ -64,7 +64,7 @@ testdatafiles = [
         'uluser': "nbour",
         'invname': "12100409-ST",
         'dsname': "e208946",
-        'dfformat': "raw",
+        'dfformat': "other",
         'dfname': "e208946.dat",
         'size': 459,
         'mtime': 1343610608,
@@ -74,7 +74,7 @@ testdatafiles = [
         'uluser': "nbour",
         'invname': "12100409-ST",
         'dsname': "e208946",
-        'dfformat': "NeXus:4.2.1",
+        'dfformat': "NeXus",
         'dfname': "e208946.nxs",
         'size': 396430,
         'mtime': 1370254963,
@@ -275,7 +275,7 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
     """
     case = testdatafiles[0]
     dataset = getDataset(client, case)
-    datafileformat = client.assertedSearch("DatafileFormat [name='raw']")[0]
+    datafileformat = client.assertedSearch("DatafileFormat [name='other']")[0]
     tzinfo = UtcTimezone() if UtcTimezone else None
     createTime = datetime.datetime(2008, 6, 18, 9, 31, 11, tzinfo=tzinfo)
     dfname = "test_datafileCreateTime_dt.dat"

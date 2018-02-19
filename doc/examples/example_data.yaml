@@ -4,25 +4,34 @@ applications:
     name: gnomoanalytics
     version: 69
 datafile_formats:
-  nexus40:
+  csv:
+    description: Comma separated values
+    facility: example_facility
+    name: CSV
+    type: text/csv
+    version: N/A
+  nexus:
     description: A common data format for neutron, x-ray and muon science
     facility: example_facility
     name: NeXus
-    version: 4.0.0
-  nexus42:
-    description: A common data format for neutron, x-ray and muon science
+    type: application/x-hdf
+    version: N/A
+  text:
+    description: Plain text file
     facility: example_facility
-    name: NeXus
-    version: 4.2.1
-  nexus43:
-    description: A common data format for neutron, x-ray and muon science
+    name: Text
+    type: text/plain
+    version: N/A
+  xml:
+    description: XML document text
     facility: example_facility
-    name: NeXus
-    version: 4.3.1
-  raw_data:
-    description: Raw data
+    name: XML
+    type: application/xml
+    version: N/A
+  other:
+    description: Unknown file format
     facility: example_facility
-    name: raw
+    name: other
     version: N/A
 dataset_types:
   raw:
@@ -33,10 +42,10 @@ dataset_types:
     description: data arising from the analysis of other data
     facility: example_facility
     name: analyzed
-  generic:
-    description: generic data
+  other:
+    description: data not belonging to any other category
     facility: example_facility
-    name: generic
+    name: other
 facilities:
   example_facility:
     description: ESNF is an example facility
@@ -123,7 +132,7 @@ investigations:
         datafileCreateTime: '2008-06-18T09:31:11+02:00'
         datafileModTime: '2008-06-18T09:31:11+02:00'
         fileSize: 368369
-        format: nexus40
+        format: nexus
         name: e201215.nxs
         parameters:
         - dateTimeValue: '2008-06-18T09:31:11+02:00'
@@ -172,7 +181,7 @@ investigations:
         datafileCreateTime: '2010-10-01T08:17:48+02:00'
         datafileModTime: '2010-10-01T08:17:48+02:00'
         fileSize: 446
-        format: raw_data
+        format: other
         name: e208339.dat
         parameters:
         - dateTimeValue: '2010-10-01T08:51:56+02:00'
@@ -181,7 +190,7 @@ investigations:
         datafileCreateTime: '2010-10-01T08:52:22+02:00'
         datafileModTime: '2010-10-01T08:52:22+02:00'
         fileSize: 73428
-        format: nexus40
+        format: nexus
         name: e208339.nxs
         parameters:
         - dateTimeValue: '2012-07-12T16:45:26+02:00'
@@ -201,7 +210,7 @@ investigations:
         datafileCreateTime: '2010-10-05T10:32:21+02:00'
         datafileModTime: '2010-10-05T10:32:21+02:00'
         fileSize: 394
-        format: raw_data
+        format: other
         name: e208341.dat
         parameters:
         - dateTimeValue: '2010-10-05T11:31:45+02:00'
@@ -210,7 +219,7 @@ investigations:
         datafileCreateTime: '2010-10-05T11:31:53+02:00'
         datafileModTime: '2010-10-05T11:31:53+02:00'
         fileSize: 52857
-        format: nexus40
+        format: nexus
         name: e208341.nxs
         parameters:
         - dateTimeValue: '2012-07-16T16:12:08+02:00'
@@ -273,7 +282,7 @@ investigations:
         datafileCreateTime: '2012-07-30T03:10:08+02:00'
         datafileModTime: '2012-07-30T03:10:08+02:00'
         fileSize: 459
-        format: raw_data
+        format: other
         name: e208945.dat
         parameters:
         - dateTimeValue: '2014-10-02T14:32:51+02:00'
@@ -282,7 +291,7 @@ investigations:
         datafileCreateTime: '2013-06-03T12:22:43+02:00'
         datafileModTime: '2013-06-03T12:22:43+02:00'
         fileSize: 396430
-        format: nexus42
+        format: nexus
         name: e208945.nxs
         parameters:
         - dateTimeValue: '2014-10-02T14:32:51+02:00'
@@ -353,7 +362,7 @@ jobs:
             - datafileCreateTime: '2012-07-16T16:30:17+02:00'
               datafileModTime: '2012-07-16T16:30:17+02:00'
               fileSize: 14965
-              format: nexus42
+              format: nexus
               name: e208947.nxs
               parameters:
                 - dateTimeValue: '2012-07-17T09:28:18+02:00'
@@ -368,7 +377,7 @@ jobs:
           datafileModTime: '2012-07-16T16:30:17+02:00'
           dataset: e208945
           fileSize: 28937
-          format: nexus42
+          format: nexus
           investigation: 12100409-ST
           name: e208945-2.nxs
           parameters:
@@ -461,7 +470,7 @@ related_datafiles:
       datafileModTime: '2010-10-05T11:31:53+02:00'
       dataset: e208945
       fileSize: 52857
-      format: nexus40
+      format: nexus
       investigation: 12100409-ST
       name: e208341.nxs
       parameters:

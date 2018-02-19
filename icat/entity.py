@@ -5,7 +5,7 @@ import re
 from warnings import warn
 import suds.sudsobject
 from icat.listproxy import ListProxy
-from icat.exception import InternalError, DataConsistencyError
+from icat.exception import InternalError, EntityTypeError, DataConsistencyError
 from icat.helper import simpleqp_quote
 
 __all__ = ['Entity']
@@ -312,6 +312,14 @@ class Entity(object):
             s.append(v)
         return s
 
+    def as_dict(self):
+        """Return a dict with the object's attributes.
+        """
+        d = {}
+        for a in self.InstAttr | self.MetaAttr:
+            d[a] = getattr(self, a)
+        return d
+
 
     def getAttrType(self, attr):
         """Get the type of an attribute.
@@ -416,8 +424,8 @@ class Entity(object):
         ICAT.
         """ 
         if self.BeanName is None:
-            raise TypeError("Cannot get an object of abstract type '%s'." % 
-                            self.instancetype)
+            raise EntityTypeError("Cannot get an object of abstract type '%s'." 
+                                  % self.instancetype)
         if self.id is None:
             raise ValueError("Id is not set. Must create me first.")
         if query is None:
