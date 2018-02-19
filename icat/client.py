@@ -358,12 +358,15 @@ class Client(suds.client.Client):
     def logout(self):
         if self.sessionId:
             try:
-                self.service.logout(self.sessionId)
-            except suds.WebFault as e:
-                raise translateError(e)
-            finally:
-                self.sessionId = None
-
+                try:
+                    self.service.logout(self.sessionId)
+                except suds.WebFault as e:
+                    raise translateError(e)
+                finally:
+                    self.sessionId = None
+            except ICATSessionError:
+                # silently ignore ICATSessionError, e.g. an expired session.
+                pass
 
     def create(self, bean):
         if getattr(bean, 'validate', None):

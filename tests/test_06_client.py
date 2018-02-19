@@ -30,7 +30,6 @@ def client(setupicat):
 
 # ======================== test logout() ===========================
 
-@pytest.mark.xfail(reason="Issue #43", raises=icat.ICATSessionError)
 def test_logout_no_session_error(client):
     """Issue #43: logout() should silently ignore ICATSessionError.
     """
