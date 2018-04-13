@@ -5,6 +5,7 @@ This is the only module that needs to be imported to use the icat.
 
 import os
 from warnings import warn
+import time
 import re
 import logging
 from distutils.version import StrictVersion as Version
@@ -143,6 +144,11 @@ class Client(suds.client.Client):
     Register = {}
     """The register of all active clients."""
 
+    AutoRefreshRemain = 30
+    """Number of minutes to leave in the session before automatic refresh
+    should be called.
+    """
+
     @classmethod
     def cleanupall(cls):
         """Cleanup all class instances.
@@ -154,6 +160,20 @@ class Client(suds.client.Client):
         cl = list(cls.Register.values())
         for c in cl:
             c.cleanup()
+
+    def _schedule_auto_refresh(self, t=None):
+        now = time.time()
+        if t == "never":
+            # Schedule it very far in the future.  This is just to
+            # make sure that self._next_refresh has a formally valid
+            # value.
+            year = 365.25 * 24 * 60 * 60 * 60
+            self._next_refresh = now + year
+        elif t:
+            self._next_refresh = t
+        else:
+            wait = max(self.getRemainingMinutes() - self.AutoRefreshRemain, 0)
+            self._next_refresh = now + 60*wait
 
     def __init__(self, url, **kwargs):
 
@@ -220,6 +240,7 @@ class Client(suds.client.Client):
 
         if idsurl:
             self.add_ids(idsurl)
+        self._schedule_auto_refresh("never")
         self.Register[id(self)] = self
 
     def __del__(self):
@@ -353,6 +374,7 @@ class Client(suds.client.Client):
             self.sessionId = self.service.login(auth, cred)
         except suds.WebFault as e:
             raise translateError(e)
+        self._schedule_auto_refresh()
         return self.sessionId
 
     def logout(self):
@@ -514,6 +536,20 @@ class Client(suds.client.Client):
 
 
     # =================== custom API methods ===================
+
+    def autoRefresh(self):
+        """Call :meth:`icat.client.Client.refresh` only if needed.
+
+        Call :meth:`icat.client.Client.refresh` if less then
+        :attr:`self.AutoRefreshRemain` minutes remain in the current
+        session.  Do not make any client calls if not.  This method is
+        supposed to be very cheap if enough time remains in the
+        session so that may be called often in a loop without causing
+        too much needless load.
+        """
+        if time.time() > self._next_refresh:
+            self.refresh()
+            self._schedule_auto_refresh()
 
     def assertedSearch(self, query, assertmin=1, assertmax=1):
         """Search with an assertion on the result.
