@@ -102,6 +102,8 @@ Java Client documentation for details.
 Custom API methods
 ..................
 
+.. automethod:: icat.client.Client.autoRefresh
+
 .. automethod:: icat.client.Client.assertedSearch
 
 .. automethod:: icat.client.Client.searchChunked

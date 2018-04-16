@@ -544,8 +544,8 @@ class Client(suds.client.Client):
         :attr:`self.AutoRefreshRemain` minutes remain in the current
         session.  Do not make any client calls if not.  This method is
         supposed to be very cheap if enough time remains in the
-        session so that may be called often in a loop without causing
-        too much needless load.
+        session so that it may be called often in a loop without
+        causing too much needless load.
         """
         if time.time() > self._next_refresh:
             self.refresh()
