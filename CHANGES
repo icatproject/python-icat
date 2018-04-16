@@ -7,6 +7,10 @@
 
  + #44: Add a method Entity.as_dict().
 
+ + Issue #46, #47: Add a Client.autoRefresh() method.  The scripts
+   icatdump and icatingest call this method periodically to prevent
+   the session from expiring.
+
 ** Incompatible changes and deprecations
 
  + Deprecate function icat.exception.stripCause()
