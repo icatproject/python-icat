@@ -279,6 +279,17 @@ class Client(suds.client.Client):
             self.ids.sessionId = self.sessionId
 
     def clone(self):
+        """Create a clone.
+
+        Return a clone of the :class:`Client` object.  That is, a
+        client that connects to the same ICAT server and has been
+        created with the same kwargs.  The clone will be in the state
+        as returned from the constructor.  In particular, it does not
+        share the same session if this client object is logged in.
+
+        :return: a clone of the client object.
+        :rtype: :class:`Client`
+        """
         Class = type(self)
         return Class(self.url, **self.kwargs)
 
