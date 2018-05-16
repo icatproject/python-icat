@@ -147,7 +147,7 @@ def test_query_datacollection(client):
     """
     query = Query(client, "DataCollection", order=True)
     print(str(query))
-    assert "id" in query.order
+    assert ("id", None) in query.order
     res = client.search(query)
     assert len(res) == 2
 
@@ -227,7 +227,7 @@ def test_query_rule_order(client):
     """
     query = Query(client, "Rule", order=True)
     print(str(query))
-    assert "id" in query.order
+    assert ("id", None) in query.order
     res = client.search(query)
     assert len(res) == 104
 
