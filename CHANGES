@@ -11,6 +11,8 @@
    icatdump and icatingest call this method periodically to prevent
    the session from expiring.
 
+ + Issue #40: Add a Client.clone() method.
+
 ** Incompatible changes and deprecations
 
  + Deprecate function icat.exception.stripCause()

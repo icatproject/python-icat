@@ -188,6 +188,9 @@ class Client(suds.client.Client):
         :see: :class:`suds.options.Options` for the keyword arguments.
         """
 
+        self.url = url
+        self.kwargs = dict(kwargs)
+
         idsurl = kwargs.pop('idsurl', None)
 
         sslverify = kwargs.pop('checkCert', True)
@@ -198,7 +201,6 @@ class Client(suds.client.Client):
         else:
             self.sslContext = create_ssl_context(sslverify, cafile, capath)
 
-        self.url = url
         proxy = kwargs.pop('proxy', {})
         kwargs['transport'] = HTTPSTransport(self.sslContext, proxy=proxy)
         super(Client, self).__init__(url, **kwargs)
@@ -275,6 +277,21 @@ class Client(suds.client.Client):
         super(Client, self).__setattr__(attr, value)
         if attr == 'sessionId' and self.ids:
             self.ids.sessionId = self.sessionId
+
+    def clone(self):
+        """Create a clone.
+
+        Return a clone of the :class:`Client` object.  That is, a
+        client that connects to the same ICAT server and has been
+        created with the same kwargs.  The clone will be in the state
+        as returned from the constructor.  In particular, it does not
+        share the same session if this client object is logged in.
+
+        :return: a clone of the client object.
+        :rtype: :class:`Client`
+        """
+        Class = type(self)
+        return Class(self.url, **self.kwargs)
 
 
     def new(self, obj, **kwargs):

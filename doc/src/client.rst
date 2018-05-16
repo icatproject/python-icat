@@ -8,6 +8,14 @@
 
 Instance attributes:
 
+.. attribute:: Client.url
+
+    The URL to the web service description of the ICAT server.
+
+.. attribute:: Client.kwargs
+
+    A copy of the kwargs used in the constructor.
+
 .. attribute:: Client.apiversion
 
     Version of the ICAT server this client connects to.
@@ -37,10 +45,6 @@ Instance attributes:
     the corresponding classes in the :class:`icat.entity.Entity`
     hierarchy.
 
-.. attribute:: Client.url
-
-    The URL to the web service description of the ICAT server.
-
 Class and instance methods:
 
 .. automethod:: icat.client.Client.cleanupall
@@ -48,6 +52,8 @@ Class and instance methods:
 .. automethod:: icat.client.Client.cleanup
 
 .. automethod:: icat.client.Client.add_ids
+
+.. automethod:: icat.client.Client.clone
 
 .. automethod:: icat.client.Client.new
 
