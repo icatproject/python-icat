@@ -165,6 +165,43 @@ def test_query_datafiles_datafileformat(client, recwarn):
     res = client.search(query)
     assert len(res) == 10
 
+@pytest.mark.dependency(depends=['get_investigation'])
+def test_query_order_direction(client):
+    """We may add an ordering direction qualifier.
+
+    This has been added in Issue #48.
+    """
+    # Try without specifying the ordering direction first:
+    query = Query(client, "Datafile", 
+                  order=["name"], 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 4
+    # Ascending order is the default, so we should get the same result:
+    query = Query(client, "Datafile", 
+                  order=[("name", "ASC")], 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    assert client.search(query) == res
+    # Descending order should give the reverse result:
+    query = Query(client, "Datafile", 
+                  order=[("name", "DESC")], 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    assert list(reversed(client.search(query))) == res
+    # We may even combine different ordering directions on multiple
+    # attributes of the same query:
+    query = Query(client, "Datafile", 
+                  order=[("dataset.name", "DESC"), ("name", "ASC")], 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    assert sorted(client.search(query), key=lambda df: df.name) == res
+
 def test_query_condition_greaterthen(client):
     """Other relations then equal may be used in the conditions too.
     """
