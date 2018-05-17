@@ -8,7 +8,7 @@ DataCollectionDatafile   : 0
 DataCollectionDataset    : 0
 DataCollectionParameter  : 0
 Datafile                 : 10
-DatafileFormat           : 4
+DatafileFormat           : 5
 DatafileParameter        : 10
 Dataset                  : 8
 DatasetParameter         : 6

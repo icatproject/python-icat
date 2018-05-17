@@ -23,6 +23,17 @@ class Namespace(object):
         for (k, v) in kwargs.items():
             setattr(self, k, v)
 
+class ExpectedConf(Namespace):
+    def __le__(self, other):
+        for attr in self.__dict__.keys():
+            try:
+                if not getattr(other, attr) == getattr(self, attr):
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return True
+
 class FakeClient(object):
     AuthInfo = None
     def __init__(self, url, **kwargs):
@@ -47,6 +58,9 @@ def fakeClient(monkeypatch):
 # Deliberately not using the 'tmpdir' fixture provided by pytest,
 # because it seem to use a predictable directory name in /tmp wich is
 # insecure.
+
+ex_icat = "https://icat.example.com/ICATService/ICAT?wsdl"
+ex_ids = "https://icat.example.com/ids"
 
 # Content of the configuration file used in the tests
 configfilestr = """
@@ -124,6 +138,17 @@ def tmpfiles(request):
 
 # ============================= tests ==============================
 
+def test_config_missing_mandatory(fakeClient):
+    """Not providing any config at all.
+
+    This throws an error as url is mandatory.
+    """
+    config = icat.config.Config(needlogin=False, ids=False, args=[])
+    with pytest.raises(icat.exception.ConfigError) as err:
+        _, conf = config.getconfig()
+    assert "Config option 'url' not given" in str(err.value)
+
+
 def test_config_minimal(fakeClient):
     """Minimal example.
 
@@ -131,20 +156,11 @@ def test_config_minimal(fakeClient):
     is provided as command line argument.
     """
 
-    args = ["-w", "https://icat.example.com/ICATService/ICAT?wsdl"]
+    args = ["-w", ex_icat]
     config = icat.config.Config(needlogin=False, ids=False, args=args)
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'checkCert', 'configFile', 'configSection', 
-                      'http_proxy', 'https_proxy', 'no_proxy', 'url' ]
-
-    # Deliberately not checking configFile, http_proxy, and
-    # https_proxy.  configFile contains the default location of the
-    # config file which is not relevant here.  *_proxy may be set from
-    # environment variables.
-    assert conf.configSection is None
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    assert ExpectedConf(configSection=None, url=ex_icat) <= conf
 
 
 def test_config_minimal_file(fakeClient, tmpconfigfile, monkeypatch):
@@ -164,13 +180,10 @@ def test_config_minimal_file(fakeClient, tmpconfigfile, monkeypatch):
     config = icat.config.Config(needlogin=False, ids=False, args=args)
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'checkCert', 'configFile', 'configSection', 
-                      'http_proxy', 'https_proxy', 'no_proxy', 'url' ]
-
-    assert conf.configFile == ["icat.cfg"]
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    ex = ExpectedConf(configFile=["icat.cfg"],
+                      configSection="example_root", 
+                      url=ex_icat)
+    assert ex <= conf
 
 
 def test_config_minimal_defaultfile(fakeClient, tmpconfigfile, monkeypatch):
@@ -193,13 +206,10 @@ def test_config_minimal_defaultfile(fakeClient, tmpconfigfile, monkeypatch):
     config = icat.config.Config(needlogin=False, ids=False, args=args)
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'checkCert', 'configFile', 'configSection', 
-                      'http_proxy', 'https_proxy', 'no_proxy', 'url' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    ex = ExpectedConf(configFile=[tmpconfigfile.path], 
+                      configSection="example_root", 
+                      url=ex_icat)
+    assert ex <= conf
 
 
 def test_config_no_defaultvars(tmpconfigfile, monkeypatch):
@@ -229,13 +239,11 @@ def test_config_no_defaultvars(tmpconfigfile, monkeypatch):
                         optional=True)
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'configFile', 'configSection', 'url', 'wobble' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.wobble is None
+    ex = ExpectedConf(configFile=[tmpconfigfile.path], 
+                      configSection="example_root", 
+                      url=ex_icat, 
+                      wobble=None)
+    assert ex <= conf
 
 
 def test_config_simple_login(fakeClient, tmpconfigfile):
@@ -247,20 +255,16 @@ def test_config_simple_login(fakeClient, tmpconfigfile):
     args = ["-c", tmpconfigfile.path, "-s", "example_root"]
     _, conf = icat.config.Config(args=args).getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.idsurl == "https://icat.example.com/ids"
-    assert conf.auth == "simple"
-    assert conf.username == "root"
-    assert conf.password == "secret"
-    assert conf.promptPass == False
-    assert conf.credentials == {'username': 'root', 'password': 'secret'}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_root",
+                      url=ex_icat,
+                      idsurl=ex_ids,
+                      auth="simple",
+                      username="root",
+                      password="secret",
+                      promptPass=False,
+                      credentials={'username': 'root', 'password': 'secret'})
+    assert ex <= conf
 
 
 def test_config_override(fakeClient, tmpconfigfile):
@@ -273,20 +277,16 @@ def test_config_override(fakeClient, tmpconfigfile):
             "-a", "db", "-u", "rbeck", "-p", "geheim"]
     _, conf = icat.config.Config(args=args).getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.idsurl == "https://icat.example.com/ids"
-    assert conf.auth == "db"
-    assert conf.username == "rbeck"
-    assert conf.password == "geheim"
-    assert conf.promptPass == False
-    assert conf.credentials == {'username': 'rbeck', 'password': 'geheim'}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_root",
+                      url=ex_icat,
+                      idsurl=ex_ids,
+                      auth="db",
+                      username="rbeck",
+                      password="geheim",
+                      promptPass=False,
+                      credentials={'username': 'rbeck', 'password': 'geheim'})
+    assert ex <= conf
 
 
 def test_config_askpass(fakeClient, tmpconfigfile, monkeypatch):
@@ -304,20 +304,16 @@ def test_config_askpass(fakeClient, tmpconfigfile, monkeypatch):
             "-a", "db", "-u", "rbeck"]
     _, conf = icat.config.Config(args=args).getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.idsurl == "https://icat.example.com/ids"
-    assert conf.auth == "db"
-    assert conf.username == "rbeck"
-    assert conf.password == "mockpass"
-    assert conf.promptPass == False
-    assert conf.credentials == {'username': 'rbeck', 'password': 'mockpass'}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_root",
+                      url=ex_icat,
+                      idsurl=ex_ids,
+                      auth="db",
+                      username="rbeck",
+                      password="mockpass",
+                      promptPass=False,
+                      credentials={'username': 'rbeck', 'password': 'mockpass'})
+    assert ex <= conf
 
 
 def test_config_nopass_askpass(fakeClient, tmpconfigfile, monkeypatch):
@@ -336,19 +332,15 @@ def test_config_nopass_askpass(fakeClient, tmpconfigfile, monkeypatch):
     args = ["-c", tmpconfigfile.path, "-s", "example_nbour", "-P"]
     _, conf = icat.config.Config(args=args).getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_nbour"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "ldap"
-    assert conf.username == "nbour"
-    assert conf.password == "mockpass"
-    assert conf.promptPass == True
-    assert conf.credentials == {'username': 'nbour', 'password': 'mockpass'}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_nbour",
+                      url=ex_icat,
+                      auth="ldap",
+                      username="nbour",
+                      password="mockpass",
+                      promptPass=True,
+                      credentials={'username': 'nbour', 'password': 'mockpass'})
+    assert ex <= conf
 
 
 def test_config_askpass_file(fakeClient, tmpconfigfile, monkeypatch):
@@ -364,19 +356,15 @@ def test_config_askpass_file(fakeClient, tmpconfigfile, monkeypatch):
     args = ["-c", tmpconfigfile.path, "-s", "test21"]
     _, conf = icat.config.Config(args=args).getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "test21"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "simple"
-    assert conf.username == "root"
-    assert conf.password == "mockpass"
-    assert conf.promptPass == True
-    assert conf.credentials == {'username': 'root', 'password': 'mockpass'}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="test21",
+                      url=ex_icat,
+                      auth="simple",
+                      username="root",
+                      password="mockpass",
+                      promptPass=True,
+                      credentials={'username': 'root', 'password': 'mockpass'})
+    assert ex <= conf
 
 
 def test_config_environment(fakeClient, tmpconfigfile, monkeypatch):
@@ -392,69 +380,52 @@ def test_config_environment(fakeClient, tmpconfigfile, monkeypatch):
     args = ["-s", "example_root", "-u", "rbeck", "-p", "geheim"]
     _, conf = icat.config.Config(args=args).getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.idsurl == "https://icat.example.com/ids"
-    assert conf.http_proxy == "http://www-cache.example.org:3128/"
-    assert conf.https_proxy == "http://www-cache.example.org:3128/"
-    assert conf.no_proxy == "localhost, .example.org"
-    assert conf.auth == "db"
-    assert conf.username == "rbeck"
-    assert conf.password == "geheim"
-    assert conf.promptPass == False
-    assert conf.credentials == {'username': 'rbeck', 'password': 'geheim'}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_root",
+                      url=ex_icat,
+                      idsurl=ex_ids,
+                      http_proxy="http://www-cache.example.org:3128/",
+                      https_proxy="http://www-cache.example.org:3128/",
+                      no_proxy="localhost, .example.org",
+                      auth="db",
+                      username="rbeck",
+                      password="geheim",
+                      promptPass=False,
+                      credentials={'username': 'rbeck', 'password': 'geheim'})
+    assert ex <= conf
 
 
-def test_config_ids(fakeClient, tmpconfigfile):
+@pytest.mark.parametrize(("section", "ex"), [
+    ("example_root",
+     ExpectedConf(configSection="example_root",
+                  url=ex_icat,
+                  idsurl=ex_ids,
+                  auth="simple",
+                  username="root",
+                  password="secret",
+                  promptPass=False,
+                  credentials={'username': 'root', 'password': 'secret'})),
+    ("example_jdoe",
+     ExpectedConf(configSection="example_jdoe",
+                  url=ex_icat,
+                  idsurl=None,
+                  auth="ldap",
+                  username="jdoe",
+                  password="pass",
+                  promptPass=False,
+                  credentials={'username': 'jdoe', 'password': 'pass'})),
+])
+def test_config_ids(fakeClient, tmpconfigfile, section, ex):
     """Simple login example.
 
     Ask for the idsurl configuration variable.
     """
-
-    # We set ids="optional", the idsurl is present in section example_root.
-    args = ["-c", tmpconfigfile.path, "-s", "example_root"]
+    # We set ids="optional", the idsurl is present in section
+    # example_root, but not in example_jdoe.  In the latter case, the
+    # configuration variable is present, but set to None..
+    args = ["-c", tmpconfigfile.path, "-s", section]
     _, conf = icat.config.Config(ids="optional", args=args).getconfig()
-
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.idsurl == "https://icat.example.com/ids"
-    assert conf.auth == "simple"
-    assert conf.username == "root"
-    assert conf.password == "secret"
-    assert conf.promptPass == False
-    assert conf.credentials == {'username': 'root', 'password': 'secret'}
-
-    # In section example_jdoe, idsurl is not set, so the configuration
-    # variable is present, but set to None.
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
-    _, conf = icat.config.Config(ids="optional", args=args).getconfig()
-
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.idsurl == None
-    assert conf.auth == "ldap"
-    assert conf.username == "jdoe"
-    assert conf.password == "pass"
-    assert conf.promptPass == False
-    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
+    assert ex <= conf
 
 
 def test_config_custom_var(fakeClient, tmpconfigfile):
@@ -476,24 +447,19 @@ def test_config_custom_var(fakeClient, tmpconfigfile):
                         default='(uid=*)')
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'ldap_base', 'ldap_filter', 'ldap_uri', 'no_proxy', 
-                      'password', 'promptPass', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.idsurl == "https://icat.example.com/ids"
-    assert conf.auth == "simple"
-    assert conf.username == "root"
-    assert conf.password == "secret"
-    assert conf.promptPass == False
-    assert conf.ldap_uri == "ldap://ldap.example.com"
-    assert conf.ldap_base == "ou=People,dc=example,dc=com"
-    assert conf.ldap_filter == "(uid=*)"
-    assert conf.credentials == {'username': 'root', 'password': 'secret'}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_root",
+                      url=ex_icat,
+                      idsurl=ex_ids,
+                      auth="simple",
+                      username="root",
+                      password="secret",
+                      promptPass=False,
+                      ldap_uri="ldap://ldap.example.com",
+                      ldap_base="ou=People,dc=example,dc=com",
+                      ldap_filter="(uid=*)",
+                      credentials={'username': 'root', 'password': 'secret'})
+    assert ex <= conf
 
 
 def test_config_subst_nosubst(fakeClient, tmpconfigfile):
@@ -509,21 +475,16 @@ def test_config_subst_nosubst(fakeClient, tmpconfigfile):
                         subst=False)
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'greeting', 'http_proxy', 'https_proxy', 
-                      'idsurl', 'no_proxy', 'password', 'promptPass', 'url', 
-                      'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "ldap"
-    assert conf.username == "jdoe"
-    assert conf.password == "pass"
-    assert conf.promptPass == False
-    assert conf.greeting == "Hello %(username)s!"
-    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_jdoe",
+                      url=ex_icat,
+                      auth="ldap",
+                      username="jdoe",
+                      password="pass",
+                      promptPass=False,
+                      greeting="Hello %(username)s!",
+                      credentials={'username': 'jdoe', 'password': 'pass'})
+    assert ex <= conf
 
 
 def test_config_subst(fakeClient, tmpconfigfile):
@@ -539,21 +500,16 @@ def test_config_subst(fakeClient, tmpconfigfile):
                         subst=True)
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'greeting', 'http_proxy', 'https_proxy', 
-                      'idsurl', 'no_proxy', 'password', 'promptPass', 'url', 
-                      'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "ldap"
-    assert conf.username == "jdoe"
-    assert conf.password == "pass"
-    assert conf.promptPass == False
-    assert conf.greeting == "Hello jdoe!"
-    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_jdoe",
+                      url=ex_icat,
+                      auth="ldap",
+                      username="jdoe",
+                      password="pass",
+                      promptPass=False,
+                      greeting="Hello jdoe!",
+                      credentials={'username': 'jdoe', 'password': 'pass'})
+    assert ex <= conf
 
 
 def test_config_subst_cmdline(fakeClient, tmpconfigfile):
@@ -571,21 +527,16 @@ def test_config_subst_cmdline(fakeClient, tmpconfigfile):
                         subst=True)
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'greeting', 'http_proxy', 'https_proxy', 
-                      'idsurl', 'no_proxy', 'password', 'promptPass', 'url', 
-                      'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "ldap"
-    assert conf.username == "jonny"
-    assert conf.password == "pass"
-    assert conf.promptPass == False
-    assert conf.greeting == "Hello jonny!"
-    assert conf.credentials == {'username': 'jonny', 'password': 'pass'}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_jdoe",
+                      url=ex_icat,
+                      auth="ldap",
+                      username="jonny",
+                      password="pass",
+                      promptPass=False,
+                      greeting="Hello jonny!",
+                      credentials={'username': 'jonny', 'password': 'pass'})
+    assert ex <= conf
 
 
 def test_config_subst_confdir(fakeClient, tmpconfigfile):
@@ -601,14 +552,11 @@ def test_config_subst_confdir(fakeClient, tmpconfigfile):
                         default="%(configDir)s/extra.xml", subst=True)
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'checkCert', 'configFile', 'configSection', 'extracfg', 
-                      'http_proxy', 'https_proxy', 'idsurl', 'no_proxy', 'url' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configDir=tmpconfigfile.dir,
+                      configSection="example_jdoe",
+                      url=ex_icat)
+    assert ex <= conf
     assert os.path.dirname(conf.extracfg) == tmpconfigfile.dir
 
 
@@ -622,15 +570,11 @@ def test_config_type_int(fakeClient, tmpconfigfile):
                         dict(help="Integer variable"), type=int)
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'checkCert', 'configFile', 'configSection', 
-                      'http_proxy', 'https_proxy', 'idsurl', 'no_proxy', 
-                      'num', 'url' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.num == 42
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_jdoe",
+                      url=ex_icat,
+                      num=42)
+    assert ex <= conf
 
 
 def test_config_type_int_err(fakeClient, tmpconfigfile):
@@ -648,11 +592,22 @@ def test_config_type_int_err(fakeClient, tmpconfigfile):
     assert 'invalid int value' in str(err.value)
 
 
-def test_config_type_boolean(fakeClient, tmpconfigfile):
+@pytest.mark.parametrize(("flags", "ex"), [
+    ([],
+     ExpectedConf(configSection="example_jdoe",
+                  url=ex_icat,
+                  flag1=True,
+                  flag2=False)),
+    (["--flag2"],
+     ExpectedConf(configSection="example_jdoe",
+                  url=ex_icat,
+                  flag1=True,
+                  flag2=True)),
+])
+def test_config_type_boolean(fakeClient, tmpconfigfile, flags, ex):
     """Test a boolean configuration variable.
     """
-
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"] + flags
     config = icat.config.Config(needlogin=False, args=args)
     config.add_variable('flag1', ("--flag1",), 
                         dict(help="Flag 1", action='store_const', const=True), 
@@ -661,84 +616,32 @@ def test_config_type_boolean(fakeClient, tmpconfigfile):
                         dict(help="Flag 2", action='store_const', const=True), 
                         type=icat.config.boolean)
     _, conf = config.getconfig()
-
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'checkCert', 'configFile', 'configSection', 'flag1', 
-                      'flag2', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'url' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.flag1 == True
-    assert conf.flag2 == False
-
-    # Now override flag2 from the command line
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", "--flag2"]
-    config = icat.config.Config(needlogin=False, args=args)
-    config.add_variable('flag1', ("--flag1",), 
-                        dict(help="Flag 1", action='store_const', const=True), 
-                        type=icat.config.boolean)
-    config.add_variable('flag2', ("--flag2",), 
-                        dict(help="Flag 2", action='store_const', const=True), 
-                        type=icat.config.boolean)
-    _, conf = config.getconfig()
-
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'checkCert', 'configFile', 'configSection', 'flag1', 
-                      'flag2', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'url' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.flag1 == True
-    assert conf.flag2 == True
+    assert ex <= conf
 
 
-def test_config_type_flag(fakeClient, tmpconfigfile):
+@pytest.mark.parametrize(("flags", "ex"), [
+    ([],
+     ExpectedConf(configSection="example_jdoe",
+                  url=ex_icat,
+                  flag1=True,
+                  flag2=False)),
+    (["--no-flag1", "--flag2"],
+     ExpectedConf(configSection="example_jdoe",
+                  url=ex_icat,
+                  flag1=False,
+                  flag2=True)),
+])
+def test_config_type_flag(fakeClient, tmpconfigfile, flags, ex):
     """Test the special configuration variable type flag.
     """
-
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"] + flags
     config = icat.config.Config(needlogin=False, args=args)
     config.add_variable('flag1', ("--flag1",), 
                         dict(help="Flag 1"), type=icat.config.flag)
     config.add_variable('flag2', ("--flag2",), 
                         dict(help="Flag 2"), type=icat.config.flag)
     _, conf = config.getconfig()
-
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'checkCert', 'configFile', 'configSection', 'flag1', 
-                      'flag2', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'url' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.flag1 == True
-    assert conf.flag2 == False
-
-    # Now override the flags from the command line
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", 
-            "--no-flag1", "--flag2"]
-    config = icat.config.Config(needlogin=False, args=args)
-    config.add_variable('flag1', ("--flag1",), 
-                        dict(help="Flag 1"), type=icat.config.flag)
-    config.add_variable('flag2', ("--flag2",), 
-                        dict(help="Flag 2"), type=icat.config.flag)
-    _, conf = config.getconfig()
-
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'checkCert', 'configFile', 'configSection', 'flag1', 
-                      'flag2', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'url' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.flag1 == False
-    assert conf.flag2 == True
+    assert ex <= conf
 
 
 def test_config_positional(fakeClient, tmpconfigfile):
@@ -755,21 +658,16 @@ def test_config_positional(fakeClient, tmpconfigfile):
                              help="name of the input datafile"))
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'datafile', 'http_proxy', 'https_proxy', 
-                      'idsurl', 'no_proxy', 'password', 'promptPass', 'url', 
-                      'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "ldap"
-    assert conf.username == "jdoe"
-    assert conf.password == "pass"
-    assert conf.promptPass == False
-    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
-    assert conf.datafile == "test.dat"
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_jdoe",
+                      url=ex_icat,
+                      auth="ldap",
+                      username="jdoe",
+                      password="pass",
+                      promptPass=False,
+                      credentials={'username': 'jdoe', 'password': 'pass'},
+                      datafile="test.dat")
+    assert ex <= conf
 
 
 def test_config_disable(fakeClient, tmpconfigfile):
@@ -784,19 +682,16 @@ def test_config_disable(fakeClient, tmpconfigfile):
     config.confvariable['promptPass'].disabled = True
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'password', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "simple"
-    assert conf.username == "root"
-    assert conf.password == "secret"
-    assert conf.credentials == {'username': 'root', 'password': 'secret'}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configDir=tmpconfigfile.dir,
+                      configSection="example_root",
+                      url=ex_icat,
+                      auth="simple",
+                      username="root",
+                      password="secret",
+                      credentials={'username': 'root', 'password': 'secret'})
+    assert ex <= conf
+    assert not hasattr(conf, 'promptPass')
 
 
 def test_config_authinfo_simple(fakeClient, monkeypatch, tmpconfigfile):
@@ -821,20 +716,16 @@ def test_config_authinfo_simple(fakeClient, monkeypatch, tmpconfigfile):
     assert list(config.authenticatorInfo) == authInfo
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "simple"
-    assert conf.username == "root"
-    assert conf.password == "secret"
-    assert conf.promptPass == False
-    assert conf.credentials == {'username': 'root', 'password': 'secret'}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configDir=tmpconfigfile.dir,
+                      configSection="example_root",
+                      url=ex_icat,
+                      auth="simple",
+                      username="root",
+                      password="secret",
+                      promptPass=False,
+                      credentials={'username': 'root', 'password': 'secret'})
+    assert ex <= conf
 
 
 def test_config_authinfo_anon(fakeClient, monkeypatch, tmpconfigfile):
@@ -859,18 +750,15 @@ def test_config_authinfo_anon(fakeClient, monkeypatch, tmpconfigfile):
     assert list(config.authenticatorInfo) == authInfo
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'promptPass', 'url' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "anon"
-    assert conf.promptPass == False
-    assert conf.credentials == {}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configDir=tmpconfigfile.dir,
+                      configSection="example_root",
+                      url=ex_icat,
+                      auth="anon",
+                      promptPass=False,
+                      credentials={})
+    assert ex <= conf
+    assert not hasattr(conf, 'username')
 
 
 def test_config_authinfo_anon_only(fakeClient, monkeypatch, tmpconfigfile):
@@ -889,17 +777,15 @@ def test_config_authinfo_anon_only(fakeClient, monkeypatch, tmpconfigfile):
     assert list(config.authenticatorInfo) == authInfo
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'url' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
-    assert conf.configSection == "example_anon"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "anon"
-    assert conf.credentials == {}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configDir=tmpconfigfile.dir,
+                      configSection="example_anon",
+                      url=ex_icat,
+                      auth="anon",
+                      credentials={})
+    assert ex <= conf
+    assert not hasattr(conf, 'promptPass')
+    assert not hasattr(conf, 'username')
 
 
 def test_config_authinfo_strange(fakeClient, monkeypatch, tmpconfigfile):
@@ -922,19 +808,16 @@ def test_config_authinfo_strange(fakeClient, monkeypatch, tmpconfigfile):
     assert list(config.authenticatorInfo) == authInfo
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'cred_secret', 'credentials', 'http_proxy', 
-                      'https_proxy', 'idsurl', 'no_proxy', 'promptPass', 'url' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "quirks"
-    assert conf.promptPass == False
-    assert conf.cred_secret == "geheim"
-    assert conf.credentials == {'secret': 'geheim'}
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configDir=tmpconfigfile.dir,
+                      configSection="example_root",
+                      url=ex_icat,
+                      auth="quirks",
+                      promptPass=False,
+                      cred_secret="geheim",
+                      credentials={'secret': 'geheim'})
+    assert ex <= conf
+    assert not hasattr(conf, 'username')
 
 
 def test_config_authinfo_no_authinfo(fakeClient, monkeypatch, tmpconfigfile):
@@ -949,20 +832,41 @@ def test_config_authinfo_no_authinfo(fakeClient, monkeypatch, tmpconfigfile):
     with pytest.raises(icat.exception.VersionMethodError) as err:
         authInfo = client.getAuthenticatorInfo()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configDir=tmpconfigfile.dir,
+                      configSection="example_root",
+                      url=ex_icat,
+                      auth="simple",
+                      username="root",
+                      password="secret",
+                      promptPass=False,
+                      credentials={'username': 'root', 'password': 'secret'})
+    assert ex <= conf
 
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configDir == tmpconfigfile.dir
-    assert conf.configSection == "example_root"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "simple"
-    assert conf.username == "root"
-    assert conf.password == "secret"
-    assert conf.promptPass == False
-    assert conf.credentials == {'username': 'root', 'password': 'secret'}
+
+def test_config_authinfo_invalid_auth(fakeClient, monkeypatch, tmpconfigfile):
+    """
+    Try to use an invalid authenticator.
+
+    Issue #41: AttributeError is raised during internal error handling.
+    """
+
+    userkey = Namespace(name='username')
+    passkey = Namespace(name='password', hide=True)
+    authInfo = [
+        Namespace(mnemonic="simple", admin=True, 
+                  keys=[userkey, passkey]),
+        Namespace(mnemonic="db", 
+                  keys=[userkey, passkey]),
+        Namespace(mnemonic="anon"),
+    ]
+    monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    config = icat.config.Config(args=args)
+    with pytest.raises(icat.exception.ConfigError) as err:
+        _, conf = config.getconfig()
+    assert "No such authenticator 'ldap'" in str(err.value)
 
 
 def test_config_cfgpath_default(fakeClient, tmpconfigfile, monkeypatch, 
@@ -990,21 +894,16 @@ def test_config_cfgpath_default(fakeClient, tmpconfigfile, monkeypatch,
                     default="control.dat", type=icat.config.cfgpath)
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'controlfile', 'credentials', 'http_proxy', 
-                      'https_proxy', 'idsurl', 'no_proxy', 'password', 
-                      'promptPass', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "ldap"
-    assert conf.username == "jdoe"
-    assert conf.password == "pass"
-    assert conf.promptPass == False
-    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
-    assert conf.controlfile == cpath
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_jdoe",
+                      url=ex_icat,
+                      auth="ldap",
+                      username="jdoe",
+                      password="pass",
+                      promptPass=False,
+                      credentials={'username': 'jdoe', 'password': 'pass'},
+                      controlfile=cpath)
+    assert ex <= conf
     assert os.path.isfile(conf.controlfile)
 
 
@@ -1035,21 +934,16 @@ def test_config_cfgpath_cwd(fakeClient, tmpconfigfile, monkeypatch, tmpfiles):
                     default="control.dat", type=icat.config.cfgpath)
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'controlfile', 'credentials', 'http_proxy', 
-                      'https_proxy', 'idsurl', 'no_proxy', 'password', 
-                      'promptPass', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "ldap"
-    assert conf.username == "jdoe"
-    assert conf.password == "pass"
-    assert conf.promptPass == False
-    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
-    assert conf.controlfile == hpath
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_jdoe",
+                      url=ex_icat,
+                      auth="ldap",
+                      username="jdoe",
+                      password="pass",
+                      promptPass=False,
+                      credentials={'username': 'jdoe', 'password': 'pass'},
+                      controlfile=hpath)
+    assert ex <= conf
     assert os.path.isfile(conf.controlfile)
 
 
@@ -1089,21 +983,16 @@ def test_config_cfgpath_cmdline(fakeClient, tmpconfigfile, monkeypatch,
                     default="control.dat", type=icat.config.cfgpath)
     _, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'controlfile', 'credentials', 'http_proxy', 
-                      'https_proxy', 'idsurl', 'no_proxy', 'password', 
-                      'promptPass', 'url', 'username' ]
-
-    assert conf.configFile == [tmpconfigfile.path]
-    assert conf.configSection == "example_jdoe"
-    assert conf.url == "https://icat.example.com/ICATService/ICAT?wsdl"
-    assert conf.auth == "ldap"
-    assert conf.username == "jdoe"
-    assert conf.password == "pass"
-    assert conf.promptPass == False
-    assert conf.credentials == {'username': 'jdoe', 'password': 'pass'}
-    assert conf.controlfile == apath
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_jdoe",
+                      url=ex_icat,
+                      auth="ldap",
+                      username="jdoe",
+                      password="pass",
+                      promptPass=False,
+                      credentials={'username': 'jdoe', 'password': 'pass'},
+                      controlfile=apath)
+    assert ex <= conf
     assert os.path.isfile(conf.controlfile)
 
 
@@ -1132,11 +1021,19 @@ def test_config_client_kwargs(fakeClient, tmpconfigfile, monkeypatch):
     config = icat.config.Config(args=args)
     client, conf = config.getconfig()
 
-    attrs = [ a for a in sorted(conf.__dict__.keys()) if a[0] != '_' ]
-    assert attrs == [ 'auth', 'checkCert', 'configFile', 'configSection', 
-                      'credentials', 'http_proxy', 'https_proxy', 'idsurl', 
-                      'no_proxy', 'password', 'promptPass', 'url', 'username' ]
-
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_root",
+                      url=ex_icat,
+                      idsurl=ex_ids,
+                      http_proxy="http://www-cache.example.org:3128/",
+                      https_proxy="http://www-cache.example.org:3128/",
+                      no_proxy="localhost, .example.org",
+                      auth="simple",
+                      username="root",
+                      password="secret",
+                      promptPass=False,
+                      credentials={'username': 'root', 'password': 'secret'})
+    assert ex <= conf
     # create a second, independent client object and check that it
     # has been created using the same arguments.
     client2 = FakeClient(conf.url, **config.client_kwargs)

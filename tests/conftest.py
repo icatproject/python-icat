@@ -26,6 +26,12 @@ except ImportError:
 # default.  But since Suds uses logging, it's better to still have
 # a well defined basic logging configuration in place.
 logging.basicConfig(level=logging.INFO)
+# Newer pytest versions show the logs at level DEBUG in case of an
+# error.  The problem is that suds is rather chatty, so it will
+# clutter the output to an extent that we wont be able to see
+# anything.  Silence it.
+logging.getLogger('suds.client').setLevel(logging.CRITICAL)
+logging.getLogger('suds').setLevel(logging.ERROR)
 
 testdir = os.path.dirname(__file__)
 

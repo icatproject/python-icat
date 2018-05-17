@@ -62,4 +62,4 @@ def test_client_set_transport(setupicat):
     transport = MyHTTPSTransport(client.sslContext, proxy=proxy)
     client.set_options(transport=transport)
     client.login(conf.auth, conf.credentials)
-    assert transport.sendCounter == 1
+    assert transport.sendCounter >= 1

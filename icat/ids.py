@@ -197,7 +197,7 @@ class IDSClient(object):
         else:
             self.opener = build_opener(HTTPHandler, httpsHandler, 
                                        IDSHTTPErrorHandler)
-        apiversion = self.getApiVersion()
+        apiversion = self.version()["version"]
         # Translate a version having a trailing '-SNAPSHOT' into
         # something that StrictVersion would accept.
         apiversion = re.sub(r'-SNAPSHOT$', 'a1', apiversion)
@@ -244,6 +244,25 @@ class IDSClient(object):
         # Older then 1.2.0.
         # No way to distinguish 1.1.0, 1.0.1, and 1.0.0, report as 1.0.0.
         return "1.0.0"
+
+    def version(self):
+        """Get the version of the IDS server.
+
+        Note: the `version` call has been added in IDS server version
+        1.8.0, deprecating `getApiVersion` at the same time.  For
+        older servers, we fall back to `getApiVersion` to emulate this
+        call.  Note furthermore that `version` returns a dict, while
+        `getApiVersion` returns the plain version number as a string.
+        """
+        try:
+            req = IDSRequest(self.url + "version")
+            result = self.opener.open(req).read().decode('ascii')
+            return json.loads(result)
+        except (HTTPError, IDSError) as err:
+            try:
+                return {"version": self.getApiVersion()}
+            except:
+                raise err
 
     def getIcatUrl(self):
         """Get the URL of the ICAT server connected to this IDS.
@@ -494,8 +513,7 @@ class IDSClient(object):
         available in newer IDS versions.
         """
         if self.apiversion < minversion:
-            e = VersionMethodError(method, version=self.apiversion, 
-                                   service="IDS")
-            return stripCause(e)
+            return VersionMethodError(method, version=self.apiversion, 
+                                      service="IDS")
         else:
             return orgexc
