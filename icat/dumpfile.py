@@ -122,6 +122,7 @@ class DumpFileReader(object):
         """
         resetindex = (objindex is None)
         for data in self.getdata():
+            self.client.autoRefresh()
             if resetindex:
                 objindex = {}
             for key, obj in self.getobjs_from_data(data, objindex):
@@ -262,6 +263,7 @@ class DumpFileWriter(object):
             :meth:`icat.client.Client.searchChunked` for details.
         :type chunksize: :class:`int`
         """
+        self.client.autoRefresh()
         if keyindex is None:
             keyindex = {}
         self.startdata()

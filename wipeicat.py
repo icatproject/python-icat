@@ -115,7 +115,7 @@ if client.ids:
             client.ids.reset(DataSelection(errorDatasets))
         # This whole loop may take a significant amount of time, make
         # sure our session does not time out.
-        client.refresh()
+        client.autoRefresh()
         # If any Datafile is left we need to continue the loop.
         if client.search(dfquery):
             time.sleep(60)
