@@ -202,6 +202,29 @@ def test_query_order_direction(client):
     print(str(query))
     assert sorted(client.search(query), key=lambda df: df.name) == res
 
+def test_query_order_direction_relation(client):
+    """An ordering direction qualifier on a many to one relation.
+
+    The ordering direction qualifier has been added in Issue #48.
+    """
+    # As a reference to compare with, get all datasets with thier
+    # datafiles in their natural order:
+    query = Query(client, "Dataset", order=True, includes=["datafiles"])
+    dss = client.search(query)
+    # Now, get all datafiles sorted by dataset in descending and name
+    # in ascending order:
+    query = Query(client, "Datafile", order=[("dataset", "DESC"), "name"])
+    print(str(query))
+    dff = client.search(query)
+    # verify:
+    offs = 0
+    for ds in reversed(dss):
+        # There is no guarantee on the order of the included datafiles
+        dsdfs = sorted(ds.datafiles, key=icat.entity.Entity.__sortkey__)
+        l = len(dsdfs)
+        assert dff[offs:offs+l] == dsdfs
+        offs += l
+
 def test_query_condition_greaterthen(client):
     """Other relations then equal may be used in the conditions too.
     """
