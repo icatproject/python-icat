@@ -13,6 +13,9 @@
 
  + Issue #40: Add a Client.clone() method.
 
+ + Issue #48: Add support for an ordering direction qualifier in class
+   Query.
+
 ** Incompatible changes and deprecations
 
  + Deprecate function icat.exception.stripCause()
