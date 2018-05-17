@@ -363,7 +363,7 @@ class Query(object):
         usefulness over formal correctness.  For Python 3, there is no
         distinction between Unicode and string objects anyway.
         """
-        joinattrs = { a for a, d in self.order } | set(self.conditions.keys())
+        joinattrs = set([ a for a, d in self.order ]) | set(self.conditions.keys())
         if self.attribute:
             joinattrs.add(self.attribute)
         subst = self._makesubst(joinattrs)
