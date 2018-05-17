@@ -309,11 +309,8 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
 def test_write(client, case):
     """Call write() on a dataset.
     """
-    # FIXME: the write API method is not yet in IDS.  Update the
-    # version to compare with as soon as this call has been added to
-    # IDS and it is foreseeable which release version will support it.
-    if client.ids.apiversion < '1.7.0':
-        pytest.skip("IDS %s is too old, need 1.7.0 or newer" 
+    if client.ids.apiversion < '1.9.0':
+        pytest.skip("IDS %s is too old, need 1.9.0 or newer" 
                     % client.ids.apiversion)
     if not client.ids.isTwoLevel():
         pytest.skip("This IDS does not use two levels of data storage")
