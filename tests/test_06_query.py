@@ -147,7 +147,7 @@ def test_query_datacollection(client):
     """
     query = Query(client, "DataCollection", order=True)
     print(str(query))
-    assert "id" in query.order
+    assert ("id", None) in query.order
     res = client.search(query)
     assert len(res) == 2
 
@@ -164,6 +164,66 @@ def test_query_datafiles_datafileformat(client, recwarn):
     print(str(query))
     res = client.search(query)
     assert len(res) == 10
+
+@pytest.mark.dependency(depends=['get_investigation'])
+def test_query_order_direction(client):
+    """We may add an ordering direction qualifier.
+
+    This has been added in Issue #48.
+    """
+    # Try without specifying the ordering direction first:
+    query = Query(client, "Datafile", 
+                  order=["name"], 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 4
+    # Ascending order is the default, so we should get the same result:
+    query = Query(client, "Datafile", 
+                  order=[("name", "ASC")], 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    assert client.search(query) == res
+    # Descending order should give the reverse result:
+    query = Query(client, "Datafile", 
+                  order=[("name", "DESC")], 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    assert list(reversed(client.search(query))) == res
+    # We may even combine different ordering directions on multiple
+    # attributes of the same query:
+    query = Query(client, "Datafile", 
+                  order=[("dataset.name", "DESC"), ("name", "ASC")], 
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    assert sorted(client.search(query), key=lambda df: df.name) == res
+
+def test_query_order_direction_relation(client):
+    """An ordering direction qualifier on a many to one relation.
+
+    The ordering direction qualifier has been added in Issue #48.
+    """
+    # As a reference to compare with, get all datasets with thier
+    # datafiles in their natural order:
+    query = Query(client, "Dataset", order=True, includes=["datafiles"])
+    dss = client.search(query)
+    # Now, get all datafiles sorted by dataset in descending and name
+    # in ascending order:
+    query = Query(client, "Datafile", order=[("dataset", "DESC"), "name"])
+    print(str(query))
+    dff = client.search(query)
+    # verify:
+    offs = 0
+    for ds in reversed(dss):
+        # There is no guarantee on the order of the included datafiles
+        dsdfs = sorted(ds.datafiles, key=icat.entity.Entity.__sortkey__)
+        l = len(dsdfs)
+        assert dff[offs:offs+l] == dsdfs
+        offs += l
 
 def test_query_condition_greaterthen(client):
     """Other relations then equal may be used in the conditions too.
@@ -227,7 +287,7 @@ def test_query_rule_order(client):
     """
     query = Query(client, "Rule", order=True)
     print(str(query))
-    assert "id" in query.order
+    assert ("id", None) in query.order
     res = client.search(query)
     assert len(res) == 104
 
