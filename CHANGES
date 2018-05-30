@@ -5,6 +5,9 @@
 
 ** New features
 
+ + #45: Add support for the IDS Write API call introduced in
+   ids.server 1.9.0.
+
  + #44: Add a method Entity.as_dict().
 
  + Issue #46, #47: Add a Client.autoRefresh() method.  The scripts
