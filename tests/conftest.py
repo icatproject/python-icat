@@ -136,8 +136,13 @@ except:
 
 def require_icat_version(minversion, reason):
     if icat_version < minversion:
-        pytest.skip("need ICAT server version %s or newer: %s" 
-                    % (minversion, reason))
+        reason = ("need ICAT server version %s or newer: %s" 
+                  % (minversion, reason))
+        if pytest.__version__ > '3':
+            # see https://github.com/pytest-dev/pytest/issues/2338
+            raise pytest.skip.Exception(reason, allow_module_level=True)
+        else:
+            pytest.skip(reason)
 
 
 def callscript(scriptname, args, stdin=None, stdout=None, stderr=None):
