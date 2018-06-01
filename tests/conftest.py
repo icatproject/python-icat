@@ -124,15 +124,16 @@ def gettestdata(fname):
 
 def get_icat_version():
     client, _ = getConfig(needlogin=False)
-    return client.apiversion
+    ids_version = client.ids.apiversion if client.ids else Version("0.0")
+    return client.apiversion, ids_version
 
 # ICAT server version we talk to.  Ignore any errors from
 # get_icat_version(), if something fails (e.g. no server is configured
 # at all), set a dummy zero version number.
 try:
-    icat_version = get_icat_version()
+    icat_version, ids_version = get_icat_version()
 except:
-    icat_version = Version("0.0")
+    icat_version, ids_version = Version("0.0"), Version("0.0")
 
 def require_icat_version(minversion, reason):
     if icat_version < minversion:
@@ -222,10 +223,14 @@ def pytest_report_header(config):
     """
     modpath = os.path.dirname(os.path.abspath(icat.__file__))
     if icat_version > "0.0":
-        server = icat_version
+        icatserver = icat_version
     else:
-        server = "-"
+        icatserver = "-"
+    if ids_version > "0.0":
+        idsserver = ids_version
+    else:
+        idsserver = "-"
     return [ "python-icat: %s (%s)" % (icat.__version__, icat.__revision__), 
              "             %s" % (modpath),
-             "icat.server: %s" % server]
+             "icat.server: %s, ids.server: %s" % (icatserver, idsserver)]
 
