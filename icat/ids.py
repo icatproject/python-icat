@@ -271,7 +271,7 @@ class IDSClient(object):
         try:
             return self.opener.open(req).read().decode('ascii')
         except (HTTPError, IDSError) as e:
-            raise self._versionMethodError("getIcatUrl", '1.4', e)
+            raise self._versionMethodError("getIcatUrl", '1.4.0', e)
 
     def isReadOnly(self):
         """See if the server is configured to be readonly.
@@ -344,7 +344,7 @@ class IDSClient(object):
         try:
             self.opener.open(req)
         except (HTTPError, IDSError) as e:
-            raise self._versionMethodError("write", '1.9', e)
+            raise self._versionMethodError("write", '1.9.0', e)
 
     def reset(self, selection):
         """Reset data so that they can be queried again.
@@ -354,7 +354,7 @@ class IDSClient(object):
         try:
             self.opener.open(req)
         except (HTTPError, IDSError) as e:
-            raise self._versionMethodError("reset", '1.6', e)
+            raise self._versionMethodError("reset", '1.6.0', e)
 
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
         """Prepare data for a subsequent :meth:`~icat.ids.IDSClient.getData`
@@ -388,7 +388,7 @@ class IDSClient(object):
             result = self.opener.open(req).read().decode('ascii')
             return json.loads(result)['ids']
         except (HTTPError, IDSError) as e:
-            raise self._versionMethodError("getDatafileIds", '1.5', e)
+            raise self._versionMethodError("getDatafileIds", '1.5.0', e)
 
     def getData(self, selection, 
                 compressFlag=False, zipFlag=False, outname=None, offset=0):

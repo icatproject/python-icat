@@ -146,7 +146,7 @@ class Client(suds.client.Client):
         self.apiversion = Version(apiversion)
         log.debug("Connect to %s, ICAT version %s", url, self.apiversion)
 
-        if self.apiversion < '4.3':
+        if self.apiversion < '4.3.0':
             warn(ClientVersionWarning(self.apiversion, "too old"))
         self.entityInfoCache = {}
         self.typemap = getTypeMap(self)
@@ -370,7 +370,7 @@ class Client(suds.client.Client):
         except suds.WebFault as e:
             raise translateError(e)
         except suds.MethodNotFound as e:
-            if self.apiversion < '4.9':
+            if self.apiversion < '4.9.0':
                 raise VersionMethodError("getAuthenticatorInfo", 
                                          self.apiversion)
             else:

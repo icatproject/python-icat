@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 config = icat.config.Config(ids="optional")
 client, conf = config.getconfig()
 
-if client.apiversion < '4.3':
+if client.apiversion < '4.3.0':
     raise RuntimeError("Sorry, icat.server version %s is too old, "
                        "need 4.3.0 or newer." % client.apiversion)
 if client.ids and client.ids.apiversion < '1.6.0':

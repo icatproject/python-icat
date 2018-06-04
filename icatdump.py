@@ -34,7 +34,7 @@ config.add_variable('format', ("-f", "--format"),
                     default='YAML')
 client, conf = config.getconfig()
 
-if client.apiversion < '4.3':
+if client.apiversion < '4.3.0':
     raise RuntimeError("Sorry, ICAT version %s is too old, need 4.3.0 or newer."
                        % client.apiversion)
 client.login(conf.auth, conf.credentials)

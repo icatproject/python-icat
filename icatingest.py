@@ -51,7 +51,7 @@ if conf.uploadDatafiles:
                                "but required for uploadDatafiles.")
     conf.dataDir = os.path.abspath(conf.dataDir)
 
-if client.apiversion < '4.3':
+if client.apiversion < '4.3.0':
     raise RuntimeError("Sorry, ICAT version %s is too old, need 4.3.0 or newer."
                        % client.apiversion)
 client.login(conf.auth, conf.credentials)
