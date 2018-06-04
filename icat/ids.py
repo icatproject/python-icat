@@ -339,15 +339,10 @@ class IDSClient(object):
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "write", parameters, method="POST")
-        # FIXME: the write API method is not yet in IDS.  Update the
-        # minversion argument to _versionMethodError() as soon as this
-        # call has been added to IDS and it is foreseeable which
-        # release version will support it.  Before, it does not make
-        # sense to merge this branch into master anyway.
         try:
             self.opener.open(req)
         except (HTTPError, IDSError) as e:
-            raise self._versionMethodError("write", '42.0', e)
+            raise self._versionMethodError("write", '1.9', e)
 
     def reset(self, selection):
         """Reset data so that they can be queried again.

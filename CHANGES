@@ -1,6 +1,13 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.14.1 (2018-06-05)
+
+** Bug fixes and minor changes
+
+ + Fix a misleading error message if the IDS server returns an error
+   for the Write API call.
+
 * Version 0.14.0 (2018-06-01)
 
 ** New features
