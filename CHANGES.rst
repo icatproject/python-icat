@@ -26,6 +26,11 @@ Incompatible changes and deprecations
 + Drop helper function :func:`icat.exception.stripCause`, deprecated
   in 0.14.0.
 
+Bug fixes and minor changes
+---------------------------
+
++ Some (more) example scripts now require ICAT 4.4.0 or newer.
+
 
 0.17.0 (not yet released)
 ~~~~~~~~~~~~~~~~~~~~~~~~~

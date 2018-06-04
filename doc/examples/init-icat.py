@@ -38,6 +38,10 @@ config.add_variable('datafile', ("datafile",),
                     dict(metavar="inputdata.yaml", 
                          help="name of the input datafile"))
 client, conf = config.getconfig()
+
+if client.apiversion < '4.4.0':
+    raise RuntimeError("Sorry, ICAT version %s is too old, need 4.4.0 or newer."
+                       % client.apiversion)
 client.login(conf.auth, conf.credentials)
 
 
@@ -92,30 +96,16 @@ pubtables = { "Application", "DatafileFormat", "DatasetType",
 # related to a particular investigation as a whole, but not to
 # individual items created during the investigation (Datafiles and
 # Datasets).  Plus FacilityCycle and InstrumentScientist.
-#
-# With ICAT 4.4 and newer, access permisions on investigations are
-# based InvestigationGroup.  In this case, we have a fixed set of
-# static rules.  With older ICAT versions, we need per investigation
-# rules and thus useroffice need permission to create them.
 uotables = { "FacilityCycle", "Grouping", "InstrumentScientist", 
-             "Investigation", "InvestigationInstrument", 
-             "InvestigationParameter", "InvestigationUser", "Keyword", 
-             "Publication", "Shift", "Study", "StudyInvestigation", 
-             "User", "UserGroup", }
-if client.apiversion > '4.3.99':
-    uotables.add("InvestigationGroup")
-else:
-    uotables.add("Rule")
+             "Investigation", "InvestigationGroup", 
+             "InvestigationInstrument", "InvestigationParameter", 
+             "InvestigationUser", "Keyword", "Publication", "Shift", 
+             "Study", "StudyInvestigation", "User", "UserGroup", }
 
-
-# Permit root to read and write everything.  This gives ourselves the
-# permissions to continue this script further on.  With ICAT 4.4 and
-# newer this is not needed, as the root user already has CRUD
-# permission on everything built in.
-root = client.createUser("simple/root", fullName="Root")
-if client.apiversion < '4.3.99':
-    rootgroup = client.createGroup("root", [ root ])
-    client.createRules("CRUD", alltables, rootgroup)
+# Create a root user for the sake of completeness.  No need to grant
+# any access rights, because with ICAT 4.4 and newer, the root user
+# already has CRUD permission on everything built in.
+client.createUser("simple/root", fullName="Root")
 
 # Grant public read permission to some basic tables.  Note that the
 # created rules do not refer to any group.  That means they will apply
@@ -189,87 +179,81 @@ client.createRules("CRUD", ["RelatedDatafile [createId=:user]"])
 # Additionally, instrument scientist get the the same permissions as
 # "writer" on the investigations related to their instrument.
 
-# ICAT 4.4 introduced InvestigationGroup.  This allows us to setup one
-# static set of permissions to access individual investigations rather
-# then creating individual rules for each investigation.
+# Items that are considered to belong to the content of an
+# investigation.  The writer group will get CRUD permissions and
+# the reader group R permissions on these items.  The list are
+# tuples with three items: the entity type, the attribute that
+# indicates the path to the investigation, and optionally, the
+# path to a dataset complete attribute.  If the latter is set, an
+# extra condition is added so that CRUD permission is only given
+# if complete is False.
+invitems = [
+    ( "Sample", "investigation.", "" ),
+    ( "Dataset", "investigation.", "complete" ),
+    ( "Datafile", "dataset.investigation.", "dataset.complete" ),
+    ( "InvestigationParameter", "investigation.", "" ),
+    ( "SampleParameter", "sample.investigation.", "" ),
+    ( "DatasetParameter", "dataset.investigation.", "" ),
+    ( "DatafileParameter", "datafile.dataset.investigation.", "" ),
+]
 
-if client.apiversion > '4.3.99':
+# Set write permissions
+items = []
+for name, a, complete in invitems:
+    # ... for writer group.
+    conditions={
+        a + "investigationGroups.role":"= 'writer'",
+        a + "investigationGroups.grouping.userGroups.user.name":"= :user",
+    }
+    if complete:
+        conditions[complete] = "= False"
+    items.append(Query(client, name, conditions=conditions))
+    # ... for instrument scientists.
+    conditions={
+        a + "investigationInstruments.instrument.instrumentScientists"
+        ".user.name":"= :user",
+    }
+    if complete:
+        conditions[complete] = "= False"
+    items.append(Query(client, name, conditions=conditions))
+client.createRules("CUD", items)
 
-    # Items that are considered to belong to the content of an
-    # investigation.  The writer group will get CRUD permissions and
-    # the reader group R permissions on these items.  The list are
-    # tuples with three items: the entity type, the attribute that
-    # indicates the path to the investigation, and optionally, the
-    # path to a dataset complete attribute.  If the latter is set, an
-    # extra condition is added so that CRUD permission is only given
-    # if complete is False.
-    invitems = [
-        ( "Sample", "investigation.", "" ),
-        ( "Dataset", "investigation.", "complete" ),
-        ( "Datafile", "dataset.investigation.", "dataset.complete" ),
-        ( "InvestigationParameter", "investigation.", "" ),
-        ( "SampleParameter", "sample.investigation.", "" ),
-        ( "DatasetParameter", "dataset.investigation.", "" ),
-        ( "DatafileParameter", "datafile.dataset.investigation.", "" ),
-    ]
+# Set permissions for the reader group.  Actually, we give read
+# permissions to all groups related to the investigation.  For
+# read access, we add some more related items, in particular the
+# investigation itself.
+invitems.extend([ ( "Investigation", "", "" ),
+                  ( "Shift", "investigation.", "" ),
+                  ( "Keyword", "investigation.", "" ),
+                  ( "Publication", "investigation.", "" ) ])
+items = []
+for name, a, c in invitems:
+    conditions={
+        a + "investigationGroups.grouping.userGroups.user.name":"= :user",
+    }
+    items.append(Query(client, name, conditions=conditions))
+    conditions={
+        a + "investigationInstruments.instrument.instrumentScientists"
+        ".user.name":"= :user",
+    }
+    items.append(Query(client, name, conditions=conditions))
+client.createRules("R", items)
 
-    # Set write permissions
-    items = []
-    for name, a, complete in invitems:
-        # ... for writer group.
-        conditions={
-            a + "investigationGroups.role":"= 'writer'",
-            a + "investigationGroups.grouping.userGroups.user.name":"= :user",
-        }
-        if complete:
-            conditions[complete] = "= False"
-        items.append(Query(client, name, conditions=conditions))
-        # ... for instrument scientists.
-        conditions={
-            a + "investigationInstruments.instrument.instrumentScientists"
-            ".user.name":"= :user",
-        }
-        if complete:
-            conditions[complete] = "= False"
-        items.append(Query(client, name, conditions=conditions))
-    client.createRules("CUD", items)
-
-    # Set permissions for the reader group.  Actually, we give read
-    # permissions to all groups related to the investigation.  For
-    # read access, we add some more related items, in particular the
-    # investigation itself.
-    invitems.extend([ ( "Investigation", "", "" ),
-                      ( "Shift", "investigation.", "" ),
-                      ( "Keyword", "investigation.", "" ),
-                      ( "Publication", "investigation.", "" ) ])
-    items = []
-    for name, a, c in invitems:
-        conditions={
-            a + "investigationGroups.grouping.userGroups.user.name":"= :user",
-        }
-        items.append(Query(client, name, conditions=conditions))
-        conditions={
-            a + "investigationInstruments.instrument.instrumentScientists"
-            ".user.name":"= :user",
-        }
-        items.append(Query(client, name, conditions=conditions))
-    client.createRules("R", items)
-
-    # set permission to grant and to revoke permissions for the owner.
-    tig = "grouping.investigationGroups"
-    uig = "grouping.investigationGroups.investigation.investigationGroups"
-    item = Query(client, "UserGroup", conditions={
-        uig + ".grouping.userGroups.user.name":"= :user",
-        uig + ".role":"= 'owner'", 
-        tig + ".role":"in ('reader', 'writer')"
-    })
-    client.createRules("CRUD", [ item ])
-    uig = "investigationGroups.investigation.investigationGroups"
-    item = Query(client, "Grouping", conditions={
-        uig + ".grouping.userGroups.user.name":"= :user",
-        uig + ".role":"= 'owner'"
-    })
-    client.createRules("R", [ item ])
+# set permission to grant and to revoke permissions for the owner.
+tig = "grouping.investigationGroups"
+uig = "grouping.investigationGroups.investigation.investigationGroups"
+item = Query(client, "UserGroup", conditions={
+    uig + ".grouping.userGroups.user.name":"= :user",
+    uig + ".role":"= 'owner'", 
+    tig + ".role":"in ('reader', 'writer')"
+})
+client.createRules("CRUD", [ item ])
+uig = "investigationGroups.investigation.investigationGroups"
+item = Query(client, "Grouping", conditions={
+    uig + ".grouping.userGroups.user.name":"= :user",
+    uig + ".role":"= 'owner'"
+})
+client.createRules("R", [ item ])
 
 
 # ------------------------------------------------------------
@@ -298,15 +282,9 @@ client.createRules("R", items)
 # Public steps
 # ------------------------------------------------------------
 
-# Compatibility ICAT 4.3.0 vs. ICAT 4.3.1 and later: name of the
-# parameters relation in DataCollection.
-if client.apiversion < '4.3.1':
-    datacolparamname = 'dataCollectionParameters'
-else:
-    datacolparamname = 'parameters'
 pubsteps = [ ("DataCollection", "dataCollectionDatafiles"), 
              ("DataCollection", "dataCollectionDatasets"), 
-             ("DataCollection", datacolparamname), 
+             ("DataCollection", "parameters"), 
              ("Datafile", "dataset"), 
              ("Datafile", "parameters"), 
              ("Dataset", "datafiles"), 
@@ -315,6 +293,7 @@ pubsteps = [ ("DataCollection", "dataCollectionDatafiles"),
              ("Dataset", "sample"), 
              ("Grouping", "userGroups"), 
              ("Instrument", "instrumentScientists"), 
+             ("Investigation", "investigationGroups"), 
              ("Investigation", "investigationInstruments"), 
              ("Investigation", "investigationUsers"), 
              ("Investigation", "keywords"), 
@@ -322,13 +301,11 @@ pubsteps = [ ("DataCollection", "dataCollectionDatafiles"),
              ("Investigation", "publications"), 
              ("Investigation", "samples"), 
              ("Investigation", "shifts"), 
+             ("InvestigationGroup", "grouping"), 
              ("Job", "inputDataCollection"), 
              ("Job", "outputDataCollection"), 
              ("Sample", "parameters"), 
              ("Study", "studyInvestigations"), ]
-if client.apiversion > '4.3.99':
-    pubsteps += [ ("Investigation", "investigationGroups"), 
-                  ("InvestigationGroup", "grouping"), ]
 objs = [ client.new("publicStep", origin=origin, field=field)
          for (origin, field) in pubsteps ]
 client.createMany(objs)

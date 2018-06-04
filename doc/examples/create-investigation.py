@@ -22,6 +22,10 @@ config.add_variable('datafile', ("datafile",),
 config.add_variable('investigationname', ("investigationname",), 
                     dict(help="name of the investigation to add"))
 client, conf = config.getconfig()
+
+if client.apiversion < '4.4.0':
+    raise RuntimeError("Sorry, ICAT version %s is too old, need 4.4.0 or newer."
+                       % client.apiversion)
 client.login(conf.auth, conf.credentials)
 
 
@@ -155,57 +159,6 @@ owngroup = client.createGroup(owngroupname, investigationowner)
 writegroup = client.createGroup(writegroupname, investigationwriter)
 readgroup = client.createGroup(readgroupname, investigationreader)
 
-# ------------------------------------------------------------
-# Setup InvestigationGroups or permissions
-# ------------------------------------------------------------
-
-# InvestigationGroup have been introduced with ICAT 4.4.  If
-# available, just create them.  Then we don't need to setup
-# permissions, as the static rules created in init-icat.py apply.  For
-# older versions of ICAT, we need to setup per investigation rules.
-
-if client.apiversion > '4.3.99':
-
-    investigation.addInvestigationGroup(owngroup, role="owner")
-    investigation.addInvestigationGroup(writegroup, role="writer")
-    investigation.addInvestigationGroup(readgroup, role="reader")
-
-else:
-
-    invcond = "Investigation[name='%s']" % investigation.name
-
-    # Items that are considered to belong to the content of an
-    # investigation, where %s represents the investigation itself.
-    # The writer group will get CRUD permissions and the reader group
-    # R permissions on these items.
-    invwitems = [ "Sample <-> %s",
-                  "Dataset <-> %s",
-                  "Datafile <-> Dataset <-> %s",
-                  "InvestigationParameter <-> %s",
-                  "SampleParameter <-> Sample <-> %s",
-                  "DatasetParameter <-> Dataset <-> %s",
-                  "DatafileParameter <-> Datafile <-> Dataset <-> %s", ]
-
-    # Items that we allow read only access for both readers and
-    # writers, in particular the investigation itself.
-    invritems = [ "%s",
-                  "Shift <-> %s",
-                  "Keyword <-> %s",
-                  "Publication <-> %s", ]
-
-    # set permissions for the writer group
-    client.createRules("R", [ s % invcond for s in invritems ], writegroup)
-    client.createRules("CRUD", [ s % invcond for s in invwitems ], writegroup)
-
-    # set permissions for the reader group
-    client.createRules("R", [ s % invcond for s in invritems ], readgroup)
-    client.createRules("R", [ s % invcond for s in invwitems ], readgroup)
-
-    # set owners permissions
-    items = [ "UserGroup <-> Grouping[name='%s']" % (s) 
-              for s in [ writegroupname, readgroupname ] ]
-    client.createRules("CRUD", items, owngroup)
-    items = [ "Grouping[name='%s']" % (s) 
-              for s in [ writegroupname, readgroupname ] ]
-    client.createRules("R", items, owngroup)
-
+investigation.addInvestigationGroup(owngroup, role="owner")
+investigation.addInvestigationGroup(writegroup, role="writer")
+investigation.addInvestigationGroup(readgroup, role="reader")
