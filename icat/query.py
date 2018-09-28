@@ -98,9 +98,10 @@ class Query(object):
                 entity.BeanName is not None):
                 self.entity = entity
             else:
-                raise TypeError("Invalid entity type '%s'." % entity.__name__)
+                raise EntityTypeError("Invalid entity type '%s'." 
+                                      % entity.__name__)
         else:
-            raise TypeError("Invalid entity type '%s'." % type(entity))
+            raise EntityTypeError("Invalid entity type '%s'." % type(entity))
 
         self.setAttribute(attribute)
         self.setAggregate(aggregate)
@@ -223,20 +224,32 @@ class Query(object):
         :param order: the list of the attributes used for sorting.  A
             special value of :const:`True` may be used to indicate the
             natural order of the entity type.  Any false value means
-            no ORDER BY clause.
-        :type order: :class:`list` of :class:`str` or :class:`bool`
+            no ORDER BY clause.  Rather then only an attribute name,
+            any item in the list may also be a tuple of an attribute
+            name and an order direction, the latter being either "ASC"
+            or "DESC" for ascending or descending order respectively.
+        :type order: :class:`list` or :class:`bool`
         :raise ValueError: if the order contains invalid attributes
             that either do not exist or contain one to many
             relationships.
         """
         if order is True:
 
-            self.order = self.entity.getNaturalOrder(self.client)
+            self.order = [ (a, None) 
+                           for a in self.entity.getNaturalOrder(self.client) ]
 
         elif order:
 
             self.order = []
             for obj in order:
+
+                if isinstance(obj, tuple):
+                    obj, direction = obj
+                    if direction not in ("ASC", "DESC"):
+                        raise ValueError("Invalid ordering direction '%s'" 
+                                         % direction)
+                else:
+                    direction = None
 
                 for (pattr, attrInfo, rclass) in self._attrpath(obj):
                     if attrInfo.relType == "ONE":
@@ -252,12 +265,13 @@ class Query(object):
 
                 if rclass is None:
                     # obj is an attribute, use it right away.
-                    self.order.append(obj)
+                    self.order.append( (obj, direction) )
                 else:
                     # obj is a related object, use the natural order
                     # of its class.
                     rorder = rclass.getNaturalOrder(self.client)
-                    self.order.extend(["%s.%s" % (obj, ra) for ra in rorder])
+                    self.order.extend([ ("%s.%s" % (obj, ra), direction) 
+                                        for ra in rorder ])
 
         else:
 
@@ -349,7 +363,7 @@ class Query(object):
         usefulness over formal correctness.  For Python 3, there is no
         distinction between Unicode and string objects anyway.
         """
-        joinattrs = set(self.order) | set(self.conditions.keys())
+        joinattrs = { a for a, d in self.order } | set(self.conditions.keys())
         if self.attribute:
             joinattrs.add(self.attribute)
         subst = self._makesubst(joinattrs)
@@ -383,7 +397,13 @@ class Query(object):
         else:
             where = ""
         if self.order:
-            orders = [ self._dosubst(a, subst, False) for a in self.order ]
+            orders = []
+            for a, d in self.order:
+                a = self._dosubst(a, subst, False)
+                if d:
+                    orders.append("%s %s" % (a, d))
+                else:
+                    orders.append(a)
             order = " ORDER BY " + ", ".join(orders)
         else:
             order = ""

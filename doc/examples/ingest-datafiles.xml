@@ -17,12 +17,12 @@
     </dataset>
     <datafile>
       <name>e208343.dat</name>
-      <datafileFormat name="raw"/>
+      <datafileFormat name="other"/>
       <dataset ref="Dataset_002"/>
     </datafile>
     <datafile>
       <name>e208343.nxs</name>
-      <datafileFormat name="NeXus" version="4.0.0"/>
+      <datafileFormat name="NeXus"/>
       <dataset ref="Dataset_002"/>
     </datafile>
   </data>

@@ -10,7 +10,7 @@ based on Suds and extends it with ICAT specific features.
 #
 
 __author__    = "Rolf Krahl <rolf.krahl@helmholtz-berlin.de>"
-__copyright__ = """Copyright 2013-2016
+__copyright__ = """Copyright 2013-2018
 Helmholtz-Zentrum Berlin fuer Materialien und Energie GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License"); you
@@ -25,4 +25,4 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
 implied.  See the License for the specific language governing
 permissions and limitations under the License.
 """
-__version__   = "0.13.0"
+__version__   = "0.14.1"

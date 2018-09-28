@@ -5,6 +5,7 @@ This is the only module that needs to be imported to use the icat.
 
 import os
 from warnings import warn
+import time
 import re
 import logging
 from distutils.version import StrictVersion as Version
@@ -143,6 +144,11 @@ class Client(suds.client.Client):
     Register = {}
     """The register of all active clients."""
 
+    AutoRefreshRemain = 30
+    """Number of minutes to leave in the session before automatic refresh
+    should be called.
+    """
+
     @classmethod
     def cleanupall(cls):
         """Cleanup all class instances.
@@ -154,6 +160,20 @@ class Client(suds.client.Client):
         cl = list(cls.Register.values())
         for c in cl:
             c.cleanup()
+
+    def _schedule_auto_refresh(self, t=None):
+        now = time.time()
+        if t == "never":
+            # Schedule it very far in the future.  This is just to
+            # make sure that self._next_refresh has a formally valid
+            # value.
+            year = 365.25 * 24 * 60 * 60 * 60
+            self._next_refresh = now + year
+        elif t:
+            self._next_refresh = t
+        else:
+            wait = max(self.getRemainingMinutes() - self.AutoRefreshRemain, 0)
+            self._next_refresh = now + 60*wait
 
     def __init__(self, url, **kwargs):
 
@@ -168,6 +188,9 @@ class Client(suds.client.Client):
         :see: :class:`suds.options.Options` for the keyword arguments.
         """
 
+        self.url = url
+        self.kwargs = dict(kwargs)
+
         idsurl = kwargs.pop('idsurl', None)
 
         sslverify = kwargs.pop('checkCert', True)
@@ -178,7 +201,6 @@ class Client(suds.client.Client):
         else:
             self.sslContext = create_ssl_context(sslverify, cafile, capath)
 
-        self.url = url
         proxy = kwargs.pop('proxy', {})
         kwargs['transport'] = HTTPSTransport(self.sslContext, proxy=proxy)
         super(Client, self).__init__(url, **kwargs)
@@ -220,6 +242,7 @@ class Client(suds.client.Client):
 
         if idsurl:
             self.add_ids(idsurl)
+        self._schedule_auto_refresh("never")
         self.Register[id(self)] = self
 
     def __del__(self):
@@ -255,6 +278,21 @@ class Client(suds.client.Client):
         if attr == 'sessionId' and self.ids:
             self.ids.sessionId = self.sessionId
 
+    def clone(self):
+        """Create a clone.
+
+        Return a clone of the :class:`Client` object.  That is, a
+        client that connects to the same ICAT server and has been
+        created with the same kwargs.  The clone will be in the state
+        as returned from the constructor.  In particular, it does not
+        share the same session if this client object is logged in.
+
+        :return: a clone of the client object.
+        :rtype: :class:`Client`
+        """
+        Class = type(self)
+        return Class(self.url, **self.kwargs)
+
 
     def new(self, obj, **kwargs):
 
@@ -274,8 +312,8 @@ class Client(suds.client.Client):
             :class:`icat.entity.Entity`.
         :return: the new entity object or :const:`None`.
         :rtype: :class:`icat.entity.Entity`
-        :raise TypeError: if obj is neither a valid instance object,
-            nor a valid name of an entity type, nor None.
+        :raise EntityTypeError: if obj is neither a valid instance
+            object, nor a valid name of an entity type, nor None.
         """
 
         if isinstance(obj, suds.sudsobject.Object):
@@ -285,16 +323,16 @@ class Client(suds.client.Client):
             try:
                 Class = self.typemap[instancetype]
             except KeyError:
-                raise stripCause(TypeError("Invalid instance type '%s'." 
-                                           % instancetype))
+                raise EntityTypeError("Invalid instance type '%s'." 
+                                      % instancetype)
         elif isinstance(obj, basestring):
             # obj is the name of an instance type, create the instance
             instancetype = obj
             try:
                 Class = self.typemap[instancetype]
             except KeyError:
-                raise stripCause(TypeError("Invalid instance type '%s'." 
-                                           % instancetype))
+                raise EntityTypeError("Invalid instance type '%s'." 
+                                      % instancetype)
             instance = self.factory.create(instancetype)
             # The factory creates a whole tree of dummy objects for
             # all relationships of the instance object and the
@@ -305,14 +343,14 @@ class Client(suds.client.Client):
         elif obj is None:
             return None
         else:
-            raise TypeError("Invalid argument type '%s'." % type(obj))
+            raise EntityTypeError("Invalid argument type '%s'." % type(obj))
 
         if Class is None:
-            raise TypeError("Instance type '%s' is not supported." % 
-                            instancetype)
+            raise EntityTypeError("Instance type '%s' is not supported." 
+                                  % instancetype)
         if Class.BeanName is None:
-            raise TypeError("Refuse to create an instance of "
-                            "abstract type '%s'." % instancetype)
+            raise EntityTypeError("Refuse to create an instance of "
+                                  "abstract type '%s'." % instancetype)
 
         return Class(self, instance, **kwargs)
 
@@ -323,7 +361,7 @@ class Client(suds.client.Client):
             if name == c.BeanName:
                 return c
         else:
-            raise ValueError("Invalid entity type '%s'." % name)
+            raise EntityTypeError("Invalid entity type '%s'." % name)
 
     def getEntity(self, obj):
         """Get the corresponding :class:`icat.entity.Entity` for an object.
@@ -353,17 +391,21 @@ class Client(suds.client.Client):
             self.sessionId = self.service.login(auth, cred)
         except suds.WebFault as e:
             raise translateError(e)
+        self._schedule_auto_refresh()
         return self.sessionId
 
     def logout(self):
         if self.sessionId:
             try:
-                self.service.logout(self.sessionId)
-            except suds.WebFault as e:
-                raise translateError(e)
-            finally:
-                self.sessionId = None
-
+                try:
+                    self.service.logout(self.sessionId)
+                except suds.WebFault as e:
+                    raise translateError(e)
+                finally:
+                    self.sessionId = None
+            except ICATSessionError:
+                # silently ignore ICATSessionError, e.g. an expired session.
+                pass
 
     def create(self, bean):
         if getattr(bean, 'validate', None):
@@ -511,6 +553,20 @@ class Client(suds.client.Client):
 
 
     # =================== custom API methods ===================
+
+    def autoRefresh(self):
+        """Call :meth:`icat.client.Client.refresh` only if needed.
+
+        Call :meth:`icat.client.Client.refresh` if less then
+        :attr:`self.AutoRefreshRemain` minutes remain in the current
+        session.  Do not make any client calls if not.  This method is
+        supposed to be very cheap if enough time remains in the
+        session so that it may be called often in a loop without
+        causing too much needless load.
+        """
+        if time.time() > self._next_refresh:
+            self.refresh()
+            self._schedule_auto_refresh()
 
     def assertedSearch(self, query, assertmin=1, assertmax=1):
         """Search with an assertion on the result.

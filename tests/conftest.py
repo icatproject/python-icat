@@ -26,6 +26,12 @@ except ImportError:
 # default.  But since Suds uses logging, it's better to still have
 # a well defined basic logging configuration in place.
 logging.basicConfig(level=logging.INFO)
+# Newer pytest versions show the logs at level DEBUG in case of an
+# error.  The problem is that suds is rather chatty, so it will
+# clutter the output to an extent that we wont be able to see
+# anything.  Silence it.
+logging.getLogger('suds.client').setLevel(logging.CRITICAL)
+logging.getLogger('suds').setLevel(logging.ERROR)
 
 testdir = os.path.dirname(__file__)
 
@@ -118,20 +124,26 @@ def gettestdata(fname):
 
 def get_icat_version():
     client, _ = getConfig(needlogin=False)
-    return client.apiversion
+    ids_version = client.ids.apiversion if client.ids else Version("0.0")
+    return client.apiversion, ids_version
 
 # ICAT server version we talk to.  Ignore any errors from
 # get_icat_version(), if something fails (e.g. no server is configured
 # at all), set a dummy zero version number.
 try:
-    icat_version = get_icat_version()
+    icat_version, ids_version = get_icat_version()
 except:
-    icat_version = Version("0.0")
+    icat_version, ids_version = Version("0.0"), Version("0.0")
 
 def require_icat_version(minversion, reason):
     if icat_version < minversion:
-        pytest.skip("need ICAT server version %s or newer: %s" 
-                    % (minversion, reason))
+        reason = ("need ICAT server version %s or newer: %s" 
+                  % (minversion, reason))
+        if pytest.__version__ > '3':
+            # see https://github.com/pytest-dev/pytest/issues/2338
+            raise pytest.skip.Exception(reason, allow_module_level=True)
+        else:
+            pytest.skip(reason)
 
 
 def callscript(scriptname, args, stdin=None, stdout=None, stderr=None):
@@ -211,10 +223,14 @@ def pytest_report_header(config):
     """
     modpath = os.path.dirname(os.path.abspath(icat.__file__))
     if icat_version > "0.0":
-        server = icat_version
+        icatserver = icat_version
     else:
-        server = "-"
+        icatserver = "-"
+    if ids_version > "0.0":
+        idsserver = ids_version
+    else:
+        idsserver = "-"
     return [ "python-icat: %s (%s)" % (icat.__version__, icat.__revision__), 
              "             %s" % (modpath),
-             "icat.server: %s" % server]
+             "icat.server: %s, ids.server: %s" % (icatserver, idsserver)]
 

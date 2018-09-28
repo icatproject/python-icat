@@ -1,6 +1,58 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.14.1 (2018-06-05)
+
+** Bug fixes and minor changes
+
+ + Fix a misleading error message if the IDS server returns an error
+   for the Write API call.
+
+* Version 0.14.0 (2018-06-01)
+
+** New features
+
+ + #45: Add support for the IDS Write API call introduced in
+   ids.server 1.9.0.
+
+ + Issue #46, #47: Add a Client.autoRefresh() method.  The scripts
+   icatdump and icatingest call this method periodically to prevent
+   the session from expiring.
+
+ + Issue #48: Add support for an ordering direction qualifier in class
+   Query.
+
+ + #44: Add a method Entity.as_dict().
+
+ + Issue #40: Add a Client.clone() method.
+
+** Incompatible changes and deprecations
+
+ + Deprecate function icat.exception.stripCause()
+
+   This was an internal helper function not really meant to be part
+   of the API.  The functionality has been moved in a base class of
+   the exception hierarchy.
+
+** Bug fixes and minor changes
+
+ + IDSClient: add the version API call introduced in ids.server 1.8.0.
+
+ + Issue #41: Incomprehensible error messages with Python 3.
+
+ + Issue #43: Client.logout() should silently ignore ICATSessionError.
+
+ + Minor changes in the error handling.  Add new exception EntityTypeError.
+
+ + Documentation fixes.
+
+* Version 0.13.1 (2017-07-12)
+
+** Bug fixes and minor changes
+
+ + Issue #38: There should be a way to access the kwargs used to
+   create the client in config.
+
 * Version 0.13.0 (2017-06-09)
 
 ** New features
