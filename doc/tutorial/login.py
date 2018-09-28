@@ -4,9 +4,8 @@ from __future__ import print_function
 import icat
 import icat.config
 
-conf = icat.config.Config(ids="optional").getconfig()
-
-client = icat.Client(conf.url, **conf.client_kwargs)
+config = icat.config.Config(ids="optional")
+client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
 
 print("Login to %s was successful." % (conf.url))

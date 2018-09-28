@@ -4,9 +4,8 @@ from __future__ import print_function
 import icat
 import icat.config
 
-conf = icat.config.Config(needlogin=False, ids="optional").getconfig()
-
-client = icat.Client(conf.url, **conf.client_kwargs)
+config = icat.config.Config(needlogin=False, ids="optional")
+client, conf = config.getconfig()
 print("Connect to %s\nICAT version %s" % (conf.url, client.apiversion))
 if conf.idsurl:
     print("Connect to %s\nIDS version %s"

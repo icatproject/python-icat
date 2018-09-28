@@ -9,9 +9,7 @@ config = icat.config.Config(ids="optional")
 config.add_variable('outfile', ("-o", "--outputfile"),
                     dict(help="output file name or '-' for stdout"),
                     default='-')
-conf = config.getconfig()
-
-client = icat.Client(conf.url, **conf.client_kwargs)
+client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
 
 if conf.outfile == '-':

@@ -17,9 +17,8 @@ Lets modify the example program as follows::
   import icat
   import icat.config
   
-  conf = icat.config.Config(needlogin=False).getconfig()
-  
-  client = icat.Client(conf.url, **conf.client_kwargs)
+  config = icat.config.Config(needlogin=False, ids=False)
+  client, conf = config.getconfig()
   print("Connect to %s\nICAT version %s" % (conf.url, client.apiversion))
 
 If we run this without any command line arguments, we get an error::
@@ -91,12 +90,11 @@ about the URL to IDS.  Modify the example program to read as::
   import icat
   import icat.config
   
-  conf = icat.config.Config(needlogin=False, ids="optional").getconfig()
-  
-  client = icat.Client(conf.url, **conf.client_kwargs)
+  config = icat.config.Config(needlogin=False, ids="optional")
+  client, conf = config.getconfig()
   print("Connect to %s\nICAT version %s" % (conf.url, client.apiversion))
   if conf.idsurl:
-      print("Connect to %s\nIDS version %s" 
+      print("Connect to %s\nIDS version %s"
             % (conf.idsurl, client.ids.apiversion))
   else:
       print("No IDS configured")
@@ -138,9 +136,8 @@ following example program::
   import icat
   import icat.config
   
-  conf = icat.config.Config(ids="optional").getconfig()
-  
-  client = icat.Client(conf.url, **conf.client_kwargs)
+  config = icat.config.Config(ids="optional")
+  client, conf = config.getconfig()
   client.login(conf.auth, conf.credentials)
   
   print("Login to %s was successful." % (conf.url))
@@ -152,7 +149,7 @@ Let's check the available command line options now::
   usage: login.py [-h] [-c CONFIGFILE] [-s SECTION] [-w URL] [--idsurl IDSURL]
                   [--no-check-certificate] [--http-proxy HTTP_PROXY]
                   [--https-proxy HTTPS_PROXY] [--no-proxy NO_PROXY] [-a AUTH]
-                  [-u USERNAME] [-p PASSWORD] [-P]
+                  [-u USERNAME] [-P] [-p PASSWORD]
   
   optional arguments:
     -h, --help            show this help message and exit
@@ -172,9 +169,9 @@ Let's check the available command line options now::
     -a AUTH, --auth AUTH  authentication plugin
     -u USERNAME, --user USERNAME
                           username
+    -P, --prompt-pass     prompt for the password
     -p PASSWORD, --pass PASSWORD
                           password
-    -P, --prompt-pass     prompt for the password
 
 Now call this program indicating the name of the authentication plugin
 and a user name::
@@ -307,12 +304,10 @@ file::
   import icat.config
   
   config = icat.config.Config(ids="optional")
-  config.add_variable('outfile', ("-o", "--outputfile"), 
+  config.add_variable('outfile', ("-o", "--outputfile"),
                       dict(help="output file name or '-' for stdout"),
                       default='-')
-  conf = config.getconfig()
-  
-  client = icat.Client(conf.url, **conf.client_kwargs)
+  client, conf = config.getconfig()
   client.login(conf.auth, conf.credentials)
   
   if conf.outfile == '-':
@@ -334,7 +329,7 @@ on the list of available command line options::
   usage: login2.py [-h] [-c CONFIGFILE] [-s SECTION] [-w URL] [--idsurl IDSURL]
                    [--no-check-certificate] [--http-proxy HTTP_PROXY]
                    [--https-proxy HTTPS_PROXY] [--no-proxy NO_PROXY] [-a AUTH]
-                   [-u USERNAME] [-p PASSWORD] [-P] [-o OUTFILE]
+                   [-u USERNAME] [-P] [-p PASSWORD] [-o OUTFILE]
   
   optional arguments:
     -h, --help            show this help message and exit
@@ -354,9 +349,9 @@ on the list of available command line options::
     -a AUTH, --auth AUTH  authentication plugin
     -u USERNAME, --user USERNAME
                           username
+    -P, --prompt-pass     prompt for the password
     -p PASSWORD, --pass PASSWORD
                           password
-    -P, --prompt-pass     prompt for the password
     -o OUTFILE, --outputfile OUTFILE
                           output file name or '-' for stdout
 
