@@ -1,6 +1,15 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.14.2 (2018-10-25)
+
+** Bug fixes and minor changes
+
+ + Add a hook to control internal diverting of sys.err in the config
+   module.  This is intentionally not documented as it goes deeply
+   into the internals of this module and most users will probably not
+   need it.
+
 * Version 0.14.1 (2018-06-05)
 
 ** Bug fixes and minor changes
