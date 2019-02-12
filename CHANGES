@@ -3,6 +3,11 @@
 
 * Version 0.15.0 (not yet published)
 
+** New features
+
+ + Add support for ICAT 4.10.0 including schema changes in that
+   version.
+
 ** Bug fixes and minor changes
 
  + Issue #49: Module icat.eval is outdated
