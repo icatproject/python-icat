@@ -23,9 +23,8 @@ if __name__ == "__main__":
     config = icat.config.Config(ids="optional")
     config.add_variable('expression', ("-e", "--eval"), 
                         dict(help="Python expression to evaluate"))
-    conf = config.getconfig()
+    client, conf = config.getconfig()
 
-    client = icat.Client(conf.url, **conf.client_kwargs)
     client.login(conf.auth, conf.credentials)
 
     result = eval(conf.expression)
