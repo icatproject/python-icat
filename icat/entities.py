@@ -281,6 +281,14 @@ class Instrument43(Instrument):
     InstMRel = frozenset(['instrumentScientists', 'investigationInstruments'])
 
 
+class Instrument410(Instrument43):
+    """Used by a user within an investigation."""
+    InstAttr = frozenset(['id', 'pid', 'name', 'fullName', 'description', 
+                          'type', 'url'])
+    InstMRel = frozenset(['instrumentScientists', 'investigationInstruments', 
+                          'shifts'])
+
+
 class InstrumentScientist(Entity):
     """Relationship between an ICAT user as an instrument scientist
     and the instrument."""
@@ -483,6 +491,16 @@ class ParameterType43(ParameterType):
                           'permissibleStringValues'])
 
 
+class ParameterType410(ParameterType43):
+    """A parameter type with unique name and units."""
+    InstAttr = frozenset(['id', 'pid', 'name', 'description', 'valueType', 
+                          'units', 'unitsFullName', 'minimumNumericValue', 
+                          'maximumNumericValue', 'enforced', 'verified', 
+                          'applicableToDatafile', 'applicableToDataset', 
+                          'applicableToSample', 'applicableToInvestigation', 
+                          'applicableToDataCollection'])
+
+
 class PermissibleStringValue(Entity):
     """Permissible value for string parameter types."""
     BeanName = 'PermissibleStringValue'
@@ -547,6 +565,11 @@ class Sample43(Sample):
     Constraint = ('investigation', 'name')
 
 
+class Sample410(Sample43):
+    """A sample to be used in an investigation."""
+    InstAttr = frozenset(['id', 'pid', 'name'])
+
+
 class SampleParameter(Parameter):
     """A parameter associated with a sample."""
     BeanName = 'SampleParameter'
@@ -577,6 +600,11 @@ class Shift(Entity):
     InstRel = frozenset(['investigation'])
 
 
+class Shift410(Shift):
+    """A period of time related to an investigation."""
+    InstRel = frozenset(['investigation', 'instrument'])
+
+
 class Study(Entity):
     """A study which may be related to an investigation."""
     BeanName = 'Study'
@@ -584,6 +612,12 @@ class Study(Entity):
     InstRel = frozenset(['user'])
     InstMRel = frozenset(['studyInvestigations'])
     SortAttrs = ['name']
+
+
+class Study410(Study):
+    """A study which may be related to an investigation."""
+    InstAttr = frozenset(['id', 'pid', 'name', 'description', 'status', 
+                          'startDate'])
 
 
 class StudyInvestigation(Entity):
@@ -605,6 +639,12 @@ class User(Entity):
 class User47(User):
     """A user of the facility."""
     InstAttr = frozenset(['id', 'name', 'fullName', 'orcidId', 'email'])
+
+
+class User410(User47):
+    """A user of the facility."""
+    InstAttr = frozenset(['id', 'name', 'givenName', 'familyName', 'fullName', 
+                          'affiliation', 'orcidId', 'email'])
 
 
 class UserGroup(Entity):
