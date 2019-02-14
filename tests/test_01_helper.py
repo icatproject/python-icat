@@ -170,22 +170,19 @@ def test_helper_parse_attr_string_date():
 
 @pytest.mark.parametrize(("dt", "ms"), [
     (datetime.datetime(2008, 6, 18, 7, 31, 11), 1213774271000), 
-    ("2008-06-18T07:31:11", 1213774271000), 
-    pytest.mark.skipif("fo_tz is None")((
-        datetime.datetime(2008, 6, 18, 7, 31, 11, 
-                          tzinfo=fo_tz(datetime.timedelta(0))), 
-        1213774271000)), 
+    ("2008-06-18T07:31:11", 1213774271000),
+    pytest.param(datetime.datetime(2008, 6, 18, 7, 31, 11, 
+                                   tzinfo=fo_tz(datetime.timedelta(0))), 
+                 1213774271000, marks=pytest.mark.skipif("fo_tz is None")),
     ("2008-06-18T07:31:11Z", 1213774271000), 
     ("2008-06-18T07:31:11+00:00", 1213774271000), 
-    pytest.mark.skipif("fo_tz is None")((
-        datetime.datetime(2008, 6, 18, 9, 31, 11, 
-                          tzinfo=fo_tz(datetime.timedelta(hours=2))), 
-        1213774271000)), 
+    pytest.param(datetime.datetime(2008, 6, 18, 9, 31, 11, 
+                                   tzinfo=fo_tz(datetime.timedelta(hours=2))), 
+                 1213774271000, marks=pytest.mark.skipif("fo_tz is None")),
     ("2008-06-18T09:31:11+02:00", 1213774271000), 
-    pytest.mark.skipif("fo_tz is None")((
-        datetime.datetime(2008, 6, 18, 1, 31, 11, 
-                          tzinfo=fo_tz(datetime.timedelta(hours=-6))), 
-        1213774271000)), 
+    pytest.param(datetime.datetime(2008, 6, 18, 1, 31, 11, 
+                                   tzinfo=fo_tz(datetime.timedelta(hours=-6))), 
+                 1213774271000, marks=pytest.mark.skipif("fo_tz is None")),
     ("2008-06-18T01:31:11-06:00", 1213774271000), 
 ])
 def test_ms_timestamp(dt, ms):

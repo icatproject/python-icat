@@ -87,9 +87,15 @@ def test_init(standardCmdArgs):
 
 
 @pytest.mark.parametrize("invname", [
-    pytest.mark.dependency(name="inv_081", depends=["init"])("08100122-EF"),
-    pytest.mark.dependency(name="inv_101", depends=["init"])("10100601-ST"),
-    pytest.mark.dependency(name="inv_121", depends=["init"])("12100409-ST")
+    pytest.param("08100122-EF",
+                 marks=pytest.mark.dependency(name="inv_081",
+                                              depends=["init"])),
+    pytest.param("10100601-ST",
+                 marks=pytest.mark.dependency(name="inv_101",
+                                              depends=["init"])),
+    pytest.param("12100409-ST",
+                 marks=pytest.mark.dependency(name="inv_121",
+                                              depends=["init"])),
 ])
 def test_create_investigation(invname):
     _, conf = getConfig(confSection="useroffice")
@@ -97,12 +103,15 @@ def test_create_investigation(invname):
     callscript("create-investigation.py", args)
 
 @pytest.mark.parametrize(("user", "sample"), [
-    pytest.mark.dependency(name="sample_durol", depends=["init"])(
-        ("jbotu", "durol")),
-    pytest.mark.dependency(name="sample_nimnga", depends=["init"])(
-        ("ahau",  "nimnga")),
-    pytest.mark.dependency(name="sample_nio", depends=["init"])(
-        ("nbour", "nio"))
+    pytest.param("jbotu", "durol",
+                 marks=pytest.mark.dependency(name="sample_durol",
+                                              depends=["init"])),
+    pytest.param("ahau",  "nimnga",
+                 marks=pytest.mark.dependency(name="sample_nimnga",
+                                              depends=["init"])),
+    pytest.param("nbour", "nio",
+                 marks=pytest.mark.dependency(name="sample_nio",
+                                              depends=["init"])),
 ])
 def test_create_sampletype(user, sample):
     _, conf = getConfig(confSection=user)
@@ -110,15 +119,15 @@ def test_create_sampletype(user, sample):
     callscript("create-sampletype.py", args)
 
 @pytest.mark.parametrize(("user", "invname"), [
-    pytest.mark.dependency(
-        name="invdata_081", depends=["inv_081", "sample_durol"])(
-            ("nbour", "08100122-EF")),
-    pytest.mark.dependency(
-        name="invdata_101", depends=["inv_101", "sample_nimnga"])(
-            ("ahau",  "10100601-ST")),
-    pytest.mark.dependency(
-        name="invdata_121", depends=["inv_121", "sample_nio"])(
-            ("nbour", "12100409-ST"))
+    pytest.param("nbour", "08100122-EF",
+                 marks=pytest.mark.dependency(
+                     name="invdata_081", depends=["inv_081", "sample_durol"])),
+    pytest.param("ahau",  "10100601-ST",
+                 marks=pytest.mark.dependency(
+                     name="invdata_101", depends=["inv_101", "sample_nimnga"])),
+    pytest.param("nbour", "12100409-ST",
+                 marks=pytest.mark.dependency(
+                     name="invdata_121", depends=["inv_121", "sample_nio"])),
 ])
 def test_addinvdata(user, invname):
     _, conf = getConfig(confSection=user)
@@ -126,9 +135,9 @@ def test_addinvdata(user, invname):
     callscript("add-investigation-data.py", args)
 
 @pytest.mark.parametrize(("user", "jobname"), [
-    pytest.mark.dependency(
-        name="job1", depends=["invdata_101", "invdata_121"])(
-            ("nbour", "job1")),
+    pytest.param("nbour", "job1",
+                 marks=pytest.mark.dependency(
+                     name="job1", depends=["invdata_101", "invdata_121"])),
 ])
 def test_addjob(user, jobname):
     _, conf = getConfig(confSection=user)
@@ -136,9 +145,9 @@ def test_addjob(user, jobname):
     callscript("add-job.py", args)
 
 @pytest.mark.parametrize(("user", "rdfname"), [
-    pytest.mark.dependency(
-        name="rdf1", depends=["invdata_101", "invdata_121"])(
-            ("nbour", "rdf1")),
+    pytest.param("nbour", "rdf1",
+                 marks=pytest.mark.dependency(
+                     name="rdf1", depends=["invdata_101", "invdata_121"])),
 ])
 def test_add_relateddatafile(data, user, rdfname):
     client, conf = getConfig(confSection=user)
@@ -151,9 +160,9 @@ def test_add_relateddatafile(data, user, rdfname):
     rdf.create()
 
 @pytest.mark.parametrize(("user", "studyname"), [
-    pytest.mark.dependency(
-        name="study1", depends=["inv_101", "inv_121"])(
-            ("useroffice", "study1")),
+    pytest.param("useroffice", "study1",
+                 marks=pytest.mark.dependency(
+                     name="study1", depends=["inv_101", "inv_121"])),
 ])
 def test_add_study(data, user, studyname):
     client, conf = getConfig(confSection=user)
@@ -171,8 +180,9 @@ def test_add_study(data, user, studyname):
     study.create()
 
 @pytest.mark.parametrize(("user", "pubname"), [
-    pytest.mark.dependency(name="pub1", depends=["inv_101"])(
-        ("useroffice", "pub1")),
+    pytest.param("useroffice", "pub1",
+                 marks=pytest.mark.dependency(name="pub1",
+                                              depends=["inv_101"])),
 ])
 def test_add_publication(data, user, pubname):
     client, conf = getConfig(confSection=user)

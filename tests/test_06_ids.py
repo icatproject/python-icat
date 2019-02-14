@@ -105,11 +105,13 @@ for ds in testdatasets:
 # with appropriate dependency markers, such that the datasets
 # depend on the datafiles they contain.
 markeddatafiles = [
-    pytest.mark.dependency(name=df['dfname'])(df) for df in testdatafiles
+    pytest.param(df, marks=pytest.mark.dependency(name=df['dfname']))
+    for df in testdatafiles
 ]
 markeddatasets = [
-    pytest.mark.dependency(depends=[df['dfname'] for df in ds['dfs']])(ds)
-    for ds in testdatasets
+    pytest.param(ds, marks=pytest.mark.dependency(
+        depends=[df['dfname'] for df in ds['dfs']]
+    )) for ds in testdatasets
 ]
 
 # ============================= helper =============================
