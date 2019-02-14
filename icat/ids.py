@@ -9,7 +9,12 @@ author.
 """
 
 import sys
-from collections import Mapping, Iterable
+try:
+    # Python 3.3 and newer
+    from collections.abc import Mapping, Iterable
+except ImportError:
+    # Python 2
+    from collections import Mapping, Iterable
 import ssl
 from urllib2 import Request, HTTPError
 from urllib2 import HTTPDefaultErrorHandler, ProxyHandler

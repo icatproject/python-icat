@@ -5,7 +5,9 @@
 
 ** Bug fixes and minor changes
 
- + Issue #49: Module icat.eval is outdated
+ + Issue #49: Module icat.eval is outdated.
+
+ + Issue #50: Fix a compatibility issue with upcoming Python 3.8.
 
 * Version 0.14.2 (2018-10-25)
 
