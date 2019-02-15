@@ -19,7 +19,7 @@ System requirements
 
 Python:
 
-+ Python 2.6, 2.7, or 3.1 and newer.
++ Python 2.6, 2.7, or 3.3 and newer.
   Python 2.6 requires patching the sources, see below.
   Python 2.5 is too old and will not work.
 
@@ -52,7 +52,7 @@ not required to install or use python-icat itself:
   Only needed for the example scripts using the ICAT RESTful
   interface, icatexport.py and icatimport.py.
 
-+ `pytest`_ >= 2.8
++ `pytest`_ >= 3.1.0
 
   Only if you want to run the tests.
 
