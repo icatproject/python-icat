@@ -287,7 +287,7 @@ class Configuration(object):
         if attr == "configDir":
             warnings.warn("The 'configDir' configuration variable is "
                           "deprecated and will be removed in python-icat 1.0.", 
-                          DeprecationWarning)
+                          DeprecationWarning, stacklevel=2)
             if getattr(self, "configFile", None):
                 f = self.configFile[-1]
                 return os.path.dirname(os.path.abspath(f))

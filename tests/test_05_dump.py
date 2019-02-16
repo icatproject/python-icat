@@ -123,9 +123,9 @@ def test_check_content(ingestcheck, standardCmdArgs, tmpdirsec, case):
     backend, filetype = case
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']
-    dump = os.path.join(tmpdirsec.dir, "dump" + fileext)
-    fdump = os.path.join(tmpdirsec.dir, "dump-filter" + fileext)
-    reffdump = os.path.join(tmpdirsec.dir, "dump-filter-ref" + fileext)
+    dump = os.path.join(tmpdirsec, "dump" + fileext)
+    fdump = os.path.join(tmpdirsec, "dump-filter" + fileext)
+    reffdump = os.path.join(tmpdirsec, "dump-filter-ref" + fileext)
     filter_file(refdump, reffdump, *backends[backend]['filter'])
     if filetype == 'FILE':
         args = standardCmdArgs + ["-f", backend, "-o", dump]
@@ -142,7 +142,7 @@ def test_check_content(ingestcheck, standardCmdArgs, tmpdirsec, case):
 def test_check_summary_root(ingestcheck, standardCmdArgs, tmpdirsec):
     """Check the number of objects for each class at the ICAT server.
     """
-    summary = os.path.join(tmpdirsec.dir, "summary")
+    summary = os.path.join(tmpdirsec, "summary")
     ref = refsummary["root"]
     with open(summary, "wt") as out:
         callscript("icatsummary.py", standardCmdArgs, stdout=out)
@@ -155,9 +155,9 @@ def test_check_summary_user(ingestcheck, tmpdirsec, user):
     This checks which objects a given user may see and thus whether
     the (read) access rules work as expected.
     """
-    summary = os.path.join(tmpdirsec.dir, "summary.%s" % user)
+    summary = os.path.join(tmpdirsec, "summary.%s" % user)
     ref = refsummary[user]
-    reff = os.path.join(tmpdirsec.dir, "summary-filter-ref.%s" % user)
+    reff = os.path.join(tmpdirsec, "summary-filter-ref.%s" % user)
     filter_file(ref, reff, *summary_filter)
     _, conf = getConfig(confSection=user)
     with open(summary, "wt") as out:

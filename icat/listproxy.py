@@ -5,7 +5,12 @@
    Most users will not need to use it directly or even care about it.
 """
 
-from collections import MutableSequence
+try:
+    # Python 3.3 and newer
+    from collections.abc import MutableSequence
+except ImportError:
+    # Python 2
+    from collections import MutableSequence
 
 class ListProxy(MutableSequence):
     """A list that acts as a proxy to another list.

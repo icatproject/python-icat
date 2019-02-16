@@ -490,12 +490,12 @@ def test_query_aggregate_distinct_related_obj(client):
     ("fileSize", "AVG", 31781.25),
     ("name", "MAX", "e208341.nxs"),
     ("name", "MIN", "e208339.dat"),
-    pytest.mark.skipif("tzinfo is None")((
-        "datafileCreateTime", "MIN", datetime.datetime(2010, 10, 1, 6, 17, 48, 
-                                                       tzinfo=tzinfo))),
-    pytest.mark.skipif("tzinfo is None")((
-        "datafileCreateTime", "MAX", datetime.datetime(2010, 10, 5, 9, 31, 53, 
-                                                       tzinfo=tzinfo))),
+    pytest.param("datafileCreateTime", "MIN",
+                 datetime.datetime(2010, 10, 1, 6, 17, 48, tzinfo=tzinfo),
+                 marks=pytest.mark.skipif("tzinfo is None")),
+    pytest.param("datafileCreateTime", "MAX",
+                 datetime.datetime(2010, 10, 5, 9, 31, 53, tzinfo=tzinfo),
+                 marks=pytest.mark.skipif("tzinfo is None"))
 ])
 def test_query_aggregate_misc(client, attribute, aggregate, expected):
     """Try some working aggregate results for the datafiles.

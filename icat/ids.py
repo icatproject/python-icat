@@ -9,7 +9,12 @@ author.
 """
 
 import sys
-from collections import Mapping, Iterable
+try:
+    # Python 3.3 and newer
+    from collections.abc import Mapping, Iterable
+except ImportError:
+    # Python 2
+    from collections import Mapping, Iterable
 import ssl
 from urllib2 import Request, HTTPError
 from urllib2 import HTTPDefaultErrorHandler, ProxyHandler
@@ -179,17 +184,7 @@ class IDSClient(object):
         self.url = url
         if not self.url.endswith("/"): self.url += "/"
         self.sessionId = sessionId
-        if sslContext:
-            verify = (sslContext.verify_mode != ssl.CERT_NONE)
-            try:
-                httpsHandler = HTTPSHandler(context=sslContext, 
-                                            check_hostname=verify)
-            except TypeError:
-                # Python 2.7.9 HTTPSHandler does not accept the
-                # check_hostname keyword argument.
-                httpsHandler = HTTPSHandler(context=sslContext)
-        else:
-            httpsHandler = HTTPSHandler()
+        httpsHandler = HTTPSHandler(context=sslContext)
         if proxy:
             proxyhandler = ProxyHandler(proxy)
             self.opener = build_opener(proxyhandler, HTTPHandler, 
