@@ -5,11 +5,13 @@
 
 ** Incompatible changes and deprecations
 
- + Drop support for Python 3.1 and 3.2.
+ + Require pytest 3.1.0 or newer to run the test suite.  Note that
+   this pytest version in turn requires Python 2.6, 2.7, or 3.3 and
+   newer.
 
-   Actually, the only (known) issues with these Python versions so far
-   are in the test suite only.  But since I can't test them any more,
-   I drop the official claim to support them.
+ + Drop support for Python 3.1 and 3.2.  There is no known issue with
+   these Python versions in python-icat (so far).  But since we can't
+   test this any more, see above, we drop the claim to support them.
 
 ** Bug fixes and minor changes
 
