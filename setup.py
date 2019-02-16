@@ -81,8 +81,6 @@ setup(
     requires = ["suds"],
     packages = ["icat"],
     scripts = ["icatdump.py", "icatingest.py", "wipeicat.py"],
-    # I never tested Python 3.0, any feedback welcome.  Python 3.*
-    # requires the jurko fork of Suds.
     classifiers = [
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
