@@ -182,23 +182,11 @@ def filter_file(infile, outfile, pattern, repl):
 # because it seem to use a predictable directory name in /tmp wich is
 # insecure.
 
-class TmpDir(object):
-    """Provide a temporary directory.
-    """
-    def __init__(self):
-        self.dir = tempfile.mkdtemp(prefix="python-icat-test-")
-    def __del__(self):
-        self.cleanup()
-    def cleanup(self):
-        if self.dir:
-            shutil.rmtree(self.dir)
-        self.dir = None
-
 @pytest.fixture(scope="session")
 def tmpdirsec(request):
-    tmpdir = TmpDir()
-    request.addfinalizer(tmpdir.cleanup)
-    return tmpdir
+    tmpdir = tempfile.mkdtemp(prefix="python-icat-test-")
+    yield tmpdir
+    shutil.rmtree(tmpdir)
 
 
 @pytest.fixture(scope="session")

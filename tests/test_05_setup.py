@@ -200,9 +200,9 @@ def test_check_content(standardCmdArgs, tmpdirsec):
     """Dump the resulting content and compare with a reference dump.
     """
     require_icat_version("4.6.0", "Issue icatproject/icat.server#155")
-    dump = os.path.join(tmpdirsec.dir, "dump.yaml")
-    fdump = os.path.join(tmpdirsec.dir, "dump-filter.yaml")
-    reffdump = os.path.join(tmpdirsec.dir, "dump-filter-ref.yaml")
+    dump = os.path.join(tmpdirsec, "dump.yaml")
+    fdump = os.path.join(tmpdirsec, "dump-filter.yaml")
+    reffdump = os.path.join(tmpdirsec, "dump-filter-ref.yaml")
     filter_file(refdump, reffdump, *yaml_filter)
     args = standardCmdArgs + ["-f", "YAML", "-o", dump]
     callscript("icatdump.py", args)
@@ -213,7 +213,7 @@ def test_check_content(standardCmdArgs, tmpdirsec):
 def test_check_summary_root(standardCmdArgs, tmpdirsec):
     """Check the number of objects for each class at the ICAT server.
     """
-    summary = os.path.join(tmpdirsec.dir, "summary")
+    summary = os.path.join(tmpdirsec, "summary")
     ref = refsummary["root"]
     with open(summary, "wt") as out:
         callscript("icatsummary.py", standardCmdArgs, stdout=out)
@@ -227,7 +227,7 @@ def test_check_summary_user(tmpdirsec, user):
     This checks which objects a given user may see and thus whether
     the (read) access rules work as expected.
     """
-    summary = os.path.join(tmpdirsec.dir, "summary.%s" % user)
+    summary = os.path.join(tmpdirsec, "summary.%s" % user)
     ref = refsummary[user]
     _, conf = getConfig(confSection=user)
     with open(summary, "wt") as out:

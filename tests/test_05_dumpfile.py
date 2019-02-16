@@ -149,9 +149,9 @@ def test_check_content(ingestcheck, client, tmpdirsec, case):
     backend, filetype = case
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']
-    dump = os.path.join(tmpdirsec.dir, "dump" + fileext)
-    fdump = os.path.join(tmpdirsec.dir, "dump-filter" + fileext)
-    reffdump = os.path.join(tmpdirsec.dir, "dump-filter-ref" + fileext)
+    dump = os.path.join(tmpdirsec, "dump" + fileext)
+    fdump = os.path.join(tmpdirsec, "dump-filter" + fileext)
+    reffdump = os.path.join(tmpdirsec, "dump-filter-ref" + fileext)
     filter_file(refdump, reffdump, *backends[backend]['filter'])
     if filetype == 'FILE':
         icatdump(client, dump, backend)

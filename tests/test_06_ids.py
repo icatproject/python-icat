@@ -17,14 +17,12 @@ from conftest import getConfig, tmpSessionId, tmpClient
 
 
 @pytest.fixture(scope="module")
-def client(setupicat, request):
+def client(setupicat):
     client, conf = getConfig(ids="mandatory")
     client.login(conf.auth, conf.credentials)
-    def cleanup():
-        query = "SELECT df FROM Datafile df WHERE df.location IS NOT NULL"
-        client.deleteData(client.search(query))
-    request.addfinalizer(cleanup)
-    return client
+    yield client
+    query = "SELECT df FROM Datafile df WHERE df.location IS NOT NULL"
+    client.deleteData(client.search(query))
 
 
 # ============================ testdata ============================
@@ -155,8 +153,7 @@ def copyfile(infile, outfile, chunksize=8192):
 
 @pytest.mark.parametrize(("case"), markeddatafiles)
 def test_upload(tmpdirsec, client, case):
-    f = DummyDatafile(tmpdirsec.dir, 
-                      case['dfname'], case['size'], case['mtime'])
+    f = DummyDatafile(tmpdirsec, case['dfname'], case['size'], case['mtime'])
     print("\nUpload file %s" % case['dfname'])
     with tmpClient(confSection=case['uluser'], ids="mandatory") as tclient:
         username = tclient.getUserName()
@@ -183,7 +180,7 @@ def method(request):
 def test_download(tmpdirsec, client, case, method):
     with tmpClient(confSection=case['dluser'], ids="mandatory") as tclient:
         if len(case['dfs']) > 1:
-            zfname = os.path.join(tmpdirsec.dir, "%s.zip" % case['dsname'])
+            zfname = os.path.join(tmpdirsec, "%s.zip" % case['dsname'])
             print("\nDownload %s to file %s" % (case['dsname'], zfname))
             dataset = getDataset(tclient, case)
             query = "Datafile <-> Dataset [id=%d]" % dataset.id
@@ -211,7 +208,7 @@ def test_download(tmpdirsec, client, case, method):
                 assert zi.file_size == df['testfile'].size
         elif len(case['dfs']) == 1:
             df = case['dfs'][0]
-            dfname = os.path.join(tmpdirsec.dir, "dl_%s" % df['dfname'])
+            dfname = os.path.join(tmpdirsec, "dl_%s" % df['dfname'])
             print("\nDownload %s to file %s" % (case['dsname'], dfname))
             dataset = getDataset(tclient, case)
             query = "Datafile <-> Dataset [id=%d]" % dataset.id
@@ -281,7 +278,7 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
     tzinfo = UtcTimezone() if UtcTimezone else None
     createTime = datetime.datetime(2008, 6, 18, 9, 31, 11, tzinfo=tzinfo)
     dfname = "test_datafileCreateTime_dt.dat"
-    f = DummyDatafile(tmpdirsec.dir, dfname, case['size'])
+    f = DummyDatafile(tmpdirsec, dfname, case['size'])
     datafile = client.new("datafile", name=f.name, 
                           dataset=dataset, datafileFormat=datafileformat)
     datafile.datafileCreateTime = createTime
@@ -297,7 +294,7 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
 
     # Now try the same again with datafileCreateTime set to a string.
     dfname = "test_datafileCreateTime_str.dat"
-    f = DummyDatafile(tmpdirsec.dir, dfname, case['size'])
+    f = DummyDatafile(tmpdirsec, dfname, case['size'])
     datafile = client.new("datafile", name=f.name, 
                           dataset=dataset, datafileFormat=datafileformat)
     datafile.datafileCreateTime = createTime.isoformat()

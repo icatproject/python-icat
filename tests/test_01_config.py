@@ -128,13 +128,13 @@ class TmpFiles(object):
 
 @pytest.fixture(scope="module")
 def tmpconfigfile(tmpdirsec):
-    return ConfigFile(tmpdirsec.dir, configfilestr)
+    return ConfigFile(tmpdirsec, configfilestr)
 
 @pytest.fixture(scope="function")
-def tmpfiles(request):
+def tmpfiles():
     files = TmpFiles()
-    request.addfinalizer(files.cleanup)
-    return files
+    yield files
+    files.cleanup()
 
 # ============================= tests ==============================
 
