@@ -184,7 +184,10 @@ class IDSClient(object):
         self.url = url
         if not self.url.endswith("/"): self.url += "/"
         self.sessionId = sessionId
-        httpsHandler = HTTPSHandler(context=sslContext)
+        if sslContext:
+            httpsHandler = HTTPSHandler(context=sslContext)
+        else:
+            httpsHandler = HTTPSHandler()
         if proxy:
             proxyhandler = ProxyHandler(proxy)
             self.opener = build_opener(proxyhandler, HTTPHandler, 
