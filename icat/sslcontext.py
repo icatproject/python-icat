@@ -59,23 +59,11 @@ class HTTPSTransport(suds.transport.http.HttpTransport):
         """
         suds.transport.http.HttpTransport.__init__(self, **kwargs)
         self.ssl_context = context
-        self.verify = (context and context.verify_mode != ssl.CERT_NONE)
 
     def u2handlers(self):
         """Get a collection of urllib handlers.
         """
         handlers = suds.transport.http.HttpTransport.u2handlers(self)
         if self.ssl_context:
-            try:
-                handlers.append(HTTPSHandler(context=self.ssl_context, 
-                                             check_hostname=self.verify))
-            except TypeError:
-                # Python 2.7.9 HTTPSHandler does not accept the
-                # check_hostname keyword argument.
-                #
-                # Note that even older Python versions would also
-                # croak on the context keyword argument.  But these
-                # old versions do not have SSLContext either, so we
-                # will not end up here in the first place.
-                handlers.append(HTTPSHandler(context=self.ssl_context))
+            handlers.append(HTTPSHandler(context=self.ssl_context))
         return handlers

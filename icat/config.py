@@ -31,6 +31,9 @@ cfgfile = "icat.cfg"
 defaultsection = None
 """Default value for `configSection`"""
 
+# Internal hack, intentionally not documented.
+_argparse_divert_syserr = True
+
 
 def boolean(value):
     """Test truth value.
@@ -88,18 +91,20 @@ class _argparserDisableExit:
     def __enter__(self):
         def noexit(status=0, message=None):
             raise ConfigError("ArgumentParser exit (%d,%s)" % (status, message))
-        self._old_stdout = sys.stdout
-        sys.stdout = open(os.devnull, "wt")
-        self._old_stderr = sys.stderr
-        sys.stderr = open(os.devnull, "wt")
+        if _argparse_divert_syserr:
+            self._old_stdout = sys.stdout
+            sys.stdout = open(os.devnull, "wt")
+            self._old_stderr = sys.stderr
+            sys.stderr = open(os.devnull, "wt")
         self._parser.exit = noexit
         return self._parser
     def __exit__(self, exctype, excinst, exctb):
         del self._parser.exit
-        sys.stdout.close()
-        sys.stdout = self._old_stdout
-        sys.stderr.close()
-        sys.stderr = self._old_stderr
+        if _argparse_divert_syserr:
+            sys.stdout.close()
+            sys.stdout = self._old_stdout
+            sys.stderr.close()
+            sys.stderr = self._old_stderr
 
 
 def post_configFile(config, configuration):
@@ -282,7 +287,7 @@ class Configuration(object):
         if attr == "configDir":
             warnings.warn("The 'configDir' configuration variable is "
                           "deprecated and will be removed in python-icat 1.0.", 
-                          DeprecationWarning)
+                          DeprecationWarning, stacklevel=2)
             if getattr(self, "configFile", None):
                 f = self.configFile[-1]
                 return os.path.dirname(os.path.abspath(f))

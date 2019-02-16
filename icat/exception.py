@@ -3,7 +3,12 @@
 
 import sys
 import warnings
-from collections import Mapping
+try:
+    # Python 3.3 and newer
+    from collections.abc import Mapping
+except ImportError:
+    # Python 2
+    from collections import Mapping
 import suds
 
 __all__ = [

@@ -27,7 +27,7 @@ def cmdargs(setupicat):
     return conf.cmdargs + ["-f", "XML"]
 
 @pytest.fixture(scope="function")
-def dataset(client, request):
+def dataset(client):
     """A dataset to be used in the test.
 
     The dataset is not created by the fixture, it is assumed that the
@@ -39,27 +39,25 @@ def dataset(client, request):
     dataset = client.new("dataset",
                          name="e208343", complete=False,
                          investigation=inv, type=dstype)
-    def cleanup():
-        try:
-            ds = client.searchMatching(dataset)
-            dataset.id = ds.id
-        except icat.SearchResultError:
-            # Dataset not found, maybe the test failed, nothing to
-            # clean up then.
-            pass
-        else:
-            # If any datafile has been uploaded (i.e. the location is
-            # not NULL), need to delete it from IDS first.  Any other
-            # datafile or dataset parameter will be deleted
-            # automatically with the dataset by cascading in the ICAT
-            # server.
-            query = Query(client, "Datafile", 
-                          conditions={"dataset.id": "= %d" % dataset.id,
-                                      "location": "IS NOT NULL"})
-            client.deleteData(client.search(query))
-            client.delete(dataset)
-    request.addfinalizer(cleanup)
-    return dataset
+    yield dataset
+    try:
+        ds = client.searchMatching(dataset)
+        dataset.id = ds.id
+    except icat.SearchResultError:
+        # Dataset not found, maybe the test failed, nothing to
+        # clean up then.
+        pass
+    else:
+        # If any datafile has been uploaded (i.e. the location is
+        # not NULL), need to delete it from IDS first.  Any other
+        # datafile or dataset parameter will be deleted
+        # automatically with the dataset by cascading in the ICAT
+        # server.
+        query = Query(client, "Datafile", 
+                      conditions={"dataset.id": "= %d" % dataset.id,
+                                  "location": "IS NOT NULL"})
+        client.deleteData(client.search(query))
+        client.delete(dataset)
 
 
 # Test datafiles to be created by test_ingest_datafiles:
@@ -298,7 +296,7 @@ def test_ingest_duplicate_check_types(tmpdirsec, dataset, cmdargs, inputdata):
         dataset.create()
     # We simply ingest twice the same data, using duplicate=CHECK the
     # second time.  This obviously leads to matching duplicates.
-    inpfile = os.path.join(tmpdirsec.dir, "ingest.xml")
+    inpfile = os.path.join(tmpdirsec, "ingest.xml")
     with open(inpfile, "wt") as f:
         f.write(inputdata)
     args = cmdargs + ["-i", inpfile]
@@ -330,11 +328,10 @@ def test_ingest_datafiles_upload(tmpdirsec, client, dataset, cmdargs):
     icatingest will not create the datafiles as objects in the ICAT,
     but upload the files to IDS instead.
     """
-    dummyfiles = [ DummyDatafile(tmpdirsec.dir, 
-                                 f['dfname'], f['size'], f['mtime'])
+    dummyfiles = [ DummyDatafile(tmpdirsec, f['dfname'], f['size'], f['mtime'])
                    for f in testdatafiles ]
     args = cmdargs + ["-i", datafiles, "--upload-datafiles", 
-                      "--datafile-dir", tmpdirsec.dir]
+                      "--datafile-dir", tmpdirsec]
     callscript("icatingest.py", args)
     # Verify that the datafiles have been uploaded.
     dataset = client.searchMatching(dataset)
