@@ -6,7 +6,12 @@ this module.
 """
 
 from __future__ import print_function
-from collections import Iterable, Callable
+try:
+    # Python 3.3 and newer
+    from collections.abc import Iterable, Callable
+except ImportError:
+    # Python 2
+    from collections import Iterable, Callable
 import pytest
 import icat
 import icat.config

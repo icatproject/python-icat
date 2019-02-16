@@ -8,9 +8,23 @@
  + Add support for ICAT 4.10.0 including schema changes in that
    version.
 
+** Incompatible changes and deprecations
+
+ + Require pytest 3.1.0 or newer to run the test suite.  Note that
+   this pytest version in turn requires Python 2.6, 2.7, or 3.3 and
+   newer.
+
+ + Drop support for Python 3.1 and 3.2.  There is no known issue with
+   these Python versions in python-icat (so far).  But since we can't
+   test this any more, see above, we drop the claim to support them.
+
 ** Bug fixes and minor changes
 
- + Issue #49: Module icat.eval is outdated
+ + Issue #49: Module icat.eval is outdated.
+
+ + Issues #50, #52: Fix DeprecationWarnings.
+
+ + Issue #51: Fix a compatibility issue with pytest 4.1.0 in the tests.
 
 * Version 0.14.2 (2018-10-25)
 

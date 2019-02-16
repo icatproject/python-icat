@@ -128,13 +128,13 @@ class TmpFiles(object):
 
 @pytest.fixture(scope="module")
 def tmpconfigfile(tmpdirsec):
-    return ConfigFile(tmpdirsec.dir, configfilestr)
+    return ConfigFile(tmpdirsec, configfilestr)
 
 @pytest.fixture(scope="function")
-def tmpfiles(request):
+def tmpfiles():
     files = TmpFiles()
-    request.addfinalizer(files.cleanup)
-    return files
+    yield files
+    files.cleanup()
 
 # ============================= tests ==============================
 
@@ -539,6 +539,7 @@ def test_config_subst_cmdline(fakeClient, tmpconfigfile):
     assert ex <= conf
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 def test_config_subst_confdir(fakeClient, tmpconfigfile):
     """Substitute configDir in the default of a variable.
 
@@ -683,7 +684,6 @@ def test_config_disable(fakeClient, tmpconfigfile):
     _, conf = config.getconfig()
 
     ex = ExpectedConf(configFile=[tmpconfigfile.path],
-                      configDir=tmpconfigfile.dir,
                       configSection="example_root",
                       url=ex_icat,
                       auth="simple",
@@ -717,7 +717,6 @@ def test_config_authinfo_simple(fakeClient, monkeypatch, tmpconfigfile):
     _, conf = config.getconfig()
 
     ex = ExpectedConf(configFile=[tmpconfigfile.path],
-                      configDir=tmpconfigfile.dir,
                       configSection="example_root",
                       url=ex_icat,
                       auth="simple",
@@ -751,7 +750,6 @@ def test_config_authinfo_anon(fakeClient, monkeypatch, tmpconfigfile):
     _, conf = config.getconfig()
 
     ex = ExpectedConf(configFile=[tmpconfigfile.path],
-                      configDir=tmpconfigfile.dir,
                       configSection="example_root",
                       url=ex_icat,
                       auth="anon",
@@ -778,7 +776,6 @@ def test_config_authinfo_anon_only(fakeClient, monkeypatch, tmpconfigfile):
     _, conf = config.getconfig()
 
     ex = ExpectedConf(configFile=[tmpconfigfile.path],
-                      configDir=tmpconfigfile.dir,
                       configSection="example_anon",
                       url=ex_icat,
                       auth="anon",
@@ -809,7 +806,6 @@ def test_config_authinfo_strange(fakeClient, monkeypatch, tmpconfigfile):
     _, conf = config.getconfig()
 
     ex = ExpectedConf(configFile=[tmpconfigfile.path],
-                      configDir=tmpconfigfile.dir,
                       configSection="example_root",
                       url=ex_icat,
                       auth="quirks",
@@ -833,7 +829,6 @@ def test_config_authinfo_no_authinfo(fakeClient, monkeypatch, tmpconfigfile):
         authInfo = client.getAuthenticatorInfo()
 
     ex = ExpectedConf(configFile=[tmpconfigfile.path],
-                      configDir=tmpconfigfile.dir,
                       configSection="example_root",
                       url=ex_icat,
                       auth="simple",
