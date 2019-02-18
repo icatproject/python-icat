@@ -21,6 +21,8 @@
 
  + Issue #51: Fix a compatibility issue with pytest 4.1.0 in the tests.
 
+ + Issue #54: Fix a UnicodeDecodeError in the tests.
+
 * Version 0.14.2 (2018-10-25)
 
 ** Bug fixes and minor changes
