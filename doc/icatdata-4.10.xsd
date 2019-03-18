@@ -964,6 +964,7 @@
     <xsd:extension base="entityBase">
       <xsd:sequence>
 	<xsd:element name="description" type="xsd:string" minOccurs="0"/>
+	<xsd:element name="endDate" type="xsd:dateTime"/>
 	<xsd:element name="name" type="xsd:string"/>
 	<xsd:element name="pid" type="xsd:string" minOccurs="0"/>
 	<xsd:element name="startDate" type="xsd:dateTime" minOccurs="0"/>
