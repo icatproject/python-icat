@@ -223,29 +223,6 @@ Bugs and limitations
   Note that the bug is fixed in the fork by Jurko Gospodnetić which is
   recommended anyway.
 
-+ With Python 3.1, icatdump.py emits a spurious error message like ::
-
-    Exception ValueError: 'I/O operation on closed file.' 
-    in <_io.TextIOWrapper name='<stdout>' encoding='UTF-8'> ignored
-
-  on exit when writing the dump file to stdout (the default).  You can
-  happily ignore this message.  The cause is that icatdump.py closes
-  its output file when finished and that Python 3.1 emits this error
-  message on exit whenever stdout has been closed, even if there was
-  no further output after closing.  I assume this is a bug in Python
-  3.1.
-
-+ Misleading "context" is displayed in error tracebacks with Python
-  3.1 and 3.2.  Python 3 introduced a "feature" called `Exception
-  Chaining and Embedded Tracebacks`__.  This causes irrelevant and
-  misleading "error context" to be displayed in the traceback of error
-  messages.  python-icat tries to suppress this in the most annoying
-  cases, but this `suppression mechanism`__ is only available with
-  Python 3.3 and newer.
-
-.. __: `PEP 3134`_
-.. __: `Python Issue 6210`_
-
 
 Version numbering
 -----------------
@@ -286,7 +263,5 @@ permissions and limitations under the License.
 .. _distutils-pytest: https://pythonhosted.org/distutils-pytest/
 .. _Installing Python Modules: https://docs.python.org/2.7/install/
 .. _GitHub repository: https://github.com/icatproject/python-icat
-.. _PEP 3134: https://www.python.org/dev/peps/pep-3134/
-.. _Python Issue 6210: http://bugs.python.org/issue6210
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/
 .. _Semantic Versioning: http://semver.org/
