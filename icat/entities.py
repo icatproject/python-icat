@@ -617,7 +617,7 @@ class Study(Entity):
 class Study410(Study):
     """A study which may be related to an investigation."""
     InstAttr = frozenset(['id', 'pid', 'name', 'description', 'status', 
-                          'startDate'])
+                          'startDate', 'endDate'])
 
 
 class StudyInvestigation(Entity):
