@@ -3,6 +3,11 @@
 
 * Version 0.15.0 (not yet published)
 
+** New features
+
+ + Add support for ICAT 4.10.0 including schema changes in that
+   version.
+
 ** Incompatible changes and deprecations
 
  + Require pytest 3.1.0 or newer to run the test suite.  Note that
