@@ -1,7 +1,12 @@
 		  History of changes to python-icat
 		  =================================
 
-* Version 0.15.0 (not yet published)
+* Version 0.15.0 (2019-03-27)
+
+** New features
+
+ + Add support for ICAT 4.10.0 including schema changes in that
+   version.
 
 ** Incompatible changes and deprecations
 
@@ -20,6 +25,8 @@
  + Issues #50, #52: Fix DeprecationWarnings.
 
  + Issue #51: Fix a compatibility issue with pytest 4.1.0 in the tests.
+
+ + Issue #54: Fix a UnicodeDecodeError in the tests.
 
 * Version 0.14.2 (2018-10-25)
 
