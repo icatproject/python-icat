@@ -16,14 +16,6 @@ except ImportError:
 import icatinfo
 import re
 
-if sys.version_info < (2, 6):
-    raise RuntimeError("Sorry, this Python version (%s) is too old to use "
-                       "this package." % sys.version)
-
-if sys.version_info < (2, 7):
-    raise RuntimeError("You are using Python %s.\n"
-                       "Please apply python2_6.patch first." % sys.version)
-
 DOCLINES         = icatinfo.__doc__.split("\n")
 DESCRIPTION      = DOCLINES[0]
 LONG_DESCRIPTION = "\n".join(DOCLINES[2:])

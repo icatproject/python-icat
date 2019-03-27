@@ -1,6 +1,12 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.16.0 (not yet published)
+
+** Incompatible changes and deprecations
+
+ + Drop support for Python 2.6.
+
 * Version 0.15.0 (2019-03-27)
 
 ** New features

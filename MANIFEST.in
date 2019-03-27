@@ -14,7 +14,6 @@ include doc/html/_static/*
 include doc/html/objects.inv
 include doc/icatdata*.xsd
 include icatinfo.py
-include python2_6.patch
 include tests/conftest.py
 include tests/data/summary*
 include tests/pytest.ini

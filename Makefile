@@ -7,7 +7,7 @@ build: init.py
 test: init.py
 	$(PYTHON) setup.py test
 
-sdist: init.py python2_6.patch doc-html
+sdist: init.py doc-html
 	$(PYTHON) setup.py sdist
 
 init.py: icat/__init__.py
@@ -33,7 +33,6 @@ distclean: clean
 	rm -f *.pyc icat/*.pyc tests/*.pyc
 	rm -rf __pycache__ icat/__pycache__ tests/__pycache__
 	rm -f icat/__init__.py
-	rm -f python2_6.patch
 	rm -rf dist
 	$(MAKE) -C doc distclean
 
@@ -45,9 +44,6 @@ icat/__init__.py: icatinfo.py icatinit.py gitversion
 
 # Dummy target to force icat/__init__.py
 gitversion:
-
-python2_6.patch:
-	git diff `git merge-base master python2_6` python2_6 > $@
 
 
 .PHONY: build test sdist init.py doc-html doc-pdf clean distclean gitversion
