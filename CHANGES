@@ -7,6 +7,18 @@
 
  + Drop support for Python 2.6.
 
+* Version 0.15.1 (2019-07-12)
+
+** Bug fixes and minor changes
+
+ + Issue #56: icatdump fails to include Shift.instrument.
+
+ + Issue #57: Client.searchChunked() still susceptible to LIMIT clause
+   bug in icat.server (Issue icatproject/icat.server#128).
+
+ + Call yaml.safe_load() rather then yaml.load(), fixing a deprecation
+   warning from PyYAML 5.1.
+
 * Version 0.15.0 (2019-03-27)
 
 ** New features

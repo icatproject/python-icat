@@ -654,6 +654,8 @@ class Client(suds.client.Client):
             query += " LIMIT %d, %d"
         else:
             query = "%d, %d " + query
+        if chunksize < 2:
+            chunksize = 2
         delivered = 0
         while True:
             if count is not None and count - delivered < chunksize:
