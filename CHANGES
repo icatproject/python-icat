@@ -10,6 +10,9 @@
  + Issue #57: Client.searchChunked() still susceptible to LIMIT clause
    bug in icat.server (Issue icatproject/icat.server#128).
 
+ + Call yaml.safe_load() rather then yaml.load(), fixing a deprecation
+   warning from PyYAML 5.1.
+
 * Version 0.15.0 (2019-03-27)
 
 ** New features
