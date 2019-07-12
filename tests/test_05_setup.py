@@ -34,7 +34,7 @@ alldata = ["init", "sample_durol", "sample_nimnga", "sample_nio", "inv_081",
 @pytest.fixture(scope="module")
 def data():
     with open(testinput, 'r') as f:
-        return yaml.load(f)
+        return yaml.safe_load(f)
 
 
 def initobj(obj, attrs):

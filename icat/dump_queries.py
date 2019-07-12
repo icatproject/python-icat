@@ -67,16 +67,19 @@ def getStaticQueries(client):
 def getInvestigationQueries(client, invid):
     """Return the queries to fetch all objects related to an investigation.
     """
-    # Compatibility ICAT 4.3.* vs. ICAT 4.4.0 and later: include
-    # InvestigationGroups.
+    # Compatibility between ICAT versions:
+    # - ICAT 4.4.0 added InvestigationGroups.
+    # - ICAT 4.10.0 added relation between Shift and Instrument.
     inv_includes = set([ "facility", "type.facility", "investigationInstruments", 
                          "investigationInstruments.instrument.facility", "shifts", 
                          "keywords", "publications", "investigationUsers", 
                          "investigationUsers.user", "parameters", 
                          "parameters.type.facility" ])
-    if client.apiversion > '4.3.99':
+    if client.apiversion >= '4.4.0':
         inv_includes |= set([ "investigationGroups", 
                               "investigationGroups.grouping" ])
+    if client.apiversion >= '4.10.0':
+        inv_includes |= set([ "shifts.instrument.facility" ])
 
     return [ Query(client, "Investigation", 
                    conditions={"id": "= %d" % invid}, 
