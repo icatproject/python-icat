@@ -221,6 +221,40 @@ def test_searchChunked_id(client, query):
         count += 1
         assert count == 1
 
+def test_searchChunked_limit_bug(client):
+    """See Issue icatproject/icat.server#128.
+
+    This bug in icat.server used to cause searchChunked() to
+    repeatedly yield the same object in an endless loop.
+    """
+    facility = client.assertedSearch("Facility")[0]
+    query = Query(client, "Facility", conditions={"id": "= %d" % facility.id})
+    count = 0
+    for f in client.searchChunked(query):
+        count += 1
+        # This search should yield only one result, so the loop should
+        # have only one iteration.
+        assert count == 1
+    assert count == 1
+
+@pytest.mark.xfail(reason="Issue #57")
+def test_searchChunked_limit_bug_chunksize(client):
+    """See Issue icatproject/icat.server#128.
+
+    Same as test_searchChunked_limit_bug(), but now set an explicit
+    chunksize.  Ref. #57.
+    """
+    facility = client.assertedSearch("Facility")[0]
+    query = Query(client, "Facility", conditions={"id": "= %d" % facility.id})
+    count = 0
+    for f in client.searchChunked(query, chunksize=1):
+        count += 1
+        # This search should yield only one result, so the loop should
+        # have only one iteration.
+        assert count == 1
+    assert count == 1
+
+
 # ==================== test searchUniqueKey() ======================
 
 @pytest.mark.parametrize(("key", "attrs"), [
