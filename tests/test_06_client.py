@@ -237,7 +237,6 @@ def test_searchChunked_limit_bug(client):
         assert count == 1
     assert count == 1
 
-@pytest.mark.xfail(reason="Issue #57")
 def test_searchChunked_limit_bug_chunksize(client):
     """See Issue icatproject/icat.server#128.
 

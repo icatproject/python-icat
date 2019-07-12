@@ -7,6 +7,9 @@
 
  + Issue #56: icatdump fails to include Shift.instrument.
 
+ + Issue #57: Client.searchChunked() still susceptible to LIMIT clause
+   bug in icat.server (Issue icatproject/icat.server#128).
+
 * Version 0.15.0 (2019-03-27)
 
 ** New features
