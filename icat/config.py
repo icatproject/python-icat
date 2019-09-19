@@ -319,73 +319,24 @@ class Configuration(object):
         return d
 
 
-class Config(object):
-    """Set configuration variables.
-
-    Allow configuration variables to be set via command line
-    arguments, environment variables, configuration files, and default
-    values, in this order.  The first value found will be taken.
-    Command line arguments and configuration files are read using the
-    standard Python library modules :mod:`argparse` and
-    :mod:`ConfigParser` respectively, see the documentation of these
-    modules for details on how to setup custom arguments or for the
-    format of the configuration files.
-
-    The constructor sets up some predefined configuration variables.
-
-    :param defaultvars: if set to :const:`False`, no default
-        configuration variables other then `configFile` and
-        `configSection` will be defined.  The arguments `needlogin`
-        and `ids` will be ignored in this case.
-    :type defaultvars: :class:`bool`
-    :param needlogin: if set to :const:`False`, the configuration
-        variables `auth`, `username`, `password`, `promptPass`, and
-        `credentials` will be left out.
-    :type needlogin: :class:`bool`
-    :param ids: the configuration variable `idsurl` will not be set up
-        at all, or be set up as a mandatory, or as an optional
-        variable, if this is set to :const:`False`, to "mandatory", or
-        to "optional" respectively.
-    :type ids: :class:`bool` or :class:`str`
-    :param args: list of command line arguments or :const:`None`.  If
-        not set, the command line arguments will be taken from
-        :data:`sys.argv`.
-    :type args: :class:`list` of :class:`str`
+class BaseConfig(object):
+    """Abstract base class for :class:`icat.config.Config` and
+    :class:`icat.config.SubConfig`.  This class defines the common
+    API.  It is not intended to be instantiated directly.
     """
 
     ReservedVariables = ['configDir', 'credentials']
     """Reserved names of configuration variables."""
 
-    def __init__(self, defaultvars=True, needlogin=True, ids="optional", 
-                 args=None):
-        """Initialize the object.
-        """
-        super(Config, self).__init__()
+    def __init__(self, argparser):
         self.defaultFiles = [os.path.join(d, cfgfile) for d in cfgdirs]
-        self.defaultvars = defaultvars
         self.confvariables = []
         self.confvariable = {}
-        self.args = args
-        self.argparser = argparse.ArgumentParser()
-        self._add_fundamental_variables()
-        if self.defaultvars:
-            self.needlogin = needlogin
-            self.ids = ids
-            self._add_basic_variables()
-            self.client_kwargs, self.client = self._setup_client()
-            if self.needlogin:
-                self._add_cred_variables()
-        else:
-            self.needlogin = None
-            self.ids = None
-            self.client_kwargs = None
-            self.client = None
-
+        self.argparser = argparser
 
     def add_variable(self, name, arg_opts=(), arg_kws=dict(), 
                      envvar=None, optional=False, default=None, type=None, 
                      subst=False):
-
         """Defines a new configuration variable.
 
         Note that the value of some configuration variable may
@@ -491,6 +442,90 @@ class Config(object):
         self.confvariables.append(var)
         return var
 
+    def _getconfig(self, args, partial=False):
+        """Get the configuration.
+        """
+        self.cmdargs = ConfigSourceCmdArgs(self.argparser, args, partial)
+        self.environ = ConfigSourceEnvironment()
+        self.conffile = ConfigSourceFile(self.defaultFiles)
+        self.interactive = ConfigSourceInteractive()
+        self.defaults = ConfigSourceDefault()
+        self.sources = [ self.cmdargs, self.environ, self.conffile, 
+                         self.interactive, self.defaults ]
+        # this code relies on the fact, that the first two variables in
+        # self.confvariables are 'configFile' and 'configSection' in that
+        # order.
+        config = Configuration(self)
+        for var in self.confvariables:
+            if var.disabled:
+                continue
+            for source in self.sources:
+                value = source.get(var)
+                if value is not None:
+                    var.source = source
+                    break
+            if value is not None and var.subst:
+                value = value % config.as_dict()
+            setattr(config, var.name, value)
+            if var.postprocess:
+                var.postprocess(self, config)
+        return config
+
+
+class Config(BaseConfig):
+    """Set configuration variables.
+
+    Allow configuration variables to be set via command line
+    arguments, environment variables, configuration files, and default
+    values, in this order.  The first value found will be taken.
+    Command line arguments and configuration files are read using the
+    standard Python library modules :mod:`argparse` and
+    :mod:`ConfigParser` respectively, see the documentation of these
+    modules for details on how to setup custom arguments or for the
+    format of the configuration files.
+
+    The constructor sets up some predefined configuration variables.
+
+    :param defaultvars: if set to :const:`False`, no default
+        configuration variables other then `configFile` and
+        `configSection` will be defined.  The arguments `needlogin`
+        and `ids` will be ignored in this case.
+    :type defaultvars: :class:`bool`
+    :param needlogin: if set to :const:`False`, the configuration
+        variables `auth`, `username`, `password`, `promptPass`, and
+        `credentials` will be left out.
+    :type needlogin: :class:`bool`
+    :param ids: the configuration variable `idsurl` will not be set up
+        at all, or be set up as a mandatory, or as an optional
+        variable, if this is set to :const:`False`, to "mandatory", or
+        to "optional" respectively.
+    :type ids: :class:`bool` or :class:`str`
+    :param args: list of command line arguments or :const:`None`.  If
+        not set, the command line arguments will be taken from
+        :data:`sys.argv`.
+    :type args: :class:`list` of :class:`str`
+    """
+
+    def __init__(self, defaultvars=True, needlogin=True, ids="optional", 
+                 args=None):
+        """Initialize the object.
+        """
+        super(Config, self).__init__(argparse.ArgumentParser())
+        self.args = args
+        self._add_fundamental_variables()
+        if defaultvars:
+            self.needlogin = needlogin
+            self.ids = ids
+            self._add_basic_variables()
+            self.client_kwargs, self.client = self._setup_client()
+            if self.needlogin:
+                self._add_cred_variables()
+        else:
+            self.needlogin = None
+            self.ids = None
+            self.client_kwargs = None
+            self.client = None
+
     def getconfig(self):
         """Get the configuration.
 
@@ -513,7 +548,7 @@ class Config(object):
             configuration file, if an invalid value is given to a
             variable, or if a mandatory variable is not defined.
         """
-        config = self._getconfig()
+        config = self._getconfig(self.args)
 
         if self.needlogin:
             config.credentials = { 
@@ -621,7 +656,7 @@ class Config(object):
         """
         try:
             with _argparserDisableExit(self.argparser):
-                config = self._getconfig(partial=True)
+                config = self._getconfig(self.args, partial=True)
         except ConfigError:
             return None, None
         client_kwargs = {}
@@ -640,32 +675,3 @@ class Config(object):
         if config.no_proxy:
             os.environ['no_proxy'] = config.no_proxy
         return client_kwargs, Client(config.url, **client_kwargs)
-
-    def _getconfig(self, partial=False):
-        """Get the configuration.
-        """
-        self.cmdargs = ConfigSourceCmdArgs(self.argparser, self.args, partial)
-        self.environ = ConfigSourceEnvironment()
-        self.conffile = ConfigSourceFile(self.defaultFiles)
-        self.interactive = ConfigSourceInteractive()
-        self.defaults = ConfigSourceDefault()
-        self.sources = [ self.cmdargs, self.environ, self.conffile, 
-                         self.interactive, self.defaults ]
-        # this code relies on the fact, that the first two variables in
-        # self.confvariables are 'configFile' and 'configSection' in that
-        # order.
-        config = Configuration(self)
-        for var in self.confvariables:
-            if var.disabled:
-                continue
-            for source in self.sources:
-                value = source.get(var)
-                if value is not None:
-                    var.source = source
-                    break
-            if value is not None and var.subst:
-                value = value % config.as_dict()
-            setattr(config, var.name, value)
-            if var.postprocess:
-                var.postprocess(self, config)
-        return config
