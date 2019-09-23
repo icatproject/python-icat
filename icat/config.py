@@ -199,7 +199,7 @@ class ConfigSourceCmdArgs(ConfigSource):
         self.argparser = argparser
         self.args = None
 
-    def parse_args(self, args, partial):
+    def parse_args(self, args, partial=False):
         if partial:
             (self.args, rest) = self.argparser.parse_known_args(args)
         else:
@@ -334,7 +334,6 @@ class BaseConfig(object):
     """Reserved names of configuration variables."""
 
     def __init__(self, argparser):
-        self.defaultFiles = [os.path.join(d, cfgfile) for d in cfgdirs]
         self.confvariables = []
         self.confvariable = {}
         self.argparser = argparser
@@ -447,17 +446,9 @@ class BaseConfig(object):
         self.confvariables.append(var)
         return var
 
-    def _getconfig(self, args, partial=False):
+    def _getconfig(self, sources):
         """Get the configuration.
         """
-        self.cmdargs = ConfigSourceCmdArgs(self.argparser)
-        self.environ = ConfigSourceEnvironment()
-        self.conffile = ConfigSourceFile(self.defaultFiles)
-        self.interactive = ConfigSourceInteractive()
-        self.defaults = ConfigSourceDefault()
-        self.sources = [ self.cmdargs, self.environ, self.conffile, 
-                         self.interactive, self.defaults ]
-        self.cmdargs.parse_args(args, partial)
         # this code relies on the fact, that the first two variables in
         # self.confvariables are 'configFile' and 'configSection' in that
         # order.
@@ -465,7 +456,7 @@ class BaseConfig(object):
         for var in self.confvariables:
             if var.disabled:
                 continue
-            for source in self.sources:
+            for source in sources:
                 value = source.get(var)
                 if value is not None:
                     var.source = source
@@ -517,6 +508,14 @@ class Config(BaseConfig):
         """Initialize the object.
         """
         super(Config, self).__init__(argparse.ArgumentParser())
+        self.cmdargs = ConfigSourceCmdArgs(self.argparser)
+        self.environ = ConfigSourceEnvironment()
+        defaultFiles = [os.path.join(d, cfgfile) for d in cfgdirs]
+        self.conffile = ConfigSourceFile(defaultFiles)
+        self.interactive = ConfigSourceInteractive()
+        self.defaults = ConfigSourceDefault()
+        self.sources = [ self.cmdargs, self.environ, self.conffile, 
+                         self.interactive, self.defaults ]
         self.args = args
         self._add_fundamental_variables()
         if defaultvars:
@@ -554,7 +553,8 @@ class Config(BaseConfig):
             configuration file, if an invalid value is given to a
             variable, or if a mandatory variable is not defined.
         """
-        config = self._getconfig(self.args)
+        self.cmdargs.parse_args(self.args)
+        config = self._getconfig(self.sources)
 
         if self.needlogin:
             config.credentials = { 
@@ -662,7 +662,8 @@ class Config(BaseConfig):
         """
         try:
             with _argparserDisableExit(self.argparser):
-                config = self._getconfig(self.args, partial=True)
+                self.cmdargs.parse_args(self.args, partial=True)
+                config = self._getconfig(self.sources)
         except ConfigError:
             return None, None
         client_kwargs = {}
