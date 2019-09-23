@@ -107,17 +107,17 @@ class _argparserDisableExit:
             sys.stderr = self._old_stderr
 
 
-def post_configFile(config, configuration):
+def _post_configFile(config, configuration):
     """Postprocess configFile: read the configuration file.
     """
     configuration.configFile = config.conffile.read(configuration.configFile)
 
-def post_configSection(config, configuration):
+def _post_configSection(config, configuration):
     """Postprocess configSection: set the configuration section.
     """
     config.conffile.setsection(configuration.configSection)
 
-def post_auth(config, configuration):
+def _post_auth(config, configuration):
     """Postprocess auth: enable credential keys for the selected authenticator.
     """
     try:
@@ -127,7 +127,7 @@ def post_auth(config, configuration):
     for k in keys:
         config.credentialKey[k].disabled = False
 
-def post_promptPass(config, configuration):
+def _post_promptPass(config, configuration):
     """Postprocess promptPass: move the interactive source in front if set.
     """
     if configuration.promptPass:
@@ -570,13 +570,13 @@ class Config(BaseConfig):
         var = self.add_variable('configFile', ("-c", "--configfile"), 
                                 dict(help="config file"),
                                 envvar='ICAT_CFG', optional=True)
-        var.postprocess = post_configFile
+        var.postprocess = _post_configFile
         var = self.add_variable('configSection', ("-s", "--configsection"), 
                                 dict(help="section in the config file", 
                                      metavar='SECTION'), 
                                 envvar='ICAT_CFG_SECTION', optional=True, 
                                 default=defaultsection)
-        var.postprocess = post_configSection
+        var.postprocess = _post_configSection
 
     def _add_basic_variables(self):
         """The basic variables needed to setup the client.
@@ -627,7 +627,7 @@ class Config(BaseConfig):
 
         var = self.add_variable('auth', ("-a", "--auth"), authArgOpts,
                                 envvar='ICAT_AUTH')
-        var.postprocess = post_auth
+        var.postprocess = _post_auth
         for key in self.authenticatorInfo.getCredentialKeys(None, hide=False):
             self._add_credential_key(key)
         hidden = self.authenticatorInfo.getCredentialKeys(None, hide=True)
@@ -636,7 +636,7 @@ class Config(BaseConfig):
                                     dict(help="prompt for the password", 
                                          action='store_const', const=True), 
                                     type=boolean, default=False)
-            var.postprocess = post_promptPass
+            var.postprocess = _post_promptPass
         for key in hidden:
             self._add_credential_key(key, hide=True)
 
