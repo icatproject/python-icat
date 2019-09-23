@@ -168,6 +168,7 @@ class ConfigVariable(object):
         self.postprocess = None
         self.disabled = False
         self.source = None
+
     def get(self, value):
         if self.convert and value is not None:
             try:
@@ -176,6 +177,34 @@ class ConfigVariable(object):
                 typename = getattr(self.convert, "__name__", str(self.convert))
                 raise ConfigError("%s: invalid %s value: %r" 
                                   % (self.name, typename, value))
+        else:
+            return value
+
+
+class ConfigSubCmds(ConfigVariable):
+    """A special configuration variable that selects a subcommand.
+    """
+    def __init__(self, name, optional, config, subparsers):
+        super(ConfigSubCmds, self).__init__(name, None, optional,
+                                            None, None, False)
+        self.config = config
+        self.subparsers = subparsers
+        self.subconfig = {}
+
+    def add_subconfig(self, name, arg_kws):
+        if name in self.subconfig:
+            raise ValueError("Subconfig '%s' is already defined." % name)
+        argparser = self.subparsers.add_parser(name, **arg_kws)
+        subconfig = SubConfig(argparser, self.config)
+        self.subconfig[name] = subconfig
+        return subconfig
+
+    def get(self, value):
+        if value is not None:
+            try:
+                return self.subconfig[value]
+            except KeyError:
+                raise ConfigError("Unknown subcommand: %s" % value)
         else:
             return value
 
@@ -446,13 +475,48 @@ class BaseConfig(object):
         self.confvariables.append(var)
         return var
 
-    def _getconfig(self, sources):
+    def add_subcommands(self, name='subcmd', arg_kws=dict(), optional=False):
+        """Defines a new configuration variable to select subcommands.
+
+        :param name: the name of the variable.  This will be used as
+            the name of the attribute of
+            :class:`icat.config.Configuration` returned by
+            :meth:`icat.config.Config.getconfig` and as the name of
+            the option to be looked for in the configuration file.
+            The name must be unique and not in
+            :attr:`icat.config.Config.ReservedVariables`.
+        :type name: :class:`str`
+        :param arg_kws: keyword arguments to be passed to
+            :meth:`argparse.ArgumentParser.add_subparsers`.  Mostly
+            useful to set `title` or `help`.  Note that `dest` will be
+            overridden and set to the value of `name`.
+        :type arg_kws: :class:`dict`
+        :param optional: flag wether providing a subcommand is
+            optional.
+        :type optional: :class:`bool`
+        :raise ValueError: if the name is not valid.
+        :see: the documentation of the :mod:`argparse` standard
+            library module for details on `arg_kws`.
+        """
+        if name in self.ReservedVariables or name[0] == '_':
+            raise ValueError("Config variable name '%s' is reserved." % name)
+        if name in self.confvariable:
+            raise ValueError("Config variable '%s' is already defined." % name)
+        arg_kws['dest'] = name
+        subparsers = self.argparser.add_subparsers(**arg_kws)
+        var = ConfigSubCmds(name, optional, self, subparsers)
+        self.confvariable[name] = var
+        self.confvariables.append(var)
+        return var
+
+    def _getconfig(self, sources, config=None):
         """Get the configuration.
         """
         # this code relies on the fact, that the first two variables in
         # self.confvariables are 'configFile' and 'configSection' in that
         # order.
-        config = Configuration(self)
+        if config is None:
+            config = Configuration(self)
         for var in self.confvariables:
             if var.disabled:
                 continue
@@ -464,6 +528,10 @@ class BaseConfig(object):
             if value is not None and var.subst:
                 value = value % config.as_dict()
             setattr(config, var.name, value)
+            if isinstance(var, ConfigSubCmds):
+                if value is not None:
+                    value._getconfig(sources, config)
+                break
             if var.postprocess:
                 var.postprocess(self, config)
         return config
@@ -682,3 +750,12 @@ class Config(BaseConfig):
         if config.no_proxy:
             os.environ['no_proxy'] = config.no_proxy
         return client_kwargs, Client(config.url, **client_kwargs)
+
+
+class SubConfig(BaseConfig):
+    """Set configuration variables for a subcommand.
+    """
+    def __init__(self, argparser, parent):
+        super(SubConfig, self).__init__(argparser)
+        self.parent = parent
+        self.confvariable = dict(self.parent.confvariable)
