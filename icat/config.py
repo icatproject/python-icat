@@ -194,14 +194,19 @@ class ConfigSource(object):
 class ConfigSourceCmdArgs(ConfigSource):
     """Get configuration from command line arguments.
     """
-    def __init__(self, argparser, args, partial):
+    def __init__(self, argparser):
         super(ConfigSourceCmdArgs, self).__init__()
+        self.argparser = argparser
+        self.args = None
+
+    def parse_args(self, args, partial):
         if partial:
-            (self.args, rest) = argparser.parse_known_args(args)
+            (self.args, rest) = self.argparser.parse_known_args(args)
         else:
-            self.args = argparser.parse_args(args)
+            self.args = self.argparser.parse_args(args)
 
     def get(self, variable):
+        assert self.args is not None
         return variable.get(getattr(self.args, variable.name, None))
 
 
@@ -445,13 +450,14 @@ class BaseConfig(object):
     def _getconfig(self, args, partial=False):
         """Get the configuration.
         """
-        self.cmdargs = ConfigSourceCmdArgs(self.argparser, args, partial)
+        self.cmdargs = ConfigSourceCmdArgs(self.argparser)
         self.environ = ConfigSourceEnvironment()
         self.conffile = ConfigSourceFile(self.defaultFiles)
         self.interactive = ConfigSourceInteractive()
         self.defaults = ConfigSourceDefault()
         self.sources = [ self.cmdargs, self.environ, self.conffile, 
                          self.interactive, self.defaults ]
+        self.cmdargs.parse_args(args, partial)
         # this code relies on the fact, that the first two variables in
         # self.confvariables are 'configFile' and 'configSection' in that
         # order.
