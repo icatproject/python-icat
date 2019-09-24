@@ -191,9 +191,11 @@ class ConfigSubCmds(ConfigVariable):
         self.subparsers = subparsers
         self.subconfig = {}
 
-    def add_subconfig(self, name, arg_kws):
+    def add_subconfig(self, name, arg_kws=None):
         if name in self.subconfig:
             raise ValueError("Subconfig '%s' is already defined." % name)
+        if arg_kws is None:
+            arg_kws = dict()
         argparser = self.subparsers.add_parser(name, **arg_kws)
         subconfig = SubConfig(argparser, self.config)
         self.subconfig[name] = subconfig
@@ -479,7 +481,7 @@ class BaseConfig(object):
         self.confvariables.append(var)
         return var
 
-    def add_subcommands(self, name='subcmd', arg_kws=dict(), optional=False):
+    def add_subcommands(self, name='subcmd', arg_kws=None, optional=False):
         """Defines a new configuration variable to select subcommands.
 
         :param name: the name of the variable.  This will be used as
@@ -506,6 +508,10 @@ class BaseConfig(object):
             raise ValueError("Config variable name '%s' is reserved." % name)
         if name in self.confvariable:
             raise ValueError("Config variable '%s' is already defined." % name)
+        if arg_kws is None:
+            arg_kws = dict(title="subcommands")
+        else:
+            arg_kws = dict(arg_kws)
         arg_kws['dest'] = name
         subparsers = self.argparser.add_subparsers(**arg_kws)
         var = ConfigSubCmds(name, optional, self, subparsers)
