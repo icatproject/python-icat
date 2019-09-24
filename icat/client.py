@@ -792,7 +792,7 @@ class Client(suds.client.Client):
         u.create()
         return u
 
-    def createGroup(self, name, users=[]):
+    def createGroup(self, name, users=()):
         """Create a group and add users to it.
 
         :param name: the name of the group.

@@ -1,6 +1,12 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.15.2 (not yet published)
+
+** Bug fixes and minor changes
+
++ #60: Fix bad coding style dealing with function parameters.
+
 * Version 0.15.1 (2019-07-12)
 
 ** Bug fixes and minor changes

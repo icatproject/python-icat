@@ -382,7 +382,7 @@ class Config(object):
             self.client = None
 
 
-    def add_variable(self, name, arg_opts=(), arg_kws=dict(), 
+    def add_variable(self, name, arg_opts=(), arg_kws=None,
                      envvar=None, optional=False, default=None, type=None, 
                      subst=False):
 
@@ -450,6 +450,10 @@ class Config(object):
             raise ValueError("Config variable name '%s' is reserved." % name)
         if name in self.confvariable:
             raise ValueError("Config variable '%s' is already defined." % name)
+        if arg_kws is None:
+            arg_kws = dict()
+        else:
+            arg_kws = dict(arg_kws)
         if type == flag:
             # flag is a variant of boolean that defines two command
             # line arguments, a positive and a negative one.

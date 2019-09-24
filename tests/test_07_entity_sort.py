@@ -239,7 +239,7 @@ def test_sortattrs_dependencies(client):
     This test verifies that there are no further circular dependencies
     for sort attributes in the entity object classes.
     """
-    def checkSortDependency(cls, recursionList=[]):
+    def checkSortDependency(cls, recursionList=()):
         """Helper function."""
         if cls.BeanName in recursionList:
             raise RuntimeError("Circular sorting dependency detected: %s" 
