@@ -303,7 +303,7 @@ class ICATChecker(object):
         return tree
 
 
-    def pythonsrc(self, genealogyrules=[(r'','entityBaseBean')], baseclassname='Entity'):
+    def pythonsrc(self, genealogyrules=None, baseclassname='Entity'):
         """Generate Python source code matching the ICAT schema.
 
         Generate source code for a set of classes that match the
@@ -339,6 +339,8 @@ class ICATChecker(object):
             `genealogyrules` is not consistent.
         """
 
+        if genealogyrules is None:
+            genealogyrules = [(r'','entityBaseBean')]
         tree = self._genealogy(genealogyrules)
         base = [t for t in tree if tree[t]['base'] is None][0]
         self.schema[base].classname = baseclassname
