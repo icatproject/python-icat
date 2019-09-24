@@ -43,8 +43,9 @@ __all__ = ['DataSelection', 'IDSClient']
 
 class IDSRequest(Request):
 
-    def __init__(self, url, parameters={}, data=None, headers={}, method=None):
+    def __init__(self, url, parameters=None, data=None, method=None):
 
+        headers = {}
         if parameters:
             parameters = urlencode(parameters)
             if method == "POST":

@@ -61,7 +61,7 @@ flag = object()
 def cfgpath(p):
     """Search for a file in some default directories.
 
-    The argument `p` should be a file path name.  If `p` is absolut,
+    The argument `p` should be a file path name.  If `p` is absolute,
     it will be returned unchanged.  Otherwise, `p` will be resolved
     against the directories in :data:`icat.config.cfgdirs` in reversed
     order.  If a file with the resulting path is found to exist, this
@@ -382,7 +382,7 @@ class Config(object):
             self.client = None
 
 
-    def add_variable(self, name, arg_opts=(), arg_kws=dict(), 
+    def add_variable(self, name, arg_opts=(), arg_kws=None,
                      envvar=None, optional=False, default=None, type=None, 
                      subst=False):
 
@@ -432,8 +432,8 @@ class Config(object):
             and :func:`float` are fine.  If set to :const:`None`, the
             string value is taken as is.  If applicable, the default
             value will also be passed through this conversion.  The
-            special value of :data:`icat.config.flag` may also be used
-            to indicate a variant of :func:`icat.config.boolean`.
+            special value :data:`icat.config.flag` may also be used to
+            indicate a variant of :func:`icat.config.boolean`.
         :type type: callable
         :param subst: flag wether substitution of other configuration
             variables using the ``%`` interpolation operator shall be
@@ -450,6 +450,10 @@ class Config(object):
             raise ValueError("Config variable name '%s' is reserved." % name)
         if name in self.confvariable:
             raise ValueError("Config variable '%s' is already defined." % name)
+        if arg_kws is None:
+            arg_kws = dict()
+        else:
+            arg_kws = dict(arg_kws)
         if type == flag:
             # flag is a variant of boolean that defines two command
             # line arguments, a positive and a negative one.
