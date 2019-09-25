@@ -1033,3 +1033,117 @@ def test_config_client_kwargs(fakeClient, tmpconfigfile, monkeypatch):
     # has been created using the same arguments.
     client2 = FakeClient(conf.url, **config.client_kwargs)
     assert client2 == client
+
+
+@pytest.mark.parametrize('subcmd', ["create", "ls", "info"])
+def test_config_subcmd(fakeClient, tmpconfigfile, subcmd):
+    """Test sub-commands.
+
+    Issue #59: Add support for sub-commands in config.
+    """
+
+    def create_cmd(conf):
+        ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                          configSection="example_jdoe",
+                          url=ex_icat,
+                          auth="ldap",
+                          username="jdoe",
+                          password="pass",
+                          promptPass=False,
+                          credentials={'username': 'jdoe', 'password': 'pass'},
+                          name="energy",
+                          units="J",
+                          description=None)
+        assert ex <= conf
+
+    def ls_cmd(conf):
+        ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                          configSection="example_jdoe",
+                          url=ex_icat,
+                          auth="ldap",
+                          username="jdoe",
+                          password="pass",
+                          promptPass=False,
+                          credentials={'username': 'jdoe', 'password': 'pass'},
+                          format="long")
+        assert ex <= conf
+
+    def info_cmd(conf):
+        ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                          configSection="example_jdoe",
+                          url=ex_icat,
+                          auth="ldap",
+                          username="jdoe",
+                          password="pass",
+                          promptPass=False,
+                          credentials={'username': 'jdoe', 'password': 'pass'},
+                          name="brightness")
+        assert ex <= conf
+
+    sub_args = {
+        "create": ["create", "--name", "energy", "--units", "J"],
+        "ls": ["ls", "--format", "long"],
+        "info": ["info", "--name", "brightness", ],
+    }
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"] + sub_args[subcmd]
+    config = icat.config.Config(args=args)
+    subcmds = config.add_subcommands()
+
+    create_config = subcmds.add_subconfig('create', dict(help="create a foo"),
+                                          func=create_cmd)
+    create_config.add_variable('name', ("--name",),
+                               dict(help="name"))
+    create_config.add_variable('units', ("--units",),
+                               dict(help="units (unit full name)"))
+    create_config.add_variable('description', ("--description",),
+                               dict(help="description"), optional=True)
+
+    ls_config = subcmds.add_subconfig('ls', dict(help="list foos"),
+                                      func=ls_cmd)
+    ls_config.add_variable('format', ("--format",),
+                           dict(help="format", choices=["long", "short"]))
+
+    info_config = subcmds.add_subconfig('info', dict(help="show info"),
+                                        func=info_cmd)
+    info_config.add_variable('name', ("--name",),
+                             dict(help="name"))
+
+    _, conf = config.getconfig()
+    conf.subcmd.func(conf)
+    assert conf.subcmd.name == subcmd
+
+
+def test_config_subcmd_err_var_nonunique(fakeClient, tmpconfigfile):
+    """Test sub-commands.
+
+    Issue #59: Add support for sub-commands in config.
+
+    The variable names must be unique, e.g. variables defined in the
+    sub-configuration must not collide with already defined variables
+    in the main configuration.  (Note that it's ok if two sub-
+    configurations define the same variables, see for instance "name"
+    which is defined in both "create" and "info" in the last test.)
+    """
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe",
+            "sub", "--url", "http://example.org/"]
+    config = icat.config.Config(args=args)
+    subcmds = config.add_subcommands()
+    subconfig = subcmds.add_subconfig('sub')
+    with pytest.raises(ValueError) as err:
+        subconfig.add_variable('url', ("--url",), dict(help="url"))
+    assert "variable 'url' is already defined" in str(err.value)
+
+
+def test_config_subcmd_err_subcmd_nonunique(fakeClient, tmpconfigfile):
+    """Test sub-commands.
+
+    Issue #59: Add support for sub-commands in config.
+
+    Similar situation as last test: sub-command names may not collide
+    with already defined variables as well.
+    """
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", "url"]
+    config = icat.config.Config(args=args)
+    with pytest.raises(ValueError) as err:
+        subcmds = config.add_subcommands('url')
+    assert "variable 'url' is already defined" in str(err.value)
