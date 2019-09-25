@@ -197,7 +197,7 @@ class ConfigSubCmds(ConfigVariable):
         if arg_kws is None:
             arg_kws = dict()
         argparser = self.subparsers.add_parser(name, **arg_kws)
-        subconfig = SubConfig(argparser, self.config, func)
+        subconfig = SubConfig(argparser, self.config, name, func)
         self.subconfig[name] = subconfig
         return subconfig
 
@@ -765,8 +765,9 @@ class Config(BaseConfig):
 class SubConfig(BaseConfig):
     """Set configuration variables for a subcommand.
     """
-    def __init__(self, argparser, parent, func=None):
+    def __init__(self, argparser, parent, name=None, func=None):
         super(SubConfig, self).__init__(argparser)
         self.parent = parent
         self.confvariable = dict(self.parent.confvariable)
+        self.name = name
         self.func = func
