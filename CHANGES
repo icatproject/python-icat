@@ -3,6 +3,10 @@
 
 * Version 0.16.0 (not yet published)
 
+** New features
+
+ + Issue #59: Add support for sub-commands in config.
+
 ** Incompatible changes and deprecations
 
  + Drop support for Python 2.6.
