@@ -45,6 +45,14 @@ not required to install or use python-icat itself:
   Only needed for the example scripts using the ICAT RESTful
   interface, icatexport.py and icatimport.py.
 
++ `setuptools_scm`_
+
+  The version number is managed using this package.  All source
+  distributions add a static text file with the version number and
+  fall back using that if `setuptools_scm` is not available.  So this
+  package is only needed to build out of the plain development source
+  tree as cloned from GitHub.
+
 + `pytest`_ >= 3.1.0
 
   Only if you want to run the tests.
@@ -240,6 +248,7 @@ permissions and limitations under the License.
 .. _PyYAML: http://pyyaml.org/wiki/PyYAML
 .. _lxml: http://lxml.de/
 .. _Requests: http://python-requests.org/
+.. _setuptools_scm: https://github.com/pypa/setuptools_scm/
 .. _pytest: http://pytest.org/
 .. _pytest-dependency: https://pypi.python.org/pypi/pytest_dependency/
 .. _distutils-pytest: https://pythonhosted.org/distutils-pytest/

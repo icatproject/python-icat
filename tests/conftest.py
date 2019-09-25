@@ -224,7 +224,7 @@ def pytest_report_header(config):
         idsserver = ids_version
     else:
         idsserver = "-"
-    return [ "python-icat: %s (%s)" % (icat.__version__, icat.__revision__), 
+    return [ "python-icat: %s" % (icat.__version__), 
              "             %s" % (modpath),
              "icat.server: %s, ids.server: %s" % (icatserver, idsserver)]
 

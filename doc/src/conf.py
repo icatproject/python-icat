@@ -18,7 +18,7 @@ import os.path
 sys.path.insert(0,os.path.dirname(os.path.dirname(os.getcwd())))
 
 # Import package meta info.
-import icatinfo
+import icat
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -56,7 +56,7 @@ copyright = (u'2013-2019, '
 # built documents.
 #
 # The full version, including alpha/beta/rc tags.
-release = icatinfo.__version__
+release = icat.__version__
 # The short X.Y version.
 version = '.'.join(release.split('.')[0:2])
 

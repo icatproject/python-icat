@@ -11,6 +11,8 @@
 
  + #60: Fix bad coding style dealing with function parameters.
 
+ + Use setuptools_scm to manage the version number.
+
 * Version 0.15.1 (2019-07-12)
 
 ** Bug fixes and minor changes

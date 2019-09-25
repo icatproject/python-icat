@@ -1,22 +1,17 @@
-PYTHON   = python
+PYTHON = python3
 
 
-build: init.py
+build:
 	$(PYTHON) setup.py build
 
-test: init.py
+test:
 	$(PYTHON) setup.py test
 
-sdist: init.py doc-html
+sdist: doc-html
 	$(PYTHON) setup.py sdist
 
-init.py: icat/__init__.py
-
-doc-html: init.py
+doc-html: ver
 	$(MAKE) -C doc html
-
-doc-pdf: init.py
-	$(MAKE) -C doc latexpdf
 
 
 clean:
@@ -28,7 +23,7 @@ clean:
 
 distclean: clean
 	rm -rf tests/.cache
-	rm -f MANIFEST
+	rm -f MANIFEST .version
 	rm -rf python_icat.egg-info
 	rm -f *.pyc icat/*.pyc tests/*.pyc
 	rm -rf __pycache__ icat/__pycache__ tests/__pycache__
@@ -37,13 +32,8 @@ distclean: clean
 	$(MAKE) -C doc distclean
 
 
-icat/__init__.py: icatinfo.py icatinit.py gitversion
-	(cat icatinfo.py; \
-	echo "__revision__  = \"`git describe --always --dirty`\""; \
-	cat icatinit.py) > icat/__init__.py
-
-# Dummy target to force icat/__init__.py
-gitversion:
+ver:
+	$(PYTHON) setup.py init_py
 
 
-.PHONY: build test sdist init.py doc-html doc-pdf clean distclean gitversion
+.PHONY: build test sdist doc-html clean distclean ver
