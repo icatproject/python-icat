@@ -192,6 +192,24 @@ class ConfigSubCmds(ConfigVariable):
         self.subconfig = {}
 
     def add_subconfig(self, name, arg_kws=None, func=None):
+        """Add a comand to a set of subcommands defined with
+        :meth:`icat.config.BaseConfig.add_subcommands`.
+
+        :param name: the name of the command.
+        :type name: :class:`str`
+        :param arg_kws: constructor arguments to be passed to
+            :meth:`argparse.ArgumentParser` to create the subparser.
+            Mostly useful to set `help`.
+        :type arg_kws: :class:`dict`
+        :param func: any custom value.  The configuration value
+            representing the subcommands in the
+            :class:`icat.config.Configuration` object returned by
+            :meth:`icat.config.Config.getconfig` will have an
+            attribute `func` with this value if this command has been
+            selected.  Most useful to set this to a callable that
+            implements this subcommand.
+        :raise ValueError: if the name is already defined.
+        """
         if name in self.subconfig:
             raise ValueError("Subconfig '%s' is already defined." % name)
         if arg_kws is None:
@@ -429,9 +447,12 @@ class BaseConfig(object):
             will then be substituted by the value of `othervar`.  The
             referenced variable must have been defined earlier.
         :type subst: :class:`bool`
+        :raise RuntimeError: if this objects already has subcommands
+            defined with :meth:`icat.config.BaseConfig.add_subcommands`.
         :raise ValueError: if the name is not valid.
         :see: the documentation of the :mod:`argparse` standard
             library module for details on `arg_opts` and `arg_kws`.
+
         """
         if self._subcmds is not None:
             raise RuntimeError("This config already has subcommands.")
@@ -487,11 +508,13 @@ class BaseConfig(object):
     def add_subcommands(self, name='subcmd', arg_kws=None, optional=False):
         """Defines a new configuration variable to select subcommands.
 
-        Note: adding a subcommand variable must be the last action of
-        this kind on a BaseConfig object.  Adding any more
-        configuration variables or subcommand variables subsequently
-        is not allowed.  As a consequence, a BaseConfig object may not
-        have more then one subcommand variable.
+        .. note::
+            adding a subcommand variable must be the last action of
+            this kind on a :class:`icat.config.BaseConfig` object.
+            Adding any more configuration variables or subcommand
+            variables subsequently is not allowed.  As a consequence,
+            a :class:`icat.config.BaseConfig` object may not have more
+            then one subcommand variable.
 
         :param name: the name of the variable.  This will be used as
             the name of the attribute of
@@ -509,6 +532,7 @@ class BaseConfig(object):
         :param optional: flag wether providing a subcommand is
             optional.
         :type optional: :class:`bool`
+        :raise RuntimeError: if this objects already has subcommands.
         :raise ValueError: if the name is not valid.
         :see: the documentation of the :mod:`argparse` standard
             library module for details on `arg_kws`.
