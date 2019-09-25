@@ -368,6 +368,7 @@ class BaseConfig(object):
         self.confvariables = []
         self.confvariable = {}
         self.argparser = argparser
+        self._subcmds = None
 
     def add_variable(self, name, arg_opts=(), arg_kws=None,
                      envvar=None, optional=False, default=None, type=None, 
@@ -432,6 +433,8 @@ class BaseConfig(object):
         :see: the documentation of the :mod:`argparse` standard
             library module for details on `arg_opts` and `arg_kws`.
         """
+        if self._subcmds is not None:
+            raise RuntimeError("This config already has subcommands.")
         if name in self.ReservedVariables or name[0] == '_':
             raise ValueError("Config variable name '%s' is reserved." % name)
         if name in self.confvariable:
@@ -484,6 +487,12 @@ class BaseConfig(object):
     def add_subcommands(self, name='subcmd', arg_kws=None, optional=False):
         """Defines a new configuration variable to select subcommands.
 
+        Note: adding a subcommand variable must be the last action of
+        this kind on a BaseConfig object.  Adding any more
+        configuration variables or subcommand variables subsequently
+        is not allowed.  As a consequence, a BaseConfig object may not
+        have more then one subcommand variable.
+
         :param name: the name of the variable.  This will be used as
             the name of the attribute of
             :class:`icat.config.Configuration` returned by
@@ -504,6 +513,8 @@ class BaseConfig(object):
         :see: the documentation of the :mod:`argparse` standard
             library module for details on `arg_kws`.
         """
+        if self._subcmds is not None:
+            raise RuntimeError("This config already has subcommands.")
         if name in self.ReservedVariables or name[0] == '_':
             raise ValueError("Config variable name '%s' is reserved." % name)
         if name in self.confvariable:
@@ -517,6 +528,7 @@ class BaseConfig(object):
         var = ConfigSubCmds(name, optional, self, subparsers)
         self.confvariable[name] = var
         self.confvariables.append(var)
+        self._subcmds = var
         return var
 
     def _getconfig(self, sources, config=None):

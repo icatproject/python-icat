@@ -1147,3 +1147,21 @@ def test_config_subcmd_err_subcmd_nonunique(fakeClient, tmpconfigfile):
     with pytest.raises(ValueError) as err:
         subcmds = config.add_subcommands('url')
     assert "variable 'url' is already defined" in str(err.value)
+
+
+def test_config_subcmd_err_add_more_vars(fakeClient, tmpconfigfile):
+    """Test sub-commands.
+
+    Issue #59: Add support for sub-commands in config.
+
+    No more variables may be added to a config after a subcommand has
+    been added.
+    """
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe",
+            "sub", "--name", "foo"]
+    config = icat.config.Config(args=args)
+    subcmds = config.add_subcommands()
+    subconfig = subcmds.add_subconfig('sub')
+    with pytest.raises(RuntimeError) as err:
+        config.add_variable('name', ("--name",), dict(help="name"))
+    assert "config already has subcommands" in str(err.value)
