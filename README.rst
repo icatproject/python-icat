@@ -19,9 +19,7 @@ System requirements
 
 Python:
 
-+ Python 2.6, 2.7, or 3.3 and newer.
-  Python 2.6 requires patching the sources, see below.
-  Python 2.5 is too old and will not work.
++ 2.7, or 3.3 and newer.
 
 Required Library packages:
 
@@ -29,11 +27,6 @@ Required Library packages:
   Gospodnetić`__.  The latter is recommended as the original version
   is not maintained any more and contains bugs.  Python 3 requires the
   jurko fork.
-
-+ `argparse`_
-
-  Only if you are using Python 2.6 or 3.1, argparse became part of the
-  Python standard library in 2.7 and 3.2 respectively.
 
 Optional library packages, only needed to use certain extra features,
 not required to install or use python-icat itself:
@@ -92,17 +85,6 @@ customize the install process.
 
 The last step might require admin privileges in order to write into
 the site-packages directory of your Python installation.
-
-If you are using Python 2.6, apply python2_6.patch after the first
-step:
-
-1a. Patch::
-
-     $ patch -p1 < python2_6.patch
-
-It removes the use of certain language features (dict comprehensions,
-curly braces notation of sets, bytes string literal prefix 'b') that
-were introduced in Python 2.7.
 
 
 Documentation

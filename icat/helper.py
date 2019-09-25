@@ -217,12 +217,5 @@ def ms_timestamp(dt):
             # dt is aware.  Convert it to naive UTC.
             offs = dt.utcoffset()
             dt = dt.replace(tzinfo=None) - offs
-        try:
-            # timedelta.total_seconds() is new in Python 2.7 and 3.2.
-            ts = 1000 * (dt - datetime.datetime(1970, 1, 1)).total_seconds()
-        except AttributeError:
-            # Python 2.6 or 3.1.
-            td = dt - datetime.datetime(1970, 1, 1)
-            ts = (1000 * (td.seconds + td.days * 24 * 3600) 
-                  + td.microseconds / 1000)
+        ts = 1000 * (dt - datetime.datetime(1970, 1, 1)).total_seconds()
     return int(ts)
