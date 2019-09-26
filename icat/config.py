@@ -107,17 +107,17 @@ class _argparserDisableExit:
             sys.stderr = self._old_stderr
 
 
-def post_configFile(config, configuration):
+def _post_configFile(config, configuration):
     """Postprocess configFile: read the configuration file.
     """
     configuration.configFile = config.conffile.read(configuration.configFile)
 
-def post_configSection(config, configuration):
+def _post_configSection(config, configuration):
     """Postprocess configSection: set the configuration section.
     """
     config.conffile.setsection(configuration.configSection)
 
-def post_auth(config, configuration):
+def _post_auth(config, configuration):
     """Postprocess auth: enable credential keys for the selected authenticator.
     """
     try:
@@ -127,7 +127,7 @@ def post_auth(config, configuration):
     for k in keys:
         config.credentialKey[k].disabled = False
 
-def post_promptPass(config, configuration):
+def _post_promptPass(config, configuration):
     """Postprocess promptPass: move the interactive source in front if set.
     """
     if configuration.promptPass:
@@ -168,6 +168,7 @@ class ConfigVariable(object):
         self.postprocess = None
         self.disabled = False
         self.source = None
+
     def get(self, value):
         if self.convert and value is not None:
             try:
@@ -176,6 +177,54 @@ class ConfigVariable(object):
                 typename = getattr(self.convert, "__name__", str(self.convert))
                 raise ConfigError("%s: invalid %s value: %r" 
                                   % (self.name, typename, value))
+        else:
+            return value
+
+
+class ConfigSubCmds(ConfigVariable):
+    """A special configuration variable that selects a subcommand.
+    """
+    def __init__(self, name, optional, config, subparsers):
+        super(ConfigSubCmds, self).__init__(name, None, optional,
+                                            None, None, False)
+        self.config = config
+        self.subparsers = subparsers
+        self.subconfig = {}
+
+    def add_subconfig(self, name, arg_kws=None, func=None):
+        """Add a comand to a set of subcommands defined with
+        :meth:`icat.config.BaseConfig.add_subcommands`.
+
+        :param name: the name of the command.
+        :type name: :class:`str`
+        :param arg_kws: constructor arguments to be passed to
+            :meth:`argparse.ArgumentParser` to create the subparser.
+            Mostly useful to set `help`.
+        :type arg_kws: :class:`dict`
+        :param func: any custom value.  The configuration value
+            representing the subcommands in the
+            :class:`icat.config.Configuration` object returned by
+            :meth:`icat.config.Config.getconfig` will have an
+            attribute `func` with this value if this command has been
+            selected.  Most useful to set this to a callable that
+            implements this subcommand.
+        :raise ValueError: if the name is already defined.
+        """
+        if name in self.subconfig:
+            raise ValueError("Subconfig '%s' is already defined." % name)
+        if arg_kws is None:
+            arg_kws = dict()
+        argparser = self.subparsers.add_parser(name, **arg_kws)
+        subconfig = SubConfig(argparser, self.config, name, func)
+        self.subconfig[name] = subconfig
+        return subconfig
+
+    def get(self, value):
+        if value is not None:
+            try:
+                return self.subconfig[value]
+            except KeyError:
+                raise ConfigError("Unknown subcommand: %s" % value)
         else:
             return value
 
@@ -194,14 +243,19 @@ class ConfigSource(object):
 class ConfigSourceCmdArgs(ConfigSource):
     """Get configuration from command line arguments.
     """
-    def __init__(self, argparser, args, partial):
+    def __init__(self, argparser):
         super(ConfigSourceCmdArgs, self).__init__()
+        self.argparser = argparser
+        self.args = None
+
+    def parse_args(self, args, partial=False):
         if partial:
-            (self.args, rest) = argparser.parse_known_args(args)
+            (self.args, rest) = self.argparser.parse_known_args(args)
         else:
-            self.args = argparser.parse_args(args)
+            self.args = self.argparser.parse_args(args)
 
     def get(self, variable):
+        assert self.args is not None
         return variable.get(getattr(self.args, variable.name, None))
 
 
@@ -319,73 +373,24 @@ class Configuration(object):
         return d
 
 
-class Config(object):
-    """Set configuration variables.
-
-    Allow configuration variables to be set via command line
-    arguments, environment variables, configuration files, and default
-    values, in this order.  The first value found will be taken.
-    Command line arguments and configuration files are read using the
-    standard Python library modules :mod:`argparse` and
-    :mod:`ConfigParser` respectively, see the documentation of these
-    modules for details on how to setup custom arguments or for the
-    format of the configuration files.
-
-    The constructor sets up some predefined configuration variables.
-
-    :param defaultvars: if set to :const:`False`, no default
-        configuration variables other then `configFile` and
-        `configSection` will be defined.  The arguments `needlogin`
-        and `ids` will be ignored in this case.
-    :type defaultvars: :class:`bool`
-    :param needlogin: if set to :const:`False`, the configuration
-        variables `auth`, `username`, `password`, `promptPass`, and
-        `credentials` will be left out.
-    :type needlogin: :class:`bool`
-    :param ids: the configuration variable `idsurl` will not be set up
-        at all, or be set up as a mandatory, or as an optional
-        variable, if this is set to :const:`False`, to "mandatory", or
-        to "optional" respectively.
-    :type ids: :class:`bool` or :class:`str`
-    :param args: list of command line arguments or :const:`None`.  If
-        not set, the command line arguments will be taken from
-        :data:`sys.argv`.
-    :type args: :class:`list` of :class:`str`
+class BaseConfig(object):
+    """Abstract base class for :class:`icat.config.Config` and
+    :class:`icat.config.SubConfig`.  This class defines the common
+    API.  It is not intended to be instantiated directly.
     """
 
     ReservedVariables = ['configDir', 'credentials']
     """Reserved names of configuration variables."""
 
-    def __init__(self, defaultvars=True, needlogin=True, ids="optional", 
-                 args=None):
-        """Initialize the object.
-        """
-        super(Config, self).__init__()
-        self.defaultFiles = [os.path.join(d, cfgfile) for d in cfgdirs]
-        self.defaultvars = defaultvars
+    def __init__(self, argparser):
         self.confvariables = []
         self.confvariable = {}
-        self.args = args
-        self.argparser = argparse.ArgumentParser()
-        self._add_fundamental_variables()
-        if self.defaultvars:
-            self.needlogin = needlogin
-            self.ids = ids
-            self._add_basic_variables()
-            self.client_kwargs, self.client = self._setup_client()
-            if self.needlogin:
-                self._add_cred_variables()
-        else:
-            self.needlogin = None
-            self.ids = None
-            self.client_kwargs = None
-            self.client = None
-
+        self.argparser = argparser
+        self._subcmds = None
 
     def add_variable(self, name, arg_opts=(), arg_kws=None,
                      envvar=None, optional=False, default=None, type=None, 
                      subst=False):
-
         """Defines a new configuration variable.
 
         Note that the value of some configuration variable may
@@ -442,10 +447,15 @@ class Config(object):
             will then be substituted by the value of `othervar`.  The
             referenced variable must have been defined earlier.
         :type subst: :class:`bool`
+        :raise RuntimeError: if this objects already has subcommands
+            defined with :meth:`icat.config.BaseConfig.add_subcommands`.
         :raise ValueError: if the name is not valid.
         :see: the documentation of the :mod:`argparse` standard
             library module for details on `arg_opts` and `arg_kws`.
+
         """
+        if self._subcmds is not None:
+            raise RuntimeError("This config already has subcommands.")
         if name in self.ReservedVariables or name[0] == '_':
             raise ValueError("Config variable name '%s' is reserved." % name)
         if name in self.confvariable:
@@ -495,6 +505,146 @@ class Config(object):
         self.confvariables.append(var)
         return var
 
+    def add_subcommands(self, name='subcmd', arg_kws=None, optional=False):
+        """Defines a new configuration variable to select subcommands.
+
+        .. note::
+            adding a subcommand variable must be the last action of
+            this kind on a :class:`icat.config.BaseConfig` object.
+            Adding any more configuration variables or subcommand
+            variables subsequently is not allowed.  As a consequence,
+            a :class:`icat.config.BaseConfig` object may not have more
+            then one subcommand variable.
+
+        :param name: the name of the variable.  This will be used as
+            the name of the attribute of
+            :class:`icat.config.Configuration` returned by
+            :meth:`icat.config.Config.getconfig` and as the name of
+            the option to be looked for in the configuration file.
+            The name must be unique and not in
+            :attr:`icat.config.Config.ReservedVariables`.
+        :type name: :class:`str`
+        :param arg_kws: keyword arguments to be passed to
+            :meth:`argparse.ArgumentParser.add_subparsers`.  Mostly
+            useful to set `title` or `help`.  Note that `dest` will be
+            overridden and set to the value of `name`.
+        :type arg_kws: :class:`dict`
+        :param optional: flag wether providing a subcommand is
+            optional.
+        :type optional: :class:`bool`
+        :raise RuntimeError: if this objects already has subcommands.
+        :raise ValueError: if the name is not valid.
+        :see: the documentation of the :mod:`argparse` standard
+            library module for details on `arg_kws`.
+        """
+        if self._subcmds is not None:
+            raise RuntimeError("This config already has subcommands.")
+        if name in self.ReservedVariables or name[0] == '_':
+            raise ValueError("Config variable name '%s' is reserved." % name)
+        if name in self.confvariable:
+            raise ValueError("Config variable '%s' is already defined." % name)
+        if arg_kws is None:
+            arg_kws = dict(title="subcommands")
+        else:
+            arg_kws = dict(arg_kws)
+        arg_kws['dest'] = name
+        subparsers = self.argparser.add_subparsers(**arg_kws)
+        var = ConfigSubCmds(name, optional, self, subparsers)
+        self.confvariable[name] = var
+        self.confvariables.append(var)
+        self._subcmds = var
+        return var
+
+    def _getconfig(self, sources, config=None):
+        """Get the configuration.
+        """
+        # this code relies on the fact, that the first two variables in
+        # self.confvariables are 'configFile' and 'configSection' in that
+        # order.
+        if config is None:
+            config = Configuration(self)
+        for var in self.confvariables:
+            if var.disabled:
+                continue
+            for source in sources:
+                value = source.get(var)
+                if value is not None:
+                    var.source = source
+                    break
+            if value is not None and var.subst:
+                value = value % config.as_dict()
+            setattr(config, var.name, value)
+            if isinstance(var, ConfigSubCmds):
+                if value is not None:
+                    value._getconfig(sources, config)
+                break
+            if var.postprocess:
+                var.postprocess(self, config)
+        return config
+
+
+class Config(BaseConfig):
+    """Set configuration variables.
+
+    Allow configuration variables to be set via command line
+    arguments, environment variables, configuration files, and default
+    values, in this order.  The first value found will be taken.
+    Command line arguments and configuration files are read using the
+    standard Python library modules :mod:`argparse` and
+    :mod:`ConfigParser` respectively, see the documentation of these
+    modules for details on how to setup custom arguments or for the
+    format of the configuration files.
+
+    The constructor sets up some predefined configuration variables.
+
+    :param defaultvars: if set to :const:`False`, no default
+        configuration variables other then `configFile` and
+        `configSection` will be defined.  The arguments `needlogin`
+        and `ids` will be ignored in this case.
+    :type defaultvars: :class:`bool`
+    :param needlogin: if set to :const:`False`, the configuration
+        variables `auth`, `username`, `password`, `promptPass`, and
+        `credentials` will be left out.
+    :type needlogin: :class:`bool`
+    :param ids: the configuration variable `idsurl` will not be set up
+        at all, or be set up as a mandatory, or as an optional
+        variable, if this is set to :const:`False`, to "mandatory", or
+        to "optional" respectively.
+    :type ids: :class:`bool` or :class:`str`
+    :param args: list of command line arguments or :const:`None`.  If
+        not set, the command line arguments will be taken from
+        :data:`sys.argv`.
+    :type args: :class:`list` of :class:`str`
+    """
+
+    def __init__(self, defaultvars=True, needlogin=True, ids="optional", 
+                 args=None):
+        """Initialize the object.
+        """
+        super(Config, self).__init__(argparse.ArgumentParser())
+        self.cmdargs = ConfigSourceCmdArgs(self.argparser)
+        self.environ = ConfigSourceEnvironment()
+        defaultFiles = [os.path.join(d, cfgfile) for d in cfgdirs]
+        self.conffile = ConfigSourceFile(defaultFiles)
+        self.interactive = ConfigSourceInteractive()
+        self.defaults = ConfigSourceDefault()
+        self.sources = [ self.cmdargs, self.environ, self.conffile, 
+                         self.interactive, self.defaults ]
+        self.args = args
+        self._add_fundamental_variables()
+        if defaultvars:
+            self.needlogin = needlogin
+            self.ids = ids
+            self._add_basic_variables()
+            self.client_kwargs, self.client = self._setup_client()
+            if self.needlogin:
+                self._add_cred_variables()
+        else:
+            self.needlogin = None
+            self.ids = None
+            self.client_kwargs = None
+            self.client = None
+
     def getconfig(self):
         """Get the configuration.
 
@@ -517,7 +667,8 @@ class Config(object):
             configuration file, if an invalid value is given to a
             variable, or if a mandatory variable is not defined.
         """
-        config = self._getconfig()
+        self.cmdargs.parse_args(self.args)
+        config = self._getconfig(self.sources)
 
         if self.needlogin:
             config.credentials = { 
@@ -533,13 +684,13 @@ class Config(object):
         var = self.add_variable('configFile', ("-c", "--configfile"), 
                                 dict(help="config file"),
                                 envvar='ICAT_CFG', optional=True)
-        var.postprocess = post_configFile
+        var.postprocess = _post_configFile
         var = self.add_variable('configSection', ("-s", "--configsection"), 
                                 dict(help="section in the config file", 
                                      metavar='SECTION'), 
                                 envvar='ICAT_CFG_SECTION', optional=True, 
                                 default=defaultsection)
-        var.postprocess = post_configSection
+        var.postprocess = _post_configSection
 
     def _add_basic_variables(self):
         """The basic variables needed to setup the client.
@@ -590,7 +741,7 @@ class Config(object):
 
         var = self.add_variable('auth', ("-a", "--auth"), authArgOpts,
                                 envvar='ICAT_AUTH')
-        var.postprocess = post_auth
+        var.postprocess = _post_auth
         for key in self.authenticatorInfo.getCredentialKeys(None, hide=False):
             self._add_credential_key(key)
         hidden = self.authenticatorInfo.getCredentialKeys(None, hide=True)
@@ -599,7 +750,7 @@ class Config(object):
                                     dict(help="prompt for the password", 
                                          action='store_const', const=True), 
                                     type=boolean, default=False)
-            var.postprocess = post_promptPass
+            var.postprocess = _post_promptPass
         for key in hidden:
             self._add_credential_key(key, hide=True)
 
@@ -625,7 +776,8 @@ class Config(object):
         """
         try:
             with _argparserDisableExit(self.argparser):
-                config = self._getconfig(partial=True)
+                self.cmdargs.parse_args(self.args, partial=True)
+                config = self._getconfig(self.sources)
         except ConfigError:
             return None, None
         client_kwargs = {}
@@ -645,31 +797,13 @@ class Config(object):
             os.environ['no_proxy'] = config.no_proxy
         return client_kwargs, Client(config.url, **client_kwargs)
 
-    def _getconfig(self, partial=False):
-        """Get the configuration.
-        """
-        self.cmdargs = ConfigSourceCmdArgs(self.argparser, self.args, partial)
-        self.environ = ConfigSourceEnvironment()
-        self.conffile = ConfigSourceFile(self.defaultFiles)
-        self.interactive = ConfigSourceInteractive()
-        self.defaults = ConfigSourceDefault()
-        self.sources = [ self.cmdargs, self.environ, self.conffile, 
-                         self.interactive, self.defaults ]
-        # this code relies on the fact, that the first two variables in
-        # self.confvariables are 'configFile' and 'configSection' in that
-        # order.
-        config = Configuration(self)
-        for var in self.confvariables:
-            if var.disabled:
-                continue
-            for source in self.sources:
-                value = source.get(var)
-                if value is not None:
-                    var.source = source
-                    break
-            if value is not None and var.subst:
-                value = value % config.as_dict()
-            setattr(config, var.name, value)
-            if var.postprocess:
-                var.postprocess(self, config)
-        return config
+
+class SubConfig(BaseConfig):
+    """Set configuration variables for a subcommand.
+    """
+    def __init__(self, argparser, parent, name=None, func=None):
+        super(SubConfig, self).__init__(argparser)
+        self.parent = parent
+        self.confvariable = dict(self.parent.confvariable)
+        self.name = name
+        self.func = func
