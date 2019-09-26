@@ -5,7 +5,7 @@ This package provides a collection of modules for writing Python
 programs that access an `ICAT`_ service using the SOAP interface.  It
 is based on Suds and extends it with ICAT specific features.
 
-.. _ICAT: http://www.icatproject.org/
+.. _ICAT: https://icatproject.org/
 """
 
 from __future__ import print_function
@@ -145,7 +145,7 @@ setup(
     long_description = "\n".join(doclines[2:]),
     author = "Rolf Krahl",
     author_email = "rolf.krahl@helmholtz-berlin.de",
-    url = "http://icatproject.org/user-documentation/python-icat/",
+    url = "https://icatproject.org/user-documentation/python-icat/",
     license = "Apache-2.0",
     requires = ["suds"],
     packages = ["icat"],

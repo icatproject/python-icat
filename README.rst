@@ -23,7 +23,7 @@ Python:
 
 Required Library packages:
 
-+ Suds, either the `original version`__ or the `fork by Jurko
++ Suds, either the original version or the `fork by Jurko
   Gospodnetić`__.  The latter is recommended as the original version
   is not maintained any more and contains bugs.  Python 3 requires the
   jurko fork.
@@ -65,7 +65,6 @@ not required to install or use python-icat itself:
 
   Only if you want to run the tests.
 
-.. __: `Suds`_
 .. __: `Suds jurko`_
 
 
@@ -232,7 +231,7 @@ Licensed under the Apache License, Version 2.0 (the "License"); you
 may not use this file except in compliance with the License.  You may
 obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    https://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -241,18 +240,16 @@ implied.  See the License for the specific language governing
 permissions and limitations under the License.
 
 
-.. _ICAT: http://www.icatproject.org/
-.. _Suds: https://fedorahosted.org/suds/
+.. _ICAT: https://icatproject.org/
 .. _Suds jurko: https://bitbucket.org/jurko/suds
-.. _argparse: https://pypi.python.org/pypi/argparse/
-.. _PyYAML: http://pyyaml.org/wiki/PyYAML
-.. _lxml: http://lxml.de/
+.. _PyYAML: https://github.com/yaml/pyyaml
+.. _lxml: https://lxml.de/
 .. _Requests: http://python-requests.org/
 .. _setuptools_scm: https://github.com/pypa/setuptools_scm/
-.. _pytest: http://pytest.org/
+.. _pytest: https://docs.pytest.org/en/latest/
 .. _pytest-dependency: https://pypi.python.org/pypi/pytest_dependency/
-.. _distutils-pytest: https://pythonhosted.org/distutils-pytest/
+.. _distutils-pytest: https://github.com/RKrahl/distutils-pytest
 .. _Installing Python Modules: https://docs.python.org/2.7/install/
 .. _GitHub repository: https://github.com/icatproject/python-icat
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/
-.. _Semantic Versioning: http://semver.org/
+.. _Semantic Versioning: https://semver.org/
