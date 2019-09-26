@@ -120,6 +120,16 @@ class sdist(distutils.command.sdist.sdist):
     def run(self):
         self.run_command('init_py')
         distutils.command.sdist.sdist.run(self)
+        subst = {
+            "version": self.distribution.get_version(),
+            "url": self.distribution.get_url(),
+            "description": self.distribution.get_description(),
+            "long_description": self.distribution.get_long_description(),
+        }
+        for spec in glob("*.spec"):
+            with open(spec, "rt") as inf:
+                with open(os.path.join(self.dist_dir, spec), "wt") as outf:
+                    outf.write(string.Template(inf.read()).substitute(subst))
 
 
 class build_py(du_build_py):
