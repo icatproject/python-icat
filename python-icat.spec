@@ -12,14 +12,20 @@
 %global python3_other_pkgversion 0
 %endif
 %if 0%{?centos_version} == 600 || 0%{?rhel_version} == 600
+%global python2_enable 0
 %global python3_pkgversion 34
 %global python3_other_pkgversion 0
 %global __python2 %{__python}
 %global python2_sitelib %{python_sitelib}
+%else
+%global python2_enable 1
 %endif
 %if 0%{?centos_version} == 700 || 0%{?rhel_version} == 700
+%global __python3 /usr/bin/python3.6
+%global __python3_other /usr/bin/python3.4
 %global python3_pkgversion 36
 %global python3_other_pkgversion 34
+%global python3_other_sitelib /usr/lib/python3.4/site-packages
 %endif
 
 %if 0%{?centos_version} || 0%{?rhel_version} || 0%{?fedora_version}
@@ -37,10 +43,12 @@ Group:		Development/Languages/Python
 Url:		$url
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
-BuildRequires:	python%{python2_pkgversion}-devel >= 2.6
-BuildRequires:	python%{python3_pkgversion}-devel
+%if 0%{?python2_enable}
+BuildRequires:	python%{python2_pkgversion}-devel >= 2.7
+%endif
+BuildRequires:	python%{python3_pkgversion}-devel >= 3.3
 %if 0%{?python3_other_pkgversion}
-BuildRequires:	python%{python3_other_pkgversion}-devel
+BuildRequires:	python%{python3_other_pkgversion}-devel >= 3.3
 %endif
 %if 0%{?suse_version}
 BuildRequires:	fdupes
@@ -73,6 +81,7 @@ $long_description
 This package contains example scripts.
 
 
+%if 0%{?python2_enable}
 %package -n python%{python2_pkgversion}-icat
 Summary:	Python interface to ICAT and IDS
 %if 0%{?centos_version} == 600 || 0%{?rhel_version} == 600
@@ -92,6 +101,7 @@ Requires(pre):	update-alternatives
 
 %description -n python%{python2_pkgversion}-icat
 $long_description
+%endif
 
 
 %package -n python%{python3_pkgversion}-icat
@@ -151,17 +161,15 @@ do
 done
 %endif
 
+%if 0%{?python2_enable}
 # Python 2
-# Do Python 2 last because it may need patching the sources
 rm -rf build
-if [ %{python2_version} '<' '2.7' ]; then
-    patch -p1 < python2_6.patch
-fi
 %{__python2} setup.py install --optimize=1 --root=%{buildroot}
 for f in icatdump.py icatingest.py wipeicat.py
 do
     mv %{buildroot}%{_bindir}/$$f %{buildroot}%{_bindir}/$$f-%{python2_version}
 done
+%endif
 
 %__install -d -m 755 %{buildroot}%{_docdir}/%{name}
 %__cp -pr README.rst CHANGES doc/* %{buildroot}%{_docdir}/%{name}
@@ -172,6 +180,7 @@ done
 %endif
 
 
+%if 0%{?python2_enable}
 %post -n python%{python2_pkgversion}-icat
 /usr/sbin/update-alternatives --install \
     %{_bindir}/icatdump             icatdump \
@@ -186,6 +195,7 @@ if [ "$$1" = 0 ] ; then
     /usr/sbin/update-alternatives --remove \
         icatdump   %{_bindir}/icatdump.py-%{python2_version}
 fi
+%endif
 
 
 %post -n python%{python3_pkgversion}-icat
@@ -242,10 +252,12 @@ rm -rf %{buildroot}
 %dir %{_docdir}/%{name}
 %doc %{_docdir}/%{name}/examples
 
+%if 0%{?python2_enable}
 %files -n python%{python2_pkgversion}-icat
 %defattr(-,root,root)
 %{python2_sitelib}/*
 %{_bindir}/*.py-%{python2_version}
+%endif
 
 %files -n python%{python3_pkgversion}-icat
 %defattr(-,root,root)
