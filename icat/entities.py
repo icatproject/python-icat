@@ -9,6 +9,10 @@ attributes :attr:`icat.entity.Entity.BeanName`,
 :attr:`icat.entity.Entity.InstMRel`,
 :attr:`icat.entity.Entity.AttrAlias`, and
 :attr:`icat.entity.Entity.SortAttrs` as appropriate.
+
+.. note::
+   This module is used internally in :mod:`icat.client`.  Most users
+   will not need to use it directly.
 """
 
 from icat.entity import Entity
