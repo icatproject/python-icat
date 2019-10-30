@@ -22,6 +22,7 @@ from glob import glob
 import os
 import os.path
 import string
+import sys
 try:
     import distutils_pytest
 except ImportError:
@@ -38,6 +39,12 @@ except (ImportError, LookupError):
     except (OSError, IOError):
         distutils.log.warn("warning: cannot determine version number")
         version = "UNKNOWN"
+
+
+if sys.version_info < (3, 0):
+    distutils.log.warn("warning: support for Python 2 is deprecated and "
+                       "will be removed in Version 1.0")
+
 
 doclines = __doc__.strip().split("\n")
 

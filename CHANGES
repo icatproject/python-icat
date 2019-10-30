@@ -3,6 +3,10 @@
 
 * Version 0.17.0 (not yet published)
 
+** Incompatible changes and deprecations
+
+ + Deprecate support for Python 2.
+
 ** Bug fixes and minor changes
 
  + #62: Minor fixes in the error handling in setup.py
