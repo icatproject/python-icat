@@ -13,7 +13,7 @@ config = icat.config.Config(needlogin=False, ids="optional")
 client, conf = config.getconfig()
 
 print("Python %s\n" % (sys.version))
-print("python-icat version %s (%s)\n" % (icat.__version__, icat.__revision__))
+print("python-icat version %s\n" % (icat.__version__))
 print("Connect to %s\nICAT version %s\n" % (conf.url, client.apiversion))
 if client.ids:
     print("Connect to %s\nIDS version %s\n" 

@@ -29,11 +29,19 @@ added.  The main class that client programs interact with is
 
 .. autofunction:: icat.config.cfgpath
 
+.. autoclass:: icat.config.ConfigVariable
+    :members:
+    :show-inheritance:
+
+.. autoclass:: icat.config.ConfigSubCmds
+    :members:
+    :show-inheritance:
+
 .. autoclass:: icat.config.Configuration
     :members:
     :show-inheritance:
 
-.. autoclass:: icat.config.Config
+.. autoclass:: icat.config.BaseConfig
     :show-inheritance:
 
     Class attributes (read only):
@@ -41,6 +49,15 @@ added.  The main class that client programs interact with is
     .. attribute:: ReservedVariables = ['configDir', 'credentials']
 
         Reserved names of configuration variables.
+
+    Instance methods:
+
+    .. automethod:: icat.config.BaseConfig.add_variable
+
+    .. automethod:: icat.config.BaseConfig.add_subcommands
+
+.. autoclass:: icat.config.Config
+    :show-inheritance:
 
     Instance attributes (read only):
 
@@ -57,9 +74,11 @@ added.  The main class that client programs interact with is
 
     Instance methods:
 
-    .. automethod:: icat.config.Config.add_variable
-
     .. automethod:: icat.config.Config.getconfig
+
+.. autoclass:: icat.config.SubConfig
+    :members:
+    :show-inheritance:
 
 
 Predefined configuration variables

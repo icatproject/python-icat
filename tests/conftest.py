@@ -2,17 +2,19 @@
 """
 
 from __future__ import print_function
-import sys
-import os.path
 import datetime
-import re
-from random import getrandbits
-import zlib
-import subprocess
-import shutil
-import tempfile
-import logging
 from distutils.version import StrictVersion as Version
+import locale
+import logging
+import os
+import os.path
+from random import getrandbits
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import zlib
 import pytest
 import icat
 import icat.config
@@ -21,6 +23,10 @@ try:
 except ImportError:
     UtcTimezone = None
 
+# There are tests that depend on being able to read utf8-encoded text
+# files, Issue #54.
+os.environ["LANG"] = "en_US.UTF-8"
+locale.setlocale(locale.LC_CTYPE, "en_US.UTF-8")
 
 # Note that pytest captures stderr, so we won't see any logging by
 # default.  But since Suds uses logging, it's better to still have
@@ -182,23 +188,11 @@ def filter_file(infile, outfile, pattern, repl):
 # because it seem to use a predictable directory name in /tmp wich is
 # insecure.
 
-class TmpDir(object):
-    """Provide a temporary directory.
-    """
-    def __init__(self):
-        self.dir = tempfile.mkdtemp(prefix="python-icat-test-")
-    def __del__(self):
-        self.cleanup()
-    def cleanup(self):
-        if self.dir:
-            shutil.rmtree(self.dir)
-        self.dir = None
-
 @pytest.fixture(scope="session")
 def tmpdirsec(request):
-    tmpdir = TmpDir()
-    request.addfinalizer(tmpdir.cleanup)
-    return tmpdir
+    tmpdir = tempfile.mkdtemp(prefix="python-icat-test-")
+    yield tmpdir
+    shutil.rmtree(tmpdir)
 
 
 @pytest.fixture(scope="session")
@@ -230,7 +224,7 @@ def pytest_report_header(config):
         idsserver = ids_version
     else:
         idsserver = "-"
-    return [ "python-icat: %s (%s)" % (icat.__version__, icat.__revision__), 
+    return [ "python-icat: %s" % (icat.__version__), 
              "             %s" % (modpath),
              "icat.server: %s, ids.server: %s" % (icatserver, idsserver)]
 

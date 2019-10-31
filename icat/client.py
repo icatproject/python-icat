@@ -131,6 +131,15 @@ del TypeMap47['log']
 TypeMap47.update( dataCollection = icat.entities.DataCollection47,
                   user = icat.entities.User47 )
 
+TypeMap410 = TypeMap47.copy()
+"""Map instance types defined in the WSDL to Python classes (ICAT 4.10.0)."""
+TypeMap410.update( instrument = icat.entities.Instrument410,
+                   parameterType = icat.entities.ParameterType410,
+                   sample = icat.entities.Sample410,
+                   shift = icat.entities.Shift410,
+                   study = icat.entities.Study410,
+                   user = icat.entities.User410 )
+
 
 class Client(suds.client.Client):
  
@@ -231,9 +240,11 @@ class Client(suds.client.Client):
             self.typemap = TypeMap44.copy()
         elif self.apiversion < '4.9.9':
             self.typemap = TypeMap47.copy()
+        elif self.apiversion < '4.10.9':
+            self.typemap = TypeMap410.copy()
         else:
             warn(ClientVersionWarning(self.apiversion, "too new"))
-            self.typemap = TypeMap47.copy()
+            self.typemap = TypeMap410.copy()
 
         self.ids = None
         self.sessionId = None
@@ -643,6 +654,8 @@ class Client(suds.client.Client):
             query += " LIMIT %d, %d"
         else:
             query = "%d, %d " + query
+        if chunksize < 2:
+            chunksize = 2
         delivered = 0
         while True:
             if count is not None and count - delivered < chunksize:
@@ -779,7 +792,7 @@ class Client(suds.client.Client):
         u.create()
         return u
 
-    def createGroup(self, name, users=[]):
+    def createGroup(self, name, users=()):
         """Create a group and add users to it.
 
         :param name: the name of the group.

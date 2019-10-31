@@ -103,7 +103,7 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
         """
         # yaml.load_all() returns a generator that yield one chunk
         # (YAML document) from the file in each iteration.
-        return yaml.load_all(self.infile)
+        return yaml.safe_load_all(self.infile)
 
     def getobjs_from_data(self, data, objindex):
         """Iterate over the objects in a data chunk.

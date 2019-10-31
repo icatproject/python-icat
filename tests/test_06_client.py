@@ -6,7 +6,12 @@ this module.
 """
 
 from __future__ import print_function
-from collections import Iterable, Callable
+try:
+    # Python 3.3 and newer
+    from collections.abc import Iterable, Callable
+except ImportError:
+    # Python 2
+    from collections import Iterable, Callable
 import pytest
 import icat
 import icat.config
@@ -215,6 +220,39 @@ def test_searchChunked_id(client, query):
     for obj in client.searchChunked(str(query) % id):
         count += 1
         assert count == 1
+
+def test_searchChunked_limit_bug(client):
+    """See Issue icatproject/icat.server#128.
+
+    This bug in icat.server used to cause searchChunked() to
+    repeatedly yield the same object in an endless loop.
+    """
+    facility = client.assertedSearch("Facility")[0]
+    query = Query(client, "Facility", conditions={"id": "= %d" % facility.id})
+    count = 0
+    for f in client.searchChunked(query):
+        count += 1
+        # This search should yield only one result, so the loop should
+        # have only one iteration.
+        assert count == 1
+    assert count == 1
+
+def test_searchChunked_limit_bug_chunksize(client):
+    """See Issue icatproject/icat.server#128.
+
+    Same as test_searchChunked_limit_bug(), but now set an explicit
+    chunksize.  Ref. #57.
+    """
+    facility = client.assertedSearch("Facility")[0]
+    query = Query(client, "Facility", conditions={"id": "= %d" % facility.id})
+    count = 0
+    for f in client.searchChunked(query, chunksize=1):
+        count += 1
+        # This search should yield only one result, so the loop should
+        # have only one iteration.
+        assert count == 1
+    assert count == 1
+
 
 # ==================== test searchUniqueKey() ======================
 

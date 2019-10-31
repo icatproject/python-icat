@@ -9,7 +9,12 @@ author.
 """
 
 import sys
-from collections import Mapping, Iterable
+try:
+    # Python 3.3 and newer
+    from collections.abc import Mapping, Iterable
+except ImportError:
+    # Python 2
+    from collections import Mapping, Iterable
 import ssl
 from urllib2 import Request, HTTPError
 from urllib2 import HTTPDefaultErrorHandler, ProxyHandler
@@ -38,8 +43,9 @@ __all__ = ['DataSelection', 'IDSClient']
 
 class IDSRequest(Request):
 
-    def __init__(self, url, parameters={}, data=None, headers={}, method=None):
+    def __init__(self, url, parameters=None, data=None, method=None):
 
+        headers = {}
         if parameters:
             parameters = urlencode(parameters)
             if method == "POST":
@@ -180,14 +186,7 @@ class IDSClient(object):
         if not self.url.endswith("/"): self.url += "/"
         self.sessionId = sessionId
         if sslContext:
-            verify = (sslContext.verify_mode != ssl.CERT_NONE)
-            try:
-                httpsHandler = HTTPSHandler(context=sslContext, 
-                                            check_hostname=verify)
-            except TypeError:
-                # Python 2.7.9 HTTPSHandler does not accept the
-                # check_hostname keyword argument.
-                httpsHandler = HTTPSHandler(context=sslContext)
+            httpsHandler = HTTPSHandler(context=sslContext)
         else:
             httpsHandler = HTTPSHandler()
         if proxy:

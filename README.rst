@@ -19,21 +19,14 @@ System requirements
 
 Python:
 
-+ Python 2.6, 2.7, or 3.1 and newer.
-  Python 2.6 requires patching the sources, see below.
-  Python 2.5 is too old and will not work.
++ 2.7 or 3.3 and newer.
 
 Required Library packages:
 
-+ Suds, either the `original version`__ or the `fork by Jurko
++ Suds, either the original version or the `fork by Jurko
   Gospodnetić`__.  The latter is recommended as the original version
   is not maintained any more and contains bugs.  Python 3 requires the
   jurko fork.
-
-+ `argparse`_
-
-  Only if you are using Python 2.6 or 3.1, argparse became part of the
-  Python standard library in 2.7 and 3.2 respectively.
 
 Optional library packages, only needed to use certain extra features,
 not required to install or use python-icat itself:
@@ -52,7 +45,15 @@ not required to install or use python-icat itself:
   Only needed for the example scripts using the ICAT RESTful
   interface, icatexport.py and icatimport.py.
 
-+ `pytest`_ >= 2.8
++ `setuptools_scm`_
+
+  The version number is managed using this package.  All source
+  distributions add a static text file with the version number and
+  fall back using that if `setuptools_scm` is not available.  So this
+  package is only needed to build out of the plain development source
+  tree as cloned from GitHub.
+
++ `pytest`_ >= 3.1.0
 
   Only if you want to run the tests.
 
@@ -64,7 +65,6 @@ not required to install or use python-icat itself:
 
   Only if you want to run the tests.
 
-.. __: `Suds`_
 .. __: `Suds jurko`_
 
 
@@ -92,17 +92,6 @@ customize the install process.
 
 The last step might require admin privileges in order to write into
 the site-packages directory of your Python installation.
-
-If you are using Python 2.6, apply python2_6.patch after the first
-step:
-
-1a. Patch::
-
-     $ patch -p1 < python2_6.patch
-
-It removes the use of certain language features (dict comprehensions,
-curly braces notation of sets, bytes string literal prefix 'b') that
-were introduced in Python 2.7.
 
 
 Documentation
@@ -223,29 +212,6 @@ Bugs and limitations
   Note that the bug is fixed in the fork by Jurko Gospodnetić which is
   recommended anyway.
 
-+ With Python 3.1, icatdump.py emits a spurious error message like ::
-
-    Exception ValueError: 'I/O operation on closed file.' 
-    in <_io.TextIOWrapper name='<stdout>' encoding='UTF-8'> ignored
-
-  on exit when writing the dump file to stdout (the default).  You can
-  happily ignore this message.  The cause is that icatdump.py closes
-  its output file when finished and that Python 3.1 emits this error
-  message on exit whenever stdout has been closed, even if there was
-  no further output after closing.  I assume this is a bug in Python
-  3.1.
-
-+ Misleading "context" is displayed in error tracebacks with Python
-  3.1 and 3.2.  Python 3 introduced a "feature" called `Exception
-  Chaining and Embedded Tracebacks`__.  This causes irrelevant and
-  misleading "error context" to be displayed in the traceback of error
-  messages.  python-icat tries to suppress this in the most annoying
-  cases, but this `suppression mechanism`__ is only available with
-  Python 3.3 and newer.
-
-.. __: `PEP 3134`_
-.. __: `Python Issue 6210`_
-
 
 Version numbering
 -----------------
@@ -258,14 +224,14 @@ when it is incompatible with PEP 440.
 Copyright and License
 ---------------------
 
-Copyright 2013-2018
+Copyright 2013-2019
 Helmholtz-Zentrum Berlin für Materialien und Energie GmbH
 
 Licensed under the Apache License, Version 2.0 (the "License"); you
 may not use this file except in compliance with the License.  You may
 obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    https://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -274,19 +240,16 @@ implied.  See the License for the specific language governing
 permissions and limitations under the License.
 
 
-.. _ICAT: http://www.icatproject.org/
-.. _Suds: https://fedorahosted.org/suds/
+.. _ICAT: https://icatproject.org/
 .. _Suds jurko: https://bitbucket.org/jurko/suds
-.. _argparse: https://pypi.python.org/pypi/argparse/
-.. _PyYAML: http://pyyaml.org/wiki/PyYAML
-.. _lxml: http://lxml.de/
+.. _PyYAML: https://github.com/yaml/pyyaml
+.. _lxml: https://lxml.de/
 .. _Requests: http://python-requests.org/
-.. _pytest: http://pytest.org/
+.. _setuptools_scm: https://github.com/pypa/setuptools_scm/
+.. _pytest: https://docs.pytest.org/en/latest/
 .. _pytest-dependency: https://pypi.python.org/pypi/pytest_dependency/
-.. _distutils-pytest: https://pythonhosted.org/distutils-pytest/
+.. _distutils-pytest: https://github.com/RKrahl/distutils-pytest
 .. _Installing Python Modules: https://docs.python.org/2.7/install/
 .. _GitHub repository: https://github.com/icatproject/python-icat
-.. _PEP 3134: https://www.python.org/dev/peps/pep-3134/
-.. _Python Issue 6210: http://bugs.python.org/issue6210
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/
-.. _Semantic Versioning: http://semver.org/
+.. _Semantic Versioning: https://semver.org/

@@ -1,6 +1,80 @@
 		  History of changes to python-icat
 		  =================================
 
+* Version 0.17.0 (not yet published)
+
+** Incompatible changes and deprecations
+
+ + Deprecate support for Python 2.
+
+** Bug fixes and minor changes
+
+ + #62: Minor fixes in the error handling in setup.py
+
+* Version 0.16.0 (2019-09-26)
+
+** New features
+
+ + Issue #59: Add support for sub-commands in config.
+
+** Incompatible changes and deprecations
+
+ + Drop support for Python 2.6.
+
+** Bug fixes and minor changes
+
+ + #60: Fix bad coding style dealing with function parameters.
+
+ + Use setuptools_scm to manage the version number.
+
+* Version 0.15.1 (2019-07-12)
+
+** Bug fixes and minor changes
+
+ + Issue #56: icatdump fails to include Shift.instrument.
+
+ + Issue #57: Client.searchChunked() still susceptible to LIMIT clause
+   bug in icat.server (Issue icatproject/icat.server#128).
+
+ + Call yaml.safe_load() rather then yaml.load(), fixing a deprecation
+   warning from PyYAML 5.1.
+
+* Version 0.15.0 (2019-03-27)
+
+** New features
+
+ + Add support for ICAT 4.10.0 including schema changes in that
+   version.
+
+** Incompatible changes and deprecations
+
+ + Require pytest 3.1.0 or newer to run the test suite.  Note that
+   this pytest version in turn requires Python 2.6, 2.7, or 3.3 and
+   newer.
+
+ + Drop support for Python 3.1 and 3.2.  There is no known issue with
+   these Python versions in python-icat (so far).  But since we can't
+   test this any more, see above, we drop the claim to support them.
+
+** Bug fixes and minor changes
+
+ + Issue #49: Module icat.eval is outdated.
+
+ + Issues #50, #52: Fix DeprecationWarnings.
+
+ + Issue #51: Fix a compatibility issue with pytest 4.1.0 in the tests.
+
+ + Issue #54: Fix a UnicodeDecodeError in the tests.
+
+* Version 0.14.2 (2018-10-25)
+
+** Bug fixes and minor changes
+
+ + Add a hook to control internal diverting of sys.err in the config
+   module.  This is intentionally not documented as it goes deeply
+   into the internals of this module and most users will probably not
+   need it.
+
 * Version 0.14.1 (2018-06-05)
 
 ** Bug fixes and minor changes
