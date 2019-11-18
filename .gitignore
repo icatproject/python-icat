@@ -2,6 +2,7 @@
 *~
 __pycache__/
 /.version
+/.vscode
 /MANIFEST
 /build/
 /dist/

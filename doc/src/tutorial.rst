@@ -9,14 +9,15 @@ Some examples in the tutorial assume to have root access and modify
 data, therefore it is not advisable to use a production ICAT.  Rather
 setup a dedicated test ICAT to run the tutorial.
 
-The tutorial assumes some basic knowledge in progamming with Python as
-well as some basic understanding of ICAT.  The tutorial contains the
-following sections:
+The tutorial assumes some basic knowledge in programming with Python
+as well as some basic understanding of ICAT.  The tutorial contains
+the following sections:
 
 .. toctree::
    :maxdepth: 2
 
    tutorial-hello
    tutorial-config
+   tutorial-login
    tutorial-create
 

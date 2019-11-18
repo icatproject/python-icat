@@ -136,7 +136,7 @@ We can verify this by searching for the newly created objects::
      applicableToInvestigation = False
      applicableToSample = False
      enforced = False
-     facility = 
+     facility =
         (facility){
            createId = "simple/root"
            createTime = 2016-11-07 14:34:08+00:00
@@ -162,7 +162,7 @@ We can verify this by searching for the newly created objects::
      applicableToInvestigation = False
      applicableToSample = False
      enforced = False
-     facility = 
+     facility =
         (facility){
            createId = "simple/root"
            createTime = 2016-11-07 14:34:08+00:00
@@ -173,7 +173,7 @@ We can verify this by searching for the newly created objects::
            name = "Test1"
         }
      name = "Test parameter type 2"
-     permissibleStringValues[] = 
+     permissibleStringValues[] =
         (permissibleStringValue){
            createId = "simple/root"
            createTime = 2016-11-07 16:00:21+00:00
@@ -216,7 +216,7 @@ try what happens if we choose another user::
 
   $ python -i login.py -s myicat_jdoe
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
-  User: db/jdoe
+  User: simple/jdoe
   >>> client.search("SELECT pt FROM ParameterType pt INCLUDE pt.facility")
   []
 
@@ -232,9 +232,9 @@ types.  Connect again as ``root`` and enter::
   $ python -i login.py -s myicat_root
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
   User: simple/root
-  >>> publicTables = [ "Application", "DatafileFormat", "DatasetType", 
-  ...                  "Facility", "FacilityCycle", "Instrument", 
-  ...                  "InvestigationType", "ParameterType", 
+  >>> publicTables = [ "Application", "DatafileFormat", "DatasetType",
+  ...                  "Facility", "FacilityCycle", "Instrument",
+  ...                  "InvestigationType", "ParameterType",
   ...                  "PermissibleStringValue", "SampleType", ]
   >>> queries = [ "SELECT o FROM %s o" % t for t in publicTables ]
   >>> client.createRules("R", queries)
@@ -251,14 +251,14 @@ convenience method in python-icat roughly equivalent to::
   >>> for w in queries:
   ...     r = client.new("rule", crudFlags="R", what=w)
   ...     rules.append(r)
-  ... 
+  ...
   >>> client.createMany(rules)
 
 If we now try again to search for the objects as normal user, we get::
 
   $ python -i login.py -s myicat_jdoe
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
-  User: db/jdoe
+  User: simple/jdoe
   >>> client.search("SELECT pt FROM ParameterType pt INCLUDE pt.facility")
   [(parameterType){
      createId = "simple/root"
@@ -272,16 +272,16 @@ If we now try again to search for the objects as normal user, we get::
      applicableToInvestigation = False
      applicableToSample = False
      enforced = False
-     facility = 
-	(facility){
-	   createId = "simple/root"
-	   createTime = 2016-11-07 14:34:08+00:00
-	   id = 1
-	   modId = "simple/root"
-	   modTime = 2016-11-07 14:34:08+00:00
-	   fullName = "Facility 1"
-	   name = "Test1"
-	}
+     facility =
+        (facility){
+           createId = "simple/root"
+           createTime = 2016-11-07 14:34:08+00:00
+           id = 1
+           modId = "simple/root"
+           modTime = 2016-11-07 14:34:08+00:00
+           fullName = "Facility 1"
+           name = "Test1"
+        }
      name = "Test parameter type 1"
      units = "pct"
      valueType = "NUMERIC"
@@ -298,16 +298,16 @@ If we now try again to search for the objects as normal user, we get::
      applicableToInvestigation = False
      applicableToSample = False
      enforced = False
-     facility = 
-	(facility){
-	   createId = "simple/root"
-	   createTime = 2016-11-07 14:34:08+00:00
-	   id = 1
-	   modId = "simple/root"
-	   modTime = 2016-11-07 14:34:08+00:00
-	   fullName = "Facility 1"
-	   name = "Test1"
-	}
+     facility =
+        (facility){
+           createId = "simple/root"
+           createTime = 2016-11-07 14:34:08+00:00
+           id = 1
+           modId = "simple/root"
+           modTime = 2016-11-07 14:34:08+00:00
+           fullName = "Facility 1"
+           name = "Test1"
+        }
      name = "Test parameter type 2"
      units = "N/A"
      valueType = "STRING"

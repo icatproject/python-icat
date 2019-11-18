@@ -9,7 +9,7 @@ it and get its version.  We'll combine both in a simple program::
 
   from __future__ import print_function
   import icat.client
-  
+
   url = "https://icat.example.com:8181/ICATService/ICAT?wsdl"
   client = icat.client.Client(url)
   print("Connect to %s\nICAT version %s" % (url, client.apiversion))
@@ -43,7 +43,7 @@ server now or modify your hello program and add a flag
 
   from __future__ import print_function
   import icat.client
-  
+
   url = "https://icat.example.com:8181/ICATService/ICAT?wsdl"
   client = icat.client.Client(url, checkCert=False)
   print("Connect to %s\nICAT version %s" % (url, client.apiversion))
@@ -62,7 +62,7 @@ this class.  For this reason, the class is imported by default in the
 
   from __future__ import print_function
   import icat
-  
+
   url = "https://icat.example.com:8181/ICATService/ICAT?wsdl"
   client = icat.Client(url)
   print("Connect to %s\nICAT version %s" % (url, client.apiversion))
