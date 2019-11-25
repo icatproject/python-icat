@@ -10,8 +10,7 @@ config = icat.config.Config(ids="optional")
 # add a global configuration variable 'entity' common for all sub-commands
 config.add_variable("entity", ("-e", "--entity"),
                     dict(help="an entity from the ICAT schema",
-                         choices=["User", "Study"]),
-                    default=None, optional=False)
+                         choices=["User", "Study"]))
 
 # make this program use sub-commands
 subcmds = config.add_subcommands("mode")

@@ -178,8 +178,7 @@ To put it all together, consider the following example program::
   # add a global configuration variable 'entity' common for all sub-commands
   config.add_variable("entity", ("-e", "--entity"),
                       dict(help="an entity from the ICAT schema",
-                           choices=["User", "Study"]),
-                      default=None, optional=False)
+                           choices=["User", "Study"]))
 
   # make this program use sub-commands
   subcmds = config.add_subcommands("mode")
@@ -290,8 +289,8 @@ after it::
   creating a new User object named Alice...
   done
 
-If we now list the ``User`` objects again, we can see the new object
-with the id 46::
+If we now list the ``User`` objects again, we can see the new object.
+The object id is 46::
 
   $ python config-sub-commands.py -s myicat_root -e User list
   listing existing User objects...
