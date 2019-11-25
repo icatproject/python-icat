@@ -1,12 +1,12 @@
 Creating Stuff in the ICAT Server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ICAT server is pretty useless if it is void of content.  So lets
+The ICAT server is pretty useless if it is void of content.  So let's
 start creating some objects.
 
 We could do it by writing and running a small Python script each time
 as in the last sections.  But python-icat may also be used
-interactively at the Python prompt, so lets try this out::
+interactively at the Python prompt, so let's try this out::
 
   $ python -i login.py -s myicat_root
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.

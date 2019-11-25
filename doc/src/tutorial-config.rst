@@ -9,10 +9,7 @@ convenient.  The module :mod:`icat.config` has been created to solve
 this.  It manages several configuration variables that most ICAT
 client programs need.
 
-Configuration options
----------------------
-
-Lets modify the example program as follows::
+Let's modify the example program as follows::
 
   #! /usr/bin/python
 
@@ -125,84 +122,4 @@ You'll get something like::
   ICAT version 4.7
   Connect to https://icat.example.com:8181/ids
   IDS version 1.6
-
-Custom configuration variables
-------------------------------
-
-Programs may also define their own custom configuration variables.
-Lets add the option to redirect the output of our example program to a
-file::
-
-  #! /usr/bin/python
-
-  from __future__ import print_function
-  import sys
-  import icat
-  import icat.config
-
-  config = icat.config.Config(ids="optional")
-  config.add_variable('outfile', ("-o", "--outputfile"),
-                      dict(help="output file name or '-' for stdout"),
-                      default='-')
-  client, conf = config.getconfig()
-  client.login(conf.auth, conf.credentials)
-
-  if conf.outfile == '-':
-      out = sys.stdout
-  else:
-      out = open(conf.outfile, "wt")
-
-  print("Login to %s was successful." % (conf.url), file=out)
-  print("User: %s" % (client.getUserName()), file=out)
-
-  out.close()
-
-This adds a new configuration variable `outfile`.  It can be specified
-on the command line as ``-o OUTFILE`` or ``--outputfile OUTFILE`` and
-it defaults to the string ``-`` if not specified.  We can check this
-on the list of available command line options::
-
-  $ python config-custom.py -h
-  usage: config-custom.py [-h] [-c CONFIGFILE] [-s SECTION] [-w URL]
-                          [--idsurl IDSURL] [--no-check-certificate]
-                          [--http-proxy HTTP_PROXY] [--https-proxy HTTPS_PROXY]
-                          [--no-proxy NO_PROXY] [-a AUTH] [-u USERNAME] [-P]
-                          [-p PASSWORD] [-o OUTFILE]
-
-  optional arguments:
-    -h, --help            show this help message and exit
-    -c CONFIGFILE, --configfile CONFIGFILE
-                          config file
-    -s SECTION, --configsection SECTION
-                          section in the config file
-    -w URL, --url URL     URL to the web service description
-    --idsurl IDSURL       URL to the ICAT Data Service
-    --no-check-certificate
-                          don't verify the server certificate
-    --http-proxy HTTP_PROXY
-                          proxy to use for http requests
-    --https-proxy HTTPS_PROXY
-                          proxy to use for https requests
-    --no-proxy NO_PROXY   list of exclusions for proxy use
-    -a AUTH, --auth AUTH  authentication plugin
-    -u USERNAME, --user USERNAME
-                          username
-    -P, --prompt-pass     prompt for the password
-    -p PASSWORD, --pass PASSWORD
-                          password
-    -o OUTFILE, --outputfile OUTFILE
-                          output file name or '-' for stdout
-
-This new option is optional, so the program can be used as before::
-
-  $ python config-custom.py -s myicat_jdoe
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
-  User: simple/jdoe
-
-If we add the option on the command line, it has the expected effect::
-
-  $ python config-custom.py -s myicat_jdoe -o out.txt
-  $ cat out.txt
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
-  User: simple/jdoe
 
