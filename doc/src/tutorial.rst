@@ -20,5 +20,6 @@ the following sections:
    tutorial-config
    tutorial-login
    tutorial-create
+   tutorial-edit
    tutorial-config-advanced
 

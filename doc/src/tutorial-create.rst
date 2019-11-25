@@ -1,4 +1,4 @@
-Creating Stuff in the ICAT Server
+Creating stuff in the ICAT Server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ICAT server is pretty useless if it is void of content.  So let's
@@ -25,7 +25,7 @@ The :meth:`~icat.client.Client.search` result shows that there is no
 type::
 
   >>> f1 = client.new("facility")
-  >>> f1.name = "Test1"
+  >>> f1.name = "Fac1"
   >>> f1.fullName = "Facility 1"
   >>> f1.id = client.create(f1)
 
@@ -44,17 +44,17 @@ The result can be verified by repeating the search from above::
      modId = "simple/root"
      modTime = 2016-11-07 14:34:08+00:00
      fullName = "Facility 1"
-     name = "Test1"
+     name = "Fac1"
    }]
 
 The same result could also have been obtained slightly differently:
 the :meth:`~icat.client.Client.new` method optionally accepts keyword
-arguments to set the attributes of the new entity object.
-Furthermore, the entity object itself also has a
+arguments to set the attributes of the new object.  Furthermore, the
+:class:`~icat.entity.Entity` object itself also has a
 :meth:`~icat.entity.Entity.create` method to create this object in the
 ICAT server.  We thus could achieve the same as above like this::
 
-  >>> f2 = client.new("facility", name="Test2", fullName="Facility 2")
+  >>> f2 = client.new("facility", name="Fac2", fullName="Facility 2")
   >>> f2.create()
 
 To verify the result, we check again::
@@ -67,7 +67,7 @@ To verify the result, we check again::
      modId = "simple/root"
      modTime = 2016-11-07 14:34:08+00:00
      fullName = "Facility 1"
-     name = "Test1"
+     name = "Fac1"
    }, (facility){
      createId = "simple/root"
      createTime = 2016-11-07 14:34:26+00:00
@@ -75,7 +75,7 @@ To verify the result, we check again::
      modId = "simple/root"
      modTime = 2016-11-07 14:34:26+00:00
      fullName = "Facility 2"
-     name = "Test2"
+     name = "Fac2"
    }]
 
 Relationships to other objects
@@ -144,7 +144,7 @@ We can verify this by searching for the newly created objects::
            modId = "simple/root"
            modTime = 2016-11-07 14:34:08+00:00
            fullName = "Facility 1"
-           name = "Test1"
+           name = "Fac1"
         }
      name = "Test parameter type 1"
      units = "pct"
@@ -170,7 +170,7 @@ We can verify this by searching for the newly created objects::
            modId = "simple/root"
            modTime = 2016-11-07 14:34:08+00:00
            fullName = "Facility 1"
-           name = "Test1"
+           name = "Fac1"
         }
      name = "Test parameter type 2"
      permissibleStringValues[] =
@@ -280,7 +280,7 @@ If we now try again to search for the objects as normal user, we get::
            modId = "simple/root"
            modTime = 2016-11-07 14:34:08+00:00
            fullName = "Facility 1"
-           name = "Test1"
+           name = "Fac1"
         }
      name = "Test parameter type 1"
      units = "pct"
@@ -306,7 +306,7 @@ If we now try again to search for the objects as normal user, we get::
            modId = "simple/root"
            modTime = 2016-11-07 14:34:08+00:00
            fullName = "Facility 1"
-           name = "Test1"
+           name = "Fac1"
         }
      name = "Test parameter type 2"
      units = "N/A"
