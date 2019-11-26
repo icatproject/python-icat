@@ -2,9 +2,8 @@ Advanced configuration
 ~~~~~~~~~~~~~~~~~~~~~~
 
 So far, we have relied on the :mod:`icat.config` module to provide
-configuration variables for us (such as `url` or `idsurl`).
-However, programs may also define their own custom configuration
-variables.
+configuration variables for us (such as `url` or `idsurl`).  However,
+programs may also define their own custom configuration variables.
 
 Custom configuration variables
 ------------------------------
@@ -258,7 +257,7 @@ sub-commands should be listed::
       create              create a new ICAT object
       delete              delete an ICAT object
 
-This looks good. Let's try calling our program with the `list`
+This looks good.  Let's try calling our program with the `list`
 sub-command.  Of course we must also provide a `section` from our
 config file (``-s SECTION``) as well as the `entity` variable (``-e
 {User,Study}``) we defined earlier::
@@ -289,17 +288,17 @@ after it::
   creating a new User object named Alice...
   done
 
-If we now list the ``User`` objects again, we can see the new object.
-The object id is 46::
+If we now list the ``User`` objects again, we can see a new object
+with name "Alice".  Apparently, the object id is 1::
 
   $ python config-sub-commands.py -s myicat_root -e User list
   listing existing User objects...
   [(user){
      createId = "simple/root"
-     createTime = 2019-11-25 10:50:47+01:00
-     id = 46
+     createTime = 2019-11-26 13:00:46+01:00
+     id = 1
      modId = "simple/root"
-     modTime = 2019-11-25 10:50:47+01:00
+     modTime = 2019-11-26 13:00:46+01:00
      name = "Alice"
    }]
   done
@@ -308,6 +307,7 @@ Finally, let's delete the just created object using the `delete`
 sub-command.  To do this, we use the sub-command-specific
 configuration variable `id` (``-i ID``)::
 
-  $ python config-sub-commands.py -s myicat_root -e User delete -i 46
-  deleting the User object with id 46...
+  $ python config-sub-commands.py -s myicat_root -e User delete -i 1
+  deleting the User object with id 1...
   done
+

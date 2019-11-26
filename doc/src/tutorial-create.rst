@@ -39,10 +39,10 @@ The result can be verified by repeating the search from above::
   >>> client.search("SELECT f FROM Facility f")
   [(facility){
      createId = "simple/root"
-     createTime = 2016-11-07 14:34:08+00:00
+     createTime = 2019-11-26 12:39:18+01:00
      id = 1
      modId = "simple/root"
-     modTime = 2016-11-07 14:34:08+00:00
+     modTime = 2019-11-26 12:39:18+01:00
      fullName = "Facility 1"
      name = "Fac1"
    }]
@@ -62,18 +62,18 @@ To verify the result, we check again::
   >>> client.search("SELECT f FROM Facility f")
   [(facility){
      createId = "simple/root"
-     createTime = 2016-11-07 14:34:08+00:00
+     createTime = 2019-11-26 12:39:18+01:00
      id = 1
      modId = "simple/root"
-     modTime = 2016-11-07 14:34:08+00:00
+     modTime = 2019-11-26 12:39:18+01:00
      fullName = "Facility 1"
      name = "Fac1"
    }, (facility){
      createId = "simple/root"
-     createTime = 2016-11-07 14:34:26+00:00
+     createTime = 2019-11-26 12:40:02+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2016-11-07 14:34:26+00:00
+     modTime = 2019-11-26 12:40:02+01:00
      fullName = "Facility 2"
      name = "Fac2"
    }]
@@ -126,10 +126,10 @@ We can verify this by searching for the newly created objects::
   >>> client.search(query)
   [(parameterType){
      createId = "simple/root"
-     createTime = 2016-11-07 15:50:44+00:00
+     createTime = 2019-11-26 12:40:54+01:00
      id = 1
      modId = "simple/root"
-     modTime = 2016-11-07 15:50:44+00:00
+     modTime = 2019-11-26 12:40:54+01:00
      applicableToDataCollection = False
      applicableToDatafile = False
      applicableToDataset = False
@@ -139,10 +139,10 @@ We can verify this by searching for the newly created objects::
      facility =
         (facility){
            createId = "simple/root"
-           createTime = 2016-11-07 14:34:08+00:00
+           createTime = 2019-11-26 12:39:18+01:00
            id = 1
            modId = "simple/root"
-           modTime = 2016-11-07 14:34:08+00:00
+           modTime = 2019-11-26 12:39:18+01:00
            fullName = "Facility 1"
            name = "Fac1"
         }
@@ -152,10 +152,10 @@ We can verify this by searching for the newly created objects::
      verified = False
    }, (parameterType){
      createId = "simple/root"
-     createTime = 2016-11-07 16:00:21+00:00
+     createTime = 2019-11-26 12:41:30+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2016-11-07 16:00:21+00:00
+     modTime = 2019-11-26 12:41:30+01:00
      applicableToDataCollection = False
      applicableToDatafile = False
      applicableToDataset = False
@@ -165,10 +165,10 @@ We can verify this by searching for the newly created objects::
      facility =
         (facility){
            createId = "simple/root"
-           createTime = 2016-11-07 14:34:08+00:00
+           createTime = 2019-11-26 12:39:18+01:00
            id = 1
            modId = "simple/root"
-           modTime = 2016-11-07 14:34:08+00:00
+           modTime = 2019-11-26 12:39:18+01:00
            fullName = "Facility 1"
            name = "Fac1"
         }
@@ -176,27 +176,27 @@ We can verify this by searching for the newly created objects::
      permissibleStringValues[] =
         (permissibleStringValue){
            createId = "simple/root"
-           createTime = 2016-11-07 16:00:21+00:00
+           createTime = 2019-11-26 12:41:30+01:00
            id = 1
            modId = "simple/root"
-           modTime = 2016-11-07 16:00:21+00:00
+           modTime = 2019-11-26 12:41:30+01:00
+           value = "buono"
+        },
+        (permissibleStringValue){
+           createId = "simple/root"
+           createTime = 2019-11-26 12:41:30+01:00
+           id = 2
+           modId = "simple/root"
+           modTime = 2019-11-26 12:41:30+01:00
            value = "brutto"
         },
         (permissibleStringValue){
            createId = "simple/root"
-           createTime = 2016-11-07 16:00:21+00:00
-           id = 2
-           modId = "simple/root"
-           modTime = 2016-11-07 16:00:21+00:00
-           value = "cattivo"
-        },
-        (permissibleStringValue){
-           createId = "simple/root"
-           createTime = 2016-11-07 16:00:21+00:00
+           createTime = 2019-11-26 12:41:30+01:00
            id = 3
            modId = "simple/root"
-           modTime = 2016-11-07 16:00:21+00:00
-           value = "buono"
+           modTime = 2019-11-26 12:41:30+01:00
+           value = "cattivo"
         },
      units = "N/A"
      valueType = "STRING"
@@ -226,8 +226,8 @@ has a default deny access policy: only the ``root`` user has read and
 write access to everything, all other users get only access, if there
 is a rule that explicitely allows it.
 
-Let's add some rules to allow public read access to some object
-types.  Connect again as ``root`` and enter::
+Let's add some rules to allow public read access to some object types.
+Connect again as ``root`` and enter::
 
   $ python -i login.py -s myicat_root
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
@@ -262,10 +262,10 @@ If we now try again to search for the objects as normal user, we get::
   >>> client.search("SELECT pt FROM ParameterType pt INCLUDE pt.facility")
   [(parameterType){
      createId = "simple/root"
-     createTime = 2016-11-07 15:50:44+00:00
+     createTime = 2019-11-26 12:40:54+01:00
      id = 1
      modId = "simple/root"
-     modTime = 2016-11-07 15:50:44+00:00
+     modTime = 2019-11-26 12:40:54+01:00
      applicableToDataCollection = False
      applicableToDatafile = False
      applicableToDataset = False
@@ -275,10 +275,10 @@ If we now try again to search for the objects as normal user, we get::
      facility =
         (facility){
            createId = "simple/root"
-           createTime = 2016-11-07 14:34:08+00:00
+           createTime = 2019-11-26 12:39:18+01:00
            id = 1
            modId = "simple/root"
-           modTime = 2016-11-07 14:34:08+00:00
+           modTime = 2019-11-26 12:39:18+01:00
            fullName = "Facility 1"
            name = "Fac1"
         }
@@ -288,10 +288,10 @@ If we now try again to search for the objects as normal user, we get::
      verified = False
    }, (parameterType){
      createId = "simple/root"
-     createTime = 2016-11-07 16:00:21+00:00
+     createTime = 2019-11-26 12:41:30+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2016-11-07 16:00:21+00:00
+     modTime = 2019-11-26 12:41:30+01:00
      applicableToDataCollection = False
      applicableToDatafile = False
      applicableToDataset = False
@@ -301,10 +301,10 @@ If we now try again to search for the objects as normal user, we get::
      facility =
         (facility){
            createId = "simple/root"
-           createTime = 2016-11-07 14:34:08+00:00
+           createTime = 2019-11-26 12:39:18+01:00
            id = 1
            modId = "simple/root"
-           modTime = 2016-11-07 14:34:08+00:00
+           modTime = 2019-11-26 12:39:18+01:00
            fullName = "Facility 1"
            name = "Fac1"
         }
@@ -313,3 +313,4 @@ If we now try again to search for the objects as normal user, we get::
      valueType = "STRING"
      verified = False
    }]
+

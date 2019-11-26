@@ -19,7 +19,7 @@ output::
 
   $ python hello.py
   Connect to https://icat.example.com:8181/ICATService/ICAT?wsdl
-  ICAT version 4.7
+  ICAT version 4.8
 
 The constructor of :class:`icat.client.Client` takes the URL of the
 ICAT service as argument.  It contacts the ICAT server, queries the
