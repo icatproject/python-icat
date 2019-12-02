@@ -3,7 +3,6 @@
 from __future__ import print_function
 import icat
 import icat.config
-from icat.query import Query
 
 config = icat.config.Config(ids="optional")
 
@@ -43,7 +42,7 @@ elif conf.mode.name == "create":
     obj.create()
 elif conf.mode.name == "delete":
     print("deleting the %s object with id %s..." % (conf.entity, conf.id))
-    query = Query(client, conf.entity, conditions={"id": "=%s" % conf.id})
-    client.deleteMany(client.assertedSearch(query))
+    obj = client.get(conf.entity, conf.id)
+    client.delete(obj)
 
 print("done")

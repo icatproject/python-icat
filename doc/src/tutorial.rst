@@ -21,5 +21,6 @@ the following sections:
    tutorial-login
    tutorial-create
    tutorial-edit
+   tutorial-search
    tutorial-config-advanced
 

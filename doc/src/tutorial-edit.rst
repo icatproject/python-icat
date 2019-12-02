@@ -115,9 +115,7 @@ refer to the same related object.
 To demonstrate this, we use one of the ``Facility`` objects we created
 earlier, including its referenced ``ParameterType`` objects::
 
-  >>> query = "SELECT f FROM Facility f INCLUDE f.parameterTypes"
-  >>> facilities = client.search(query)
-  >>> fac = facilities[0]
+  >>> fac = client.get("Facility f INCLUDE f.parameterTypes", 1)
   >>> print(fac)
   (facility){
      createId = "simple/root"

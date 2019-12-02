@@ -87,6 +87,7 @@ following example::
   >>> pt1 = client.new("parameterType")
   >>> pt1.name = "Test parameter type 1"
   >>> pt1.units = "pct"
+  >>> pt1.applicableToDataset = True
   >>> pt1.valueType = "NUMERIC"
   >>> pt1.facility = f1
   >>> pt1.create()
@@ -97,7 +98,11 @@ corresponding attribute in the ``ParameterType`` object before
 creating it in the ICAT.  The ``Facility`` must already exist at this
 point.  In this example we assumed to be still in the same session
 from above so that the variable ``f1`` still contains the facility
-created before.
+created before.  If that hadn't been the case, we could have retrieved
+the facility back from ICAT using the :meth:`~icat.client.Client.get`
+method::
+
+  >>> f1 = client.get("Facility", 1)
 
 On the other hand, there is also a one to many relationship between
 ``ParameterType`` and ``PermissibleStringValue`` in the ICAT schema.
@@ -106,6 +111,7 @@ Let's create a ``ParameterType`` with string values::
   >>> pt2 = client.new("parameterType")
   >>> pt2.name = "Test parameter type 2"
   >>> pt2.units = "N/A"
+  >>> pt2.applicableToDataset = True
   >>> pt2.valueType = "STRING"
   >>> pt2.facility = f1
   >>> for v in ["buono", "brutto", "cattivo"]:
@@ -132,7 +138,7 @@ We can verify this by searching for the newly created objects::
      modTime = 2019-11-26 12:40:54+01:00
      applicableToDataCollection = False
      applicableToDatafile = False
-     applicableToDataset = False
+     applicableToDataset = True
      applicableToInvestigation = False
      applicableToSample = False
      enforced = False
@@ -158,7 +164,7 @@ We can verify this by searching for the newly created objects::
      modTime = 2019-11-26 12:41:30+01:00
      applicableToDataCollection = False
      applicableToDatafile = False
-     applicableToDataset = False
+     applicableToDataset = True
      applicableToInvestigation = False
      applicableToSample = False
      enforced = False
@@ -268,7 +274,7 @@ If we now try again to search for the objects as normal user, we get::
      modTime = 2019-11-26 12:40:54+01:00
      applicableToDataCollection = False
      applicableToDatafile = False
-     applicableToDataset = False
+     applicableToDataset = True
      applicableToInvestigation = False
      applicableToSample = False
      enforced = False
@@ -294,7 +300,7 @@ If we now try again to search for the objects as normal user, we get::
      modTime = 2019-11-26 12:41:30+01:00
      applicableToDataCollection = False
      applicableToDatafile = False
-     applicableToDataset = False
+     applicableToDataset = True
      applicableToInvestigation = False
      applicableToSample = False
      enforced = False
