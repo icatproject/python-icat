@@ -68,12 +68,29 @@ Lastly, we make some ``DatasetParameter`` objects::
   >>> client.createMany([dp1, dp2, dp3, dp4])
 
 Now let's see how we can query ICAT to find the objects we just added.
+Given a local object (such as ``dp1`` above), one simple way to
+retrieve a matching object from ICAT is using the
+:meth:`~icat.client.Client.searchMatching` method::
 
-Building more complex queries
------------------------------
+  >>> client.searchMatching(dp1)
+  (datasetParameter){
+     createId = "simple/root"
+     createTime = 2019-12-02 13:31:24+01:00
+     id = 1
+     modId = "simple/root"
+     modTime = 2019-12-02 13:31:24+01:00
+     numericValue = 10.0
+   }
 
-In order to use the :class:`icat.query.Query` class, we have to import
-it first::
+However, usually we do not have the objects we're looking for in local
+memory, so we have to search for them using queries.  The
+:class:`icat.query.Query` class can help us with that.
+
+Building advanced queries
+-------------------------
+
+In order to use the :class:`~icat.query.Query` class, we have to
+import it first::
 
   >>> from icat.query import Query
 

@@ -21,7 +21,7 @@ Creating simple objects
 -----------------------
 
 The :meth:`~icat.client.Client.search` result shows that there is no
-``Facility`` object in ICAT.  Let's create one.  In the same session
+``Facility`` object in ICAT.  Let's create one.  In the same session,
 type::
 
   >>> f1 = client.new("facility")

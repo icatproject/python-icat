@@ -10,7 +10,8 @@ Custom configuration variables
 
 Let's add the option to redirect the output of our example program to
 a file.  The output file path shall be passed via the command line as
-a configuration variable::
+a configuration variable.  To set this up, we can use the
+:meth:`~icat.config.BaseConfig.add_variable` method::
 
   #! /usr/bin/python
 
@@ -303,7 +304,7 @@ with name "Alice".  Apparently, the object id is 1::
   done
 
 Finally, let's delete the just created object using the `delete`
-sub-command.  To do this, we use the sub-command-specific
+sub-command.  To do this, we must specify the sub-command-specific
 configuration variable `id` (``-i ID``)::
 
   $ python config-sub-commands.py -s myicat_root -e User delete -i 1

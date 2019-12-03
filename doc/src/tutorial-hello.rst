@@ -49,7 +49,7 @@ server now or modify your hello program and add a flag
   print("Connect to %s\nICAT version %s" % (url, client.apiversion))
 
 The future statement at the beginning of the example is only needed to
-compile `print` as a built-in function rather then a statement.  We'll
+compile `print` as a built-in function rather than a statement.  We'll
 use it throughout the tutorial to ensure that the examples will work
 with Python 2 as well as with Python 3.
 
