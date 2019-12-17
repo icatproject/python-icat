@@ -4,14 +4,14 @@ Working with IDS
 You can use python-icat not only as a client for ICAT, but also for
 IDS.  In this tutorial section, we look at some basic examples of
 this.  The examples below assume to have a running IDS server that is
-ready to accept our calls.
+ready to accept our requests.
 
 If you set the `idsurl` configuration variable before calling
-:class:`~icat.config.Config.getconfig()` at the beginning of your
+:meth:`~icat.config.Config.getconfig` at the beginning of your
 program, python-icat will automatically provide an IDS client for you
 (see :doc:`tutorial-config` for details).  You can then access IDS
 specific methods via the :attr:`~icat.client.Client.ids` attribute as
-part of your :class:`~icat.client.Client` object, i.e by writing
+part of your :class:`~icat.client.Client` object, i.e. by writing
 `client.ids`::
 
   $ python -i login.py -s myicat_root
@@ -32,7 +32,7 @@ Creating a datafile
 To upload a datafile to ICAT, you first have to create a local
 ``Datafile`` object with the corresponding attributes and references.
 In the example below, we will add a new datafile to one of the
-existing dataset objects from the previous tutorial section::
+existing ``Dataset`` objects from the previous tutorial section::
 
   >>> f1 = client.new("datafileFormat", name="Test Format 1", version="1.0")
   >>> df1 = client.new("datafile")
@@ -118,7 +118,7 @@ want to select::
   >>> from icat.ids import DataSelection
   >>> selection = DataSelection({"datasetIds": [1, 2]})
 
-Now we can instruct IDS server to prepare the data by calling the
+Now we can instruct IDS to prepare the data by calling the
 :meth:`~icat.client.Client.prepareData` method.  In response, we get a
 `preparedId` which we can use to retrieve the data via the
 :meth:`~icat.client.Client.getPreparedData` method once it's ready::

@@ -246,12 +246,12 @@ Connect again as ``root`` and enter::
   >>> client.createRules("R", queries)
   [1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L]
 
-The :meth:`~icat.client.Client.createRules` takes an access mode and a
-list of search queries (and optionally a group) as arguments.  It will
-add rules the allow access to all objects that are yield by a search
-for any of the queries.  The access mode is ``"R"`` for read access in
-this example.  :meth:`~icat.client.Client.createRules` is a
-convenience method in python-icat roughly equivalent to::
+The :meth:`~icat.client.Client.createRules` method takes an access
+mode and a list of search queries (and optionally a group) as
+arguments.  It will add rules that allow access to all objects yielded
+by a search for any of the queries.  The access mode is ``"R"`` for
+read access in this example.  :meth:`~icat.client.Client.createRules`
+is a convenience method in python-icat roughly equivalent to::
 
   >>> rules = []
   >>> for w in queries:
