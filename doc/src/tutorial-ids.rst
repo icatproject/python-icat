@@ -143,3 +143,38 @@ We can process the response the same as before::
   Datafile test content
   Very important
 
+Because we created a :class:`~icat.ids.DataSelection` object earlier,
+we can now use several additional methods from the
+:class:`~icat.ids.IDSClient` class which take the `selection` as an
+argument.
+
+For example, :meth:`~icat.ids.IDSClient.getStatus` lets us check the
+status of our selection::
+
+  >>> client.ids.getStatus(selection)
+  u'ONLINE'
+
+With :meth:`~icat.ids.IDSClient.getSize` we can get the total size of
+our selection in bytes::
+
+  >>> client.ids.getSize(selection)
+  37L
+
+The :meth:`~icat.ids.IDSClient.getDatafileIds` method returns a list
+with IDs of all datafiles which are part of the selection.  Among
+other things, we can use the IDs to obtain hard links to particular
+datafiles by calling the :meth:`~icat.ids.IDSClient.getLink` method::
+
+  >>> client.ids.getDatafileIds(selection)
+  [1]
+  >>> client.ids.getLink(1)
+  u'/home/icat/ids/cache/link/aa8dc56f-ee10-4da5-8fb8-debf9d6aaf66'
+
+Finally, we can delete one or more data objects from IDS by calling
+:meth:`~icat.client.Client.deleteData`.  This will also remove the
+corresponding entries from the ICAT catalogue::
+
+  >>> client.deleteData(selection)
+  >>> client.search("Datafile")
+  []
+
