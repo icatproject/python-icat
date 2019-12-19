@@ -10,6 +10,7 @@ import re
 import logging
 from distutils.version import StrictVersion as Version
 import atexit
+import urlparse
 
 import suds
 import suds.client
@@ -140,6 +141,13 @@ TypeMap410.update( instrument = icat.entities.Instrument410,
                    study = icat.entities.Study410,
                    user = icat.entities.User410 )
 
+def _complete_url(url, default_path="/ICATService/ICAT?wsdl"):
+    if not url:
+        return url
+    o = urlparse.urlparse(url)
+    if o.path or o.query:
+        return url
+    return "%s://%s%s" % (o.scheme, o.netloc, default_path)
 
 class Client(suds.client.Client):
  
@@ -197,10 +205,10 @@ class Client(suds.client.Client):
         :see: :class:`suds.options.Options` for the keyword arguments.
         """
 
-        self.url = url
+        self.url = _complete_url(url)
         self.kwargs = dict(kwargs)
 
-        idsurl = kwargs.pop('idsurl', None)
+        idsurl = _complete_url(kwargs.pop('idsurl', None), default_path="/ids")
 
         sslverify = kwargs.pop('checkCert', True)
         cafile = kwargs.pop('caFile', None)
