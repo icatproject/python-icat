@@ -286,7 +286,7 @@ To find `exactly one` object, call the method like this::
 To make sure that you get `at least` 2 objects, for example, specify
 the additional parameters `assertmin` and `assertmax`::
 
-  >>> client.assertedSearch("Dataset", 2, None)
+  >>> client.assertedSearch("Dataset", assertmin=2, assertmax=None)
   [(dataset){
      createId = "simple/root"
      createTime = 2019-12-02 13:30:45+01:00
@@ -305,15 +305,30 @@ the additional parameters `assertmin` and `assertmax`::
      name = "D2"
    }]
 
-To limit the number of results retrieved `per call`, you can use the
-:meth:`~icat.client.Client.searchChunked` method.  This is equivalent
-to having a LIMIT clause in the query, but it returns an iterator over
-the items in the search result rather than a list.  Thus, it doesn't
-need as much memory when performing large queries::
+To limit the number of items retrieved `per call`, you can use the
+:meth:`~icat.client.Client.searchChunked` method.  This method
+repeatedly calls the regular :meth:`~icat.client.Client.search` method
+as often as needed to retrieve the whole search result.  Thus, it
+avoids the error if the number of items in the result exceeds the
+limit imposed by the ICAT server.  By default, the chunksize is set to
+100, but you can adjust it to fit your needs.
 
-  >>> for p in client.searchChunked("SELECT p FROM DatasetParameter p", 1, 2):
+In the example below, we perform a chunked search to retrieve all four
+dataset parameters, using chunks of size 2 each.  Instead of a list,
+the method returns an iterator over the items in the search result.
+This doesn't need as much memory when performing large queries::
+
+  >>> for p in client.searchChunked("DatasetParameter", chunksize=2):
   ...     print(p)
   ...
+  (datasetParameter){
+     createId = "simple/root"
+     createTime = 2019-12-02 13:31:24+01:00
+     id = 1
+     modId = "simple/root"
+     modTime = 2019-12-02 13:31:24+01:00
+     numericValue = 10.0
+   }
   (datasetParameter){
      createId = "simple/root"
      createTime = 2019-12-02 13:31:24+01:00
@@ -330,10 +345,30 @@ need as much memory when performing large queries::
      modTime = 2019-12-02 13:31:24+01:00
      numericValue = 22.0
    }
+  (datasetParameter){
+     createId = "simple/root"
+     createTime = 2019-12-02 13:31:24+01:00
+     id = 4
+     modId = "simple/root"
+     modTime = 2019-12-02 13:31:24+01:00
+     stringValue = "brutto"
+   }
 
-The above is equivalent to::
+Beware that due to the way this method works, the result may be
+defective (omissions, duplicates) if the content in the ICAT server
+changes between individual search calls in a way that would affect the
+result.  Hence, make sure you don't have code with side effects on the
+search result in the body of the loop (i.e. editing objects) when
+looping over the returned items.
 
-  >>> for p in client.search("SELECT p FROM DatasetParameter p LIMIT 1,2"):
+Using the `skip` and `count` parameters, the method also allows you to
+skip a certain number of items and to set an upper limit on the number
+of items you want to fetch.  This is equivalent to having a LIMIT
+clause in the query.  Because of this, the query string itself must
+not contain a LIMIT clause.  Consider the following example where we
+skip 1 item and return only 2 of the remaining items::
+
+  >>> for p in client.searchChunked("DatasetParameter", skip=1, count=2):
   ...     print(p)
   ...
   (datasetParameter){
