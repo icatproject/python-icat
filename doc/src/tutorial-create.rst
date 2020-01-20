@@ -33,7 +33,7 @@ The :meth:`~icat.client.Client.new` method instantiates a new
 ``Facility`` object locally in the client.  We set some of the
 attributes of this new object.  Finally, we call
 :meth:`~icat.client.Client.create` to create it in the ICAT server.
-The return value is the id of the new ``Facility`` object in ICAT.
+The return value is the ID of the new ``Facility`` object in ICAT.
 The result can be verified by repeating the search from above::
 
   >>> client.search("SELECT f FROM Facility f")

@@ -98,10 +98,10 @@ Flag configuration variables
 ----------------------------
 
 Instead of passing a string value to our program, we can also define
-other variable types using the `type` parameter.  Among other things,
-this allows us to pass boolean/flag parameters.  Let's add another
-configuration variable to our example program that lets us control the
-output via a flag::
+different variable types using the `type` parameter.  Among other
+things, this allows us to pass boolean/flag parameters.  Let's add
+another configuration variable to our example program that lets us
+control the output via a flag::
 
   #! /usr/bin/python
 
@@ -195,7 +195,7 @@ To put it all together, consider the following example program::
   subconfig_create.add_variable("name", ("-n", "--name"),
                                 dict(help="name for the new ICAT object"))
   subconfig_delete.add_variable("id", ("-i", "--id"),
-                                dict(help="id of the ICAT object"))
+                                dict(help="ID of the ICAT object"))
 
   client, conf = config.getconfig()
   client.login(conf.auth, conf.credentials)
@@ -209,7 +209,7 @@ To put it all together, consider the following example program::
       obj = client.new(conf.entity.lower(), name=conf.name)
       obj.create()
   elif conf.mode.name == "delete":
-      print("deleting the %s object with id %s..." % (conf.entity, conf.id))
+      print("deleting the %s object with ID %s..." % (conf.entity, conf.id))
       obj = client.get(conf.entity, conf.id)
       client.delete(obj)
 
@@ -289,7 +289,7 @@ after it::
   done
 
 If we now list the ``User`` objects again, we can see a new object
-with name "Alice".  Apparently, the object id is 1::
+with name "Alice"::
 
   $ python config-sub-commands.py -s myicat_root -e User list
   listing existing User objects...
@@ -303,11 +303,12 @@ with name "Alice".  Apparently, the object id is 1::
    }]
   done
 
-Finally, let's delete the just created object using the `delete`
-sub-command.  To do this, we must specify the sub-command-specific
-configuration variable `id` (``-i ID``)::
+Finally, let's delete this new object using the `delete` sub-command.
+To do this, we must specify the sub-command-specific configuration
+variable `id` (``-i ID``).  In the above output, we can see that the
+object's ID is 1, so we write::
 
   $ python config-sub-commands.py -s myicat_root -e User delete -i 1
-  deleting the User object with id 1...
+  deleting the User object with ID 1...
   done
 
