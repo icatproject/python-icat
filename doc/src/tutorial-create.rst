@@ -81,8 +81,18 @@ To verify the result, we check again::
 Relationships to other objects
 ------------------------------
 
-Most objects in the ICAT are related to other objects.  Consider the
-following example::
+Most objects in the ICAT are related to other objects.  Let's first
+retrieve again the first facility created above using the
+:meth:`~icat.client.Client.get` method::
+
+  >>> f1 = client.get("Facility", 1)
+
+The arguments are the name of the entity object class and the ID of
+the object to fetch.  You might need to adapt that second argument, if
+the ICAT server attributed a different ID to your first facility, see
+the output from the :meth:`~icat.client.Client.search` call above.
+
+Now consider the following example::
 
   >>> pt1 = client.new("parameterType")
   >>> pt1.name = "Test parameter type 1"
@@ -96,13 +106,7 @@ The ``ParameterType`` has a many to one relationship to a
 ``Facility``.  This relationship is established by setting the
 corresponding attribute in the ``ParameterType`` object before
 creating it in the ICAT.  The ``Facility`` must already exist at this
-point.  In this example we assumed to be still in the same session
-from above so that the variable ``f1`` still contains the facility
-created before.  If that hadn't been the case, we could have retrieved
-the facility back from ICAT using the :meth:`~icat.client.Client.get`
-method::
-
-  >>> f1 = client.get("Facility", 1)
+point.
 
 On the other hand, there is also a one to many relationship between
 ``ParameterType`` and ``PermissibleStringValue`` in the ICAT schema.
