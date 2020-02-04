@@ -248,7 +248,7 @@ Connect again as ``root`` and enter::
   ...                  "PermissibleStringValue", "SampleType", ]
   >>> queries = [ "SELECT o FROM %s o" % t for t in publicTables ]
   >>> client.createRules("R", queries)
-  [1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L]
+  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
 The :meth:`~icat.client.Client.createRules` method takes an access
 mode and a list of search queries (and optionally a group) as
