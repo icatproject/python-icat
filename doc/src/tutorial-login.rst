@@ -86,6 +86,12 @@ file::
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
   User: simple/nbour
 
+You might have noticed that the program again prompted us for a
+password even though there is one set in the config file.  The
+:mod:`icat.config` module is smart enough to assume that if we
+overrode the user name on the command line, the password in the config
+file will likely not be valid for that user.
+
 Configuration files can have many sections.  It may come handy to be
 able to quickly switch between different users to log into the ICAT.
 Edit ``icat.cfg`` again to read as follows::
