@@ -27,7 +27,7 @@ subconfig_delete = subcmds.add_subconfig("delete",
 subconfig_create.add_variable("name", ("-n", "--name"),
                               dict(help="name for the new ICAT object"))
 subconfig_delete.add_variable("id", ("-i", "--id"),
-                              dict(help="id of the ICAT object"))
+                              dict(help="ID of the ICAT object"))
 
 client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
@@ -41,7 +41,7 @@ elif conf.mode.name == "create":
     obj = client.new(conf.entity.lower(), name=conf.name)
     obj.create()
 elif conf.mode.name == "delete":
-    print("deleting the %s object with id %s..." % (conf.entity, conf.id))
+    print("deleting the %s object with ID %s..." % (conf.entity, conf.id))
     obj = client.get(conf.entity, conf.id)
     client.delete(obj)
 

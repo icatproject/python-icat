@@ -6,20 +6,9 @@ This doesn't require a login to the server and hence the flag
 ``needlogin=False`` in the constructor call of
 :class:`icat.config.Config` in our example program.  If we leave this
 flag out, we get a bunch of new configuration variables.  Consider the
-following example program::
+following example program:
 
-  #! /usr/bin/python
-
-  from __future__ import print_function
-  import icat
-  import icat.config
-
-  config = icat.config.Config(ids="optional")
-  client, conf = config.getconfig()
-  client.login(conf.auth, conf.credentials)
-
-  print("Login to %s was successful." % (conf.url))
-  print("User: %s" % (client.getUserName()))
+.. literalinclude:: ../tutorial/login.py
 
 Let's check the available command line options now::
 

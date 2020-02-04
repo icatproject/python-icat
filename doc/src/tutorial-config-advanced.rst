@@ -11,31 +11,9 @@ Custom configuration variables
 Let's add the option to redirect the output of our example program to
 a file.  The output file path shall be passed via the command line as
 a configuration variable.  To set this up, we can use the
-:meth:`~icat.config.BaseConfig.add_variable` method::
+:meth:`~icat.config.BaseConfig.add_variable` method:
 
-  #! /usr/bin/python
-
-  from __future__ import print_function
-  import sys
-  import icat
-  import icat.config
-
-  config = icat.config.Config(ids="optional")
-  config.add_variable("outfile", ("-o", "--outputfile"),
-                      dict(help="output file name or '-' for stdout"),
-                      default="-")
-  client, conf = config.getconfig()
-  client.login(conf.auth, conf.credentials)
-
-  if conf.outfile == "-":
-      out = sys.stdout
-  else:
-      out = open(conf.outfile, "wt")
-
-  print("Login to %s was successful." % (conf.url), file=out)
-  print("User: %s" % (client.getUserName()), file=out)
-
-  out.close()
+.. literalinclude:: ../tutorial/config-custom.py
 
 This adds a new configuration variable `outfile`.  It can be specified
 on the command line as ``-o OUTFILE`` or ``--outputfile OUTFILE`` and
@@ -101,35 +79,9 @@ Instead of passing a string value to our program, we can also define
 different variable types using the `type` parameter.  Among other
 things, this allows us to pass boolean/flag parameters.  Let's add
 another configuration variable to our example program that lets us
-control the output via a flag::
+control the output via a flag:
 
-  #! /usr/bin/python
-
-  from __future__ import print_function
-  import sys
-  import icat
-  import icat.config
-
-  config = icat.config.Config(ids="optional")
-  config.add_variable("outfile", ("-o", "--outputfile"),
-                      dict(help="output file name or '-' for stdout"),
-                      default="-")
-  config.add_variable("hide", ["--hide-user-name"],
-                      dict(help="do not display the user after login"),
-                      default=False, type=icat.config.flag)
-  client, conf = config.getconfig()
-  client.login(conf.auth, conf.credentials)
-
-  if conf.outfile == "-":
-      out = sys.stdout
-  else:
-      out = open(conf.outfile, "wt")
-
-  print("Login to %s was successful." % (conf.url), file=out)
-  if not conf.hide:
-      print("User: %s" % (client.getUserName()), file=out)
-
-  out.close()
+.. literalinclude:: ../tutorial/config-flag.py
 
 If we call our program normally, we get the same output as before::
 
@@ -164,56 +116,9 @@ new sub-command for your program.  You can then define
 sub-command-specific configuration variables using the familiar
 :meth:`~icat.config.BaseConfig.add_variable` method.
 
-To put it all together, consider the following example program::
+To put it all together, consider the following example program:
 
-  #! /usr/bin/python
-
-  from __future__ import print_function
-  import icat
-  import icat.config
-
-  config = icat.config.Config(ids="optional")
-
-  # add a global configuration variable 'entity' common for all sub-commands
-  config.add_variable("entity", ("-e", "--entity"),
-                      dict(help="an entity from the ICAT schema",
-                           choices=["User", "Study"]))
-
-  # make this program use sub-commands
-  subcmds = config.add_subcommands("mode")
-
-  # register three possible sub-commands {list,create,delete}
-  subconfig_list = subcmds.add_subconfig("list",
-                                         dict(help="list existing ICAT objects"))
-  subconfig_create = subcmds.add_subconfig("create",
-                                           dict(help="create a new ICAT object"))
-  subconfig_delete = subcmds.add_subconfig("delete",
-                                           dict(help="delete an ICAT object"))
-
-  # add two additional configuration variables 'name' and 'id', but this
-  # time make them only available for the respective sub-command
-  subconfig_create.add_variable("name", ("-n", "--name"),
-                                dict(help="name for the new ICAT object"))
-  subconfig_delete.add_variable("id", ("-i", "--id"),
-                                dict(help="ID of the ICAT object"))
-
-  client, conf = config.getconfig()
-  client.login(conf.auth, conf.credentials)
-
-  # check which sub-command (mode) was called
-  if conf.mode.name == "list":
-      print("listing existing %s objects..." % conf.entity)
-      print(client.search(conf.entity))
-  elif conf.mode.name == "create":
-      print("creating a new %s object named %s..." % (conf.entity, conf.name))
-      obj = client.new(conf.entity.lower(), name=conf.name)
-      obj.create()
-  elif conf.mode.name == "delete":
-      print("deleting the %s object with ID %s..." % (conf.entity, conf.id))
-      obj = client.get(conf.entity, conf.id)
-      client.delete(obj)
-
-  print("done")
+.. literalinclude:: ../tutorial/config-sub-commands.py
 
 If we check the available commands for the above program, our three
 sub-commands should be listed::

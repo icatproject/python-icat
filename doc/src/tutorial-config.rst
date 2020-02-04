@@ -9,17 +9,9 @@ convenient.  The module :mod:`icat.config` has been created to solve
 this.  It manages several configuration variables that most ICAT
 client programs need.
 
-Let's modify the example program as follows::
+Let's modify the example program as follows:
 
-  #! /usr/bin/python
-
-  from __future__ import print_function
-  import icat
-  import icat.config
-
-  config = icat.config.Config(needlogin=False, ids=False)
-  client, conf = config.getconfig()
-  print("Connect to %s\nICAT version %s" % (conf.url, client.apiversion))
+.. literalinclude:: ../tutorial/config.py
 
 If we run this without any command line arguments, we get an error::
 
@@ -82,22 +74,9 @@ configuration file to read options from.
 
 python-icat is not only a client for ICAT, but also for IDS.  Since
 both may be on a different server, we need to tell python-icat also
-about the URL to IDS.  Modify the example program to read as::
+about the URL to IDS.  Modify the example program to read as:
 
-  #! /usr/bin/python
-
-  from __future__ import print_function
-  import icat
-  import icat.config
-
-  config = icat.config.Config(needlogin=False, ids="optional")
-  client, conf = config.getconfig()
-  print("Connect to %s\nICAT version %s" % (conf.url, client.apiversion))
-  if conf.idsurl:
-      print("Connect to %s\nIDS version %s"
-            % (conf.idsurl, client.ids.apiversion))
-  else:
-      print("No IDS configured")
+.. literalinclude:: ../tutorial/config-with-ids.py
 
 If you run this in the same way as above, you'll get::
 
