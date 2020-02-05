@@ -43,10 +43,10 @@ Let's check the available command line options now::
 Now call this program indicating the name of the authentication plugin
 and a user name::
 
-  $ python login.py -s myicat -a simple -u jdoe
+  $ python login.py -s myicat -a db -u jdoe
   Password:
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
-  User: simple/jdoe
+  User: db/jdoe
 
 Note that the program prompted us for a password, since we didn't
 provide one.  Of course you need to specify an authentication plugin,
@@ -55,7 +55,14 @@ Furthermore, the user name printed by the program may be different
 from the one indicated in the command line.  This depends on the
 configuration of the authentication plugin in your ICAT.  It is common
 praxis to prefix the user name with the name of the authentication
-plugin as in this example.
+plugin as shown in this example.
+
+.. note::
+   For this tutorial we assume that the root user in the ICAT server
+   has the user name `root` and is configured in the `simple`
+   authenticator and that there are two users with name `jdoe` and
+   `nbour` configured in the `db` authenticator.  If this is not the
+   case in your ICAT, you'll need to adapt the examples accordingly.
 
 All configuration variables aside from `configFile` and
 `configSection` can be set in the configuration file.  Edit your
@@ -63,7 +70,7 @@ All configuration variables aside from `configFile` and
 
   [myicat_jdoe]
   url = https://icat.example.com:8181/ICATService/ICAT?wsdl
-  auth = simple
+  auth = db
   username = jdoe
   password = secret
   idsurl = https://icat.example.com:8181/ids
@@ -75,7 +82,7 @@ store passwords in it.  Now you can do::
 
   $ python login.py -s myicat_jdoe
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
-  User: simple/jdoe
+  User: db/jdoe
 
 Command line options override the settings in the configuration file.
 This way, you can still log in as another user not configured in the
@@ -84,7 +91,7 @@ file::
   $ python login.py -s myicat_jdoe -u nbour
   Password:
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
-  User: simple/nbour
+  User: db/nbour
 
 You might have noticed that the program again prompted us for a
 password even though there is one set in the config file.  The
@@ -107,7 +114,7 @@ Edit ``icat.cfg`` again to read as follows::
 
   [myicat_jdoe]
   url = https://icat.example.com:8181/ICATService/ICAT?wsdl
-  auth = simple
+  auth = db
   username = jdoe
   password = secret
   idsurl = https://icat.example.com:8181/ids
@@ -115,7 +122,7 @@ Edit ``icat.cfg`` again to read as follows::
 
   [myicat_nbour]
   url = https://icat.example.com:8181/ICATService/ICAT?wsdl
-  auth = simple
+  auth = db
   username = nbour
   password = secret
   idsurl = https://icat.example.com:8181/ids

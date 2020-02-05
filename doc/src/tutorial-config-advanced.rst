@@ -55,14 +55,14 @@ This new option is optional, so the program can be used as before::
 
   $ python config-custom.py -s myicat_jdoe
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
-  User: simple/jdoe
+  User: db/jdoe
 
 If we add the option on the command line, it has the expected effect::
 
   $ python config-custom.py -s myicat_jdoe -o out.txt
   $ cat out.txt
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
-  User: simple/jdoe
+  User: db/jdoe
 
 Alternatively, we may also specify the option in the configuration
 file as follows::
@@ -87,7 +87,7 @@ If we call our program normally, we get the same output as before::
 
   $ python config-flag.py -s myicat_jdoe
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
-  User: simple/jdoe
+  User: db/jdoe
 
 But if we pass the flag parameter, it produces a different output::
 

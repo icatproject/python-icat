@@ -226,7 +226,7 @@ try what happens if we choose another user::
 
   $ python -i login.py -s myicat_jdoe
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
-  User: simple/jdoe
+  User: db/jdoe
   >>> client.search("SELECT pt FROM ParameterType pt INCLUDE pt.facility")
   []
 
@@ -268,7 +268,7 @@ If we now try again to search for the objects as normal user, we get::
 
   $ python -i login.py -s myicat_jdoe
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
-  User: simple/jdoe
+  User: db/jdoe
   >>> client.search("SELECT pt FROM ParameterType pt INCLUDE pt.facility")
   [(parameterType){
      createId = "simple/root"
