@@ -30,11 +30,11 @@ some well defined and rich content to search for.  Run the following
 commands at the command line::
 
   $ wipeicat.py -s myicat_root
-  $ icatingest.py -s myicat_root -i doc/examples/icatdump.yaml
+  $ icatingest.py -s myicat_root -i icatdump.yaml
 
 `wipeicat.py` and `icatingest.py` are two scripts that get installed
-with python-icat.  The file `doc/examples/icatdump.yaml` can be found
-in the python-icat source distribution.  The first command deletes all
+with python-icat.  The file `icatdump.yaml` can be found in the
+python-icat source distribution.  The first command deletes all
 content from the ICAT server that we may have created in the previous
 sections.  The second command reads the `icatdump.yaml` file and
 creates all objects listed therein in the ICAT server.
