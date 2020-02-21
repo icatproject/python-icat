@@ -1,4 +1,4 @@
-Working with objects in the ICAT Server
+Working with objects in the ICAT server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In the previous section of this tutorial, we created two ``Facility``

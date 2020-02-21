@@ -1,4 +1,4 @@
-Searching for objects in the ICAT Server
+Searching for objects in the ICAT server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are many ways to search for objects in ICAT using python-icat.

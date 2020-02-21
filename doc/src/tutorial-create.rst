@@ -1,4 +1,4 @@
-Creating stuff in the ICAT Server
+Creating stuff in the ICAT server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ICAT server is pretty useless if it is void of content.  So let's
