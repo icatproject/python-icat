@@ -11,10 +11,10 @@ config.add_variable("entity", ("-e", "--entity"),
                     dict(help="an entity from the ICAT schema",
                          choices=["User", "Study"]))
 
-# make this program use sub-commands
+# add the configuration variable representing the sub-commands
 subcmds = config.add_subcommands("mode")
 
-# register three possible sub-commands {list,create,delete}
+# register three possible values for the sub-commands {list,create,delete}
 subconfig_list = subcmds.add_subconfig("list",
                                        dict(help="list existing ICAT objects"))
 subconfig_create = subcmds.add_subconfig("create",
@@ -22,8 +22,8 @@ subconfig_create = subcmds.add_subconfig("create",
 subconfig_delete = subcmds.add_subconfig("delete",
                                          dict(help="delete an ICAT object"))
 
-# add two additional configuration variables 'name' and 'id', but this
-# time make them only available for the respective sub-command
+# add two additional configuration variables 'name' and 'id' that are
+# specific to the 'create' and 'delete' sub-commands respectively.
 subconfig_create.add_variable("name", ("-n", "--name"),
                               dict(help="name for the new ICAT object"))
 subconfig_delete.add_variable("id", ("-i", "--id"),

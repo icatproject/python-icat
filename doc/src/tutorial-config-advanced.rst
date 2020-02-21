@@ -69,7 +69,11 @@ file as follows::
 
   [myicat_jdoe]
   url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  auth = db
+  username = jdoe
+  password = secret
   idsurl = https://icat.example.com:8181/ids
+  #checkCert = No
   outfile = out.txt
 
 Flag configuration variables
@@ -94,26 +98,45 @@ But if we pass the flag parameter, it produces a different output::
   $ python config-flag.py -s myicat_jdoe --hide-user-name
   Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
 
+A flag type configuration variable also adds a negated form of the
+command line flag::
+
+  $ python config-flag.py -s myicat_jdoe --no-hide-user-name
+  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  User: db/jdoe
+
+This may look somewhat pointless at first glance as it only affirms
+the default.  It becomes useful if we set this flag in the
+configuration file as in::
+
+  [myicat_jdoe]
+  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  auth = db
+  username = jdoe
+  password = secret
+  idsurl = https://icat.example.com:8181/ids
+  #checkCert = No
+  hide = true
+
+In that case we can override this setting on the command line with
+``--no-hide-user-name``.
+
 Defining sub-commands
 ---------------------
 
-For some use cases, defining simple configuration variables may not be
-flexible enough.  For example, a program might perform several
-different functions which each require different kinds of arguments.
-In cases like this, programs can split up their functionality into
-sub-commands which each take their own set of configuration variables.
+Many programs split up their functionality into sub-commands.  For
+instance, the ``git`` program can be called as ``git clone``, ``git
+checkout``, ``git commit``, and so on.  In general, each sub-command
+will take their own set of configuration variables.
 
-To make sub-commands available in your program, simply call the
-:meth:`~icat.config.BaseConfig.add_subcommands` method.  Please note
-that after calling this method, adding any more subsequent
-configuration variables or subcommand variables is not allowed, so
-make sure to set up all 'global' configuration variables first before
-invoking this method.
-
-Once the sub-commands have been made available, you can call the
+You can create programs like this and manage the configuration of each
+sub-command with :mod:`icat.config` using the
+:meth:`~icat.config.BaseConfig.add_subcommands` method.  It adds a
+special :class:`~icat.config.ConfigSubCmds` configuration variable
+representing the sub-command.  This object provides the
 :meth:`~icat.config.ConfigSubCmds.add_subconfig` method to register a
-new sub-command for your program.  You can then define
-sub-command-specific configuration variables using the familiar
+new sub-command value.  On the sub-config object in turn you can then
+define specific configuration variables using the familiar
 :meth:`~icat.config.BaseConfig.add_variable` method.
 
 To put it all together, consider the following example program:
@@ -169,13 +192,86 @@ config file (``-s SECTION``) as well as the `entity` variable (``-e
 
   $ python config-sub-commands.py -s myicat_root -e User list
   listing existing User objects...
-  []
+  [(user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 1
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "Aelius Cordus"
+     name = "db/acord"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 2
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "Arnold Hau"
+     name = "db/ahau"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 3
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "Jean-Baptiste Botul"
+     name = "db/jbotu"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 4
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "John Doe"
+     name = "db/jdoe"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 5
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "Nicolas Bourbaki"
+     name = "db/nbour"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 6
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "Rudolph Beck-Dülmen"
+     name = "db/rbeck"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 7
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "IDS reader"
+     name = "simple/idsreader"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 8
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "Root"
+     name = "simple/root"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 9
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "User Office"
+     name = "simple/useroffice"
+   }]
   done
 
-Alright, looks like there are no ``User`` objects yet, so let's add a
-new one.  We will use the `create` sub-command to do this.  Earlier,
-we defined a configuration variable `name` (``-n NAME``) that is
-specific to the `create` sub-command.  We can check this by calling::
+We see the users defined in the example content created in the
+previous tutorial sections.  Let's add a new user.  We will use the
+`create` sub-command to do this.  Earlier, we defined a configuration
+variable `name` (``-n NAME``) that is specific to the `create`
+sub-command.  We can check this by calling::
 
   $ python config-sub-commands.py create -h
   usage: config-sub-commands.py create [-h] [-n NAME]
@@ -184,36 +280,108 @@ specific to the `create` sub-command.  We can check this by calling::
     -h, --help            show this help message and exit
     -n NAME, --name NAME  name for the new ICAT object
 
-Let's create a new ``User`` object named "Alice".  Note that we must
+Let's create a new ``User`` object named "db/alice".  Note that we must
 provide the 'global' configuration variables (`section` and `entity`)
 before the sub-command, and the sub-command-specific option (`name`)
 after it::
 
-  $ python config-sub-commands.py -s myicat_root -e User create -n Alice
-  creating a new User object named Alice...
+  $ python config-sub-commands.py -s myicat_root -e User create -n db/alice
+  creating a new User object named db/alice...
   done
 
 If we now list the ``User`` objects again, we can see a new object
-with name "Alice"::
+with name "db/alice"::
 
   $ python config-sub-commands.py -s myicat_root -e User list
   listing existing User objects...
   [(user){
      createId = "simple/root"
-     createTime = 2019-11-26 13:00:46+01:00
+     createTime = 2020-02-20 15:55:39+01:00
      id = 1
      modId = "simple/root"
-     modTime = 2019-11-26 13:00:46+01:00
-     name = "Alice"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "Aelius Cordus"
+     name = "db/acord"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 2
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "Arnold Hau"
+     name = "db/ahau"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 3
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "Jean-Baptiste Botul"
+     name = "db/jbotu"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 4
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "John Doe"
+     name = "db/jdoe"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 5
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "Nicolas Bourbaki"
+     name = "db/nbour"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 6
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "Rudolph Beck-Dülmen"
+     name = "db/rbeck"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 7
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "IDS reader"
+     name = "simple/idsreader"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 8
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "Root"
+     name = "simple/root"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-20 15:55:39+01:00
+     id = 9
+     modId = "simple/root"
+     modTime = 2020-02-20 15:55:39+01:00
+     fullName = "User Office"
+     name = "simple/useroffice"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2020-02-21 18:34:29+01:00
+     id = 10
+     modId = "simple/root"
+     modTime = 2020-02-21 18:34:29+01:00
+     name = "db/alice"
    }]
   done
 
 Finally, let's delete this new object using the `delete` sub-command.
 To do this, we must specify the sub-command-specific configuration
 variable `id` (``-i ID``).  In the above output, we can see that the
-object's ID is 1, so we write::
+object's ID is 10, so we write::
 
-  $ python config-sub-commands.py -s myicat_root -e User delete -i 1
-  deleting the User object with ID 1...
+  $ python config-sub-commands.py -s myicat_root -e User delete -i 10
+  deleting the User object with ID 10...
   done
 
