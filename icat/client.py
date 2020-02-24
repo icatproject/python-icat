@@ -10,6 +10,7 @@ import re
 import logging
 from distutils.version import StrictVersion as Version
 import atexit
+import urlparse
 
 import suds
 import suds.client
@@ -140,6 +141,13 @@ TypeMap410.update( instrument = icat.entities.Instrument410,
                    study = icat.entities.Study410,
                    user = icat.entities.User410 )
 
+def _complete_url(url, default_path="/ICATService/ICAT?wsdl"):
+    if not url:
+        return url
+    o = urlparse.urlparse(url)
+    if o.path or o.query:
+        return url
+    return "%s://%s%s" % (o.scheme, o.netloc, default_path)
 
 class Client(suds.client.Client):
  
@@ -197,10 +205,10 @@ class Client(suds.client.Client):
         :see: :class:`suds.options.Options` for the keyword arguments.
         """
 
-        self.url = url
+        self.url = _complete_url(url)
         self.kwargs = dict(kwargs)
 
-        idsurl = kwargs.pop('idsurl', None)
+        idsurl = _complete_url(kwargs.pop('idsurl', None), default_path="/ids")
 
         sslverify = kwargs.pop('checkCert', True)
         cafile = kwargs.pop('caFile', None)
@@ -627,10 +635,39 @@ class Client(suds.client.Client):
         return value is an iterator over the items in the search
         result rather then a list.  The individual search calls are
         done lazily, e.g. they are not done until needed to yield the
-        next item from the iterator.  The result may be defective
-        (omissions, duplicates) if the content in the ICAT server
-        changes between individual search calls in a way that would
-        affect the result.
+        next item from the iterator.
+
+        .. note::
+            The result may be defective (omissions, duplicates) if the
+            content in the ICAT server changes between individual
+            search calls in a way that would affect the result.  It is
+            a common mistake when looping over items returned from
+            this method to have code with side effects on the search
+            result in the body of the loop.  Example:
+
+            .. code-block:: python
+
+                # Mark all datasets as complete
+                # This will *not* work as expected!
+                query = Query(client, "Dataset", conditions={
+                    "complete": "= False"
+                }, includes="1", order=["id"])
+                for ds in client.searchChunked(query):
+                    ds.complete = True
+                    ds.update()
+
+            This should rather be formulated as:
+
+            .. code-block:: python
+
+                # Mark all datasets as complete
+                # This version works!
+                query = Query(client, "Dataset", includes="1", order=["id"])
+                for ds in client.searchChunked(query):
+                    if not ds.complete:
+                        continue
+                    ds.complete = True
+                    ds.update()
 
         :param query: the search query.
         :type query: :class:`icat.query.Query` or :class:`str`

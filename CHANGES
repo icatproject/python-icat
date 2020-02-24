@@ -3,6 +3,10 @@
 
 * Version 0.17.0 (not yet published)
 
+** New features
+
+ + #63: Set a default path in the URL for ICAT and IDS respectively.
+
 ** Incompatible changes and deprecations
 
  + Deprecate support for Python 2.
