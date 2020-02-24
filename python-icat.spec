@@ -172,7 +172,7 @@ done
 %endif
 
 %__install -d -m 755 %{buildroot}%{_docdir}/%{name}
-%__cp -pr README.rst CHANGES doc/* %{buildroot}%{_docdir}/%{name}
+%__cp -pr README.rst CHANGES.rst doc/* %{buildroot}%{_docdir}/%{name}
 %__chmod -f a-x %{buildroot}%{_docdir}/%{name}/examples/*.py
 
 %if 0%{?suse_version}

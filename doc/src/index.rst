@@ -34,6 +34,7 @@ Parts of the documentation
 
    tutorial
    moduleref
+   changelog
 
 
 Indices and tables
