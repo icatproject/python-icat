@@ -17,8 +17,10 @@
 %global python3_other_pkgversion 0
 %global __python2 %{__python}
 %global python2_sitelib %{python_sitelib}
+%global add_license 0
 %else
 %global python2_enable 1
+%global add_license 1
 %endif
 %if 0%{?centos_version} == 700 || 0%{?rhel_version} == 700
 %global __python3 /usr/bin/python3.6
@@ -238,9 +240,13 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
+%if 0%{?add_license}
+%license LICENSE.txt
+%endif
 %doc %{_docdir}/%{name}
 %exclude %{_docdir}/%{name}/html
 %exclude %{_docdir}/%{name}/examples
+%exclude %{_docdir}/%{name}/tutorial
 
 %files doc
 %defattr(-,root,root)
@@ -251,6 +257,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %dir %{_docdir}/%{name}
 %doc %{_docdir}/%{name}/examples
+%doc %{_docdir}/%{name}/tutorial
 
 %if 0%{?python2_enable}
 %files -n python%{python2_pkgversion}-icat
