@@ -46,9 +46,9 @@ program now accepts::
 
 So there is a command line option ``-w URL``.  Let's try::
 
-  $ python config.py -w 'https://icat.example.com:8181/ICATService/ICAT?wsdl'
-  Connect to https://icat.example.com:8181/ICATService/ICAT?wsdl
-  ICAT version 4.8
+  $ python config.py -w 'https://icat.example.com:8181'
+  Connect to https://icat.example.com:8181
+  ICAT version 4.10
 
 (Again, you may need to add the ``--no-check-certificate`` flag to the
 command line if your ICAT server does not have a trusted SSL
@@ -59,15 +59,15 @@ of a configuration file.  Create a text file named ``icat.cfg`` in the
 current working directory with the following content::
 
   [myicat]
-  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  url = https://icat.example.com:8181
   # uncomment, if your server does not have a trusted certificate
   #checkCert = No
 
 Now you can do the following::
 
   $ python config.py -s myicat
-  Connect to https://icat.example.com:8181/ICATService/ICAT?wsdl
-  ICAT version 4.8
+  Connect to https://icat.example.com:8181
+  ICAT version 4.10
 
 The command line option ``-s SECTION`` selects a section in the
 configuration file to read options from.
@@ -81,24 +81,24 @@ about the URL to IDS.  Modify the example program to read as:
 If you run this in the same way as above, you'll get::
 
   $ python config-with-ids.py -s myicat
-  Connect to https://icat.example.com:8181/ICATService/ICAT?wsdl
-  ICAT version 4.8
+  Connect to https://icat.example.com:8181
+  ICAT version 4.10
   No IDS configured
 
 But if you indicate the URL to IDS with the command line option
 ``--idsurl``, or even better in the configuration file as follows::
 
   [myicat]
-  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
-  idsurl = https://icat.example.com:8181/ids
+  url = https://icat.example.com:8181
+  idsurl = https://icat.example.com:8181
   # uncomment, if your server does not have a trusted certificate
   #checkCert = No
 
 You'll get something like::
 
   $ python config-with-ids.py -s myicat
-  Connect to https://icat.example.com:8181/ICATService/ICAT?wsdl
-  ICAT version 4.8
-  Connect to https://icat.example.com:8181/ids
-  IDS version 1.7
+  Connect to https://icat.example.com:8181
+  ICAT version 4.10
+  Connect to https://icat.example.com:8181
+  IDS version 1.10.1
 

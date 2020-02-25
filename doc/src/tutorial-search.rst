@@ -6,7 +6,7 @@ Until now, we have seen how we can manually write JPQL query strings
 and pass them to the :meth:`~icat.client.Client.search` method::
 
   $ python -i login.py -s myicat_root
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: simple/root
   >>> client.search("SELECT f FROM Facility f INCLUDE f.parameterTypes LIMIT 1,1")
   [(facility){
@@ -53,7 +53,7 @@ The :mod:`icat.query` module provides the :class:`~icat.query.Query`
 class.  We need to import it first::
 
   $ python -i login.py -s myicat_nbour
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: db/nbour
   >>> from icat.query import Query
 

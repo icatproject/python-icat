@@ -15,7 +15,7 @@ client in the :attr:`~icat.client.Client.ids` attribute of the
 provides methods for the IDS API calls::
 
   $ python -i login.py -s myicat_nbour
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: db/nbour
   >>> client.ids.isReadOnly()
   False

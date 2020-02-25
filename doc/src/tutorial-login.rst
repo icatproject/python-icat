@@ -45,7 +45,7 @@ and a user name::
 
   $ python login.py -s myicat -a db -u jdoe
   Password:
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: db/jdoe
 
 Note that the program prompted us for a password, since we didn't
@@ -69,11 +69,11 @@ All configuration variables aside from `configFile` and
 ``icat.cfg`` file to read::
 
   [myicat_jdoe]
-  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  url = https://icat.example.com:8181
   auth = db
   username = jdoe
   password = secret
-  idsurl = https://icat.example.com:8181/ids
+  idsurl = https://icat.example.com:8181
   # uncomment, if your server does not have a trusted certificate
   #checkCert = No
 
@@ -81,7 +81,7 @@ You should protect this file from unauthorized read access if you
 store passwords in it.  Now you can do::
 
   $ python login.py -s myicat_jdoe
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: db/jdoe
 
 Command line options override the settings in the configuration file.
@@ -90,7 +90,7 @@ file::
 
   $ python login.py -s myicat_jdoe -u nbour
   Password:
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: db/nbour
 
 You might have noticed that the program again prompted us for a
@@ -104,28 +104,28 @@ able to quickly switch between different users to log into the ICAT.
 Edit ``icat.cfg`` again to read as follows::
 
   [myicat_root]
-  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  url = https://icat.example.com:8181
   auth = simple
   username = root
   password = secret
-  idsurl = https://icat.example.com:8181/ids
+  idsurl = https://icat.example.com:8181
   # uncomment, if your server does not have a trusted certificate
   #checkCert = No
 
   [myicat_jdoe]
-  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  url = https://icat.example.com:8181
   auth = db
   username = jdoe
   password = secret
-  idsurl = https://icat.example.com:8181/ids
+  idsurl = https://icat.example.com:8181
   #checkCert = No
 
   [myicat_nbour]
-  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  url = https://icat.example.com:8181
   auth = db
   username = nbour
   password = secret
-  idsurl = https://icat.example.com:8181/ids
+  idsurl = https://icat.example.com:8181
   #checkCert = No
 
 We shall use some of this configuration in the following sections of

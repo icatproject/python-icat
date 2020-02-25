@@ -9,7 +9,7 @@ as in the last sections.  But python-icat may also be used
 interactively at the Python prompt, so let's try this out::
 
   $ python -i login.py -s myicat_root
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: simple/root
   >>> client.search("SELECT f FROM Facility f")
   []
@@ -225,7 +225,7 @@ Until now, we connected the ICAT server as the ``root`` user.  Let's
 try what happens if we choose another user::
 
   $ python -i login.py -s myicat_jdoe
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: db/jdoe
   >>> client.search("SELECT pt FROM ParameterType pt INCLUDE pt.facility")
   []
@@ -240,7 +240,7 @@ Let's add some rules to allow public read access to some object types.
 Connect again as ``root`` and enter::
 
   $ python -i login.py -s myicat_root
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: simple/root
   >>> publicTables = [ "Application", "DatafileFormat", "DatasetType",
   ...                  "Facility", "FacilityCycle", "Instrument",
@@ -267,7 +267,7 @@ is a convenience method in python-icat roughly equivalent to::
 If we now try again to search for the objects as normal user, we get::
 
   $ python -i login.py -s myicat_jdoe
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: db/jdoe
   >>> client.search("SELECT pt FROM ParameterType pt INCLUDE pt.facility")
   [(parameterType){

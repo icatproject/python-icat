@@ -5,7 +5,7 @@ In the previous section of this tutorial, we created two ``Facility``
 objects::
 
   $ python -i login.py -s myicat_root
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: simple/root
   >>> client.search("SELECT f FROM Facility f")
   [(facility){

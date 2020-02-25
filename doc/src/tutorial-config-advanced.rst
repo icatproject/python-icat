@@ -54,25 +54,25 @@ on the list of available command line options::
 This new option is optional, so the program can be used as before::
 
   $ python config-custom.py -s myicat_jdoe
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: db/jdoe
 
 If we add the option on the command line, it has the expected effect::
 
   $ python config-custom.py -s myicat_jdoe -o out.txt
   $ cat out.txt
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: db/jdoe
 
 Alternatively, we may also specify the option in the configuration
 file as follows::
 
   [myicat_jdoe]
-  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  url = https://icat.example.com:8181
   auth = db
   username = jdoe
   password = secret
-  idsurl = https://icat.example.com:8181/ids
+  idsurl = https://icat.example.com:8181
   #checkCert = No
   outfile = out.txt
 
@@ -90,19 +90,19 @@ control the output via a flag:
 If we call our program normally, we get the same output as before::
 
   $ python config-flag.py -s myicat_jdoe
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: db/jdoe
 
 But if we pass the flag parameter, it produces a different output::
 
   $ python config-flag.py -s myicat_jdoe --hide-user-name
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
 
 A flag type configuration variable also adds a negated form of the
 command line flag::
 
   $ python config-flag.py -s myicat_jdoe --no-hide-user-name
-  Login to https://icat.example.com:8181/ICATService/ICAT?wsdl was successful.
+  Login to https://icat.example.com:8181 was successful.
   User: db/jdoe
 
 This may look somewhat pointless at first glance as it only affirms
@@ -110,11 +110,11 @@ the default.  It becomes useful if we set this flag in the
 configuration file as in::
 
   [myicat_jdoe]
-  url = https://icat.example.com:8181/ICATService/ICAT?wsdl
+  url = https://icat.example.com:8181
   auth = db
   username = jdoe
   password = secret
-  idsurl = https://icat.example.com:8181/ids
+  idsurl = https://icat.example.com:8181
   #checkCert = No
   hide = true
 
