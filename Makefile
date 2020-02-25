@@ -10,7 +10,7 @@ test:
 sdist: doc-html
 	$(PYTHON) setup.py sdist
 
-doc-html: ver
+doc-html: init_py
 	$(MAKE) -C doc html
 
 
@@ -32,8 +32,8 @@ distclean: clean
 	$(MAKE) -C doc distclean
 
 
-ver:
+init_py:
 	$(PYTHON) setup.py init_py
 
 
-.PHONY: build test sdist doc-html clean distclean ver
+.PHONY: build test sdist doc-html clean distclean init_py
