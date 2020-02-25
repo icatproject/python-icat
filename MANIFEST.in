@@ -14,6 +14,7 @@ include doc/html/*.js
 include doc/html/_static/*
 include doc/html/objects.inv
 include doc/icatdata*.xsd
+include doc/tutorial/*.py
 include tests/conftest.py
 include tests/data/summary*
 include tests/pytest.ini

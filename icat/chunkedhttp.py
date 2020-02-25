@@ -1,20 +1,5 @@
 """HTTP with chunked transfer encoding for urllib.
 
-This module provides modified versions of HTTPHandler and HTTPSHandler
-from urllib.  These handlers differ from the standard counterparts in
-that they are able to send the data using chunked transfer encoding to
-the HTTP server.
-
-Note that although the handlers are designed as drop in replacements
-for the standard counterparts, we do not intent to to catch all corner
-cases and be fully compatible in all situations.  The implementations
-here shall be just good enough for the use cases in IDSClient.
-
-Starting with Python 3.6.0, support for chunked transfer encoding has
-been added to the standard library, see `Issue 12319`_.  As a result,
-this module is obsolete for newer Python versions and you should use
-the handlers from the standard library instead.
-
 .. note::
    This module is included here because python-icat uses it
    internally, but it is not considered to be part of the API.
@@ -22,7 +7,22 @@ the handlers from the standard library instead.
    python-icat.  It may even be removed from future versions of the
    python-icat distribution without further notice.
 
-.. Issue 12319_: https://bugs.python.org/issue12319
+This module provides modified versions of HTTPHandler and HTTPSHandler
+from urllib.  These handlers differ from the standard counterparts in
+that they are able to send the data using chunked transfer encoding to
+the HTTP server.
+
+Note that although the handlers are designed as drop in replacements
+for the standard counterparts, we do not intent to catch all corner
+cases and be fully compatible in all situations.  The implementations
+here shall be just good enough for the use cases in IDSClient.
+
+Starting with Python 3.6.0, support for chunked transfer encoding has
+been added to the standard library, see `Issue 12319`_.  As a result,
+this module is obsolete for newer Python versions and python-icat will
+use it only for older versions.
+
+.. _Issue 12319: https://bugs.python.org/issue12319
 """
 
 import httplib
