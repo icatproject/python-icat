@@ -46,7 +46,7 @@ them.  Let's create a few::
   >>> for user, name in users:
   ...     with open("greet-%s.txt" % user, "wt") as f:
   ...         print("Hello %s!" % name, file=f)
-  ... 
+  ...
 
 We need a dataset in ICAT that the uploaded files should be put into,
 so let's create one::
@@ -63,11 +63,11 @@ so let's create one::
 For each of the files, we create a new datafile object and call the
 :meth:`~icat.client.Client.putData` method to upload it::
 
-  >>> df_format = client.assertedSearch(Query(client, "DatafileFormat", conditions={"name": "= 'Text'"}))[0]        
+  >>> df_format = client.assertedSearch(Query(client, "DatafileFormat", conditions={"name": "= 'Text'"}))[0]
   >>> for fname in ("greet-jdoe.txt", "greet-nbour.txt", "greet-rbeck.txt"):
   ...     datafile = client.new("datafile", name=fname, dataset=dataset, datafileFormat=df_format)
   ...     client.putData(fname, datafile)
-  ... 
+  ...
   (datafile){
      createId = "db/nbour"
      createTime = 2020-02-21 14:57:16+01:00
@@ -140,8 +140,8 @@ requested, either by passing multiple files in the argument or by
 requesting a dataset having multiple files, IDS will send a zip file
 with the requested files::
 
-  >>> from io import BytesIO                                                
-  >>> from zipfile import ZipFile                                           
+  >>> from io import BytesIO
+  >>> from zipfile import ZipFile
   >>> query = Query(client, "Dataset", conditions={"name": "= 'greetings'"})
   >>> ds = client.assertedSearch(query)[0]
   >>> data = client.getData([ds])
@@ -150,7 +150,7 @@ with the requested files::
   ...     for f in zipfile.namelist():
   ...         print("file name: %s" % f)
   ...         print("content: %r" % zipfile.open(f).read().decode('utf8'))
-  ... 
+  ...
   file name: ids/ESNF/12100409-ST/1.1-P/greetings/greet-jdoe.txt
   content: 'Hello John!\n'
   file name: ids/ESNF/12100409-ST/1.1-P/greetings/greet-nbour.txt
@@ -210,5 +210,5 @@ the status or to download the data::
   >>> buffer = BytesIO(data.read())
   >>> with ZipFile(buffer) as zipfile:
   ...     zipfile.namelist()
-  ... 
+  ...
   ['ids/ESNF/12100409-ST/1.1-P/greetings/greet-jdoe.txt', 'ids/ESNF/12100409-ST/1.1-P/greetings/greet-nbour.txt', 'ids/ESNF/12100409-ST/1.1-P/greetings/greet-rbeck.txt']

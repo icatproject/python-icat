@@ -132,7 +132,7 @@ We may also include related objects in the search results::
      id = 2
      modId = "simple/root"
      modTime = 2020-02-05 16:49:28+01:00
-     datasets[] = 
+     datasets[] =
         (dataset){
            createId = "simple/root"
            createTime = 2020-02-05 16:49:29+01:00
@@ -197,7 +197,7 @@ field larger then 5 Tesla and include its parameters in the result::
      complete = False
      endDate = 2010-10-01 08:17:48+02:00
      name = "e208339"
-     parameters[] = 
+     parameters[] =
         (datasetParameter){
            createId = "simple/root"
            createTime = 2020-02-05 16:49:29+01:00
@@ -205,7 +205,7 @@ field larger then 5 Tesla and include its parameters in the result::
            modId = "simple/root"
            modTime = 2020-02-05 16:49:29+01:00
            numericValue = 7.3
-           type = 
+           type =
               (parameterType){
                  createId = "simple/root"
                  createTime = 2020-02-05 16:49:24+01:00
@@ -232,7 +232,7 @@ field larger then 5 Tesla and include its parameters in the result::
            modId = "simple/root"
            modTime = 2020-02-05 16:49:29+01:00
            numericValue = 5.0
-           type = 
+           type =
               (parameterType){
                  createId = "simple/root"
                  createTime = 2020-02-05 16:49:24+01:00
@@ -266,7 +266,7 @@ of your Python program.  Consider::
   ...         query.addConditions({"visitId": "= '%s'" % visitId})
   ...     print(query)
   ...     return client.assertedSearch(query)[0]
-  ... 
+  ...
   >>> get_investigation(client, "08100122-EF")
   SELECT o FROM Investigation o WHERE o.name = '08100122-EF'
   (investigation){
@@ -496,7 +496,7 @@ dataset parameter, ordered by parameter type name (ascending), units
      modId = "simple/root"
      modTime = 2020-02-05 16:49:29+01:00
      numericValue = 7.3
-     type = 
+     type =
         (parameterType){
            createId = "simple/root"
            createTime = 2020-02-05 16:49:24+01:00
@@ -522,7 +522,7 @@ dataset parameter, ordered by parameter type name (ascending), units
      modId = "simple/root"
      modTime = 2020-02-05 16:49:32+01:00
      numericValue = 2.7
-     type = 
+     type =
         (parameterType){
            createId = "simple/root"
            createTime = 2020-02-05 16:49:24+01:00
@@ -548,7 +548,7 @@ dataset parameter, ordered by parameter type name (ascending), units
      modId = "simple/root"
      modTime = 2020-02-05 16:49:32+01:00
      numericValue = 5.0
-     type = 
+     type =
         (parameterType){
            createId = "simple/root"
            createTime = 2020-02-05 16:49:24+01:00
@@ -574,7 +574,7 @@ dataset parameter, ordered by parameter type name (ascending), units
      modId = "simple/root"
      modTime = 2020-02-05 16:49:29+01:00
      numericValue = 5.0
-     type = 
+     type =
         (parameterType){
            createId = "simple/root"
            createTime = 2020-02-05 16:49:24+01:00
@@ -600,7 +600,7 @@ dataset parameter, ordered by parameter type name (ascending), units
      modId = "simple/root"
      modTime = 2020-02-05 16:49:34+01:00
      numericValue = 3.92
-     type = 
+     type =
         (parameterType){
            createId = "simple/root"
            createTime = 2020-02-05 16:49:25+01:00
@@ -626,7 +626,7 @@ dataset parameter, ordered by parameter type name (ascending), units
      modId = "simple/root"
      modTime = 2020-02-05 16:49:34+01:00
      numericValue = 277.07
-     type = 
+     type =
         (parameterType){
            createId = "simple/root"
            createTime = 2020-02-05 16:49:25+01:00

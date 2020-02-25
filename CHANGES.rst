@@ -298,7 +298,7 @@ Incompatible changes and deprecations
   typical usage was the definition of a configuration variable like::
 
         config = icat.config.Config()
-        config.add_variable('extracfg', ("--extracfg",), 
+        config.add_variable('extracfg', ("--extracfg",),
                             dict(help="Extra config file"),
                             default="%(configDir)s/extra.xml", subst=True)
 
@@ -308,7 +308,7 @@ Incompatible changes and deprecations
   this by::
 
         config = icat.config.Config()
-        config.add_variable('extracfg', ("--extracfg",), 
+        config.add_variable('extracfg', ("--extracfg",),
                             dict(help="Extra config file"),
                             default="extra.xml", type=icat.config.cfgpath)
 
@@ -1033,8 +1033,8 @@ Minor changes and fixes
 
   In the client code, replace::
 
-    pi = investigation.addInvestigationUser(uid, fullName=userName, 
-                                            search=True, 
+    pi = investigation.addInvestigationUser(uid, fullName=userName,
+                                            search=True,
                                             role="Principal Investigator")
 
   by ::
