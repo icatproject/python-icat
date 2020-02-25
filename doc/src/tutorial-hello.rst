@@ -16,9 +16,10 @@ output::
 
 The constructor of :class:`icat.client.Client` takes the URL of the
 ICAT service as argument.  It contacts the ICAT server, queries the
-version and stores the result to the attribute :attr:`apiversion` of
-the client object.  Obviously, you'll need to change the variable
-`url` in this example to point to your ICAT server.
+version and stores the result to the attribute
+:attr:`~icat.client.Client.apiversion` of the client object.
+Obviously, you'll need to change the variable `url` in this example to
+point to your ICAT server.
 
 If your ICAT server does not have a trusted SSL certificate you may
 get (depending on your Python version) an error instead::
