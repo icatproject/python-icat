@@ -17,7 +17,7 @@ import suds.client
 import suds.sudsobject
 
 from icat.entity import Entity
-import icat.entities
+from icat.entities import getTypeMap
 from icat.query import Query
 from icat.exception import *
 from icat.ids import *
@@ -26,120 +26,7 @@ from icat.helper import simpleqp_unquote, parse_attr_val, ms_timestamp
 
 __all__ = ['Client']
 
-
 log = logging.getLogger(__name__)
-
-TypeMap42 = {
-    'entityBaseBean': Entity,
-    'application': icat.entities.Application,
-    'datafile': icat.entities.Datafile,
-    'datafileFormat': icat.entities.DatafileFormat,
-    'datafileParameter': icat.entities.DatafileParameter,
-    'dataset': icat.entities.Dataset,
-    'datasetParameter': icat.entities.DatasetParameter,
-    'datasetType': icat.entities.DatasetType,
-    'facility': icat.entities.Facility,
-    'facilityCycle': icat.entities.FacilityCycle,
-    'group': icat.entities.Group,
-    'inputDatafile': icat.entities.InputDatafile,
-    'inputDataset': icat.entities.InputDataset,
-    'instrument': icat.entities.Instrument,
-    'instrumentScientist': icat.entities.InstrumentScientist,
-    'investigation': icat.entities.Investigation,
-    'investigationParameter': icat.entities.InvestigationParameter,
-    'investigationType': icat.entities.InvestigationType,
-    'investigationUser': icat.entities.InvestigationUser,
-    'job': icat.entities.Job,
-    'keyword': icat.entities.Keyword,
-    'notificationRequest': icat.entities.NotificationRequest,
-    'outputDatafile': icat.entities.OutputDatafile,
-    'outputDataset': icat.entities.OutputDataset,
-    'parameter': icat.entities.Parameter,
-    'parameterType': icat.entities.ParameterType,
-    'permissibleStringValue': icat.entities.PermissibleStringValue,
-    'publication': icat.entities.Publication,
-    'relatedDatafile': icat.entities.RelatedDatafile,
-    'rule': icat.entities.Rule,
-    'sample': icat.entities.Sample,
-    'sampleParameter': icat.entities.SampleParameter,
-    'sampleType': icat.entities.SampleType,
-    'shift': icat.entities.Shift,
-    'study': icat.entities.Study,
-    'studyInvestigation': icat.entities.StudyInvestigation,
-    'user': icat.entities.User,
-    'userGroup': icat.entities.UserGroup,
-    }
-"""Map instance types defined in the WSDL to Python classes (ICAT 4.2.*)."""
-
-TypeMap43 = {
-    'entityBaseBean': Entity,
-    'application': icat.entities.Application43,
-    'dataCollection': icat.entities.DataCollection,
-    'dataCollectionDatafile': icat.entities.DataCollectionDatafile,
-    'dataCollectionDataset': icat.entities.DataCollectionDataset,
-    'dataCollectionParameter': icat.entities.DataCollectionParameter,
-    'datafile': icat.entities.Datafile43,
-    'datafileFormat': icat.entities.DatafileFormat,
-    'datafileParameter': icat.entities.DatafileParameter,
-    'dataset': icat.entities.Dataset43,
-    'datasetParameter': icat.entities.DatasetParameter,
-    'datasetType': icat.entities.DatasetType,
-    'facility': icat.entities.Facility43,
-    'facilityCycle': icat.entities.FacilityCycle43,
-    'grouping': icat.entities.Group43,
-    'instrument': icat.entities.Instrument43,
-    'instrumentScientist': icat.entities.InstrumentScientist,
-    'investigation': icat.entities.Investigation43,
-    'investigationInstrument': icat.entities.InvestigationInstrument,
-    'investigationParameter': icat.entities.InvestigationParameter,
-    'investigationType': icat.entities.InvestigationType,
-    'investigationUser': icat.entities.InvestigationUser,
-    'job': icat.entities.Job43,
-    'keyword': icat.entities.Keyword,
-    'log': icat.entities.Log,
-    'parameter': icat.entities.Parameter,
-    'parameterType': icat.entities.ParameterType43,
-    'permissibleStringValue': icat.entities.PermissibleStringValue,
-    'publicStep': icat.entities.PublicStep,
-    'publication': icat.entities.Publication,
-    'relatedDatafile': icat.entities.RelatedDatafile,
-    'rule': icat.entities.Rule43,
-    'sample': icat.entities.Sample43,
-    'sampleParameter': icat.entities.SampleParameter,
-    'sampleType': icat.entities.SampleType43,
-    'shift': icat.entities.Shift,
-    'study': icat.entities.Study,
-    'studyInvestigation': icat.entities.StudyInvestigation,
-    'user': icat.entities.User,
-    'userGroup': icat.entities.UserGroup43,
-    }
-"""Map instance types defined in the WSDL to Python classes (ICAT 4.3.0)."""
-
-TypeMap431 = TypeMap43.copy()
-"""Map instance types defined in the WSDL to Python classes (ICAT 4.3.1)."""
-TypeMap431.update( dataCollection = icat.entities.DataCollection431 )
-
-TypeMap44 = TypeMap431.copy()
-"""Map instance types defined in the WSDL to Python classes (ICAT 4.4.0)."""
-TypeMap44.update( grouping = icat.entities.Group44, 
-                  investigation = icat.entities.Investigation44, 
-                  investigationGroup = icat.entities.InvestigationGroup, 
-                  investigationUser = icat.entities.InvestigationUser44 )
-
-TypeMap47 = TypeMap44.copy()
-"""Map instance types defined in the WSDL to Python classes (ICAT 4.7.0)."""
-del TypeMap47['log']
-TypeMap47.update( dataCollection = icat.entities.DataCollection47,
-                  user = icat.entities.User47 )
-
-TypeMap410 = TypeMap47.copy()
-"""Map instance types defined in the WSDL to Python classes (ICAT 4.10.0)."""
-TypeMap410.update( instrument = icat.entities.Instrument410,
-                   parameterType = icat.entities.ParameterType410,
-                   sample = icat.entities.Sample410,
-                   shift = icat.entities.Shift410,
-                   study = icat.entities.Study410,
-                   user = icat.entities.User410 )
 
 def _complete_url(url, default_path="/ICATService/ICAT?wsdl"):
     if not url:
@@ -228,36 +115,11 @@ class Client(suds.client.Client):
         self.apiversion = Version(apiversion)
         log.debug("Connect to %s, ICAT version %s", url, self.apiversion)
 
-        # We need to use different TypeMaps depending on the ICAT
-        # version.  Currently 4.2.* and 4.3.* are supported.  For
-        # other versions, use the closest known TypeMap and hope for
-        # the best.
-        if self.apiversion < '4.1.9':
-            warn(ClientVersionWarning(self.apiversion, "too old"))
-            self.typemap = TypeMap42.copy()
-        elif self.apiversion < '4.2.9':
-            warn("Support for ICAT version 4.2.* is deprecated "
-                 "and will be removed in python-icat 1.0.", 
-                 DeprecationWarning)
-            self.typemap = TypeMap42.copy()
-        elif self.apiversion <= '4.3.0':
-            self.typemap = TypeMap43.copy()
-        elif self.apiversion < '4.3.9':
-            self.typemap = TypeMap431.copy()
-        elif self.apiversion < '4.6.9':
-            self.typemap = TypeMap44.copy()
-        elif self.apiversion < '4.9.9':
-            self.typemap = TypeMap47.copy()
-        elif self.apiversion < '4.10.9':
-            self.typemap = TypeMap410.copy()
-        else:
-            warn(ClientVersionWarning(self.apiversion, "too new"))
-            self.typemap = TypeMap410.copy()
-
+        self.entityInfoCache = {}
+        self.typemap = getTypeMap(self)
         self.ids = None
         self.sessionId = None
         self.autoLogout = True
-        self.entityInfoCache = {}
 
         if idsurl:
             self.add_ids(idsurl)
