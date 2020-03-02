@@ -115,6 +115,8 @@ class Client(suds.client.Client):
         self.apiversion = Version(apiversion)
         log.debug("Connect to %s, ICAT version %s", url, self.apiversion)
 
+        if self.apiversion < '4.3':
+            warn(ClientVersionWarning(self.apiversion, "too old"))
         self.entityInfoCache = {}
         self.typemap = getTypeMap(self)
         self.ids = None
