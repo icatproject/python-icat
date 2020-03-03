@@ -19,6 +19,65 @@ from icat.entity import Entity
 from icat.exception import InternalError
 
 
+_extra_attrs = {
+    'DataCollection': [
+        (None, {
+            'AttrAlias': {'parameters': 'dataCollectionParameters'},
+            'SortAttrs': ('dataCollectionDatasets', 'dataCollectionDatafiles'),
+        }),
+        ('4.3.1', {
+            'AttrAlias': {'dataCollectionParameters': 'parameters'},
+        }),
+    ],
+    'DataCollectionDatafile': [
+        (None, {
+            'SortAttrs': ('datafile',),
+        }),
+    ],
+    'DataCollectionDataset': [
+        (None, {
+            'SortAttrs': ('dataset',),
+        }),
+    ],
+    'InvestigationType': [
+        (None, {
+            'SortAttrs': ('facility', 'name'),
+        }),
+    ],
+    'Job': [
+        (None, {
+            'SortAttrs': ('application', 'arguments',
+                          'inputDataCollection', 'outputDataCollection'),
+        }),
+    ],
+    'Log': [
+        (None, {
+            'SortAttrs': ('operation', 'entityName'),
+        }),
+    ],
+    'Publication': [
+        (None, {
+            'SortAttrs': ('investigation', 'fullReference'),
+        }),
+    ],
+    'Rule': [
+        (None, {
+            'AttrAlias': {'group': 'grouping'},
+            'SortAttrs': ('grouping', 'what'),
+        }),
+    ],
+    'Study': [
+        (None, {
+            'SortAttrs': ('name',),
+        }),
+    ],
+    'UserGroup': [
+        (None, {
+            'AttrAlias': {'group': 'grouping'},
+        }),
+    ],
+}
+
 def getTypeMap(client):
     typemap = {}
     for beanName in client.getEntityNames():
@@ -54,6 +113,11 @@ def getTypeMap(client):
             attrs['InstRel'] = frozenset(instRel)
         if instMRel:
             attrs['InstMRel'] = frozenset(instMRel)
+        if beanName in _extra_attrs:
+            for minver, extra in _extra_attrs[beanName]:
+                if minver and minver > client.apiversion:
+                    continue
+                attrs.update(extra)
         instanceName = beanName[0].lower() + beanName[1:]
         typemap[instanceName] = type(str(beanName), (Entity,), attrs)
     return typemap
