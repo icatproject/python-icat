@@ -192,14 +192,10 @@ else:
     client.createRules("R", [ s % invcond for s in invwitems ], readgroup)
 
     # set owners permissions
-    if client.apiversion < '4.2.99':
-        groupclass = "Group"
-    else:
-        groupclass = "Grouping"
-    items = [ "UserGroup <-> %s[name='%s']" % (groupclass, s) 
+    items = [ "UserGroup <-> Grouping[name='%s']" % (s) 
               for s in [ writegroupname, readgroupname ] ]
     client.createRules("CRUD", items, owngroup)
-    items = [ "%s[name='%s']" % (groupclass, s) 
+    items = [ "Grouping[name='%s']" % (s) 
               for s in [ writegroupname, readgroupname ] ]
     client.createRules("R", items, owngroup)
 

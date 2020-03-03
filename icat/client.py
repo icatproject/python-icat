@@ -357,27 +357,16 @@ class Client(suds.client.Client):
         return info
 
     def getEntityNames(self):
-        if self.apiversion < '4.3':
-            entitynames = [e.BeanName for e in self.typemap.values() 
-                           if (e is not None and e.BeanName is not None)]
-            entitynames.sort()
-            return entitynames
-        else:
-            try:
-                return self.service.getEntityNames()
-            except suds.WebFault as e:
-                raise translateError(e)
+        try:
+            return self.service.getEntityNames()
+        except suds.WebFault as e:
+            raise translateError(e)
 
     def getProperties(self):
         try:
             return self.service.getProperties(self.sessionId)
         except suds.WebFault as e:
             raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("getProperties", self.apiversion)
-            else:
-                raise
 
     def getRemainingMinutes(self):
         try:
@@ -404,22 +393,12 @@ class Client(suds.client.Client):
             return self.service.isAccessAllowed(self.sessionId, Entity.getInstance(bean), accessType)
         except suds.WebFault as e:
             raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("isAccessAllowed", self.apiversion)
-            else:
-                raise
 
     def refresh(self):
         try:
             self.service.refresh(self.sessionId)
         except suds.WebFault as e:
             raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("refresh", self.apiversion)
-            else:
-                raise
 
     def search(self, query):
         try:
@@ -585,9 +564,6 @@ class Client(suds.client.Client):
         keys to Entity objects.  The object retrieved by this method
         call will be added to this index.
 
-        This method uses the JPQL inspired query syntax introduced
-        with ICAT 4.3.0.  It won't work with older ICAT servers.
-
         :param key: the unique key of the object to search for.
         :type key: :class:`str`
         :param objindex: cache of Entity objects.
@@ -596,12 +572,8 @@ class Client(suds.client.Client):
         :rtype: :class:`icat.entity.Entity`
         :raise SearchResultError: if the object has not been found.
         :raise ValueError: if the key is not well formed.
-        :raise VersionMethodError: if connected to an ICAT server
-            older then 4.3.0.
         """
 
-        if self.apiversion < '4.3':
-            raise VersionMethodError("searchUniqueKey", self.apiversion)
         if objindex is not None and key in objindex:
             return objindex[key]
         us = key.index('_')
@@ -704,10 +676,7 @@ class Client(suds.client.Client):
         :rtype: :class:`icat.entity.Entity`
         """
         log.info("Group: creating '%s'", name)
-        if self.apiversion < '4.3':
-            g = self.new("group", name=name)
-        else:
-            g = self.new("grouping", name=name)
+        g = self.new("grouping", name=name)
         g.create()
         g.addUsers(users)
         return g
