@@ -104,6 +104,11 @@ _parent = {
 }
 
 _extra_attrs = {
+    'Parameter': [
+        (None, {
+            'BeanName': None,
+        }),
+    ],
     'DataCollection': [
         (None, {
             'AttrAlias': {'parameters': 'dataCollectionParameters'},
