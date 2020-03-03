@@ -179,7 +179,7 @@ def getTypeMap(client):
         try:
             attrs['__doc__'] = str(info.classComment)
         except AttributeError:
-            pass
+            attrs['__doc__'] = ""
         try:
             constraints = info.constraints[0]['fieldNames']
             if constraints:
