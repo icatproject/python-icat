@@ -15,6 +15,7 @@ attributes :attr:`icat.entity.Entity.BeanName`,
    will not need to use it directly.
 """
 
+import itertools
 from icat.entity import Entity
 from icat.exception import InternalError
 
@@ -93,6 +94,14 @@ class Investigation44Mixin(InvestigationMixin):
         ig.role = role
         ig.create()
 
+
+_parent = {
+    'DataCollectionParameter': 'parameter',
+    'DatafileParameter': 'parameter',
+    'DatasetParameter': 'parameter',
+    'InvestigationParameter': 'parameter',
+    'SampleParameter': 'parameter',
+}
 
 _extra_attrs = {
     'DataCollection': [
@@ -173,7 +182,11 @@ _extra_attrs = {
 
 def getTypeMap(client):
     typemap = {}
-    for beanName in client.getEntityNames():
+    for beanName in itertools.chain(('Parameter',), client.getEntityNames()):
+        try:
+            parent = typemap[_parent[beanName]]
+        except KeyError:
+            parent = Entity
         info = client.getEntityInfo(beanName)
         attrs = { 'BeanName': str(beanName), }
         try:
@@ -190,7 +203,7 @@ def getTypeMap(client):
         instRel = []
         instMRel = []
         for field in info.fields:
-            if field['name'] in Entity.MetaAttr:
+            if field['name'] in parent.MetaAttr:
                 continue
             elif field['relType'] == 'ATTRIBUTE':
                 instAttr.append(str(field['name']))
@@ -200,12 +213,15 @@ def getTypeMap(client):
                 instMRel.append(str(field['name']))
             else:
                 raise InternalError("Invalid relType '%s'" % field['relType'])
-        if instAttr and frozenset(instAttr) != Entity.InstAttr:
-            attrs['InstAttr'] = frozenset(instAttr)
-        if instRel:
-            attrs['InstRel'] = frozenset(instRel)
-        if instMRel:
-            attrs['InstMRel'] = frozenset(instMRel)
+        instAttr = frozenset(instAttr)
+        if instAttr != parent.InstAttr:
+            attrs['InstAttr'] = instAttr
+        instRel = frozenset(instRel)
+        if instRel != parent.InstRel:
+            attrs['InstRel'] = instRel
+        instMRel = frozenset(instMRel)
+        if instMRel != parent.InstMRel:
+            attrs['InstMRel'] = instMRel
         mixin = None
         if beanName in _extra_attrs:
             for minver, extra in _extra_attrs[beanName]:
@@ -214,9 +230,9 @@ def getTypeMap(client):
                 mixin = extra.pop('Mixin', None)
                 attrs.update(extra)
         if mixin:
-            bases = (Entity, mixin)
+            bases = (parent, mixin)
         else:
-            bases = (Entity,)
+            bases = (parent,)
         instanceName = beanName[0].lower() + beanName[1:]
         typemap[instanceName] = type(str(beanName), bases, attrs)
     return typemap
