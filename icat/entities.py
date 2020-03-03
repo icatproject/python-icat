@@ -181,7 +181,7 @@ _extra_attrs = {
 }
 
 def getTypeMap(client):
-    typemap = {}
+    typemap = { 'entityBaseBean': Entity, }
     for beanName in itertools.chain(('Parameter',), client.getEntityNames()):
         try:
             parent = typemap[_parent[beanName]]
