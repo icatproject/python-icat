@@ -19,6 +19,81 @@ from icat.entity import Entity
 from icat.exception import InternalError
 
 
+class GroupingMixin:
+
+    def addUsers(self, users):
+        ugs = []
+        uids = set()
+        for u in users:
+            if u.id in uids:
+                continue
+            ugs.append(self.client.new('userGroup', user=u, grouping=self))
+            uids.add(u.id)
+        if ugs:
+            self.client.createMany(ugs)
+
+    def getUsers(self, attribute=None):
+        if attribute is not None:
+            query = ("User.%s <-> UserGroup <-> %s [id=%d]" 
+                     % (attribute, self.BeanName, self.id))
+        else:
+            query = ("User <-> UserGroup <-> %s [id=%d]" 
+                     % (self.BeanName, self.id))
+        return self.client.search(query)
+
+
+class InstrumentMixin:
+
+    def addInstrumentScientists(self, users):
+        iss = []
+        for u in users:
+            iss.append(self.client.new('instrumentScientist', 
+                                       instrument=self, user=u))
+        if iss:
+            self.client.createMany(iss)
+
+    def getInstrumentScientists(self, attribute=None):
+        if attribute is not None:
+            query = ("User.%s <-> InstrumentScientist <-> Instrument [id=%d]" 
+                     % (attribute, self.id))
+        else:
+            query = ("User <-> InstrumentScientist <-> Instrument [id=%d]" 
+                     % (self.id))
+        return self.client.search(query)
+
+
+class InvestigationMixin:
+
+    def addInstrument(self, instrument):
+        ii = self.client.new('investigationInstrument', 
+                             investigation=self, instrument=instrument)
+        ii.create()
+
+    def addKeywords(self, keywords):
+        kws = []
+        for k in keywords:
+            kws.append(self.client.new('keyword', name=k, investigation=self))
+        if kws:
+            self.client.createMany(kws)
+
+    def addInvestigationUsers(self, users, role='Investigator'):
+        ius = []
+        for u in users:
+            ius.append(self.client.new('investigationUser', 
+                                       investigation=self, user=u, role=role))
+        if ius:
+            self.client.createMany(ius)
+
+
+class Investigation44Mixin(InvestigationMixin):
+
+    def addInvestigationGroup(self, group, role=None):
+        ig = self.client.new('investigationGroup', investigation=self)
+        ig.grouping = group
+        ig.role = role
+        ig.create()
+
+
 _extra_attrs = {
     'DataCollection': [
         (None, {
@@ -37,6 +112,24 @@ _extra_attrs = {
     'DataCollectionDataset': [
         (None, {
             'SortAttrs': ('dataset',),
+        }),
+    ],
+    'Grouping': [
+        (None, {
+            'Mixin': GroupingMixin,
+        }),
+    ],
+    'Instrument': [
+        (None, {
+            'Mixin': InstrumentMixin,
+        }),
+    ],
+    'Investigation': [
+        (None, {
+            'Mixin': InvestigationMixin,
+        }),
+        ('4.4.0', {
+            'Mixin': Investigation44Mixin,
         }),
     ],
     'InvestigationType': [
@@ -113,11 +206,17 @@ def getTypeMap(client):
             attrs['InstRel'] = frozenset(instRel)
         if instMRel:
             attrs['InstMRel'] = frozenset(instMRel)
+        mixin = None
         if beanName in _extra_attrs:
             for minver, extra in _extra_attrs[beanName]:
                 if minver and minver > client.apiversion:
                     continue
+                mixin = extra.pop('Mixin', None)
                 attrs.update(extra)
+        if mixin:
+            bases = (Entity, mixin)
+        else:
+            bases = (Entity,)
         instanceName = beanName[0].lower() + beanName[1:]
-        typemap[instanceName] = type(str(beanName), (Entity,), attrs)
+        typemap[instanceName] = type(str(beanName), bases, attrs)
     return typemap
