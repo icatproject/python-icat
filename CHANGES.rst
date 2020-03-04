@@ -15,6 +15,16 @@ Incompatible changes and deprecations
 
 + Drop support for ICAT 4.2.*, deprecated in 0.13.0.
 
++ `#61`_, `#64`_: Review :mod:`icat.entities`.  The entity classes
+  from the ICAT schema are now dynamically created based on the
+  information gathered with the
+  :meth:`icat.client.Client.getEntityInfo` ICAT API call.  Code that
+  relied on the internals of :mod:`icat.entities` such as the class
+  hierarchy or that referenced any of the entity classes directly will
+  need to be revisited.  Note that common python-icat programs don't
+  need to do any of that.  So it is assumed that most existing
+  programs are not concerned.
+
 + Deprecate support for Python 2.
 
 Bug fixes and minor changes
@@ -26,7 +36,9 @@ Bug fixes and minor changes
 
 .. _#19: https://github.com/icatproject/python-icat/issues/19
 .. _#62: https://github.com/icatproject/python-icat/issues/62
+.. _#61: https://github.com/icatproject/python-icat/issues/61
 .. _#63: https://github.com/icatproject/python-icat/issues/63
+.. _#64: https://github.com/icatproject/python-icat/pull/64
 
 
 0.16.0 (2019-09-26)
