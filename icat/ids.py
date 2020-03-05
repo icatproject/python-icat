@@ -301,18 +301,14 @@ class IDSClient(object):
     def getSize(self, selection):
         """Return the total size of the datafiles.
         """
-        parameters = {"sessionId": self.sessionId}
-        selection.fillParams(parameters)
+        parameters = self._selectionParams(selection)
         req = IDSRequest(self.url + "getSize", parameters)
         return long(self.opener.open(req).read().decode('ascii'))
     
     def getStatus(self, selection):
         """Return the status of data.
         """
-        parameters = {}
-        if self.sessionId:
-            parameters["sessionId"] = self.sessionId
-        selection.fillParams(parameters)
+        parameters = self._selectionParams(selection, requireSessionId=False)
         req = IDSRequest(self.url + "getStatus", parameters)
         return self.opener.open(req).read().decode('ascii')
     
@@ -346,8 +342,7 @@ class IDSClient(object):
     def reset(self, selection):
         """Reset data so that they can be queried again.
         """
-        parameters = {"sessionId": self.sessionId}
-        selection.fillParams(parameters)
+        parameters = self._selectionParams(selection)
         req = IDSRequest(self.url + "reset", parameters, method="POST")
         try:
             self.opener.open(req)
@@ -390,8 +385,7 @@ class IDSClient(object):
     def getDatafileIds(self, selection):
         """Get the list of data file id corresponding to the selection.
         """
-        parameters = {"sessionId": self.sessionId}
-        selection.fillParams(parameters)
+        parameters = self._selectionParams(selection)
         req = IDSRequest(self.url + "getDatafileIds", parameters)
         try:
             result = self.opener.open(req).read().decode('ascii')
@@ -414,10 +408,10 @@ class IDSClient(object):
                 compressFlag=False, zipFlag=False, outname=None, offset=0):
         """Stream the requested data.
         """
-        parameters = {"sessionId": self.sessionId}
-        selection.fillParams(parameters)
-        if zipFlag:  parameters["zip"] = "true"
-        if compressFlag: parameters["compress"] = "true"
+        parameters = self._selectionParams(selection)
+        if isinstance(selection, DataSelection):
+            if zipFlag:  parameters["zip"] = "true"
+            if compressFlag: parameters["compress"] = "true"
         if outname: parameters["outname"] = outname
         req = IDSRequest(self.url + "getData", parameters)
         if offset > 0:
@@ -428,8 +422,7 @@ class IDSClient(object):
                    compressFlag=False, zipFlag=False, outname=None):
         """Get the URL to retrieve the requested data.
         """
-        parameters = {"sessionId": self.sessionId}
-        selection.fillParams(parameters)
+        parameters = self._selectionParams(selection)
         if zipFlag:  parameters["zip"] = "true"
         if compressFlag: parameters["compress"] = "true"
         if outname: parameters["outname"] = outname
@@ -514,6 +507,26 @@ class IDSClient(object):
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "delete", parameters, method="DELETE")
         self.opener.open(req)
+
+    def _selectionParams(self, selection, requireSessionId=True):
+        """Return query parameters according to a data selection.
+        The selection may either be a DataSelection instance or a
+        string with a preparedId.
+        """
+        if isinstance(selection, DataSelection):
+            if self.sessionId:
+                parameters = {"sessionId": self.sessionId}
+            elif requireSessionId:
+                raise RuntimeError("Must be logged in to make this call.")
+            else:
+                parameters = {}
+            selection.fillParams(parameters)
+            return parameters
+        elif isinstance(selection, str):
+            return {"preparedId": preparedId}
+        else:
+            raise TypeError("selection must either be a DataSelection "
+                            "or a preparedId")
 
     def _getDataUrl(self, parameters):
         return (self.url + "getData" + "?" + urlencode(parameters))
