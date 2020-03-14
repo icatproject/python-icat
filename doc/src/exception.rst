@@ -149,13 +149,13 @@ The class hierarchy for the exceptions is::
    |    |    +-- ICATValidationError
    |    |    +-- ICATNotImplementedError
    |    +-- IDSError
-   |    |    +-- IDSBadRequestError
-   |    |    +-- IDSDataNotOnlineError
-   |    |    +-- IDSInsufficientPrivilegesError
-   |    |    +-- IDSInsufficientStorageError
-   |    |    +-- IDSInternalError
-   |    |    +-- IDSNotFoundError
-   |    |    +-- IDSNotImplementedError
+   |         +-- IDSBadRequestError
+   |         +-- IDSDataNotOnlineError
+   |         +-- IDSInsufficientPrivilegesError
+   |         +-- IDSInsufficientStorageError
+   |         +-- IDSInternalError
+   |         +-- IDSNotFoundError
+   |         +-- IDSNotImplementedError
    +-- InternalError
    +-- ConfigError
    +-- VersionMethodError
