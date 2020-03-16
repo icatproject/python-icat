@@ -522,8 +522,8 @@ class IDSClient(object):
                 parameters = {}
             selection.fillParams(parameters)
             return parameters
-        elif isinstance(selection, str):
-            return {"preparedId": preparedId}
+        elif isinstance(selection, basestring):
+            return {"preparedId": selection}
         else:
             raise TypeError("selection must either be a DataSelection "
                             "or a preparedId")
