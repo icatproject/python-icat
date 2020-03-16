@@ -797,12 +797,13 @@ class Client(suds.client.Client):
         Investigations.
 
         :param objs: either a dict having some of the keys
-            `investigationIds`, `datasetIds`, and `datafileIds`
-            with a list of object ids as value respectively, or a list
-            of entity objects, or a data selection.
+            `investigationIds`, `datasetIds`, and `datafileIds` with a
+            list of object ids as value respectively, or a list of
+            entity objects, or a data selection, or an id returned by
+            :meth:`icat.client.Client.prepareData`.
         :type objs: :class:`dict`, :class:`list` of
-            :class:`icat.entity.Entity`, or
-            :class:`icat.ids.DataSelection`
+            :class:`icat.entity.Entity`,
+            :class:`icat.ids.DataSelection`, or :class:`str`
         :param compressFlag: flag whether to use a zip format with an
             implementation defined compression level, otherwise use no
             (or minimal) compression.
@@ -821,7 +822,7 @@ class Client(suds.client.Client):
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
-        if not isinstance(objs, DataSelection):
+        if not isinstance(objs, (DataSelection, basestring)):
             objs = DataSelection(objs)
         return self.ids.getData(objs, compressFlag, zipFlag, outname, offset)
 
@@ -838,10 +839,11 @@ class Client(suds.client.Client):
         :param objs: either a dict having some of the keys
             `investigationIds`, `datasetIds`, and `datafileIds`
             with a list of object ids as value respectively, or a list
-            of entity objects, or a data selection.
+            of entity objects, or a data selection, or an id returned by
+            :meth:`icat.client.Client.prepareData`.
         :type objs: :class:`dict`, :class:`list` of
-            :class:`icat.entity.Entity`, or
-            :class:`icat.ids.DataSelection`
+            :class:`icat.entity.Entity`,
+            :class:`icat.ids.DataSelection`, or :class:`str`
         :param compressFlag: flag whether to use a zip format with an
             implementation defined compression level, otherwise use no
             (or minimal) compression.
@@ -857,7 +859,7 @@ class Client(suds.client.Client):
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
-        if not isinstance(objs, DataSelection):
+        if not isinstance(objs, (DataSelection, basestring)):
             objs = DataSelection(objs)
         return self.ids.getDataUrl(objs, compressFlag, zipFlag, outname)
 
