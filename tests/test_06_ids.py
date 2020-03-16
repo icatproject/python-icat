@@ -191,7 +191,7 @@ def test_download(tmpdirsec, client, case, method):
                 prepid = tclient.prepareData(datafiles)
                 while not tclient.isDataPrepared(prepid):
                     time.sleep(5)
-                response = tclient.getPreparedData(prepid)
+                response = tclient.getData(prepid)
             with open(zfname, 'wb') as f:
                 copyfile(response, f)
             zf = zipfile.ZipFile(zfname, 'r')
@@ -219,7 +219,7 @@ def test_download(tmpdirsec, client, case, method):
                 prepid = tclient.prepareData(datafiles)
                 while not tclient.isDataPrepared(prepid):
                     time.sleep(5)
-                response = tclient.getPreparedData(prepid)
+                response = tclient.getData(prepid)
             with open(dfname, 'wb') as f:
                 copyfile(response, f)
             assert filecmp.cmp(df['testfile'].fname, dfname)
