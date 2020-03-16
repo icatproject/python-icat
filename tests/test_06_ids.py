@@ -227,10 +227,20 @@ def test_download(tmpdirsec, client, case, method):
             raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
 
 @pytest.mark.parametrize(("case"), markeddatasets)
-def test_getinfo(client, case):
+def test_getinfo(client, case, method):
     """Call getStatus() and getSize() to get some informations on a dataset.
     """
     selection = DataSelection([getDataset(client, case)])
+    if method == 'getPreparedData':
+        if client.ids.apiversion < '1.11.0a0':
+            # FIXME: update version in the condition to '1.11.0' as
+            # soon as this ids.server version is released.
+            pytest.skip("IDS %s is too old, need 1.11.0 or newer" 
+                        % client.ids.apiversion)
+        prepid = client.prepareData(selection)
+        while not client.isDataPrepared(prepid):
+            time.sleep(5)
+        selection = prepid
     size = client.ids.getSize(selection)
     print("Size of dataset %s: %d" % (case['dsname'], size))
     assert size == sum(f['size'] for f in case['dfs'])
