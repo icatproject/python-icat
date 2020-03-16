@@ -302,6 +302,11 @@ class IDSClient(object):
         """Return the total size of the datafiles.
         """
         parameters = self._selectionParams(selection)
+        if "preparedId" in parameters and self.apiversion < '1.11.0a0':
+            # FIXME: update version in the condition to '1.11.0' as
+            # soon as this ids.server version is released.
+            raise VersionMethodError("getSize(preparedId)",
+                                     version=self.apiversion, service="IDS")
         req = IDSRequest(self.url + "getSize", parameters)
         return long(self.opener.open(req).read().decode('ascii'))
     
@@ -309,6 +314,11 @@ class IDSClient(object):
         """Return the status of data.
         """
         parameters = self._selectionParams(selection, requireSessionId=False)
+        if "preparedId" in parameters and self.apiversion < '1.11.0a0':
+            # FIXME: update version in the condition to '1.11.0' as
+            # soon as this ids.server version is released.
+            raise VersionMethodError("getStatus(preparedId)",
+                                     version=self.apiversion, service="IDS")
         req = IDSRequest(self.url + "getStatus", parameters)
         return self.opener.open(req).read().decode('ascii')
     
