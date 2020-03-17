@@ -35,8 +35,8 @@ Bug fixes and minor changes
 + `#62`_: Minor fixes in the error handling in ``setup.py``.
 
 .. _#19: https://github.com/icatproject/python-icat/issues/19
-.. _#62: https://github.com/icatproject/python-icat/issues/62
 .. _#61: https://github.com/icatproject/python-icat/issues/61
+.. _#62: https://github.com/icatproject/python-icat/issues/62
 .. _#63: https://github.com/icatproject/python-icat/issues/63
 .. _#64: https://github.com/icatproject/python-icat/pull/64
 
