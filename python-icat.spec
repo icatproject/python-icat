@@ -61,17 +61,6 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 $long_description
 
 
-%package doc
-Summary:	Python interface to ICAT and IDS
-Group:		Documentation/Other
-Requires:	%{name} = %{version}
-
-%description doc
-$long_description
-
-This package contains the documentation.
-
-
 %package examples
 Summary:	Python interface to ICAT and IDS
 Group:		Documentation/Other
@@ -244,14 +233,8 @@ rm -rf %{buildroot}
 %license LICENSE.txt
 %endif
 %doc %{_docdir}/%{name}
-%exclude %{_docdir}/%{name}/html
 %exclude %{_docdir}/%{name}/examples
 %exclude %{_docdir}/%{name}/tutorial
-
-%files doc
-%defattr(-,root,root)
-%dir %{_docdir}/%{name}
-%doc %{_docdir}/%{name}/html
 
 %files examples
 %defattr(-,root,root)

@@ -34,6 +34,12 @@ Bug fixes and minor changes
 
 + `#62`_: Minor fixes in the error handling in ``setup.py``.
 
+Misc
+----
+
++ Do not include the documentation in the source distribution.  Rely
+  on the online documentation (see link in the README.rst) instead.
+
 .. _#19: https://github.com/icatproject/python-icat/issues/19
 .. _#61: https://github.com/icatproject/python-icat/issues/61
 .. _#62: https://github.com/icatproject/python-icat/issues/62

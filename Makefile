@@ -7,7 +7,7 @@ build:
 test:
 	$(PYTHON) setup.py test
 
-sdist: doc-html
+sdist:
 	$(PYTHON) setup.py sdist
 
 doc-html: init_py

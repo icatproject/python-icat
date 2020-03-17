@@ -9,10 +9,6 @@ include doc/examples/icat.cfg
 include doc/examples/icatdump.xml
 include doc/examples/icatdump.yaml
 include doc/examples/ingest-*.xml
-include doc/html/*.html
-include doc/html/*.js
-include doc/html/_static/*
-include doc/html/objects.inv
 include doc/icatdata*.xsd
 include doc/tutorial/*.py
 include tests/conftest.py
