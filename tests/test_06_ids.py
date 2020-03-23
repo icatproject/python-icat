@@ -232,9 +232,7 @@ def test_getinfo(client, case, method):
     """
     selection = DataSelection([getDataset(client, case)])
     if method == 'getPreparedData':
-        if client.ids.apiversion < '1.11.0a0':
-            # FIXME: update version in the condition to '1.11.0' as
-            # soon as this ids.server version is released.
+        if client.ids.apiversion < '1.11.0':
             pytest.skip("IDS %s is too old, need 1.11.0 or newer" 
                         % client.ids.apiversion)
         prepid = client.prepareData(selection)
