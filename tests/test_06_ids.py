@@ -191,7 +191,7 @@ def test_download(tmpdirsec, client, case, method):
                 prepid = tclient.prepareData(datafiles)
                 while not tclient.isDataPrepared(prepid):
                     time.sleep(5)
-                response = tclient.getPreparedData(prepid)
+                response = tclient.getData(prepid)
             with open(zfname, 'wb') as f:
                 copyfile(response, f)
             zf = zipfile.ZipFile(zfname, 'r')
@@ -219,7 +219,7 @@ def test_download(tmpdirsec, client, case, method):
                 prepid = tclient.prepareData(datafiles)
                 while not tclient.isDataPrepared(prepid):
                     time.sleep(5)
-                response = tclient.getPreparedData(prepid)
+                response = tclient.getData(prepid)
             with open(dfname, 'wb') as f:
                 copyfile(response, f)
             assert filecmp.cmp(df['testfile'].fname, dfname)
@@ -227,16 +227,39 @@ def test_download(tmpdirsec, client, case, method):
             raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
 
 @pytest.mark.parametrize(("case"), markeddatasets)
-def test_getinfo(client, case):
+def test_getinfo(client, case, method):
     """Call getStatus() and getSize() to get some informations on a dataset.
     """
     selection = DataSelection([getDataset(client, case)])
+    if method == 'getPreparedData':
+        if client.ids.apiversion < '1.11.0':
+            pytest.skip("IDS %s is too old, need 1.11.0 or newer" 
+                        % client.ids.apiversion)
+        prepid = client.prepareData(selection)
+        while not client.isDataPrepared(prepid):
+            time.sleep(5)
+        selection = prepid
     size = client.ids.getSize(selection)
     print("Size of dataset %s: %d" % (case['dsname'], size))
     assert size == sum(f['size'] for f in case['dfs'])
     status = client.ids.getStatus(selection)
     print("Status of dataset %s: %s" % (case['dsname'], status))
     assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
+
+@pytest.mark.parametrize(("case"), markeddatasets)
+def test_getstatus_versionerror(client, case):
+    """The call of getStatus() with a preparedID should throw an error if
+    talking to an old ids.server not supporting it.
+    """
+    selection = DataSelection([getDataset(client, case)])
+    if client.ids.apiversion >= '1.11.0':
+        pytest.skip("This test is for IDS versions older then 1.11.0 only, "
+                    "found ids.server %s" % client.ids.apiversion)
+    prepid = client.prepareData(selection)
+    while not client.isDataPrepared(prepid):
+        time.sleep(5)
+    with pytest.raises(icat.VersionMethodError):
+        size = client.ids.getSize(prepid)
 
 @pytest.mark.parametrize(("case"), markeddatasets)
 def test_status_no_sessionId(client, case):

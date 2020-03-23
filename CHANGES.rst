@@ -8,6 +8,18 @@ Changelog
 New features
 ------------
 
++ `#65`_: Add support for the extended IDS API calls
+  :meth:`icat.ids.IDSClient.getSize` and
+  :meth:`icat.ids.IDSClient.getStatus` accepting a preparedId as
+  introduced in ids.server 1.11.0.  Also extend the methods
+  :meth:`icat.ids.IDSClient.reset`,
+  :meth:`icat.ids.IDSClient.getDatafileIds`,
+  :meth:`icat.ids.IDSClient.getData`,
+  :meth:`icat.ids.IDSClient.getDataUrl`,
+  :meth:`icat.client.Client.getData`, and
+  :meth:`icat.client.Client.getDataUrl` to accept a preparedId in the
+  place of a data selection.
+
 + `#63`_: Set a default path in the URL for ICAT and IDS respectively.
 
 Incompatible changes and deprecations
@@ -24,6 +36,15 @@ Incompatible changes and deprecations
   need to be revisited.  Note that common python-icat programs don't
   need to do any of that.  So it is assumed that most existing
   programs are not concerned.
+
++ Deprecate :meth:`icat.ids.IDSClient.resetPrepared`,
+  :meth:`icat.ids.IDSClient.getPreparedDatafileIds`,
+  :meth:`icat.ids.IDSClient.getPreparedData`,
+  :meth:`icat.ids.IDSClient.getPreparedDataUrl`,
+  :meth:`icat.client.Client.getPreparedData`, and
+  :meth:`icat.client.Client.getPreparedDataUrl`.  Call the
+  corresponding methods without `Prepared` in the name with the same
+  arguments instead.
 
 + Deprecate support for Python 2.
 
@@ -45,6 +66,7 @@ Misc
 .. _#62: https://github.com/icatproject/python-icat/issues/62
 .. _#63: https://github.com/icatproject/python-icat/issues/63
 .. _#64: https://github.com/icatproject/python-icat/pull/64
+.. _#65: https://github.com/icatproject/python-icat/pull/65
 
 
 0.16.0 (2019-09-26)
