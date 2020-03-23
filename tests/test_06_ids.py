@@ -247,6 +247,21 @@ def test_getinfo(client, case, method):
     assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
 
 @pytest.mark.parametrize(("case"), markeddatasets)
+def test_getstatus_versionerror(client, case):
+    """The call of getStatus() with a preparedID should throw an error if
+    talking to an old ids.server not supporting it.
+    """
+    selection = DataSelection([getDataset(client, case)])
+    if client.ids.apiversion >= '1.11.0':
+        pytest.skip("This test is for IDS versions older then 1.11.0 only, "
+                    "found ids.server %s" % client.ids.apiversion)
+    prepid = client.prepareData(selection)
+    while not client.isDataPrepared(prepid):
+        time.sleep(5)
+    with pytest.raises(icat.VersionMethodError):
+        size = client.ids.getSize(prepid)
+
+@pytest.mark.parametrize(("case"), markeddatasets)
 def test_status_no_sessionId(client, case):
     """Call getStatus() while logged out.
 
