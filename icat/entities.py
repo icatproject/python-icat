@@ -229,7 +229,8 @@ def getTypeMap(client):
             attrs['InstMRel'] = instMRel
         mixin = None
         if beanName in _extra_attrs:
-            for minver, extra in _extra_attrs[beanName]:
+            for minver, _e in _extra_attrs[beanName]:
+                extra = dict(_e)
                 if minver and minver > client.apiversion:
                     continue
                 mixin = extra.pop('Mixin', None)
