@@ -48,6 +48,10 @@ Incompatible changes and deprecations
 
 + Deprecate support for Python 2.
 
++ Deprecate module :mod:`icat.icatcheck`.
+  This module was not intended to be used in python-icat programs
+  anyway.
+
 Bug fixes and minor changes
 ---------------------------
 

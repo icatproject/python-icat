@@ -409,6 +409,10 @@ class IDSResponseError(_BaseException):
 # ============== Exceptions raised in icat.icatcheck ===============
 
 class GenealogyError(_BaseException):
-    """Error in the genealogy of entity types."""
+    """Error in the genealogy of entity types.
+
+    .. deprecated:: 0.17
+       Only used in :mod:`icat.icatcheck` which in turn is deprecated.
+    """
     pass
 
