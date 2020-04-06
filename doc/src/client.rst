@@ -3,142 +3,163 @@
 
 .. py:module:: icat.client
 
+The :mod:`icat.client` defines the :class:`~icat.client.Client` class
+that manages the interaction with an ICAT service as a client.
+
 .. autoclass:: icat.client.Client
     :show-inheritance:
 
-Instance attributes:
+    **Class attributes**
 
-.. attribute:: Client.url
+    .. attribute:: Register
 
-    The URL to the web service description of the ICAT server.
+        The register of all active clients.
 
-.. attribute:: Client.kwargs
+    .. attribute:: AutoRefreshRemain
 
-    A copy of the kwargs used in the constructor.
+        Number of minutes to leave in the session before automatic
+        refresh should be called.
 
-.. attribute:: Client.apiversion
+    **Instance attributes**
 
-    Version of the ICAT server this client connects to.
+    .. attribute:: url
 
-.. attribute:: Client.autoLogout
+        The URL to the web service description of the ICAT server.
 
-    Flag whether the client should logout automatically on exit.
+    .. attribute:: kwargs
 
-.. attribute:: Client.ids
+        A copy of the kwargs used in the constructor.
 
-    The :class:`icat.ids.IDSClient` instance used for IDS calls.
+    .. attribute:: apiversion
 
-.. attribute:: Client.sessionId
+        Version of the ICAT server this client connects to.
 
-    The session id as returned from :meth:`icat.client.Client.login`.
+    .. attribute:: autoLogout
 
-.. attribute:: Client.sslContext
+        Flag whether the client should logout automatically on exit.
 
-    The :class:`ssl.SSLContext` instance that has been used to
-    establish the HTTPS conection to the ICAT and IDS server.  This is
-    :const:`None` for old Python versions that do not have the
-    :class:`ssl.SSLContext` class.
+    .. attribute:: ids
 
-.. attribute:: Client.typemap
+        The :class:`icat.ids.IDSClient` instance used for IDS calls.
 
-    A :class:`dict` that maps type names from the ICAT WSDL schema to
-    the corresponding classes in the :class:`icat.entity.Entity`
-    hierarchy.
+    .. attribute:: sessionId
 
-Class and instance methods:
+        The session id as returned from :meth:`login`.
 
-.. automethod:: icat.client.Client.cleanupall
+    .. attribute:: sslContext
 
-.. automethod:: icat.client.Client.cleanup
+        The :class:`ssl.SSLContext` instance that has been used to
+        establish the HTTPS conection to the ICAT and IDS server.
+        This is :const:`None` for old Python versions that do not have
+        the :class:`ssl.SSLContext` class.
 
-.. automethod:: icat.client.Client.add_ids
+    .. attribute:: typemap
 
-.. automethod:: icat.client.Client.clone
+        A :class:`dict` that maps type names from the ICAT WSDL schema
+        to the corresponding classes in the
+        :class:`icat.entity.Entity` hierarchy.
 
-.. automethod:: icat.client.Client.new
+    **Class and instance methods**
 
-.. automethod:: icat.client.Client.getEntityClass
+    .. automethod:: cleanupall
 
-.. automethod:: icat.client.Client.getEntity
+    .. automethod:: cleanup
 
-ICAT API methods
-................
+    .. automethod:: add_ids
 
-These methods implement the ICAT API calls.  Please refer to the ICAT
-Java Client documentation for details.
+    .. automethod:: clone
 
-.. automethod:: icat.client.Client.login
+    .. automethod:: new
 
-.. automethod:: icat.client.Client.logout
+    .. automethod:: getEntityClass
 
-.. automethod:: icat.client.Client.create
+    .. automethod:: getEntity
 
-.. automethod:: icat.client.Client.createMany
+    **ICAT API methods**
 
-.. automethod:: icat.client.Client.delete
+    These methods implement the low level API calls of the ICAT
+    server.  See the documentation in the `ICAT SOAP Manual`_.  (Note:
+    the Python examples in that manual are based on plain Suds, not on
+    python-icat.)
 
-.. automethod:: icat.client.Client.deleteMany
+    .. automethod:: login
 
-.. automethod:: icat.client.Client.get
+    .. automethod:: logout
 
-.. automethod:: icat.client.Client.getApiVersion
+    .. automethod:: create
 
-.. automethod:: icat.client.Client.getAuthenticatorInfo
+    .. automethod:: createMany
 
-.. automethod:: icat.client.Client.getEntityInfo
+    .. automethod:: delete
 
-.. automethod:: icat.client.Client.getEntityNames
+    .. automethod:: deleteMany
 
-.. automethod:: icat.client.Client.getProperties
+    .. automethod:: get
 
-.. automethod:: icat.client.Client.getRemainingMinutes
+    .. automethod:: getApiVersion
 
-.. automethod:: icat.client.Client.getUserName
+    .. automethod:: getAuthenticatorInfo
 
-.. automethod:: icat.client.Client.getVersion
+    .. automethod:: getEntityInfo
 
-.. automethod:: icat.client.Client.isAccessAllowed
+    .. automethod:: getEntityNames
 
-.. automethod:: icat.client.Client.refresh
+    .. automethod:: getProperties
 
-.. automethod:: icat.client.Client.search
+    .. automethod:: getRemainingMinutes
 
-.. automethod:: icat.client.Client.update
+    .. automethod:: getUserName
 
-Custom API methods
-..................
+    .. automethod:: getVersion
 
-.. automethod:: icat.client.Client.autoRefresh
+    .. automethod:: isAccessAllowed
 
-.. automethod:: icat.client.Client.assertedSearch
+    .. automethod:: refresh
 
-.. automethod:: icat.client.Client.searchChunked
+    .. automethod:: search
 
-.. automethod:: icat.client.Client.searchUniqueKey
+    .. automethod:: update
 
-.. automethod:: icat.client.Client.searchMatching
+    **Custom API methods**
 
-.. automethod:: icat.client.Client.createUser
+    These higher level methods build on top of the ICAT API methods.
 
-.. automethod:: icat.client.Client.createGroup
+    .. automethod:: autoRefresh
 
-.. automethod:: icat.client.Client.createRules
+    .. automethod:: assertedSearch
 
-Custom IDS methods
-..................
+    .. automethod:: searchChunked
 
-.. automethod:: icat.client.Client.putData
+    .. automethod:: searchUniqueKey
 
-.. automethod:: icat.client.Client.getData
+    .. automethod:: searchMatching
 
-.. automethod:: icat.client.Client.getDataUrl
+    .. automethod:: createUser
 
-.. automethod:: icat.client.Client.prepareData
+    .. automethod:: createGroup
 
-.. automethod:: icat.client.Client.isDataPrepared
+    .. automethod:: createRules
 
-.. automethod:: icat.client.Client.getPreparedData
+    **Custom IDS methods**
 
-.. automethod:: icat.client.Client.getPreparedDataUrl
+    These methods provide the most commonly needed IDS functionality
+    and build on top of the low level IDS API methods provided by
+    :class:`icat.ids.IDSClient`.
 
-.. automethod:: icat.client.Client.deleteData
+    .. automethod:: putData
+
+    .. automethod:: getData
+
+    .. automethod:: getDataUrl
+
+    .. automethod:: prepareData
+
+    .. automethod:: isDataPrepared
+
+    .. automethod:: getPreparedData
+
+    .. automethod:: getPreparedDataUrl
+
+    .. automethod:: deleteData
+
+.. _ICAT SOAP Manual: https://repo.icatproject.org/site/icat/server/4.10.0/soap.html

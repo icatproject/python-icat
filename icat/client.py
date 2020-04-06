@@ -40,9 +40,39 @@ class Client(suds.client.Client):
  
     """A client accessing an ICAT service.
 
-    Client is a subclass of suds.client.Client and inherits most of
-    its behavior.  It adds methods for the instantiation of ICAT
-    entities and implementations of the ICAT API methods.
+    This is a subclass of :class:`suds.client.Client` and inherits
+    most of its behavior.  It adds methods for the instantiation of
+    ICAT entities and implementations of the ICAT API methods.
+
+    :param url: The URL pointing to the WSDL of the ICAT service.  If
+        the URL does not contain a path, e.g. contains only a URL
+        scheme and network location part, a default path is assumend.
+    :type url: :class:`str`
+    :param idsurl: The URL pointing to the IDS service.  If set, an
+        :class:`icat.ids.IDSClient` instance will be created.
+    :type idsurl: :class:`str`
+    :param checkCert: Flag whether the server's SSL certificate should
+        be verified if connecting ICAT with HTTPS.
+    :type checkCert: :class:`bool`
+    :param caFile: Path to a file of concatenated trusted CA
+        certificates.  If neither `caFile` nor `caPath` is set, the
+        system's default certificates will be used.
+    :type caFile: :class:`str`
+    :param caPath: Path to a directory containing trusted CA
+        certificates.  If neither `caFile` nor `caPath` is set, the
+        system's default certificates will be used.
+    :type caPath: :class:`str`
+    :param sslContext: A SSL context describing various SSL options to
+        be used in HTTPS connections.  If set, this will override
+        `checkCert`, `caFile`, and `caPath`.
+    :type sslContext: :class:`ssl.SSLContext`
+    :param proxy: HTTP proxy settings.  A map with the keys
+        `http_proxy` and `https_proxy` and the URL of the respective
+        proxy to use as values.
+    :type proxy: :class:`dict`
+    :param kwargs: additional keyword arguments that will be passed to
+        :class:`suds.client.Client`, see :class:`suds.options.Options`
+        for details.
     """
 
     Register = {}
@@ -57,7 +87,7 @@ class Client(suds.client.Client):
     def cleanupall(cls):
         """Cleanup all class instances.
 
-        Call :meth:`icat.client.Client.cleanup` on all registered
+        Call :meth:`~icat.client.Client.cleanup` on all registered
         class instances, e.g. on all clients that have not yet been
         cleaned up.
         """
@@ -87,11 +117,6 @@ class Client(suds.client.Client):
 
         Extend the inherited constructor.  Query the API version from
         the ICAT server and initialize the typemap accordingly.
-
-        :param url: The URL for the WSDL.
-        :type url: str
-        :param kwargs: keyword arguments.
-        :see: :class:`suds.options.Options` for the keyword arguments.
         """
 
         self.url = _complete_url(url)
@@ -135,15 +160,15 @@ class Client(suds.client.Client):
         self.Register[id(self)] = self
 
     def __del__(self):
-        """Call :meth:`icat.client.Client.cleanup`."""
+        """Call :meth:`~icat.client.Client.cleanup`."""
         self.cleanup()
 
     def cleanup(self):
         """Release resources allocated by the client.
 
-        Logout from the active ICAT session (if
-        :attr:`self.autoLogout` is :const:`True`).  The client should
-        not be used any more after calling this method.
+        Logout from the active ICAT session (if :attr:`autoLogout` is
+        :const:`True`).  The client should not be used any more after
+        calling this method.
         """
         if id(self) in self.Register:
             if self.autoLogout:
@@ -189,10 +214,10 @@ class Client(suds.client.Client):
 
         If obj is a string, take it as the name of an instance type.
         Create a new instance object of this type and lookup the class
-        for the object in the :attr:`self.typemap` using this type
-        name.  If obj is an instance object, look up its class name in
-        the typemap to determine the class.  If obj is :const:`None`,
-        do nothing and return :const:`None`.
+        for the object in the :attr:`typemap` using this type name.
+        If obj is an instance object, look up its class name in the
+        typemap to determine the class.  If obj is :const:`None`, do
+        nothing and return :const:`None`.
         
         :param obj: either a Suds instance object, a name of an
             instance type, or :const:`None`.
@@ -256,7 +281,7 @@ class Client(suds.client.Client):
         """Get the corresponding :class:`icat.entity.Entity` for an object.
 
         If obj is a Suds instance object, create a new object with
-        :meth:`icat.client.Client.new`.  Otherwise do nothing and
+        :meth:`~icat.client.Client.new`.  Otherwise do nothing and
         return obj unchanged.
         
         :param obj: either a Suds instance object or anything.
@@ -423,10 +448,10 @@ class Client(suds.client.Client):
     # =================== custom API methods ===================
 
     def autoRefresh(self):
-        """Call :meth:`icat.client.Client.refresh` only if needed.
+        """Call :meth:`~icat.client.Client.refresh` only if needed.
 
-        Call :meth:`icat.client.Client.refresh` if less then
-        :attr:`self.AutoRefreshRemain` minutes remain in the current
+        Call :meth:`~icat.client.Client.refresh` if less then
+        :attr:`AutoRefreshRemain` minutes remain in the current
         session.  Do not make any client calls if not.  This method is
         supposed to be very cheap if enough time remains in the
         session so that it may be called often in a loop without
@@ -440,8 +465,8 @@ class Client(suds.client.Client):
         """Search with an assertion on the result.
 
         Perform a search and verify that the number of items found
-        lies within the bounds of assertmin and assertmax.  Raise an
-        error if this assertion fails.
+        lies within the bounds of `assertmin` and `assertmax`.  Raise
+        an error if this assertion fails.
 
         :param query: the search query.
         :type query: :class:`icat.query.Query` or :class:`str`
@@ -457,6 +482,7 @@ class Client(suds.client.Client):
             results fails.
         :raise ICATError: in case of exceptions raised by the ICAT
             server.
+
         """
         if assertmax is not None and assertmin > assertmax:
             raise ValueError("Minimum (%d) is larger then maximum (%d)."
@@ -471,7 +497,7 @@ class Client(suds.client.Client):
     def searchChunked(self, query, skip=0, count=None, chunksize=100):
         """Search the ICAT server.
 
-        Call the ICAT :meth:`icat.client.Client.search` API method,
+        Call the ICAT :meth:`~icat.client.Client.search` API method,
         limiting the number of results in each call and repeat the
         call as often as needed to retrieve all the results.
 
@@ -562,17 +588,17 @@ class Client(suds.client.Client):
         This is in a sense the inverse method to
         :meth:`icat.entity.Entity.getUniqueKey`, the key must
         previously have been generated by it.  This method searches
-        the Entity object that the key has been generated for from the
+        the entity object that the key has been generated for from the
         server.
 
         if objindex is not :const:`None`, it is used as a cache of
         previously retrieved objects.  It must be a dict that maps
-        keys to Entity objects.  The object retrieved by this method
+        keys to entity objects.  The object retrieved by this method
         call will be added to this index.
 
         :param key: the unique key of the object to search for.
         :type key: :class:`str`
-        :param objindex: cache of Entity objects.
+        :param objindex: cache of entity objects.
         :type objindex: :class:`dict`
         :return: the object corresponding to the key.
         :rtype: :class:`icat.entity.Entity`
@@ -647,7 +673,7 @@ class Client(suds.client.Client):
         return self.assertedSearch(query)[0]
 
     def createUser(self, name, search=False, **kwargs):
-        """Search a user by name or Create a new user.
+        """Search a user by name or create a new user.
 
         If search is :const:`True` search a user by the given name.  If
         search is :const:`False` or no user is found, create a new user.
@@ -700,7 +726,7 @@ class Client(suds.client.Client):
             :const:`None` for everybody.
         :type group: :class:`icat.entity.Entity`
         :return: list of the ids of the created rules.
-        :rtype: :class:`list` of :class:`long`
+        :rtype: :class:`list` of :class:`int`
         """
         if group:
             log.info("Rule: adding %s permissions for group '%s'", 
@@ -722,7 +748,7 @@ class Client(suds.client.Client):
         """Upload a datafile to IDS.
 
         The content of the file to upload is read from `infile`,
-        either directly if it is an open file, or a file by that named
+        either directly if it is an open file, or a file by that name
         will be opened for reading.
 
         The `datafile` object must be initialized but not yet created
@@ -806,7 +832,7 @@ class Client(suds.client.Client):
             `investigationIds`, `datasetIds`, and `datafileIds` with a
             list of object ids as value respectively, or a list of
             entity objects, or a data selection, or an id returned by
-            :meth:`icat.client.Client.prepareData`.
+            :meth:`~icat.client.Client.prepareData`.
         :type objs: :class:`dict`, :class:`list` of
             :class:`icat.entity.Entity`,
             :class:`icat.ids.DataSelection`, or :class:`str`
@@ -824,7 +850,7 @@ class Client(suds.client.Client):
             HTTP request with the indicated bytes offset.
         :type offset: :class:`int`
         :return: a file-like object as returned by
-            :meth:`urllib2.OpenerDirector.open`.
+            :meth:`urllib.request.OpenerDirector.open`.
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
@@ -846,7 +872,7 @@ class Client(suds.client.Client):
             `investigationIds`, `datasetIds`, and `datafileIds`
             with a list of object ids as value respectively, or a list
             of entity objects, or a data selection, or an id returned by
-            :meth:`icat.client.Client.prepareData`.
+            :meth:`~icat.client.Client.prepareData`.
         :type objs: :class:`dict`, :class:`list` of
             :class:`icat.entity.Entity`,
             :class:`icat.ids.DataSelection`, or :class:`str`
@@ -860,7 +886,7 @@ class Client(suds.client.Client):
         :param outname: the preferred name for the downloaded file to
             specify in the Content-Disposition header.
         :type outname: :class:`str`
-        :return: the URL for tha data at the IDS.
+        :return: the URL for the data at the IDS.
         :rtype: :class:`str`
         """
         if not self.ids:
@@ -891,8 +917,8 @@ class Client(suds.client.Client):
             format.  For multiple files zip format is always used.
         :type zipFlag: :class:`bool`
         :return: `preparedId`, an opaque string which may be used as an
-            argument to :meth:`icat.client.Client.isDataPrepared` and
-            :meth:`icat.client.Client.getPreparedData` calls.
+            argument to :meth:`~icat.client.Client.isDataPrepared` and
+            :meth:`~icat.client.Client.getData` calls.
         :rtype: :class:`str`
         """
         if not self.ids:
@@ -905,7 +931,7 @@ class Client(suds.client.Client):
         """Check if prepared data is ready at IDS.
 
         :param preparedId: the id returned by
-            :meth:`icat.client.Client.prepareData`.
+            :meth:`~icat.client.Client.prepareData`.
         :type preparedId: :class:`str`
         :return: :const:`True` if the data is ready, otherwise :const:`False`.
         :rtype: :class:`bool`
@@ -918,7 +944,7 @@ class Client(suds.client.Client):
         """Retrieve prepared data from IDS.
 
         :param preparedId: the id returned by
-            :meth:`icat.client.Client.prepareData`.
+            :meth:`~icat.client.Client.prepareData`.
         :type preparedId: :class:`str`
         :param outname: the preferred name for the downloaded file to
             specify in the Content-Disposition header.
@@ -927,10 +953,10 @@ class Client(suds.client.Client):
             HTTP request with the indicated bytes offset.
         :type offset: :class:`int`
         :return: a file-like object as returned by
-            :meth:`urllib2.OpenerDirector.open`.
+            :meth:`urllib.request.OpenerDirector.open`.
 
         .. deprecated:: 0.17.0
-           Call :meth:`icat.client.Client.getData` instead.
+           Call :meth:`~icat.client.Client.getData` instead.
         """
         warn("getPreparedData() is deprecated.", DeprecationWarning, 2)
         return self.getData(preparedId, outname=outname, offset=offset)
@@ -939,7 +965,7 @@ class Client(suds.client.Client):
         """Get the URL to retrieve prepared data from IDS.
 
         :param preparedId: the id returned by
-            :meth:`icat.client.Client.prepareData`.
+            :meth:`~icat.client.Client.prepareData`.
         :type preparedId: :class:`str`
         :param outname: the preferred name for the downloaded file to
             specify in the Content-Disposition header.
@@ -948,7 +974,7 @@ class Client(suds.client.Client):
         :rtype: :class:`str`
 
         .. deprecated:: 0.17.0
-           Call :meth:`icat.client.Client.getDataUrl` instead.
+           Call :meth:`~icat.client.Client.getDataUrl` instead.
         """
         warn("getPreparedDataUrl() is deprecated.", DeprecationWarning, 2)
         return self.getDataUrl(preparedId, outname=outname)
