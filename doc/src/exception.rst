@@ -108,6 +108,10 @@ Exceptions thrown by python-icat
     :members:
     :show-inheritance:
 
+.. autoexception:: icat.exception.EntityTypeError
+    :members:
+    :show-inheritance:
+
 .. autoexception:: icat.exception.VersionMethodError
     :members:
     :show-inheritance:
@@ -158,6 +162,7 @@ The class hierarchy for the exceptions is::
    |         +-- IDSNotImplementedError
    +-- InternalError
    +-- ConfigError
+   +-- EntityTypeError
    +-- VersionMethodError
    +-- SearchResultError
    |    +-- SearchAssertionError
