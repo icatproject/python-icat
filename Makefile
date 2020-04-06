@@ -1,5 +1,7 @@
 PYTHON = python3
 
+BUILDLIB = $(abspath build/lib)
+
 
 build:
 	$(PYTHON) setup.py build
@@ -10,8 +12,8 @@ test:
 sdist:
 	$(PYTHON) setup.py sdist
 
-doc-html: init_py
-	$(MAKE) -C doc html
+doc-html: build
+	$(MAKE) -C doc html PYTHONPATH=$(BUILDLIB)
 
 
 clean:
