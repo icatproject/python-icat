@@ -79,7 +79,9 @@ class Client(suds.client.Client):
             wait = max(self.getRemainingMinutes() - self.AutoRefreshRemain, 0)
             self._next_refresh = now + 60*wait
 
-    def __init__(self, url, **kwargs):
+    def __init__(self, url, idsurl=None,
+                 checkCert=True, caFile=None, caPath=None, sslContext=None,
+                 proxy=None, **kwargs):
 
         """Initialize the client.
 
@@ -94,18 +96,22 @@ class Client(suds.client.Client):
 
         self.url = _complete_url(url)
         self.kwargs = dict(kwargs)
+        self.kwargs['idsurl'] = idsurl
+        self.kwargs['checkCert'] = checkCert
+        self.kwargs['caFile'] = caFile
+        self.kwargs['caPath'] = caPath
+        self.kwargs['sslContext'] = sslContext
+        self.kwargs['proxy'] = proxy
 
-        idsurl = _complete_url(kwargs.pop('idsurl', None), default_path="/ids")
+        idsurl = _complete_url(idsurl, default_path="/ids")
 
-        sslverify = kwargs.pop('checkCert', True)
-        cafile = kwargs.pop('caFile', None)
-        capath = kwargs.pop('caPath', None)
-        if 'sslContext' in kwargs:
-            self.sslContext = kwargs.pop('sslContext')
+        if sslContext:
+            self.sslContext = sslContext
         else:
-            self.sslContext = create_ssl_context(sslverify, cafile, capath)
+            self.sslContext = create_ssl_context(checkCert, caFile, caPath)
 
-        proxy = kwargs.pop('proxy', {})
+        if not proxy:
+            proxy = {}
         kwargs['transport'] = HTTPSTransport(self.sslContext, proxy=proxy)
         super(Client, self).__init__(self.url, **kwargs)
         apiversion = self.getApiVersion()
