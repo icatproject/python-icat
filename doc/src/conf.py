@@ -11,14 +11,13 @@
 import os.path
 import sys
 topdir = os.path.abspath("../..")
-sys.path.insert(0, topdir)
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'python-icat'
-copyright = (u'2013–2020, '
-             u'Helmholtz-Zentrum Berlin für Materialien und Energie GmbH')
+copyright = ('2013–2020, '
+             'Helmholtz-Zentrum Berlin für Materialien und Energie GmbH')
 author = 'Rolf Krahl'
 
 # The full version, including alpha/beta/rc tags

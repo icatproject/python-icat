@@ -1,5 +1,5 @@
 SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build-2.7
+SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = python-icat
 SOURCEDIR     = src
 BUILDDIR      = .
