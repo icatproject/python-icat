@@ -109,7 +109,8 @@ class DataSelection(object):
     """A set of data to be processed by the ICAT Data Service.
 
     This can be passed as the `selection` argument to
-    :class:`icat.ids.IDSClient` method calls.
+    :class:`icat.ids.IDSClient` method calls.  The `objs` argument is
+    passed to the :meth:`extend` method.
     """
 
     def __init__(self, objs=None):
@@ -136,7 +137,7 @@ class DataSelection(object):
             of entity objects, or another data selection.
         :type objs: :class:`dict`, :class:`list` of
             :class:`icat.entity.Entity`, or
-            :class:`icat.ids.DataSelection`
+            :class:`~icat.ids.DataSelection`
         """
         if isinstance(objs, DataSelection):
             self.invIds.update(objs.invIds)
@@ -360,14 +361,14 @@ class IDSClient(object):
         """Reset prepared data so that they can be queried again.
 
         .. deprecated:: 0.17.0
-           Call :meth:`icat.ids.IDSClient.reset` instead.
+           Call :meth:`~icat.ids.IDSClient.reset` instead.
         """
         warn("resetPrepared() is deprecated.", DeprecationWarning, 2)
         self.reset(preparedId)
 
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
-        """Prepare data for a subsequent
-        :meth:`icat.ids.IDSClient.getPreparedData` call.
+        """Prepare data for a subsequent :meth:`~icat.ids.IDSClient.getData`
+        call.
         """
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
@@ -380,7 +381,7 @@ class IDSClient(object):
         """Check if data is ready.
 
         Returns true if the data identified by the `preparedId`
-        returned by a call to :meth:`icat.ids.IDSClient.prepareData`
+        returned by a call to :meth:`~icat.ids.IDSClient.prepareData`
         is ready.
         """
         parameters = {"preparedId": preparedId}
@@ -403,7 +404,7 @@ class IDSClient(object):
         """Get the list of data file id corresponding to the prepared Id.
 
         .. deprecated:: 0.17.0
-           Call :meth:`icat.ids.IDSClient.getDatafileIds` instead.
+           Call :meth:`~icat.ids.IDSClient.getDatafileIds` instead.
         """
         warn("getPreparedDatafileIds() is deprecated.", DeprecationWarning, 2)
         return self.getDatafileIds(preparedId)
@@ -436,10 +437,10 @@ class IDSClient(object):
         """Get prepared data.
 
         Get the data using the `preparedId` returned by a call to
-        :meth:`icat.ids.IDSClient.prepareData`.
+        :meth:`~icat.ids.IDSClient.prepareData`.
 
         .. deprecated:: 0.17.0
-           Call :meth:`icat.ids.IDSClient.getData` instead.
+           Call :meth:`~icat.ids.IDSClient.getData` instead.
         """
         warn("getPreparedData() is deprecated.", DeprecationWarning, 2)
         return self.getData(preparedId, outname=outname, offset=offset)
@@ -448,10 +449,10 @@ class IDSClient(object):
         """Get the URL to retrieve prepared data.
 
         Get the URL to retrieve data using the `preparedId` returned
-        by a call to :meth:`icat.ids.IDSClient.prepareData`.
+        by a call to :meth:`~icat.ids.IDSClient.prepareData`.
 
         .. deprecated:: 0.17.0
-           Call :meth:`icat.ids.IDSClient.getDataUrl` instead.
+           Call :meth:`~icat.ids.IDSClient.getDataUrl` instead.
         """
         warn("getPreparedDataUrl() is deprecated.", DeprecationWarning, 2)
         return self.getDataUrl(preparedId, outname=outname)
