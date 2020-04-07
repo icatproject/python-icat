@@ -52,36 +52,35 @@ class Query(object):
 
     The query uses the JPQL inspired syntax introduced with ICAT
     4.3.0.  It won't work with older ICAT servers.
+
+    :param client: the ICAT client.
+    :type client: :class:`icat.client.Client`
+    :param entity: the type of objects to search for.  This may either
+        be an :class:`icat.entity.Entity` subclass or the name of an
+        entity type.
+    :param attribute: the attribute that the query shall return.  See
+        the :meth:`~icat.query.Query.setAttribute` method for details.
+    :param aggregate: the aggregate function to be applied in the
+        SELECT clause, if any.  See the
+        :meth:`~icat.query.Query.setAggregate` method for details.
+    :param order: the sorting attributes to build the ORDER BY clause
+        from.  See the :meth:`~icat.query.Query.setOrder` method for
+        details.
+    :param conditions: the conditions to build the WHERE clause from.
+        See the :meth:`~icat.query.Query.addConditions` method for
+        details.
+    :param includes: list of related objects to add to the INCLUDE
+        clause.  See the :meth:`~icat.query.Query.addIncludes` method
+        for details.
+    :param limit: a tuple (skip, count) to be used in the LIMIT
+        clause.  See the :meth:`~icat.query.Query.setLimit` method for
+        details.
     """
 
     def __init__(self, client, entity, 
                  attribute=None, aggregate=None, order=None, 
                  conditions=None, includes=None, limit=None):
         """Initialize the query.
-
-        :param client: the ICAT client.
-        :type client: :class:`icat.client.Client`
-        :param entity: the type of objects to search for.  This may
-            either be an :class:`icat.entity.Entity` subclass or the
-            name of an entity type.
-        :param attribute: the attribute that the query shall return.
-            See the :meth:`icat.query.Query.setAttribute` method for
-            details.
-        :param aggregate: the aggregate function to be applied in the
-            SELECT clause, if any.  See the
-            :meth:`icat.query.Query.setAggregate` method for details.
-        :param order: the sorting attributes to build the ORDER BY
-            clause from.  See the :meth:`icat.query.Query.setOrder`
-            method for details.
-        :param conditions: the conditions to build the WHERE clause
-            from.  See the :meth:`icat.query.Query.addConditions`
-            method for details.
-        :param includes: list of related objects to add to the INCLUDE
-            clause.  See the :meth:`icat.query.Query.addIncludes`
-            method for details.
-        :param limit: a tuple (skip, count) to be used in the LIMIT
-            clause.  See the :meth:`icat.query.Query.setLimit` method
-            for details.
         """
 
         super(Query, self).__init__()
