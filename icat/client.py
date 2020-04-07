@@ -640,7 +640,7 @@ class Client(suds.client.Client):
         >>> dataset = client.new("dataset", investigation=inv, name=dsname)
         >>> dataset = client.searchMatching(dataset)
         >>> dataset.id
-        172383L
+        172383
 
         :param obj: an entity object having the attrinutes for the
             uniqueness constraint set accordingly.
