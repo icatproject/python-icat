@@ -331,8 +331,11 @@ class Query(object):
 
         :param limit: a tuple (skip, count).
         :type limit: :class:`tuple`
+        :raise TypeError: if limit is not a tuple of two elements.
         """
         if limit:
+            if not(isinstance(limit, tuple) and len(limit) == 2):
+                raise TypeError("limit must be a tuple of two elements.")
             self.limit = limit
         else:
             self.limit = None            
