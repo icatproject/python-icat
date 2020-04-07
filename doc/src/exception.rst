@@ -3,12 +3,19 @@
 
 .. py:module:: icat.exception
 
+This module defines Python counterparts of the exceptions raised by
+ICAT or IDS server, as well as exceptions raised in python-icat.
+
 Helper
 ------
 
 .. autofunction:: icat.exception.stripCause
 
-Exceptions thrown by the ICAT or IDS server
+.. autoexception:: icat.exception._BaseException
+    :members:
+    :show-inheritance:
+
+Exceptions raised by the ICAT or IDS server
 -------------------------------------------
 
 .. autoexception:: icat.exception.ServerError
@@ -85,7 +92,7 @@ Exceptions thrown by the ICAT or IDS server
 
 .. autofunction:: icat.exception.translateError
 
-Exceptions thrown by python-icat
+Exceptions raised by python-icat
 --------------------------------
 
 .. autoexception:: icat.exception.InternalError
@@ -175,5 +182,5 @@ The class hierarchy for the exceptions is::
         +-- DeprecationWarning
              +-- ICATDeprecationWarning
 
-Here, ``Exception``, ``Warning``, and ``DeprecationWarning`` are
-build-in exceptions from the Python standard library.
+Here, :exc:`Exception`, :exc:`Warning`, and :exc:`DeprecationWarning`
+are build-in exceptions from the Python standard library.
