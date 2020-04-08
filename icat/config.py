@@ -214,6 +214,9 @@ class ConfigSubCmds(ConfigVariable):
             attribute `func` with this value if this command has been
             selected.  Most useful to set this to a callable that
             implements the command.
+        :return: a subconfig object that allows to set specific
+            configuration variables for the command.
+        :rtype: :class:`icat.config.SubConfig`
         :raise ValueError: if the name is already defined.
         """
         if name in self.subconfig:
