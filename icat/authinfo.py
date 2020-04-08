@@ -31,17 +31,17 @@ class AuthenticatorInfo(Sequence):
     def getAuthNames(self):
         return [ a.mnemonic for a in self.authInfo ]
 
-    def getCredentialKeys(self, auth, hide=None):
+    def getCredentialKeys(self, auth=None, hide=None):
         keys = set()
         found = False
         for info in self.authInfo:
-            if auth and info.mnemonic != auth:
+            if auth is not None and info.mnemonic != auth:
                 continue
             found = True
             for k in getattr(info, "keys", []):
                 if hide is None or getattr(k, "hide", False) == hide:
                     keys.add(k.name)
-        if auth and not found:
+        if auth is not None and not found:
             raise KeyError("No such authenticator '%s'." % auth)
         return keys
 
@@ -57,7 +57,7 @@ class LegacyAuthenticatorInfo(object):
     def getAuthNames(self):
         return None
 
-    def getCredentialKeys(self, auth, hide=None):
+    def getCredentialKeys(self, auth=None, hide=None):
         if hide is not None:
             if hide:
                 return {"password"}
