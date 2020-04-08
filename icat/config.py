@@ -754,9 +754,9 @@ class Config(BaseConfig):
         var = self.add_variable('auth', ("-a", "--auth"), authArgOpts,
                                 envvar='ICAT_AUTH')
         var.postprocess = _post_auth
-        for key in self.authenticatorInfo.getCredentialKeys(None, hide=False):
+        for key in self.authenticatorInfo.getCredentialKeys(hide=False):
             self._add_credential_key(key)
-        hidden = self.authenticatorInfo.getCredentialKeys(None, hide=True)
+        hidden = self.authenticatorInfo.getCredentialKeys(hide=True)
         if hidden:
             var = self.add_variable('promptPass', ("-P", "--prompt-pass"), 
                                     dict(help="prompt for the password", 
