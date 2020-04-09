@@ -4,9 +4,8 @@
 .. py:module:: icat.helper
 
 .. note::
-   This module is intended for the internal use in python-icat and is
-   not considered to be part of the API.  No effort will be made to
-   keep anything in here compatible between different versions.
+   This module is intended for the internal use in python-icat.  Most
+   users will not need to use it directly or even care about it.
 
 .. autofunction:: icat.helper.simpleqp_quote
 

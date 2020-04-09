@@ -25,7 +25,7 @@ added.  The main class that client programs interact with is
 
     Variant of :func:`icat.config.boolean` that defines two command
     line arguments to switch the value on and off respectively.  May
-    be passed as type to :meth:`icat.config.Config.add_variable`.
+    be passed as type to :meth:`icat.config.BaseConfig.add_variable`.
 
 .. autofunction:: icat.config.cfgpath
 

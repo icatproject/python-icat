@@ -49,7 +49,11 @@ class _BaseException(Exception):
     exception traceback.  This works with Python 3.3 and newer, but
     has no effect with Python 3.1 and 3.2.
 
-    .. _Exception Chaining and Embedded Tracebacks: http://legacy.python.org/dev/peps/pep-3134/
+    This is the common base class for for all exceptions defined in
+    :mod:`icat.exception`, it is not intented to be raised directly.
+
+    .. _Exception Chaining and Embedded Tracebacks: https://www.python.org/dev/peps/pep-3134
+
     """
     def __init__(self, *args):
         super(_BaseException, self).__init__(*args)

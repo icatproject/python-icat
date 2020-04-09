@@ -65,7 +65,7 @@ entitytypes = [
 # ------------------------------------------------------------
 
 class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
-    """Backend for icatingest.py to read a YAML data file."""
+    """Backend for reading ICAT data from a YAML file."""
 
     mode = "rt" if sys.version_info > (3, 0) else "rb"
     """File mode suitable for this backend.
@@ -127,7 +127,7 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
 # ------------------------------------------------------------
 
 class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
-    """Backend for icatdump.py to write a YAML data file."""
+    """Backend for writing ICAT data to a YAML file."""
 
     mode = "wt" if sys.version_info > (3, 0) else "wb"
     """File mode suitable for this backend.

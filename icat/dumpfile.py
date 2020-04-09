@@ -95,7 +95,7 @@ class DumpFileReader(object):
         Yield some data object in each iteration.  This data object is
         specific to the implementing backend and should be passed as
         the `data` argument to
-        :meth:`icat.dumpfile.DumpFileReader.getobjs_from_data`.
+        :meth:`~icat.dumpfile.DumpFileReader.getobjs_from_data`.
         """
         raise NotImplementedError
 
@@ -113,11 +113,12 @@ class DumpFileReader(object):
         Yield a new entity object in each iteration.  The object is
         initialized from the data, but not yet created at the client.
 
-        :param objindex: cache of previously retrieved objects, used
-            to resolve object relations.  See the
+        :param objindex: a mapping from keys to entity objects, see
             :meth:`icat.client.Client.searchUniqueKey` for details.
-            If this is :const:`None`, an internal cache will be used
-            that is purged at the start of every new data chunk.
+            This serves as a cache of previously retrieved objects,
+            used to resolve object relations.  If this is
+            :const:`None`, an internal cache will be used that is
+            purged at the start of every new data chunk.
         :type objindex: :class:`dict`
         """
         resetindex = (objindex is None)
@@ -203,11 +204,11 @@ class DumpFileWriter(object):
         the data file.
 
         :param objs: query to search the objects, either a Query
-            object or a string.  It must contain appropriate INCLUDE
-            statements to include all related objects from many-to-one
-            relations.  These related objects must also include all
-            informations needed to generate their unique key, unless
-            they are registered in the key index already.
+            object or a string.  It must contain an appropriate
+            include clause to include all related objects from
+            many-to-one relations.  These related objects must also
+            include all informations needed to generate their unique
+            key, unless they are registered in the key index already.
 
             Furthermore, related objects from one-to-many relations
             may be included.  These objects will then be embedded with

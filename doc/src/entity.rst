@@ -5,4 +5,5 @@
 
 .. autoclass:: icat.entity.Entity
     :members:
+    :special-members: __sortkey__
     :show-inheritance:

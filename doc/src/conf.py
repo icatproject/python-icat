@@ -38,6 +38,7 @@ version = ".".join(release.split(".")[0:2])
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -68,6 +69,10 @@ pygments_style = 'sphinx'
 # -- Options for autodoc extension ---------------------------------------------
 
 autodoc_member_order = 'bysource'
+
+# -- Options for intersphinx extension -----------------------------------------
+
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
 
 # -- Options for HTML output ---------------------------------------------------
 

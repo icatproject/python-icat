@@ -9,10 +9,6 @@ attributes :attr:`icat.entity.Entity.BeanName`,
 :attr:`icat.entity.Entity.InstMRel`,
 :attr:`icat.entity.Entity.AttrAlias`, and
 :attr:`icat.entity.Entity.SortAttrs` as appropriate.
-
-.. note::
-   This module is used internally in :mod:`icat.client`.  Most users
-   will not need to use it directly.
 """
 
 import itertools
@@ -21,8 +17,12 @@ from icat.exception import InternalError
 
 
 class GroupingMixin:
+    """Mixin class to define custom methods for Grouping objects.
+    """
 
     def addUsers(self, users):
+        """Add users to the group.
+        """
         ugs = []
         uids = set()
         for u in users:
@@ -34,6 +34,10 @@ class GroupingMixin:
             self.client.createMany(ugs)
 
     def getUsers(self, attribute=None):
+        """Get the users in the group.  If `attribute` is given, return the
+        corresponding attribute for all users in the group, otherwise
+        return the users.
+        """
         if attribute is not None:
             query = ("User.%s <-> UserGroup <-> %s [id=%d]" 
                      % (attribute, self.BeanName, self.id))
@@ -44,8 +48,12 @@ class GroupingMixin:
 
 
 class InstrumentMixin:
+    """Mixin class to define custom methods for Instrument objects.
+    """
 
     def addInstrumentScientists(self, users):
+        """Add instrument scientists to the instrument.
+        """
         iss = []
         for u in users:
             iss.append(self.client.new('instrumentScientist', 
@@ -54,6 +62,10 @@ class InstrumentMixin:
             self.client.createMany(iss)
 
     def getInstrumentScientists(self, attribute=None):
+        """Get instrument scientists of the instrument.  If `attribute` is
+        given, return the corresponding attribute for all users
+        related to the instrument, otherwise return the users.
+        """
         if attribute is not None:
             query = ("User.%s <-> InstrumentScientist <-> Instrument [id=%d]" 
                      % (attribute, self.id))
@@ -64,13 +76,19 @@ class InstrumentMixin:
 
 
 class InvestigationMixin:
+    """Mixin class to define custom methods for Investigation objects.
+    """
 
     def addInstrument(self, instrument):
+        """Add an instrument to the investigation.
+        """
         ii = self.client.new('investigationInstrument', 
                              investigation=self, instrument=instrument)
         ii.create()
 
     def addKeywords(self, keywords):
+        """Add keywords to the investigation.
+        """
         kws = []
         for k in keywords:
             kws.append(self.client.new('keyword', name=k, investigation=self))
@@ -78,6 +96,8 @@ class InvestigationMixin:
             self.client.createMany(kws)
 
     def addInvestigationUsers(self, users, role='Investigator'):
+        """Add investigation users.
+        """
         ius = []
         for u in users:
             ius.append(self.client.new('investigationUser', 
@@ -87,8 +107,13 @@ class InvestigationMixin:
 
 
 class Investigation44Mixin(InvestigationMixin):
+    """Mixin class to define custom methods for Investigation objects for
+    ICAT version 4.4.0 and later.
+    """
 
     def addInvestigationGroup(self, group, role=None):
+        """Add an investigation group.
+        """
         ig = self.client.new('investigationGroup', investigation=self)
         ig.grouping = group
         ig.role = role
@@ -186,6 +211,23 @@ _extra_attrs = {
 }
 
 def getTypeMap(client):
+    """Generate a type map for the client.
+
+    Query the ICAT server about the entity classes defined in the
+    schema and their attributes and relations.  Generate corresponding
+    Python classes representing these entities.  The Python classes
+    are based on :class:`icat.entity.Entity`.
+
+    :param client: a client object configured to connect to an ICAT
+        server.
+    :type client: :class:`icat.client.Client`
+    :return: a mapping of type names from the ICAT web service
+        description to the corresponding Python classes.  This mapping
+        may be used as :attr:`icat.client.Client.typemap` for the
+        client object.
+    :rtype: :class:`dict`
+
+    """
     typemap = { 'entityBaseBean': Entity, }
     for beanName in itertools.chain(('Parameter',), client.getEntityNames()):
         try:
