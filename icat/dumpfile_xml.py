@@ -23,7 +23,7 @@ except AttributeError:
 # ------------------------------------------------------------
 
 class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
-    """Backend for icatingest.py to read a XML data file.
+    """Backend for reading ICAT data from a XML file.
 
     This backend accepts a file object, a filename, or a XML tree
     object (:class:`lxml.etree._ElementTree`) as input.  Note that the
@@ -132,7 +132,7 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
 # ------------------------------------------------------------
 
 class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
-    """Backend for icatdump.py to write a XML data file."""
+    """Backend for writing ICAT data to a XML file."""
 
     mode = "wb"
     """File mode suitable for this backend.
