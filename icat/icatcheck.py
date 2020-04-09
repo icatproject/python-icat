@@ -11,9 +11,12 @@
 
 import re
 import logging
+from warnings import warn
 from icat.entity import Entity
 import icat.exception
 from icat.exception import *
+
+warn("The module icat.icatcheck is deprecated.", DeprecationWarning, 2)
 
 __all__ = ['ICATChecker']
 
