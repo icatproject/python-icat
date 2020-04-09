@@ -46,7 +46,7 @@ Incompatible changes and deprecations
   corresponding methods without `Prepared` in the name with the same
   arguments instead.
 
-+ Deprecate support for Python 2.
++ Deprecate support for Python 2 and Python 3.3.
 
 + Deprecate module :mod:`icat.icatcheck`.
   This module was not intended to be used in python-icat programs
