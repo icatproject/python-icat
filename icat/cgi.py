@@ -18,9 +18,9 @@ warn("The module icat.cgi is deprecated.", DeprecationWarning, 2)
 class SessionCookie(SimpleCookie):
     """A cookie to store an ICAT session id.
 
-    Extend :class:`Cookie.SimpleCookie` by the attribute `sessionId`.
-    Setting this attribute will set the session id in the cookie,
-    getting it will retrieve its value from the cookie.
+    Extend the parent class by the attribute `sessionId`.  Setting
+    this attribute will set the session id in the cookie, getting it
+    will retrieve its value from the cookie.
     """
 
     def __init__(self):
