@@ -180,6 +180,7 @@ class Query(object):
             matching entity objects.  If attribute is :const:`None`,
             the result will be the list of matching objects instead.
         :type attribute: :class:`str`
+        :raise ValueError: if `attribute` is not valid.
         """
         if attribute is not None:
             # Get the attribute path only to verify that the attribute is valid.
@@ -205,7 +206,7 @@ class Query(object):
             ":DISTINCT", may be appended to "COUNT", "AVG", and "SUM"
             to combine the respective function with "DISTINCT".
         :type function: :class:`str`
-        :raise ValueError: if function is not a valid.
+        :raise ValueError: if `function` is not a valid.
         """
         if function:
             if function not in aggregate_fcts:
@@ -225,9 +226,8 @@ class Query(object):
             name and an order direction, the latter being either "ASC"
             or "DESC" for ascending or descending order respectively.
         :type order: :class:`list` or :class:`bool`
-        :raise ValueError: if the order contains invalid attributes
-            that either do not exist or contain one to many
-            relationships.
+        :raise ValueError: if `order` contains invalid attributes that
+            either do not exist or contain one to many relationships.
         """
         if order is True:
 
@@ -285,7 +285,7 @@ class Query(object):
             will be turned into a list with the new condition(s)
             appended.
         :type conditions: :class:`dict`
-        :raise ValueError: if any key in conditions is not valid.
+        :raise ValueError: if any key in `conditions` is not valid.
         """
         if conditions:
             for a in conditions.keys():
@@ -312,7 +312,7 @@ class Query(object):
             clause.  A special value of "1" may be used to set (the
             equivalent of) an "INCLUDE 1" clause.
         :type includes: iterable of :class:`str`
-        :raise ValueError: if any item in includes is not a related object.
+        :raise ValueError: if any item in `includes` is not a related object.
         """
         if includes == "1":
             includes = list(self.entity.InstRel)
@@ -330,7 +330,7 @@ class Query(object):
 
         :param limit: a tuple (skip, count).
         :type limit: :class:`tuple`
-        :raise TypeError: if limit is not a tuple of two elements.
+        :raise TypeError: if `limit` is not a tuple of two elements.
         """
         if limit:
             if not(isinstance(limit, tuple) and len(limit) == 2):
