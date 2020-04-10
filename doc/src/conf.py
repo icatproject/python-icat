@@ -6,12 +6,7 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
-# -- Path setup --------------------------------------------------------------
-
-import os.path
-import sys
-topdir = os.path.abspath("../..")
-
+import icat
 
 # -- Project information -----------------------------------------------------
 
@@ -21,8 +16,7 @@ copyright = ('2013–2020, '
 author = 'Rolf Krahl'
 
 # The full version, including alpha/beta/rc tags
-with open(os.path.join(topdir, ".version"), "rt") as f:
-    release = f.read()
+release = icat.__version__
 # The short X.Y version
 version = ".".join(release.split(".")[0:2])
 
