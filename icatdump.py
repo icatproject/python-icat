@@ -14,7 +14,7 @@
 #    ds.sample is not NULL, the condition
 #    ds.investigation == ds.sample.investigation holds.  If this
 #    is not met, this script will fail with a DataConsistencyError.
-#  + The partition of the data into chunks ist static.  It should
+#  + The partition of the data into chunks is static.  It should
 #    rather be dynamic, e.g. chunks should be splitted if the number
 #    of objects in them grows too large.
 #  + The data in the ICAT server must not be modified while this

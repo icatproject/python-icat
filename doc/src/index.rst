@@ -34,6 +34,7 @@ Parts of the documentation
 
    tutorial
    moduleref
+   scripts
    changelog
 
 
