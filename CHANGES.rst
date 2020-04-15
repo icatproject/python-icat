@@ -57,7 +57,7 @@ Bug fixes and minor changes
 
 + `#19`_: Review documentation and add tutorial.
 
-+ `#62`_: Minor fixes in the error handling in ``setup.py``.
++ `#62`_: Minor fixes in the error handling in `setup.py`.
 
 Misc
 ----
@@ -103,7 +103,7 @@ Bug fixes and minor changes
 Bug fixes and minor changes
 ---------------------------
 
-+ Issue `#56`_: ``icatdump.py`` fails to include
++ Issue `#56`_: :ref:`icatdump` fails to include
   :attr:`Shift.instrument`.
 
 + Issue `#57`_: :meth:`icat.client.Client.searchChunked` still
@@ -188,7 +188,7 @@ New features
   ids.server 1.9.0.
 
 + `#46`_, `#47`_: Add a :meth:`ìcat.client.Client.autoRefresh` method.
-  The scripts ``icatdump.py`` and ``icatingest.py`` call this method
+  The scripts :ref:`icatdump` and :ref:`icatingest` call this method
   periodically to prevent the session from expiring.
 
 + `#48`_: Add support for an ordering direction qualifier in class
@@ -260,7 +260,7 @@ New features
   login.  The configuration variables for these keys are then adapted
   accordingly.  Note incompatible changes below.
 
-+ Review ``wipeicat.py``.  This was an example script, but is now
++ Review :ref:`wipeicat`.  This was an example script, but is now
   promoted to be a regular utility script that gets installed.
 
 + `#32`_: Add support for using aggregate functions in class
@@ -420,7 +420,7 @@ New features
 Bug fixes and minor changes
 ---------------------------
 
-+ Sort objects in ``icatdump.py`` before writing them to the dump file.
++ Sort objects in :ref:`icatdump` before writing them to the dump file.
   This keeps the order independent from the collation used in the ICAT
   database backend.
 
@@ -429,9 +429,9 @@ Bug fixes and minor changes
   lib.  Keep our own implementation in module :mod:`icat.chunkedhttp`
   only for compatibility with older Python versions.
 
-+ Improved the example script ``wipeicat.py``.
++ Improved the example script :ref:`wipeicat`.
 
-+ Add an example script ``dumprules.py``.
++ Add an example script `dumprules.py`.
 
 + Add missing schema definition for the ICAT XML data file format for
   ICAT 4.7.
@@ -471,16 +471,17 @@ Bug fixes and minor changes
 + `#24`_, `#25`_: test failures caused by different timezone settings
   of the test server.
 
-+ Use a separate module `distutils_pytest`_ for ``setup.py test``.
++ Use a separate module `distutils_pytest`_ to run the tests from
+  `setup.py`.
 
 + :mod:`icat.icatcheck`: move checking of exceptions into a separate
   method :meth:`icat.icatcheck.ICATChecker.checkExceptions`.  Do not
   report exceptions defined in the client, but not found in the
   schema.
 
-+ Many fixes in the example script ``wipeicat.py``.
++ Many fixes in the example script :ref:`wipeicat`.
 
-+ Fix a missing import in the ``icatexport.py`` example script.
++ Fix a missing import in the `icatexport.py` example script.
 
 + Somewhat clearer error messages for some special cases of
   :exc:`icat.exception.SearchAssertionError`.
@@ -535,7 +536,7 @@ Bug fixes and minor changes
 + `#13`_: :meth:`icat.client.Client.searchChunked` raises exception if
   the query contains a percent character.
 
-+ `#15`_: ``icatdump.py`` raises
++ `#15`_: :ref:`icatdump` raises
   :exc:`icat.exception.DataConsistencyError` for
   `DataCollectionParameter`.
 
@@ -574,24 +575,25 @@ Bug fixes and minor changes
 New features
 ------------
 
-+ `#4`_: Extend ``icatrestore.py`` to become a generic ingestion tool.
++ `#4`_: Extend :ref:`icatrestore <icatingest>` to become a generic
+  ingestion tool.
 
-  Rename ``icatrestore.py`` to ``icatingest.py``.
+  Rename :ref:`icatrestore <icatingest>` to :ref:`icatingest`.
 
   Allow referencing of objects by attribute rather then by unique key
-  in the input file for ``icatingest.py`` (only in the XML backend).
+  in the input file for :ref:`icatingest` (only in the XML backend).
 
   Allow adding references to already existing objects in the input
-  file for ``icatingest.py`` (only in the XML backend).
+  file for :ref:`icatingest` (only in the XML backend).
 
   Change the name of the root element in the input file for
-  ``icatingest.py`` (and the output of ``icatdump.py``) from
+  :ref:`icatingest` (and the output of :ref:`icatdump`) from
   `icatdump` to `icatdata` (only in the XML backend).
 
 + Implement upload of Datafiles to IDS rather then only creating the
-  ICAT object from ``icatingest.py``.
+  ICAT object from :ref:`icatingest`.
 
-+ Implement handling of duplicates in ``icatingest.py``.  The same
++ Implement handling of duplicates in :ref:`icatingest`.  The same
   options (`THROW`, `IGNORE`, `CHECK`, and `OVERWRITE`) as in the
   import call in the ICAT restful interface are supported.
 
@@ -622,8 +624,8 @@ Bug fixes and minor changes
 + `#10`_: client.putData: IDSInternalError is raised if
   datafile.datafileCreateTime is set.
 
-+ Ignore import errors from the backend modules in ``icatingest.py`` and
-  ``icatdump.py``.  This means one can use the scripts also if the
++ Ignore import errors from the backend modules in :ref:`icatingest` and
+  :ref:`icatdump`.  This means one can use the scripts also if the
   prerequisites for some backends are not fulfilled, only the
   concerned backends are not available then.
 
@@ -648,7 +650,7 @@ Bug fixes and minor changes
   :class:`icat.entity.Entity`.  Accept any iterable of entities as
   value.
 
-+ `#9`_: ``icatingest.py`` with `duplicate=CHECK` may fail when
++ `#9`_: :ref:`icatingest` with `duplicate=CHECK` may fail when
   attributes are not strings.  Note that this bug was only present in
   an alpha version, but not in any earlier release version.
 
@@ -694,8 +696,8 @@ New features
   path on Windows, add ``/etc/icat`` and ``~/.config/icat`` to the
   path if not on Windows.
 
-+ Add ``icatexport.py`` and ``icatimport.py`` example scripts that use
-  the corresponding calls to the ICAT RESTful interface to dump and
++ Add `icatexport.py` and `icatimport.py` example scripts that use the
+  corresponding calls to the ICAT RESTful interface to dump and
   restore the ICAT content.
 
 + The constructor of :exc:`icat.exception.ICATError` and the
@@ -771,7 +773,7 @@ New features
   expression strings where appropriate.
 
   Numerous examples on how to use this new class can be found in
-  ``querytest.py`` in the examples.
+  `querytest.py` in the examples.
 
 + Add a class method :meth:`icat.entity.Entity.getNaturalOrder` that
   returns a list of attributes suitable to be used in an ORDER BY
@@ -817,17 +819,17 @@ New features
   `http_proxy`, `https_proxy`, and `no_proxy` are set in the
   environment.  [Suggested by Alistair Mills]
 
-+ Rework the dump file backend API for ``icatdump.py`` and
-  ``icatrestore.py``.  As a result, writing custom dump or restore
-  scripts is much cleaner and easier now.
++ Rework the dump file backend API for :ref:`icatdump` and
+  :ref:`icatrestore <icatingest>`.  As a result, writing custom dump
+  or restore scripts is much cleaner and easier now.
 
   This may cause compatibility issues for users who either wrote their
   own dump file backend or for users who wrote custom dump or restore
   scripts, using the XML or YAML backends.  In the first case, compare
   the old XML and YAML backends with the new versions and you'll
   easily see what needs to get adapted.  In the latter case, have a
-  look into the new versions of ``icatdump.py`` and ``icatrestore.py``
-  to see how to use the new backend API.
+  look into the new versions of :ref:`icatdump` and :ref:`icatrestore
+  <icatingest>` to see how to use the new backend API.
 
 + Add method :meth:`icat.client.Client.searchChunked`.
 
@@ -899,10 +901,10 @@ Minor changes and fixes
   the Python command line.  When imported as a regular module, it will
   essentially do nothing.  This avoids errors to occur when imported.
 
-+ ``setup.py`` raises an error with Python 2.6 if python2_6.patch has
++ `setup.py` raises an error with Python 2.6 if python2_6.patch has
   not been applied.
 
-+ Add missing ``MANIFEST.in`` in the source distribution.
++ Add missing `MANIFEST.in` in the source distribution.
 
 + Remove the work around the Suds datetime value bug (setting the
   environment variable TZ to ``UTC``) from :mod:`icat`.  Instead,
@@ -965,7 +967,7 @@ Minor changes and fixes
 
 + Integrate an IDS client in the ICAT client.
 
-+ Improved ``icatdump.py`` and ``icatrestore.py``:
++ Improved :ref:`icatdump` and :ref:`icatrestore <icatingest>`:
 
   - Changed the logical structure of the dump file format which
     significantly simplified the scripts.  Note that old dump files
@@ -1041,11 +1043,12 @@ Minor changes and fixes
   :meth:`icat.client.Client.cleanup`.
 
 + Installation: python-icat requires Python 2.6 or newer.  Raise an
-  error if ``setup.py`` is run by a too old Python version.
+  error if `setup.py` is run by a too old Python version.
 
 + Move some internal routines in a separate module :mod:`icat.helper`.
 
-+ Greatly improved example scripts ``icatdump.py`` and ``icatrestore.py``.
++ Greatly improved example scripts :ref:`icatdump` and
+  :ref:`icatrestore <icatingest>`.
 
 
 0.3.0 (2014-01-10)
@@ -1091,7 +1094,7 @@ Minor changes and fixes
 + Work around a bug in the way SUDS deals with datetime values: set
   the local time zone to ``UTC``.
 
-+ Add example scripts ``icatdump.py`` and ``icatrestore.py``.
++ Add example scripts :ref:`icatdump` and :ref:`icatrestore <icatingest>`.
 
 
 0.2.0 (2013-11-18)
