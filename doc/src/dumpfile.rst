@@ -25,6 +25,8 @@ that must implement the abstract methods.
 .. autofunction:: icat.dumpfile.open_dumpfile
 
 
+.. _ICAT-data-files:
+
 ICAT data files
 ---------------
 

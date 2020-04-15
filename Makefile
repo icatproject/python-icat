@@ -9,11 +9,14 @@ build:
 test:
 	$(PYTHON) setup.py test
 
-sdist:
+sdist: doc-man
 	$(PYTHON) setup.py sdist
 
 doc-html: build
 	$(MAKE) -C doc html PYTHONPATH=$(BUILDLIB)
+
+doc-man: build
+	$(MAKE) -C doc man PYTHONPATH=$(BUILDLIB)
 
 
 clean:

@@ -81,6 +81,8 @@ added.  The main class that client programs interact with is
     :show-inheritance:
 
 
+.. _standard-config-vars:
+
 Predefined configuration variables
 ----------------------------------
 

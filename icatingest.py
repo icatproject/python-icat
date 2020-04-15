@@ -2,26 +2,6 @@
 #
 # Restore the content of the ICAT from a dump file as created by
 # icatdump.py.
-#
-# Known issues and limitations:
-#  + The user running this script need to have create permission for
-#    all objects in the dump file.  Appropriate rules must either
-#    already been set up at the ICAT server or must be contained in
-#    the dump file.  In the latter case, the rules and corresponding
-#    user and group objects must be in the first chunk (see below) of
-#    the file.  In the generic case of restoring the entire content on
-#    an empty ICAT server, the script must be run by the ICAT root
-#    user.
-#  + This script requires ICAT 4.3.0 or newer.
-#  + A dump and restore of an ICAT will not preserve the attributes
-#    id, createId, createTime, modId, and modTime of any objects.
-#    This is by design and cannot be fixed.  As a consequence, access
-#    rules that are based on object ids will not work after a restore.
-#  + Dealing with duplicates (option --duplicate) is only supported
-#    for single objects.  If the object contains related objects in
-#    one to many relationships that are to be created at once, the
-#    only allowed option to deal with duplicates is THROW.
-#
 
 import os.path
 import logging
