@@ -1,31 +1,6 @@
 #! /usr/bin/python
 #
 # Dump the content of the ICAT to a file or to stdout.
-#
-# The following items are deliberately not included in the output:
-#  + Log objects,
-#  + the attributes id, createId, createTime, modId, and modTime.
-#
-# Known issues and limitations:
-#  + This script requires ICAT 4.3.0 or newer.
-#  + IDS is not supported: the script only dumps the meta data stored
-#    in the ICAT, not the content of the files stored in the IDS.
-#  + It is assumed that for each Dataset ds in the ICAT where
-#    ds.sample is not NULL, the condition
-#    ds.investigation == ds.sample.investigation holds.  If this
-#    is not met, this script will fail with a DataConsistencyError.
-#  + The partition of the data into chunks is static.  It should
-#    rather be dynamic, e.g. chunks should be splitted if the number
-#    of objects in them grows too large.
-#  + The data in the ICAT server must not be modified while this
-#    script is retrieving it.  Otherwise the script may fail or the
-#    dumpfile be inconsistent.  There is not too much that can be done
-#    about this.  A database dump is a snapshot after all.  The
-#    picture will be blurred if the subject is moving while we take
-#    it.
-#  + icatdump fails for Study if ICAT is older then 4.6.0.  This is a
-#    bug in icat.server, see Issue icatproject/icat.server#155.
-#
 
 import logging
 import icat
