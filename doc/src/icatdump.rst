@@ -26,9 +26,7 @@ Options
 .. program:: icatdump
 
 The configuration options may be set in the command line or in a
-configuration file (besides :option:`--configfile` and
-:option:`--configsection`).  Some options may also be set in the
-environment.
+configuration file.  Some options may also be set in the environment.
 
 
 Specific Options
@@ -193,6 +191,12 @@ Environment Variables
 See also
 ~~~~~~~~
 
-* Section :ref:`ICAT-data-files` on the structure of the dump files.
-* Section :ref:`standard-config-vars` on the standard options.
-* The :ref:`icatingest` script.
+.. only:: not man
+
+    * Section :ref:`ICAT-data-files` on the structure of the dump files.
+    * Section :ref:`standard-config-vars` on the standard options.
+    * The :ref:`icatingest` script.
+
+.. only:: man
+
+    :manpage:`icatingest(1)`

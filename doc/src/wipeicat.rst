@@ -7,7 +7,7 @@ wipeicat
 Synopsis
 ~~~~~~~~
 
-**wipeicat** [*standard options*]
+**wipeicat** [*options*]
 
 
 Description
@@ -24,15 +24,13 @@ server.  If deleting the Datafiles succeeded, the remaing content is
 deleted from ICAT in palatable chunks.
 
 
-Standard Options
-~~~~~~~~~~~~~~~~
+Options
+~~~~~~~
 
 .. program:: wipeicat
 
 The configuration options may be set in the command line or in a
-configuration file (besides :option:`--configfile` and
-:option:`--configsection`).  Some options may also be set in the
-environment.
+configuration file.  Some options may also be set in the environment.
 
 These options are needed to connect the ICAT service and are common
 for most python-icat scripts.
