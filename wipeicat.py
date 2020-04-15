@@ -71,18 +71,29 @@ deleteobjs(Query(client, "Datafile", conditions={"location": "IS NULL"}))
 # everything deleted.  In each sweep, we delete everything that is
 # currently online in a first step and file a restore request for some
 # remaining datasets in a second step.
+#
+# Restoring a dataset may fail, in particular, if the files are not
+# present in IDS storage, see above.  If that happens, we reset the
+# error to retry.  But we do that only once per dataset.  If the
+# restore fails again, we give up und delete the dataset from ICAT,
+# without considering IDS.
 if client.ids:
     dfquery = Query(client, "Datafile", 
                     conditions={"location": "IS NOT NULL"}, limit=(0, 1))
+    retriedDatasets = set()
     while True:
         deleteDatasets = []
         restoreDatasets = []
         errorDatasets = []
+        failedDatasets = []
         for ds in client.searchChunked("Dataset", chunksize=objlimit):
             try:
                 status = client.ids.getStatus(DataSelection([ds]))
             except icat.IDSInternalError:
-                errorDatasets.append(ds)
+                if ds in retriedDatasets:
+                    failedDatasets.append(ds)
+                else:
+                    errorDatasets.append(ds)
                 continue
             if status == "ONLINE":
                 deleteDatasets.append(ds)
@@ -98,8 +109,12 @@ if client.ids:
             client.deleteMany(deleteDatasets)
         if len(restoreDatasets) > 0:
             client.ids.restore(DataSelection(restoreDatasets))
+        if len(failedDatasets) > 0:
+            client.deleteMany(failedDatasets)
+            retriedDatasets.difference_update(failedDatasets)
         if len(errorDatasets) > 0:
             client.ids.reset(DataSelection(errorDatasets))
+            retriedDatasets.update(errorDatasets)
         # This whole loop may take a significant amount of time, make
         # sure our session does not time out.
         client.autoRefresh()
