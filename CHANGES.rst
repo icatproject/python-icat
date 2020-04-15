@@ -55,7 +55,7 @@ Incompatible changes and deprecations
 Bug fixes and minor changes
 ---------------------------
 
-+ `#19`_: Review documentation and add tutorial.
++ `#19`_, `#69`_: Review documentation and add tutorial.
 
 + `#62`_: Minor fixes in the error handling in `setup.py`.
 
@@ -71,6 +71,7 @@ Misc
 .. _#63: https://github.com/icatproject/python-icat/issues/63
 .. _#64: https://github.com/icatproject/python-icat/pull/64
 .. _#65: https://github.com/icatproject/python-icat/pull/65
+.. _#69: https://github.com/icatproject/python-icat/pull/69
 
 
 0.16.0 (2019-09-26)
