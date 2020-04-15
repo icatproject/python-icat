@@ -55,6 +55,9 @@ Incompatible changes and deprecations
 Bug fixes and minor changes
 ---------------------------
 
++ `#68`_: :ref:`wipeicat` enters an infinite loop if Datafiles are
+  missing from IDS storage.
+
 + `#19`_, `#69`_: Review documentation and add tutorial.
 
 + `#62`_: Minor fixes in the error handling in `setup.py`.
@@ -71,6 +74,7 @@ Misc
 .. _#63: https://github.com/icatproject/python-icat/issues/63
 .. _#64: https://github.com/icatproject/python-icat/pull/64
 .. _#65: https://github.com/icatproject/python-icat/pull/65
+.. _#68: https://github.com/icatproject/python-icat/issues/68
 .. _#69: https://github.com/icatproject/python-icat/pull/69
 
 
