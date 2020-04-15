@@ -140,8 +140,15 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, project, '%s Documentation' % project,
-     [author], 1)
+    ('icatdump', 'icatdump',
+     'Dump the content of the ICAT to a file',
+     [author], 1),
+    ('icatingest', 'icatingest',
+     'Restore the content of the ICAT from a dump file',
+     [author], 1),
+    ('wipeicat', 'wipeicat',
+     'Delete all content from an ICAT',
+     [author], 1),
 ]
 
 
