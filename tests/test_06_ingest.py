@@ -114,7 +114,7 @@ def test_ingest_duplicate_throw(client, dataset, cmdargs):
         callscript("icatingest.py", args)
     # Verify that the params have been set.  The exceptions should
     # have been raised while trying to ingest the second parameter.
-    # The first one (Maegnetic field) should have been created and
+    # The first one (Magnetic field) should have been created and
     # Reactor power should still have the value set above.
     verify_dataset_params(client, dataset, { 
         ("Magnetic field", 5.3, "T"), 

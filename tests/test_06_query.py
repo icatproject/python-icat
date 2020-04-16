@@ -207,7 +207,7 @@ def test_query_order_direction_relation(client):
 
     The ordering direction qualifier has been added in Issue #48.
     """
-    # As a reference to compare with, get all datasets with thier
+    # As a reference to compare with, get all datasets with their
     # datafiles in their natural order:
     query = Query(client, "Dataset", order=True, includes=["datafiles"])
     dss = client.search(query)
@@ -485,7 +485,7 @@ def test_query_aggregate_distinct_related_obj(client):
     ("fileSize", "SUM", 127125),
     # Note that the number of datafiles is four which is a power of
     # two.  Therefore we may assume the double representation of an
-    # avarage of integers is exact, so we may even dare to compare
+    # average of integers is exact, so we may even dare to compare
     # the double value for equality.
     ("fileSize", "AVG", 31781.25),
     ("name", "MAX", "e208341.nxs"),

@@ -56,9 +56,9 @@ def test_client_set_transport(setupicat):
     client = icat.Client(conf.url, **kwargs)
     proxy = {}
     if conf.http_proxy:
-        proxy['http'] = config.http_proxy
+        proxy['http'] = conf.http_proxy
     if conf.https_proxy:
-        proxy['https'] = config.https_proxy
+        proxy['https'] = conf.https_proxy
     transport = MyHTTPSTransport(client.sslContext, proxy=proxy)
     client.set_options(transport=transport)
     client.login(conf.auth, conf.credentials)
