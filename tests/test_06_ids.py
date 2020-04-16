@@ -348,10 +348,16 @@ def test_write(client, case):
     if status != "ONLINE":
         pytest.skip("Dataset %s is not ONLINE" % (case['dsname']))
     print("Request write of dataset %s" % (case['dsname']))
-    client.ids.write(selection)
     # Note that there is no effect whatsoever of the write request
     # visible at the client side.  The only thing that we can test
     # here is that IDS did accept the call without raising an error.
+    # Note however, that the write call may be disabled in the IDS
+    # server configuration.  In this case, IDS will raise a
+    # NotImplementedError.  So we must even ignore this error.
+    try:
+        client.ids.write(selection)
+    except icat.IDSNotImplementedError:
+        pass
 
 @pytest.mark.parametrize(("case"), markeddatasets)
 def test_archive(client, case):
