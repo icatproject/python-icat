@@ -22,7 +22,13 @@ def client(setupicat):
     client.login(conf.auth, conf.credentials)
     yield client
     query = "SELECT df FROM Datafile df WHERE df.location IS NOT NULL"
-    client.deleteData(client.search(query))
+    while True:
+        try:
+            client.deleteData(client.search(query))
+        except icat.IDSDataNotOnlineError:
+            time.sleep(10)
+        else:
+            break
 
 
 # ============================ testdata ============================
