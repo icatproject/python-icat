@@ -62,6 +62,8 @@ Bug fixes and minor changes
 
 + `#62`_: Minor fixes in the error handling in `setup.py`.
 
++ `#70`_: Fix several errors in the tests.
+
 Misc
 ----
 
@@ -76,6 +78,7 @@ Misc
 .. _#65: https://github.com/icatproject/python-icat/pull/65
 .. _#68: https://github.com/icatproject/python-icat/issues/68
 .. _#69: https://github.com/icatproject/python-icat/pull/69
+.. _#70: https://github.com/icatproject/python-icat/pull/70
 
 
 0.16.0 (2019-09-26)
