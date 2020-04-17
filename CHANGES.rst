@@ -62,6 +62,9 @@ Bug fixes and minor changes
 
 + `#62`_: Minor fixes in the error handling in `setup.py`.
 
++ Fix icatdata-4.10.xsd: :attr:`Study.endDate` was erroneously not
+  marked as optional.
+
 + `#70`_: Fix several errors in the tests.
 
 Misc
