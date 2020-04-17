@@ -67,7 +67,7 @@ instruments:
       Bragg-scattering" and the flat-cone layer concept while using a
       new computer-controlled tilting axis of the detector bank.
     facility: example_facility
-    fullName: E2 - Flat-Cone Diffractometer 
+    fullName: E2 - Flat-Cone Diffractometer
     instrumentscientist: acord
     name: E2
     type: null
@@ -167,8 +167,8 @@ investigations:
       type: durol
     shifts:
     - comment: Beamtime at HIKE
-      endDate: '2008-03-13T16:00:00+01:00'        
-      startDate: '2008-03-13T08:00:00+01:00'        
+      endDate: '2008-03-13T16:00:00+01:00'
+      startDate: '2008-03-13T08:00:00+01:00'
     startDate: '2008-03-13T11:39:42+01:00'
     title: Durol single crystal
     type: experiment
@@ -385,32 +385,32 @@ jobs:
               type: lastaccess
 parameter_types:
   comment:
-    applicableToDataCollection: True
-    applicableToDatafile: True
-    applicableToDataset: True
-    applicableToInvestigation: True
-    applicableToSample: True
+    applicableToDataCollection: true
+    applicableToDatafile: true
+    applicableToDataset: true
+    applicableToInvestigation: true
+    applicableToSample: true
     facility: example_facility
     name: Comment
     units: N/A
     valueType: STRING
   lastaccess:
-    applicableToDatafile: True
-    applicableToDataset: True
+    applicableToDatafile: true
+    applicableToDataset: true
     facility: example_facility
     name: Last access
     units: N/A
     valueType: DATE_AND_TIME
   magnetic_field:
-    applicableToDataset: True
+    applicableToDataset: true
     facility: example_facility
     name: Magnetic field
     units: T
     unitsFullName: Tesla
     valueType: NUMERIC
   probe:
-    applicableToDataset: True
-    applicableToInvestigation: True
+    applicableToDataset: true
+    applicableToInvestigation: true
     facility: example_facility
     name: Probe
     units: N/A
@@ -420,34 +420,34 @@ parameter_types:
       - neutron
       - photon
   reactor_power:
-    applicableToDataset: True
+    applicableToDataset: true
     facility: example_facility
     name: Reactor power
     units: MW
     unitsFullName: Megawatt
     valueType: NUMERIC
   sample_ref:
-    applicableToSample: True
+    applicableToSample: true
     facility: example_facility
     name: Sample reference
     units: N/A
     valueType: STRING
   sample_temperature_c:
-    applicableToDataset: True
+    applicableToDataset: true
     facility: example_facility
     name: Sample temperature
     units: C
     unitsFullName: Celsius
     valueType: NUMERIC
   sample_temperature_k:
-    applicableToDataset: True
+    applicableToDataset: true
     facility: example_facility
     name: Sample temperature
     units: K
     unitsFullName: Kelvin
     valueType: NUMERIC
   scoundrel:
-    applicableToInvestigation: True
+    applicableToInvestigation: true
     facility: example_facility
     name: Scoundrel
     units: N/A
