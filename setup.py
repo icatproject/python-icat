@@ -115,8 +115,11 @@ class build_test(distutils.core.Command):
     def copy_test_data(self):
         destdir = os.path.join("tests", "data")
         self.mkpath(destdir)
-        files = ["example_data.yaml", "icatdump.xml", "icatdump.yaml", 
-                 "ingest-datafiles.xml", "ingest-ds-params.xml"]
+        refdumpfiles = ["icatdump-%s.%s" % (ver, ext)
+                        for ver in ("4.4", "4.7", "4.10")
+                        for ext in ("xml", "yaml")]
+        files = ["example_data.yaml", "icatdump.xml", "icatdump.yaml",
+                 "ingest-datafiles.xml", "ingest-ds-params.xml"] + refdumpfiles
         for f in files:
             src = os.path.join("doc", "examples", f)
             dest = os.path.join(destdir, os.path.basename(f))

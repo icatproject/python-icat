@@ -15,8 +15,9 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import getConfig, icat_version, require_icat_version
-from conftest import gettestdata, callscript, filter_file, yaml_filter
+from conftest import (getConfig, icat_version, require_icat_version,
+                      gettestdata, get_reference_dumpfile, callscript,
+                      filter_file, yaml_filter)
 
 
 # Study is broken in icat.server older then 4.6.0, see
@@ -26,7 +27,7 @@ from conftest import gettestdata, callscript, filter_file, yaml_filter
 skip_study = icat_version < "4.7.0"
 
 testinput = gettestdata("example_data.yaml")
-refdump = gettestdata("icatdump.yaml")
+refdump = get_reference_dumpfile("yaml")
 users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
 refsummary = { "root": gettestdata("summary") }
 for u in users:
@@ -210,9 +211,7 @@ def test_add_publication(data, user, pubname):
     publication.investigation = client.assertedSearch(query)[0]
     publication.create()
 
-
 @pytest.mark.dependency(depends=alldata)
-@pytest.mark.xfail(reason="need specific reference files for respective ICAT version")
 def test_check_content(standardCmdArgs, tmpdirsec):
     """Dump the resulting content and compare with a reference dump.
     """
