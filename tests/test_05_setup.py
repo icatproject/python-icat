@@ -7,8 +7,9 @@ these investigations.  It then compares the result with a reference
 dump file.
 """
 
-import os.path
 import filecmp
+import os.path
+import re
 import yaml
 import pytest
 import icat
@@ -18,6 +19,12 @@ from conftest import getConfig, icat_version, require_icat_version
 from conftest import gettestdata, callscript, filter_file, yaml_filter
 
 
+# Study is broken in icat.server older then 4.6.0, see
+# icatproject/icat.server#155.  We do not maintain specific set of
+# test data for 4.6.  Therefore we skip testing Study for ICAT older
+# then 4.7.
+skip_study = icat_version < "4.7.0"
+
 testinput = gettestdata("example_data.yaml")
 refdump = gettestdata("icatdump.yaml")
 users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
@@ -25,7 +32,7 @@ refsummary = { "root": gettestdata("summary") }
 for u in users:
     refsummary[u] = gettestdata("summary.%s" % u)
 # Labels used in test dependencies.
-if icat_version >= "4.7.0":
+if not skip_study:
     alldata = ["init", "sample_durol", "sample_nimnga", "sample_nio",
                "inv_081", "inv_101", "inv_121",
                "invdata_081", "invdata_101", "invdata_121",
@@ -35,6 +42,8 @@ else:
                "inv_081", "inv_101", "inv_121",
                "invdata_081", "invdata_101", "invdata_121",
                "job1", "rdf1", "pub1"]
+summary_study_filter = (re.compile(r"^((?:Study(?:Investigation)?)\s*) : \d+$"),
+                        r"\1 : 0")
 
 
 @pytest.fixture(scope="module")
@@ -170,11 +179,8 @@ def test_add_relateddatafile(data, user, rdfname):
                  marks=pytest.mark.dependency(
                      name="study1", depends=["inv_101", "inv_121"])),
 ])
+@pytest.mark.skipif(skip_study, reason="Issue icatproject/icat.server#155")
 def test_add_study(data, user, studyname):
-    # Actually, Issue icatproject/icat.server#155 is fixed in 4.6.0.
-    # But we use 4.4 test data also for 4.6, in order to avoid having
-    # to add another set of test data only for 4.6.
-    require_icat_version("4.7.0", "Issue icatproject/icat.server#155")
     client, conf = getConfig(confSection=user)
     client.login(conf.auth, conf.credentials)
     studydata = data['studies'][studyname]
@@ -220,21 +226,21 @@ def test_check_content(standardCmdArgs, tmpdirsec):
     assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
 
 @pytest.mark.dependency(depends=alldata)
-@pytest.mark.xfail(icat_version < "4.7.0",
-                   reason="need to filter out Study from reference file")
 def test_check_summary_root(standardCmdArgs, tmpdirsec):
     """Check the number of objects for each class at the ICAT server.
     """
     summary = os.path.join(tmpdirsec, "summary")
     ref = refsummary["root"]
+    if skip_study:
+        reff = os.path.join(tmpdirsec, "summary-filter-ref")
+        filter_file(ref, reff, *summary_study_filter)
+        ref = reff
     with open(summary, "wt") as out:
         callscript("icatsummary.py", standardCmdArgs, stdout=out)
     assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
 
 @pytest.mark.dependency(depends=alldata)
 @pytest.mark.parametrize(("user"), users)
-@pytest.mark.xfail(icat_version < "4.7.0",
-                   reason="need to filter out Study from reference file")
 def test_check_summary_user(tmpdirsec, user):
     """Check the number of objects from a user's point of view.
 
@@ -243,6 +249,10 @@ def test_check_summary_user(tmpdirsec, user):
     """
     summary = os.path.join(tmpdirsec, "summary.%s" % user)
     ref = refsummary[user]
+    if skip_study:
+        reff = os.path.join(tmpdirsec, "summary-filter-ref.%s" % user)
+        filter_file(ref, reff, *summary_study_filter)
+        ref = reff
     _, conf = getConfig(confSection=user)
     with open(summary, "wt") as out:
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
