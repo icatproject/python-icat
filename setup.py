@@ -118,7 +118,7 @@ class build_test(distutils.core.Command):
         refdumpfiles = ["icatdump-%s.%s" % (ver, ext)
                         for ver in ("4.4", "4.7", "4.10")
                         for ext in ("xml", "yaml")]
-        files = ["example_data.yaml", "icatdump.xml", "icatdump.yaml",
+        files = ["example_data.yaml",
                  "ingest-datafiles.xml", "ingest-ds-params.xml"] + refdumpfiles
         for f in files:
             src = os.path.join("doc", "examples", f)

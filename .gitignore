@@ -11,7 +11,7 @@ __pycache__/
 /tests/.cache/
 /tests/data/example_data.yaml
 /tests/data/icat.cfg
-/tests/data/icatdump*.xml
-/tests/data/icatdump*.yaml
+/tests/data/icatdump-*.xml
+/tests/data/icatdump-*.yaml
 /tests/data/ingest-*.xml
 /tests/scripts/
