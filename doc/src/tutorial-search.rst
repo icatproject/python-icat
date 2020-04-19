@@ -29,15 +29,17 @@ But before we get into that, we will make sure that we actually have
 some well defined and rich content to search for.  Run the following
 commands at the command line::
 
-  $ wipeicat.py -s myicat_root
-  $ icatingest.py -s myicat_root -i icatdump-4.10.yaml
+  $ wipeicat -s myicat_root
+  $ icatingest -s myicat_root -i icatdump-4.10.yaml
 
-`wipeicat.py` and `icatingest.py` are two scripts that get installed
-with python-icat.  The file `icatdump-4.10.yaml` can be found in the
-python-icat source distribution.  The first command deletes all
-content from the ICAT server that we may have created in the previous
-sections.  The second command reads the `icatdump-4.10.yaml` file and
-creates all objects listed therein in the ICAT server.
+:ref:`wipeicat` and :ref:`icatingest` are two scripts that get
+installed with python-icat.  Depending on the situation, these scripts
+may be installed either with or without a trailing ``.py`` extension.
+The file `icatdump-4.10.yaml` can be found in the python-icat source
+distribution.  The first command deletes all content from the ICAT
+server that we may have created in the previous sections.  The second
+command reads the `icatdump-4.10.yaml` file and creates all objects
+listed therein in the ICAT server.
 
 .. note::
    As the name suggests, the content in `icatdump-4.10.yaml` requires

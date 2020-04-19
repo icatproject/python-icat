@@ -30,8 +30,8 @@ This tutorial section uses the same example content in ICAT as the
 previous section.  This content can be set up with the following
 commands at the command line::
 
-  $ wipeicat.py -s myicat_root
-  $ icatingest.py -s myicat_root -i icatdump-4.10.yaml
+  $ wipeicat -s myicat_root
+  $ icatingest -s myicat_root -i icatdump-4.10.yaml
 
 If you already did that for the previous section, you don't need to
 repeat it.  Take notice of the hint on the content of the
