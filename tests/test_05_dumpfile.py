@@ -22,21 +22,18 @@ from icat.dumpfile import open_dumpfile
 import icat.dumpfile_xml
 import icat.dumpfile_yaml
 from icat.dump_queries import *
-from conftest import getConfig, require_icat_version
-from conftest import gettestdata, callscript
-from conftest import filter_file, yaml_filter, xml_filter
+from conftest import (getConfig, get_reference_dumpfile, callscript,
+                      filter_file, yaml_filter, xml_filter)
 
-
-require_icat_version("4.4.0", "need InvestigationGroup")
 
 backends = {
     'XML': {
-        'refdump': gettestdata("icatdump.xml"),
+        'refdump': get_reference_dumpfile("xml"),
         'fileext': '.xml',
         'filter': xml_filter,
     },
     'YAML': {
-        'refdump': gettestdata("icatdump.yaml"),
+        'refdump': get_reference_dumpfile("yaml"),
         'fileext': '.yaml',
         'filter': yaml_filter,
     },
@@ -145,7 +142,6 @@ def test_ingest(ingestcase, client):
 def test_check_content(ingestcheck, client, tmpdirsec, case):
     """Dump the content and check that we get the reference dump file back.
     """
-    require_icat_version("4.6.0", "Issue icatproject/icat.server#155")
     backend, filetype = case
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']

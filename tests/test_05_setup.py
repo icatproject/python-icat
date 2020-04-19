@@ -15,7 +15,7 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import (getConfig, icat_version, require_icat_version,
+from conftest import (getConfig, icat_version,
                       gettestdata, get_reference_dumpfile, callscript,
                       filter_file, yaml_filter)
 
