@@ -30,14 +30,22 @@ some well defined and rich content to search for.  Run the following
 commands at the command line::
 
   $ wipeicat.py -s myicat_root
-  $ icatingest.py -s myicat_root -i icatdump.yaml
+  $ icatingest.py -s myicat_root -i icatdump-4.10.yaml
 
 `wipeicat.py` and `icatingest.py` are two scripts that get installed
-with python-icat.  The file `icatdump.yaml` can be found in the
+with python-icat.  The file `icatdump-4.10.yaml` can be found in the
 python-icat source distribution.  The first command deletes all
 content from the ICAT server that we may have created in the previous
-sections.  The second command reads the `icatdump.yaml` file and
+sections.  The second command reads the `icatdump-4.10.yaml` file and
 creates all objects listed therein in the ICAT server.
+
+.. note::
+   As the name suggests, the content in `icatdump-4.10.yaml` requires
+   an ICAT server version 4.10 or newer.  If you are using an older
+   ICAT, you may just as well use the `icatdump-4.7.yaml` or
+   `icatdump-4.4.yaml` file instead, matching the respective older
+   versions.  For the sake of this tutorial, the difference does not
+   matter.
 
 .. note::
    The search results in the following examples may depend on the user

@@ -51,6 +51,17 @@ def initobj(obj, attrs):
         if a != 'id' and a in attrs:
             setattr(obj, a, attrs[a])
 
+def getUser(client, attrs):
+    """Get the user, create it as needed.
+    """
+    try:
+        return client.assertedSearch("User [name='%s']" % attrs['name'])[0]
+    except icat.SearchResultError:
+        user = client.new("user")
+        initobj(user, attrs)
+        user.create()
+        return user
+
 # ------------------------------------------------------------
 # Read input data
 # ------------------------------------------------------------
@@ -346,8 +357,7 @@ for k in data['instruments'].keys():
     inst.facility = facilities[data['instruments'][k]['facility']]
     inst.create()
     ud = data['users'][data['instruments'][k]['instrumentscientist']]
-    instuser = client.createUser(ud['name'], fullName=ud['fullName'], 
-                                 search=True)
+    instuser = getUser(client, ud)
     inst.addInstrumentScientists([instuser])
     instusers.append(instuser)
 # As a default rule, instrument scientists are scientific staff

@@ -67,6 +67,8 @@ Bug fixes and minor changes
 
 + `#70`_: Fix several errors in the tests.
 
++ `#58`_: Use specific test data for different ICAT versions.
+
 Misc
 ----
 
@@ -74,6 +76,7 @@ Misc
   on the online documentation (see link in the README.rst) instead.
 
 .. _#19: https://github.com/icatproject/python-icat/issues/19
+.. _#58: https://github.com/icatproject/python-icat/issues/58
 .. _#61: https://github.com/icatproject/python-icat/issues/61
 .. _#62: https://github.com/icatproject/python-icat/issues/62
 .. _#63: https://github.com/icatproject/python-icat/issues/63

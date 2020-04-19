@@ -31,10 +31,12 @@ previous section.  This content can be set up with the following
 commands at the command line::
 
   $ wipeicat.py -s myicat_root
-  $ icatingest.py -s myicat_root -i icatdump.yaml
+  $ icatingest.py -s myicat_root -i icatdump-4.10.yaml
 
 If you already did that for the previous section, you don't need to
-repeat it.
+repeat it.  Take notice of the hint on the content of the
+`icatdump-4.10.yaml` file and ICAT server versions from the previous
+section.
 
 Upload files
 ------------

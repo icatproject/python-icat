@@ -12,21 +12,19 @@ except ImportError:
         pass
 import icat
 import icat.config
-from conftest import getConfig, require_icat_version
-from conftest import gettestdata, callscript
-from conftest import filter_file, yaml_filter, xml_filter
+from conftest import (getConfig, icat_version,
+                      gettestdata, get_reference_dumpfile, callscript,
+                      filter_file, yaml_filter, xml_filter)
 
-
-require_icat_version("4.4.0", "need InvestigationGroup")
 
 backends = {
     'XML': {
-        'refdump': gettestdata("icatdump.xml"),
+        'refdump': get_reference_dumpfile("xml"),
         'fileext': '.xml',
         'filter': xml_filter,
     },
     'YAML': {
-        'refdump': gettestdata("icatdump.yaml"),
+        'refdump': get_reference_dumpfile("yaml"),
         'fileext': '.yaml',
         'filter': yaml_filter,
     },
@@ -53,8 +51,18 @@ caseids = [ "%s-%s" % t for t in cases ]
 # thus always see zero objects of these types after a cycle.  For this
 # reason, we must filter out the numbers in the reference output for
 # this test.
-summary_filter = (re.compile(r"^((?:DataCollection(?:Datafile|Dataset|Parameter)?|Job|RelatedDatafile)\s*) : \d+$"),
-                  r"\1 : 0")
+#
+# Furthermore, the test data for ICAT 4.4 do not contain Study, so we
+# must also filter out those if we speak to an old server.
+if icat_version < "4.7.0":
+    summary_root_filter = (re.compile(r"^((?:Study(?:Investigation)?)\s*) : \d+$"),
+                           r"\1 : 0")
+    summary_user_filter = (re.compile(r"^((?:DataCollection(?:Datafile|Dataset|Parameter)?|Job|RelatedDatafile|Study(?:Investigation)?)\s*) : \d+$"),
+                           r"\1 : 0")
+else:
+    summary_root_filter = None
+    summary_user_filter = (re.compile(r"^((?:DataCollection(?:Datafile|Dataset|Parameter)?|Job|RelatedDatafile)\s*) : \d+$"),
+                           r"\1 : 0")
 
 # Test queries and results for test_check_queries().  This is mostly
 # to verify that object relations are kept intact after an icatdump /
@@ -119,7 +127,6 @@ def test_ingest(ingestcase, standardCmdArgs):
 def test_check_content(ingestcheck, standardCmdArgs, tmpdirsec, case):
     """Dump the content and check that we get the reference dump file back.
     """
-    require_icat_version("4.6.0", "Issue icatproject/icat.server#155")
     backend, filetype = case
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']
@@ -144,6 +151,10 @@ def test_check_summary_root(ingestcheck, standardCmdArgs, tmpdirsec):
     """
     summary = os.path.join(tmpdirsec, "summary")
     ref = refsummary["root"]
+    if summary_root_filter:
+        reff = os.path.join(tmpdirsec, "summary-filter-ref")
+        filter_file(ref, reff, *summary_root_filter)
+        ref = reff
     with open(summary, "wt") as out:
         callscript("icatsummary.py", standardCmdArgs, stdout=out)
     assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
@@ -158,7 +169,7 @@ def test_check_summary_user(ingestcheck, tmpdirsec, user):
     summary = os.path.join(tmpdirsec, "summary.%s" % user)
     ref = refsummary[user]
     reff = os.path.join(tmpdirsec, "summary-filter-ref.%s" % user)
-    filter_file(ref, reff, *summary_filter)
+    filter_file(ref, reff, *summary_user_filter)
     _, conf = getConfig(confSection=user)
     with open(summary, "wt") as out:
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
