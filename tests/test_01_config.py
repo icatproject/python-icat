@@ -539,28 +539,6 @@ def test_config_subst_cmdline(fakeClient, tmpconfigfile):
     assert ex <= conf
 
 
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
-def test_config_subst_confdir(fakeClient, tmpconfigfile):
-    """Substitute configDir in the default of a variable.
-
-    Note that configDir is deprecated and will be removed in version 1.0.
-    """
-
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
-    config = icat.config.Config(needlogin=False, args=args)
-    config.add_variable('extracfg', ("--extracfg",), 
-                        dict(help="Extra config file"),
-                        default="%(configDir)s/extra.xml", subst=True)
-    _, conf = config.getconfig()
-
-    ex = ExpectedConf(configFile=[tmpconfigfile.path],
-                      configDir=tmpconfigfile.dir,
-                      configSection="example_jdoe",
-                      url=ex_icat)
-    assert ex <= conf
-    assert os.path.dirname(conf.extracfg) == tmpconfigfile.dir
-
-
 def test_config_type_int(fakeClient, tmpconfigfile):
     """Read an integer variable from the configuration file.
     """
@@ -1165,3 +1143,32 @@ def test_config_subcmd_err_add_more_vars(fakeClient, tmpconfigfile):
     with pytest.raises(RuntimeError) as err:
         config.add_variable('name', ("--name",), dict(help="name"))
     assert "config already has subcommands" in str(err.value)
+
+
+def test_deprecated_config_confdir(fakeClient, tmpconfigfile):
+    """The configuration variable configDir is deprecated since 0.13.0.
+    Accessing it should raise a DeprecationWarning.
+    """
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    config = icat.config.Config(needlogin=False, args=args)
+    _, conf = config.getconfig()
+    with pytest.deprecated_call():
+        assert conf.configDir == tmpconfigfile.dir
+
+
+@pytest.mark.xfail(reason="DeprecationWarning not yet implemented")
+def test_deprecated_config_subst_confdir(fakeClient, tmpconfigfile):
+    """The configuration variable configDir is deprecated since 0.13.0.
+    Substituting its value in another variable should raise a
+    DeprecationWarning.
+    """
+
+    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    config = icat.config.Config(needlogin=False, args=args)
+    config.add_variable('extracfg', ("--extracfg",), 
+                        dict(help="Extra config file"),
+                        default="%(configDir)s/extra.xml", subst=True)
+    # The substitution happens internally in getconfig().
+    with pytest.deprecated_call():
+        _, conf = config.getconfig()
