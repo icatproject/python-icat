@@ -16,7 +16,8 @@ from icat.entity import Entity
 import icat.exception
 from icat.exception import *
 
-warn("The module icat.icatcheck is deprecated.", DeprecationWarning, 2)
+warn("The module icat.icatcheck is deprecated "
+     "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
 
 __all__ = ['ICATChecker']
 

@@ -55,6 +55,13 @@ class init_py(distutils.core.Command):
     user_options = []
     init_template = '''"""%s"""
 
+import sys
+import warnings
+
+if sys.version_info < (3, 4):
+    warnings.warn("Support for Python versions older then 3.4is deprecated  "
+                  "and will be removed in python-icat 1.0", DeprecationWarning)
+
 __version__ = "%s"
 
 #

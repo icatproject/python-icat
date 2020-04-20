@@ -2,11 +2,12 @@
 """
 
 from __future__ import print_function
+import datetime
+from distutils.version import StrictVersion as Version
+import filecmp
 import os.path
 import time
 import zipfile
-import filecmp
-import datetime
 import pytest
 import icat
 import icat.config
@@ -413,3 +414,43 @@ def test_reset(client, case):
     client.ids.reset(selection)
     status = client.ids.getStatus(selection)
     print("Status of dataset %s is now %s" % (case['dsname'], status))
+
+# Actually, this does not need to be parametrized.  Use
+# pytest.mark.parametrize here just to inherit the implied
+# dependency marker.
+@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
+                    reason="pytest.deprecated_call() does not work properly")
+@pytest.mark.parametrize(("case"), markeddatasets[0:1])
+def test_deprecated_prepared_ids_calls(client, case):
+    """:meth:`icat.ids.IDSClient.resetPrepared`,
+    :meth:`icat.ids.IDSClient.getPreparedDatafileIds`,
+    :meth:`icat.ids.IDSClient.getPreparedData`, and
+    :meth:`icat.ids.IDSClient.getPreparedDataUrl` are 
+    deprecated since 0.17.0.
+    """
+    prepid = client.prepareData([getDataset(client, case)])
+    with pytest.deprecated_call():
+        dfids = client.ids.getPreparedDatafileIds(prepid)
+    with pytest.deprecated_call():
+        url = client.ids.getPreparedDataUrl(prepid)
+    with pytest.deprecated_call():
+        response = client.ids.getPreparedData(prepid)
+    with pytest.deprecated_call():
+        client.ids.resetPrepared(prepid)
+
+# Actually, this does not need to be parametrized.  Use
+# pytest.mark.parametrize here just to inherit the implied
+# dependency marker.
+@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
+                    reason="pytest.deprecated_call() does not work properly")
+@pytest.mark.parametrize(("case"), markeddatasets[0:1])
+def test_deprecated_prepared_client_calls(client, case):
+    """:meth:`icat.client.Client.getPreparedData` and
+    :meth:`icat.client.Client.getPreparedDataUrl` are 
+    deprecated since 0.17.0.
+    """
+    prepid = client.prepareData([getDataset(client, case)])
+    with pytest.deprecated_call():
+        url = client.getPreparedDataUrl(prepid)
+    with pytest.deprecated_call():
+        response = client.getPreparedData(prepid)

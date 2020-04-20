@@ -335,6 +335,17 @@ class ConfigSourceDefault(ConfigSource):
         return variable.get(value)
 
 
+class _DeprecatedKeyDict(dict):
+    """A dict that raises DeprecationWarning if accessing a particular
+    deprecated key.
+    """
+    def __getitem__(self, key):
+        if key == "configDir":
+            warnings.warn("The 'configDir' configuration variable is "
+                          "deprecated and will be removed in python-icat 1.0.", 
+                          DeprecationWarning, stacklevel=2)
+        return super(_DeprecatedKeyDict, self).__getitem__(key)
+
 class Configuration(object):
     """Provide a name space to store the configuration.
 
@@ -379,7 +390,7 @@ class Configuration(object):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             d = { f:getattr(self, f) for f in vars if hasattr(self, f) }
-        return d
+        return _DeprecatedKeyDict(d)
 
 
 class BaseConfig(object):

@@ -958,7 +958,8 @@ class Client(suds.client.Client):
         .. deprecated:: 0.17.0
            Call :meth:`~icat.client.Client.getData` instead.
         """
-        warn("getPreparedData() is deprecated.", DeprecationWarning, 2)
+        warn("getPreparedData() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
         return self.getData(preparedId, outname=outname, offset=offset)
 
     def getPreparedDataUrl(self, preparedId, outname=None):
@@ -976,7 +977,8 @@ class Client(suds.client.Client):
         .. deprecated:: 0.17.0
            Call :meth:`~icat.client.Client.getDataUrl` instead.
         """
-        warn("getPreparedDataUrl() is deprecated.", DeprecationWarning, 2)
+        warn("getPreparedDataUrl() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
         return self.getDataUrl(preparedId, outname=outname)
 
     def deleteData(self, objs):

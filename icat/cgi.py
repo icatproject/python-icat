@@ -13,7 +13,8 @@ import re
 import icat.client
 from icat.exception import *
 
-warn("The module icat.cgi is deprecated.", DeprecationWarning, 2)
+warn("The module icat.cgi is deprecated "
+     "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
 
 class SessionCookie(SimpleCookie):
     """A cookie to store an ICAT session id.
