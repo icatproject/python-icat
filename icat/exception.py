@@ -46,8 +46,7 @@ class _BaseException(Exception):
     `Exception Chaining and Embedded Tracebacks`_ has been introduced
     with Python 3.  Unfortunately the result is completely misleading
     most of the times.  This class tries to strip the context from the
-    exception traceback.  This works with Python 3.3 and newer, but
-    has no effect with Python 3.1 and 3.2.
+    exception traceback.
 
     This is the common base class for for all exceptions defined in
     :mod:`icat.exception`, it is not intented to be raised directly.
