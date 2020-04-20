@@ -1157,7 +1157,6 @@ def test_deprecated_config_confdir(fakeClient, tmpconfigfile):
         assert conf.configDir == tmpconfigfile.dir
 
 
-@pytest.mark.xfail(reason="DeprecationWarning not yet implemented")
 def test_deprecated_config_subst_confdir(fakeClient, tmpconfigfile):
     """The configuration variable configDir is deprecated since 0.13.0.
     Substituting its value in another variable should raise a
