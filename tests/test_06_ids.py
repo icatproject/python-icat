@@ -2,11 +2,12 @@
 """
 
 from __future__ import print_function
+import datetime
+from distutils.version import StrictVersion as Version
+import filecmp
 import os.path
 import time
 import zipfile
-import filecmp
-import datetime
 import pytest
 import icat
 import icat.config
@@ -417,6 +418,8 @@ def test_reset(client, case):
 # Actually, this does not need to be parametrized.  Use
 # pytest.mark.parametrize here just to inherit the implied
 # dependency marker.
+@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
+                    reason="pytest.deprecated_call() does not work properly")
 @pytest.mark.parametrize(("case"), markeddatasets[0:1])
 def test_deprecated_prepared_ids_calls(client, case):
     """:meth:`icat.ids.IDSClient.resetPrepared`,
@@ -438,6 +441,8 @@ def test_deprecated_prepared_ids_calls(client, case):
 # Actually, this does not need to be parametrized.  Use
 # pytest.mark.parametrize here just to inherit the implied
 # dependency marker.
+@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
+                    reason="pytest.deprecated_call() does not work properly")
 @pytest.mark.parametrize(("case"), markeddatasets[0:1])
 def test_deprecated_prepared_client_calls(client, case):
     """:meth:`icat.client.Client.getPreparedData` and
