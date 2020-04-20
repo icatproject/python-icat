@@ -363,7 +363,8 @@ class IDSClient(object):
         .. deprecated:: 0.17.0
            Call :meth:`~icat.ids.IDSClient.reset` instead.
         """
-        warn("resetPrepared() is deprecated.", DeprecationWarning, 2)
+        warn("resetPrepared() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
         self.reset(preparedId)
 
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
@@ -406,7 +407,8 @@ class IDSClient(object):
         .. deprecated:: 0.17.0
            Call :meth:`~icat.ids.IDSClient.getDatafileIds` instead.
         """
-        warn("getPreparedDatafileIds() is deprecated.", DeprecationWarning, 2)
+        warn("getPreparedDatafileIds() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
         return self.getDatafileIds(preparedId)
 
     def getData(self, selection, 
@@ -442,7 +444,8 @@ class IDSClient(object):
         .. deprecated:: 0.17.0
            Call :meth:`~icat.ids.IDSClient.getData` instead.
         """
-        warn("getPreparedData() is deprecated.", DeprecationWarning, 2)
+        warn("getPreparedData() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
         return self.getData(preparedId, outname=outname, offset=offset)
     
     def getPreparedDataUrl(self, preparedId, outname=None):
@@ -454,7 +457,8 @@ class IDSClient(object):
         .. deprecated:: 0.17.0
            Call :meth:`~icat.ids.IDSClient.getDataUrl` instead.
         """
-        warn("getPreparedDataUrl() is deprecated.", DeprecationWarning, 2)
+        warn("getPreparedDataUrl() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
         return self.getDataUrl(preparedId, outname=outname)
       
     def getLink(self, datafileId, username=None):
