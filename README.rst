@@ -1,3 +1,13 @@
+|rtd| |pypi|
+
+.. |rtd| image:: https://img.shields.io/readthedocs/python-icat/latest
+   :target: https://python-icat.readthedocs.io/en/latest/
+   :alt: Documentation build status
+
+.. |pypi| image:: https://img.shields.io/pypi/v/python-icat
+   :target: https://pypi.org/project/python-icat/
+   :alt: PyPI version
+
 python-icat – Python interface to ICAT and IDS
 ==============================================
 
@@ -8,10 +18,9 @@ is based on Suds and extends it with ICAT specific features.
 Download
 --------
 
-The latest release version and online documentation can be found at
-the home page of the package at
+The latest release version can be found `Python Package Index (PyPI)`__.
 
-    https://icatproject.org/user-documentation/python-icat/
+.. __: `PyPI site`_
 
 
 System requirements
@@ -72,6 +81,16 @@ not required to install or use python-icat itself:
 Installation
 ------------
 
+Installation from PyPI
+......................
+
+You can install python-icat from PyPI using pip::
+
+  $ pip install suds-community python-icat
+
+Installation from the source distribution
+.........................................
+
 python-icat uses the distutils Python standard library package and
 follows its conventions of packaging source distributions.  See the
 documentation on `Installing Python Modules`_ for details or to
@@ -94,6 +113,21 @@ customize the install process.
 The last step might require admin privileges in order to write into
 the site-packages directory of your Python installation.
 
+Building from development sources
+.................................
+
+For production use, it is always recommended to use the latest release
+version from PyPI, see above.  If you need some not yet released
+bleeding edge feature or if you want to participate in the
+development, you may also clone the `source repository from GitHub`__.
+
+Note that some source files are dynamically created and thus missing
+in the development sources.  If you want to build from the development
+sources, you may use the provided Makefile.  E.g. type ``make build``,
+``make test``, and ``make sdist``.
+
+.. __: `GitHub repository`_
+
 
 Documentation
 -------------
@@ -113,22 +147,6 @@ just one blob of dummy input data in one single file.  That is also
 the reason why the example scripts require PyYAML.
 
 .. __: `Read the Docs site`_
-
-
-Building from development sources
----------------------------------
-
-For production use, it is always recommended to use the latest release
-version from the home page, see above.  If you need some not yet
-released bleeding edge feature or if you want to participate in the
-development, you may also clone the `source repository from GitHub`__.
-
-Note that some source files are dynamically created and thus missing
-in the development sources.  If you want to build from the development
-sources, you may use the provided Makefile.  E.g. type ``make build``,
-``make test``, and ``make sdist``.
-
-.. __: `GitHub repository`_
 
 
 Test
@@ -196,17 +214,15 @@ in `PEP 440`_.  They try to adhere to the principles of `Semantic
 Versioning`_, but may deviate from the formatting defined therein
 when it is incompatible with PEP 440.
 
+
 Copyright and License
 ---------------------
 
-Copyright 2013–2019
+Copyright 2013–2020
 Helmholtz-Zentrum Berlin für Materialien und Energie GmbH
 
-Licensed under the Apache License, Version 2.0 (the "License"); you
-may not use this file except in compliance with the License.  You may
-obtain a copy of the License at
-
-    https://www.apache.org/licenses/LICENSE-2.0
+Licensed under the `Apache License`_, Version 2.0 (the "License"); you
+may not use this file except in compliance with the License.
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -216,17 +232,19 @@ permissions and limitations under the License.
 
 
 .. _ICAT: https://icatproject.org/
+.. _PyPI site: https://pypi.org/project/python-icat/
 .. _suds-jurko: https://bitbucket.org/jurko/suds
 .. _suds-community: https://github.com/suds-community/suds
 .. _PyYAML: https://github.com/yaml/pyyaml
 .. _lxml: https://lxml.de/
-.. _Requests: http://python-requests.org/
+.. _Requests: https://requests.readthedocs.io/
 .. _setuptools_scm: https://github.com/pypa/setuptools_scm/
 .. _pytest: https://docs.pytest.org/en/latest/
-.. _pytest-dependency: https://pypi.python.org/pypi/pytest_dependency/
+.. _pytest-dependency: https://pypi.org/project/pytest-dependency/
 .. _distutils-pytest: https://github.com/RKrahl/distutils-pytest
-.. _Installing Python Modules: https://docs.python.org/2.7/install/
+.. _Installing Python Modules: https://docs.python.org/3/install/
 .. _Read the Docs site: https://python-icat.readthedocs.io/
 .. _GitHub repository: https://github.com/icatproject/python-icat
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/
 .. _Semantic Versioning: https://semver.org/
+.. _Apache License: https://www.apache.org/licenses/LICENSE-2.0
