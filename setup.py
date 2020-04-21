@@ -164,7 +164,7 @@ setup(
     author_email = "rolf.krahl@helmholtz-berlin.de",
     url = "https://icatproject.org/user-documentation/python-icat/",
     license = "Apache-2.0",
-    requires = ["suds-community"],
+    requires = ["suds"],
     packages = ["icat"],
     scripts = ["icatdump.py", "icatingest.py", "wipeicat.py"],
     classifiers = [
