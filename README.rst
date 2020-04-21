@@ -23,10 +23,13 @@ Python:
 
 Required Library packages:
 
-+ Suds, either the original version or the `fork by Jurko
-  Gospodnetić`__.  The latter is recommended as the original version
-  is not maintained any more and contains bugs.  Python 3 requires the
-  jurko fork.
++ Suds.  The original version by Jeff Ortel is not maintained anymore
+  since very long time and not recommended.  There are several forks
+  around, most of them short-lived.  Two of them have been evaluated
+  with python-icat and found to work: the `fork by Jurko
+  Gospodnetić`__ and the more recent `suds-community`_.
+
+.. __: `suds-jurko`_
 
 Optional library packages, only needed to use certain extra features,
 not required to install or use python-icat itself:
@@ -64,8 +67,6 @@ not required to install or use python-icat itself:
 + `distutils-pytest`_
 
   Only if you want to run the tests.
-
-.. __: `Suds jurko`_
 
 
 Installation
@@ -241,7 +242,8 @@ permissions and limitations under the License.
 
 
 .. _ICAT: https://icatproject.org/
-.. _Suds jurko: https://bitbucket.org/jurko/suds
+.. _suds-jurko: https://bitbucket.org/jurko/suds
+.. _suds-community: https://github.com/suds-community/suds
 .. _PyYAML: https://github.com/yaml/pyyaml
 .. _lxml: https://lxml.de/
 .. _Requests: http://python-requests.org/
