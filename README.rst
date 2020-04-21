@@ -23,10 +23,13 @@ Python:
 
 Required Library packages:
 
-+ Suds, either the original version or the `fork by Jurko
-  Gospodnetić`__.  The latter is recommended as the original version
-  is not maintained any more and contains bugs.  Python 3 requires the
-  jurko fork.
++ Suds.  The original version by Jeff Ortel is not maintained anymore
+  since very long time and not recommended.  There are several forks
+  around, most of them short-lived.  Two of them have been evaluated
+  with python-icat and found to work: the `fork by Jurko
+  Gospodnetić`__ and the more recent `suds-community`_.
+
+.. __: `suds-jurko`_
 
 Optional library packages, only needed to use certain extra features,
 not required to install or use python-icat itself:
@@ -64,8 +67,6 @@ not required to install or use python-icat itself:
 + `distutils-pytest`_
 
   Only if you want to run the tests.
-
-.. __: `Suds jurko`_
 
 
 Installation
@@ -186,32 +187,6 @@ Bugs and limitations
   addresses are not supported in no_proxy.  This is a limitation in
   the implementation of the underlying Python library.
 
-+ There is a bug in the original version of Suds: the way it deals
-  with datetime values is broken.  Suds converts all incoming datetime
-  values from the server into what it believes to be local time and
-  then throws all time zone information away.  The problem is that
-  Suds' conception of the local time is flawed such that the result
-  from this conversion may be wrong.  There is no reliable way to fix
-  the values afterwards.
-
-  One can work around this by setting the local time zone to UTC.
-  (The conversion to UTC is done correctly in Suds.)  As a result, all
-  datetime values retrieved from the server will be in UTC, which at
-  least is well defined.  You may either set the environment variable
-  TZ to 'UTC' before calling your script or add the lines ::
-
-    import os
-    os.environ['TZ'] = 'UTC'
-
-  at the beginning of your script.  This must be set before importing
-  other modules (in particular suds) in order to be effective.
-
-  As a general rule, python-icat assumes all datetime values that do
-  not contain time zone information to be UTC.
-
-  Note that the bug is fixed in the fork by Jurko Gospodnetić which is
-  recommended anyway.
-
 
 Version numbering
 -----------------
@@ -241,7 +216,8 @@ permissions and limitations under the License.
 
 
 .. _ICAT: https://icatproject.org/
-.. _Suds jurko: https://bitbucket.org/jurko/suds
+.. _suds-jurko: https://bitbucket.org/jurko/suds
+.. _suds-community: https://github.com/suds-community/suds
 .. _PyYAML: https://github.com/yaml/pyyaml
 .. _lxml: https://lxml.de/
 .. _Requests: http://python-requests.org/
