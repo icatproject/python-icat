@@ -187,32 +187,6 @@ Bugs and limitations
   addresses are not supported in no_proxy.  This is a limitation in
   the implementation of the underlying Python library.
 
-+ There is a bug in the original version of Suds: the way it deals
-  with datetime values is broken.  Suds converts all incoming datetime
-  values from the server into what it believes to be local time and
-  then throws all time zone information away.  The problem is that
-  Suds' conception of the local time is flawed such that the result
-  from this conversion may be wrong.  There is no reliable way to fix
-  the values afterwards.
-
-  One can work around this by setting the local time zone to UTC.
-  (The conversion to UTC is done correctly in Suds.)  As a result, all
-  datetime values retrieved from the server will be in UTC, which at
-  least is well defined.  You may either set the environment variable
-  TZ to 'UTC' before calling your script or add the lines ::
-
-    import os
-    os.environ['TZ'] = 'UTC'
-
-  at the beginning of your script.  This must be set before importing
-  other modules (in particular suds) in order to be effective.
-
-  As a general rule, python-icat assumes all datetime values that do
-  not contain time zone information to be UTC.
-
-  Note that the bug is fixed in the fork by Jurko Gospodnetić which is
-  recommended anyway.
-
 
 Version numbering
 -----------------
