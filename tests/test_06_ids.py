@@ -430,13 +430,19 @@ def test_deprecated_prepared_ids_calls(client, case):
     """
     prepid = client.prepareData([getDataset(client, case)])
     with pytest.deprecated_call():
-        dfids = client.ids.getPreparedDatafileIds(prepid)
+        try:
+            dfids = client.ids.getPreparedDatafileIds(prepid)
+        except icat.VersionMethodError:
+            pass
     with pytest.deprecated_call():
         url = client.ids.getPreparedDataUrl(prepid)
     with pytest.deprecated_call():
         response = client.ids.getPreparedData(prepid)
     with pytest.deprecated_call():
-        client.ids.resetPrepared(prepid)
+        try:
+            client.ids.resetPrepared(prepid)
+        except icat.VersionMethodError:
+            pass
 
 # Actually, this does not need to be parametrized.  Use
 # pytest.mark.parametrize here just to inherit the implied
