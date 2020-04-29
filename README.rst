@@ -176,7 +176,7 @@ will just get many skipped tests then.
 Bugs and limitations
 --------------------
 
-+ There are Issues with ICAT server 4.8.0 and older when using
++ There are issues with ICAT server 4.8.0 and older when using
   suds-community, see `Issue #72`_ for details.  Use suds-jurko when
   you need to talk to those older ICAT servers.
 
