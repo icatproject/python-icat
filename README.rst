@@ -36,7 +36,8 @@ Required Library packages:
   since very long time and not recommended.  There are several forks
   around, most of them short-lived.  Two of them have been evaluated
   with python-icat and found to work: the `fork by Jurko
-  Gospodnetić`__ and the more recent `suds-community`_.
+  Gospodnetić`__ and the more recent `suds-community`_.  Note that
+  suds-community does not work with older ICAT servers, see below.
 
 .. __: `suds-jurko`_
 
@@ -175,6 +176,10 @@ will just get many skipped tests then.
 Bugs and limitations
 --------------------
 
++ There are Issues with ICAT server 4.8.0 and older when using
+  suds-community, see `Issue #72`_ for details.  Use suds-jurko when
+  you need to talk to those older ICAT servers.
+
 + If supported by the ICAT server (icat.server 4.9.0 and newer), the
   icat.config module queries the server for information on available
   authenticators and the credential keys they require for login.  The
@@ -245,6 +250,7 @@ permissions and limitations under the License.
 .. _Installing Python Modules: https://docs.python.org/3/install/
 .. _Read the Docs site: https://python-icat.readthedocs.io/
 .. _GitHub repository: https://github.com/icatproject/python-icat
+.. _Issue #72: https://github.com/icatproject/python-icat/issues/72
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/
 .. _Semantic Versioning: https://semver.org/
 .. _Apache License: https://www.apache.org/licenses/LICENSE-2.0
