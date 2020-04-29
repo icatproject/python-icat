@@ -69,8 +69,8 @@ Bug fixes and minor changes
 
 + `#58`_: Use specific test data for different ICAT versions.
 
-+ `#67`_, `#71`_: change the requirement on Suds to point to
-  suds-community.
++ `#67`_, `#71`_, `#72`_: document the option to use suds-community
+  instead of suds-jurko.
 
 Misc
 ----
@@ -90,6 +90,7 @@ Misc
 .. _#69: https://github.com/icatproject/python-icat/pull/69
 .. _#70: https://github.com/icatproject/python-icat/pull/70
 .. _#71: https://github.com/icatproject/python-icat/pull/71
+.. _#72: https://github.com/icatproject/python-icat/issues/72
 
 
 0.16.0 (2019-09-26)
