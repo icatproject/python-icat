@@ -33,8 +33,6 @@ __all__ = [
     'SearchAssertionError', 'DataConsistencyError', 
     # icat.ids
     'IDSResponseError', 
-    # icat.icatcheck
-    'GenealogyError',
     ]
 
 
@@ -394,15 +392,3 @@ class IDSResponseError(_BaseException):
     """The response from the IDS was not what should have been expected.
     """
     pass
-
-
-# ============== Exceptions raised in icat.icatcheck ===============
-
-class GenealogyError(_BaseException):
-    """Error in the genealogy of entity types.
-
-    .. deprecated:: 0.17
-       Only used in :mod:`icat.icatcheck` which in turn is deprecated.
-    """
-    pass
-

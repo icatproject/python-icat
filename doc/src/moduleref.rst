@@ -47,14 +47,3 @@ not need to care about them.
    helper
    listproxy
    sslcontext
-
-Obsolete modules
-~~~~~~~~~~~~~~~~
-
-These modules are deprecated and will be removed from future version
-of python-icat.
-
-.. toctree::
-   :maxdepth: 1
-
-   icatcheck

@@ -25,10 +25,3 @@ def test_deprecated_python_version():
     """
     with pytest.deprecated_call():
         reload(icat)
-
-def test_deprecated_module_icat_icatcheck():
-    """:mod:`icat.icatcheck` is deprecated since 0.17.0.
-    """
-    with pytest.deprecated_call():
-        import icat.icatcheck
-        reload(icat.icatcheck)

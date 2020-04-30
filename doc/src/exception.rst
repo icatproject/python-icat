@@ -137,10 +137,6 @@ Exceptions raised by python-icat
     :members:
     :show-inheritance:
 
-.. autoexception:: icat.exception.GenealogyError
-    :members:
-    :show-inheritance:
-
 Exception hierarchy
 -------------------
 
@@ -173,7 +169,6 @@ The class hierarchy for the exceptions is::
    |    +-- SearchAssertionError
    +-- DataConsistencyError
    +-- IDSResponseError
-   +-- GenealogyError
    +-- Warning
         +-- QueryNullableOrderWarning
         +-- ClientVersionWarning

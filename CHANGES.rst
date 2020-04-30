@@ -10,6 +10,9 @@ Incompatible changes and deprecations
 
 + Drop module :mod:`icat.cgi`, deprecated in 0.13.0.
 
++ Drop module :mod:`icat.icatcheck` and exception
+  :exc:`icat.exception.GenealogyError`, deprecated in 0.17.0.
+
 + Drop the predefined configuration variable `configDir`, deprecated
   in 0.13.0.
 
