@@ -9,17 +9,12 @@ author.
 """
 
 import sys
-try:
-    # Python 3.3 and newer
-    from collections.abc import Mapping, Iterable
-except ImportError:
-    # Python 2
-    from collections import Mapping, Iterable
+from collections.abc import Mapping, Iterable
 import ssl
-from urllib2 import Request, HTTPError
-from urllib2 import HTTPDefaultErrorHandler, ProxyHandler
-from urllib2 import build_opener
-from urllib import urlencode
+from urllib.error import HTTPError
+from urllib.parse import urlencode
+from urllib.request import HTTPDefaultErrorHandler, ProxyHandler, Request
+from urllib.request import build_opener
 import json
 import zlib
 import re
@@ -36,7 +31,7 @@ from icat.exception import *
 if sys.version_info < (3, 6, 0, 'beta'):
     from icat.chunkedhttp import HTTPHandler, HTTPSHandler
 else:
-    from urllib2 import HTTPHandler, HTTPSHandler
+    from urllib.request import HTTPHandler, HTTPSHandler
 
 __all__ = ['DataSelection', 'IDSClient']
 
@@ -95,7 +90,7 @@ class ChunkedFileReader(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         chunk = self.inputfile.read(self.chunksize)
         if chunk:
             self.crc32 = zlib.crc32(chunk, self.crc32)
@@ -307,7 +302,7 @@ class IDSClient(object):
             raise VersionMethodError("getSize(preparedId)",
                                      version=self.apiversion, service="IDS")
         req = IDSRequest(self.url + "getSize", parameters)
-        return long(self.opener.open(req).read().decode('ascii'))
+        return int(self.opener.open(req).read().decode('ascii'))
     
     def getStatus(self, selection):
         """Return the status of data.
@@ -461,7 +456,7 @@ class IDSClient(object):
         om = json.loads(result)
         if om["checksum"] != crc:
             raise IDSResponseError("checksum error")
-        return long(om["id"])
+        return int(om["id"])
 
     def delete(self, selection):
         """Delete data.
@@ -485,7 +480,7 @@ class IDSClient(object):
                 parameters = {}
             selection.fillParams(parameters)
             return parameters
-        elif isinstance(selection, basestring):
+        elif isinstance(selection, str):
             return {"preparedId": selection}
         else:
             raise TypeError("selection must either be a DataSelection "

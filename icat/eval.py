@@ -11,7 +11,6 @@ directly from the command line, as in::
   [102284, 102288, 102289, 102293]
 """
 
-from __future__ import print_function
 import logging
 import icat
 import icat.config

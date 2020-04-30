@@ -25,8 +25,9 @@ use it only for older versions.
 .. _Issue 12319: https://bugs.python.org/issue12319
 """
 
-import httplib
-import urllib2
+import http.client
+import urllib.error
+import urllib.request
 
 
 # We always set the Content-Length header for these methods because some
@@ -72,9 +73,9 @@ class HTTPConnectionMixin:
             if headers[header_names['transfer-encoding']] == 'chunked':
                 chunked = True
             else:
-                raise httplib.HTTPException("Invalid Transfer-Encoding")
+                raise http.client.HTTPException("Invalid Transfer-Encoding")
 
-        for hdr, value in headers.iteritems():
+        for hdr, value in headers.items():
             self.putheader(hdr, value)
         self.endheaders()
         self.send_body(body, chunked)
@@ -86,9 +87,9 @@ class HTTPConnectionMixin:
         been sent before calling this method.
         """
         if body is not None:
-            if isinstance(body, type(b'')):
+            if isinstance(body, bytes):
                 bodyiter = stringiterator(body)
-            elif isinstance(body, type(u'')):
+            elif isinstance(body, str):
                 bodyiter = stringiterator(body.encode('ascii'))
             elif hasattr(body, 'read'):
                 bodyiter = fileiterator(body)
@@ -106,10 +107,10 @@ class HTTPConnectionMixin:
                 for chunk in bodyiter:
                     self.send(chunk)
 
-class HTTPConnection(HTTPConnectionMixin, httplib.HTTPConnection):
+class HTTPConnection(HTTPConnectionMixin, http.client.HTTPConnection):
     pass
 
-class HTTPSConnection(HTTPConnectionMixin, httplib.HTTPSConnection):
+class HTTPSConnection(HTTPConnectionMixin, http.client.HTTPSConnection):
     pass
 
 
@@ -128,23 +129,14 @@ class HTTPHandlerMixin:
         # fails doing so if data is not a string), while for chunked
         # transfer encoding Content-length must not be set.
 
-        # Compatibility: in Python 2, we must call get_host() which
-        # extracts the host part from the URL.  In Python 3, the
-        # splitting is already done in the constructor, so we may just
-        # access the attribute host instead.  In Python 3.4,
-        # get_host() has been removed.
-        try:
-            host = request.get_host()
-        except AttributeError:
-            host = request.host
-        if not host:
-            raise urllib2.URLError('no host given')
+        if not request.host:
+            raise urllib.error.URLError('no host given')
 
         if request.data is not None:
             if not request.has_header('Content-type'):
-                raise urllib2.URLError('no Content-type header given')
+                raise urllib.error.URLError('no Content-type header given')
             if not request.has_header('Content-length'):
-                if isinstance(request.data, (type(b''), type(u''))):
+                if isinstance(request.data, (bytes, str)):
                     request.add_unredirected_header(
                         'Content-length', '%d' % len(request.data))
                 else:
@@ -154,14 +146,9 @@ class HTTPHandlerMixin:
             if request.get_method().upper() in _METHODS_EXPECTING_BODY:
                 request.add_unredirected_header('Content-length', '0')
 
-        sel_host = host
+        sel_host = request.host
         if request.has_proxy():
-            # Similar compatibility issue for selector as for host.
-            try:
-                selector = request.get_selector()
-            except AttributeError:
-                selector = request.selector
-            scheme, sel = splittype(selector)
+            scheme, sel = splittype(request.selector)
             sel_host, sel_path = splithost(sel)
         if not request.has_header('Host'):
             request.add_unredirected_header('Host', sel_host)
@@ -172,14 +159,14 @@ class HTTPHandlerMixin:
 
         return request
 
-class HTTPHandler(HTTPHandlerMixin, urllib2.HTTPHandler):
+class HTTPHandler(HTTPHandlerMixin, urllib.request.HTTPHandler):
 
     def http_open(self, req):
         return self.do_open(HTTPConnection, req)
 
     http_request = HTTPHandlerMixin.do_request_
 
-class HTTPSHandler(HTTPHandlerMixin, urllib2.HTTPSHandler):
+class HTTPSHandler(HTTPHandlerMixin, urllib.request.HTTPSHandler):
 
     def https_open(self, req):
         if hasattr(self, '_context') and hasattr(self, '_check_hostname'):

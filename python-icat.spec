@@ -1,10 +1,8 @@
-%global python2_pkgversion 2
 %if 0%{?suse_version}
 %global python3_pkgversion 3
 %global python3_other_pkgversion 0
 %if 0%{?suse_version} < 1500
 %global __python3 /usr/bin/python3
-%global python2_sitelib %{python_sitelib}
 %endif
 %endif
 %if 0%{?fedora_version}
@@ -12,14 +10,10 @@
 %global python3_other_pkgversion 0
 %endif
 %if 0%{?centos_version} == 600 || 0%{?rhel_version} == 600
-%global python2_enable 0
 %global python3_pkgversion 34
 %global python3_other_pkgversion 0
-%global __python2 %{__python}
-%global python2_sitelib %{python_sitelib}
 %global add_license 0
 %else
-%global python2_enable 1
 %global add_license 1
 %endif
 %if 0%{?centos_version} == 700 || 0%{?rhel_version} == 700
@@ -45,12 +39,9 @@ Group:		Development/Languages/Python
 Url:		$url
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
-%if 0%{?python2_enable}
-BuildRequires:	python%{python2_pkgversion}-devel >= 2.7
-%endif
-BuildRequires:	python%{python3_pkgversion}-devel >= 3.3
+BuildRequires:	python%{python3_pkgversion}-devel >= 3.4
 %if 0%{?python3_other_pkgversion}
-BuildRequires:	python%{python3_other_pkgversion}-devel >= 3.3
+BuildRequires:	python%{python3_other_pkgversion}-devel >= 3.4
 %endif
 %if 0%{?suse_version}
 BuildRequires:	fdupes
@@ -82,30 +73,6 @@ Requires:	man
 $long_description
 
 This package contains the manual pages for the command line scripts.
-
-
-%if 0%{?python2_enable}
-%package -n python%{python2_pkgversion}-icat
-Summary:	Python interface to ICAT and IDS
-%if 0%{?centos_version} == 600 || 0%{?rhel_version} == 600
-Requires:	python-argparse
-%endif
-Requires:	%{name} = %{version}
-Requires:	python%{python2_pkgversion}-suds
-%if 0%{?suse_version}
-Recommends:	%{name}-man
-Recommends:	python%{python2_pkgversion}-PyYAML
-Recommends:	python%{python2_pkgversion}-lxml
-%endif
-%if 0%{?centos_version} || 0%{?rhel_version} || 0%{?fedora_version}
-Requires(pre):	chkconfig
-%else
-Requires(pre):	update-alternatives
-%endif
-
-%description -n python%{python2_pkgversion}-icat
-$long_description
-%endif
 
 
 %package -n python%{python3_pkgversion}-icat
@@ -166,15 +133,6 @@ do
 done
 %endif
 
-%if 0%{?python2_enable}
-# Python 2
-rm -rf build
-%{__python2} setup.py install --optimize=1 --root=%{buildroot}
-for f in icatdump.py icatingest.py wipeicat.py
-do
-    mv %{buildroot}%{_bindir}/$$f %{buildroot}%{_bindir}/$$f-%{python2_version}
-done
-%endif
 
 %__install -d -m 755 %{buildroot}%{_mandir}/man1
 %__cp -p doc/man/*.1 %{buildroot}%{_mandir}/man1
@@ -185,24 +143,6 @@ done
 
 %if 0%{?suse_version}
 %fdupes %{buildroot}
-%endif
-
-
-%if 0%{?python2_enable}
-%post -n python%{python2_pkgversion}-icat
-/usr/sbin/update-alternatives --install \
-    %{_bindir}/icatdump             icatdump \
-        %{_bindir}/icatdump.py-%{python2_version} 20 \
-    --slave %{_bindir}/icatingest   icatingest \
-        %{_bindir}/icatingest.py-%{python2_version} \
-    --slave %{_bindir}/wipeicat     wipeicat \
-        %{_bindir}/wipeicat.py-%{python2_version}
-
-%preun -n python%{python2_pkgversion}-icat
-if [ "$$1" = 0 ] ; then
-    /usr/sbin/update-alternatives --remove \
-        icatdump   %{_bindir}/icatdump.py-%{python2_version}
-fi
 %endif
 
 
@@ -262,13 +202,6 @@ rm -rf %{buildroot}
 %files man
 %defattr(-,root,root)
 %{_mandir}/man1/*
-
-%if 0%{?python2_enable}
-%files -n python%{python2_pkgversion}-icat
-%defattr(-,root,root)
-%{python2_sitelib}/*
-%{_bindir}/*.py-%{python2_version}
-%endif
 
 %files -n python%{python3_pkgversion}-icat
 %defattr(-,root,root)

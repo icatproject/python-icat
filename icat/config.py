@@ -6,7 +6,7 @@ import os
 import os.path
 import getpass
 import argparse
-import ConfigParser
+import configparser
 import warnings
 from icat.client import Client
 from icat.authinfo import AuthenticatorInfo, LegacyAuthenticatorInfo
@@ -43,7 +43,7 @@ def boolean(value):
     function is suitable to be passed as type to
     :meth:`icat.config.BaseConfig.add_variable`.
     """
-    if isinstance(value, basestring):
+    if isinstance(value, str):
         if value.lower() in ["0", "no", "n", "false", "f", "off"]:
             return False
         elif value.lower() in ["1", "yes", "y", "true", "t", "on"]:
@@ -283,7 +283,7 @@ class ConfigSourceFile(ConfigSource):
     """
     def __init__(self, defaultFiles):
         super(ConfigSourceFile, self).__init__()
-        self.confparser = ConfigParser.RawConfigParser()
+        self.confparser = configparser.RawConfigParser()
         self.defaultFiles = defaultFiles
         self.section = None
 
@@ -309,7 +309,7 @@ class ConfigSourceFile(ConfigSource):
         if self.section:
             try:
                 value = self.confparser.get(self.section, variable.name)
-            except ConfigParser.NoOptionError:
+            except configparser.NoOptionError:
                 pass
         return variable.get(value)
 

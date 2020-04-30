@@ -19,7 +19,7 @@ System requirements
 
 Python:
 
-+ 2.7 or 3.3 and newer.
++ 3.4 and newer.
 
 Required Library packages:
 

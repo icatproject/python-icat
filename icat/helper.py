@@ -43,19 +43,12 @@ def simpleqp_quote(obj):
     esc = '='
     hex = '0123456789ABCDEF'
     asc = ('0123456789''ABCDEFGHIJKLMNOPQRSTUVWXYZ''abcdefghijklmnopqrstuvwxyz')
-    if not isinstance(obj, basestring):
+    if not isinstance(obj, str):
         obj = str(obj)
     s = obj.encode('utf-8')
     out = []
-    for ch in s:
-        # under Python 2 ch is a character (e.g. a string of length 1),
-        # under Python 3 ch is an int.
-        if isinstance(ch, int):
-            i = ch
-            c = chr(ch)
-        else:
-            i = ord(ch)
-            c = ch
+    for i in s:
+        c = chr(i)
         if c in asc:
             out.append(c)
         else:
@@ -70,13 +63,13 @@ def simpleqp_unquote(qs):
     i = iter(qs)
     while True:
         try:
-            c = i.next()
+            c = next(i)
         except StopIteration:
             break
         if c == esc:
             try:
-                hh = i.next()
-                hl = i.next()
+                hh = next(i)
+                hl = next(i)
             except StopIteration:
                 raise ValueError("Invalid quoted string '%s'" % qs)
             vh = hex.index(hh)
@@ -84,14 +77,7 @@ def simpleqp_unquote(qs):
             out.append(16*vh+vl)
         else:
             out.append(ord(c))
-
-    # We got out as an int array.  Get an encoded string (e.g. str
-    # under Python 2 and byte under Python 3) from it.
-    if sys.version_info < (3, 0):
-        s = ''.join([chr(i) for i in out])
-    else:
-        s = bytes(out)
-    return s.decode('utf-8')
+    return bytes(out).decode('utf-8')
 
 def parse_attr_val(avs):
     """Parse an attribute value list string.
@@ -202,20 +188,10 @@ def ms_timestamp(dt):
     """
     if dt is None:
         return None
-    if isinstance(dt, basestring):
+    if isinstance(dt, str):
         dt = parse_attr_string(dt, "Date")
-    try:
-        # datetime.timestamp() is new in Python 3.3.
-        # timezone is new in Python 3.2.
-        if not dt.tzinfo:
-            # Unaware datetime values are assumed to be UTC.
-            dt = dt.replace(tzinfo=datetime.timezone.utc)
-        ts = 1000 * dt.timestamp()
-    except AttributeError:
-        # Python 3.2 and older.
-        if dt.tzinfo:
-            # dt is aware.  Convert it to naive UTC.
-            offs = dt.utcoffset()
-            dt = dt.replace(tzinfo=None) - offs
-        ts = 1000 * (dt - datetime.datetime(1970, 1, 1)).total_seconds()
+    if not dt.tzinfo:
+        # Unaware datetime values are assumed to be UTC.
+        dt = dt.replace(tzinfo=datetime.timezone.utc)
+    ts = 1000 * dt.timestamp()
     return int(ts)

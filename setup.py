@@ -9,11 +9,7 @@ is based on Suds and extends it with ICAT specific features.
 """
 
 from __future__ import print_function
-try:
-    from distutils.command.build_py import build_py_2to3 as du_build_py
-except ImportError:
-    # Python 2.x
-    from distutils.command.build_py import build_py as du_build_py
+import distutils.command.build_py
 import distutils.command.sdist
 import distutils.core
 from distutils.core import setup
@@ -42,8 +38,9 @@ except (ImportError, LookupError):
 
 
 if sys.version_info < (3, 4):
-    distutils.log.warn("warning: support for Python versions older then 3.4 "
-                       "is deprecated and will be removed in Version 1.0")
+    distutils.log.warn("warning: Python %d.%d is not supported! "
+                       "This package requires Python 3.4 or newer."
+                       % sys.version_info[:2])
 
 
 doclines = __doc__.strip().split("\n")
@@ -54,13 +51,6 @@ class init_py(distutils.core.Command):
     description = "generate the main __init__.py file"
     user_options = []
     init_template = '''"""%s"""
-
-import sys
-import warnings
-
-if sys.version_info < (3, 4):
-    warnings.warn("Support for Python versions older then 3.4is deprecated  "
-                  "and will be removed in python-icat 1.0", DeprecationWarning)
 
 __version__ = "%s"
 
@@ -149,10 +139,10 @@ class sdist(distutils.command.sdist.sdist):
                     outf.write(string.Template(inf.read()).substitute(subst))
 
 
-class build_py(du_build_py):
+class build_py(distutils.command.build_py.build_py):
     def run(self):
         self.run_command('init_py')
-        du_build_py.run(self)
+        distutils.command.build_py.build_py.run(self)
 
 
 setup(
@@ -173,10 +163,7 @@ setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",

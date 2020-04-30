@@ -71,7 +71,7 @@ class Entity(object):
         """Translate a list of objects into the list of corresponding
         instances.
         """
-        return map(cls.getInstance, objs)
+        return list(map(cls.getInstance, objs))
 
     @classmethod
     def getAttrInfo(cls, client, attr):
@@ -301,10 +301,7 @@ class Entity(object):
                 if v is None:
                     v = ''
                 else:
-                    try:
-                        v = str(v)
-                    except UnicodeError:
-                        v = unicode(v)
+                    v = str(v)
             elif attr in self.InstRel:
                 if v is None:
                     v = []
@@ -455,7 +452,7 @@ class EntityList(ListProxy):
     def __getitem__(self, index):
         item = super(EntityList, self).__getitem__(index)
         if isinstance(index, slice):
-            return map(lambda i: self.client.getEntity(i), item)
+            return [self.client.getEntity(i) for i in item]
         else:
             return self.client.getEntity(item)
 

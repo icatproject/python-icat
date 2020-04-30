@@ -38,7 +38,7 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
     def __init__(self, client, infile):
         super(XMLDumpFileReader, self).__init__(client, infile)
         self.insttypemap = { c.BeanName:t 
-                             for t,c in self.client.typemap.iteritems() }
+                             for t,c in self.client.typemap.items() }
         if isinstance(self.infile, etree._ElementTree):
             self.getdata = self.getdata_etree
         else:
@@ -164,7 +164,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                 continue
             elif isinstance(v, bool):
                 v = str(v).lower()
-            elif isinstance(v, (int, long)):
+            elif isinstance(v, int):
                 v = str(v)
             elif isinstance(v, datetime.datetime):
                 if v.tzinfo is not None and v.tzinfo.utcoffset(v) is not None:
@@ -181,10 +181,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                     # the corresponding timezone suffix.
                     v = v.isoformat() + 'Z'
             else:
-                try:
-                    v = str(v)
-                except UnicodeError:
-                    v = unicode(v)
+                v = str(v)
             etree.SubElement(d, attr).text = v
         for attr in sorted(obj.InstRel):
             o = getattr(obj, attr, None)

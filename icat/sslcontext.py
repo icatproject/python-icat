@@ -6,7 +6,7 @@
 """
 
 import ssl
-from urllib2 import HTTPSHandler
+from urllib.request import HTTPSHandler
 import suds.transport.http
 
 

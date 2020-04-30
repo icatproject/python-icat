@@ -10,7 +10,7 @@ import re
 import logging
 from distutils.version import StrictVersion as Version
 import atexit
-import urlparse
+import urllib.parse
 
 import suds
 import suds.client
@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 def _complete_url(url, default_path="/ICATService/ICAT?wsdl"):
     if not url:
         return url
-    o = urlparse.urlparse(url)
+    o = urllib.parse.urlparse(url)
     if o.path or o.query:
         return url
     return "%s://%s%s" % (o.scheme, o.netloc, default_path)
@@ -239,7 +239,7 @@ class Client(suds.client.Client):
             except KeyError:
                 raise EntityTypeError("Invalid instance type '%s'." 
                                       % instancetype)
-        elif isinstance(obj, basestring):
+        elif isinstance(obj, str):
             # obj is the name of an instance type, create the instance
             instancetype = obj
             try:
@@ -352,8 +352,7 @@ class Client(suds.client.Client):
 
     def get(self, query, primaryKey):
         try:
-            instance = self.service.get(self.sessionId, 
-                                        unicode(query), primaryKey)
+            instance = self.service.get(self.sessionId, str(query), primaryKey)
             return self.getEntity(instance)
         except suds.WebFault as e:
             raise translateError(e)
@@ -433,8 +432,8 @@ class Client(suds.client.Client):
 
     def search(self, query):
         try:
-            instances = self.service.search(self.sessionId, unicode(query))
-            return map(lambda i: self.getEntity(i), instances)
+            instances = self.service.search(self.sessionId, str(query))
+            return [self.getEntity(i) for i in instances]
         except suds.WebFault as e:
             raise translateError(e)
 
@@ -560,7 +559,7 @@ class Client(suds.client.Client):
         :rtype: generator
         """
         if isinstance(query, Query):
-            query = unicode(query)
+            query = str(query)
         query = query.replace('%', '%%')
         if query.startswith("SELECT"):
             query += " LIMIT %d, %d"
@@ -737,7 +736,7 @@ class Client(suds.client.Client):
         rules = []
         for w in what:
             r = self.new("rule", 
-                         crudFlags=crudFlags, what=unicode(w), grouping=group)
+                         crudFlags=crudFlags, what=str(w), grouping=group)
             rules.append(r)
         return self.createMany(rules)
 
@@ -786,7 +785,7 @@ class Client(suds.client.Client):
             raise ValueError("datafile.datafileFormat is not set.")
 
         if not hasattr(infile, 'read'):
-            if isinstance(infile, basestring):
+            if isinstance(infile, str):
                 # We got a file name as infile.  Open the file and
                 # recursively call the method again with the open file
                 # as argument.  This is the easiest way to guarantee
@@ -854,7 +853,7 @@ class Client(suds.client.Client):
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
-        if not isinstance(objs, (DataSelection, basestring)):
+        if not isinstance(objs, (DataSelection, str)):
             objs = DataSelection(objs)
         return self.ids.getData(objs, compressFlag, zipFlag, outname, offset)
 
@@ -891,7 +890,7 @@ class Client(suds.client.Client):
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
-        if not isinstance(objs, (DataSelection, basestring)):
+        if not isinstance(objs, (DataSelection, str)):
             objs = DataSelection(objs)
         return self.ids.getDataUrl(objs, compressFlag, zipFlag, outname)
 

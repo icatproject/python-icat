@@ -74,7 +74,7 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
     def __init__(self, client, infile):
         super(YAMLDumpFileReader, self).__init__(client, infile)
         self.insttypemap = { c.BeanName:t 
-                             for t,c in self.client.typemap.iteritems() }
+                             for t,c in self.client.typemap.items() }
 
     def _dict2entity(self, d, objtype, objindex):
         """Create an entity object from a dict of attributes."""
@@ -148,7 +148,7 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                 continue
             elif isinstance(v, bool):
                 pass
-            elif isinstance(v, (int, long)):
+            elif isinstance(v, int):
                 v = int(v)
             elif isinstance(v, datetime.datetime):
                 if v.tzinfo is not None and v.tzinfo.utcoffset(v) is not None:
@@ -165,10 +165,7 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                     # the corresponding timezone suffix.
                     v = v.isoformat() + 'Z'
             else:
-                try:
-                    v = str(v)
-                except UnicodeError:
-                    v = unicode(v)
+                v = str(v)
             d[attr] = v
         for attr in obj.InstRel:
             o = getattr(obj, attr, None)

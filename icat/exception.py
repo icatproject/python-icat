@@ -1,14 +1,9 @@
 """Exception handling.
 """
 
+from collections.abc import Mapping
 import sys
 import warnings
-try:
-    # Python 3.3 and newer
-    from collections.abc import Mapping
-except ImportError:
-    # Python 2
-    from collections import Mapping
 import suds
 
 __all__ = [
@@ -98,7 +93,7 @@ class ServerError(_BaseException):
             self.message = message
             self.type = str(error['code'])
             self.offset = error.get('offset', None)
-        elif isinstance(error, basestring):
+        elif isinstance(error, str):
             # For compatibility with other exception classes, also
             # allow the constructor to be called with just a message
             # string as argument.

@@ -87,7 +87,7 @@ class Query(object):
         self._init = True
         self.client = client
 
-        if isinstance(entity, basestring):
+        if isinstance(entity, str):
             self.entity = self.client.getEntityClass(entity)
         elif issubclass(entity, icat.entity.Entity):
             if (entity in self.client.typemap.values() and 
@@ -293,11 +293,11 @@ class Query(object):
                     pass
                 if a in self.conditions:
                     conds = []
-                    if isinstance(self.conditions[a], basestring):
+                    if isinstance(self.conditions[a], str):
                         conds.append(self.conditions[a])
                     else:
                         conds.extend(self.conditions[a])
-                    if isinstance(conditions[a], basestring):
+                    if isinstance(conditions[a], str):
                         conds.append(conditions[a])
                     else:
                         conds.extend(conditions[a])
@@ -387,7 +387,7 @@ class Query(object):
             for a in sorted(self.conditions.keys()):
                 attr = self._dosubst(a, subst, False)
                 cond = self.conditions[a]
-                if isinstance(cond, basestring):
+                if isinstance(cond, str):
                     conds.append("%s %s" % (attr, cond))
                 else:
                     for c in cond:

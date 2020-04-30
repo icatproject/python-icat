@@ -70,7 +70,7 @@ class DumpFileReader(object):
     def __init__(self, client, infile):
         self.client = client
         self._closefile = False
-        if isinstance(infile, basestring):
+        if isinstance(infile, str):
             self.infile = self._file_open(infile)
             self._closefile = True
         else:
@@ -150,7 +150,7 @@ class DumpFileWriter(object):
     def __init__(self, client, outfile):
         self.client = client
         self._closefile = False
-        if isinstance(outfile, basestring):
+        if isinstance(outfile, str):
             self.outfile = self._file_open(outfile)
             self._closefile = True
         else:
@@ -229,7 +229,7 @@ class DumpFileWriter(object):
             :meth:`icat.client.Client.searchChunked` for details.
         :type chunksize: :class:`int`
         """
-        if isinstance(objs, Query) or isinstance(objs, basestring):
+        if isinstance(objs, Query) or isinstance(objs, str):
             objs = self.client.searchChunked(objs, chunksize=chunksize)
         for obj in sorted(objs, key=icat.entity.Entity.__sortkey__):
             # Entities without a constraint will use their id to form

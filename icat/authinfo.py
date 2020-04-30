@@ -1,12 +1,7 @@
 """Provide the AuthenticatorInfo class.
 """
 
-try:
-    # Python 3.3 and newer
-    from collections.abc import Sequence
-except ImportError:
-    # Python 2
-    from collections import Sequence
+from collections.abc import Sequence
 
 
 __all__ = ['AuthenticatorInfo', 'LegacyAuthenticatorInfo']
