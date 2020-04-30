@@ -25,7 +25,6 @@ import zlib
 import re
 from distutils.version import StrictVersion as Version
 import getpass
-from warnings import warn
 
 from icat.entity import Entity
 from icat.exception import *
@@ -357,16 +356,6 @@ class IDSClient(object):
         except (HTTPError, IDSError) as e:
             raise self._versionMethodError("reset", '1.6', e)
 
-    def resetPrepared(self, preparedId):
-        """Reset prepared data so that they can be queried again.
-
-        .. deprecated:: 0.17.0
-           Call :meth:`~icat.ids.IDSClient.reset` instead.
-        """
-        warn("resetPrepared() is deprecated "
-             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
-        self.reset(preparedId)
-
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
         """Prepare data for a subsequent :meth:`~icat.ids.IDSClient.getData`
         call.
@@ -401,16 +390,6 @@ class IDSClient(object):
         except (HTTPError, IDSError) as e:
             raise self._versionMethodError("getDatafileIds", '1.5', e)
 
-    def getPreparedDatafileIds(self, preparedId):
-        """Get the list of data file id corresponding to the prepared Id.
-
-        .. deprecated:: 0.17.0
-           Call :meth:`~icat.ids.IDSClient.getDatafileIds` instead.
-        """
-        warn("getPreparedDatafileIds() is deprecated "
-             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
-        return self.getDatafileIds(preparedId)
-
     def getData(self, selection, 
                 compressFlag=False, zipFlag=False, outname=None, offset=0):
         """Stream the requested data.
@@ -435,32 +414,6 @@ class IDSClient(object):
         if outname: parameters["outname"] = outname
         return self._getDataUrl(parameters)
     
-    def getPreparedData(self, preparedId, outname=None, offset=0):
-        """Get prepared data.
-
-        Get the data using the `preparedId` returned by a call to
-        :meth:`~icat.ids.IDSClient.prepareData`.
-
-        .. deprecated:: 0.17.0
-           Call :meth:`~icat.ids.IDSClient.getData` instead.
-        """
-        warn("getPreparedData() is deprecated "
-             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
-        return self.getData(preparedId, outname=outname, offset=offset)
-    
-    def getPreparedDataUrl(self, preparedId, outname=None):
-        """Get the URL to retrieve prepared data.
-
-        Get the URL to retrieve data using the `preparedId` returned
-        by a call to :meth:`~icat.ids.IDSClient.prepareData`.
-
-        .. deprecated:: 0.17.0
-           Call :meth:`~icat.ids.IDSClient.getDataUrl` instead.
-        """
-        warn("getPreparedDataUrl() is deprecated "
-             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
-        return self.getDataUrl(preparedId, outname=outname)
-      
     def getLink(self, datafileId, username=None):
         """Return a hard link to a data file.
 

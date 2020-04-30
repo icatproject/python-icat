@@ -11,11 +11,6 @@ import pytest
 import icat
 import icat.exception
 
-# Deprecations not tested in this module:
-# - Deprecated calls icat.ids.IDSClient.getPreparedData() and similar.
-#   These calls require a valid prepareId and thus uploaded content in
-#   IDS.  It's easier to test this in test_06_ids.py.
-
 @pytest.mark.skipif(sys.version_info >= (3, 4),
                     reason="this Python version is not deprecated")
 def test_deprecated_python_version():

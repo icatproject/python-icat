@@ -208,7 +208,7 @@ the status or to download the data::
 
   >>> client.isDataPrepared(preparedId)
   True
-  >>> data = client.getPreparedData(preparedId)
+  >>> data = client.getData(preparedId)
   >>> buffer = BytesIO(data.read())
   >>> with ZipFile(buffer) as zipfile:
   ...     zipfile.namelist()

@@ -156,10 +156,6 @@ that manages the interaction with an ICAT service as a client.
 
     .. automethod:: isDataPrepared
 
-    .. automethod:: getPreparedData
-
-    .. automethod:: getPreparedDataUrl
-
     .. automethod:: deleteData
 
 .. _ICAT SOAP Manual: https://repo.icatproject.org/site/icat/server/4.10.0/soap.html

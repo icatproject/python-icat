@@ -120,7 +120,7 @@ elif conf.method == 'getPreparedData':
     prepid = client.prepareData(datafiles)
     while not client.isDataPrepared(prepid):
         time.sleep(5)
-    response = client.getPreparedData(prepid)
+    response = client.getData(prepid)
     if conf.outputfile:
         with open(conf.outputfile, 'wb') as f:
             copyfile(response, f)
@@ -132,7 +132,7 @@ elif conf.method == 'getPreparedDataUrl':
     prepid = client.prepareData(datafiles)
     while not client.isDataPrepared(prepid):
         time.sleep(5)
-    print(client.getPreparedDataUrl(prepid))
+    print(client.getDataUrl(prepid))
 
 else:
     raise RuntimeError("Invalid method %s." % conf.method)

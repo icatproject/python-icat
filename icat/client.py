@@ -940,47 +940,6 @@ class Client(suds.client.Client):
             raise RuntimeError("no IDS.")
         return self.ids.isPrepared(preparedId)
 
-    def getPreparedData(self, preparedId, outname=None, offset=0):
-        """Retrieve prepared data from IDS.
-
-        :param preparedId: the id returned by
-            :meth:`~icat.client.Client.prepareData`.
-        :type preparedId: :class:`str`
-        :param outname: the preferred name for the downloaded file to
-            specify in the Content-Disposition header.
-        :type outname: :class:`str`
-        :param offset: if larger then zero, add Range header to the
-            HTTP request with the indicated bytes offset.
-        :type offset: :class:`int`
-        :return: a file-like object as returned by
-            :meth:`urllib.request.OpenerDirector.open`.
-
-        .. deprecated:: 0.17.0
-           Call :meth:`~icat.client.Client.getData` instead.
-        """
-        warn("getPreparedData() is deprecated "
-             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
-        return self.getData(preparedId, outname=outname, offset=offset)
-
-    def getPreparedDataUrl(self, preparedId, outname=None):
-        """Get the URL to retrieve prepared data from IDS.
-
-        :param preparedId: the id returned by
-            :meth:`~icat.client.Client.prepareData`.
-        :type preparedId: :class:`str`
-        :param outname: the preferred name for the downloaded file to
-            specify in the Content-Disposition header.
-        :type outname: :class:`str`
-        :return: the URL for tha data at the IDS.
-        :rtype: :class:`str`
-
-        .. deprecated:: 0.17.0
-           Call :meth:`~icat.client.Client.getDataUrl` instead.
-        """
-        warn("getPreparedDataUrl() is deprecated "
-             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
-        return self.getDataUrl(preparedId, outname=outname)
-
     def deleteData(self, objs):
         """Delete data from IDS.
 

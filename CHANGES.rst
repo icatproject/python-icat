@@ -13,6 +13,13 @@ Incompatible changes and deprecations
 + Drop module :mod:`icat.icatcheck` and exception
   :exc:`icat.exception.GenealogyError`, deprecated in 0.17.0.
 
++ Drop methods :meth:`icat.ids.IDSClient.resetPrepared`,
+  :meth:`icat.ids.IDSClient.getPreparedDatafileIds`,
+  :meth:`icat.ids.IDSClient.getPreparedData`,
+  :meth:`icat.ids.IDSClient.getPreparedDataUrl`,
+  :meth:`icat.client.Client.getPreparedData`, and
+  :meth:`icat.client.Client.getPreparedDataUrl`, deprecated in 0.17.0.
+
 + Drop the predefined configuration variable `configDir`, deprecated
   in 0.13.0.
 
