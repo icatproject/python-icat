@@ -32,10 +32,3 @@ def test_deprecated_module_icat_icatcheck():
     with pytest.deprecated_call():
         import icat.icatcheck
         reload(icat.icatcheck)
-
-def test_deprecated_stripCause():
-    """:func:`icat.exception.stripCause` is deprecated since 0.14.0.
-    """
-    err = icat.exception.ICATError("some spurious error")
-    with pytest.deprecated_call():
-        icat.exception.stripCause(err)

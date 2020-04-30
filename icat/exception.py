@@ -60,20 +60,6 @@ class _BaseException(Exception):
             self.__cause__ = None
 
 
-def stripCause(e):
-    """Try to suppress misleading context from an exception.
-
-    .. deprecated:: 0.14.0
-       Not needed any more, embedded in
-       :exc:`icat.exception._BaseException` now.
-    """
-    warnings.warn("stripCause() is deprecated and will be removed "
-                  "in python-icat 1.0.", DeprecationWarning, 2)
-    if hasattr(e, '__cause__'):
-        e.__cause__ = None
-    return e
-
-
 # ========== Exceptions thrown by the ICAT or IDS server ===========
 
 class ServerError(_BaseException):

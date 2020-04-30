@@ -13,6 +13,9 @@ Incompatible changes and deprecations
 + Drop the predefined configuration variable `configDir`, deprecated
   in 0.13.0.
 
++ Drop helper function :func:`icat.exception.stripCause`, deprecated
+  in 0.14.0.
+
 
 0.17.0 (not yet released)
 ~~~~~~~~~~~~~~~~~~~~~~~~~

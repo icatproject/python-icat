@@ -9,8 +9,6 @@ ICAT or IDS server, as well as exceptions raised in python-icat.
 Helper
 ------
 
-.. autofunction:: icat.exception.stripCause
-
 .. autoexception:: icat.exception._BaseException
     :members:
     :show-inheritance:
