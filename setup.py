@@ -162,7 +162,7 @@ setup(
     long_description = "\n".join(doclines[2:]),
     author = "Rolf Krahl",
     author_email = "rolf.krahl@helmholtz-berlin.de",
-    url = "https://python-icat.readthedocs.io/",
+    url = "https://github.com/icatproject/python-icat",
     license = "Apache-2.0",
     requires = ["suds"],
     packages = ["icat"],
