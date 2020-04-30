@@ -15,9 +15,6 @@ import icat.exception
 # - Deprecated calls icat.ids.IDSClient.getPreparedData() and similar.
 #   These calls require a valid prepareId and thus uploaded content in
 #   IDS.  It's easier to test this in test_06_ids.py.
-# - Predefined configuration variable configDir.
-#   It's easier to test this in the setting of the test_01_config.py
-#   module.
 
 @pytest.mark.skipif(sys.version_info >= (3, 4),
                     reason="this Python version is not deprecated")

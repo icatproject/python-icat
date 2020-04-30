@@ -46,7 +46,7 @@ added.  The main class that client programs interact with is
 
     Class attributes (read only):
 
-    .. attribute:: ReservedVariables = ['configDir', 'credentials']
+    .. attribute:: ReservedVariables = ['credentials']
 
         Reserved names of configuration variables.
 
@@ -132,17 +132,10 @@ set of configuration variables that an ICAT client typically needs:
 A few derived variables are also set in
 :meth:`icat.config.Config.getconfig`:
 
-  `configDir`
-    the directory where (the last) configFile has been found.
-
   `credentials`
     contains the credentials needed for the indicated authenticator
     (username and password if authenticator information is not
     available) suitable to be passed to :meth:`icat.client.Client.login`.
-
-.. deprecated:: 0.13
-   The derived variable `configDir` is deprecated and will be removed
-   in version 1.0.
 
 The command line arguments, environment variables, and default values
 for the configuration variables are as follows:

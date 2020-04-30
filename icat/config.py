@@ -335,17 +335,6 @@ class ConfigSourceDefault(ConfigSource):
         return variable.get(value)
 
 
-class _DeprecatedKeyDict(dict):
-    """A dict that raises DeprecationWarning if accessing a particular
-    deprecated key.
-    """
-    def __getitem__(self, key):
-        if key == "configDir":
-            warnings.warn("The 'configDir' configuration variable is "
-                          "deprecated and will be removed in python-icat 1.0.", 
-                          DeprecationWarning, stacklevel=2)
-        return super(_DeprecatedKeyDict, self).__getitem__(key)
-
 class Configuration(object):
     """Provide a name space to store the configuration.
 
@@ -356,20 +345,6 @@ class Configuration(object):
     def __init__(self, config):
         super(Configuration, self).__init__()
         self._config = config
-
-    def __getattr__(self, attr):
-        if attr == "configDir":
-            warnings.warn("The 'configDir' configuration variable is "
-                          "deprecated and will be removed in python-icat 1.0.", 
-                          DeprecationWarning, stacklevel=2)
-            if getattr(self, "configFile", None):
-                f = self.configFile[-1]
-                return os.path.dirname(os.path.abspath(f))
-            else:
-                return None
-        else:
-            raise AttributeError("%s object has no attribute %s" % 
-                                 (type(self).__name__, attr))
 
     def __str__(self):
         typename = type(self).__name__
@@ -390,7 +365,7 @@ class Configuration(object):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             d = { f:getattr(self, f) for f in vars if hasattr(self, f) }
-        return _DeprecatedKeyDict(d)
+        return d
 
 
 class BaseConfig(object):
@@ -399,7 +374,7 @@ class BaseConfig(object):
     API.  It is not intended to be instantiated directly.
     """
 
-    ReservedVariables = ['configDir', 'credentials']
+    ReservedVariables = ['credentials']
     """Reserved names of configuration variables."""
 
     def __init__(self, argparser):

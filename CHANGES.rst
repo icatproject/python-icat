@@ -10,6 +10,9 @@ Incompatible changes and deprecations
 
 + Drop module :mod:`icat.cgi`, deprecated in 0.13.0.
 
++ Drop the predefined configuration variable `configDir`, deprecated
+  in 0.13.0.
+
 
 0.17.0 (not yet released)
 ~~~~~~~~~~~~~~~~~~~~~~~~~

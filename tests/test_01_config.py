@@ -1143,31 +1143,3 @@ def test_config_subcmd_err_add_more_vars(fakeClient, tmpconfigfile):
     with pytest.raises(RuntimeError) as err:
         config.add_variable('name', ("--name",), dict(help="name"))
     assert "config already has subcommands" in str(err.value)
-
-
-def test_deprecated_config_confdir(fakeClient, tmpconfigfile):
-    """The configuration variable configDir is deprecated since 0.13.0.
-    Accessing it should raise a DeprecationWarning.
-    """
-
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
-    config = icat.config.Config(needlogin=False, args=args)
-    _, conf = config.getconfig()
-    with pytest.deprecated_call():
-        assert conf.configDir == tmpconfigfile.dir
-
-
-def test_deprecated_config_subst_confdir(fakeClient, tmpconfigfile):
-    """The configuration variable configDir is deprecated since 0.13.0.
-    Substituting its value in another variable should raise a
-    DeprecationWarning.
-    """
-
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
-    config = icat.config.Config(needlogin=False, args=args)
-    config.add_variable('extracfg', ("--extracfg",), 
-                        dict(help="Extra config file"),
-                        default="%(configDir)s/extra.xml", subst=True)
-    # The substitution happens internally in getconfig().
-    with pytest.deprecated_call():
-        _, conf = config.getconfig()
