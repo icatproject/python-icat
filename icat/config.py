@@ -38,10 +38,10 @@ _argparse_divert_syserr = True
 def boolean(value):
     """Test truth value.
 
-    Convert the string representation of a truth value, such as ``0``,
-    ``1``, ``yes``, ``no``, ``true``, or ``false`` to :class:`bool`.
-    This function is suitable to be passed as type to
-    :meth:`icat.config.Config.add_variable`.
+    Convert the string representation of a truth value, such as '0',
+    '1', 'yes', 'no', 'true', or 'false' to :class:`bool`.  This
+    function is suitable to be passed as type to
+    :meth:`icat.config.BaseConfig.add_variable`.
     """
     if isinstance(value, basestring):
         if value.lower() in ["0", "no", "n", "false", "f", "off"]:
@@ -69,7 +69,7 @@ def cfgpath(p):
     of the directories, `p` will be returned unchanged.
 
     This function is suitable to be passed as `type` argument to
-    :meth:`icat.config.Config.add_variable`.
+    :meth:`icat.config.BaseConfig.add_variable`.
     """
     if os.path.isabs(p):
         return p
@@ -154,7 +154,9 @@ def _post_promptPass(config, configuration):
 
 
 class ConfigVariable(object):
-    """Describe a configuration variable.
+    """Describe a configuration variable.  Configuration variables are
+    created in :meth:`icat.config.BaseConfig.add_variable` and control
+    the behavior of :meth:`icat.config.Config.getconfig`.
     """
     def __init__(self, name, envvar, optional, default, convert, subst):
         self.name = name
@@ -182,7 +184,11 @@ class ConfigVariable(object):
 
 
 class ConfigSubCmds(ConfigVariable):
-    """A special configuration variable that selects a subcommand.
+    """A special configuration variable that selects a subcommand.  These
+    subcommand configuration variables are created in
+    :meth:`icat.config.BaseConfig.add_subcommand`.  Possible values
+    for the subcommand are then registered calling the
+    :meth:`~icat.config.ConfigSubCmds.add_subconfig` method.
     """
     def __init__(self, name, optional, config, subparsers):
         super(ConfigSubCmds, self).__init__(name, None, optional,
@@ -207,7 +213,10 @@ class ConfigSubCmds(ConfigVariable):
             :meth:`icat.config.Config.getconfig` will have an
             attribute `func` with this value if this command has been
             selected.  Most useful to set this to a callable that
-            implements this subcommand.
+            implements the command.
+        :return: a subconfig object that allows to set specific
+            configuration variables for the command.
+        :rtype: :class:`icat.config.SubConfig`
         :raise ValueError: if the name is already defined.
         """
         if name in self.subconfig:
@@ -326,6 +335,17 @@ class ConfigSourceDefault(ConfigSource):
         return variable.get(value)
 
 
+class _DeprecatedKeyDict(dict):
+    """A dict that raises DeprecationWarning if accessing a particular
+    deprecated key.
+    """
+    def __getitem__(self, key):
+        if key == "configDir":
+            warnings.warn("The 'configDir' configuration variable is "
+                          "deprecated and will be removed in python-icat 1.0.", 
+                          DeprecationWarning, stacklevel=2)
+        return super(_DeprecatedKeyDict, self).__getitem__(key)
+
 class Configuration(object):
     """Provide a name space to store the configuration.
 
@@ -364,13 +384,13 @@ class Configuration(object):
         return '%s(%s)' % (typename, ', '.join(arg_strings))
 
     def as_dict(self):
-        """Return the configuration as a dict."""
+        """Return the configuration as a :class:`dict`."""
         vars = [var.name for var in self._config.confvariables] \
             + self._config.ReservedVariables
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             d = { f:getattr(self, f) for f in vars if hasattr(self, f) }
-        return d
+        return _DeprecatedKeyDict(d)
 
 
 class BaseConfig(object):
@@ -433,12 +453,14 @@ class BaseConfig(object):
         :param default: default value.
         :param type: type to which the value should be converted.
             This must be a callable that accepts one string argument
-            and returns the desired value.  The builtins :func:`int`
-            and :func:`float` are fine.  If set to :const:`None`, the
-            string value is taken as is.  If applicable, the default
-            value will also be passed through this conversion.  The
-            special value :data:`icat.config.flag` may also be used to
-            indicate a variant of :func:`icat.config.boolean`.
+            and returns the desired value.  Python builtins
+            :class:`int` and :class:`float` or some standard library
+            classes such as :class:`~pathlib.Path` are fine.  If set
+            to :const:`None`, the string value is taken as is.  If
+            applicable, the default value will also be passed through
+            this conversion.  The special value
+            :data:`icat.config.flag` may also be used to indicate a
+            variant of :func:`icat.config.boolean`.
         :type type: callable
         :param subst: flag wether substitution of other configuration
             variables using the ``%`` interpolation operator shall be
@@ -447,12 +469,13 @@ class BaseConfig(object):
             will then be substituted by the value of `othervar`.  The
             referenced variable must have been defined earlier.
         :type subst: :class:`bool`
+        :return: the new configuration variable object.
+        :rtype: :class:`icat.config.ConfigVariable`
         :raise RuntimeError: if this objects already has subcommands
             defined with :meth:`icat.config.BaseConfig.add_subcommands`.
         :raise ValueError: if the name is not valid.
         :see: the documentation of the :mod:`argparse` standard
             library module for details on `arg_opts` and `arg_kws`.
-
         """
         if self._subcmds is not None:
             raise RuntimeError("This config already has subcommands.")
@@ -532,6 +555,8 @@ class BaseConfig(object):
         :param optional: flag wether providing a subcommand is
             optional.
         :type optional: :class:`bool`
+        :return: the new subcommand object.
+        :rtype: :class:`icat.config.ConfigSubCmd`
         :raise RuntimeError: if this objects already has subcommands.
         :raise ValueError: if the name is not valid.
         :see: the documentation of the :mod:`argparse` standard
@@ -588,12 +613,13 @@ class Config(BaseConfig):
 
     Allow configuration variables to be set via command line
     arguments, environment variables, configuration files, and default
-    values, in this order.  The first value found will be taken.
-    Command line arguments and configuration files are read using the
-    standard Python library modules :mod:`argparse` and
-    :mod:`ConfigParser` respectively, see the documentation of these
-    modules for details on how to setup custom arguments or for the
-    format of the configuration files.
+    values, in this order.  In the case of a hidden credential such as
+    a password, the user may also be prompted for a value.  The first
+    value found will be taken.  Command line arguments and
+    configuration files are read using the standard Python library
+    modules :mod:`argparse` and :mod:`configparser` respectively, see
+    the documentation of these modules for details on how to setup
+    custom arguments or for the format of the configuration files.
 
     The constructor sets up some predefined configuration variables.
 
@@ -608,8 +634,8 @@ class Config(BaseConfig):
     :type needlogin: :class:`bool`
     :param ids: the configuration variable `idsurl` will not be set up
         at all, or be set up as a mandatory, or as an optional
-        variable, if this is set to :const:`False`, to "mandatory", or
-        to "optional" respectively.
+        variable, if this is set to :const:`False`, to 'mandatory', or
+        to 'optional' respectively.
     :type ids: :class:`bool` or :class:`str`
     :param args: list of command line arguments or :const:`None`.  If
         not set, the command line arguments will be taken from
@@ -742,9 +768,9 @@ class Config(BaseConfig):
         var = self.add_variable('auth', ("-a", "--auth"), authArgOpts,
                                 envvar='ICAT_AUTH')
         var.postprocess = _post_auth
-        for key in self.authenticatorInfo.getCredentialKeys(None, hide=False):
+        for key in self.authenticatorInfo.getCredentialKeys(hide=False):
             self._add_credential_key(key)
-        hidden = self.authenticatorInfo.getCredentialKeys(None, hide=True)
+        hidden = self.authenticatorInfo.getCredentialKeys(hide=True)
         if hidden:
             var = self.add_variable('promptPass', ("-P", "--prompt-pass"), 
                                     dict(help="prompt for the password", 
@@ -800,6 +826,12 @@ class Config(BaseConfig):
 
 class SubConfig(BaseConfig):
     """Set configuration variables for a subcommand.
+
+    These subconfig objects are created in
+    :meth:`icat.config.ConfigSubCmds.add_subconfig`.  Specific
+    configuration variables for the respective subcommand may be added
+    calling the :meth:`~icat.config.BaseConfig.add_variable` method
+    inherited from :class:`icat.config.BaseConfig`.
     """
     def __init__(self, argparser, parent, name=None, func=None):
         super(SubConfig, self).__init__(argparser)

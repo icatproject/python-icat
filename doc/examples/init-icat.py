@@ -51,6 +51,17 @@ def initobj(obj, attrs):
         if a != 'id' and a in attrs:
             setattr(obj, a, attrs[a])
 
+def getUser(client, attrs):
+    """Get the user, create it as needed.
+    """
+    try:
+        return client.assertedSearch("User [name='%s']" % attrs['name'])[0]
+    except icat.SearchResultError:
+        user = client.new("user")
+        initobj(user, attrs)
+        user.create()
+        return user
+
 # ------------------------------------------------------------
 # Read input data
 # ------------------------------------------------------------
@@ -66,13 +77,6 @@ f.close()
 # ------------------------------------------------------------
 # Setup some basic permissions
 # ------------------------------------------------------------
-
-# The name of the Group entity type has been changed to Grouping in
-# ICAT 4.3.
-if client.apiversion < '4.2.99':
-    groupname = "Group"
-else:
-    groupname = "Grouping"
 
 # List of all tables in the schema
 alltables = set(client.getEntityNames())
@@ -93,12 +97,11 @@ pubtables = { "Application", "DatafileFormat", "DatasetType",
 # based InvestigationGroup.  In this case, we have a fixed set of
 # static rules.  With older ICAT versions, we need per investigation
 # rules and thus useroffice need permission to create them.
-uotables = { "FacilityCycle", groupname, "InstrumentScientist", 
-             "Investigation", "InvestigationParameter", 
-             "InvestigationUser", "Keyword", "Publication", "Shift", 
-             "Study", "StudyInvestigation", "User", "UserGroup", }
-if client.apiversion > '4.2.99':
-    uotables.add("InvestigationInstrument")
+uotables = { "FacilityCycle", "Grouping", "InstrumentScientist", 
+             "Investigation", "InvestigationInstrument", 
+             "InvestigationParameter", "InvestigationUser", "Keyword", 
+             "Publication", "Shift", "Study", "StudyInvestigation", 
+             "User", "UserGroup", }
 if client.apiversion > '4.3.99':
     uotables.add("InvestigationGroup")
 else:
@@ -121,7 +124,7 @@ client.createRules("R", pubtables - {"SampleType"})
 
 # Special rules: each user gets the permission to see the groups he
 # is in and the studies he is leading.
-client.createRules("R", ["%s <-> UserGroup <-> User [name=:user]" % groupname])
+client.createRules("R", ["Grouping <-> UserGroup <-> User [name=:user]"])
 client.createRules("R", ["Study <-> User [name=:user]"])
 
 # Add a sepcial user to be configured as reader in ids.server.  This
@@ -295,41 +298,40 @@ client.createRules("R", items)
 # Public steps
 # ------------------------------------------------------------
 
-if client.apiversion > '4.2.99':
-    # Compatibility ICAT 4.3.0 vs. ICAT 4.3.1 and later: name of the
-    # parameters relation in DataCollection.
-    if client.apiversion < '4.3.1':
-        datacolparamname = 'dataCollectionParameters'
-    else:
-        datacolparamname = 'parameters'
-    pubsteps = [ ("DataCollection", "dataCollectionDatafiles"), 
-                 ("DataCollection", "dataCollectionDatasets"), 
-                 ("DataCollection", datacolparamname), 
-                 ("Datafile", "dataset"), 
-                 ("Datafile", "parameters"), 
-                 ("Dataset", "datafiles"), 
-                 ("Dataset", "investigation"), 
-                 ("Dataset", "parameters"), 
-                 ("Dataset", "sample"), 
-                 ("Grouping", "userGroups"), 
-                 ("Instrument", "instrumentScientists"), 
-                 ("Investigation", "investigationInstruments"), 
-                 ("Investigation", "investigationUsers"), 
-                 ("Investigation", "keywords"), 
-                 ("Investigation", "parameters"), 
-                 ("Investigation", "publications"), 
-                 ("Investigation", "samples"), 
-                 ("Investigation", "shifts"), 
-                 ("Job", "inputDataCollection"), 
-                 ("Job", "outputDataCollection"), 
-                 ("Sample", "parameters"), 
-                 ("Study", "studyInvestigations"), ]
-    if client.apiversion > '4.3.99':
-        pubsteps += [ ("Investigation", "investigationGroups"), 
-                      ("InvestigationGroup", "grouping"), ]
-    objs = [ client.new("publicStep", origin=origin, field=field)
-             for (origin, field) in pubsteps ]
-    client.createMany(objs)
+# Compatibility ICAT 4.3.0 vs. ICAT 4.3.1 and later: name of the
+# parameters relation in DataCollection.
+if client.apiversion < '4.3.1':
+    datacolparamname = 'dataCollectionParameters'
+else:
+    datacolparamname = 'parameters'
+pubsteps = [ ("DataCollection", "dataCollectionDatafiles"), 
+             ("DataCollection", "dataCollectionDatasets"), 
+             ("DataCollection", datacolparamname), 
+             ("Datafile", "dataset"), 
+             ("Datafile", "parameters"), 
+             ("Dataset", "datafiles"), 
+             ("Dataset", "investigation"), 
+             ("Dataset", "parameters"), 
+             ("Dataset", "sample"), 
+             ("Grouping", "userGroups"), 
+             ("Instrument", "instrumentScientists"), 
+             ("Investigation", "investigationInstruments"), 
+             ("Investigation", "investigationUsers"), 
+             ("Investigation", "keywords"), 
+             ("Investigation", "parameters"), 
+             ("Investigation", "publications"), 
+             ("Investigation", "samples"), 
+             ("Investigation", "shifts"), 
+             ("Job", "inputDataCollection"), 
+             ("Job", "outputDataCollection"), 
+             ("Sample", "parameters"), 
+             ("Study", "studyInvestigations"), ]
+if client.apiversion > '4.3.99':
+    pubsteps += [ ("Investigation", "investigationGroups"), 
+                  ("InvestigationGroup", "grouping"), ]
+objs = [ client.new("publicStep", origin=origin, field=field)
+         for (origin, field) in pubsteps ]
+client.createMany(objs)
 
 
 # ------------------------------------------------------------
@@ -355,8 +357,7 @@ for k in data['instruments'].keys():
     inst.facility = facilities[data['instruments'][k]['facility']]
     inst.create()
     ud = data['users'][data['instruments'][k]['instrumentscientist']]
-    instuser = client.createUser(ud['name'], fullName=ud['fullName'], 
-                                 search=True)
+    instuser = getUser(client, ud)
     inst.addInstrumentScientists([instuser])
     instusers.append(instuser)
 # As a default rule, instrument scientists are scientific staff

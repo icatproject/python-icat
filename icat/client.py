@@ -17,7 +17,7 @@ import suds.client
 import suds.sudsobject
 
 from icat.entity import Entity
-import icat.entities
+from icat.entities import getTypeMap
 from icat.query import Query
 from icat.exception import *
 from icat.ids import *
@@ -26,120 +26,7 @@ from icat.helper import simpleqp_unquote, parse_attr_val, ms_timestamp
 
 __all__ = ['Client']
 
-
 log = logging.getLogger(__name__)
-
-TypeMap42 = {
-    'entityBaseBean': Entity,
-    'application': icat.entities.Application,
-    'datafile': icat.entities.Datafile,
-    'datafileFormat': icat.entities.DatafileFormat,
-    'datafileParameter': icat.entities.DatafileParameter,
-    'dataset': icat.entities.Dataset,
-    'datasetParameter': icat.entities.DatasetParameter,
-    'datasetType': icat.entities.DatasetType,
-    'facility': icat.entities.Facility,
-    'facilityCycle': icat.entities.FacilityCycle,
-    'group': icat.entities.Group,
-    'inputDatafile': icat.entities.InputDatafile,
-    'inputDataset': icat.entities.InputDataset,
-    'instrument': icat.entities.Instrument,
-    'instrumentScientist': icat.entities.InstrumentScientist,
-    'investigation': icat.entities.Investigation,
-    'investigationParameter': icat.entities.InvestigationParameter,
-    'investigationType': icat.entities.InvestigationType,
-    'investigationUser': icat.entities.InvestigationUser,
-    'job': icat.entities.Job,
-    'keyword': icat.entities.Keyword,
-    'notificationRequest': icat.entities.NotificationRequest,
-    'outputDatafile': icat.entities.OutputDatafile,
-    'outputDataset': icat.entities.OutputDataset,
-    'parameter': icat.entities.Parameter,
-    'parameterType': icat.entities.ParameterType,
-    'permissibleStringValue': icat.entities.PermissibleStringValue,
-    'publication': icat.entities.Publication,
-    'relatedDatafile': icat.entities.RelatedDatafile,
-    'rule': icat.entities.Rule,
-    'sample': icat.entities.Sample,
-    'sampleParameter': icat.entities.SampleParameter,
-    'sampleType': icat.entities.SampleType,
-    'shift': icat.entities.Shift,
-    'study': icat.entities.Study,
-    'studyInvestigation': icat.entities.StudyInvestigation,
-    'user': icat.entities.User,
-    'userGroup': icat.entities.UserGroup,
-    }
-"""Map instance types defined in the WSDL to Python classes (ICAT 4.2.*)."""
-
-TypeMap43 = {
-    'entityBaseBean': Entity,
-    'application': icat.entities.Application43,
-    'dataCollection': icat.entities.DataCollection,
-    'dataCollectionDatafile': icat.entities.DataCollectionDatafile,
-    'dataCollectionDataset': icat.entities.DataCollectionDataset,
-    'dataCollectionParameter': icat.entities.DataCollectionParameter,
-    'datafile': icat.entities.Datafile43,
-    'datafileFormat': icat.entities.DatafileFormat,
-    'datafileParameter': icat.entities.DatafileParameter,
-    'dataset': icat.entities.Dataset43,
-    'datasetParameter': icat.entities.DatasetParameter,
-    'datasetType': icat.entities.DatasetType,
-    'facility': icat.entities.Facility43,
-    'facilityCycle': icat.entities.FacilityCycle43,
-    'grouping': icat.entities.Group43,
-    'instrument': icat.entities.Instrument43,
-    'instrumentScientist': icat.entities.InstrumentScientist,
-    'investigation': icat.entities.Investigation43,
-    'investigationInstrument': icat.entities.InvestigationInstrument,
-    'investigationParameter': icat.entities.InvestigationParameter,
-    'investigationType': icat.entities.InvestigationType,
-    'investigationUser': icat.entities.InvestigationUser,
-    'job': icat.entities.Job43,
-    'keyword': icat.entities.Keyword,
-    'log': icat.entities.Log,
-    'parameter': icat.entities.Parameter,
-    'parameterType': icat.entities.ParameterType43,
-    'permissibleStringValue': icat.entities.PermissibleStringValue,
-    'publicStep': icat.entities.PublicStep,
-    'publication': icat.entities.Publication,
-    'relatedDatafile': icat.entities.RelatedDatafile,
-    'rule': icat.entities.Rule43,
-    'sample': icat.entities.Sample43,
-    'sampleParameter': icat.entities.SampleParameter,
-    'sampleType': icat.entities.SampleType43,
-    'shift': icat.entities.Shift,
-    'study': icat.entities.Study,
-    'studyInvestigation': icat.entities.StudyInvestigation,
-    'user': icat.entities.User,
-    'userGroup': icat.entities.UserGroup43,
-    }
-"""Map instance types defined in the WSDL to Python classes (ICAT 4.3.0)."""
-
-TypeMap431 = TypeMap43.copy()
-"""Map instance types defined in the WSDL to Python classes (ICAT 4.3.1)."""
-TypeMap431.update( dataCollection = icat.entities.DataCollection431 )
-
-TypeMap44 = TypeMap431.copy()
-"""Map instance types defined in the WSDL to Python classes (ICAT 4.4.0)."""
-TypeMap44.update( grouping = icat.entities.Group44, 
-                  investigation = icat.entities.Investigation44, 
-                  investigationGroup = icat.entities.InvestigationGroup, 
-                  investigationUser = icat.entities.InvestigationUser44 )
-
-TypeMap47 = TypeMap44.copy()
-"""Map instance types defined in the WSDL to Python classes (ICAT 4.7.0)."""
-del TypeMap47['log']
-TypeMap47.update( dataCollection = icat.entities.DataCollection47,
-                  user = icat.entities.User47 )
-
-TypeMap410 = TypeMap47.copy()
-"""Map instance types defined in the WSDL to Python classes (ICAT 4.10.0)."""
-TypeMap410.update( instrument = icat.entities.Instrument410,
-                   parameterType = icat.entities.ParameterType410,
-                   sample = icat.entities.Sample410,
-                   shift = icat.entities.Shift410,
-                   study = icat.entities.Study410,
-                   user = icat.entities.User410 )
 
 def _complete_url(url, default_path="/ICATService/ICAT?wsdl"):
     if not url:
@@ -153,9 +40,39 @@ class Client(suds.client.Client):
  
     """A client accessing an ICAT service.
 
-    Client is a subclass of suds.client.Client and inherits most of
-    its behavior.  It adds methods for the instantiation of ICAT
-    entities and implementations of the ICAT API methods.
+    This is a subclass of :class:`suds.client.Client` and inherits
+    most of its behavior.  It adds methods for the instantiation of
+    ICAT entities and implementations of the ICAT API methods.
+
+    :param url: The URL pointing to the WSDL of the ICAT service.  If
+        the URL does not contain a path, e.g. contains only a URL
+        scheme and network location part, a default path is assumend.
+    :type url: :class:`str`
+    :param idsurl: The URL pointing to the IDS service.  If set, an
+        :class:`icat.ids.IDSClient` instance will be created.
+    :type idsurl: :class:`str`
+    :param checkCert: Flag whether the server's SSL certificate should
+        be verified if connecting ICAT with HTTPS.
+    :type checkCert: :class:`bool`
+    :param caFile: Path to a file of concatenated trusted CA
+        certificates.  If neither `caFile` nor `caPath` is set, the
+        system's default certificates will be used.
+    :type caFile: :class:`str`
+    :param caPath: Path to a directory containing trusted CA
+        certificates.  If neither `caFile` nor `caPath` is set, the
+        system's default certificates will be used.
+    :type caPath: :class:`str`
+    :param sslContext: A SSL context describing various SSL options to
+        be used in HTTPS connections.  If set, this will override
+        `checkCert`, `caFile`, and `caPath`.
+    :type sslContext: :class:`ssl.SSLContext`
+    :param proxy: HTTP proxy settings.  A map with the keys
+        `http_proxy` and `https_proxy` and the URL of the respective
+        proxy to use as values.
+    :type proxy: :class:`dict`
+    :param kwargs: additional keyword arguments that will be passed to
+        :class:`suds.client.Client`, see :class:`suds.options.Options`
+        for details.
     """
 
     Register = {}
@@ -170,7 +87,7 @@ class Client(suds.client.Client):
     def cleanupall(cls):
         """Cleanup all class instances.
 
-        Call :meth:`icat.client.Client.cleanup` on all registered
+        Call :meth:`~icat.client.Client.cleanup` on all registered
         class instances, e.g. on all clients that have not yet been
         cleaned up.
         """
@@ -192,33 +109,34 @@ class Client(suds.client.Client):
             wait = max(self.getRemainingMinutes() - self.AutoRefreshRemain, 0)
             self._next_refresh = now + 60*wait
 
-    def __init__(self, url, **kwargs):
+    def __init__(self, url, idsurl=None,
+                 checkCert=True, caFile=None, caPath=None, sslContext=None,
+                 proxy=None, **kwargs):
 
         """Initialize the client.
 
         Extend the inherited constructor.  Query the API version from
         the ICAT server and initialize the typemap accordingly.
-
-        :param url: The URL for the WSDL.
-        :type url: str
-        :param kwargs: keyword arguments.
-        :see: :class:`suds.options.Options` for the keyword arguments.
         """
 
         self.url = _complete_url(url)
         self.kwargs = dict(kwargs)
+        self.kwargs['idsurl'] = idsurl
+        self.kwargs['checkCert'] = checkCert
+        self.kwargs['caFile'] = caFile
+        self.kwargs['caPath'] = caPath
+        self.kwargs['sslContext'] = sslContext
+        self.kwargs['proxy'] = proxy
 
-        idsurl = _complete_url(kwargs.pop('idsurl', None), default_path="/ids")
+        idsurl = _complete_url(idsurl, default_path="/ids")
 
-        sslverify = kwargs.pop('checkCert', True)
-        cafile = kwargs.pop('caFile', None)
-        capath = kwargs.pop('caPath', None)
-        if 'sslContext' in kwargs:
-            self.sslContext = kwargs.pop('sslContext')
+        if sslContext:
+            self.sslContext = sslContext
         else:
-            self.sslContext = create_ssl_context(sslverify, cafile, capath)
+            self.sslContext = create_ssl_context(checkCert, caFile, caPath)
 
-        proxy = kwargs.pop('proxy', {})
+        if not proxy:
+            proxy = {}
         kwargs['transport'] = HTTPSTransport(self.sslContext, proxy=proxy)
         super(Client, self).__init__(self.url, **kwargs)
         apiversion = self.getApiVersion()
@@ -228,36 +146,13 @@ class Client(suds.client.Client):
         self.apiversion = Version(apiversion)
         log.debug("Connect to %s, ICAT version %s", url, self.apiversion)
 
-        # We need to use different TypeMaps depending on the ICAT
-        # version.  Currently 4.2.* and 4.3.* are supported.  For
-        # other versions, use the closest known TypeMap and hope for
-        # the best.
-        if self.apiversion < '4.1.9':
+        if self.apiversion < '4.3':
             warn(ClientVersionWarning(self.apiversion, "too old"))
-            self.typemap = TypeMap42.copy()
-        elif self.apiversion < '4.2.9':
-            warn("Support for ICAT version 4.2.* is deprecated "
-                 "and will be removed in python-icat 1.0.", 
-                 DeprecationWarning)
-            self.typemap = TypeMap42.copy()
-        elif self.apiversion <= '4.3.0':
-            self.typemap = TypeMap43.copy()
-        elif self.apiversion < '4.3.9':
-            self.typemap = TypeMap431.copy()
-        elif self.apiversion < '4.6.9':
-            self.typemap = TypeMap44.copy()
-        elif self.apiversion < '4.9.9':
-            self.typemap = TypeMap47.copy()
-        elif self.apiversion < '4.10.9':
-            self.typemap = TypeMap410.copy()
-        else:
-            warn(ClientVersionWarning(self.apiversion, "too new"))
-            self.typemap = TypeMap410.copy()
-
+        self.entityInfoCache = {}
+        self.typemap = getTypeMap(self)
         self.ids = None
         self.sessionId = None
         self.autoLogout = True
-        self.entityInfoCache = {}
 
         if idsurl:
             self.add_ids(idsurl)
@@ -265,15 +160,15 @@ class Client(suds.client.Client):
         self.Register[id(self)] = self
 
     def __del__(self):
-        """Call :meth:`icat.client.Client.cleanup`."""
+        """Call :meth:`~icat.client.Client.cleanup`."""
         self.cleanup()
 
     def cleanup(self):
         """Release resources allocated by the client.
 
-        Logout from the active ICAT session (if
-        :attr:`self.autoLogout` is :const:`True`).  The client should
-        not be used any more after calling this method.
+        Logout from the active ICAT session (if :attr:`autoLogout` is
+        :const:`True`).  The client should not be used any more after
+        calling this method.
         """
         if id(self) in self.Register:
             if self.autoLogout:
@@ -319,10 +214,10 @@ class Client(suds.client.Client):
 
         If obj is a string, take it as the name of an instance type.
         Create a new instance object of this type and lookup the class
-        for the object in the :attr:`self.typemap` using this type
-        name.  If obj is an instance object, look up its class name in
-        the typemap to determine the class.  If obj is :const:`None`,
-        do nothing and return :const:`None`.
+        for the object in the :attr:`typemap` using this type name.
+        If obj is an instance object, look up its class name in the
+        typemap to determine the class.  If obj is :const:`None`, do
+        nothing and return :const:`None`.
         
         :param obj: either a Suds instance object, a name of an
             instance type, or :const:`None`.
@@ -386,7 +281,7 @@ class Client(suds.client.Client):
         """Get the corresponding :class:`icat.entity.Entity` for an object.
 
         If obj is a Suds instance object, create a new object with
-        :meth:`icat.client.Client.new`.  Otherwise do nothing and
+        :meth:`~icat.client.Client.new`.  Otherwise do nothing and
         return obj unchanged.
         
         :param obj: either a Suds instance object or anything.
@@ -493,27 +388,16 @@ class Client(suds.client.Client):
         return info
 
     def getEntityNames(self):
-        if self.apiversion < '4.3':
-            entitynames = [e.BeanName for e in self.typemap.values() 
-                           if (e is not None and e.BeanName is not None)]
-            entitynames.sort()
-            return entitynames
-        else:
-            try:
-                return self.service.getEntityNames()
-            except suds.WebFault as e:
-                raise translateError(e)
+        try:
+            return self.service.getEntityNames()
+        except suds.WebFault as e:
+            raise translateError(e)
 
     def getProperties(self):
         try:
             return self.service.getProperties(self.sessionId)
         except suds.WebFault as e:
             raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("getProperties", self.apiversion)
-            else:
-                raise
 
     def getRemainingMinutes(self):
         try:
@@ -540,22 +424,12 @@ class Client(suds.client.Client):
             return self.service.isAccessAllowed(self.sessionId, Entity.getInstance(bean), accessType)
         except suds.WebFault as e:
             raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("isAccessAllowed", self.apiversion)
-            else:
-                raise
 
     def refresh(self):
         try:
             self.service.refresh(self.sessionId)
         except suds.WebFault as e:
             raise translateError(e)
-        except suds.MethodNotFound as e:
-            if self.apiversion < '4.3':
-                raise VersionMethodError("refresh", self.apiversion)
-            else:
-                raise
 
     def search(self, query):
         try:
@@ -574,10 +448,10 @@ class Client(suds.client.Client):
     # =================== custom API methods ===================
 
     def autoRefresh(self):
-        """Call :meth:`icat.client.Client.refresh` only if needed.
+        """Call :meth:`~icat.client.Client.refresh` only if needed.
 
-        Call :meth:`icat.client.Client.refresh` if less then
-        :attr:`self.AutoRefreshRemain` minutes remain in the current
+        Call :meth:`~icat.client.Client.refresh` if less then
+        :attr:`AutoRefreshRemain` minutes remain in the current
         session.  Do not make any client calls if not.  This method is
         supposed to be very cheap if enough time remains in the
         session so that it may be called often in a loop without
@@ -591,8 +465,8 @@ class Client(suds.client.Client):
         """Search with an assertion on the result.
 
         Perform a search and verify that the number of items found
-        lies within the bounds of assertmin and assertmax.  Raise an
-        error if this assertion fails.
+        lies within the bounds of `assertmin` and `assertmax`.  Raise
+        an error if this assertion fails.
 
         :param query: the search query.
         :type query: :class:`icat.query.Query` or :class:`str`
@@ -608,6 +482,7 @@ class Client(suds.client.Client):
             results fails.
         :raise ICATError: in case of exceptions raised by the ICAT
             server.
+
         """
         if assertmax is not None and assertmin > assertmax:
             raise ValueError("Minimum (%d) is larger then maximum (%d)."
@@ -622,7 +497,7 @@ class Client(suds.client.Client):
     def searchChunked(self, query, skip=0, count=None, chunksize=100):
         """Search the ICAT server.
 
-        Call the ICAT :meth:`icat.client.Client.search` API method,
+        Call the ICAT :meth:`~icat.client.Client.search` API method,
         limiting the number of results in each call and repeat the
         call as often as needed to retrieve all the results.
 
@@ -713,31 +588,24 @@ class Client(suds.client.Client):
         This is in a sense the inverse method to
         :meth:`icat.entity.Entity.getUniqueKey`, the key must
         previously have been generated by it.  This method searches
-        the Entity object that the key has been generated for from the
+        the entity object that the key has been generated for from the
         server.
 
         if objindex is not :const:`None`, it is used as a cache of
         previously retrieved objects.  It must be a dict that maps
-        keys to Entity objects.  The object retrieved by this method
+        keys to entity objects.  The object retrieved by this method
         call will be added to this index.
-
-        This method uses the JPQL inspired query syntax introduced
-        with ICAT 4.3.0.  It won't work with older ICAT servers.
 
         :param key: the unique key of the object to search for.
         :type key: :class:`str`
-        :param objindex: cache of Entity objects.
+        :param objindex: cache of entity objects.
         :type objindex: :class:`dict`
         :return: the object corresponding to the key.
         :rtype: :class:`icat.entity.Entity`
         :raise SearchResultError: if the object has not been found.
         :raise ValueError: if the key is not well formed.
-        :raise VersionMethodError: if connected to an ICAT server
-            older then 4.3.0.
         """
 
-        if self.apiversion < '4.3':
-            raise VersionMethodError("searchUniqueKey", self.apiversion)
         if objindex is not None and key in objindex:
             return objindex[key]
         us = key.index('_')
@@ -772,7 +640,7 @@ class Client(suds.client.Client):
         >>> dataset = client.new("dataset", investigation=inv, name=dsname)
         >>> dataset = client.searchMatching(dataset)
         >>> dataset.id
-        172383L
+        172383
 
         :param obj: an entity object having the attrinutes for the
             uniqueness constraint set accordingly.
@@ -805,7 +673,7 @@ class Client(suds.client.Client):
         return self.assertedSearch(query)[0]
 
     def createUser(self, name, search=False, **kwargs):
-        """Search a user by name or Create a new user.
+        """Search a user by name or create a new user.
 
         If search is :const:`True` search a user by the given name.  If
         search is :const:`False` or no user is found, create a new user.
@@ -840,10 +708,7 @@ class Client(suds.client.Client):
         :rtype: :class:`icat.entity.Entity`
         """
         log.info("Group: creating '%s'", name)
-        if self.apiversion < '4.3':
-            g = self.new("group", name=name)
-        else:
-            g = self.new("grouping", name=name)
+        g = self.new("grouping", name=name)
         g.create()
         g.addUsers(users)
         return g
@@ -861,7 +726,7 @@ class Client(suds.client.Client):
             :const:`None` for everybody.
         :type group: :class:`icat.entity.Entity`
         :return: list of the ids of the created rules.
-        :rtype: :class:`list` of :class:`long`
+        :rtype: :class:`list` of :class:`int`
         """
         if group:
             log.info("Rule: adding %s permissions for group '%s'", 
@@ -883,7 +748,7 @@ class Client(suds.client.Client):
         """Upload a datafile to IDS.
 
         The content of the file to upload is read from `infile`,
-        either directly if it is an open file, or a file by that named
+        either directly if it is an open file, or a file by that name
         will be opened for reading.
 
         The `datafile` object must be initialized but not yet created
@@ -964,12 +829,13 @@ class Client(suds.client.Client):
         Investigations.
 
         :param objs: either a dict having some of the keys
-            `investigationIds`, `datasetIds`, and `datafileIds`
-            with a list of object ids as value respectively, or a list
-            of entity objects, or a data selection.
+            `investigationIds`, `datasetIds`, and `datafileIds` with a
+            list of object ids as value respectively, or a list of
+            entity objects, or a data selection, or an id returned by
+            :meth:`~icat.client.Client.prepareData`.
         :type objs: :class:`dict`, :class:`list` of
-            :class:`icat.entity.Entity`, or
-            :class:`icat.ids.DataSelection`
+            :class:`icat.entity.Entity`,
+            :class:`icat.ids.DataSelection`, or :class:`str`
         :param compressFlag: flag whether to use a zip format with an
             implementation defined compression level, otherwise use no
             (or minimal) compression.
@@ -984,11 +850,11 @@ class Client(suds.client.Client):
             HTTP request with the indicated bytes offset.
         :type offset: :class:`int`
         :return: a file-like object as returned by
-            :meth:`urllib2.OpenerDirector.open`.
+            :meth:`urllib.request.OpenerDirector.open`.
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
-        if not isinstance(objs, DataSelection):
+        if not isinstance(objs, (DataSelection, basestring)):
             objs = DataSelection(objs)
         return self.ids.getData(objs, compressFlag, zipFlag, outname, offset)
 
@@ -1005,10 +871,11 @@ class Client(suds.client.Client):
         :param objs: either a dict having some of the keys
             `investigationIds`, `datasetIds`, and `datafileIds`
             with a list of object ids as value respectively, or a list
-            of entity objects, or a data selection.
+            of entity objects, or a data selection, or an id returned by
+            :meth:`~icat.client.Client.prepareData`.
         :type objs: :class:`dict`, :class:`list` of
-            :class:`icat.entity.Entity`, or
-            :class:`icat.ids.DataSelection`
+            :class:`icat.entity.Entity`,
+            :class:`icat.ids.DataSelection`, or :class:`str`
         :param compressFlag: flag whether to use a zip format with an
             implementation defined compression level, otherwise use no
             (or minimal) compression.
@@ -1019,12 +886,12 @@ class Client(suds.client.Client):
         :param outname: the preferred name for the downloaded file to
             specify in the Content-Disposition header.
         :type outname: :class:`str`
-        :return: the URL for tha data at the IDS.
+        :return: the URL for the data at the IDS.
         :rtype: :class:`str`
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
-        if not isinstance(objs, DataSelection):
+        if not isinstance(objs, (DataSelection, basestring)):
             objs = DataSelection(objs)
         return self.ids.getDataUrl(objs, compressFlag, zipFlag, outname)
 
@@ -1050,8 +917,8 @@ class Client(suds.client.Client):
             format.  For multiple files zip format is always used.
         :type zipFlag: :class:`bool`
         :return: `preparedId`, an opaque string which may be used as an
-            argument to :meth:`icat.client.Client.isDataPrepared` and
-            :meth:`icat.client.Client.getPreparedData` calls.
+            argument to :meth:`~icat.client.Client.isDataPrepared` and
+            :meth:`~icat.client.Client.getData` calls.
         :rtype: :class:`str`
         """
         if not self.ids:
@@ -1064,7 +931,7 @@ class Client(suds.client.Client):
         """Check if prepared data is ready at IDS.
 
         :param preparedId: the id returned by
-            :meth:`icat.client.Client.prepareData`.
+            :meth:`~icat.client.Client.prepareData`.
         :type preparedId: :class:`str`
         :return: :const:`True` if the data is ready, otherwise :const:`False`.
         :rtype: :class:`bool`
@@ -1077,7 +944,7 @@ class Client(suds.client.Client):
         """Retrieve prepared data from IDS.
 
         :param preparedId: the id returned by
-            :meth:`icat.client.Client.prepareData`.
+            :meth:`~icat.client.Client.prepareData`.
         :type preparedId: :class:`str`
         :param outname: the preferred name for the downloaded file to
             specify in the Content-Disposition header.
@@ -1086,27 +953,33 @@ class Client(suds.client.Client):
             HTTP request with the indicated bytes offset.
         :type offset: :class:`int`
         :return: a file-like object as returned by
-            :meth:`urllib2.OpenerDirector.open`.
+            :meth:`urllib.request.OpenerDirector.open`.
+
+        .. deprecated:: 0.17.0
+           Call :meth:`~icat.client.Client.getData` instead.
         """
-        if not self.ids:
-            raise RuntimeError("no IDS.")
-        return self.ids.getPreparedData(preparedId, outname, offset)
+        warn("getPreparedData() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
+        return self.getData(preparedId, outname=outname, offset=offset)
 
     def getPreparedDataUrl(self, preparedId, outname=None):
         """Get the URL to retrieve prepared data from IDS.
 
         :param preparedId: the id returned by
-            :meth:`icat.client.Client.prepareData`.
+            :meth:`~icat.client.Client.prepareData`.
         :type preparedId: :class:`str`
         :param outname: the preferred name for the downloaded file to
             specify in the Content-Disposition header.
         :type outname: :class:`str`
         :return: the URL for tha data at the IDS.
         :rtype: :class:`str`
+
+        .. deprecated:: 0.17.0
+           Call :meth:`~icat.client.Client.getDataUrl` instead.
         """
-        if not self.ids:
-            raise RuntimeError("no IDS.")
-        return self.ids.getPreparedDataUrl(preparedId, outname)
+        warn("getPreparedDataUrl() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
+        return self.getDataUrl(preparedId, outname=outname)
 
     def deleteData(self, objs):
         """Delete data from IDS.

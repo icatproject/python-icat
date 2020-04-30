@@ -152,6 +152,17 @@ def require_icat_version(minversion, reason):
             pytest.skip(reason)
 
 
+def get_reference_dumpfile(ext = "yaml"):
+    require_icat_version("4.4.0", "oldest available set of test data")
+    if icat_version < "4.7":
+        fname = "icatdump-4.4.%s" % ext
+    elif icat_version < "4.10":
+        fname = "icatdump-4.7.%s" % ext
+    else:
+        fname = "icatdump-4.10.%s" % ext
+    return gettestdata(fname)
+
+
 def callscript(scriptname, args, stdin=None, stdout=None, stderr=None):
     script = os.path.join(testdir, "scripts", scriptname)
     cmd = [sys.executable, script] + args
@@ -201,11 +212,9 @@ def standardCmdArgs():
     return conf.cmdargs
 
 
-testcontent = gettestdata("icatdump.yaml")
-
 @pytest.fixture(scope="session")
 def setupicat(standardCmdArgs):
-    require_icat_version("4.4.0", "need InvestigationGroup")
+    testcontent = get_reference_dumpfile()
     callscript("wipeicat.py", standardCmdArgs)
     args = standardCmdArgs + ["-f", "YAML", "-i", testcontent]
     callscript("icatingest.py", args)

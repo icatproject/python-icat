@@ -46,10 +46,13 @@ class _BaseException(Exception):
     `Exception Chaining and Embedded Tracebacks`_ has been introduced
     with Python 3.  Unfortunately the result is completely misleading
     most of the times.  This class tries to strip the context from the
-    exception traceback.  This works with Python 3.3 and newer, but
-    has no effect with Python 3.1 and 3.2.
+    exception traceback.
 
-    .. _Exception Chaining and Embedded Tracebacks: http://legacy.python.org/dev/peps/pep-3134/
+    This is the common base class for for all exceptions defined in
+    :mod:`icat.exception`, it is not intented to be raised directly.
+
+    .. _Exception Chaining and Embedded Tracebacks: https://www.python.org/dev/peps/pep-3134
+
     """
     def __init__(self, *args):
         super(_BaseException, self).__init__(*args)
@@ -64,7 +67,8 @@ def stripCause(e):
        Not needed any more, embedded in
        :exc:`icat.exception._BaseException` now.
     """
-    warnings.warn("stripCause() is deprecated.", DeprecationWarning, 2)
+    warnings.warn("stripCause() is deprecated and will be removed "
+                  "in python-icat 1.0.", DeprecationWarning, 2)
     if hasattr(e, '__cause__'):
         e.__cause__ = None
     return e
@@ -409,6 +413,10 @@ class IDSResponseError(_BaseException):
 # ============== Exceptions raised in icat.icatcheck ===============
 
 class GenealogyError(_BaseException):
-    """Error in the genealogy of entity types."""
+    """Error in the genealogy of entity types.
+
+    .. deprecated:: 0.17
+       Only used in :mod:`icat.icatcheck` which in turn is deprecated.
+    """
     pass
 

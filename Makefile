@@ -1,5 +1,7 @@
 PYTHON = python3
 
+BUILDLIB = $(abspath build/lib)
+
 
 build:
 	$(PYTHON) setup.py build
@@ -7,18 +9,21 @@ build:
 test:
 	$(PYTHON) setup.py test
 
-sdist: doc-html
+sdist: doc-man
 	$(PYTHON) setup.py sdist
 
-doc-html: ver
-	$(MAKE) -C doc html
+doc-html: build
+	$(MAKE) -C doc html PYTHONPATH=$(BUILDLIB)
+
+doc-man: build
+	$(MAKE) -C doc man PYTHONPATH=$(BUILDLIB)
 
 
 clean:
 	rm -f *~ icat/*~ tests/*~ doc/*~ doc/examples/*~
 	rm -rf build
 	rm -rf tests/data/example_data.yaml
-	rm -rf tests/data/icatdump.* tests/data/ingest-*.xml
+	rm -rf tests/data/icatdump-* tests/data/ingest-*.xml
 	rm -rf tests/scripts
 
 distclean: clean
@@ -32,8 +37,8 @@ distclean: clean
 	$(MAKE) -C doc distclean
 
 
-ver:
+init_py:
 	$(PYTHON) setup.py init_py
 
 
-.PHONY: build test sdist doc-html clean distclean ver
+.PHONY: build test sdist doc-html clean distclean init_py

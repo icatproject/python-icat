@@ -2,11 +2,12 @@
 """
 
 from __future__ import print_function
+import datetime
+from distutils.version import StrictVersion as Version
+import filecmp
 import os.path
 import time
 import zipfile
-import filecmp
-import datetime
 import pytest
 import icat
 import icat.config
@@ -22,7 +23,13 @@ def client(setupicat):
     client.login(conf.auth, conf.credentials)
     yield client
     query = "SELECT df FROM Datafile df WHERE df.location IS NOT NULL"
-    client.deleteData(client.search(query))
+    while True:
+        try:
+            client.deleteData(client.search(query))
+        except icat.IDSDataNotOnlineError:
+            time.sleep(10)
+        else:
+            break
 
 
 # ============================ testdata ============================
@@ -191,7 +198,7 @@ def test_download(tmpdirsec, client, case, method):
                 prepid = tclient.prepareData(datafiles)
                 while not tclient.isDataPrepared(prepid):
                     time.sleep(5)
-                response = tclient.getPreparedData(prepid)
+                response = tclient.getData(prepid)
             with open(zfname, 'wb') as f:
                 copyfile(response, f)
             zf = zipfile.ZipFile(zfname, 'r')
@@ -219,7 +226,7 @@ def test_download(tmpdirsec, client, case, method):
                 prepid = tclient.prepareData(datafiles)
                 while not tclient.isDataPrepared(prepid):
                     time.sleep(5)
-                response = tclient.getPreparedData(prepid)
+                response = tclient.getData(prepid)
             with open(dfname, 'wb') as f:
                 copyfile(response, f)
             assert filecmp.cmp(df['testfile'].fname, dfname)
@@ -227,16 +234,39 @@ def test_download(tmpdirsec, client, case, method):
             raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
 
 @pytest.mark.parametrize(("case"), markeddatasets)
-def test_getinfo(client, case):
+def test_getinfo(client, case, method):
     """Call getStatus() and getSize() to get some informations on a dataset.
     """
     selection = DataSelection([getDataset(client, case)])
+    if method == 'getPreparedData':
+        if client.ids.apiversion < '1.11.0':
+            pytest.skip("IDS %s is too old, need 1.11.0 or newer" 
+                        % client.ids.apiversion)
+        prepid = client.prepareData(selection)
+        while not client.isDataPrepared(prepid):
+            time.sleep(5)
+        selection = prepid
     size = client.ids.getSize(selection)
     print("Size of dataset %s: %d" % (case['dsname'], size))
     assert size == sum(f['size'] for f in case['dfs'])
     status = client.ids.getStatus(selection)
     print("Status of dataset %s: %s" % (case['dsname'], status))
     assert status in {"ONLINE", "RESTORING", "ARCHIVED"}
+
+@pytest.mark.parametrize(("case"), markeddatasets)
+def test_getstatus_versionerror(client, case):
+    """The call of getStatus() with a preparedID should throw an error if
+    talking to an old ids.server not supporting it.
+    """
+    selection = DataSelection([getDataset(client, case)])
+    if client.ids.apiversion >= '1.11.0':
+        pytest.skip("This test is for IDS versions older then 1.11.0 only, "
+                    "found ids.server %s" % client.ids.apiversion)
+    prepid = client.prepareData(selection)
+    while not client.isDataPrepared(prepid):
+        time.sleep(5)
+    with pytest.raises(icat.VersionMethodError):
+        size = client.ids.getSize(prepid)
 
 @pytest.mark.parametrize(("case"), markeddatasets)
 def test_status_no_sessionId(client, case):
@@ -319,10 +349,16 @@ def test_write(client, case):
     if status != "ONLINE":
         pytest.skip("Dataset %s is not ONLINE" % (case['dsname']))
     print("Request write of dataset %s" % (case['dsname']))
-    client.ids.write(selection)
     # Note that there is no effect whatsoever of the write request
     # visible at the client side.  The only thing that we can test
     # here is that IDS did accept the call without raising an error.
+    # Note however, that the write call may be disabled in the IDS
+    # server configuration.  In this case, IDS will raise a
+    # NotImplementedError.  So we must even ignore this error.
+    try:
+        client.ids.write(selection)
+    except icat.IDSNotImplementedError:
+        pass
 
 @pytest.mark.parametrize(("case"), markeddatasets)
 def test_archive(client, case):
@@ -378,3 +414,49 @@ def test_reset(client, case):
     client.ids.reset(selection)
     status = client.ids.getStatus(selection)
     print("Status of dataset %s is now %s" % (case['dsname'], status))
+
+# Actually, this does not need to be parametrized.  Use
+# pytest.mark.parametrize here just to inherit the implied
+# dependency marker.
+@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
+                    reason="pytest.deprecated_call() does not work properly")
+@pytest.mark.parametrize(("case"), markeddatasets[0:1])
+def test_deprecated_prepared_ids_calls(client, case):
+    """:meth:`icat.ids.IDSClient.resetPrepared`,
+    :meth:`icat.ids.IDSClient.getPreparedDatafileIds`,
+    :meth:`icat.ids.IDSClient.getPreparedData`, and
+    :meth:`icat.ids.IDSClient.getPreparedDataUrl` are 
+    deprecated since 0.17.0.
+    """
+    prepid = client.prepareData([getDataset(client, case)])
+    with pytest.deprecated_call():
+        try:
+            dfids = client.ids.getPreparedDatafileIds(prepid)
+        except icat.VersionMethodError:
+            pass
+    with pytest.deprecated_call():
+        url = client.ids.getPreparedDataUrl(prepid)
+    with pytest.deprecated_call():
+        response = client.ids.getPreparedData(prepid)
+    with pytest.deprecated_call():
+        try:
+            client.ids.resetPrepared(prepid)
+        except icat.VersionMethodError:
+            pass
+
+# Actually, this does not need to be parametrized.  Use
+# pytest.mark.parametrize here just to inherit the implied
+# dependency marker.
+@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
+                    reason="pytest.deprecated_call() does not work properly")
+@pytest.mark.parametrize(("case"), markeddatasets[0:1])
+def test_deprecated_prepared_client_calls(client, case):
+    """:meth:`icat.client.Client.getPreparedData` and
+    :meth:`icat.client.Client.getPreparedDataUrl` are 
+    deprecated since 0.17.0.
+    """
+    prepid = client.prepareData([getDataset(client, case)])
+    with pytest.deprecated_call():
+        url = client.getPreparedDataUrl(prepid)
+    with pytest.deprecated_call():
+        response = client.getPreparedData(prepid)

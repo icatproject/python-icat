@@ -112,8 +112,10 @@ stsearch = ("SampleType[name='%s']"
 sample_type = client.assertedSearch(stsearch)[0]
 
 print("Sample: creating '%s' ..." % sampledata['name'])
-sample = client.new("sample", name=sampledata['name'], 
-                    type=sample_type, investigation=investigation)
+sample = client.new("sample")
+initobj(sample, sampledata)
+sample.type = sample_type
+sample.investigation = investigation
 if 'parameters' in sampledata:
     for pdata in sampledata['parameters']:
         sample.parameters.append(makeparam('sampleParameter', pdata))

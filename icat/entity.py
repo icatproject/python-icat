@@ -114,16 +114,16 @@ class Entity(object):
 
     @classmethod
     def getNaturalOrder(cls, client):
-        """Return the natural order of this class.
+        """Return a natural order for this class.
 
         The order is a list of attributes suitable to be used in a
         ORDER BY clause in an ICAT search expression.  The natural
         order is the one that is as close as possible to sorting the
-        objects by the :meth:`icat.entity.Entity.__sortkey__`.  It is
-        based on the Constraint of the class or the SortAttrs, if the
-        latter are defined.  In any case, one to many relationships
-        and nullable many to one relationships are removed from the
-        list.
+        objects by the :meth:`~icat.entity.Entity.__sortkey__`.  It is
+        based on :attr:`~icat.entity.Entity.Constraint` or the
+        :attr:`~icat.entity.Entity.SortAttrs`, if the latter are
+        defined.  In any case, one to many relationships and nullable
+        many to one relationships are removed from the list.
         """
         order = []
         attrs = list(cls.SortAttrs or cls.Constraint)
@@ -285,7 +285,14 @@ class Entity(object):
         return str(self)
 
     def __sortkey__(self):
-        """Return a key for sorting Entity objects."""
+        """Return a key for sorting.
+
+        This is suitable to be passed as `key` to the
+        :meth:`list.sort` method. E.g. if `l` is a list of
+        :class:`~icat.entity.Entity` objects, you can sort it using:
+
+        >>> l.sort(key=icat.entity.Entity.__sortkey__)
+        """
         sortattrs = self.SortAttrs or self.Constraint
         s = [ self.BeanName ]
         for attr in sortattrs:
@@ -360,18 +367,13 @@ class Entity(object):
         The key is a string that is guaranteed to be unique for all
         entities in the ICAT.  All attributes that form the uniqueness
         constraint must be set.  A :meth:`icat.client.Client.search`
-        or :meth:`icat.client.Client.get` with the appropriate INCLUDE
-        statement may be required before calling this method.  Note
-        that this may be a problem with ICAT versions older then
-        4.3.0, because in these versions, the schema did allow
-        constraint attributes and relations to be NULL in some cases.
-        That means, it may happen that this method fails to create a
-        unique key when connected to an old server.
+        or :meth:`icat.client.Client.get` with the appropriate include
+        clause may be required before calling this method.
 
         if `keyindex` is not :const:`None`, it is used as a cache of
         previously generated keys.  It must be a dict that maps entity
         ids to the keys returned by previous calls of
-        :meth:`icat.entity.Entity.getUniqueKey` on other entity
+        :meth:`~icat.entity.Entity.getUniqueKey` on other entity
         objects.  The newly generated key will be added to this index.
 
         :param keyindex: cache of generated keys.

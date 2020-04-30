@@ -41,9 +41,9 @@ except (ImportError, LookupError):
         version = "UNKNOWN"
 
 
-if sys.version_info < (3, 0):
-    distutils.log.warn("warning: support for Python 2 is deprecated and "
-                       "will be removed in Version 1.0")
+if sys.version_info < (3, 4):
+    distutils.log.warn("warning: support for Python versions older then 3.4 "
+                       "is deprecated and will be removed in Version 1.0")
 
 
 doclines = __doc__.strip().split("\n")
@@ -54,6 +54,13 @@ class init_py(distutils.core.Command):
     description = "generate the main __init__.py file"
     user_options = []
     init_template = '''"""%s"""
+
+import sys
+import warnings
+
+if sys.version_info < (3, 4):
+    warnings.warn("Support for Python versions older then 3.4 is deprecated  "
+                  "and will be removed in python-icat 1.0", DeprecationWarning)
 
 __version__ = "%s"
 
@@ -115,8 +122,11 @@ class build_test(distutils.core.Command):
     def copy_test_data(self):
         destdir = os.path.join("tests", "data")
         self.mkpath(destdir)
-        files = ["example_data.yaml", "icatdump.xml", "icatdump.yaml", 
-                 "ingest-datafiles.xml", "ingest-ds-params.xml"]
+        refdumpfiles = ["icatdump-%s.%s" % (ver, ext)
+                        for ver in ("4.4", "4.7", "4.10")
+                        for ext in ("xml", "yaml")]
+        files = ["example_data.yaml",
+                 "ingest-datafiles.xml", "ingest-ds-params.xml"] + refdumpfiles
         for f in files:
             src = os.path.join("doc", "examples", f)
             dest = os.path.join(destdir, os.path.basename(f))
@@ -152,7 +162,7 @@ setup(
     long_description = "\n".join(doclines[2:]),
     author = "Rolf Krahl",
     author_email = "rolf.krahl@helmholtz-berlin.de",
-    url = "https://icatproject.org/user-documentation/python-icat/",
+    url = "https://github.com/icatproject/python-icat",
     license = "Apache-2.0",
     requires = ["suds"],
     packages = ["icat"],

@@ -52,40 +52,36 @@ class Query(object):
 
     The query uses the JPQL inspired syntax introduced with ICAT
     4.3.0.  It won't work with older ICAT servers.
+
+    :param client: the ICAT client.
+    :type client: :class:`icat.client.Client`
+    :param entity: the type of objects to search for.  This may either
+        be an :class:`icat.entity.Entity` subclass or the name of an
+        entity type.
+    :param attribute: the attribute that the query shall return.  See
+        the :meth:`~icat.query.Query.setAttribute` method for details.
+    :param aggregate: the aggregate function to be applied in the
+        SELECT clause, if any.  See the
+        :meth:`~icat.query.Query.setAggregate` method for details.
+    :param order: the sorting attributes to build the ORDER BY clause
+        from.  See the :meth:`~icat.query.Query.setOrder` method for
+        details.
+    :param conditions: the conditions to build the WHERE clause from.
+        See the :meth:`~icat.query.Query.addConditions` method for
+        details.
+    :param includes: list of related objects to add to the INCLUDE
+        clause.  See the :meth:`~icat.query.Query.addIncludes` method
+        for details.
+    :param limit: a tuple (skip, count) to be used in the LIMIT
+        clause.  See the :meth:`~icat.query.Query.setLimit` method for
+        details.
     """
 
     def __init__(self, client, entity, 
                  attribute=None, aggregate=None, order=None, 
                  conditions=None, includes=None, limit=None):
         """Initialize the query.
-
-        :param client: the ICAT client.
-        :type client: :class:`icat.client.Client`
-        :param entity: the type of objects to search for.  This may
-            either be an :class:`icat.entity.Entity` subclass or the
-            name of an entity type.
-        :param attribute: the attribute that the query shall return.
-            See the :meth:`icat.query.Query.setAttribute` method for
-            details.
-        :param aggregate: the aggregate function to be applied in the
-            SELECT clause, if any.  See the
-            :meth:`icat.query.Query.setAggregate` method for details.
-        :param order: the sorting attributes to build the ORDER BY
-            clause from.  See the :meth:`icat.query.Query.setOrder`
-            method for details.
-        :param conditions: the conditions to build the WHERE clause
-            from.  See the :meth:`icat.query.Query.addConditions`
-            method for details.
-        :param includes: list of related objects to add to the INCLUDE
-            clause.  See the :meth:`icat.query.Query.addIncludes`
-            method for details.
-        :param limit: a tuple (skip, count) to be used in the LIMIT
-            clause.  See the :meth:`icat.query.Query.setLimit` method
-            for details.
         """
-
-        if client.apiversion < '4.3':
-            raise VersionMethodError("Query", client.apiversion)
 
         super(Query, self).__init__()
         self._init = True
@@ -184,6 +180,7 @@ class Query(object):
             matching entity objects.  If attribute is :const:`None`,
             the result will be the list of matching objects instead.
         :type attribute: :class:`str`
+        :raise ValueError: if `attribute` is not valid.
         """
         if attribute is not None:
             # Get the attribute path only to verify that the attribute is valid.
@@ -209,7 +206,7 @@ class Query(object):
             ":DISTINCT", may be appended to "COUNT", "AVG", and "SUM"
             to combine the respective function with "DISTINCT".
         :type function: :class:`str`
-        :raise ValueError: if function is not a valid.
+        :raise ValueError: if `function` is not a valid.
         """
         if function:
             if function not in aggregate_fcts:
@@ -229,9 +226,8 @@ class Query(object):
             name and an order direction, the latter being either "ASC"
             or "DESC" for ascending or descending order respectively.
         :type order: :class:`list` or :class:`bool`
-        :raise ValueError: if the order contains invalid attributes
-            that either do not exist or contain one to many
-            relationships.
+        :raise ValueError: if `order` contains invalid attributes that
+            either do not exist or contain one to many relationships.
         """
         if order is True:
 
@@ -289,7 +285,7 @@ class Query(object):
             will be turned into a list with the new condition(s)
             appended.
         :type conditions: :class:`dict`
-        :raise ValueError: if any key in conditions is not valid.
+        :raise ValueError: if any key in `conditions` is not valid.
         """
         if conditions:
             for a in conditions.keys():
@@ -316,7 +312,7 @@ class Query(object):
             clause.  A special value of "1" may be used to set (the
             equivalent of) an "INCLUDE 1" clause.
         :type includes: iterable of :class:`str`
-        :raise ValueError: if any item in includes is not a related object.
+        :raise ValueError: if any item in `includes` is not a related object.
         """
         if includes == "1":
             includes = list(self.entity.InstRel)
@@ -334,8 +330,11 @@ class Query(object):
 
         :param limit: a tuple (skip, count).
         :type limit: :class:`tuple`
+        :raise TypeError: if `limit` is not a tuple of two elements.
         """
         if limit:
+            if not(isinstance(limit, tuple) and len(limit) == 2):
+                raise TypeError("limit must be a tuple of two elements.")
             self.limit = limit
         else:
             self.limit = None            

@@ -17,8 +17,10 @@
 %global python3_other_pkgversion 0
 %global __python2 %{__python}
 %global python2_sitelib %{python_sitelib}
+%global add_license 0
 %else
 %global python2_enable 1
+%global add_license 1
 %endif
 %if 0%{?centos_version} == 700 || 0%{?rhel_version} == 700
 %global __python3 /usr/bin/python3.6
@@ -59,17 +61,6 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 $long_description
 
 
-%package doc
-Summary:	Python interface to ICAT and IDS
-Group:		Documentation/Other
-Requires:	%{name} = %{version}
-
-%description doc
-$long_description
-
-This package contains the documentation.
-
-
 %package examples
 Summary:	Python interface to ICAT and IDS
 Group:		Documentation/Other
@@ -81,6 +72,18 @@ $long_description
 This package contains example scripts.
 
 
+%package man
+Summary:	Python interface to ICAT and IDS
+Group:		Documentation/Other
+Requires:	%{name} = %{version}
+Requires:	man
+
+%description man
+$long_description
+
+This package contains the manual pages for the command line scripts.
+
+
 %if 0%{?python2_enable}
 %package -n python%{python2_pkgversion}-icat
 Summary:	Python interface to ICAT and IDS
@@ -90,6 +93,7 @@ Requires:	python-argparse
 Requires:	%{name} = %{version}
 Requires:	python%{python2_pkgversion}-suds
 %if 0%{?suse_version}
+Recommends:	%{name}-man
 Recommends:	python%{python2_pkgversion}-PyYAML
 Recommends:	python%{python2_pkgversion}-lxml
 %endif
@@ -109,6 +113,7 @@ Summary:	Python interface to ICAT and IDS
 Requires:	%{name} = %{version}
 Requires:	python%{python3_pkgversion}-suds
 %if 0%{?suse_version}
+Recommends:	%{name}-man
 Recommends:	python%{python3_pkgversion}-PyYAML
 Recommends:	python%{python3_pkgversion}-lxml
 %endif
@@ -171,8 +176,11 @@ do
 done
 %endif
 
+%__install -d -m 755 %{buildroot}%{_mandir}/man1
+%__cp -p doc/man/*.1 %{buildroot}%{_mandir}/man1
+
 %__install -d -m 755 %{buildroot}%{_docdir}/%{name}
-%__cp -pr README.rst CHANGES doc/* %{buildroot}%{_docdir}/%{name}
+%__cp -pr README.rst CHANGES.rst doc/* %{buildroot}%{_docdir}/%{name}
 %__chmod -f a-x %{buildroot}%{_docdir}/%{name}/examples/*.py
 
 %if 0%{?suse_version}
@@ -238,19 +246,22 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
+%if 0%{?add_license}
+%license LICENSE.txt
+%endif
 %doc %{_docdir}/%{name}
-%exclude %{_docdir}/%{name}/html
 %exclude %{_docdir}/%{name}/examples
-
-%files doc
-%defattr(-,root,root)
-%dir %{_docdir}/%{name}
-%doc %{_docdir}/%{name}/html
+%exclude %{_docdir}/%{name}/tutorial
 
 %files examples
 %defattr(-,root,root)
 %dir %{_docdir}/%{name}
 %doc %{_docdir}/%{name}/examples
+%doc %{_docdir}/%{name}/tutorial
+
+%files man
+%defattr(-,root,root)
+%{_mandir}/man1/*
 
 %if 0%{?python2_enable}
 %files -n python%{python2_pkgversion}-icat

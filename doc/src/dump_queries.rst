@@ -4,10 +4,11 @@
 .. py:module:: icat.dump_queries
 
 .. note::
-   This module is mostly intended as a helper for the icatdump script.
-   Most users will not need to use it directly or even care about.
+   This module is mostly intended as a helper for the :ref:`icatdump`
+   script.  Most users will not need to use it directly or even care
+   about it.
 
-The data icatdump is written in chunks, see the documentation of
+The icatdump data is written in chunks, see the documentation of
 :mod:`icat.dumpfile` for details why this is needed.  The partition
 used here is the following:
 

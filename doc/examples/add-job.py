@@ -27,9 +27,6 @@ config.add_variable('jobname', ("jobname",),
                     dict(help="name of the job to add"))
 client, conf = config.getconfig()
 
-if client.apiversion < '4.3':
-    raise RuntimeError("Sorry, ICAT version %s is too old, need 4.3.0 or newer."
-                       % client.apiversion)
 client.login(conf.auth, conf.credentials)
 
 
@@ -80,6 +77,7 @@ except KeyError:
 # ------------------------------------------------------------
 
 inputcollection = client.new("dataCollection")
+initobj(inputcollection, jobdata['input'])
 
 for ds in jobdata['input']['datasets']:
     query = Query(client, "Dataset", conditions={
@@ -113,6 +111,7 @@ inputcollection.create()
 # ------------------------------------------------------------
 
 outputcollection = client.new("dataCollection")
+initobj(outputcollection, jobdata['output'])
 
 for ds in jobdata['output']['datasets']:
     query = Query(client, "Investigation", conditions={

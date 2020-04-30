@@ -3,7 +3,8 @@
 
 .. py:module:: icat.dumpfile
 
-Provide the base classes :class:`icat.dumpfile.DumpFileReader` and
+This module provides the base classes
+:class:`icat.dumpfile.DumpFileReader` and
 :class:`icat.dumpfile.DumpFileWriter` that define the API and the
 logic for reading and writing ICAT data files.  The actual work is
 done in file format specific modules that should provide subclasses
@@ -23,6 +24,8 @@ that must implement the abstract methods.
 
 .. autofunction:: icat.dumpfile.open_dumpfile
 
+
+.. _ICAT-data-files:
 
 ICAT data files
 ---------------

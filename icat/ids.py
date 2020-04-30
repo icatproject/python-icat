@@ -25,6 +25,7 @@ import zlib
 import re
 from distutils.version import StrictVersion as Version
 import getpass
+from warnings import warn
 
 from icat.entity import Entity
 from icat.exception import *
@@ -108,7 +109,8 @@ class DataSelection(object):
     """A set of data to be processed by the ICAT Data Service.
 
     This can be passed as the `selection` argument to
-    :class:`icat.ids.IDSClient` method calls.
+    :class:`icat.ids.IDSClient` method calls.  The `objs` argument is
+    passed to the :meth:`extend` method.
     """
 
     def __init__(self, objs=None):
@@ -135,7 +137,7 @@ class DataSelection(object):
             of entity objects, or another data selection.
         :type objs: :class:`dict`, :class:`list` of
             :class:`icat.entity.Entity`, or
-            :class:`icat.ids.DataSelection`
+            :class:`~icat.ids.DataSelection`
         """
         if isinstance(objs, DataSelection):
             self.invIds.update(objs.invIds)
@@ -301,18 +303,20 @@ class IDSClient(object):
     def getSize(self, selection):
         """Return the total size of the datafiles.
         """
-        parameters = {"sessionId": self.sessionId}
-        selection.fillParams(parameters)
+        parameters = self._selectionParams(selection)
+        if "preparedId" in parameters and self.apiversion < '1.11.0':
+            raise VersionMethodError("getSize(preparedId)",
+                                     version=self.apiversion, service="IDS")
         req = IDSRequest(self.url + "getSize", parameters)
         return long(self.opener.open(req).read().decode('ascii'))
     
     def getStatus(self, selection):
         """Return the status of data.
         """
-        parameters = {}
-        if self.sessionId:
-            parameters["sessionId"] = self.sessionId
-        selection.fillParams(parameters)
+        parameters = self._selectionParams(selection, requireSessionId=False)
+        if "preparedId" in parameters and self.apiversion < '1.11.0':
+            raise VersionMethodError("getStatus(preparedId)",
+                                     version=self.apiversion, service="IDS")
         req = IDSRequest(self.url + "getStatus", parameters)
         return self.opener.open(req).read().decode('ascii')
     
@@ -346,8 +350,7 @@ class IDSClient(object):
     def reset(self, selection):
         """Reset data so that they can be queried again.
         """
-        parameters = {"sessionId": self.sessionId}
-        selection.fillParams(parameters)
+        parameters = self._selectionParams(selection)
         req = IDSRequest(self.url + "reset", parameters, method="POST")
         try:
             self.opener.open(req)
@@ -356,17 +359,17 @@ class IDSClient(object):
 
     def resetPrepared(self, preparedId):
         """Reset prepared data so that they can be queried again.
+
+        .. deprecated:: 0.17.0
+           Call :meth:`~icat.ids.IDSClient.reset` instead.
         """
-        parameters = {"preparedId": preparedId}
-        req = IDSRequest(self.url + "reset", parameters, method="POST")
-        try:
-            self.opener.open(req)
-        except (HTTPError, IDSError) as e:
-            raise self._versionMethodError("reset", '1.6', e)
+        warn("resetPrepared() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
+        self.reset(preparedId)
 
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
-        """Prepare data for a subsequent
-        :meth:`icat.ids.IDSClient.getPreparedData` call.
+        """Prepare data for a subsequent :meth:`~icat.ids.IDSClient.getData`
+        call.
         """
         parameters = {"sessionId": self.sessionId}
         selection.fillParams(parameters)
@@ -379,7 +382,7 @@ class IDSClient(object):
         """Check if data is ready.
 
         Returns true if the data identified by the `preparedId`
-        returned by a call to :meth:`icat.ids.IDSClient.prepareData`
+        returned by a call to :meth:`~icat.ids.IDSClient.prepareData`
         is ready.
         """
         parameters = {"preparedId": preparedId}
@@ -390,8 +393,7 @@ class IDSClient(object):
     def getDatafileIds(self, selection):
         """Get the list of data file id corresponding to the selection.
         """
-        parameters = {"sessionId": self.sessionId}
-        selection.fillParams(parameters)
+        parameters = self._selectionParams(selection)
         req = IDSRequest(self.url + "getDatafileIds", parameters)
         try:
             result = self.opener.open(req).read().decode('ascii')
@@ -401,23 +403,22 @@ class IDSClient(object):
 
     def getPreparedDatafileIds(self, preparedId):
         """Get the list of data file id corresponding to the prepared Id.
+
+        .. deprecated:: 0.17.0
+           Call :meth:`~icat.ids.IDSClient.getDatafileIds` instead.
         """
-        parameters = {"preparedId": preparedId}
-        req = IDSRequest(self.url + "getDatafileIds", parameters)
-        try:
-            result = self.opener.open(req).read().decode('ascii')
-            return json.loads(result)['ids']
-        except (HTTPError, IDSError) as e:
-            raise self._versionMethodError("getDatafileIds", '1.5', e)
+        warn("getPreparedDatafileIds() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
+        return self.getDatafileIds(preparedId)
 
     def getData(self, selection, 
                 compressFlag=False, zipFlag=False, outname=None, offset=0):
         """Stream the requested data.
         """
-        parameters = {"sessionId": self.sessionId}
-        selection.fillParams(parameters)
-        if zipFlag:  parameters["zip"] = "true"
-        if compressFlag: parameters["compress"] = "true"
+        parameters = self._selectionParams(selection)
+        if isinstance(selection, DataSelection):
+            if zipFlag:  parameters["zip"] = "true"
+            if compressFlag: parameters["compress"] = "true"
         if outname: parameters["outname"] = outname
         req = IDSRequest(self.url + "getData", parameters)
         if offset > 0:
@@ -428,8 +429,7 @@ class IDSClient(object):
                    compressFlag=False, zipFlag=False, outname=None):
         """Get the URL to retrieve the requested data.
         """
-        parameters = {"sessionId": self.sessionId}
-        selection.fillParams(parameters)
+        parameters = self._selectionParams(selection)
         if zipFlag:  parameters["zip"] = "true"
         if compressFlag: parameters["compress"] = "true"
         if outname: parameters["outname"] = outname
@@ -439,24 +439,27 @@ class IDSClient(object):
         """Get prepared data.
 
         Get the data using the `preparedId` returned by a call to
-        :meth:`icat.ids.IDSClient.prepareData`.
+        :meth:`~icat.ids.IDSClient.prepareData`.
+
+        .. deprecated:: 0.17.0
+           Call :meth:`~icat.ids.IDSClient.getData` instead.
         """
-        parameters = {"preparedId": preparedId}
-        if outname: parameters["outname"] = outname
-        req = IDSRequest(self.url + "getData", parameters)
-        if offset > 0:
-            req.add_header("Range", "bytes=" + str(offset) + "-") 
-        return self.opener.open(req)
+        warn("getPreparedData() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
+        return self.getData(preparedId, outname=outname, offset=offset)
     
     def getPreparedDataUrl(self, preparedId, outname=None):
         """Get the URL to retrieve prepared data.
 
         Get the URL to retrieve data using the `preparedId` returned
-        by a call to :meth:`icat.ids.IDSClient.prepareData`.
+        by a call to :meth:`~icat.ids.IDSClient.prepareData`.
+
+        .. deprecated:: 0.17.0
+           Call :meth:`~icat.ids.IDSClient.getDataUrl` instead.
         """
-        parameters = {"preparedId": preparedId}
-        if outname: parameters["outname"] = outname
-        return self._getDataUrl(parameters)
+        warn("getPreparedDataUrl() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
+        return self.getDataUrl(preparedId, outname=outname)
       
     def getLink(self, datafileId, username=None):
         """Return a hard link to a data file.
@@ -514,6 +517,26 @@ class IDSClient(object):
         selection.fillParams(parameters)
         req = IDSRequest(self.url + "delete", parameters, method="DELETE")
         self.opener.open(req)
+
+    def _selectionParams(self, selection, requireSessionId=True):
+        """Return query parameters according to a data selection.
+        The selection may either be a DataSelection instance or a
+        string with a preparedId.
+        """
+        if isinstance(selection, DataSelection):
+            if self.sessionId:
+                parameters = {"sessionId": self.sessionId}
+            elif requireSessionId:
+                raise RuntimeError("Must be logged in to make this call.")
+            else:
+                parameters = {}
+            selection.fillParams(parameters)
+            return parameters
+        elif isinstance(selection, basestring):
+            return {"preparedId": selection}
+        else:
+            raise TypeError("selection must either be a DataSelection "
+                            "or a preparedId")
 
     def _getDataUrl(self, parameters):
         return (self.url + "getData" + "?" + urlencode(parameters))

@@ -35,6 +35,17 @@ def initobj(obj, attrs):
         if a != 'id' and a in attrs:
             setattr(obj, a, attrs[a])
 
+def getUser(client, attrs):
+    """Get the user, create it as needed.
+    """
+    try:
+        return client.assertedSearch("User [name='%s']" % attrs['name'])[0]
+    except icat.SearchResultError:
+        user = client.new("user")
+        initobj(user, attrs)
+        user.create()
+        return user
+
 # ------------------------------------------------------------
 # Read input data
 # ------------------------------------------------------------
@@ -100,6 +111,8 @@ if 'shifts' in investigationdata:
     for sdata in investigationdata['shifts']:
         s = client.new('shift')
         initobj(s, sdata)
+        if 'instrument' in s.InstRel:
+            s.instrument = instrument
         investigation.shifts.append(s)
 investigation.create()
 investigation.addInstrument(instrument)
@@ -116,8 +129,7 @@ investigationwriter = []
 
 # Principal Investigator
 user = data['users'][investigationdata['invpi']]
-userpi = client.createUser(user['name'], fullName=user['fullName'], 
-                           search=True)
+userpi = getUser(client, user)
 investigation.addInvestigationUsers([userpi], role="Principal Investigator")
 investigationowner.append(userpi)
 investigationwriter.append(userpi)
@@ -126,16 +138,14 @@ investigationwriter.append(userpi)
 usercols = []
 for u in investigationdata['invcol']:
     user = data['users'][u]
-    usercols.append(client.createUser(user['name'], fullName=user['fullName'], 
-                                      search=True))
+    usercols.append(getUser(client, user))
 investigation.addInvestigationUsers(usercols)
 investigationwriter.extend(usercols)
 
 # More users that will get read permissions
 for u in investigationdata['invguest']:
     user = data['users'][u]
-    userguest = client.createUser(user['name'], fullName=user['fullName'], 
-                                  search=True)
+    userguest = getUser(client, user)
     investigationreader.append(userguest)
 
 owngroupname = "investigation_%s_owner" % investigation.name
@@ -192,14 +202,10 @@ else:
     client.createRules("R", [ s % invcond for s in invwitems ], readgroup)
 
     # set owners permissions
-    if client.apiversion < '4.2.99':
-        groupclass = "Group"
-    else:
-        groupclass = "Grouping"
-    items = [ "UserGroup <-> %s[name='%s']" % (groupclass, s) 
+    items = [ "UserGroup <-> Grouping[name='%s']" % (s) 
               for s in [ writegroupname, readgroupname ] ]
     client.createRules("CRUD", items, owngroup)
-    items = [ "%s[name='%s']" % (groupclass, s) 
+    items = [ "Grouping[name='%s']" % (s) 
               for s in [ writegroupname, readgroupname ] ]
     client.createRules("R", items, owngroup)
 

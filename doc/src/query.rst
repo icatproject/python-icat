@@ -5,5 +5,4 @@
 
 .. autoclass:: icat.query.Query
     :members:
-    :undoc-members:
     :show-inheritance:

@@ -1,35 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2017-09-07T07:24:27+00:00</date>
+  <date>2020-04-17T18:30:30+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
-  <apiversion>4.9</apiversion>
-  <generator>icatdump (python-icat 0.13.1)</generator>
+  <apiversion>4.7</apiversion>
+  <generator>icatdump (python-icat 0.16.0)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
+    <email>acord@example.org</email>
     <fullName>Aelius Cordus</fullName>
     <name>db/acord</name>
+    <orcidId>0000-0002-3262</orcidId>
   </user>
   <user id="User_name-db=2Fahau">
+    <email>ahau@example.org</email>
     <fullName>Arnold Hau</fullName>
     <name>db/ahau</name>
+    <orcidId>0000-0002-3263</orcidId>
   </user>
   <user id="User_name-db=2Fjbotu">
+    <email>jbotu@example.org</email>
     <fullName>Jean-Baptiste Botul</fullName>
     <name>db/jbotu</name>
+    <orcidId>0000-0002-3264</orcidId>
   </user>
   <user id="User_name-db=2Fjdoe">
+    <email>jdoe@example.org</email>
     <fullName>John Doe</fullName>
     <name>db/jdoe</name>
   </user>
   <user id="User_name-db=2Fnbour">
+    <email>nbour@example.org</email>
     <fullName>Nicolas Bourbaki</fullName>
     <name>db/nbour</name>
+    <orcidId>0000-0002-3266</orcidId>
   </user>
   <user id="User_name-db=2Frbeck">
+    <email>rbeck@example.org</email>
     <fullName>Rudolph Beck-D&#252;lmen</fullName>
     <name>db/rbeck</name>
+    <orcidId>0000-0002-3267</orcidId>
   </user>
   <user id="User_name-simple=2Fidsreader">
     <fullName>IDS reader</fullName>
@@ -1072,6 +1083,7 @@
 </data>
 <data>
   <investigation id="Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP">
+    <doi>00.0815/inv-00122</doi>
     <name>08100122-EF</name>
     <startDate>2008-03-13T10:39:42+00:00</startDate>
     <title>Durol single crystal</title>
@@ -1155,6 +1167,7 @@
 </data>
 <data>
   <investigation id="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN">
+    <doi>00.0815/inv-00601</doi>
     <endDate>2010-10-12T15:00:00+00:00</endDate>
     <name>10100601-ST</name>
     <startDate>2010-09-30T10:27:24+00:00</startDate>
@@ -1319,6 +1332,7 @@
 </data>
 <data>
   <investigation id="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP">
+    <doi>00.0815/inv-00409</doi>
     <endDate>2012-08-06T01:10:08+00:00</endDate>
     <name>12100409-ST</name>
     <startDate>2012-07-26T15:44:24+00:00</startDate>
@@ -1505,6 +1519,7 @@
     </parameters>
   </dataCollection>
   <dataCollection id="DataCollection_00000002">
+    <doi>00.0815/dat-004711</doi>
     <dataCollectionDatafiles>
       <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs"/>
     </dataCollectionDatafiles>

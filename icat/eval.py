@@ -8,7 +8,7 @@ directly from the command line, as in::
 
   # get all Dataset ids
   $ python -m icat.eval -e 'client.search("Dataset.id")' -s root
-  [102284L, 102288L, 102289L, 102293L]
+  [102284, 102288, 102289, 102293]
 """
 
 from __future__ import print_function

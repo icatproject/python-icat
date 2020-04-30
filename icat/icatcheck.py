@@ -4,13 +4,20 @@
    This module provides tests to check the compatibility of the client
    with the WSDL description got from the ICAT server.  It is mainly
    useful for the package maintainer.
+
+.. deprecated:: 0.17
+   This module is deprecated and will be removed in version 1.0.
 """
 
 import re
 import logging
+from warnings import warn
 from icat.entity import Entity
 import icat.exception
 from icat.exception import *
+
+warn("The module icat.icatcheck is deprecated "
+     "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
 
 __all__ = ['ICATChecker']
 

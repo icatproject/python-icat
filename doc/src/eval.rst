@@ -3,5 +3,4 @@
 
 .. automodule:: icat.eval
     :members:
-    :undoc-members:
     :show-inheritance:
