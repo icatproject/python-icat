@@ -57,5 +57,4 @@ of python-icat.
 .. toctree::
    :maxdepth: 1
 
-   cgi
    icatcheck
