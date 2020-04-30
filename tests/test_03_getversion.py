@@ -1,7 +1,6 @@
 """Test connect to an ICAT and an IDS server and query the version.
 """
 
-from __future__ import print_function
 import pytest
 import icat
 import icat.config

@@ -138,7 +138,7 @@ class Client(suds.client.Client):
         if not proxy:
             proxy = {}
         kwargs['transport'] = HTTPSTransport(self.sslContext, proxy=proxy)
-        super(Client, self).__init__(self.url, **kwargs)
+        super().__init__(self.url, **kwargs)
         apiversion = self.getApiVersion()
         # Translate a version having a trailing '-SNAPSHOT' into
         # something that StrictVersion would accept.
@@ -188,7 +188,7 @@ class Client(suds.client.Client):
         self.ids = IDSClient(url, **idsargs)
 
     def __setattr__(self, attr, value):
-        super(Client, self).__setattr__(attr, value)
+        super().__setattr__(attr, value)
         if attr == 'sessionId' and self.ids:
             self.ids.sessionId = self.sessionId
 

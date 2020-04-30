@@ -3,7 +3,6 @@
 # Create some parameter types, (actually just one for testing atm).
 #
 
-from __future__ import print_function
 import icat
 import icat.config
 import sys

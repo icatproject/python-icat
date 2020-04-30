@@ -153,7 +153,7 @@ def _post_promptPass(config, configuration):
             config.sources.insert(1, config.interactive)
 
 
-class ConfigVariable(object):
+class ConfigVariable():
     """Describe a configuration variable.  Configuration variables are
     created in :meth:`icat.config.BaseConfig.add_variable` and control
     the behavior of :meth:`icat.config.Config.getconfig`.
@@ -191,8 +191,7 @@ class ConfigSubCmds(ConfigVariable):
     :meth:`~icat.config.ConfigSubCmds.add_subconfig` method.
     """
     def __init__(self, name, optional, config, subparsers):
-        super(ConfigSubCmds, self).__init__(name, None, optional,
-                                            None, None, False)
+        super().__init__(name, None, optional, None, None, False)
         self.config = config
         self.subparsers = subparsers
         self.subconfig = {}
@@ -238,7 +237,7 @@ class ConfigSubCmds(ConfigVariable):
             return value
 
 
-class ConfigSource(object):
+class ConfigSource():
     """A configuration source.
 
     This is the base class for all configuration sources, such as
@@ -253,7 +252,7 @@ class ConfigSourceCmdArgs(ConfigSource):
     """Get configuration from command line arguments.
     """
     def __init__(self, argparser):
-        super(ConfigSourceCmdArgs, self).__init__()
+        super().__init__()
         self.argparser = argparser
         self.args = None
 
@@ -282,7 +281,7 @@ class ConfigSourceFile(ConfigSource):
     """Get configuration from a configuration file.
     """
     def __init__(self, defaultFiles):
-        super(ConfigSourceFile, self).__init__()
+        super().__init__()
         self.confparser = configparser.RawConfigParser()
         self.defaultFiles = defaultFiles
         self.section = None
@@ -335,7 +334,7 @@ class ConfigSourceDefault(ConfigSource):
         return variable.get(value)
 
 
-class Configuration(object):
+class Configuration():
     """Provide a name space to store the configuration.
 
     :meth:`icat.config.Config.getconfig` returns a Configuration
@@ -343,7 +342,6 @@ class Configuration(object):
     attributes.
     """
     def __init__(self, config):
-        super(Configuration, self).__init__()
         self._config = config
 
     def __str__(self):
@@ -368,7 +366,7 @@ class Configuration(object):
         return d
 
 
-class BaseConfig(object):
+class BaseConfig():
     """Abstract base class for :class:`icat.config.Config` and
     :class:`icat.config.SubConfig`.  This class defines the common
     API.  It is not intended to be instantiated directly.
@@ -622,7 +620,7 @@ class Config(BaseConfig):
                  args=None):
         """Initialize the object.
         """
-        super(Config, self).__init__(argparse.ArgumentParser())
+        super().__init__(argparse.ArgumentParser())
         self.cmdargs = ConfigSourceCmdArgs(self.argparser)
         self.environ = ConfigSourceEnvironment()
         defaultFiles = [os.path.join(d, cfgfile) for d in cfgdirs]
@@ -809,7 +807,7 @@ class SubConfig(BaseConfig):
     inherited from :class:`icat.config.BaseConfig`.
     """
     def __init__(self, argparser, parent, name=None, func=None):
-        super(SubConfig, self).__init__(argparser)
+        super().__init__(argparser)
         self.parent = parent
         self.confvariable = dict(self.parent.confvariable)
         self.name = name

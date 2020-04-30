@@ -1,7 +1,6 @@
 """Test upload and download of files to and from IDS.
 """
 
-from __future__ import print_function
 import datetime
 import filecmp
 import os.path

@@ -47,7 +47,7 @@ aggregate_fcts = frozenset([
 
 # ========================== class Query =============================
 
-class Query(object):
+class Query():
     """Build a query to search an ICAT server.
 
     The query uses the JPQL inspired syntax introduced with ICAT
@@ -83,7 +83,6 @@ class Query(object):
         """Initialize the query.
         """
 
-        super(Query, self).__init__()
         self._init = True
         self.client = client
 
@@ -352,15 +351,6 @@ class Query(object):
 
     def __str__(self):
         """Return a string representation of the query.
-
-        Note for Python 2: the result will be an unicode object if any
-        of the conditions in the query contains unicode.  This
-        violates the specification of the string representation
-        operator that requires the return value to be a string object.
-        But it is the *right thing* to do to get queries with
-        non-ascii characters working.  So this operator favours
-        usefulness over formal correctness.  For Python 3, there is no
-        distinction between Unicode and string objects anyway.
         """
         joinattrs = { a for a, d in self.order } | set(self.conditions.keys())
         if self.attribute:

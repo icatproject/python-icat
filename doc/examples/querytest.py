@@ -2,7 +2,6 @@
 """Provide some examples on how to use the query module.
 """
 
-from __future__ import print_function
 import logging
 import yaml
 import icat

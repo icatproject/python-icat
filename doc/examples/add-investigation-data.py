@@ -8,7 +8,6 @@
 # e.g. a user that is in the writer group of the given investigation.
 #
 
-from __future__ import print_function
 import icat
 import icat.config
 import sys

@@ -1,7 +1,6 @@
 """pytest configuration.
 """
 
-from __future__ import print_function
 import datetime
 from distutils.version import StrictVersion as Version
 import locale
@@ -44,14 +43,7 @@ testdir = os.path.dirname(__file__)
 
 # ============================= helper ===============================
 
-if sys.version_info < (3, 0):
-    def buf(seq):
-        return buffer(bytearray(seq))
-else:
-    def buf(seq):
-        return bytearray(seq)
-
-class DummyDatafile(object):
+class DummyDatafile():
     """A dummy file with random content to be used for test upload.
     """
     def __init__(self, directory, name, size, date=None):
@@ -65,7 +57,7 @@ class DummyDatafile(object):
             while size > 0:
                 if chunksize > size:
                     chunksize = size
-                chunk = buf(getrandbits(8) for _ in range(chunksize))
+                chunk = bytearray(getrandbits(8) for _ in range(chunksize))
                 size -= chunksize
                 crc32 = zlib.crc32(chunk, crc32)
                 f.write(chunk)

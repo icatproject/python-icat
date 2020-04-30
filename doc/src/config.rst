@@ -104,8 +104,6 @@ set of configuration variables that an ICAT client typically needs:
 
   `checkCert`
     Verify the server certificate for HTTPS connections.
-    Note that this requires either Python 2.7.9 or 3.2 or newer.
-    With older Python version, this option has no effect.
 
   `http_proxy`
     Proxy to use for HTTP requests.

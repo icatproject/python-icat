@@ -18,7 +18,7 @@ import icat.exception
 # rather then icat.client, as the former already imported the Client
 # class at this point.
 
-class Namespace(object):
+class Namespace():
     def __init__(self, **kwargs):
         for (k, v) in kwargs.items():
             setattr(self, k, v)
@@ -34,7 +34,7 @@ class ExpectedConf(Namespace):
         else:
             return True
 
-class FakeClient(object):
+class FakeClient():
     AuthInfo = None
     def __init__(self, url, **kwargs):
         self.url = url
@@ -101,7 +101,7 @@ password = secret
 promptPass = Yes
 """
 
-class ConfigFile(object):
+class ConfigFile():
     def __init__(self, confdir, content):
         self.home = confdir
         self.dir = os.path.join(self.home, ".icat")
@@ -110,7 +110,7 @@ class ConfigFile(object):
         with open(self.path, "w") as f:
             f.write(content)
 
-class TmpFiles(object):
+class TmpFiles():
     def __init__(self):
         self.files = []
     def cleanup(self):

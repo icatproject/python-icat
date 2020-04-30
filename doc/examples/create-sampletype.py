@@ -5,7 +5,6 @@
 # This script should be run by a member of the samplewriter group
 #
 
-from __future__ import print_function
 import icat
 import icat.config
 import sys

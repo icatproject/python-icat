@@ -78,7 +78,7 @@ class IDSHTTPErrorHandler(HTTPDefaultErrorHandler):
         raise err
 
 
-class ChunkedFileReader(object):
+class ChunkedFileReader():
     """An iterator that yields chunks of data read from a file.
     As a side effect, a checksum of the read data is calulated.
     """
@@ -99,7 +99,7 @@ class ChunkedFileReader(object):
             raise StopIteration
 
 
-class DataSelection(object):
+class DataSelection():
     """A set of data to be processed by the ICAT Data Service.
 
     This can be passed as the `selection` argument to
@@ -108,7 +108,6 @@ class DataSelection(object):
     """
 
     def __init__(self, objs=None):
-        super(DataSelection, self).__init__()
         self.invIds = set()
         self.dsIds = set()
         self.dfIds = set()
@@ -167,7 +166,7 @@ class DataSelection(object):
             params["datafileIds"] = ",".join(str(i) for i in self.dfIds)
 
 
-class IDSClient(object):
+class IDSClient():
     
     """A client accessing an ICAT Data Service.
 

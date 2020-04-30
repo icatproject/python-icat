@@ -5,13 +5,7 @@ throughout all the tests and thus is implicitly tested, not only in
 this module.
 """
 
-from __future__ import print_function
-try:
-    # Python 3.3 and newer
-    from collections.abc import Iterable, Callable
-except ImportError:
-    # Python 2
-    from collections import Iterable, Callable
+from collections.abc import Iterable, Callable
 import pytest
 import icat
 import icat.config

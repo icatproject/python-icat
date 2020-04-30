@@ -4,7 +4,6 @@
 # objects found for each type.
 #
 
-from __future__ import print_function
 import icat
 import icat.config
 import logging

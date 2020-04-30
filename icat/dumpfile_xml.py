@@ -36,7 +36,7 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
     """
 
     def __init__(self, client, infile):
-        super(XMLDumpFileReader, self).__init__(client, infile)
+        super().__init__(client, infile)
         self.insttypemap = { c.BeanName:t 
                              for t,c in self.client.typemap.items() }
         if isinstance(self.infile, etree._ElementTree):
@@ -139,7 +139,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
     """
 
     def __init__(self, client, outfile):
-        super(XMLDumpFileWriter, self).__init__(client, outfile)
+        super().__init__(client, outfile)
         self.data = etree.Element("data")
 
     def _file_open(self, filename):

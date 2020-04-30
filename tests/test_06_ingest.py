@@ -1,7 +1,6 @@
 """Test icatdump and icatingest.
 """
 
-from __future__ import print_function
 import os.path
 import pytest
 from subprocess import CalledProcessError

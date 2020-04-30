@@ -1,7 +1,6 @@
 """Test the icat.query module.
 """
 
-from __future__ import print_function
 import sys
 import datetime
 import pytest
@@ -349,10 +348,7 @@ def test_query_non_ascii(client):
     fullName = b'Rudolph Beck-D\xc3\xbclmen'.decode('utf8')
     query = Query(client, "User", 
                   conditions={ "fullName": "= '%s'" % fullName })
-    if sys.version_info < (3, 0):
-        print(unicode(query))
-    else:
-        print(str(query))
+    print(str(query))
     res = client.search(query)
     assert len(res) == 1
 

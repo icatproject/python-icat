@@ -57,7 +57,7 @@ from icat.query import Query
 # DumpFileReader
 # ------------------------------------------------------------
 
-class DumpFileReader(object):
+class DumpFileReader():
     """Base class for backends that read a data file."""
 
     mode = "r"
@@ -137,7 +137,7 @@ class DumpFileReader(object):
 # DumpFileWriter
 # ------------------------------------------------------------
 
-class DumpFileWriter(object):
+class DumpFileWriter():
     """Base class for backends that write a data file."""
 
     mode = "w"

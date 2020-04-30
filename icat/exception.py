@@ -48,7 +48,7 @@ class _BaseException(Exception):
 
     """
     def __init__(self, *args):
-        super(_BaseException, self).__init__(*args)
+        super().__init__(*args)
         if hasattr(self, '__cause__'):
             self.__cause__ = None
 
@@ -68,10 +68,10 @@ class ServerError(_BaseException):
         """
         if isinstance(error, suds.WebFault):
             try:
-                message = self._convertmsg(error.fault.faultstring)
+                message = str(error.fault.faultstring)
             except AttributeError:
-                message = self._convertmsg(str(error))
-            super(ServerError, self).__init__(message)
+                message = str(error)
+            super().__init__(message)
             self.status = status
             self.message = message
             self.fault = error.fault
@@ -87,8 +87,8 @@ class ServerError(_BaseException):
         elif isinstance(error, Mapping):
             # Deliberately not fetching KeyError here.  Require the
             # field to be present.  Only 'offset' is optional.
-            message = self._convertmsg(error['message'])
-            super(ServerError, self).__init__(message)
+            message = str(error['message'])
+            super().__init__(message)
             self.status = status
             self.message = message
             self.type = str(error['code'])
@@ -97,8 +97,8 @@ class ServerError(_BaseException):
             # For compatibility with other exception classes, also
             # allow the constructor to be called with just a message
             # string as argument.
-            message = self._convertmsg(error)
-            super(ServerError, self).__init__(message)
+            message = str(error)
+            super().__init__(message)
             self.status = None
             self.message = message
             self.type = None
@@ -113,17 +113,6 @@ class ServerError(_BaseException):
             self.offset = int(self.offset)
             if self.offset < 0:
                 self.offset = None
-
-    def _convertmsg(self, msg):
-        # msg may be a str, a suds.sax.text.Text instance, or (only
-        # for Python 2) an unicode instance.  In Python 2, we must
-        # convert it to a pure ascii string for Exception.  In Python
-        # 3, we convert it to a str.  It may still contain non-ascii
-        # chars, but this is ok for Exception in Python 3.
-        if sys.version_info < (3, 0):
-            return msg.encode('ascii', 'replace')
-        else:
-            return str(msg)
 
 
 class ICATError(ServerError):
@@ -290,7 +279,7 @@ class QueryNullableOrderWarning(Warning):
     def __init__(self, attr):
         msg = ("ordering on a nullable relation implicitly "
                "adds a '%s IS NOT NULL' condition." % attr)
-        super(QueryNullableOrderWarning, self).__init__(msg)
+        super().__init__(msg)
 
 
 # ======== Exceptions raised in icat.client and icat.entity ========
@@ -310,7 +299,7 @@ class ClientVersionWarning(Warning):
         else:
             msg = ("%s is not supported (%s), "
                    "expect problems and weird behavior!" % (icatstr, comment))
-        super(ClientVersionWarning, self).__init__(msg)
+        super().__init__(msg)
 
 class ICATDeprecationWarning(DeprecationWarning):
     """Warn about using an API feature that may get removed in future ICAT
@@ -323,7 +312,7 @@ class ICATDeprecationWarning(DeprecationWarning):
             icatstr = "ICAT version %s" % version
         msg = ("%s has been deprecated and is expected to get removed in %s." 
                % (feature, icatstr))
-        super(ICATDeprecationWarning, self).__init__(msg)
+        super().__init__(msg)
 
 class EntityTypeError(_BaseException):
     """An invalid entity type has been used."""
@@ -339,7 +328,7 @@ class VersionMethodError(_BaseException):
         else:
             icatstr = "%s version %s" % (service, version)
         msg = ("%s is not supported in %s." % (method, icatstr))
-        super(VersionMethodError, self).__init__(msg)
+        super().__init__(msg)
 
 class SearchResultError(_BaseException):
     """A search result does not conform to what should have been expected.
@@ -370,7 +359,7 @@ class SearchAssertionError(SearchResultError):
             msg = ('Number of objects found (%d) is not within '
                    'the expected bounds between %d and %d on query: "%s"'
                    % (num, assertmin, assertmax, query))
-        super(SearchAssertionError, self).__init__(msg)
+        super().__init__(msg)
         self.query = query
         self.assertmin = assertmin
         self.assertmax = assertmax

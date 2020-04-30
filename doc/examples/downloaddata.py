@@ -25,7 +25,6 @@
 # be set with the option "--outputfile".  If not set the output file
 #
 
-from __future__ import print_function
 import icat
 import icat.config
 import sys

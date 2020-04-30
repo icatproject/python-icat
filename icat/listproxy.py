@@ -66,7 +66,7 @@ class ListProxy(MutableSequence):
     """
 
     def __init__(self, target):
-        super(ListProxy, self).__init__()
+        super().__init__()
         if isinstance(target, MutableSequence):
             self.target = target
         else:
