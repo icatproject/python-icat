@@ -2,8 +2,8 @@
 """
 
 import os.path
-import pytest
 from subprocess import CalledProcessError
+import pytest
 import icat
 import icat.config
 from icat.query import Query

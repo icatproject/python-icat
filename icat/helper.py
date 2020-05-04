@@ -33,7 +33,6 @@ True
 {'name': 'ESNF'}
 """
 
-import sys
 import datetime
 import suds.sax.date
 

@@ -1,7 +1,6 @@
 """Test the icat.query module.
 """
 
-import sys
 import datetime
 import pytest
 import icat

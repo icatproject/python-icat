@@ -47,8 +47,8 @@ only a reference to the related object will be included in the data
 file.  The related object must have its own list entry.
 """
 
-import sys
 import os
+import sys
 import icat
 from icat.query import Query
 

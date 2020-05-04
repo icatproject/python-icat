@@ -1,9 +1,9 @@
 """Test module icat.config
 """
 
+import getpass
 import os
 import os.path
-import getpass
 import pytest
 import icat.config
 import icat.exception

@@ -5,12 +5,12 @@
 # This is surprisingly involved to do it reliably.  See the comments
 # below for the issues that need to be taken into account.
 
-import time
 import logging
+import time
 from warnings import warn
 import icat
-from icat.ids import DataSelection
 import icat.config
+from icat.ids import DataSelection
 from icat.query import Query
 
 logging.basicConfig(level=logging.INFO)

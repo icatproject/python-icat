@@ -2,7 +2,6 @@
 """
 
 from collections.abc import Mapping
-import sys
 import warnings
 import suds
 

@@ -18,7 +18,6 @@ except ImportError:
     pass
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 formats = icat.dumpfile.Backends.keys()
 if len(formats) == 0:

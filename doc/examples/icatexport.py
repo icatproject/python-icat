@@ -8,11 +8,11 @@
 # as possible to the one from icatdump.py.
 #
 
-import sys
-import os
 import json
-import re
 import logging
+import os
+import re
+import sys
 import requests
 import icat
 import icat.config

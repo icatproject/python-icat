@@ -1,7 +1,6 @@
 """YAML data file backend for icatdump.py and icatingest.py.
 """
 
-import sys
 import datetime
 import yaml
 import icat

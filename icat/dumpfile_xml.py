@@ -1,9 +1,9 @@
 """XML data file backend for icatdump.py and icatingest.py.
 """
 
-import sys
-import os
 import datetime
+import os
+import sys
 from lxml import etree
 import icat
 import icat.dumpfile

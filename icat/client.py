@@ -3,26 +3,26 @@
 This is the only module that needs to be imported to use the icat.
 """
 
-import os
-from warnings import warn
-import time
-import re
-import logging
-from distutils.version import StrictVersion as Version
 import atexit
+from distutils.version import StrictVersion as Version
+import logging
+import os
+import re
+import time
 import urllib.parse
+from warnings import warn
 
 import suds
 import suds.client
 import suds.sudsobject
 
-from icat.entity import Entity
 from icat.entities import getTypeMap
-from icat.query import Query
+from icat.entity import Entity
 from icat.exception import *
-from icat.ids import *
-from icat.sslcontext import create_ssl_context, HTTPSTransport
 from icat.helper import simpleqp_unquote, parse_attr_val, ms_timestamp
+from icat.ids import *
+from icat.query import Query
+from icat.sslcontext import create_ssl_context, HTTPSTransport
 
 __all__ = ['Client']
 

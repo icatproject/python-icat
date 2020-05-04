@@ -8,10 +8,10 @@
 # one from icatingest.py.
 #
 
-import sys
 import json
-import re
 import logging
+import re
+import sys
 import requests
 import icat
 import icat.config

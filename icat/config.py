@@ -1,12 +1,12 @@
 """Provide the Config class.
 """
 
-import sys
-import os
-import os.path
-import getpass
 import argparse
 import configparser
+import getpass
+import os
+import os.path
+import sys
 import warnings
 from icat.client import Client
 from icat.authinfo import AuthenticatorInfo, LegacyAuthenticatorInfo

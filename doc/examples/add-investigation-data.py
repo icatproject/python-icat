@@ -8,14 +8,13 @@
 # e.g. a user that is in the writer group of the given investigation.
 #
 
+import logging
+import sys
+import yaml
 import icat
 import icat.config
-import sys
-import logging
-import yaml
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config()
 config.add_variable('skipfiles', ("--skipdatafiles",), 

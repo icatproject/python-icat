@@ -5,9 +5,9 @@ rather then calling icatdump and icatingest as external scripts, it
 uses the internal API icat.dumpfile.
 """
 
+import filecmp
 import io
 import os.path
-import filecmp
 from lxml import etree
 import pytest
 try:
@@ -17,11 +17,11 @@ except ImportError:
         pass
 import icat
 import icat.config
-from icat.query import Query
+from icat.dump_queries import *
 from icat.dumpfile import open_dumpfile
 import icat.dumpfile_xml
 import icat.dumpfile_yaml
-from icat.dump_queries import *
+from icat.query import Query
 from conftest import (getConfig, get_reference_dumpfile, callscript,
                       filter_file, yaml_filter, xml_filter)
 

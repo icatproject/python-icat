@@ -25,14 +25,13 @@
 # be set with the option "--outputfile".  If not set the output file
 #
 
-import icat
-import icat.config
+import logging
 import sys
 import time
-import logging
+import icat
+import icat.config
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config(ids="mandatory")
 config.add_variable('outputfile', ("--outputfile",), 

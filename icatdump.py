@@ -5,7 +5,7 @@
 import logging
 import icat
 import icat.config
-from icat.query import Query
+from icat.dump_queries import *
 from icat.dumpfile import open_dumpfile
 try:
     import icat.dumpfile_xml
@@ -15,11 +15,10 @@ try:
     import icat.dumpfile_yaml
 except ImportError:
     pass
-from icat.dump_queries import *
+from icat.query import Query
 
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 formats = icat.dumpfile.Backends.keys()
 if len(formats) == 0:

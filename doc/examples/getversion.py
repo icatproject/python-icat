@@ -1,12 +1,11 @@
 #! /usr/bin/python
 
-import sys
 import logging
+import sys
 import icat
 import icat.config
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config(needlogin=False, ids="optional")
 client, conf = config.getconfig()

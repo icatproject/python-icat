@@ -3,8 +3,8 @@
 # Restore the content of the ICAT from a dump file as created by
 # icatdump.py.
 
-import os.path
 import logging
+import os.path
 import icat
 import icat.config
 from icat.dumpfile import open_dumpfile

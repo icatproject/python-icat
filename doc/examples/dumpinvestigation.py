@@ -16,7 +16,6 @@ import icat.dumpfile_xml
 import icat.dumpfile_yaml
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 formats = icat.dumpfile.Backends.keys()
 config = icat.config.Config()

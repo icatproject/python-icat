@@ -21,14 +21,12 @@
 # of the investigation.
 #
 
+import logging
+import os.path
 import icat
 import icat.config
-import sys
-import os.path
-import logging
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config(ids="mandatory")
 config.add_variable('investigation', ("investigation",), 

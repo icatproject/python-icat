@@ -1,9 +1,9 @@
 """Test icatdump and icatingest.
 """
 
+import filecmp
 import os.path
 import re
-import filecmp
 import pytest
 try:
     from pytest_dependency import depends

@@ -11,27 +11,15 @@
 # rootUserNames property.
 #
 
-import sys
-import logging
 import datetime
+import logging
+import sys
 import yaml
 import icat
 import icat.config
 from icat.query import Query
-try:
-    cet = datetime.timezone(datetime.timedelta(hours=1))
-    cest = datetime.timezone(datetime.timedelta(hours=2))
-except AttributeError:
-    try:
-        from suds.sax.date import FixedOffsetTimezone
-        cet = FixedOffsetTimezone(datetime.timedelta(hours=1))
-        cest = FixedOffsetTimezone(datetime.timedelta(hours=2))
-    except ImportError:
-        cet = None
-        cest = None
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config()
 config.add_variable('datafile', ("datafile",), 
@@ -395,6 +383,9 @@ for k in data['applications'].keys():
 client.createMany(applications)
 
 # facilityCycles
+cet = datetime.timezone(datetime.timedelta(hours=1))
+cest = datetime.timezone(datetime.timedelta(hours=2))
+
 def gettz(month):
     """Very simplified switch between DST on and off.
     """

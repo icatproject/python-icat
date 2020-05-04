@@ -8,18 +8,18 @@ author.
 .. _IDS distribution: http://code.google.com/p/icat-data-service/
 """
 
-import sys
 from collections.abc import Mapping, Iterable
+from distutils.version import StrictVersion as Version
+import getpass
+import json
+import re
 import ssl
+import sys
 from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import HTTPDefaultErrorHandler, ProxyHandler, Request
 from urllib.request import build_opener
-import json
 import zlib
-import re
-from distutils.version import StrictVersion as Version
-import getpass
 
 from icat.entity import Entity
 from icat.exception import *

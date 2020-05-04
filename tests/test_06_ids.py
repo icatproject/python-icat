@@ -9,8 +9,8 @@ import zipfile
 import pytest
 import icat
 import icat.config
-from icat.query import Query
 from icat.ids import DataSelection
+from icat.query import Query
 from conftest import DummyDatafile, UtcTimezone
 from conftest import getConfig, tmpSessionId, tmpClient
 

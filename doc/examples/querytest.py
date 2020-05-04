@@ -3,13 +3,13 @@
 """
 
 import logging
+import sys
 import yaml
 import icat
 import icat.config
 from icat.query import Query
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config()
 config.add_variable('datafile', ("datafile",), 
