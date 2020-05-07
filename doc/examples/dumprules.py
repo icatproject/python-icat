@@ -30,9 +30,7 @@ config.add_variable('file', ("-o", "--outputfile"),
 config.add_variable('format', ("-f", "--format"), 
                     dict(help="output file format", choices=formats),
                     default='YAML')
-conf = config.getconfig()
-
-client = icat.Client(conf.url, **conf.client_kwargs)
+client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
 
 
