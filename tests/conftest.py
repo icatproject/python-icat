@@ -41,6 +41,13 @@ logging.getLogger('suds').setLevel(logging.ERROR)
 testdir = os.path.dirname(__file__)
 
 
+def _skip(reason):
+    if Version(pytest.__version__) >= '3.3.0':
+        pytest.skip(reason, allow_module_level=True)
+    else:
+        raise pytest.skip.Exception(reason, allow_module_level=True)
+
+
 # ============================= helper ===============================
 
 class DummyDatafile():
@@ -78,14 +85,14 @@ def getConfig(confSection="root", **confArgs):
     """
     confFile = os.path.join(testdir, "data", "icat.cfg")
     if not os.path.isfile(confFile):
-        pytest.skip("no test ICAT server configured")
+        _skip("no test ICAT server configured")
     try:
         confArgs['args'] = ["-c", confFile, "-s", confSection]
         client, conf = icat.config.Config(**confArgs).getconfig()
         conf.cmdargs = ["-c", conf.configFile[0], "-s", conf.configSection]
         return (client, conf)
     except icat.ConfigError as err:
-        pytest.skip(str(err))
+        _skip(str(err))
 
 
 class tmpSessionId:
@@ -135,13 +142,7 @@ except:
 
 def require_icat_version(minversion, reason):
     if icat_version < minversion:
-        reason = ("need ICAT server version %s or newer: %s" 
-                  % (minversion, reason))
-        if pytest.__version__ > '3':
-            # see https://github.com/pytest-dev/pytest/issues/2338
-            raise pytest.skip.Exception(reason, allow_module_level=True)
-        else:
-            pytest.skip(reason)
+        _skip("need ICAT server version %s or newer: %s" % (minversion, reason))
 
 
 def get_reference_dumpfile(ext = "yaml"):
