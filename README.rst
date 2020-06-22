@@ -18,7 +18,8 @@ is based on Suds and extends it with ICAT specific features.
 Download
 --------
 
-The latest release version can be found `Python Package Index (PyPI)`__.
+The latest release version can be found in the
+`Python Package Index (PyPI)`__.
 
 .. __: `PyPI site`_
 
