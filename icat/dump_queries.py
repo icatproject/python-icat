@@ -20,7 +20,7 @@ here is the following:
    DataCollection, Job).
 
 The functions defined in this module each return a list of queries
-needed to fetch all objects to be included in one of these chunkes.
+needed to fetch all objects to be included in one of these chunks.
 """
 
 import icat
