@@ -149,6 +149,13 @@ class DataSelection():
                         self.dsIds.add(o.id)
                     elif o.BeanName == 'Datafile':
                         self.dfIds.add(o.id)
+                    elif o.BeanName == "DataCollection":
+                        for dcds in o.dataCollectionDatasets:
+                            if dcds.dataset:
+                                self.dsIds.add(dcds.dataset.id)
+                        for dcdf in o.dataCollectionDatafiles:
+                            if dcdf.datafile:
+                                self.dfIds.add(dcdf.datafile.id)
                     else:
                         raise ValueError("invalid object '%s'." % o.BeanName)
                 else:

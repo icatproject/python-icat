@@ -5,6 +5,11 @@ Changelog
 1.0.0 (not yet released)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+New features
+------------
+
++ `#74`_: DataSelection also accepts DataCollection as argument
+
 Incompatible changes and deprecations
 -------------------------------------
 
@@ -32,6 +37,8 @@ Bug fixes and minor changes
 ---------------------------
 
 + Some (more) example scripts now require ICAT 4.4.0 or newer.
+
+.. _#74: https://github.com/icatproject/python-icat/issues/74
 
 
 0.17.0 (2020-04-30)

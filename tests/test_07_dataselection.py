@@ -25,10 +25,9 @@ param_queries = [
     ("Investigation [name = '10100601-ST']"),
     ("Dataset <-> Investigation [name = '10100601-ST']"),
     ("Datafile <-> Dataset <-> Investigation [name = '10100601-ST']"),
-    pytest.param("SELECT dc FROM DataCollection dc "
-                 "INCLUDE dc.dataCollectionDatafiles AS dcdf, dcdf.datafile, "
-                 "dc.dataCollectionDatasets AS dcds, dcds.dataset",
-                 marks=pytest.mark.xfail(reason="Issue #74",raises=ValueError)),
+    ("SELECT dc FROM DataCollection dc "
+     "INCLUDE dc.dataCollectionDatafiles AS dcdf, dcdf.datafile, "
+     "dc.dataCollectionDatasets AS dcds, dcds.dataset"),
 ]
 
 def get_obj_ids(objs):
