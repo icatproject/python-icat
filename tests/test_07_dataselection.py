@@ -25,6 +25,10 @@ param_queries = [
     ("Investigation [name = '10100601-ST']"),
     ("Dataset <-> Investigation [name = '10100601-ST']"),
     ("Datafile <-> Dataset <-> Investigation [name = '10100601-ST']"),
+    pytest.param("SELECT dc FROM DataCollection dc "
+                 "INCLUDE dc.dataCollectionDatafiles AS dcdf, dcdf.datafile, "
+                 "dc.dataCollectionDatasets AS dcds, dcds.dataset",
+                 marks=pytest.mark.xfail(reason="Issue #74",raises=ValueError)),
 ]
 
 def get_obj_ids(objs):
@@ -40,6 +44,13 @@ def get_obj_ids(objs):
             dsIds.add(o.id)
         elif o.BeanName == "Datafile":
             dfIds.add(o.id)
+        elif o.BeanName == "DataCollection":
+            for dcds in o.dataCollectionDatasets:
+                if dcds.dataset:
+                    dsIds.add(dcds.dataset.id)
+            for dcdf in o.dataCollectionDatafiles:
+                if dcdf.datafile:
+                    dfIds.add(dcdf.datafile.id)
         else:
             raise ValueError("Invalid object <%r>" % o)
     return (invIds, dsIds, dfIds)
