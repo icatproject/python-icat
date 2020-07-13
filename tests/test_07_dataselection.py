@@ -10,17 +10,52 @@ from conftest import getConfig
 
 @pytest.fixture(scope="module")
 def client(setupicat):
-    client, conf = getConfig(confSection="nbour")
+    client, conf = getConfig()
     client.login(conf.auth, conf.credentials)
     return client
 
-
-@pytest.mark.parametrize(("invIds", "dsIds", "dfIds"), [
+# parameter lists
+param_ids = [
     ([42], [], []),
     ([], [47,11], []),
     ([], [], [6,666,66]),
     ([42], [47,11], [6,666,66]),
-])
+]
+param_queries = [
+    ("Investigation [name = '10100601-ST']"),
+    ("Dataset <-> Investigation [name = '10100601-ST']"),
+    ("Datafile <-> Dataset <-> Investigation [name = '10100601-ST']"),
+    ("SELECT dc FROM DataCollection dc "
+     "INCLUDE dc.dataCollectionDatafiles AS dcdf, dcdf.datafile, "
+     "dc.dataCollectionDatasets AS dcds, dcds.dataset"),
+]
+
+def get_obj_ids(objs):
+    """Return a tuple (invIds, dsIds, dfIds) from a list of objects.
+    """
+    invIds = set()
+    dsIds = set()
+    dfIds = set()
+    for o in objs:
+        if o.BeanName == "Investigation":
+            invIds.add(o.id)
+        elif o.BeanName == "Dataset":
+            dsIds.add(o.id)
+        elif o.BeanName == "Datafile":
+            dfIds.add(o.id)
+        elif o.BeanName == "DataCollection":
+            for dcds in o.dataCollectionDatasets:
+                if dcds.dataset:
+                    dsIds.add(dcds.dataset.id)
+            for dcdf in o.dataCollectionDatafiles:
+                if dcdf.datafile:
+                    dfIds.add(dcdf.datafile.id)
+        else:
+            raise ValueError("Invalid object <%r>" % o)
+    return (invIds, dsIds, dfIds)
+
+
+@pytest.mark.parametrize(("invIds", "dsIds", "dfIds"), param_ids)
 def test_id_dict(invIds, dsIds, dfIds):
     """Initialize a DataSelection from a dict with object ids.
     """
@@ -35,22 +70,16 @@ def test_id_dict(invIds, dsIds, dfIds):
     assert selection.dfIds == set(dfIds)
 
 
-@pytest.mark.parametrize(("query"), [
-    ("Investigation [name = '10100601-ST']"),
-    ("Dataset <-> Investigation [name = '10100601-ST']"),
-    ("Datafile <-> Dataset <-> Investigation [name = '10100601-ST']"),
-])
+@pytest.mark.parametrize(("query"), param_queries)
 def test_objlist(client, query):
     """Initialize a DataSelection from a list of objects.
     """
     objs = client.search(query)
-    invIds = [ o.id for o in objs if o.BeanName == "Investigation" ]
-    dsIds = [ o.id for o in objs if o.BeanName == "Dataset" ]
-    dfIds = [ o.id for o in objs if o.BeanName == "Datafile" ]
+    invIds, dsIds, dfIds = get_obj_ids(objs)
     selection = DataSelection(objs)
-    assert selection.invIds == set(invIds)
-    assert selection.dsIds == set(dsIds)
-    assert selection.dfIds == set(dfIds)
+    assert selection.invIds == invIds
+    assert selection.dsIds == dsIds
+    assert selection.dfIds == dfIds
 
 
 def test_entitylist(client):
@@ -65,20 +94,14 @@ def test_entitylist(client):
     inv = client.assertedSearch(query)[0]
     objs = inv.datasets
     assert not isinstance(objs, list)
-    invIds = [ o.id for o in objs if o.BeanName == "Investigation" ]
-    dsIds = [ o.id for o in objs if o.BeanName == "Dataset" ]
-    dfIds = [ o.id for o in objs if o.BeanName == "Datafile" ]
+    invIds, dsIds, dfIds = get_obj_ids(objs)
     selection = DataSelection(objs)
-    assert selection.invIds == set(invIds)
-    assert selection.dsIds == set(dsIds)
-    assert selection.dfIds == set(dfIds)
+    assert selection.invIds == invIds
+    assert selection.dsIds == dsIds
+    assert selection.dfIds == dfIds
 
 
-@pytest.mark.parametrize(("query"), [
-    ("Investigation [name = '10100601-ST']"),
-    ("Dataset <-> Investigation [name = '10100601-ST']"),
-    ("Datafile <-> Dataset <-> Investigation [name = '10100601-ST']"),
-])
+@pytest.mark.parametrize(("query"), param_queries)
 def test_set(client, query):
     """Initialize a DataSelection from a set of objects.
 
@@ -87,21 +110,15 @@ def test_set(client, query):
     particular from a set.
     """
     objs = client.search(query)
-    invIds = [ o.id for o in objs if o.BeanName == "Investigation" ]
-    dsIds = [ o.id for o in objs if o.BeanName == "Dataset" ]
-    dfIds = [ o.id for o in objs if o.BeanName == "Datafile" ]
+    invIds, dsIds, dfIds = get_obj_ids(objs)
     s = set(objs)
     selection = DataSelection(s)
-    assert selection.invIds == set(invIds)
-    assert selection.dsIds == set(dsIds)
-    assert selection.dfIds == set(dfIds)
+    assert selection.invIds == invIds
+    assert selection.dsIds == dsIds
+    assert selection.dfIds == dfIds
 
 
-@pytest.mark.parametrize(("query"), [
-    ("Investigation [name = '10100601-ST']"),
-    ("Dataset <-> Investigation [name = '10100601-ST']"),
-    ("Datafile <-> Dataset <-> Investigation [name = '10100601-ST']"),
-])
+@pytest.mark.parametrize(("query"), param_queries)
 def test_generator(client, query):
     """Initialize a DataSelection from a generator of objects.
 
@@ -115,22 +132,15 @@ def test_generator(client, query):
         for o in it:
             yield o
     objs = client.search(query)
-    invIds = [ o.id for o in objs if o.BeanName == "Investigation" ]
-    dsIds = [ o.id for o in objs if o.BeanName == "Dataset" ]
-    dfIds = [ o.id for o in objs if o.BeanName == "Datafile" ]
+    invIds, dsIds, dfIds = get_obj_ids(objs)
     g = objgenerator(objs)
     selection = DataSelection(g)
-    assert selection.invIds == set(invIds)
-    assert selection.dsIds == set(dsIds)
-    assert selection.dfIds == set(dfIds)
+    assert selection.invIds == invIds
+    assert selection.dsIds == dsIds
+    assert selection.dfIds == dfIds
 
 
-@pytest.mark.parametrize(("invIds", "dsIds", "dfIds"), [
-    ([42], [], []),
-    ([], [47,11], []),
-    ([], [], [6,666,66]),
-    ([42], [47,11], [6,666,66]),
-])
+@pytest.mark.parametrize(("invIds", "dsIds", "dfIds"), param_ids)
 def test_selection(invIds, dsIds, dfIds):
     """Initialize a DataSelection from another DataSelection.
     """
