@@ -2,8 +2,7 @@
 """
 
 import getpass
-import os
-import os.path
+from pathlib import Path
 import pytest
 import icat.config
 import icat.exception
@@ -103,26 +102,35 @@ promptPass = Yes
 
 class ConfigFile():
     def __init__(self, confdir, content):
-        self.home = confdir
-        self.dir = os.path.join(self.home, ".icat")
-        self.path = os.path.join(self.dir, "icat.cfg")
-        os.mkdir(self.dir)
-        with open(self.path, "w") as f:
+        self._home = Path(confdir)
+        self._dir = self._home / ".icat"
+        self._path = self._dir / "icat.cfg"
+        self._dir.mkdir()
+        with self._path.open("wt") as f:
             f.write(content)
+    @property
+    def home(self):
+        return str(self._home)
+    @property
+    def dir(self):
+        return str(self._dir)
+    @property
+    def path(self):
+        return str(self._path)
 
 class TmpFiles():
     def __init__(self):
         self.files = []
     def cleanup(self):
         for p in self.files:
-            os.unlink(p)
+            p.unlink()
     def addfile(self, path, content):
-        path = os.path.abspath(path)
+        path = path.resolve()
         try:
-            os.makedirs(os.path.dirname(path))
-        except OSError:
+            path.parent.mkdir(parents=True)
+        except FileExistsError:
             pass
-        with open(path, "wt") as f:
+        with path.open("wt") as f:
             f.write(content)
         self.files.append(path)
 
@@ -172,7 +180,7 @@ def test_config_minimal_file(fakeClient, tmpconfigfile, monkeypatch):
 
     # Let the config file be found in the default location, but
     # manipulate the search path such that only the cwd exists.
-    cfgdirs = [ os.path.join(tmpconfigfile.dir, "wobble"), "" ]
+    cfgdirs = [ Path(tmpconfigfile.dir, "wobble"), Path(".") ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
     monkeypatch.chdir(tmpconfigfile.dir)
 
@@ -196,9 +204,9 @@ def test_config_minimal_defaultfile(fakeClient, tmpconfigfile, monkeypatch):
 
     # Manipulate the default search path.
     monkeypatch.setenv("HOME", tmpconfigfile.home)
-    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
     monkeypatch.chdir(tmpconfigfile.home)
 
@@ -224,9 +232,9 @@ def test_config_no_defaultvars(tmpconfigfile, monkeypatch):
 
     # Manipulate the default search path.
     monkeypatch.setenv("HOME", tmpconfigfile.home)
-    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
     monkeypatch.chdir(tmpconfigfile.home)
 
@@ -852,12 +860,12 @@ def test_config_cfgpath_default(fakeClient, tmpconfigfile, monkeypatch,
 
     # Manipulate the default search path.
     monkeypatch.setenv("HOME", tmpconfigfile.home)
-    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
     monkeypatch.chdir(tmpconfigfile.home)
-    cpath = os.path.expanduser("~/.config/icat/control.dat")
+    cpath = Path("~/.config/icat/control.dat").expanduser()
     tmpfiles.addfile(cpath, "control\n")
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
@@ -877,7 +885,7 @@ def test_config_cfgpath_default(fakeClient, tmpconfigfile, monkeypatch,
                       credentials={'username': 'jdoe', 'password': 'pass'},
                       controlfile=cpath)
     assert ex <= conf
-    assert os.path.isfile(conf.controlfile)
+    assert conf.controlfile.is_file()
 
 
 def test_config_cfgpath_cwd(fakeClient, tmpconfigfile, monkeypatch, tmpfiles):
@@ -890,14 +898,14 @@ def test_config_cfgpath_cwd(fakeClient, tmpconfigfile, monkeypatch, tmpfiles):
 
     # Manipulate the default search path.
     monkeypatch.setenv("HOME", tmpconfigfile.home)
-    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
     monkeypatch.chdir(tmpconfigfile.home)
-    cpath = os.path.expanduser("~/.config/icat/control.dat")
+    cpath = Path("~/.config/icat/control.dat").expanduser()
     tmpfiles.addfile(cpath, "control config dir\n")
-    hpath = os.path.join(tmpconfigfile.home, "control.dat")
+    hpath = Path(tmpconfigfile.home, "control.dat")
     tmpfiles.addfile(hpath, "control home\n")
 
     args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
@@ -917,7 +925,7 @@ def test_config_cfgpath_cwd(fakeClient, tmpconfigfile, monkeypatch, tmpfiles):
                       credentials={'username': 'jdoe', 'password': 'pass'},
                       controlfile=hpath)
     assert ex <= conf
-    assert os.path.isfile(conf.controlfile)
+    assert conf.controlfile.is_file()
 
 
 @pytest.mark.parametrize('abspath', [True, False])
@@ -931,20 +939,20 @@ def test_config_cfgpath_cmdline(fakeClient, tmpconfigfile, monkeypatch,
 
     # Manipulate the default search path.
     monkeypatch.setenv("HOME", tmpconfigfile.home)
-    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
     monkeypatch.chdir(tmpconfigfile.home)
-    cpath = os.path.expanduser("~/.config/icat/control.dat")
+    cpath = Path("~/.config/icat/control.dat").expanduser()
     tmpfiles.addfile(cpath, "control config dir\n")
-    hpath = os.path.join(tmpconfigfile.home, "control.dat")
+    hpath = Path(tmpconfigfile.home, "control.dat")
     tmpfiles.addfile(hpath, "control home\n")
     if abspath:
-        apath = os.path.expanduser("~/custom/cl.dat")
-        cfarg = apath
+        apath = Path("~/custom/cl.dat").expanduser()
+        cfarg = str(apath)
     else:
-        apath = os.path.expanduser("~/.config/icat/cl.dat")
+        apath = Path("~/.config/icat/cl.dat").expanduser()
         cfarg = "cl.dat"
     tmpfiles.addfile(apath, "control cmdline\n")
 
@@ -966,7 +974,7 @@ def test_config_cfgpath_cmdline(fakeClient, tmpconfigfile, monkeypatch,
                       credentials={'username': 'jdoe', 'password': 'pass'},
                       controlfile=apath)
     assert ex <= conf
-    assert os.path.isfile(conf.controlfile)
+    assert conf.controlfile.is_file()
 
 
 def test_config_client_kwargs(fakeClient, tmpconfigfile, monkeypatch):
@@ -979,9 +987,9 @@ def test_config_client_kwargs(fakeClient, tmpconfigfile, monkeypatch):
 
     # Manipulate the default search path.
     monkeypatch.setenv("HOME", tmpconfigfile.home)
-    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
     monkeypatch.chdir(tmpconfigfile.home)
 

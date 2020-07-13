@@ -5,7 +5,7 @@ import argparse
 import configparser
 import getpass
 import os
-import os.path
+from pathlib import Path
 import sys
 import warnings
 from icat.client import Client
@@ -16,15 +16,15 @@ __all__ = ['boolean', 'flag', 'Configuration', 'Config']
 
 
 if sys.platform.startswith("win"):
-    cfgdirs = [ os.path.join(os.environ['ProgramData'], "ICAT"),
-                os.path.join(os.environ['AppData'], "ICAT"),
-                os.path.join(os.environ['LocalAppData'], "ICAT"), 
-                "", ]
+    cfgdirs = [ Path(os.environ['ProgramData'], "ICAT"),
+                Path(os.environ['AppData'], "ICAT"),
+                Path(os.environ['LocalAppData'], "ICAT"),
+                Path("."), ]
 else:
-    cfgdirs = [ "/etc/icat", 
-                os.path.expanduser("~/.config/icat"),
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    cfgdirs = [ Path("/etc/icat"),
+                Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
 """Search path for the configuration file"""
 cfgfile = "icat.cfg"
 """Configuration file name"""
@@ -61,22 +61,32 @@ flag = object()
 def cfgpath(p):
     """Search for a file in some default directories.
 
-    The argument `p` should be a file path name.  If `p` is absolute,
-    it will be returned unchanged.  Otherwise, `p` will be resolved
-    against the directories in :data:`icat.config.cfgdirs` in reversed
-    order.  If a file with the resulting path is found to exist, this
-    path will be returned, first match wins.  If no file exists in any
-    of the directories, `p` will be returned unchanged.
+    The argument `p` should be a file path name.  It will be converted
+    to a :class:`~pathlib.Path` object.  If `p` is absolute, it will
+    be returned unchanged.  Otherwise, `p` will be resolved against
+    the directories in :data:`icat.config.cfgdirs` in reversed order.
+    If a file with the resulting path is found to exist, this path
+    will be returned, first match wins.  If no file exists in any of
+    the directories, `p` will be returned unchanged.
+
+    In any case, the return value is a :class:`~pathlib.Path` object.
 
     This function is suitable to be passed as `type` argument to
     :meth:`icat.config.BaseConfig.add_variable`.
+
+    .. versionchanged:: 1.0.0
+        return a :class:`~pathlib.Path` object.
     """
-    if os.path.isabs(p):
+    p = Path(p)
+    if p.is_absolute():
         return p
     else:
         for d in reversed(cfgdirs):
-            fp = os.path.abspath(os.path.join(d, p))
-            if os.path.isfile(fp):
+            try:
+                fp = (d / p).resolve()
+            except FileNotFoundError:
+                continue
+            if fp.is_file():
                 return fp
         else:
             return p
@@ -623,7 +633,7 @@ class Config(BaseConfig):
         super().__init__(argparse.ArgumentParser())
         self.cmdargs = ConfigSourceCmdArgs(self.argparser)
         self.environ = ConfigSourceEnvironment()
-        defaultFiles = [os.path.join(d, cfgfile) for d in cfgdirs]
+        defaultFiles = [str(d / cfgfile) for d in cfgdirs]
         self.conffile = ConfigSourceFile(defaultFiles)
         self.interactive = ConfigSourceInteractive()
         self.defaults = ConfigSourceDefault()
