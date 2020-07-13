@@ -125,12 +125,17 @@ class DataSelection():
         """Add `objs` to the DataSelection.
 
         :param objs: either a dict having some of the keys
-            `investigationIds`, `datasetIds`, and `datafileIds`
-            with a list of object ids as value respectively, or a list
-            of entity objects, or another data selection.
+            `investigationIds`, `datasetIds`, and `datafileIds` with a
+            list of object ids as value respectively, or a list of
+            entity objects (`Investigation`, `Dataset`, `Datafile`, or
+            `DataCollection`), or another data selection.
         :type objs: :class:`dict`, :class:`list` of
             :class:`icat.entity.Entity`, or
             :class:`~icat.ids.DataSelection`
+
+        .. versionchanged:: 1.0.0
+            add support for `DataCollection` objects in the case that
+            `objs` is a list of entity objects.
         """
         if isinstance(objs, DataSelection):
             self.invIds.update(objs.invIds)

@@ -8,7 +8,8 @@ Changelog
 New features
 ------------
 
-+ `#74`_: DataSelection also accepts DataCollection as argument
++ `#74`_: :class:`icat.ids.DataSelection` also accepts
+  `DataCollection` as argument.
 
 Incompatible changes and deprecations
 -------------------------------------
