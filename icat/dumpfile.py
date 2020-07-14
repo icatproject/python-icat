@@ -68,7 +68,12 @@ class DumpFileReader():
     :param infile: the data source to read the objects from.  It
         depends on the backend which kind of data source they accept.
         Most backends will at least accept a file object opened for
-        reading or a :class:`str` with a file name.
+        reading or a :class:`~pathlib.Path` or a :class:`str` with a
+        file name.
+
+    .. versionchanged:: 1.0.0
+        The `infile` parameter also accepts a :class:`~pathlib.Path`
+        object.
     """
 
     mode = "r"
@@ -81,17 +86,19 @@ class DumpFileReader():
     def __init__(self, client, infile):
         self.client = client
         self._closefile = False
-        if isinstance(infile, str):
+        if hasattr(infile, 'open') or isinstance(infile, str):
             self.infile = self._file_open(infile)
             self._closefile = True
         else:
             self.infile = infile
 
-    def _file_open(self, filename):
-        if filename == "-":
+    def _file_open(self, infile):
+        if hasattr(infile, 'open'):
+            return infile.open(mode=self.mode)
+        elif infile == "-":
             return sys.stdin
         else:
-            return open(filename, self.mode)
+            return open(infile, self.mode)
 
     def __enter__(self):
         return self
@@ -157,7 +164,11 @@ class DumpFileWriter():
     :param outfile: the data file to write the objects to.  It depends
         on the backend what they accept here.  Most backends will at
         least accept a file object opened for writing or a
-        :class:`str` with a file name.
+        :class:`~pathlib.Path` or a :class:`str` with a file name.
+
+    .. versionchanged:: 1.0.0
+        The `outfile` parameter also accepts a :class:`~pathlib.Path`
+        object.
     """
 
     mode = "w"
@@ -170,18 +181,20 @@ class DumpFileWriter():
     def __init__(self, client, outfile):
         self.client = client
         self._closefile = False
-        if isinstance(outfile, str):
+        if hasattr(outfile, 'open') or isinstance(outfile, str):
             self.outfile = self._file_open(outfile)
             self._closefile = True
         else:
             self.outfile = outfile
         self.idcounter = {}
 
-    def _file_open(self, filename):
-        if filename == "-":
+    def _file_open(self, outfile):
+        if hasattr(outfile, 'open'):
+            return outfile.open(mode=self.mode)
+        elif outfile == "-":
             return sys.stdout
         else:
-            return open(filename, self.mode)
+            return open(outfile, self.mode)
 
     def __enter__(self):
         self.head()
