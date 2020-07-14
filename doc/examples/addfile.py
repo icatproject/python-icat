@@ -22,7 +22,7 @@
 #
 
 import logging
-import os.path
+from pathlib import Path
 import icat
 import icat.config
 
@@ -37,8 +37,9 @@ config.add_variable('dataset', ("dataset",),
 config.add_variable('datafileformat', ("datafileformat",), 
                     dict(help="name and optionally version "
                          "(separated by a colon) of the datafile format"))
-config.add_variable('files', ("files",), 
-                    dict(help="name of the files to upload", nargs="+"))
+config.add_variable('files', ("files",),
+                    dict(help="name of the files to upload", nargs="+"),
+                    type=lambda l: [Path(f) for f in l])
 client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
 
@@ -87,7 +88,7 @@ datafileformat = getdatafileformat(conf.datafileformat)
 # ------------------------------------------------------------
 
 for fname in conf.files:
-    datafile = client.new("datafile", name=os.path.basename(fname), 
+    datafile = client.new("datafile", name=fname.name,
                           dataset=dataset, datafileFormat=datafileformat)
     client.putData(fname, datafile)
 
