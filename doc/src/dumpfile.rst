@@ -7,8 +7,8 @@ This module provides the base classes
 :class:`icat.dumpfile.DumpFileReader` and
 :class:`icat.dumpfile.DumpFileWriter` that define the API and the
 logic for reading and writing ICAT data files.  The actual work is
-done in file format specific modules that should provide subclasses
-that must implement the abstract methods.
+done in file format specific backend modules that should provide
+subclasses that must implement the abstract methods.
 
 .. autoclass:: icat.dumpfile.DumpFileReader
     :members:

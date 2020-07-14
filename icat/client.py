@@ -102,7 +102,7 @@ class Client(suds.client.Client):
             # Schedule it very far in the future.  This is just to
             # make sure that self._next_refresh has a formally valid
             # value.
-            year = 365.25 * 24 * 60 * 60 * 60
+            year = 365.25 * (24 * 60 * 60)
             self._next_refresh = now + year
         elif t:
             self._next_refresh = t

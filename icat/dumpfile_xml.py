@@ -25,10 +25,15 @@ except AttributeError:
 class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
     """Backend for reading ICAT data from a XML file.
 
-    This backend accepts a file object, a filename, or a XML tree
-    object (:class:`lxml.etree._ElementTree`) as input.  Note that the
-    latter case requires by definition the complete input to be at
-    once in memory.  This is only useful if the input is small enough.
+    :param client: a client object configured to connect to the ICAT
+        server that the objects in the data file belong to.
+    :type client: :class:`icat.client.Client`
+    :param infile: the data source to read the objects from.  This
+        backend accepts a file object, a file name, or a XML tree
+        object (:class:`lxml.etree._ElementTree`) as input.  Note that
+        the latter case requires by definition the complete input to
+        be at once in memory.  This is only useful if the input is
+        small enough.
     """
 
     mode = "rb"
@@ -132,7 +137,14 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
 # ------------------------------------------------------------
 
 class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
-    """Backend for writing ICAT data to a XML file."""
+    """Backend for writing ICAT data to a XML file.
+
+    :param client: a client object configured to connect to the ICAT
+        server to search the data objects from.
+    :type client: :class:`icat.client.Client`
+    :param outfile: the data file to write the objects to.  This
+        backend accepts a file object or a file name.
+    """
 
     mode = "wb"
     """File mode suitable for this backend.

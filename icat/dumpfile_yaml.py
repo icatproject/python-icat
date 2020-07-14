@@ -64,7 +64,14 @@ entitytypes = [
 # ------------------------------------------------------------
 
 class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
-    """Backend for reading ICAT data from a YAML file."""
+    """Backend for reading ICAT data from a YAML file.
+
+    :param client: a client object configured to connect to the ICAT
+        server that the objects in the data file belong to.
+    :type client: :class:`icat.client.Client`
+    :param infile: the data source to read the objects from.  This
+        backend accepts a file object or a file name.
+    """
 
     mode = "rt"
     """File mode suitable for this backend.
@@ -126,7 +133,14 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
 # ------------------------------------------------------------
 
 class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
-    """Backend for writing ICAT data to a YAML file."""
+    """Backend for writing ICAT data to a YAML file.
+
+    :param client: a client object configured to connect to the ICAT
+        server to search the data objects from.
+    :type client: :class:`icat.client.Client`
+    :param outfile: the data file to write the objects to.  This
+        backend accepts a file object or a file name.
+    """
 
     mode = "wt"
     """File mode suitable for this backend.

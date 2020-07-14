@@ -65,7 +65,7 @@ added.  The main class that client programs interact with is
 
         The :class:`icat.client.Client` object initialized according to
 	the configuration.  This is also the first element in the
-	return value if :meth:`getconfig`.
+	return value from :meth:`getconfig`.
 
     .. attribute:: client_kwargs
 
