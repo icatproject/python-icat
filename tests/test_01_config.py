@@ -102,7 +102,7 @@ promptPass = Yes
 
 class ConfigFile():
     def __init__(self, confdir, content):
-        self._home = Path(confdir)
+        self._home = confdir
         self._dir = self._home / ".icat"
         self._path = self._dir / "icat.cfg"
         self._dir.mkdir()

@@ -1,7 +1,6 @@
 """Test icatdump and icatingest.
 """
 
-import os.path
 from subprocess import CalledProcessError
 import pytest
 import icat
@@ -11,8 +10,8 @@ from conftest import DummyDatafile, gettestdata, getConfig, callscript
 
 
 # Test input
-ds_params = gettestdata("ingest-ds-params.xml")
-datafiles = gettestdata("ingest-datafiles.xml")
+ds_params = str(gettestdata("ingest-ds-params.xml"))
+datafiles = str(gettestdata("ingest-datafiles.xml"))
 
 @pytest.fixture(scope="module")
 def client(setupicat):
@@ -295,10 +294,10 @@ def test_ingest_duplicate_check_types(tmpdirsec, dataset, cmdargs, inputdata):
         dataset.create()
     # We simply ingest twice the same data, using duplicate=CHECK the
     # second time.  This obviously leads to matching duplicates.
-    inpfile = os.path.join(tmpdirsec, "ingest.xml")
-    with open(inpfile, "wt") as f:
+    inpfile = tmpdirsec / "ingest.xml"
+    with inpfile.open("wt") as f:
         f.write(inputdata)
-    args = cmdargs + ["-i", inpfile]
+    args = cmdargs + ["-i", str(inpfile)]
     callscript("icatingest.py", args)
     callscript("icatingest.py", args + ["--duplicate", "CHECK"])
 
@@ -330,7 +329,7 @@ def test_ingest_datafiles_upload(tmpdirsec, client, dataset, cmdargs):
     dummyfiles = [ DummyDatafile(tmpdirsec, f['dfname'], f['size'], f['mtime'])
                    for f in testdatafiles ]
     args = cmdargs + ["-i", datafiles, "--upload-datafiles", 
-                      "--datafile-dir", tmpdirsec]
+                      "--datafile-dir", str(tmpdirsec)]
     callscript("icatingest.py", args)
     # Verify that the datafiles have been uploaded.
     dataset = client.searchMatching(dataset)

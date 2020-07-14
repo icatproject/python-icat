@@ -7,7 +7,6 @@ uses the internal API icat.dumpfile.
 
 import filecmp
 import io
-import os.path
 from lxml import etree
 import pytest
 try:
@@ -123,7 +122,7 @@ def test_ingest(ingestcase, client):
     if filetype == 'FILE':
         icatingest(client, refdump, backend)
     elif filetype == 'MEMORY':
-        with open(refdump, "rb") as f:
+        with refdump.open("rb") as f:
             icatdata = f.read()
         if 'b' in icat.dumpfile.Backends[backend][0].mode:
             stream = io.BytesIO(icatdata)
@@ -132,7 +131,7 @@ def test_ingest(ingestcase, client):
         icatingest(client, stream, backend)
         stream.close()
     elif filetype == 'ETREE':
-        with open(refdump, "rb") as f:
+        with refdump.open("rb") as f:
             icatdata = etree.parse(f)
         icatingest(client, icatdata, backend)
     else:
@@ -145,9 +144,9 @@ def test_check_content(ingestcheck, client, tmpdirsec, case):
     backend, filetype = case
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']
-    dump = os.path.join(tmpdirsec, "dump" + fileext)
-    fdump = os.path.join(tmpdirsec, "dump-filter" + fileext)
-    reffdump = os.path.join(tmpdirsec, "dump-filter-ref" + fileext)
+    dump = tmpdirsec / ("dump" + fileext)
+    fdump = tmpdirsec / ("dump-filter" + fileext)
+    reffdump = tmpdirsec / ("dump-filter-ref" + fileext)
     filter_file(refdump, reffdump, *backends[backend]['filter'])
     if filetype == 'FILE':
         icatdump(client, dump, backend)
@@ -162,12 +161,13 @@ def test_check_content(ingestcheck, client, tmpdirsec, case):
             icatdump(client, stream, backend)
             icatdata = stream.getvalue().encode('ascii')
             stream.close()
-        with open(dump, "wb") as f:
+        with dump.open("wb") as f:
             f.write(icatdata)
     else:
         raise RuntimeError("Invalid file type %s" % filetype)
     filter_file(dump, fdump, *backends[backend]['filter'])
-    assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
+    assert filecmp.cmp(str(reffdump), str(fdump)), \
+        "content of ICAT was not as expected"
 
 @pytest.mark.parametrize(("query","result"), queries)
 def test_check_queries(ingestcheck, client, query, result):
