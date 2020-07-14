@@ -58,7 +58,18 @@ from icat.query import Query
 # ------------------------------------------------------------
 
 class DumpFileReader():
-    """Base class for backends that read a data file."""
+    """Base class for backends that read a data file.
+
+    :param client: a client object configured to connect to the ICAT
+        server that the objects in the data file belong to.  This
+        client will be used among others to instantiate the objects
+        read from the file and to search for related objects.
+    :type client: :class:`icat.client.Client`
+    :param infile: the data source to read the objects from.  It
+        depends on the backend which kind of data source they accept.
+        Most backends will at least accept a file object opened for
+        reading or a :class:`str` with a file name.
+    """
 
     mode = "r"
     """File mode suitable for the backend.
@@ -138,7 +149,16 @@ class DumpFileReader():
 # ------------------------------------------------------------
 
 class DumpFileWriter():
-    """Base class for backends that write a data file."""
+    """Base class for backends that write a data file.
+
+    :param client: a client object configured to connect to the ICAT
+        server to search the data objects from.
+    :type client: :class:`icat.client.Client`
+    :param outfile: the data file to write the objects to.  It depends
+        on the backend what they accept here.  Most backends will at
+        least accept a file object opened for writing or a
+        :class:`str` with a file name.
+    """
 
     mode = "w"
     """File mode suitable for the backend.
