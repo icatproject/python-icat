@@ -700,7 +700,8 @@ class Config(BaseConfig):
         """
         var = self.add_variable('configFile', ("-c", "--configfile"), 
                                 dict(help="config file"),
-                                envvar='ICAT_CFG', optional=True, type=Path)
+                                envvar='ICAT_CFG', optional=True,
+                                type=lambda f: Path(f).expanduser())
         var.postprocess = _post_configFile
         var = self.add_variable('configSection', ("-s", "--configsection"), 
                                 dict(help="section in the config file", 

@@ -184,6 +184,30 @@ def test_config_minimal_file(fakeClient, tmpconfigfile, monkeypatch):
     assert ex <= conf
 
 
+def test_config_file_expanduser(fakeClient, tmpconfigfile, monkeypatch):
+    """Explicitely point to the config file.
+
+    Indicate the path of the config file in the command line
+    arguments.  Use tilde expansion in this path.
+    """
+
+    # Manipulate the search path such that the config file is not
+    # found in the default path.
+    monkeypatch.setenv("HOME", str(tmpconfigfile.home))
+    cfgdirs = [ tmpconfigfile.dir / "wobble", Path(".") ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(str(tmpconfigfile.home))
+
+    args = ["-c", "~/.icat/icat.cfg", "-s", "example_root"]
+    config = icat.config.Config(needlogin=False, ids=False, args=args)
+    _, conf = config.getconfig()
+
+    ex = ExpectedConf(configFile=[tmpconfigfile.path], 
+                      configSection="example_root", 
+                      url=ex_icat)
+    assert ex <= conf
+
+
 def test_config_minimal_defaultfile(fakeClient, tmpconfigfile, monkeypatch):
     """Minimal example.
 
