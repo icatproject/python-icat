@@ -93,8 +93,9 @@ set of configuration variables that an ICAT client typically needs:
     Paths of the configuration files to read.  The default is a list
     of standard paths that depends on the operating system.  If a
     value is provided, it must be a single path.  The value that is
-    set in this variable after configuration is a list of the file
-    paths that have successfully been read.
+    set in this variable after configuration is a list of
+    :class:`~pathlib.Path` objects of the files that have successfully
+    been read.
 
   `configSection`
     Name of the section in the configuration file to apply.  If
