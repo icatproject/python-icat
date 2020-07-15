@@ -125,14 +125,13 @@ class TmpFiles():
         for p in self.files:
             p.unlink()
     def addfile(self, path, content):
-        path = path.resolve()
         try:
             path.parent.mkdir(parents=True)
         except FileExistsError:
             pass
         with path.open("wt") as f:
             f.write(content)
-        self.files.append(path)
+        self.files.append(path.resolve())
 
 @pytest.fixture(scope="module")
 def tmpconfigfile(tmpdirsec):
