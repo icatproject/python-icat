@@ -14,6 +14,14 @@ from icat.exception import ConfigError, VersionMethodError
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
 
+# Evil hack: Path.expanduser() has been added in Python 3.5.
+# Monkeypatch the class for older Python versions.
+if not hasattr(Path, "expanduser"):
+    import os.path
+    def _expanduser(p):
+        return Path(os.path.expanduser(str(p)))
+    Path.expanduser = _expanduser
+
 
 if sys.platform.startswith("win"):
     cfgdirs = [ Path(os.environ['ProgramData'], "ICAT"),
