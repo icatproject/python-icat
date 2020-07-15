@@ -8,7 +8,6 @@ dump file.
 """
 
 import filecmp
-import os.path
 import re
 import yaml
 import pytest
@@ -49,7 +48,7 @@ summary_study_filter = (re.compile(r"^((?:Study(?:Investigation)?)\s*) : \d+$"),
 
 @pytest.fixture(scope="module")
 def data():
-    with open(testinput, 'r') as f:
+    with testinput.open('r') as f:
         return yaml.safe_load(f)
 
 
@@ -99,7 +98,7 @@ def create_datafile(client, data, df):
 @pytest.mark.dependency(name="init")
 def test_init(standardCmdArgs):
     callscript("wipeicat.py", standardCmdArgs)
-    callscript("init-icat.py", standardCmdArgs + [testinput])
+    callscript("init-icat.py", standardCmdArgs + [str(testinput)])
 
 
 @pytest.mark.parametrize("invname", [
@@ -115,7 +114,7 @@ def test_init(standardCmdArgs):
 ])
 def test_create_investigation(invname):
     _, conf = getConfig(confSection="useroffice")
-    args = conf.cmdargs + [testinput, invname]
+    args = conf.cmdargs + [str(testinput), invname]
     callscript("create-investigation.py", args)
 
 @pytest.mark.parametrize(("user", "sample"), [
@@ -131,7 +130,7 @@ def test_create_investigation(invname):
 ])
 def test_create_sampletype(user, sample):
     _, conf = getConfig(confSection=user)
-    args = conf.cmdargs + [testinput, sample]
+    args = conf.cmdargs + [str(testinput), sample]
     callscript("create-sampletype.py", args)
 
 @pytest.mark.parametrize(("user", "invname"), [
@@ -147,7 +146,7 @@ def test_create_sampletype(user, sample):
 ])
 def test_addinvdata(user, invname):
     _, conf = getConfig(confSection=user)
-    args = conf.cmdargs + [testinput, invname]
+    args = conf.cmdargs + [str(testinput), invname]
     callscript("add-investigation-data.py", args)
 
 @pytest.mark.parametrize(("user", "jobname"), [
@@ -157,7 +156,7 @@ def test_addinvdata(user, invname):
 ])
 def test_addjob(user, jobname):
     _, conf = getConfig(confSection=user)
-    args = conf.cmdargs + [testinput, jobname]
+    args = conf.cmdargs + [str(testinput), jobname]
     callscript("add-job.py", args)
 
 @pytest.mark.parametrize(("user", "rdfname"), [
@@ -215,28 +214,30 @@ def test_add_publication(data, user, pubname):
 def test_check_content(standardCmdArgs, tmpdirsec):
     """Dump the resulting content and compare with a reference dump.
     """
-    dump = os.path.join(tmpdirsec, "dump.yaml")
-    fdump = os.path.join(tmpdirsec, "dump-filter.yaml")
-    reffdump = os.path.join(tmpdirsec, "dump-filter-ref.yaml")
+    dump = tmpdirsec / "dump.yaml"
+    fdump = tmpdirsec / "dump-filter.yaml"
+    reffdump = tmpdirsec / "dump-filter-ref.yaml"
     filter_file(refdump, reffdump, *yaml_filter)
-    args = standardCmdArgs + ["-f", "YAML", "-o", dump]
+    args = standardCmdArgs + ["-f", "YAML", "-o", str(dump)]
     callscript("icatdump.py", args)
     filter_file(dump, fdump, *yaml_filter)
-    assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
+    assert filecmp.cmp(str(reffdump), str(fdump)), \
+        "content of ICAT was not as expected"
 
 @pytest.mark.dependency(depends=alldata)
 def test_check_summary_root(standardCmdArgs, tmpdirsec):
     """Check the number of objects for each class at the ICAT server.
     """
-    summary = os.path.join(tmpdirsec, "summary")
+    summary = tmpdirsec / "summary"
     ref = refsummary["root"]
     if skip_study:
-        reff = os.path.join(tmpdirsec, "summary-filter-ref")
+        reff = tmpdirsec / "summary-filter-ref"
         filter_file(ref, reff, *summary_study_filter)
         ref = reff
-    with open(summary, "wt") as out:
+    with summary.open("wt") as out:
         callscript("icatsummary.py", standardCmdArgs, stdout=out)
-    assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
+    assert filecmp.cmp(str(ref), str(summary)), \
+        "ICAT content was not as expected"
 
 @pytest.mark.dependency(depends=alldata)
 @pytest.mark.parametrize(("user"), users)
@@ -246,13 +247,14 @@ def test_check_summary_user(tmpdirsec, user):
     This checks which objects a given user may see and thus whether
     the (read) access rules work as expected.
     """
-    summary = os.path.join(tmpdirsec, "summary.%s" % user)
+    summary = tmpdirsec / ("summary.%s" % user)
     ref = refsummary[user]
     if skip_study:
-        reff = os.path.join(tmpdirsec, "summary-filter-ref.%s" % user)
+        reff = tmpdirsec / ("summary-filter-ref.%s" % user)
         filter_file(ref, reff, *summary_study_filter)
         ref = reff
     _, conf = getConfig(confSection=user)
-    with open(summary, "wt") as out:
+    with summary.open("wt") as out:
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
-    assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
+    assert filecmp.cmp(str(ref), str(summary)), \
+        "ICAT content was not as expected"

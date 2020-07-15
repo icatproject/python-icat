@@ -7,6 +7,7 @@ import atexit
 from distutils.version import StrictVersion as Version
 import logging
 import os
+from pathlib import Path
 import re
 import time
 import urllib.parse
@@ -768,11 +769,15 @@ class Client(suds.client.Client):
         those other attribues.
 
         :param infile: either a file opened for reading or a file name.
-        :type infile: :class:`file` or :class:`str`
+        :type infile: :class:`file` or :class:`~pathlib.Path` or :class:`str`
         :param datafile: A Datafile object.
         :type datafile: :class:`icat.entity.Entity`
         :return: The Datafile object created by IDS.
         :rtype: :class:`icat.entity.Entity`
+
+        .. versionchanged:: 1.0.0
+            The `infile` parameter also accepts a
+            :class:`~pathlib.Path` object.
         """
 
         if not self.ids:
@@ -785,18 +790,20 @@ class Client(suds.client.Client):
             raise ValueError("datafile.datafileFormat is not set.")
 
         if not hasattr(infile, 'read'):
-            if isinstance(infile, str):
-                # We got a file name as infile.  Open the file and
-                # recursively call the method again with the open file
-                # as argument.  This is the easiest way to guarantee
-                # that the file will finally get closed also in case
-                # of errors.
-                with open(infile, 'rb') as f:
-                    return self.putData(f, datafile)
-            else:
+            # We got a file name as infile.  Open the file and
+            # recursively call the method again with the open file
+            # as argument.  This is the easiest way to guarantee
+            # that the file will finally get closed also in case
+            # of errors.
+            try:
+                infile = Path(infile)
+            except TypeError:
                 raise TypeError("invalid infile type '%s': "
                                 "must either be a file or a file name." % 
-                                type(infile))
+                                type(infile)) from None
+            else:
+                with infile.open('rb') as f:
+                    return self.putData(f, datafile)
 
         modTime = ms_timestamp(datafile.datafileModTime)
         if not modTime:

@@ -3,7 +3,6 @@
 
 import datetime
 import filecmp
-import os.path
 import time
 import zipfile
 import pytest
@@ -164,7 +163,7 @@ def test_upload(tmpdirsec, client, case):
         username = tclient.getUserName()
         dataset = getDataset(tclient, case)
         datafileformat = getDatafileFormat(tclient, case)
-        datafile = tclient.new("datafile", name=os.path.basename(f.fname), 
+        datafile = tclient.new("datafile", name=f.fname.name,
                                dataset=dataset, datafileFormat=datafileformat)
         tclient.putData(f.fname, datafile)
         df = getDatafile(tclient, case)
@@ -185,7 +184,7 @@ def method(request):
 def test_download(tmpdirsec, client, case, method):
     with tmpClient(confSection=case['dluser'], ids="mandatory") as tclient:
         if len(case['dfs']) > 1:
-            zfname = os.path.join(tmpdirsec, "%s.zip" % case['dsname'])
+            zfname = tmpdirsec / ("%s.zip" % case['dsname'])
             print("\nDownload %s to file %s" % (case['dsname'], zfname))
             dataset = getDataset(tclient, case)
             query = "Datafile <-> Dataset [id=%d]" % dataset.id
@@ -197,9 +196,9 @@ def test_download(tmpdirsec, client, case, method):
                 while not tclient.isDataPrepared(prepid):
                     time.sleep(5)
                 response = tclient.getData(prepid)
-            with open(zfname, 'wb') as f:
+            with zfname.open('wb') as f:
                 copyfile(response, f)
-            zf = zipfile.ZipFile(zfname, 'r')
+            zf = zipfile.ZipFile(str(zfname), 'r')
             zinfos = zf.infolist()
             assert len(zinfos) == len(case['dfs'])
             for df in case['dfs']:
@@ -213,7 +212,7 @@ def test_download(tmpdirsec, client, case, method):
                 assert zi.file_size == df['testfile'].size
         elif len(case['dfs']) == 1:
             df = case['dfs'][0]
-            dfname = os.path.join(tmpdirsec, "dl_%s" % df['dfname'])
+            dfname = tmpdirsec / ("dl_%s" % df['dfname'])
             print("\nDownload %s to file %s" % (case['dsname'], dfname))
             dataset = getDataset(tclient, case)
             query = "Datafile <-> Dataset [id=%d]" % dataset.id
@@ -225,9 +224,9 @@ def test_download(tmpdirsec, client, case, method):
                 while not tclient.isDataPrepared(prepid):
                     time.sleep(5)
                 response = tclient.getData(prepid)
-            with open(dfname, 'wb') as f:
+            with dfname.open('wb') as f:
                 copyfile(response, f)
-            assert filecmp.cmp(df['testfile'].fname, dfname)
+            assert filecmp.cmp(str(df['testfile'].fname), str(dfname))
         else:
             raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
 

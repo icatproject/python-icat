@@ -5,7 +5,7 @@ import argparse
 import configparser
 import getpass
 import os
-import os.path
+from pathlib import Path
 import sys
 import warnings
 from icat.client import Client
@@ -14,17 +14,25 @@ from icat.exception import ConfigError, VersionMethodError
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
 
+# Evil hack: Path.expanduser() has been added in Python 3.5.
+# Monkeypatch the class for older Python versions.
+if not hasattr(Path, "expanduser"):
+    import os.path
+    def _expanduser(p):
+        return Path(os.path.expanduser(str(p)))
+    Path.expanduser = _expanduser
+
 
 if sys.platform.startswith("win"):
-    cfgdirs = [ os.path.join(os.environ['ProgramData'], "ICAT"),
-                os.path.join(os.environ['AppData'], "ICAT"),
-                os.path.join(os.environ['LocalAppData'], "ICAT"), 
-                "", ]
+    cfgdirs = [ Path(os.environ['ProgramData'], "ICAT"),
+                Path(os.environ['AppData'], "ICAT"),
+                Path(os.environ['LocalAppData'], "ICAT"),
+                Path("."), ]
 else:
-    cfgdirs = [ "/etc/icat", 
-                os.path.expanduser("~/.config/icat"),
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    cfgdirs = [ Path("/etc/icat"),
+                Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
 """Search path for the configuration file"""
 cfgfile = "icat.cfg"
 """Configuration file name"""
@@ -61,22 +69,32 @@ flag = object()
 def cfgpath(p):
     """Search for a file in some default directories.
 
-    The argument `p` should be a file path name.  If `p` is absolute,
-    it will be returned unchanged.  Otherwise, `p` will be resolved
-    against the directories in :data:`icat.config.cfgdirs` in reversed
-    order.  If a file with the resulting path is found to exist, this
-    path will be returned, first match wins.  If no file exists in any
-    of the directories, `p` will be returned unchanged.
+    The argument `p` should be a file path name.  It will be converted
+    to a :class:`~pathlib.Path` object.  If `p` is absolute, it will
+    be returned unchanged.  Otherwise, `p` will be resolved against
+    the directories in :data:`icat.config.cfgdirs` in reversed order.
+    If a file with the resulting path is found to exist, this path
+    will be returned, first match wins.  If no file exists in any of
+    the directories, `p` will be returned unchanged.
+
+    In any case, the return value is a :class:`~pathlib.Path` object.
 
     This function is suitable to be passed as `type` argument to
     :meth:`icat.config.BaseConfig.add_variable`.
+
+    .. versionchanged:: 1.0.0
+        return a :class:`~pathlib.Path` object.
     """
-    if os.path.isabs(p):
+    p = Path(p)
+    if p.is_absolute():
         return p
     else:
         for d in reversed(cfgdirs):
-            fp = os.path.abspath(os.path.join(d, p))
-            if os.path.isfile(fp):
+            try:
+                fp = (d / p).resolve()
+            except FileNotFoundError:
+                continue
+            if fp.is_file():
                 return fp
         else:
             return p
@@ -288,14 +306,14 @@ class ConfigSourceFile(ConfigSource):
 
     def read(self, filename):
         if filename:
-            readfile = self.confparser.read(filename)
+            readfile = self.confparser.read(str(filename))
             if not readfile:
                 raise ConfigError("Could not read config file '%s'." % filename)
         elif filename is None:
             readfile = self.confparser.read(self.defaultFiles)
         else:
-            readfile = filename
-        return readfile
+            readfile = []
+        return [Path(p) for p in readfile]
 
     def setsection(self, section):
         if section and not self.confparser.has_section(section):
@@ -623,7 +641,7 @@ class Config(BaseConfig):
         super().__init__(argparse.ArgumentParser())
         self.cmdargs = ConfigSourceCmdArgs(self.argparser)
         self.environ = ConfigSourceEnvironment()
-        defaultFiles = [os.path.join(d, cfgfile) for d in cfgdirs]
+        defaultFiles = [str(d / cfgfile) for d in cfgdirs]
         self.conffile = ConfigSourceFile(defaultFiles)
         self.interactive = ConfigSourceInteractive()
         self.defaults = ConfigSourceDefault()
@@ -682,7 +700,8 @@ class Config(BaseConfig):
         """
         var = self.add_variable('configFile', ("-c", "--configfile"), 
                                 dict(help="config file"),
-                                envvar='ICAT_CFG', optional=True)
+                                envvar='ICAT_CFG', optional=True,
+                                type=lambda f: Path(f).expanduser())
         var.postprocess = _post_configFile
         var = self.add_variable('configSection', ("-s", "--configsection"), 
                                 dict(help="section in the config file", 

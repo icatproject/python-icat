@@ -49,14 +49,14 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
         else:
             self.getdata = self.getdata_file
 
-    def _file_open(self, filename):
-        if filename == "-":
+    def _file_open(self, infile):
+        if infile == "-":
             # lxml requires binary mode
             f = os.fdopen(os.dup(sys.stdin.fileno()), self.mode)
             sys.stdin.close()
             return f
         else:
-            return open(filename, self.mode)
+            return super()._file_open(infile)
 
     def _searchByReference(self, element, objtype, objindex):
         """Search for a referenced object.
@@ -154,14 +154,14 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         super().__init__(client, outfile)
         self.data = etree.Element("data")
 
-    def _file_open(self, filename):
-        if filename == "-":
+    def _file_open(self, outfile):
+        if outfile == "-":
             # lxml requires binary mode
             f = os.fdopen(os.dup(sys.stdout.fileno()), self.mode)
             sys.stdout.close()
             return f
         else:
-            return open(filename, self.mode)
+            return super()._file_open(outfile)
 
     def _entity2elem(self, obj, tag, keyindex):
         """Convert an entity object to an etree.Element."""

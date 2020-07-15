@@ -8,11 +8,26 @@ Changelog
 New features
 ------------
 
++ `#66`_, `#75`_: Add pathlib support: methods that take a file name
+  argument also accept a :class:`pathlib.Path` object. Internal
+  representation of filesystem paths are changed to use
+  :class:`pathlib.Path` where appropriate.  The predefined
+  configuarion variable `configFile` now supports tilde expansion.
+  Note incompatible changes below.
+
 + `#74`_: :class:`icat.ids.DataSelection` also accepts
   `DataCollection` as argument.
 
 Incompatible changes and deprecations
 -------------------------------------
+
++ As a consequence of switching to pathlib for filesystem paths some
+  return values and variables are now :class:`pathlib.Path` objects
+  rather then :class:`str`.  This affects:
+
+  - the return value of :func:`icat.config.cfgpath`,
+  - the predefined configuarion variable `configFile`,
+  - the module variable :data:`icat.config.cfgdirs`.
 
 + Drop support for Python 2 and Python 3.3.
 
@@ -39,7 +54,9 @@ Bug fixes and minor changes
 
 + Some (more) example scripts now require ICAT 4.4.0 or newer.
 
+.. _#66: https://github.com/icatproject/python-icat/issues/66
 .. _#74: https://github.com/icatproject/python-icat/issues/74
+.. _#75: https://github.com/icatproject/python-icat/pull/75
 
 
 0.17.0 (2020-04-30)

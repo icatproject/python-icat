@@ -6,7 +6,7 @@ from distutils.version import StrictVersion as Version
 import locale
 import logging
 import os
-import os.path
+from pathlib import Path
 from random import getrandbits
 import re
 import shutil
@@ -38,7 +38,7 @@ logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.CRITICAL)
 logging.getLogger('suds').setLevel(logging.ERROR)
 
-testdir = os.path.dirname(__file__)
+testdir = Path(__file__).resolve().parent
 
 
 def _skip(reason):
@@ -57,10 +57,10 @@ class DummyDatafile():
         if date is not None:
             date = (date, date)
         self.name = name
-        self.fname = os.path.join(directory, name)
+        self.fname = directory / name
         chunksize = 8192
         crc32 = 0
-        with open(self.fname, 'wb') as f:
+        with self.fname.open('wb') as f:
             while size > 0:
                 if chunksize > size:
                     chunksize = size
@@ -69,9 +69,9 @@ class DummyDatafile():
                 crc32 = zlib.crc32(chunk, crc32)
                 f.write(chunk)
         if date:
-            os.utime(self.fname, date)
+            os.utime(str(self.fname), date)
         self.crc32 = "%x" % (crc32 & 0xffffffff)
-        self.stat = os.stat(self.fname)
+        self.stat = self.fname.stat()
         self.size = self.stat.st_size
         if UtcTimezone:
             mtime = int(self.stat.st_mtime)
@@ -83,13 +83,13 @@ class DummyDatafile():
 def getConfig(confSection="root", **confArgs):
     """Get the configuration, skip on ConfigError.
     """
-    confFile = os.path.join(testdir, "data", "icat.cfg")
-    if not os.path.isfile(confFile):
+    confFile = testdir / "data" / "icat.cfg"
+    if not confFile.is_file():
         _skip("no test ICAT server configured")
     try:
-        confArgs['args'] = ["-c", confFile, "-s", confSection]
+        confArgs['args'] = ["-c", str(confFile), "-s", confSection]
         client, conf = icat.config.Config(**confArgs).getconfig()
-        conf.cmdargs = ["-c", conf.configFile[0], "-s", conf.configSection]
+        conf.cmdargs = ["-c", str(conf.configFile[0]), "-s", conf.configSection]
         return (client, conf)
     except icat.ConfigError as err:
         _skip(str(err))
@@ -122,8 +122,8 @@ class tmpClient:
 
 
 def gettestdata(fname):
-    fname = os.path.join(testdir, "data", fname)
-    assert os.path.isfile(fname)
+    fname = testdir / "data" / fname
+    assert fname.is_file()
     return fname
 
 
@@ -157,8 +157,8 @@ def get_reference_dumpfile(ext = "yaml"):
 
 
 def callscript(scriptname, args, stdin=None, stdout=None, stderr=None):
-    script = os.path.join(testdir, "scripts", scriptname)
-    cmd = [sys.executable, script] + args
+    script = testdir / "scripts" / scriptname
+    cmd = [sys.executable, str(script)] + args
     print("\n>", *cmd)
     subprocess.check_call(cmd, stdin=stdin, stdout=stdout, stderr=stderr)
 
@@ -177,7 +177,7 @@ def filter_file(infile, outfile, pattern, repl):
     call.  Such as the header of a dump file that contains date and
     ICAT version.
     """
-    with open(infile, 'rt') as inf, open(outfile, 'wt') as outf:
+    with infile.open('rt') as inf, outfile.open('wt') as outf:
         while True:
             l = inf.readline()
             if not l:
@@ -195,7 +195,7 @@ def filter_file(infile, outfile, pattern, repl):
 @pytest.fixture(scope="session")
 def tmpdirsec(request):
     tmpdir = tempfile.mkdtemp(prefix="python-icat-test-")
-    yield tmpdir
+    yield Path(tmpdir)
     shutil.rmtree(tmpdir)
 
 
@@ -209,7 +209,7 @@ def standardCmdArgs():
 def setupicat(standardCmdArgs):
     testcontent = get_reference_dumpfile()
     callscript("wipeicat.py", standardCmdArgs)
-    args = standardCmdArgs + ["-f", "YAML", "-i", testcontent]
+    args = standardCmdArgs + ["-f", "YAML", "-i", str(testcontent)]
     callscript("icatingest.py", args)
 
 # ============================= hooks ================================
@@ -217,7 +217,7 @@ def setupicat(standardCmdArgs):
 def pytest_report_header(config):
     """Add information on the icat package used in the tests.
     """
-    modpath = os.path.dirname(os.path.abspath(icat.__file__))
+    modpath = Path(icat.__file__).resolve().parent
     if icat_version > "0.0":
         icatserver = icat_version
     else:

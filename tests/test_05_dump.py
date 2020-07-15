@@ -2,7 +2,6 @@
 """
 
 import filecmp
-import os.path
 import re
 import pytest
 try:
@@ -114,11 +113,11 @@ def test_ingest(ingestcase, standardCmdArgs):
     backend, filetype = ingestcase
     refdump = backends[backend]['refdump']
     if filetype == 'FILE':
-        args = standardCmdArgs + ["-f", backend, "-i", refdump]
+        args = standardCmdArgs + ["-f", backend, "-i", str(refdump)]
         callscript("icatingest.py", args)
     elif filetype == 'STDINOUT':
         args = standardCmdArgs + ["-f", backend]
-        with open(refdump, "rt") as infile:
+        with refdump.open("rt") as infile:
             callscript("icatingest.py", args, stdin=infile)
     else:
         raise RuntimeError("Invalid file type %s" % filetype)
@@ -130,34 +129,36 @@ def test_check_content(ingestcheck, standardCmdArgs, tmpdirsec, case):
     backend, filetype = case
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']
-    dump = os.path.join(tmpdirsec, "dump" + fileext)
-    fdump = os.path.join(tmpdirsec, "dump-filter" + fileext)
-    reffdump = os.path.join(tmpdirsec, "dump-filter-ref" + fileext)
+    dump = tmpdirsec / ("dump" + fileext)
+    fdump = tmpdirsec / ("dump-filter" + fileext)
+    reffdump = tmpdirsec / ("dump-filter-ref" + fileext)
     filter_file(refdump, reffdump, *backends[backend]['filter'])
     if filetype == 'FILE':
-        args = standardCmdArgs + ["-f", backend, "-o", dump]
+        args = standardCmdArgs + ["-f", backend, "-o", str(dump)]
         callscript("icatdump.py", args)
     elif filetype == 'STDINOUT':
         args = standardCmdArgs + ["-f", backend]
-        with open(dump, "wt") as outfile:
+        with dump.open("wt") as outfile:
             callscript("icatdump.py", args, stdout=outfile)
     else:
         raise RuntimeError("Invalid file type %s" % filetype)
     filter_file(dump, fdump, *backends[backend]['filter'])
-    assert filecmp.cmp(reffdump, fdump), "content of ICAT was not as expected"
+    assert filecmp.cmp(str(reffdump), str(fdump)), \
+        "content of ICAT was not as expected"
 
 def test_check_summary_root(ingestcheck, standardCmdArgs, tmpdirsec):
     """Check the number of objects for each class at the ICAT server.
     """
-    summary = os.path.join(tmpdirsec, "summary")
+    summary = tmpdirsec / "summary"
     ref = refsummary["root"]
     if summary_root_filter:
-        reff = os.path.join(tmpdirsec, "summary-filter-ref")
+        reff = tmpdirsec / "summary-filter-ref"
         filter_file(ref, reff, *summary_root_filter)
         ref = reff
-    with open(summary, "wt") as out:
+    with summary.open("wt") as out:
         callscript("icatsummary.py", standardCmdArgs, stdout=out)
-    assert filecmp.cmp(ref, summary), "ICAT content was not as expected"
+    assert filecmp.cmp(str(ref), str(summary)), \
+        "ICAT content was not as expected"
 
 @pytest.mark.parametrize(("user"), users)
 def test_check_summary_user(ingestcheck, tmpdirsec, user):
@@ -166,14 +167,15 @@ def test_check_summary_user(ingestcheck, tmpdirsec, user):
     This checks which objects a given user may see and thus whether
     the (read) access rules work as expected.
     """
-    summary = os.path.join(tmpdirsec, "summary.%s" % user)
+    summary = tmpdirsec / ("summary.%s" % user)
     ref = refsummary[user]
-    reff = os.path.join(tmpdirsec, "summary-filter-ref.%s" % user)
+    reff = tmpdirsec / ("summary-filter-ref.%s" % user)
     filter_file(ref, reff, *summary_user_filter)
     _, conf = getConfig(confSection=user)
-    with open(summary, "wt") as out:
+    with summary.open("wt") as out:
         callscript("icatsummary.py", conf.cmdargs, stdout=out)
-    assert filecmp.cmp(reff, summary), "ICAT content was not as expected"
+    assert filecmp.cmp(str(reff), str(summary)), \
+        "ICAT content was not as expected"
 
 @pytest.mark.parametrize(("query","result"), queries)
 def test_check_queries(ingestcheck, client, query, result):

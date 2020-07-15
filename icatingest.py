@@ -4,7 +4,7 @@
 # icatdump.py.
 
 import logging
-import os.path
+from pathlib import Path
 import icat
 import icat.config
 from icat.dumpfile import open_dumpfile
@@ -26,10 +26,16 @@ formats = icat.dumpfile.Backends.keys()
 if len(formats) == 0:
     raise RuntimeError("No datafile backends available.")
 
+def getPath(f):
+    if f == '-':
+        return f
+    else:
+        return Path(f).expanduser()
+
 config = icat.config.Config(ids="optional")
 config.add_variable('file', ("-i", "--inputfile"), 
                     dict(help="input file name or '-' for stdin"),
-                    default='-')
+                    type=getPath, default='-')
 config.add_variable('format', ("-f", "--format"), 
                     dict(help="input file format", choices=formats),
                     default='YAML')
@@ -38,7 +44,7 @@ config.add_variable('uploadDatafiles', ("--upload-datafiles",),
                     type=icat.config.flag, default=False)
 config.add_variable('dataDir', ("--datafile-dir",), 
                     dict(help="datafile directory"),
-                    default='.')
+                    type=lambda f: Path(f).expanduser(), default='.')
 config.add_variable('duplicate', ("--duplicate",), 
                     dict(help="behavior in case of duplicate objects",
                          choices=["THROW", "IGNORE", "CHECK", "OVERWRITE"]), 
@@ -49,7 +55,7 @@ if conf.uploadDatafiles:
     if conf.idsurl is None:
         raise icat.ConfigError("Config option 'idsurl' not given, "
                                "but required for uploadDatafiles.")
-    conf.dataDir = os.path.abspath(conf.dataDir)
+    conf.dataDir = conf.dataDir.resolve()
 
 if client.apiversion < '4.3.0':
     raise RuntimeError("Sorry, ICAT version %s is too old, need 4.3.0 or newer."
@@ -86,7 +92,7 @@ def check_duplicate(obj):
 with open_dumpfile(client, conf.file, conf.format, 'r') as dumpfile:
     for obj in dumpfile.getobjs():
         if conf.uploadDatafiles and obj.BeanName == "Datafile":
-            fname = os.path.join(conf.dataDir, obj.name)
+            fname = conf.dataDir / obj.name
             client.putData(fname, obj)
         else:
             try:
