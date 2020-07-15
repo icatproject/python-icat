@@ -306,14 +306,14 @@ class ConfigSourceFile(ConfigSource):
 
     def read(self, filename):
         if filename:
-            readfile = self.confparser.read(filename)
+            readfile = self.confparser.read(str(filename))
             if not readfile:
                 raise ConfigError("Could not read config file '%s'." % filename)
         elif filename is None:
             readfile = self.confparser.read(self.defaultFiles)
         else:
-            readfile = filename
-        return readfile
+            readfile = []
+        return [Path(p) for p in readfile]
 
     def setsection(self, section):
         if section and not self.confparser.has_section(section):
@@ -700,7 +700,7 @@ class Config(BaseConfig):
         """
         var = self.add_variable('configFile', ("-c", "--configfile"), 
                                 dict(help="config file"),
-                                envvar='ICAT_CFG', optional=True)
+                                envvar='ICAT_CFG', optional=True, type=Path)
         var.postprocess = _post_configFile
         var = self.add_variable('configSection', ("-s", "--configsection"), 
                                 dict(help="section in the config file", 

@@ -89,7 +89,7 @@ def getConfig(confSection="root", **confArgs):
     try:
         confArgs['args'] = ["-c", str(confFile), "-s", confSection]
         client, conf = icat.config.Config(**confArgs).getconfig()
-        conf.cmdargs = ["-c", conf.configFile[0], "-s", conf.configSection]
+        conf.cmdargs = ["-c", str(conf.configFile[0]), "-s", conf.configSection]
         return (client, conf)
     except icat.ConfigError as err:
         _skip(str(err))
