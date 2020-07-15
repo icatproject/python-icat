@@ -90,17 +90,21 @@ The constructor of :class:`icat.config.Config` sets up the following
 set of configuration variables that an ICAT client typically needs:
 
   `configFile`
-    Name of the configuration file to read.
+    Paths of the configuration files to read.  The default is a list
+    of standard paths that depends on the operating system.  If a
+    value is provided, it must be a single path.  The value that is
+    set in this variable after configuration is a list of the file
+    paths that have successfully been read.
 
   `configSection`
     Name of the section in the configuration file to apply.  If
     not set, no values will be read from the configuration file.
 
   `url`
-    URL to the web service description of the ICAT server.
+    URL of the web service description of the ICAT server.
 
   `idsurl`
-    URL to the ICAT Data Service.
+    URL of the ICAT Data Service.
 
   `checkCert`
     Verify the server certificate for HTTPS connections.
