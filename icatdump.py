@@ -3,6 +3,7 @@
 # Dump the content of the ICAT to a file or to stdout.
 
 import logging
+from pathlib import Path
 import icat
 import icat.config
 from icat.dump_queries import *
@@ -24,10 +25,16 @@ formats = icat.dumpfile.Backends.keys()
 if len(formats) == 0:
     raise RuntimeError("No datafile backends available.")
 
+def getPath(f):
+    if f == '-':
+        return f
+    else:
+        return Path(f).expanduser()
+
 config = icat.config.Config(ids=False)
 config.add_variable('file', ("-o", "--outputfile"), 
                     dict(help="output file name or '-' for stdout"),
-                    default='-')
+                    type=getPath, default='-')
 config.add_variable('format', ("-f", "--format"), 
                     dict(help="output file format", choices=formats),
                     default='YAML')

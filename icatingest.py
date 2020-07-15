@@ -26,10 +26,16 @@ formats = icat.dumpfile.Backends.keys()
 if len(formats) == 0:
     raise RuntimeError("No datafile backends available.")
 
+def getPath(f):
+    if f == '-':
+        return f
+    else:
+        return Path(f).expanduser()
+
 config = icat.config.Config(ids="optional")
 config.add_variable('file', ("-i", "--inputfile"), 
                     dict(help="input file name or '-' for stdin"),
-                    default='-')
+                    type=getPath, default='-')
 config.add_variable('format', ("-f", "--format"), 
                     dict(help="input file format", choices=formats),
                     default='YAML')
@@ -38,7 +44,7 @@ config.add_variable('uploadDatafiles', ("--upload-datafiles",),
                     type=icat.config.flag, default=False)
 config.add_variable('dataDir', ("--datafile-dir",), 
                     dict(help="datafile directory"),
-                    type=Path, default='.')
+                    type=lambda f: Path(f).expanduser(), default='.')
 config.add_variable('duplicate', ("--duplicate",), 
                     dict(help="behavior in case of duplicate objects",
                          choices=["THROW", "IGNORE", "CHECK", "OVERWRITE"]), 
