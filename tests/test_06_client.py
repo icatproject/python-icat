@@ -12,6 +12,7 @@ try:
 except ImportError:
     # Python 2
     from collections import Iterable, Callable
+import datetime
 import pytest
 import icat
 import icat.config
@@ -40,6 +41,39 @@ def test_logout_no_session_error(client):
     """
     with tmpSessionId(client, "-=- Invalid -=-"):
         client.logout()
+
+# ======================== test search() ===========================
+
+cet = datetime.timezone(datetime.timedelta(hours=1))
+cest = datetime.timezone(datetime.timedelta(hours=2))
+
+@pytest.mark.parametrize(("query", "result"), [
+    ("SELECT o.name, o.title, o.startDate FROM Investigation o",
+     [["08100122-EF", "Durol single crystal",
+       datetime.datetime(2008, 3, 13, 11, 39, 42, tzinfo=cet)],
+      ["10100601-ST", "Ni-Mn-Ga flat cone",
+       datetime.datetime(2010, 9, 30, 12, 27, 24, tzinfo=cest)],
+      ["12100409-ST", "NiO SC OF1 JUH HHL",
+       datetime.datetime(2012, 7, 26, 17, 44, 24, tzinfo=cest)]]),
+    ("SELECT i.name, ds.name FROM Dataset ds JOIN ds.investigation AS i "
+     "WHERE i.startDate < '2011-01-01'",
+     [["08100122-EF", "e201215"],
+      ["08100122-EF", "e201216"],
+      ["10100601-ST", "e208339"],
+      ["10100601-ST", "e208341"],
+      ["10100601-ST", "e208342"]]),
+])
+def test_search_mulitple_fields(client, query, result):
+    """Search for mutliple fields.
+
+    Newer versions of icat.server allow to select multiple fields in a
+    search expression (added in icatproject/icat.server#246).  Test
+    client side support for this.
+    """
+    if not client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields not supported by this server")
+    r = client.search(query)
+    assert r == result
 
 # ==================== test assertedSearch() =======================
 
