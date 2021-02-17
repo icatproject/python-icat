@@ -20,9 +20,10 @@ from icat.entity import Entity
 from icat.entities import getTypeMap
 from icat.query import Query
 from icat.exception import *
+from icat.helper import (simpleqp_unquote, parse_attr_val,
+                         ms_timestamp, disable_logger)
 from icat.ids import *
 from icat.sslcontext import create_ssl_context, HTTPSTransport
-from icat.helper import simpleqp_unquote, parse_attr_val, ms_timestamp
 
 __all__ = ['Client']
 
@@ -207,6 +208,12 @@ class Client(suds.client.Client):
         Class = type(self)
         return Class(self.url, **self.kwargs)
 
+
+    def _has_wsdl_type(self, name):
+        """Check if this client's WSDL defines a particular type name.
+        """
+        with disable_logger("suds.resolver"):
+            return self.factory.resolver.find(name)
 
     def new(self, obj, **kwargs):
 
