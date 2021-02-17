@@ -287,7 +287,8 @@ class Client(suds.client.Client):
     def getEntity(self, obj):
         """Get the corresponding :class:`icat.entity.Entity` for an object.
 
-        If obj is a Suds instance object, create a new object with
+        if obj is a fieldSet, return it fields, if obj is any other a
+        Suds instance object, create a new object with
         :meth:`~icat.client.Client.new`.  Otherwise do nothing and
         return obj unchanged.
         
@@ -296,7 +297,9 @@ class Client(suds.client.Client):
         :return: the new entity object or obj.
         :rtype: :class:`icat.entity.Entity` or any type
         """
-        if isinstance(obj, suds.sudsobject.Object):
+        if obj.__class__.__name__ == 'fieldSet':
+            return obj.field
+        elif isinstance(obj, suds.sudsobject.Object):
             return self.new(obj)
         else:
             return obj
