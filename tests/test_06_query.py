@@ -413,6 +413,22 @@ def test_query_attribute_datafile_name(client):
         assert not isinstance(n, icat.entity.Entity)
 
 @pytest.mark.dependency(depends=['get_investigation'])
+def test_query_attribute_datafile_name_list(client):
+    """The datafiles names related to a given investigation in natural order.
+
+    Same as last test, but pass the attribute as a list having one
+    single element.
+    """
+    query = Query(client, "Datafile", attributes=["name"], order=True,
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 4
+    for n in res:
+        assert not isinstance(n, icat.entity.Entity)
+
+@pytest.mark.dependency(depends=['get_investigation'])
 def test_query_related_obj_attribute(client):
     """We may query attributes of related objects in the SELECT clause.
 
@@ -427,6 +443,42 @@ def test_query_related_obj_attribute(client):
     assert len(res) == 4
     for n in res:
         assert n in ['other', 'NeXus']
+
+def test_query_mulitple_attributes(client):
+    """Query multiple attributes in the SELECT clause.
+    """
+    if not client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields not supported by this server")
+
+    results = [["08100122-EF", "Durol single crystal",
+                datetime.datetime(2008, 3, 13, 10, 39, 42, tzinfo=tzinfo)],
+               ["10100601-ST", "Ni-Mn-Ga flat cone",
+                datetime.datetime(2010, 9, 30, 10, 27, 24, tzinfo=tzinfo)],
+               ["12100409-ST", "NiO SC OF1 JUH HHL",
+                datetime.datetime(2012, 7, 26, 15, 44, 24, tzinfo=tzinfo)]]
+    query = Query(client, "Investigation",
+                  attributes=["name", "title", "startDate"], order=True)
+    print(str(query))
+    res = client.search(query)
+    assert res == results
+
+def test_query_mulitple_attributes_related_obj(client):
+    """Query multiple attributes including attributes of related objects.
+    """
+    if not client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields not supported by this server")
+
+    results = [["08100122-EF", "e201215"],
+               ["08100122-EF", "e201216"],
+               ["10100601-ST", "e208339"],
+               ["10100601-ST", "e208341"],
+               ["10100601-ST", "e208342"]]
+    query = Query(client, "Dataset",
+                  attributes=["investigation.name", "name"], order=True,
+                  conditions={"investigation.startDate":  "< '2011-01-01'"})
+    print(str(query))
+    res = client.search(query)
+    assert res == results
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_aggregate_distinct_attribute(client):
