@@ -403,7 +403,7 @@ def test_query_attribute_datafile_name(client):
     Querying attributes rather then entire objects is a new feature
     added in Issue #28.
     """
-    query = Query(client, "Datafile", attribute="name", order=True, 
+    query = Query(client, "Datafile", attributes="name", order=True,
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -419,7 +419,7 @@ def test_query_related_obj_attribute(client):
     This requires icat.server 4.5 or newer to work.
     """
     require_icat_version("4.5.0", "SELECT related object's attribute")
-    query = Query(client, "Datafile", attribute="datafileFormat.name", 
+    query = Query(client, "Datafile", attributes="datafileFormat.name",
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -437,7 +437,7 @@ def test_query_aggregate_distinct_attribute(client):
     """
     require_icat_version("4.7.0", "SELECT DISTINCT in queries")
     query = Query(client, "Datafile", 
-                  attribute="datafileFormat.name", 
+                  attributes="datafileFormat.name",
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -457,7 +457,7 @@ def test_query_aggregate_distinct_related_obj(client):
     """
     require_icat_version("4.7.0", "SELECT DISTINCT in queries")
     query = Query(client, "Datafile", 
-                  attribute="datafileFormat", 
+                  attributes="datafileFormat",
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -507,7 +507,8 @@ def test_query_aggregate_misc(client, attribute, aggregate, expected):
         require_icat_version("4.5.0", "SELECT related object's attribute")
     if "DISTINCT" in aggregate:
         require_icat_version("4.7.0", "SELECT DISTINCT in queries")
-    query = Query(client, "Datafile", attribute=attribute, aggregate=aggregate,
+    query = Query(client, "Datafile",
+                  attributes=attribute, aggregate=aggregate,
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))

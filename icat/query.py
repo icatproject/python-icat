@@ -58,8 +58,8 @@ class Query(object):
     :param entity: the type of objects to search for.  This may either
         be an :class:`icat.entity.Entity` subclass or the name of an
         entity type.
-    :param attribute: the attribute that the query shall return.  See
-        the :meth:`~icat.query.Query.setAttribute` method for details.
+    :param attributes: the attributes that the query shall return.  See
+        the :meth:`~icat.query.Query.setAttributes` method for details.
     :param aggregate: the aggregate function to be applied in the
         SELECT clause, if any.  See the
         :meth:`~icat.query.Query.setAggregate` method for details.
@@ -77,8 +77,8 @@ class Query(object):
         details.
     """
 
-    def __init__(self, client, entity, 
-                 attribute=None, aggregate=None, order=None, 
+    def __init__(self, client, entity,
+                 attributes=None, aggregate=None, order=None,
                  conditions=None, includes=None, limit=None):
         """Initialize the query.
         """
@@ -99,7 +99,7 @@ class Query(object):
         else:
             raise EntityTypeError("Invalid entity type '%s'." % type(entity))
 
-        self.setAttribute(attribute)
+        self.setAttributes(attributes)
         self.setAggregate(aggregate)
         self.conditions = dict()
         self.addConditions(conditions)
@@ -172,21 +172,21 @@ class Query(object):
             n += " AS %s" % (subst[obj])
         return n
 
-    def setAttribute(self, attribute):
-        """Set the attribute that the query shall return.
+    def setAttributes(self, attributes):
+        """Set the attributes that the query shall return.
 
-        :param attribute: the name of the attribute.  The result of
+        :param attributes: the name of the attributes.  The result of
             the query will be a list of attribute values for the
-            matching entity objects.  If attribute is :const:`None`,
+            matching entity objects.  If attributes is :const:`None`,
             the result will be the list of matching objects instead.
-        :type attribute: :class:`str`
-        :raise ValueError: if `attribute` is not valid.
+        :type attributes: :class:`str`
+        :raise ValueError: if `attributes` is not valid.
         """
-        if attribute is not None:
+        if attributes is not None:
             # Get the attribute path only to verify that the attribute is valid.
-            for (pattr, attrInfo, rclass) in self._attrpath(attribute):
+            for (pattr, attrInfo, rclass) in self._attrpath(attributes):
                 pass
-        self.attribute = attribute
+        self.attributes = attributes
 
     def setAggregate(self, function):
         """Set the aggregate function to be applied to the result.
@@ -342,12 +342,12 @@ class Query(object):
     def __repr__(self):
         """Return a formal representation of the query.
         """
-        return ("%s(%s, %s, attribute=%s, aggregate=%s, order=%s, "
+        return ("%s(%s, %s, attributes=%s, aggregate=%s, order=%s, "
                 "conditions=%s, includes=%s, limit=%s)"
-                % (self.__class__.__name__, 
-                   repr(self.client), repr(self.entity.BeanName), 
-                   repr(self.attribute), repr(self.aggregate), 
-                   repr(self.order), repr(self.conditions), 
+                % (self.__class__.__name__,
+                   repr(self.client), repr(self.entity.BeanName),
+                   repr(self.attributes), repr(self.aggregate),
+                   repr(self.order), repr(self.conditions),
                    repr(self.includes), repr(self.limit)))
 
     def __str__(self):
@@ -363,16 +363,16 @@ class Query(object):
         distinction between Unicode and string objects anyway.
         """
         joinattrs = { a for a, d in self.order } | set(self.conditions.keys())
-        if self.attribute:
-            joinattrs.add(self.attribute)
+        if self.attributes:
+            joinattrs.add(self.attributes)
         subst = self._makesubst(joinattrs)
-        if self.attribute:
+        if self.attributes:
             if self.client.apiversion >= "4.7.0":
-                res = self._dosubst(self.attribute, subst, False)
+                res = self._dosubst(self.attributes, subst, False)
             else:
                 # Old versions of icat.server do not accept
                 # substitution in the SELECT clause.
-                res = "o.%s" % self.attribute
+                res = "o.%s" % self.attributes
         else:
             res = "o"
         if self.aggregate:
@@ -424,7 +424,7 @@ class Query(object):
         """Return an independent clone of this query.
         """
         q = Query(self.client, self.entity)
-        q.attribute = self.attribute
+        q.attributes = self.attributes
         q.aggregate = self.aggregate
         q.order = list(self.order)
         q.conditions = self.conditions.copy()

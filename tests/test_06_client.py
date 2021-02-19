@@ -244,7 +244,7 @@ def test_searchChunked_id(client, query):
     works around this for the standard formulation of the query
     (9901ec6).
     """
-    refq = Query(client, "Investigation", attribute="id", limit=(0,1),
+    refq = Query(client, "Investigation", attributes="id", limit=(0,1),
                  conditions={"name": "= '08100122-EF'"})
     id = client.assertedSearch(refq)[0]
     # The search by id must return exactly one result.  The broken
