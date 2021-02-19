@@ -298,7 +298,7 @@ class Client(suds.client.Client):
         :rtype: :class:`list` or :class:`icat.entity.Entity` or any type
         """
         if obj.__class__.__name__ == 'fieldSet':
-            return obj.field
+            return obj.fields
         elif isinstance(obj, suds.sudsobject.Object):
             return self.new(obj)
         else:
