@@ -175,18 +175,29 @@ class Query(object):
     def setAttributes(self, attributes):
         """Set the attributes that the query shall return.
 
-        :param attributes: the name of the attributes.  The result of
-            the query will be a list of attribute values for the
-            matching entity objects.  If attributes is :const:`None`,
+        :param attributes: the names of the attributes.  This can
+            either be a single name or a list of names.  The result of
+            the search will be a list with either a single attribute
+            value or a list of attribute values respectively for each
+            matching entity object.  If attributes is :const:`None`,
             the result will be the list of matching objects instead.
-        :type attributes: :class:`str`
-        :raise ValueError: if `attributes` is not valid.
+        :type attributes: :class:`str` or :class:`list` of :class:`str`
+        :raise ValueError: if any name in `attributes` is not valid.
         """
-        if attributes is not None:
-            # Get the attribute path only to verify that the attribute is valid.
-            for (pattr, attrInfo, rclass) in self._attrpath(attributes):
-                pass
-        self.attributes = attributes
+        self.attributes = []
+        if attributes:
+            if isinstance(attributes, str):
+                attributes = [ attributes ]
+            if (len(attributes) > 1 and
+                not self.client._has_wsdl_type('fieldSet')):
+                raise ValueError("This ICAT server does not support queries "
+                                 "searching for multiple attributes")
+            for attr in attributes:
+                # Get the attribute path only to verify that the
+                # attribute is valid.
+                for (pattr, attrInfo, rclass) in self._attrpath(attr):
+                    pass
+                self.attributes.append(attr)
 
     def setAggregate(self, function):
         """Set the aggregate function to be applied to the result.
@@ -362,17 +373,20 @@ class Query(object):
         usefulness over formal correctness.  For Python 3, there is no
         distinction between Unicode and string objects anyway.
         """
-        joinattrs = { a for a, d in self.order } | set(self.conditions.keys())
-        if self.attributes:
-            joinattrs.add(self.attributes)
+        joinattrs = ( { a for a, d in self.order } |
+                      set(self.conditions.keys()) |
+                      set(self.attributes) )
         subst = self._makesubst(joinattrs)
         if self.attributes:
-            if self.client.apiversion >= "4.7.0":
-                res = self._dosubst(self.attributes, subst, False)
-            else:
-                # Old versions of icat.server do not accept
-                # substitution in the SELECT clause.
-                res = "o.%s" % self.attributes
+            attrs = []
+            for a in self.attributes:
+                if self.client.apiversion >= "4.7.0":
+                    attrs.append(self._dosubst(a, subst, False))
+                else:
+                    # Old versions of icat.server do not accept
+                    # substitution in the SELECT clause.
+                    attrs.append("o.%s" % a)
+            res = ", ".join(attrs)
         else:
             res = "o"
         if self.aggregate:
@@ -424,7 +438,7 @@ class Query(object):
         """Return an independent clone of this query.
         """
         q = Query(self.client, self.entity)
-        q.attributes = self.attributes
+        q.attributes = list(self.attributes)
         q.aggregate = self.aggregate
         q.order = list(self.order)
         q.conditions = self.conditions.copy()
