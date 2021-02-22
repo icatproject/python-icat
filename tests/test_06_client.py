@@ -138,10 +138,9 @@ def test_searchChunked_chunksize(client):
     """
     # chunksize is an internal tuning parameter in searchChunked()
     # that should not have any visible impact on the result.  So we
-    # may test the same assumptions as above.  We choose the
-    # chunksize small enough such that that the result cannot be
-    # fetched at once and thus force searchChunked() to repeat the
-    # search internally.
+    # may test the same assumptions as above.  We choose the chunksize
+    # small enough such that the result cannot be fetched at once and
+    # thus force searchChunked() to repeat the search internally.
     query = "User"
     users = client.search(query)
     chunksize = int(len(users)/2)
