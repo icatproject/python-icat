@@ -75,11 +75,18 @@ class Query(object):
     :param limit: a tuple (skip, count) to be used in the LIMIT
         clause.  See the :meth:`~icat.query.Query.setLimit` method for
         details.
+    :param attribute: alias for `attributes`, retained for
+        compatibility.  Deprecated, use `attributes` instead.
+
+    .. versionchanged:: 0.18.0
+        add support for queries requesting a list of attributes rather
+        then a single one.  Consequently, the keyword argument
+        `attribute` has been renamed to `attributes` (in the plural).
     """
 
     def __init__(self, client, entity,
                  attributes=None, aggregate=None, order=None,
-                 conditions=None, includes=None, limit=None):
+                 conditions=None, includes=None, limit=None, attribute=None):
         """Initialize the query.
         """
 
@@ -98,6 +105,13 @@ class Query(object):
                                       % entity.__name__)
         else:
             raise EntityTypeError("Invalid entity type '%s'." % type(entity))
+
+        if attribute is not None:
+            if attributes:
+                raise TypeError("cannot use both, attribute and attributes")
+            warn("The attribute keyword argument is deprecated and will be "
+                 "removed in python-icat 1.0.", DeprecationWarning, 2)
+            attributes = attribute
 
         self.setAttributes(attributes)
         self.setAggregate(aggregate)
@@ -183,6 +197,11 @@ class Query(object):
             the result will be the list of matching objects instead.
         :type attributes: :class:`str` or :class:`list` of :class:`str`
         :raise ValueError: if any name in `attributes` is not valid.
+
+        .. versionchanged:: 0.18.0
+            also accept a list of attribute names.  Renamed from
+            :meth:`setAttribute` to :meth:`setAttributes` (in the
+            plural).
         """
         self.attributes = []
         if attributes:
@@ -445,3 +464,13 @@ class Query(object):
         q.includes = self.includes.copy()
         q.limit = self.limit
         return q
+
+    def setAttribute(self, attribute):
+        """Alias for :meth:`setAttributes`.
+
+        .. deprecated:: 0.18.0
+            use :meth:`setAttributes` instead.
+        """
+        warn("setAttribute() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
+        self.setAttributes(attribute)
