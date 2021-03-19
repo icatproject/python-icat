@@ -367,12 +367,23 @@ Instead of returning a list of the matching objects, we may also
 request single attributes.  The result will be a list of the attribute
 values of the matching objects.  Listing the names of all datasets::
 
-  >>> query = Query(client, "Dataset", attribute="name")
+  >>> query = Query(client, "Dataset", attributes="name")
   >>> print(query)
   SELECT o.name FROM Dataset o
   >>> client.search(query)
   [e201215, e201216, e208339, e208341, e208342, e208945, e208946, e208947]
 
+As the name of that keyword argument suggests, we may also search for
+multiple attributes at once.  This will a list with the attribute
+values for each object found in the query.  It requires an ICAT server
+version 4.11 or newer though.
+
+  >>> query = Query(client, "Dataset", attributes=["investigation.name", "name", "type.name"])
+  >>> print(query)
+  SELECT i.name, o.name, t.name FROM Dataset o JOIN o.investigation AS i JOIN o.type AS t
+  >>> client.search(query)
+  [[08100122-EF, e201215, raw], [08100122-EF, e201216, raw], [10100601-ST, e208339, raw], [10100601-ST, e208341, raw], [10100601-ST, e208342, raw], [12100409-ST, e208945, raw], [12100409-ST, e208946, raw], [12100409-ST, e208947, analyzed]]
+  
 There are also some aggregate functions that may be applied to search
 results.  Let's count all datasets::
 
@@ -395,7 +406,7 @@ average magnetic field applied in the measurements::
   ...     "type.name": "= 'Magnetic field'",
   ...     "type.units": "= 'T'",
   ... }
-  >>> query = Query(client, "DatasetParameter", conditions=conditions, attribute="numericValue")
+  >>> query = Query(client, "DatasetParameter", conditions=conditions, attributes="numericValue")
   >>> print(query)
   SELECT o.numericValue FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN o.type AS t WHERE i.name = '10100601-ST' AND t.name = 'Magnetic field' AND t.units = 'T'
   >>> client.search(query)
