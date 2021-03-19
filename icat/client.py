@@ -139,7 +139,7 @@ class Client(suds.client.Client):
             proxy = {}
         kwargs['transport'] = HTTPSTransport(self.sslContext, proxy=proxy)
         super(Client, self).__init__(self.url, **kwargs)
-        apiversion = self.getApiVersion()
+        apiversion = str(self.getApiVersion())
         # Translate a version having a trailing '-SNAPSHOT' into
         # something that StrictVersion would accept.
         apiversion = re.sub(r'-SNAPSHOT$', 'a1', apiversion)
