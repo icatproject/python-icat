@@ -44,17 +44,25 @@ def test_logout_no_session_error(client):
 
 # ======================== test search() ===========================
 
-cet = datetime.timezone(datetime.timedelta(hours=1))
-cest = datetime.timezone(datetime.timedelta(hours=2))
+try:
+    # datetime.timezone has been added in Python 3.2
+    cet = datetime.timezone(datetime.timedelta(hours=1))
+    cest = datetime.timezone(datetime.timedelta(hours=2))
+except AttributeError:
+    # Old Python
+    cet = None
+    cest = None
 
 @pytest.mark.parametrize(("query", "result"), [
-    ("SELECT o.name, o.title, o.startDate FROM Investigation o",
-     [["08100122-EF", "Durol single crystal",
-       datetime.datetime(2008, 3, 13, 11, 39, 42, tzinfo=cet)],
-      ["10100601-ST", "Ni-Mn-Ga flat cone",
-       datetime.datetime(2010, 9, 30, 12, 27, 24, tzinfo=cest)],
-      ["12100409-ST", "NiO SC OF1 JUH HHL",
-       datetime.datetime(2012, 7, 26, 17, 44, 24, tzinfo=cest)]]),
+    pytest.param("SELECT o.name, o.title, o.startDate FROM Investigation o",
+                 [["08100122-EF", "Durol single crystal",
+                   datetime.datetime(2008, 3, 13, 11, 39, 42, tzinfo=cet)],
+                  ["10100601-ST", "Ni-Mn-Ga flat cone",
+                   datetime.datetime(2010, 9, 30, 12, 27, 24, tzinfo=cest)],
+                  ["12100409-ST", "NiO SC OF1 JUH HHL",
+                   datetime.datetime(2012, 7, 26, 17, 44, 24, tzinfo=cest)]],
+                 marks=pytest.mark.skipif("cet is None",
+                                          reason="require datetime.timezone")),
     ("SELECT i.name, ds.name FROM Dataset ds JOIN ds.investigation AS i "
      "WHERE i.startDate < '2011-01-01'",
      [["08100122-EF", "e201215"],
@@ -132,6 +140,7 @@ def test_assertedSearch_range_exact_query(client):
     assert len(objs) == 3
     assert objs[0].BeanName == "User"
 
+@pytest.mark.skipif(cet is None, reason="require datetime.timezone")
 def test_assertedSearch_unique_mulitple_fields(client):
     """Search for some attributes of a unique object with assertedSearch().
     """
