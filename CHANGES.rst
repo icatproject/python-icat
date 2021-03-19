@@ -2,6 +2,18 @@ Changelog
 =========
 
 
+0.18.0 (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug fixes and minor changes
+---------------------------
+
++ `#79`_: fix an encoding issue in :attr:`icat.client.Client.apiversion`,
+  only relevant with Python 2.
+
+.. _#79: https://github.com/icatproject/python-icat/pull/79
+
+
 0.17.0 (2020-04-30)
 ~~~~~~~~~~~~~~~~~~~
 
