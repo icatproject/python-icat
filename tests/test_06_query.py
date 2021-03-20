@@ -2,8 +2,9 @@
 """
 
 from __future__ import print_function
-import sys
 import datetime
+import re
+import sys
 import pytest
 import icat
 import icat.config
@@ -479,6 +480,18 @@ def test_query_mulitple_attributes_related_obj(client):
     print(str(query))
     res = client.search(query)
     assert res == results
+
+def test_query_mulitple_attributes_oldicat_valueerror(client):
+    """Query class should raise ValueError if multiple attributes are
+    requested, but the ICAT server is too old to support this.
+    """
+    if client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields is supported by this server")
+
+    with pytest.raises(ValueError) as err:
+        query = Query(client, "Investigation", attributes=["name", "title"])
+    err_pattern = r"\bICAT server\b.*\bnot support\b.*\bmultiple attributes\b"
+    assert re.search(err_pattern, str(err.value))
 
 def test_query_deprecated_kwarg_attribute(client):
     """the keyword argument `attribute` to :class:`icat.query.Query`
