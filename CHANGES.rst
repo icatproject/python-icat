@@ -29,9 +29,13 @@ Bug fixes and minor changes
 + `#79`_: fix an encoding issue in :attr:`icat.client.Client.apiversion`,
   only relevant with Python 2.
 
++ `#80`_: add :exc:`TypeError` as additional ancestor of
+  :exc:`icat.exception.EntityTypeError`.
+
 .. _#76: https://github.com/icatproject/python-icat/pull/76
 .. _#78: https://github.com/icatproject/python-icat/issues/78
 .. _#79: https://github.com/icatproject/python-icat/pull/79
+.. _#80: https://github.com/icatproject/python-icat/pull/80
 
 
 0.17.0 (2020-04-30)

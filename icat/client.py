@@ -517,10 +517,10 @@ class Client(suds.client.Client):
         server.  There are a few subtle differences though: the query
         must not contain a LIMIT clause (use the skip and count
         arguments instead) and should contain an ORDER BY clause.  The
-        return value is an iterator over the items in the search
-        result rather then a list.  The individual search calls are
-        done lazily, e.g. they are not done until needed to yield the
-        next item from the iterator.
+        return value is a generator yielding successively the items in
+        the search result rather then a list.  The individual search
+        calls are done lazily, e.g. they are not done until needed to
+        yield the next item from the generator.
 
         .. note::
             The result may be defective (omissions, duplicates) if the
@@ -565,7 +565,7 @@ class Client(suds.client.Client):
             call.  This is an internal tuning parameter and does not
             affect the result.
         :type chunksize: :class:`int`
-        :return: a generator that iterates over the items in the
+        :return: a generator that successively yields the items in the
             search result.
         :rtype: generator
         """
