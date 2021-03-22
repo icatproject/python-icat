@@ -3,6 +3,7 @@
 
 from __future__ import print_function
 import datetime
+from distutils.version import StrictVersion as Version
 import re
 import sys
 import pytest
@@ -493,6 +494,8 @@ def test_query_mulitple_attributes_oldicat_valueerror(client):
     err_pattern = r"\bICAT server\b.*\bnot support\b.*\bmultiple attributes\b"
     assert re.search(err_pattern, str(err.value))
 
+@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
+                    reason="pytest.deprecated_call() does not work properly")
 def test_query_deprecated_kwarg_attribute(client):
     """the keyword argument `attribute` to :class:`icat.query.Query`
     is deprecated since 0.18.0.
@@ -503,6 +506,8 @@ def test_query_deprecated_kwarg_attribute(client):
         query = Query(client, "Datafile", attribute="name")
     assert str(query) == str(ref_query)
 
+@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
+                    reason="pytest.deprecated_call() does not work properly")
 def test_query_deprecated_method_setAttribute(client):
     """:meth:`icat.query.Query.setAttribute` is deprecated since 0.18.0.
     """
