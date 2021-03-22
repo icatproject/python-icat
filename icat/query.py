@@ -77,6 +77,10 @@ class Query(object):
         details.
     :param attribute: alias for `attributes`, retained for
         compatibility.  Deprecated, use `attributes` instead.
+    :raise TypeError: if `entity` is not a valid entity type or if
+        both `attributes` and `attribute` are provided.
+    :raise ValueError: if any of the keyword arguments is not valid,
+        see the corresponding method for details.
 
     .. versionchanged:: 0.18.0
         add support for queries requesting a list of attributes rather
@@ -196,7 +200,9 @@ class Query(object):
             matching entity object.  If attributes is :const:`None`,
             the result will be the list of matching objects instead.
         :type attributes: :class:`str` or :class:`list` of :class:`str`
-        :raise ValueError: if any name in `attributes` is not valid.
+        :raise ValueError: if any name in `attributes` is not valid or
+            if multiple attributes are provided, but the ICAT server
+            does not support this.
 
         .. versionchanged:: 0.18.0
             also accept a list of attribute names.  Renamed from
@@ -236,7 +242,7 @@ class Query(object):
             ":DISTINCT", may be appended to "COUNT", "AVG", and "SUM"
             to combine the respective function with "DISTINCT".
         :type function: :class:`str`
-        :raise ValueError: if `function` is not a valid.
+        :raise ValueError: if `function` is not valid.
         """
         if function:
             if function not in aggregate_fcts:
