@@ -20,9 +20,10 @@ from icat.entity import Entity
 from icat.entities import getTypeMap
 from icat.query import Query
 from icat.exception import *
+from icat.helper import (simpleqp_unquote, parse_attr_val,
+                         ms_timestamp, disable_logger)
 from icat.ids import *
 from icat.sslcontext import create_ssl_context, HTTPSTransport
-from icat.helper import simpleqp_unquote, parse_attr_val, ms_timestamp
 
 __all__ = ['Client']
 
@@ -208,6 +209,12 @@ class Client(suds.client.Client):
         return Class(self.url, **self.kwargs)
 
 
+    def _has_wsdl_type(self, name):
+        """Check if this client's WSDL defines a particular type name.
+        """
+        with disable_logger("suds.resolver"):
+            return self.factory.resolver.find(name)
+
     def new(self, obj, **kwargs):
 
         """Instantiate a new :class:`icat.entity.Entity` object.
@@ -280,16 +287,19 @@ class Client(suds.client.Client):
     def getEntity(self, obj):
         """Get the corresponding :class:`icat.entity.Entity` for an object.
 
-        If obj is a Suds instance object, create a new object with
-        :meth:`~icat.client.Client.new`.  Otherwise do nothing and
-        return obj unchanged.
+        if obj is a `fieldSet`, return the list of fields.  If obj is
+        any other Suds instance object, create a new entity object
+        with :meth:`~icat.client.Client.new`.  Otherwise do nothing
+        and return obj unchanged.
         
         :param obj: either a Suds instance object or anything.
         :type obj: :class:`suds.sudsobject.Object` or any type
         :return: the new entity object or obj.
-        :rtype: :class:`icat.entity.Entity` or any type
+        :rtype: :class:`list` or :class:`icat.entity.Entity` or any type
         """
-        if isinstance(obj, suds.sudsobject.Object):
+        if obj.__class__.__name__ == 'fieldSet':
+            return obj.fields
+        elif isinstance(obj, suds.sudsobject.Object):
             return self.new(obj)
         else:
             return obj

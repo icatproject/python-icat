@@ -5,6 +5,24 @@ Changelog
 0.18.0 (not yet released)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
+New features
+------------
+
++ `#76`_, `#78`_: add client side support for searching for multiple
+  fields introduced in icat.server 4.11.0.  Add support for building
+  the corresponding queries in the in class :class:`icat.query.Query`.
+
+Incompatible changes and deprecations
+-------------------------------------
+
++ Since :class:`icat.query.Query` now also accepts a list of attribute
+  names rather then only a single one, the corresponding keyword
+  argument `attribute` has been renamed to `attributes` (in the
+  plural).  Accordingly, the method
+  :meth:`icat.query.Query.setAttribute` has been renamed to
+  :meth:`icat.query.Query.setAttributes`.  The old names are retained
+  as aliases, but are deprecated.
+
 Bug fixes and minor changes
 ---------------------------
 
@@ -14,6 +32,8 @@ Bug fixes and minor changes
 + `#80`_: add :exc:`TypeError` as additional ancestor of
   :exc:`icat.exception.EntityTypeError`.
 
+.. _#76: https://github.com/icatproject/python-icat/pull/76
+.. _#78: https://github.com/icatproject/python-icat/issues/78
 .. _#79: https://github.com/icatproject/python-icat/pull/79
 .. _#80: https://github.com/icatproject/python-icat/pull/80
 

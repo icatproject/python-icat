@@ -44,7 +44,7 @@ with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     dumpfile.writedata(getAuthQueries(client))
     dumpfile.writedata(getStaticQueries(client))
     # Dump the investigations each in their own chunk
-    investsearch = Query(client, "Investigation", attribute="id", 
+    investsearch = Query(client, "Investigation", attributes="id",
                          order=["facility.name", "name", "visitId"])
     for i in client.searchChunked(investsearch):
         # We fetch Dataset including DatasetParameter.  This may lead

@@ -8,10 +8,11 @@ this module.
 from __future__ import print_function
 try:
     # Python 3.3 and newer
-    from collections.abc import Iterable, Callable
+    from collections.abc import Iterable, Callable, Sequence
 except ImportError:
     # Python 2
-    from collections import Iterable, Callable
+    from collections import Iterable, Callable, Sequence
+import datetime
 import pytest
 import icat
 import icat.config
@@ -40,6 +41,47 @@ def test_logout_no_session_error(client):
     """
     with tmpSessionId(client, "-=- Invalid -=-"):
         client.logout()
+
+# ======================== test search() ===========================
+
+try:
+    # datetime.timezone has been added in Python 3.2
+    cet = datetime.timezone(datetime.timedelta(hours=1))
+    cest = datetime.timezone(datetime.timedelta(hours=2))
+except AttributeError:
+    # Old Python
+    cet = None
+    cest = None
+
+@pytest.mark.parametrize(("query", "result"), [
+    pytest.param("SELECT o.name, o.title, o.startDate FROM Investigation o",
+                 [["08100122-EF", "Durol single crystal",
+                   datetime.datetime(2008, 3, 13, 11, 39, 42, tzinfo=cet)],
+                  ["10100601-ST", "Ni-Mn-Ga flat cone",
+                   datetime.datetime(2010, 9, 30, 12, 27, 24, tzinfo=cest)],
+                  ["12100409-ST", "NiO SC OF1 JUH HHL",
+                   datetime.datetime(2012, 7, 26, 17, 44, 24, tzinfo=cest)]],
+                 marks=pytest.mark.skipif("cet is None",
+                                          reason="require datetime.timezone")),
+    ("SELECT i.name, ds.name FROM Dataset ds JOIN ds.investigation AS i "
+     "WHERE i.startDate < '2011-01-01'",
+     [["08100122-EF", "e201215"],
+      ["08100122-EF", "e201216"],
+      ["10100601-ST", "e208339"],
+      ["10100601-ST", "e208341"],
+      ["10100601-ST", "e208342"]]),
+])
+def test_search_mulitple_fields(client, query, result):
+    """Search for mutliple fields.
+
+    Newer versions of icat.server allow to select multiple fields in a
+    search expression (added in icatproject/icat.server#246).  Test
+    client side support for this.
+    """
+    if not client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields not supported by this server")
+    r = client.search(query)
+    assert r == result
 
 # ==================== test assertedSearch() =======================
 
@@ -97,6 +139,20 @@ def test_assertedSearch_range_exact_query(client):
     objs = client.assertedSearch(query, assertmin=3, assertmax=3)
     assert len(objs) == 3
     assert objs[0].BeanName == "User"
+
+@pytest.mark.skipif(cet is None, reason="require datetime.timezone")
+def test_assertedSearch_unique_mulitple_fields(client):
+    """Search for some attributes of a unique object with assertedSearch().
+    """
+    if not client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields not supported by this server")
+    query = ("SELECT i.name, i.title, i.startDate FROM Investigation i "
+             "WHERE i.name = '08100122-EF'")
+    result = ["08100122-EF", "Durol single crystal",
+              datetime.datetime(2008, 3, 13, 11, 39, 42, tzinfo=cet)]
+    r = client.assertedSearch(query)[0]
+    assert isinstance(r, Sequence)
+    assert r == result
 
 # ===================== test searchChunked() =======================
 
@@ -210,7 +266,7 @@ def test_searchChunked_id(client, query):
     works around this for the standard formulation of the query
     (9901ec6).
     """
-    refq = Query(client, "Investigation", attribute="id", limit=(0,1),
+    refq = Query(client, "Investigation", attributes="id", limit=(0,1),
                  conditions={"name": "= '08100122-EF'"})
     id = client.assertedSearch(refq)[0]
     # The search by id must return exactly one result.  The broken
@@ -252,6 +308,25 @@ def test_searchChunked_limit_bug_chunksize(client):
         # have only one iteration.
         assert count == 1
     assert count == 1
+
+def test_searchChunked_mulitple_fields(client):
+    """A simple search with searchChunked().
+    """
+    if not client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields not supported by this server")
+    query = "SELECT u.name, u.fullName, u.email from User u"
+    # Do a normal search as a reference first, the result from
+    # searchChunked() should be the same.
+    user_attrs = client.search(query)
+    res_gen = client.searchChunked(query)
+    # Note that searchChunked() returns a generator, not a list.  Be
+    # somewhat less specific in the test, only assume the result to
+    # be iterable.
+    assert isinstance(res_gen, Iterable)
+    # turn it to a list so we can inspect the acual search result.
+    res = list(res_gen)
+    assert isinstance(res[0], Sequence)
+    assert res == user_attrs
 
 
 # ==================== test searchUniqueKey() ======================
