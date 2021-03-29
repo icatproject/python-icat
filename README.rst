@@ -193,14 +193,6 @@ Bugs and limitations
   configuration variables and thus command line arguments are
   effective then those shown by the generic help message.
 
-+ For Python 2, the return value of the string representation operator
-  of class Query may be a Unicode object if any of the conditions
-  contains Unicode.  This violates the specification that requires the
-  result to be a string object.  But it makes non-ascii characters in
-  queries work.  A formal correct implementation would be much more
-  cumbersome and less useful.  For Python 3, there is no distinction
-  between Unicode and string objects anyway.
-
 + The entries in the no_proxy configuration variable are matched
   against the host part of the URL by simple string comparison.  The
   host is excluded from proxy use if its name ends with any item in
