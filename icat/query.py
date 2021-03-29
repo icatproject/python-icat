@@ -58,8 +58,8 @@ class Query():
     :param entity: the type of objects to search for.  This may either
         be an :class:`icat.entity.Entity` subclass or the name of an
         entity type.
-    :param attribute: the attribute that the query shall return.  See
-        the :meth:`~icat.query.Query.setAttribute` method for details.
+    :param attributes: the attributes that the query shall return.  See
+        the :meth:`~icat.query.Query.setAttributes` method for details.
     :param aggregate: the aggregate function to be applied in the
         SELECT clause, if any.  See the
         :meth:`~icat.query.Query.setAggregate` method for details.
@@ -75,11 +75,22 @@ class Query():
     :param limit: a tuple (skip, count) to be used in the LIMIT
         clause.  See the :meth:`~icat.query.Query.setLimit` method for
         details.
+    :param attribute: alias for `attributes`, retained for
+        compatibility.  Deprecated, use `attributes` instead.
+    :raise TypeError: if `entity` is not a valid entity type or if
+        both `attributes` and `attribute` are provided.
+    :raise ValueError: if any of the keyword arguments is not valid,
+        see the corresponding method for details.
+
+    .. versionchanged:: 0.18.0
+        add support for queries requesting a list of attributes rather
+        then a single one.  Consequently, the keyword argument
+        `attribute` has been renamed to `attributes` (in the plural).
     """
 
-    def __init__(self, client, entity, 
-                 attribute=None, aggregate=None, order=None, 
-                 conditions=None, includes=None, limit=None):
+    def __init__(self, client, entity,
+                 attributes=None, aggregate=None, order=None,
+                 conditions=None, includes=None, limit=None, attribute=None):
         """Initialize the query.
         """
 
@@ -98,7 +109,14 @@ class Query():
         else:
             raise EntityTypeError("Invalid entity type '%s'." % type(entity))
 
-        self.setAttribute(attribute)
+        if attribute is not None:
+            if attributes:
+                raise TypeError("cannot use both, attribute and attributes")
+            warn("The attribute keyword argument is deprecated and will be "
+                 "removed in python-icat 1.0.", DeprecationWarning, 2)
+            attributes = attribute
+
+        self.setAttributes(attributes)
         self.setAggregate(aggregate)
         self.conditions = dict()
         self.addConditions(conditions)
@@ -171,21 +189,39 @@ class Query():
             n += " AS %s" % (subst[obj])
         return n
 
-    def setAttribute(self, attribute):
-        """Set the attribute that the query shall return.
+    def setAttributes(self, attributes):
+        """Set the attributes that the query shall return.
 
-        :param attribute: the name of the attribute.  The result of
-            the query will be a list of attribute values for the
-            matching entity objects.  If attribute is :const:`None`,
+        :param attributes: the names of the attributes.  This can
+            either be a single name or a list of names.  The result of
+            the search will be a list with either a single attribute
+            value or a list of attribute values respectively for each
+            matching entity object.  If attributes is :const:`None`,
             the result will be the list of matching objects instead.
-        :type attribute: :class:`str`
-        :raise ValueError: if `attribute` is not valid.
+        :type attributes: :class:`str` or :class:`list` of :class:`str`
+        :raise ValueError: if any name in `attributes` is not valid or
+            if multiple attributes are provided, but the ICAT server
+            does not support this.
+
+        .. versionchanged:: 0.18.0
+            also accept a list of attribute names.  Renamed from
+            :meth:`setAttribute` to :meth:`setAttributes` (in the
+            plural).
         """
-        if attribute is not None:
-            # Get the attribute path only to verify that the attribute is valid.
-            for (pattr, attrInfo, rclass) in self._attrpath(attribute):
-                pass
-        self.attribute = attribute
+        self.attributes = []
+        if attributes:
+            if isinstance(attributes, str):
+                attributes = [ attributes ]
+            if (len(attributes) > 1 and
+                not self.client._has_wsdl_type('fieldSet')):
+                raise ValueError("This ICAT server does not support queries "
+                                 "searching for multiple attributes")
+            for attr in attributes:
+                # Get the attribute path only to verify that the
+                # attribute is valid.
+                for (pattr, attrInfo, rclass) in self._attrpath(attr):
+                    pass
+                self.attributes.append(attr)
 
     def setAggregate(self, function):
         """Set the aggregate function to be applied to the result.
@@ -205,7 +241,7 @@ class Query():
             ":DISTINCT", may be appended to "COUNT", "AVG", and "SUM"
             to combine the respective function with "DISTINCT".
         :type function: :class:`str`
-        :raise ValueError: if `function` is not a valid.
+        :raise ValueError: if `function` is not valid.
         """
         if function:
             if function not in aggregate_fcts:
@@ -341,28 +377,31 @@ class Query():
     def __repr__(self):
         """Return a formal representation of the query.
         """
-        return ("%s(%s, %s, attribute=%s, aggregate=%s, order=%s, "
+        return ("%s(%s, %s, attributes=%s, aggregate=%s, order=%s, "
                 "conditions=%s, includes=%s, limit=%s)"
-                % (self.__class__.__name__, 
-                   repr(self.client), repr(self.entity.BeanName), 
-                   repr(self.attribute), repr(self.aggregate), 
-                   repr(self.order), repr(self.conditions), 
+                % (self.__class__.__name__,
+                   repr(self.client), repr(self.entity.BeanName),
+                   repr(self.attributes), repr(self.aggregate),
+                   repr(self.order), repr(self.conditions),
                    repr(self.includes), repr(self.limit)))
 
     def __str__(self):
         """Return a string representation of the query.
         """
-        joinattrs = { a for a, d in self.order } | set(self.conditions.keys())
-        if self.attribute:
-            joinattrs.add(self.attribute)
+        joinattrs = ( { a for a, d in self.order } |
+                      set(self.conditions.keys()) |
+                      set(self.attributes) )
         subst = self._makesubst(joinattrs)
-        if self.attribute:
-            if self.client.apiversion >= "4.7.0":
-                res = self._dosubst(self.attribute, subst, False)
-            else:
-                # Old versions of icat.server do not accept
-                # substitution in the SELECT clause.
-                res = "o.%s" % self.attribute
+        if self.attributes:
+            attrs = []
+            for a in self.attributes:
+                if self.client.apiversion >= "4.7.0":
+                    attrs.append(self._dosubst(a, subst, False))
+                else:
+                    # Old versions of icat.server do not accept
+                    # substitution in the SELECT clause.
+                    attrs.append("o.%s" % a)
+            res = ", ".join(attrs)
         else:
             res = "o"
         if self.aggregate:
@@ -414,10 +453,20 @@ class Query():
         """Return an independent clone of this query.
         """
         q = Query(self.client, self.entity)
-        q.attribute = self.attribute
+        q.attributes = list(self.attributes)
         q.aggregate = self.aggregate
         q.order = list(self.order)
         q.conditions = self.conditions.copy()
         q.includes = self.includes.copy()
         q.limit = self.limit
         return q
+
+    def setAttribute(self, attribute):
+        """Alias for :meth:`setAttributes`.
+
+        .. deprecated:: 0.18.0
+            use :meth:`setAttributes` instead.
+        """
+        warn("setAttribute() is deprecated "
+             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
+        self.setAttributes(attribute)

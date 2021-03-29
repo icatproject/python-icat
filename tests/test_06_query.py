@@ -2,6 +2,9 @@
 """
 
 import datetime
+from distutils.version import StrictVersion as Version
+import re
+import sys
 import pytest
 import icat
 import icat.config
@@ -398,7 +401,23 @@ def test_query_attribute_datafile_name(client):
     Querying attributes rather then entire objects is a new feature
     added in Issue #28.
     """
-    query = Query(client, "Datafile", attribute="name", order=True, 
+    query = Query(client, "Datafile", attributes="name", order=True,
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 4
+    for n in res:
+        assert not isinstance(n, icat.entity.Entity)
+
+@pytest.mark.dependency(depends=['get_investigation'])
+def test_query_attribute_datafile_name_list(client):
+    """The datafiles names related to a given investigation in natural order.
+
+    Same as last test, but pass the attribute as a list having one
+    single element.
+    """
+    query = Query(client, "Datafile", attributes=["name"], order=True,
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -414,7 +433,7 @@ def test_query_related_obj_attribute(client):
     This requires icat.server 4.5 or newer to work.
     """
     require_icat_version("4.5.0", "SELECT related object's attribute")
-    query = Query(client, "Datafile", attribute="datafileFormat.name", 
+    query = Query(client, "Datafile", attributes="datafileFormat.name",
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -422,6 +441,79 @@ def test_query_related_obj_attribute(client):
     assert len(res) == 4
     for n in res:
         assert n in ['other', 'NeXus']
+
+def test_query_mulitple_attributes(client):
+    """Query multiple attributes in the SELECT clause.
+    """
+    if not client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields not supported by this server")
+
+    results = [["08100122-EF", "Durol single crystal",
+                datetime.datetime(2008, 3, 13, 10, 39, 42, tzinfo=tzinfo)],
+               ["10100601-ST", "Ni-Mn-Ga flat cone",
+                datetime.datetime(2010, 9, 30, 10, 27, 24, tzinfo=tzinfo)],
+               ["12100409-ST", "NiO SC OF1 JUH HHL",
+                datetime.datetime(2012, 7, 26, 15, 44, 24, tzinfo=tzinfo)]]
+    query = Query(client, "Investigation",
+                  attributes=["name", "title", "startDate"], order=True)
+    print(str(query))
+    res = client.search(query)
+    assert res == results
+
+def test_query_mulitple_attributes_related_obj(client):
+    """Query multiple attributes including attributes of related objects.
+    """
+    if not client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields not supported by this server")
+
+    results = [["08100122-EF", "e201215"],
+               ["08100122-EF", "e201216"],
+               ["10100601-ST", "e208339"],
+               ["10100601-ST", "e208341"],
+               ["10100601-ST", "e208342"]]
+    query = Query(client, "Dataset",
+                  attributes=["investigation.name", "name"], order=True,
+                  conditions={"investigation.startDate":  "< '2011-01-01'"})
+    print(str(query))
+    res = client.search(query)
+    assert res == results
+
+def test_query_mulitple_attributes_oldicat_valueerror(client):
+    """Query class should raise ValueError if multiple attributes are
+    requested, but the ICAT server is too old to support this.
+    """
+    if client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields is supported by this server")
+
+    with pytest.raises(ValueError) as err:
+        query = Query(client, "Investigation", attributes=["name", "title"])
+    err_pattern = r"\bICAT server\b.*\bnot support\b.*\bmultiple attributes\b"
+    assert re.search(err_pattern, str(err.value))
+
+@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
+                    reason="pytest.deprecated_call() does not work properly")
+def test_query_deprecated_kwarg_attribute(client):
+    """the keyword argument `attribute` to :class:`icat.query.Query`
+    is deprecated since 0.18.0.
+    """
+    # create a reference using the new keyword argument
+    ref_query = Query(client, "Datafile", attributes="name")
+    with pytest.deprecated_call():
+        query = Query(client, "Datafile", attribute="name")
+    assert str(query) == str(ref_query)
+
+@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
+                    reason="pytest.deprecated_call() does not work properly")
+def test_query_deprecated_method_setAttribute(client):
+    """:meth:`icat.query.Query.setAttribute` is deprecated since 0.18.0.
+    """
+    # create a reference using the new method
+    ref_query = Query(client, "Datafile")
+    ref_query.setAttributes("name")
+    with pytest.deprecated_call():
+        query = Query(client, "Datafile")
+        query.setAttribute("name")
+    assert str(query) == str(ref_query)
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_aggregate_distinct_attribute(client):
@@ -432,7 +524,7 @@ def test_query_aggregate_distinct_attribute(client):
     """
     require_icat_version("4.7.0", "SELECT DISTINCT in queries")
     query = Query(client, "Datafile", 
-                  attribute="datafileFormat.name", 
+                  attributes="datafileFormat.name",
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -452,7 +544,7 @@ def test_query_aggregate_distinct_related_obj(client):
     """
     require_icat_version("4.7.0", "SELECT DISTINCT in queries")
     query = Query(client, "Datafile", 
-                  attribute="datafileFormat", 
+                  attributes="datafileFormat",
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -502,7 +594,8 @@ def test_query_aggregate_misc(client, attribute, aggregate, expected):
         require_icat_version("4.5.0", "SELECT related object's attribute")
     if "DISTINCT" in aggregate:
         require_icat_version("4.7.0", "SELECT DISTINCT in queries")
-    query = Query(client, "Datafile", attribute=attribute, aggregate=aggregate,
+    query = Query(client, "Datafile",
+                  attributes=attribute, aggregate=aggregate,
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))

@@ -163,7 +163,8 @@ The class hierarchy for the exceptions is::
    |         +-- IDSNotImplementedError
    +-- InternalError
    +-- ConfigError
-   +-- EntityTypeError
+   +-- TypeError
+   |    +-- EntityTypeError
    +-- VersionMethodError
    +-- SearchResultError
    |    +-- SearchAssertionError
@@ -175,5 +176,6 @@ The class hierarchy for the exceptions is::
         +-- DeprecationWarning
              +-- ICATDeprecationWarning
 
-Here, :exc:`Exception`, :exc:`Warning`, and :exc:`DeprecationWarning`
-are build-in exceptions from the Python standard library.
+Here, :exc:`Exception`, :exc:`TypeError`, :exc:`Warning`, and
+:exc:`DeprecationWarning` are build-in exceptions from the Python
+standard library.
