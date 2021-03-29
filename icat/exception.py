@@ -346,8 +346,12 @@ class ICATDeprecationWarning(DeprecationWarning):
                % (feature, icatstr))
         super(ICATDeprecationWarning, self).__init__(msg)
 
-class EntityTypeError(_BaseException):
-    """An invalid entity type has been used."""
+class EntityTypeError(_BaseException, TypeError):
+    """An invalid entity type has been used.
+
+    .. versionchanged:: 0.18.0
+        Inherit from :exc:`TypeError`.
+    """
     pass
 
 class VersionMethodError(_BaseException):

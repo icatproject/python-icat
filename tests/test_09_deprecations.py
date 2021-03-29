@@ -18,6 +18,8 @@ import icat.exception
 # - Predefined configuration variable configDir.
 #   It's easier to test this in the setting of the test_01_config.py
 #   module.
+# - The attribute keyword argument and the setAttribute() method in
+#   class Query is tested in in the test_06_query.py module.
 
 @pytest.mark.skipif(sys.version_info >= (3, 4),
                     reason="this Python version is not deprecated")
