@@ -31,6 +31,10 @@ Incompatible changes and deprecations
 
 + Drop support for Python 2 and Python 3.3.
 
++ Drop keyword argument `attribute` and method
+  :meth:`icat.query.Query.setAttribute` from class
+  :class:`icat.query.Query`, deprecated in 0.18.0.
+
 + Drop module :mod:`icat.cgi`, deprecated in 0.13.0.
 
 + Drop module :mod:`icat.icatcheck` and exception

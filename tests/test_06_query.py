@@ -490,31 +490,6 @@ def test_query_mulitple_attributes_oldicat_valueerror(client):
     err_pattern = r"\bICAT server\b.*\bnot support\b.*\bmultiple attributes\b"
     assert re.search(err_pattern, str(err.value))
 
-@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
-                    reason="pytest.deprecated_call() does not work properly")
-def test_query_deprecated_kwarg_attribute(client):
-    """the keyword argument `attribute` to :class:`icat.query.Query`
-    is deprecated since 0.18.0.
-    """
-    # create a reference using the new keyword argument
-    ref_query = Query(client, "Datafile", attributes="name")
-    with pytest.deprecated_call():
-        query = Query(client, "Datafile", attribute="name")
-    assert str(query) == str(ref_query)
-
-@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
-                    reason="pytest.deprecated_call() does not work properly")
-def test_query_deprecated_method_setAttribute(client):
-    """:meth:`icat.query.Query.setAttribute` is deprecated since 0.18.0.
-    """
-    # create a reference using the new method
-    ref_query = Query(client, "Datafile")
-    ref_query.setAttributes("name")
-    with pytest.deprecated_call():
-        query = Query(client, "Datafile")
-        query.setAttribute("name")
-    assert str(query) == str(ref_query)
-
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_aggregate_distinct_attribute(client):
     """Test DISTINCT on an attribute in the search result.

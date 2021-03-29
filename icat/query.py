@@ -75,10 +75,7 @@ class Query():
     :param limit: a tuple (skip, count) to be used in the LIMIT
         clause.  See the :meth:`~icat.query.Query.setLimit` method for
         details.
-    :param attribute: alias for `attributes`, retained for
-        compatibility.  Deprecated, use `attributes` instead.
-    :raise TypeError: if `entity` is not a valid entity type or if
-        both `attributes` and `attribute` are provided.
+    :raise TypeError: if `entity` is not a valid entity type.
     :raise ValueError: if any of the keyword arguments is not valid,
         see the corresponding method for details.
 
@@ -90,7 +87,7 @@ class Query():
 
     def __init__(self, client, entity,
                  attributes=None, aggregate=None, order=None,
-                 conditions=None, includes=None, limit=None, attribute=None):
+                 conditions=None, includes=None, limit=None):
         """Initialize the query.
         """
 
@@ -108,13 +105,6 @@ class Query():
                                       % entity.__name__)
         else:
             raise EntityTypeError("Invalid entity type '%s'." % type(entity))
-
-        if attribute is not None:
-            if attributes:
-                raise TypeError("cannot use both, attribute and attributes")
-            warn("The attribute keyword argument is deprecated and will be "
-                 "removed in python-icat 1.0.", DeprecationWarning, 2)
-            attributes = attribute
 
         self.setAttributes(attributes)
         self.setAggregate(aggregate)
@@ -460,13 +450,3 @@ class Query():
         q.includes = self.includes.copy()
         q.limit = self.limit
         return q
-
-    def setAttribute(self, attribute):
-        """Alias for :meth:`setAttributes`.
-
-        .. deprecated:: 0.18.0
-            use :meth:`setAttributes` instead.
-        """
-        warn("setAttribute() is deprecated "
-             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
-        self.setAttributes(attribute)
