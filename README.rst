@@ -223,7 +223,7 @@ when it is incompatible with PEP 440.
 Copyright and License
 ---------------------
 
-Copyright 2013–2020
+Copyright 2013–2021
 Helmholtz-Zentrum Berlin für Materialien und Energie GmbH
 
 Licensed under the `Apache License`_, Version 2.0 (the "License"); you
