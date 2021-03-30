@@ -191,6 +191,7 @@ rm -rf %{buildroot}
 %endif
 %doc %{_docdir}/%{name}
 %exclude %{_docdir}/%{name}/examples
+%exclude %{_docdir}/%{name}/man
 %exclude %{_docdir}/%{name}/tutorial
 
 %files examples
