@@ -415,8 +415,12 @@ class Query(object):
         else:
             res = "o"
         if self.aggregate:
-            for fct in reversed(self.aggregate.split(':')):
-                res = "%s(%s)" % (fct, res)
+            if len(self.attributes) > 1 and self.aggregate == "DISTINCT":
+                # See discussion in #76
+                res = "%s %s" % (self.aggregate, res)
+            else:
+                for fct in reversed(self.aggregate.split(':')):
+                    res = "%s(%s)" % (fct, res)
         base = "SELECT %s FROM %s o" % (res, self.entity.BeanName)
         joins = ""
         for obj in sorted(subst.keys()):
