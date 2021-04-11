@@ -2,9 +2,7 @@
 """
 
 import datetime
-from distutils.version import StrictVersion as Version
 import re
-import sys
 import pytest
 import icat
 import icat.config
