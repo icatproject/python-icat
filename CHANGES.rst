@@ -2,6 +2,19 @@ Changelog
 =========
 
 
+0.18.1 (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug fixes and minor changes
+---------------------------
+
++ `#76`_, `#81`_: work around an issue in icat.server using `DISTINCT`
+  in search queries for multiple fields.
+
+.. _#76: https://github.com/icatproject/python-icat/issues/76
+.. _#81: https://github.com/icatproject/python-icat/pull/81
+
+
 0.18.0 (2021-03-29)
 ~~~~~~~~~~~~~~~~~~~
 
