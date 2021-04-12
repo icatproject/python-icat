@@ -494,6 +494,33 @@ def test_query_mulitple_attributes_oldicat_valueerror(client):
     err_pattern = r"\bICAT server\b.*\bnot support\b.*\bmultiple attributes\b"
     assert re.search(err_pattern, str(err.value))
 
+def test_query_mulitple_attributes_distinct(client):
+    """Combine DISTINCT with a query for multiple attributes.
+
+    This requires a special handling due to some quirks in the
+    icat.server query poarser.  Support for this has been added in
+    #81.
+    """
+    if not client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields not supported by this server")
+
+    # Try the query without DISTINCT first so that we can verify the effect.
+    query = Query(client, "InvestigationUser",
+                  attributes=("investigation.name", "role"),
+                  conditions={"investigation.name": "= '08100122-EF'"})
+    print(str(query))
+    res = client.search(query)
+    query = Query(client, "InvestigationUser",
+                  attributes=("investigation.name", "role"),
+                  conditions={"investigation.name": "= '08100122-EF'"},
+                  aggregate="DISTINCT")
+    print(str(query))
+    res_dist = client.search(query)
+    # The search with DISTINCT yields less items, but if we eliminate
+    # duplicates, the result set is the same:
+    assert len(res) > len(res_dist)
+    assert set([tuple(l) for l in res]) == set([tuple(l) for l in res_dist])
+
 @pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
                     reason="pytest.deprecated_call() does not work properly")
 def test_query_deprecated_kwarg_attribute(client):
