@@ -199,7 +199,7 @@ class Query(object):
             value or a list of attribute values respectively for each
             matching entity object.  If attributes is :const:`None`,
             the result will be the list of matching objects instead.
-        :type attributes: :class:`str` or :class:`list` of :class:`str`
+        :type attributes: :class:`str` or iterable of :class:`str`
         :raise ValueError: if any name in `attributes` is not valid or
             if multiple attributes are provided, but the ICAT server
             does not support this.
@@ -261,7 +261,7 @@ class Query(object):
             any item in the list may also be a tuple of an attribute
             name and an order direction, the latter being either "ASC"
             or "DESC" for ascending or descending order respectively.
-        :type order: :class:`list` or :class:`bool`
+        :type order: iterable or :class:`bool`
         :raise ValueError: if `order` contains invalid attributes that
             either do not exist or contain one to many relationships.
         """
