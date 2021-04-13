@@ -374,7 +374,7 @@ values of the matching objects.  Listing the names of all datasets::
   [e201215, e201216, e208339, e208341, e208342, e208945, e208946, e208947]
 
 As the name of that keyword argument suggests, we may also search for
-multiple attributes at once.  The result will be a list of attribute
+multiple attributes at once.  The result will be a tuple of attribute
 values rather then a single value for each object found in the query.
 This requires an ICAT server version 4.11 or newer though::
 
@@ -382,7 +382,7 @@ This requires an ICAT server version 4.11 or newer though::
   >>> print(query)
   SELECT i.name, o.name, o.complete, t.name FROM Dataset o JOIN o.investigation AS i JOIN o.type AS t
   >>> client.search(query)
-  [[08100122-EF, e201215, False, raw], [08100122-EF, e201216, False, raw], [10100601-ST, e208339, False, raw], [10100601-ST, e208341, False, raw], [10100601-ST, e208342, False, raw], [12100409-ST, e208945, False, raw], [12100409-ST, e208946, False, raw], [12100409-ST, e208947, True, analyzed]]
+  [(08100122-EF, e201215, False, raw), (08100122-EF, e201216, False, raw), (10100601-ST, e208339, False, raw), (10100601-ST, e208341, False, raw), (10100601-ST, e208342, False, raw), (12100409-ST, e208945, False, raw), (12100409-ST, e208946, False, raw), (12100409-ST, e208947, True, analyzed)]
   
 There are also some aggregate functions that may be applied to search
 results.  Let's count all datasets::
