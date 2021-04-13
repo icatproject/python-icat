@@ -452,14 +452,14 @@ def test_query_mulitple_attributes(client):
     if not client._has_wsdl_type('fieldSet'):
         pytest.skip("search for multiple fields not supported by this server")
 
-    results = [["08100122-EF", "Durol single crystal",
-                datetime.datetime(2008, 3, 13, 10, 39, 42, tzinfo=tzinfo)],
-               ["10100601-ST", "Ni-Mn-Ga flat cone",
-                datetime.datetime(2010, 9, 30, 10, 27, 24, tzinfo=tzinfo)],
-               ["12100409-ST", "NiO SC OF1 JUH HHL",
-                datetime.datetime(2012, 7, 26, 15, 44, 24, tzinfo=tzinfo)]]
+    results = [("08100122-EF", "Durol single crystal",
+                datetime.datetime(2008, 3, 13, 10, 39, 42, tzinfo=tzinfo)),
+               ("10100601-ST", "Ni-Mn-Ga flat cone",
+                datetime.datetime(2010, 9, 30, 10, 27, 24, tzinfo=tzinfo)),
+               ("12100409-ST", "NiO SC OF1 JUH HHL",
+                datetime.datetime(2012, 7, 26, 15, 44, 24, tzinfo=tzinfo))]
     query = Query(client, "Investigation",
-                  attributes=["name", "title", "startDate"], order=True)
+                  attributes=("name", "title", "startDate"), order=True)
     print(str(query))
     res = client.search(query)
     assert res == results
@@ -470,13 +470,13 @@ def test_query_mulitple_attributes_related_obj(client):
     if not client._has_wsdl_type('fieldSet'):
         pytest.skip("search for multiple fields not supported by this server")
 
-    results = [["08100122-EF", "e201215"],
-               ["08100122-EF", "e201216"],
-               ["10100601-ST", "e208339"],
-               ["10100601-ST", "e208341"],
-               ["10100601-ST", "e208342"]]
+    results = [("08100122-EF", "e201215"),
+               ("08100122-EF", "e201216"),
+               ("10100601-ST", "e208339"),
+               ("10100601-ST", "e208341"),
+               ("10100601-ST", "e208342")]
     query = Query(client, "Dataset",
-                  attributes=["investigation.name", "name"], order=True,
+                  attributes=("investigation.name", "name"), order=True,
                   conditions={"investigation.startDate":  "< '2011-01-01'"})
     print(str(query))
     res = client.search(query)
@@ -490,7 +490,7 @@ def test_query_mulitple_attributes_oldicat_valueerror(client):
         pytest.skip("search for multiple fields is supported by this server")
 
     with pytest.raises(ValueError) as err:
-        query = Query(client, "Investigation", attributes=["name", "title"])
+        query = Query(client, "Investigation", attributes=("name", "title"))
     err_pattern = r"\bICAT server\b.*\bnot support\b.*\bmultiple attributes\b"
     assert re.search(err_pattern, str(err.value))
 
@@ -519,7 +519,7 @@ def test_query_mulitple_attributes_distinct(client):
     # The search with DISTINCT yields less items, but if we eliminate
     # duplicates, the result set is the same:
     assert len(res) > len(res_dist)
-    assert set([tuple(l) for l in res]) == set([tuple(l) for l in res_dist])
+    assert set(res) == set(res_dist)
 
 @pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
                     reason="pytest.deprecated_call() does not work properly")
