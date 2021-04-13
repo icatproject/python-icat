@@ -295,7 +295,14 @@ class Client(suds.client.Client):
         :param obj: either a Suds instance object or anything.
         :type obj: :class:`suds.sudsobject.Object` or any type
         :return: the new entity object or obj.
-        :rtype: :class:`list` or :class:`icat.entity.Entity` or any type
+        :rtype: :class:`tuple` or :class:`icat.entity.Entity` or any type
+
+        .. versionchanged:: 0.18.0
+            add support of `fieldSet`.
+
+        .. versionchanged:: 0.18.1
+            changed the return type from :class:`list` to
+            :class:`tuple` in the case of `fieldSet`.
         """
         if obj.__class__.__name__ == 'fieldSet':
             return tuple(obj.fields)
