@@ -63,6 +63,23 @@ Bug fixes and minor changes
 .. _#75: https://github.com/icatproject/python-icat/pull/75
 
 
+0.18.1 (2021-04-13)
+~~~~~~~~~~~~~~~~~~~
+
+Bug fixes and minor changes
+---------------------------
+
++ `#82`_: Change the search result in the case of multiple fields from
+  list to tuple.
+
++ `#76`_, `#81`_: work around an issue in icat.server using `DISTINCT`
+  in search queries for multiple fields.
+
+.. _#76: https://github.com/icatproject/python-icat/issues/76
+.. _#81: https://github.com/icatproject/python-icat/pull/81
+.. _#82: https://github.com/icatproject/python-icat/pull/82
+
+
 0.18.0 (2021-03-29)
 ~~~~~~~~~~~~~~~~~~~
 
@@ -93,8 +110,8 @@ Bug fixes and minor changes
 + `#80`_: add :exc:`TypeError` as additional ancestor of
   :exc:`icat.exception.EntityTypeError`.
 
-.. _#76: https://github.com/icatproject/python-icat/pull/76
-.. _#78: https://github.com/icatproject/python-icat/issues/78
+.. _#76: https://github.com/icatproject/python-icat/issues/76
+.. _#78: https://github.com/icatproject/python-icat/pull/78
 .. _#79: https://github.com/icatproject/python-icat/pull/79
 .. _#80: https://github.com/icatproject/python-icat/pull/80
 
