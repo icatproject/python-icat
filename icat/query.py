@@ -291,9 +291,9 @@ class Query(object):
                             warn(QueryNullableOrderWarning(pattr), 
                                  stacklevel=sl)
                     elif attrInfo.relType == "MANY":
-                        raise ValueError("Cannot use one to many relationship "
-                                         "in '%s' to order %s." 
-                                         % (obj, self.entity.BeanName))
+                        sl = 3 if self._init else 2
+                        warn(QueryOneToManyOrderWarning(pattr),
+                             stacklevel=sl)
 
                 if rclass is None:
                     # obj is an attribute, use it right away.
