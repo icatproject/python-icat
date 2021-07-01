@@ -11,6 +11,11 @@ Bug fixes and minor changes
 + `#83`_, `#84`_: enable ordering on one to many relationships in
   class :class:`icat.query.Query`.
 
++ `#84`_: Add warning classes
+  :exc:`icat.exception.QueryOneToManyOrderWarning` and
+  :exc:`icat.exception.QueryWarning`, the latter being a common base
+  class for warnings emitted during creation of a query.
+
 .. _#83: https://github.com/icatproject/python-icat/issues/83
 .. _#84: https://github.com/icatproject/python-icat/pull/84
 
