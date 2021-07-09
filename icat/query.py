@@ -90,7 +90,8 @@ class Query(object):
 
     def __init__(self, client, entity,
                  attributes=None, aggregate=None, order=None,
-                 conditions=None, includes=None, limit=None, attribute=None):
+                 conditions=None, includes=None, limit=None,
+                 join_specs=None, attribute=None):
         """Initialize the query.
         """
 
@@ -125,6 +126,7 @@ class Query(object):
         self.addIncludes(includes)
         self.setOrder(order)
         self.setLimit(limit)
+        self.join_specs = join_specs or dict()
         self._init = None
 
     def _attrpath(self, attrname):
@@ -428,7 +430,8 @@ class Query(object):
         base = "SELECT %s FROM %s o" % (res, self.entity.BeanName)
         joins = ""
         for obj in sorted(subst.keys()):
-            joins += " JOIN %s" % self._dosubst(obj, subst)
+            js = self.join_specs.get(obj, "JOIN")
+            joins += " %s %s" % (js, self._dosubst(obj, subst))
         if self.conditions:
             conds = []
             for a in sorted(self.conditions.keys()):
