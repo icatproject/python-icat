@@ -345,15 +345,17 @@ class Query(object):
 
                 for (pattr, attrInfo, rclass) in self._attrpath(obj):
                     if attrInfo.relType == "ONE":
-                        if (not attrInfo.notNullable and 
-                            pattr not in self.conditions):
+                        if (not attrInfo.notNullable and
+                            pattr not in self.conditions and
+                            pattr not in self.join_specs):
                             sl = 3 if self._init else 2
-                            warn(QueryNullableOrderWarning(pattr), 
+                            warn(QueryNullableOrderWarning(pattr),
                                  stacklevel=sl)
                     elif attrInfo.relType == "MANY":
-                        sl = 3 if self._init else 2
-                        warn(QueryOneToManyOrderWarning(pattr),
-                             stacklevel=sl)
+                        if (pattr not in self.join_specs):
+                            sl = 3 if self._init else 2
+                            warn(QueryOneToManyOrderWarning(pattr),
+                                 stacklevel=sl)
 
                 if rclass is None:
                     # obj is an attribute, use it right away.
