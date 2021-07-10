@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-0.18.2 (not yet released)
+0.19.0 (not yet released)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Bug fixes and minor changes

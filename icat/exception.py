@@ -308,14 +308,14 @@ class ConfigError(_BaseException):
 class QueryWarning(Warning):
     """Warning while building a query.
 
-    .. versionadded:: 0.18.2
+    .. versionadded:: 0.19.0
     """
     pass
 
 class QueryNullableOrderWarning(QueryWarning):
     """Warn about using a nullable many to one relation for ordering.
 
-    .. versionchanged:: 0.18.2
+    .. versionchanged:: 0.19.0
         Inherit from :exc:`QueryWarning`.
     """
     def __init__(self, attr):
@@ -326,7 +326,7 @@ class QueryNullableOrderWarning(QueryWarning):
 class QueryOneToManyOrderWarning(QueryWarning):
     """Warn about using a one to many relation for ordering.
 
-    .. versionadded:: 0.18.2
+    .. versionadded:: 0.19.0
     """
     def __init__(self, attr):
         msg = ("ordering on a one to many relation %s may surprisingly "

@@ -266,7 +266,7 @@ class Query(object):
         :type order: iterable or :class:`bool`
         :raise ValueError: if any attribute in `order` is not valid.
 
-        .. versionchanged:: 0.18.2
+        .. versionchanged:: 0.19.0
             allow one to many relationships in `order`.  Emit a
             :exc:`~icat.exception.QueryOneToManyOrderWarning` rather
             then raising a :exc:`ValueError` in this case.
