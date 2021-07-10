@@ -262,8 +262,12 @@ class Query(object):
             name and an order direction, the latter being either "ASC"
             or "DESC" for ascending or descending order respectively.
         :type order: iterable or :class:`bool`
-        :raise ValueError: if `order` contains invalid attributes that
-            either do not exist or contain one to many relationships.
+        :raise ValueError: if any attribute in `order` is not valid.
+
+        .. versionchanged:: 0.18.2
+            allow one to many relationships in `order`.  Emit a
+            :exc:`~icat.exception.QueryOneToManyOrderWarning` rather
+            then raising a :exc:`ValueError` in this case.
         """
         if order is True:
 
@@ -291,9 +295,9 @@ class Query(object):
                             warn(QueryNullableOrderWarning(pattr), 
                                  stacklevel=sl)
                     elif attrInfo.relType == "MANY":
-                        raise ValueError("Cannot use one to many relationship "
-                                         "in '%s' to order %s." 
-                                         % (obj, self.entity.BeanName))
+                        sl = 3 if self._init else 2
+                        warn(QueryOneToManyOrderWarning(pattr),
+                             stacklevel=sl)
 
                 if rclass is None:
                     # obj is an attribute, use it right away.

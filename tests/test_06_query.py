@@ -6,6 +6,7 @@ import datetime
 from distutils.version import StrictVersion as Version
 import re
 import sys
+import warnings
 import pytest
 import icat
 import icat.config
@@ -315,6 +316,33 @@ def test_query_nullable_warning_suppressed(client, recwarn):
     print(str(query))
     res = client.search(query)
     assert len(res) == 44
+
+def test_query_order_one_to_many(client, recwarn):
+    """Sort on a related object in a one yo many relation.
+    This has been enabled in #84, but a warning is still emitted.
+    """
+    recwarn.clear()
+    query = Query(client, "Investigation",
+                  order=['investigationInstruments.instrument.fullName'])
+    w = recwarn.pop(icat.QueryOneToManyOrderWarning)
+    assert issubclass(w.category, icat.QueryOneToManyOrderWarning)
+    assert "investigationInstruments" in str(w.message)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+
+def test_query_order_suppress_warnings(client, recwarn):
+    """Suppress all QueryWarnings.
+    """
+    recwarn.clear()
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=icat.QueryWarning)
+        query = Query(client, "Investigation",
+                      order=['investigationInstruments.instrument.fullName'])
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
 
 def test_query_limit(client):
     """Add a LIMIT clause to the last example.
