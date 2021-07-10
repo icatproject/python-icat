@@ -2,6 +2,12 @@
 """
 
 from warnings import warn
+try:
+    # Python 3.3 and newer
+    from collections.abc import Mapping
+except ImportError:
+    # Python 2
+    from collections import Mapping
 import icat.entity
 from icat.exception import *
 
@@ -45,6 +51,16 @@ aggregate_fcts = frozenset([
 :meth:`icat.query.Query.setAggregate` method.
 """
 
+jpql_join_specs = frozenset([
+    "JOIN",
+    "INNER JOIN",
+    "LEFT JOIN",
+    "LEFT OUTER JOIN",
+])
+"""Allowed values for the `join_specs` argument to the
+:meth:`icat.query.Query.setJoinSpecs` method.
+"""
+
 # ========================== class Query =============================
 
 class Query(object):
@@ -75,6 +91,9 @@ class Query(object):
     :param limit: a tuple (skip, count) to be used in the LIMIT
         clause.  See the :meth:`~icat.query.Query.setLimit` method for
         details.
+    :param join_specs: a mapping to override the join specification
+        for selected related objects.  See the
+        :meth:`~icat.query.Query.setJoinSpecs` method for details.
     :param attribute: alias for `attributes`, retained for
         compatibility.  Deprecated, use `attributes` instead.
     :raise TypeError: if `entity` is not a valid entity type or if
@@ -86,6 +105,8 @@ class Query(object):
         add support for queries requesting a list of attributes rather
         then a single one.  Consequently, the keyword argument
         `attribute` has been renamed to `attributes` (in the plural).
+    .. versionchanged:: 0.19.0
+        add the `join_specs` argument.
     """
 
     def __init__(self, client, entity,
@@ -124,9 +145,9 @@ class Query(object):
         self.addConditions(conditions)
         self.includes = set()
         self.addIncludes(includes)
+        self.setJoinSpecs(join_specs)
         self.setOrder(order)
         self.setLimit(limit)
-        self.join_specs = join_specs or dict()
         self._init = None
 
     def _attrpath(self, attrname):
@@ -252,6 +273,39 @@ class Query(object):
             self.aggregate = function
         else:
             self.aggregate = None
+
+    def setJoinSpecs(self, join_specs):
+        """Override the join specifications.
+
+        :param join_specs: a mapping of related object names to join
+            specifications.  Allowed values are "JOIN", "INNER JOIN",
+            "LEFT JOIN", and "LEFT OUTER JOIN".  Any entry in this
+            mapping overrides how this particular related object is to
+            be joined.  The default for any relation not included in
+            the mapping is "JOIN".  A special value of :const:`None`
+            for `join_specs` is equivalent to the empty mapping.
+        :type join_specs: :class:`dict`
+        :raise TypeError: if `join_specs` is not a mapping.
+        :raise ValueError: if any key in `join_specs` is not a name of
+            a related object or if any value is not in the allowed
+            set.
+
+        .. versionadded:: 0.19.0
+        """
+        if join_specs:
+            if not isinstance(join_specs, Mapping):
+                raise TypeError("join_specs must be a mapping")
+            for obj, js in join_specs.items():
+                for (pattr, attrInfo, rclass) in self._attrpath(obj):
+                    pass
+                if rclass is None:
+                    raise ValueError("%s.%s is not a related object"
+                                     % (self.entity.BeanName, obj))
+                if js not in jpql_join_specs:
+                    raise ValueError("invalid join specification %s" % js)
+            self.join_specs = join_specs
+        else:
+            self.join_specs = dict()
 
     def setOrder(self, order):
         """Set the order to build the ORDER BY clause from.
