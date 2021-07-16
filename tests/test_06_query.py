@@ -49,8 +49,8 @@ def test_query_datafile(client):
     """Query a datafile by its name, dataset name, and investigation name.
     """
     dfdata = { 
-        'name': "e208945.nxs", 
-        'dataset': "e208945", 
+        'name': "e208945.nxs",
+        'dataset': "e208945",
         'investigation': "12100409-ST" 
     }
     conditions = { 
@@ -85,14 +85,14 @@ def test_query_datafile(client):
 def test_query_investigation_includes(client):
     """Query lots of information about one single investigation.
     """
-    includes = { "facility", "type.facility", "investigationInstruments", 
-                 "investigationInstruments.instrument.facility", "shifts", 
-                 "keywords", "publications", "investigationUsers", 
-                 "investigationUsers.user", "investigationGroups", 
-                 "investigationGroups.grouping", "parameters", 
+    includes = { "facility", "type.facility", "investigationInstruments",
+                 "investigationInstruments.instrument.facility", "shifts",
+                 "keywords", "publications", "investigationUsers",
+                 "investigationUsers.user", "investigationGroups",
+                 "investigationGroups.grouping", "parameters",
                  "parameters.type.facility" }
-    query = Query(client, "Investigation", 
-                  conditions={"id": "= %d" % investigation.id}, 
+    query = Query(client, "Investigation",
+                  conditions={"id": "= %d" % investigation.id},
                   includes=includes)
     print(str(query))
     res = client.search(query)
@@ -111,10 +111,10 @@ def test_query_investigation_includes(client):
 def test_query_instruments(client):
     """Query the instruments related to a given investigation.
     """
-    query = Query(client, "Instrument", 
-                  order=["name"], 
+    query = Query(client, "Instrument",
+                  order=["name"],
                   conditions={ "investigationInstruments.investigation.id":
-                               "= %d" % investigation.id }, 
+                               "= %d" % investigation.id },
                   includes={"facility", "instrumentScientists.user"})
     print(str(query))
     res = client.search(query)
@@ -127,10 +127,10 @@ def test_query_instruments(client):
 def test_query_datafile_by_investigation(client):
     """The datafiles related to a given investigation in natural order.
     """
-    query = Query(client, "Datafile", order=True, 
+    query = Query(client, "Datafile", order=True,
                   conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id }, 
-                  includes={"dataset", "datafileFormat.facility", 
+                               "= %d" % investigation.id },
+                  includes={"dataset", "datafileFormat.facility",
                             "parameters.type.facility"})
     print(str(query))
     res = client.search(query)
@@ -159,7 +159,7 @@ def test_query_datafiles_datafileformat(client, recwarn):
     Note: this raises a QueryNullableOrderWarning, see below.
     """
     recwarn.clear()
-    query = Query(client, "Datafile", 
+    query = Query(client, "Datafile",
                   order=['datafileFormat', 'dataset', 'name'])
     w = recwarn.pop(icat.QueryNullableOrderWarning)
     assert issubclass(w.category, icat.QueryNullableOrderWarning)
@@ -175,31 +175,31 @@ def test_query_order_direction(client):
     This has been added in Issue #48.
     """
     # Try without specifying the ordering direction first:
-    query = Query(client, "Datafile", 
-                  order=["name"], 
+    query = Query(client, "Datafile",
+                  order=["name"],
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
     res = client.search(query)
     assert len(res) == 4
     # Ascending order is the default, so we should get the same result:
-    query = Query(client, "Datafile", 
-                  order=[("name", "ASC")], 
+    query = Query(client, "Datafile",
+                  order=[("name", "ASC")],
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
     assert client.search(query) == res
     # Descending order should give the reverse result:
-    query = Query(client, "Datafile", 
-                  order=[("name", "DESC")], 
+    query = Query(client, "Datafile",
+                  order=[("name", "DESC")],
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
     assert list(reversed(client.search(query))) == res
     # We may even combine different ordering directions on multiple
     # attributes of the same query:
-    query = Query(client, "Datafile", 
-                  order=[("dataset.name", "DESC"), ("name", "ASC")], 
+    query = Query(client, "Datafile",
+                  order=[("dataset.name", "DESC"), ("name", "ASC")],
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -266,7 +266,7 @@ def test_query_in_operator(client):
     """Using "id in (i)" rather then "id = i" also works.
     (This may be needed to work around ICAT Issue 128.)
     """
-    query = Query(client, "Investigation", 
+    query = Query(client, "Investigation",
                   conditions={"id": "in (%d)" % investigation.id})
     print(str(query))
     res = client.search(query)
@@ -294,8 +294,11 @@ def test_query_rule_order(client):
     res = client.search(query)
     assert len(res) == 104
 
-def test_query_nullable_warning(client, recwarn):
-    """Ordering on nullable relations emits a warning.
+def test_query_rule_order_group(client, recwarn):
+    """Ordering rule on grouping implicitely adds a "grouping IS NOT NULL"
+    condition, because it is internally implemented using an INNER
+    JOIN between the tables.  The Query class emits a warning about
+    this.
     """
     recwarn.clear()
     query = Query(client, "Rule", order=['grouping', 'what', 'id'])
@@ -306,12 +309,12 @@ def test_query_nullable_warning(client, recwarn):
     res = client.search(query)
     assert len(res) == 44
 
-def test_query_nullable_warning_suppressed(client, recwarn):
+def test_query_rule_order_group_suppress_warn_cond(client, recwarn):
     """The warning can be suppressed by making the condition explicit.
     """
     recwarn.clear()
-    query = Query(client, "Rule", order=['grouping', 'what', 'id'], 
-                  conditions={"grouping":"IS NOT NULL"})
+    query = Query(client, "Rule", order=['grouping', 'what', 'id'],
+                  conditions={"grouping": "IS NOT NULL"})
     assert len(recwarn.list) == 0
     print(str(query))
     res = client.search(query)
@@ -347,7 +350,7 @@ def test_query_order_suppress_warnings(client, recwarn):
 def test_query_limit(client):
     """Add a LIMIT clause to the last example.
     """
-    query = Query(client, "Rule", order=['grouping', 'what', 'id'], 
+    query = Query(client, "Rule", order=['grouping', 'what', 'id'],
                   conditions={"grouping":"IS NOT NULL"})
     query.setLimit( (0,10) )
     print(str(query))
@@ -357,7 +360,7 @@ def test_query_limit(client):
 def test_query_limit_placeholder(client):
     """LIMIT clauses are particular useful with placeholders.
     """
-    query = Query(client, "Rule", order=['grouping', 'what', 'id'], 
+    query = Query(client, "Rule", order=['grouping', 'what', 'id'],
                   conditions={"grouping":"IS NOT NULL"})
     query.setLimit( ("%d","%d") )
     print(str(query))
@@ -377,7 +380,7 @@ def test_query_non_ascii(client):
     # String literal with unicode characters that will be understood
     # by both Python 2 and Python 3.
     fullName = b'Rudolph Beck-D\xc3\xbclmen'.decode('utf8')
-    query = Query(client, "User", 
+    query = Query(client, "User",
                   conditions={ "fullName": "= '%s'" % fullName })
     if sys.version_info < (3, 0):
         print(unicode(query))
@@ -397,10 +400,10 @@ def test_query_str(client):
     still a bug because a __str__() operator should not have any side
     effects at all.  It was fixed in changes 4688517 and 905dd8c.
     """
-    query = Query(client, "Datafile", order=True, 
+    query = Query(client, "Datafile", order=True,
                   conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id }, 
-                  includes={"dataset", "datafileFormat.facility", 
+                               "= %d" % investigation.id },
+                  includes={"dataset", "datafileFormat.facility",
                             "parameters.type.facility"})
     r = repr(query)
     print(str(query))
@@ -526,7 +529,7 @@ def test_query_mulitple_attributes_distinct(client):
     """Combine DISTINCT with a query for multiple attributes.
 
     This requires a special handling due to some quirks in the
-    icat.server query poarser.  Support for this has been added in
+    icat.server query parser.  Support for this has been added in
     #81.
     """
     if not client._has_wsdl_type('fieldSet'):
@@ -582,7 +585,7 @@ def test_query_aggregate_distinct_attribute(client):
     Issue #32.
     """
     require_icat_version("4.7.0", "SELECT DISTINCT in queries")
-    query = Query(client, "Datafile", 
+    query = Query(client, "Datafile",
                   attributes="datafileFormat.name",
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
@@ -602,7 +605,7 @@ def test_query_aggregate_distinct_related_obj(client):
     Issue #32.
     """
     require_icat_version("4.7.0", "SELECT DISTINCT in queries")
-    query = Query(client, "Datafile", 
+    query = Query(client, "Datafile",
                   attributes="datafileFormat",
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
