@@ -320,6 +320,31 @@ def test_query_rule_order_group_suppress_warn_cond(client, recwarn):
     res = client.search(query)
     assert len(res) == 44
 
+def test_query_rule_order_group_suppress_warn_join(client, recwarn):
+    """Another option to suppress the warning is to override the JOIN spec.
+    By confirming the default INNER JOIN, we get the Rules having
+    grouping NOT NULL.
+    """
+    recwarn.clear()
+    query = Query(client, "Rule", order=['grouping', 'what', 'id'],
+                  join_specs={"grouping": "INNER JOIN"})
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 44
+
+def test_query_rule_order_group_left_join(client, recwarn):
+    """Another option to suppress the warning is to override the JOIN spec.
+    By chosing a LEFT JOIN, we get all Rules.
+    """
+    recwarn.clear()
+    query = Query(client, "Rule", order=['grouping', 'what', 'id'],
+                  join_specs={"grouping": "LEFT OUTER JOIN"})
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 104
+
 def test_query_order_one_to_many(client, recwarn):
     """Sort on a related object in a one yo many relation.
     This has been enabled in #84, but a warning is still emitted.
@@ -333,6 +358,79 @@ def test_query_order_one_to_many(client, recwarn):
     print(str(query))
     res = client.search(query)
     assert len(res) == 3
+
+def test_query_order_one_to_many_warning_suppressed(client, recwarn):
+    """Again, the warning can be suppressed by overriding the JOIN spec.
+    """
+    recwarn.clear()
+    query = Query(client, "Investigation",
+                  order=['investigationInstruments.instrument.fullName'],
+                  join_specs={"investigationInstruments": "INNER JOIN"})
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+
+def test_query_order_one_to_many_duplicate(client, recwarn):
+    """Note that sorting on a one yo many relation may have surprising
+    effects on the result list.  That is why class Query emits a
+    warning.
+    You may get duplicates in the result.
+    """
+    recwarn.clear()
+    # The query without ORDER BY clause.
+    query = Query(client, "Investigation")
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+    reference = res
+    # The same query adding a ORDER BY clause, we get two duplicates in
+    # the result.
+    recwarn.clear()
+    query = Query(client, "Investigation", order=['investigationUsers.role'])
+    w = recwarn.pop(icat.QueryOneToManyOrderWarning)
+    assert issubclass(w.category, icat.QueryOneToManyOrderWarning)
+    assert "investigationUsers" in str(w.message)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 5
+    assert set(res) == set(reference)
+
+def test_query_order_one_to_many_missing(client, recwarn):
+    """Note that sorting on a one yo many relation may have surprising
+    effects on the result list.  That is why class Query emits a
+    warning.
+    You may get misses in the result.
+    """
+    recwarn.clear()
+    # The query without ORDER BY clause.
+    query = Query(client, "Sample")
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+    reference = res
+    # The same query adding a ORDER BY clause, one item, a sample
+    # having no parameter with a string value, is missing from the result.
+    recwarn.clear()
+    query = Query(client, "Sample", order=['parameters.stringValue'])
+    w = recwarn.pop(icat.QueryOneToManyOrderWarning)
+    assert issubclass(w.category, icat.QueryOneToManyOrderWarning)
+    assert "parameters" in str(w.message)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 2
+    # We can fix it in this case using a LEFT JOIN.
+    recwarn.clear()
+    query = Query(client, "Sample",
+                  order=['parameters.stringValue'],
+                  join_specs={"parameters": "LEFT JOIN"})
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+    assert set(res) == set(reference)
 
 def test_query_order_suppress_warnings(client, recwarn):
     """Suppress all QueryWarnings.
