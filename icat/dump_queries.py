@@ -36,11 +36,9 @@ def getAuthQueries(client):
     return [ Query(client, "User", order=True), 
              Query(client, "Grouping", order=True, 
                    includes={"userGroups", "userGroups.user"}),
-             Query(client, "Rule", order=["what", "id"], 
-                   conditions={"grouping": "IS NULL"}), 
              Query(client, "Rule", order=["grouping.name", "what", "id"], 
-                   conditions={"grouping": "IS NOT NULL"}, 
-                   includes={"grouping"}), 
+                   includes={"grouping"},
+                   join_specs={"grouping": "LEFT JOIN"}),
              Query(client, "PublicStep", order=True) ]
 
 def getStaticQueries(client):
