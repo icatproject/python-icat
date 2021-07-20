@@ -331,7 +331,7 @@ class QueryOneToManyOrderWarning(QueryWarning):
     def __init__(self, attr):
         msg = ("ordering on a one to many relation %s may surprisingly "
                "affect the search result." % attr)
-        super().__init__(msg)
+        super(QueryOneToManyOrderWarning, self).__init__(msg)
 
 
 # ======== Exceptions raised in icat.client and icat.entity ========
