@@ -2,8 +2,17 @@ Changelog
 =========
 
 
-0.19.0 (not yet released)
-~~~~~~~~~~~~~~~~~~~~~~~~~
+0.19.0 (2021-07-20)
+~~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#85`_: add an argument `join_specs` to the constructor of class
+  :class:`icat.query.Query` and a corresponding method
+  :meth:`icat.query.Query.setJoinSpecs` to override the join
+  specification to be used in the created query for selected related
+  objects.
 
 Bug fixes and minor changes
 ---------------------------
@@ -18,6 +27,7 @@ Bug fixes and minor changes
 
 .. _#83: https://github.com/icatproject/python-icat/issues/83
 .. _#84: https://github.com/icatproject/python-icat/pull/84
+.. _#85: https://github.com/icatproject/python-icat/pull/85
 
 
 0.18.1 (2021-04-13)
