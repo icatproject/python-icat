@@ -26,7 +26,7 @@ __all__ = [
     # icat.config
     'ConfigError', 
     # icat.query
-    'QueryNullableOrderWarning', 
+    'QueryWarning', 'QueryNullableOrderWarning', 'QueryOneToManyOrderWarning',
     # icat.client, icat.entity
     'ClientVersionWarning', 'ICATDeprecationWarning', 
     'EntityTypeError', 'VersionMethodError', 'SearchResultError', 
@@ -305,13 +305,33 @@ class ConfigError(_BaseException):
 
 # ================ Exceptions raised in icat.query =================
 
-class QueryNullableOrderWarning(Warning):
-    """Warn about using a nullable relation for ordering.
+class QueryWarning(Warning):
+    """Warning while building a query.
+
+    .. versionadded:: 0.19.0
+    """
+    pass
+
+class QueryNullableOrderWarning(QueryWarning):
+    """Warn about using a nullable many to one relation for ordering.
+
+    .. versionchanged:: 0.19.0
+        Inherit from :exc:`QueryWarning`.
     """
     def __init__(self, attr):
-        msg = ("ordering on a nullable relation implicitly "
+        msg = ("ordering on a nullable many to one relation implicitly "
                "adds a '%s IS NOT NULL' condition." % attr)
         super(QueryNullableOrderWarning, self).__init__(msg)
+
+class QueryOneToManyOrderWarning(QueryWarning):
+    """Warn about using a one to many relation for ordering.
+
+    .. versionadded:: 0.19.0
+    """
+    def __init__(self, attr):
+        msg = ("ordering on a one to many relation %s may surprisingly "
+               "affect the search result." % attr)
+        super(QueryOneToManyOrderWarning, self).__init__(msg)
 
 
 # ======== Exceptions raised in icat.client and icat.entity ========

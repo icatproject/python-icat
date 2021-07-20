@@ -2,6 +2,34 @@ Changelog
 =========
 
 
+0.19.0 (2021-07-20)
+~~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#85`_: add an argument `join_specs` to the constructor of class
+  :class:`icat.query.Query` and a corresponding method
+  :meth:`icat.query.Query.setJoinSpecs` to override the join
+  specification to be used in the created query for selected related
+  objects.
+
+Bug fixes and minor changes
+---------------------------
+
++ `#83`_, `#84`_: enable ordering on one to many relationships in
+  class :class:`icat.query.Query`.
+
++ `#84`_: Add warning classes
+  :exc:`icat.exception.QueryOneToManyOrderWarning` and
+  :exc:`icat.exception.QueryWarning`, the latter being a common base
+  class for warnings emitted during creation of a query.
+
+.. _#83: https://github.com/icatproject/python-icat/issues/83
+.. _#84: https://github.com/icatproject/python-icat/pull/84
+.. _#85: https://github.com/icatproject/python-icat/pull/85
+
+
 0.18.1 (2021-04-13)
 ~~~~~~~~~~~~~~~~~~~
 
