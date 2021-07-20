@@ -394,7 +394,7 @@ def test_query_order_one_to_many_duplicate(client, recwarn):
     assert "investigationUsers" in str(w.message)
     print(str(query))
     res = client.search(query)
-    assert len(res) == 5
+    assert len(res) > 3
     assert set(res) == set(reference)
 
 def test_query_order_one_to_many_missing(client, recwarn):
