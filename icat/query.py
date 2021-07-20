@@ -2,6 +2,7 @@
 """
 
 from warnings import warn
+from collections.abc import Mapping
 import icat.entity
 from icat.exception import *
 
@@ -45,6 +46,16 @@ aggregate_fcts = frozenset([
 :meth:`icat.query.Query.setAggregate` method.
 """
 
+jpql_join_specs = frozenset([
+    "JOIN",
+    "INNER JOIN",
+    "LEFT JOIN",
+    "LEFT OUTER JOIN",
+])
+"""Allowed values for the `join_specs` argument to the
+:meth:`icat.query.Query.setJoinSpecs` method.
+"""
+
 # ========================== class Query =============================
 
 class Query():
@@ -75,7 +86,12 @@ class Query():
     :param limit: a tuple (skip, count) to be used in the LIMIT
         clause.  See the :meth:`~icat.query.Query.setLimit` method for
         details.
-    :raise TypeError: if `entity` is not a valid entity type.
+    :param join_specs: a mapping to override the join specification
+        for selected related objects.  See the
+        :meth:`~icat.query.Query.setJoinSpecs` method for details.
+    :raise TypeError: if `entity` is not a valid entity type or if any
+        of the keyword arguments have an invalid type, see the
+        corresponding method for details.
     :raise ValueError: if any of the keyword arguments is not valid,
         see the corresponding method for details.
 
@@ -83,11 +99,14 @@ class Query():
         add support for queries requesting a list of attributes rather
         then a single one.  Consequently, the keyword argument
         `attribute` has been renamed to `attributes` (in the plural).
+    .. versionchanged:: 0.19.0
+        add the `join_specs` argument.
     """
 
     def __init__(self, client, entity,
                  attributes=None, aggregate=None, order=None,
-                 conditions=None, includes=None, limit=None):
+                 conditions=None, includes=None, limit=None,
+                 join_specs=None):
         """Initialize the query.
         """
 
@@ -112,6 +131,7 @@ class Query():
         self.addConditions(conditions)
         self.includes = set()
         self.addIncludes(includes)
+        self.setJoinSpecs(join_specs)
         self.setOrder(order)
         self.setLimit(limit)
         self._init = None
@@ -240,6 +260,39 @@ class Query():
         else:
             self.aggregate = None
 
+    def setJoinSpecs(self, join_specs):
+        """Override the join specifications.
+
+        :param join_specs: a mapping of related object names to join
+            specifications.  Allowed values are "JOIN", "INNER JOIN",
+            "LEFT JOIN", and "LEFT OUTER JOIN".  Any entry in this
+            mapping overrides how this particular related object is to
+            be joined.  The default for any relation not included in
+            the mapping is "JOIN".  A special value of :const:`None`
+            for `join_specs` is equivalent to the empty mapping.
+        :type join_specs: :class:`dict`
+        :raise TypeError: if `join_specs` is not a mapping.
+        :raise ValueError: if any key in `join_specs` is not a name of
+            a related object or if any value is not in the allowed
+            set.
+
+        .. versionadded:: 0.19.0
+        """
+        if join_specs:
+            if not isinstance(join_specs, Mapping):
+                raise TypeError("join_specs must be a mapping")
+            for obj, js in join_specs.items():
+                for (pattr, attrInfo, rclass) in self._attrpath(obj):
+                    pass
+                if rclass is None:
+                    raise ValueError("%s.%s is not a related object"
+                                     % (self.entity.BeanName, obj))
+                if js not in jpql_join_specs:
+                    raise ValueError("invalid join specification %s" % js)
+            self.join_specs = join_specs
+        else:
+            self.join_specs = dict()
+
     def setOrder(self, order):
         """Set the order to build the ORDER BY clause from.
 
@@ -251,8 +304,12 @@ class Query():
             name and an order direction, the latter being either "ASC"
             or "DESC" for ascending or descending order respectively.
         :type order: iterable or :class:`bool`
-        :raise ValueError: if `order` contains invalid attributes that
-            either do not exist or contain one to many relationships.
+        :raise ValueError: if any attribute in `order` is not valid.
+
+        .. versionchanged:: 0.19.0
+            allow one to many relationships in `order`.  Emit a
+            :exc:`~icat.exception.QueryOneToManyOrderWarning` rather
+            then raising a :exc:`ValueError` in this case.
         """
         if order is True:
 
@@ -274,15 +331,17 @@ class Query():
 
                 for (pattr, attrInfo, rclass) in self._attrpath(obj):
                     if attrInfo.relType == "ONE":
-                        if (not attrInfo.notNullable and 
-                            pattr not in self.conditions):
+                        if (not attrInfo.notNullable and
+                            pattr not in self.conditions and
+                            pattr not in self.join_specs):
                             sl = 3 if self._init else 2
-                            warn(QueryNullableOrderWarning(pattr), 
+                            warn(QueryNullableOrderWarning(pattr),
                                  stacklevel=sl)
                     elif attrInfo.relType == "MANY":
-                        raise ValueError("Cannot use one to many relationship "
-                                         "in '%s' to order %s." 
-                                         % (obj, self.entity.BeanName))
+                        if (pattr not in self.join_specs):
+                            sl = 3 if self._init else 2
+                            warn(QueryOneToManyOrderWarning(pattr),
+                                 stacklevel=sl)
 
                 if rclass is None:
                     # obj is an attribute, use it right away.
@@ -404,7 +463,8 @@ class Query():
         base = "SELECT %s FROM %s o" % (res, self.entity.BeanName)
         joins = ""
         for obj in sorted(subst.keys()):
-            joins += " JOIN %s" % self._dosubst(obj, subst)
+            js = self.join_specs.get(obj, "JOIN")
+            joins += " %s %s" % (js, self._dosubst(obj, subst))
         if self.conditions:
             conds = []
             for a in sorted(self.conditions.keys()):

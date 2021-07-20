@@ -101,7 +101,15 @@ Exceptions raised by python-icat
     :members:
     :show-inheritance:
 
+.. autoexception:: icat.exception.QueryWarning
+    :members:
+    :show-inheritance:
+
 .. autoexception:: icat.exception.QueryNullableOrderWarning
+    :members:
+    :show-inheritance:
+
+.. autoexception:: icat.exception.QueryOneToManyOrderWarning
     :members:
     :show-inheritance:
 
@@ -171,7 +179,9 @@ The class hierarchy for the exceptions is::
    +-- DataConsistencyError
    +-- IDSResponseError
    +-- Warning
-        +-- QueryNullableOrderWarning
+        +-- QueryWarning
+        |    +-- QueryNullableOrderWarning
+        |    +-- QueryOneToManyOrderWarning
         +-- ClientVersionWarning
         +-- DeprecationWarning
              +-- ICATDeprecationWarning
