@@ -96,8 +96,10 @@ class Query(object):
         :meth:`~icat.query.Query.setJoinSpecs` method for details.
     :param attribute: alias for `attributes`, retained for
         compatibility.  Deprecated, use `attributes` instead.
-    :raise TypeError: if `entity` is not a valid entity type or if
-        both `attributes` and `attribute` are provided.
+    :raise TypeError: if `entity` is not a valid entity type, if both
+        `attributes` and `attribute` are provided, or if any of the
+        keyword arguments have an invalid type, see the corresponding
+        method for details.
     :raise ValueError: if any of the keyword arguments is not valid,
         see the corresponding method for details.
 
