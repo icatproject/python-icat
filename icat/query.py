@@ -373,7 +373,8 @@ class Query():
         """
         if conditions:
             for a in conditions.keys():
-                for (pattr, attrInfo, rclass) in self._attrpath(a):
+                a_name = (a.split("("))[1].split(")")[0]
+                for (pattr, attrInfo, rclass) in self._attrpath(a_name):
                     pass
                 if a in self.conditions:
                     conds = []
@@ -468,7 +469,10 @@ class Query():
         if self.conditions:
             conds = []
             for a in sorted(self.conditions.keys()):
-                attr = self._dosubst(a, subst, False)
+                sql_function_name = a.split("(")[0]
+                a_name = (a.split("("))[1].split(")")[0]
+                attr = self._dosubst(a_name, subst, False)
+                attr = f"{sql_function_name}({attr})"
                 cond = self.conditions[a]
                 if isinstance(cond, str):
                     conds.append("%s %s" % (attr, cond))
