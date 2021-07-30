@@ -142,6 +142,8 @@ class Query():
         """
         rclass = self.entity
         pattr = ""
+        if attrname.endswith(')'):
+            attrname = (attrname.split("("))[1].split(")")[0]
         for attr in attrname.split('.'):
             if pattr:
                 pattr += ".%s" % attr
@@ -169,6 +171,8 @@ class Query():
             i = obj.rfind('.')
             if i < 0:
                 continue
+            if obj.endswith(')'):
+                obj = (obj.split("("))[1].split(")")[0]
             obj = obj[:i]
             for (o, attrInfo, oclass) in self._attrpath(obj):
                 if o not in subst:
@@ -373,7 +377,9 @@ class Query():
         """
         if conditions:
             for a in conditions.keys():
-                a_name = (a.split("("))[1].split(")")[0]
+                a_name = a
+                if a.endswith(')'):
+                    a_name = (a.split("("))[1].split(")")[0]
                 for (pattr, attrInfo, rclass) in self._attrpath(a_name):
                     pass
                 if a in self.conditions:
@@ -469,10 +475,13 @@ class Query():
         if self.conditions:
             conds = []
             for a in sorted(self.conditions.keys()):
-                sql_function_name = a.split("(")[0]
-                a_name = (a.split("("))[1].split(")")[0]
+                a_name = a
+                if a.endswith(')'):
+                    sql_function_name = a.split("(")[0]
+                    a_name = (a.split("("))[1].split(")")[0]
                 attr = self._dosubst(a_name, subst, False)
-                attr = f"{sql_function_name}({attr})"
+                if "sql_function_name" in locals():
+                    attr = f"{sql_function_name}({attr})"
                 cond = self.conditions[a]
                 if isinstance(cond, str):
                     conds.append("%s %s" % (attr, cond))
