@@ -285,6 +285,25 @@ def test_query_condition_obj(client):
     res = client.search(query)
     assert len(res) == 60
 
+@pytest.mark.dependency(depends=['get_investigation'])
+def test_query_condition_jpql_function(client):
+    """Functions may be applied to field names of conditions.
+    This test also applies `UPPER()` on the data to mitigate instances of Oracle
+    databases which are case sensitive.
+    """
+    conditions = {"UPPER(title)": "like UPPER('%Ni-Mn-Ga flat cone%')"}
+    query = Query(client, "Investigation", conditions=conditions)
+    print(str(query))
+
+    expected_query_str = (
+        "SELECT o FROM Investigation o WHERE UPPER(o.title) like"
+        " UPPER('%Ni-Mn-Ga flat cone%')"
+    )
+    assert str(query) == expected_query_str
+
+    res = client.search(query)
+    assert len(res) == 1
+
 def test_query_rule_order(client):
     """Rule does not have a constraint, id is included in the natural order.
     """
