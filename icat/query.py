@@ -215,6 +215,15 @@ class Query(object):
             n += " AS %s" % (subst[obj])
         return n
 
+    def _split_db_functs(self, a):
+        if a.endswith(")"):
+            jpql_function_name = a.split("(")[0]
+            attr_name = (a.split("("))[1].split(")")[0]
+
+            return (attr_name, jpql_function_name)
+
+        return (a, None)
+
     def setAttributes(self, attributes):
         """Set the attributes that the query shall return.
 
