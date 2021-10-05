@@ -398,21 +398,22 @@ class Query(object):
         """
         if conditions:
             for a in conditions.keys():
-                for (pattr, attrInfo, rclass) in self._attrpath(a):
+                cond_key = self._split_db_functs(a)
+                for (pattr, attrInfo, rclass) in self._attrpath(cond_key[0]):
                     pass
-                if a in self.conditions:
+                if cond_key in self.conditions:
                     conds = []
-                    if isinstance(self.conditions[a], basestring):
-                        conds.append(self.conditions[a])
+                    if isinstance(self.conditions[cond_key], basestring):
+                        conds.append(self.conditions[cond_key])
                     else:
-                        conds.extend(self.conditions[a])
+                        conds.extend(self.conditions[cond_key])
                     if isinstance(conditions[a], basestring):
                         conds.append(conditions[a])
                     else:
                         conds.extend(conditions[a])
-                    self.conditions[a] = conds
+                    self.conditions[cond_key] = conds
                 else:
-                    self.conditions[a] = conditions[a]
+                    self.conditions[cond_key] = conditions[a]
 
     def addIncludes(self, includes):
         """Add related objects to build the INCLUDE clause from.
@@ -472,7 +473,7 @@ class Query(object):
         distinction between Unicode and string objects anyway.
         """
         joinattrs = ( { a for a, d in self.order } |
-                      set(self.conditions.keys()) |
+                      {attr_name for attr_name, jpql_funct in self.conditions} |
                       set(self.attributes) )
         subst = self._makesubst(joinattrs)
         if self.attributes:
@@ -501,14 +502,22 @@ class Query(object):
             joins += " %s %s" % (js, self._dosubst(obj, subst))
         if self.conditions:
             conds = []
-            for a in sorted(self.conditions.keys()):
+            for a, jpql_funct in sorted(self.conditions.keys()):
                 attr = self._dosubst(a, subst, False)
-                cond = self.conditions[a]
+                cond = self.conditions[(a, jpql_funct)]
                 if isinstance(cond, basestring):
-                    conds.append("%s %s" % (attr, cond))
+                    conds.append(
+                            "%s(%s) %s" % (jpql_funct, attr, cond)
+                            if jpql_funct
+                            else "%s %s" % (attr, cond)
+                        )
                 else:
                     for c in cond:
-                        conds.append("%s %s" % (attr, c))
+                        conds.append(
+                            "%s(%s) %s" % (jpql_funct, attr, c)
+                            if jpql_funct
+                            else "%s %s" % (attr, c)
+                        )
             where = " WHERE " + " AND ".join(conds)
         else:
             where = ""
