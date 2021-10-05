@@ -291,13 +291,17 @@ def test_query_condition_jpql_function(client):
     This test also applies `UPPER()` on the data to mitigate instances of Oracle
     databases which are case sensitive.
     """
-    conditions = {"UPPER(title)": "like UPPER('%Ni-Mn-Ga flat cone%')"}
+    conditions = {
+        "UPPER(title)": "like UPPER('%Ni-Mn-Ga flat cone%')",
+        "UPPER(datasets.name)": "like UPPER('%e208341%')",
+    }
     query = Query(client, "Investigation", conditions=conditions)
     print(str(query))
 
     expected_query_str = (
-        "SELECT o FROM Investigation o WHERE UPPER(o.title) like"
-        " UPPER('%Ni-Mn-Ga flat cone%')"
+        "SELECT o FROM Investigation o JOIN o.datasets AS s1"
+        " WHERE UPPER(s1.name) like UPPER('%e208341%') AND"
+        " UPPER(o.title) like UPPER('%Ni-Mn-Ga flat cone%')"
     )
     assert str(query) == expected_query_str
 
