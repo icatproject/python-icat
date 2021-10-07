@@ -396,7 +396,13 @@ class Query(object):
             more then one condition on a single attribute.  If the
             query already has a condition on a given attribute, it
             will be turned into a list with the new condition(s)
-            appended.
+            appended.  The attribute name (the key of the condition)
+            can be wrapped with a JPQL function (such as
+            "UPPER(title)"), with each part of the key being split in
+            `_split_db_functs()`.  When the condition is added to
+            `self.conditions`, the condition's key is changed to a
+            tuple to represent the attribute name and the JPQL
+            function respectively.
         :type conditions: :class:`dict`
         :raise ValueError: if any key in `conditions` is not valid.
         """

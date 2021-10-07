@@ -183,6 +183,40 @@ We may also include related objects in the search results::
      visitId = "1.1-N"
    }]
 
+Python ICAT supports the use of some JPQL functions when specifying
+which attribute a condition should be applied to.  Consider the
+following query::
+
+  >>> query = Query(client, "Investigation", conditions={"LENGTH(title)": "= 18"})
+  >>> print(query)
+  SELECT o FROM Investigation o WHERE LENGTH(o.title) = 18
+  >>> client.search(query)
+  [(investigation){
+     createId = "simple/root"
+     createTime = 2021-10-05 14:09:57+00:00
+     id = 430
+     modId = "simple/root"
+     modTime = 2021-10-05 14:09:57+00:00
+     doi = "00.0815/inv-00601"
+     endDate = 2010-10-12 15:00:00+00:00
+     name = "10100601-ST"
+     startDate = 2010-09-30 10:27:24+00:00
+     title = "Ni-Mn-Ga flat cone"
+     visitId = "1.1-N"
+   }, (investigation){
+     createId = "simple/root"
+     createTime = 2021-10-05 14:09:58+00:00
+     id = 431
+     modId = "simple/root"
+     modTime = 2021-10-05 14:09:58+00:00
+     doi = "00.0815/inv-00409"
+     endDate = 2012-08-06 01:10:08+00:00
+     name = "12100409-ST"
+     startDate = 2012-07-26 15:44:24+00:00
+     title = "NiO SC OF1 JUH HHL"
+     visitId = "1.1-P"
+   }]
+
 The conditions in a query may also be put on the attributes of related
 objects.  This allows rather complex queries.  Let us search for the
 datasets in this investigation that have been measured in a magnetic
