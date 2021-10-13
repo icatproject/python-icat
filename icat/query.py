@@ -1,6 +1,7 @@
 """Provide the Query class.
 """
 
+import re
 from warnings import warn
 try:
     # Python 3.3 and newer
@@ -111,6 +112,8 @@ class Query(object):
         add the `join_specs` argument.
     """
 
+    _db_func_re = re.compile(r"(?:([A-Za-z_]+)\()?([A-Za-z.]+)(?(1)\))")
+
     def __init__(self, client, entity,
                  attributes=None, aggregate=None, order=None,
                  conditions=None, includes=None, limit=None,
@@ -215,14 +218,11 @@ class Query(object):
             n += " AS %s" % (subst[obj])
         return n
 
-    def _split_db_functs(self, a):
-        if a.endswith(")"):
-            jpql_function_name = a.split("(")[0]
-            attr_name = (a.split("("))[1].split(")")[0]
-
-            return (attr_name, jpql_function_name)
-
-        return (a, None)
+    def _split_db_functs(self, attr):
+        m = self._db_func_re.fullmatch(attr)
+        if not m:
+            raise ValueError("Invalid attribute '%s'" % attr)
+        return m.group(2,1)
 
     def setAttributes(self, attributes):
         """Set the attributes that the query shall return.
