@@ -308,6 +308,18 @@ def test_query_condition_jpql_function(client):
     res = client.search(query)
     assert len(res) == 1
 
+@pytest.mark.xfail(reason="See comment in #89")
+def test_query_condition_jpql_function_mixed(client):
+    """Mix conditions with and without JPQL function on the same attribute.
+    This test case failed for an early implementation of JPQL
+    functions, see discussion in #89.
+    """
+    conditions = { "LENGTH(fullName)": "> 11", "fullName": "> 'C'" }
+    query = Query(client, "User", conditions=conditions)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+
 def test_query_rule_order(client):
     """Rule does not have a constraint, id is included in the natural order.
     """
