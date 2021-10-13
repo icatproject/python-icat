@@ -412,18 +412,15 @@ class Query(object):
                 for (pattr, attrInfo, rclass) in self._attrpath(cond_key[0]):
                     pass
                 if cond_key in self.conditions:
-                    conds = []
-                    if isinstance(self.conditions[cond_key], basestring):
-                        conds.append(self.conditions[cond_key])
-                    else:
-                        conds.extend(self.conditions[cond_key])
                     if isinstance(conditions[a], basestring):
-                        conds.append(conditions[a])
+                        self.conditions[cond_key].append(conditions[a])
                     else:
-                        conds.extend(conditions[a])
-                    self.conditions[cond_key] = conds
+                        self.conditions[cond_key].extend(conditions[a])
                 else:
-                    self.conditions[cond_key] = conditions[a]
+                    if isinstance(conditions[a], basestring):
+                        self.conditions[cond_key] = [conditions[a]]
+                    else:
+                        self.conditions[cond_key] = conditions[a].copy()
 
     def addIncludes(self, includes):
         """Add related objects to build the INCLUDE clause from.
@@ -514,20 +511,12 @@ class Query(object):
             conds = []
             for a, jpql_funct in sorted(self.conditions.keys()):
                 attr = self._dosubst(a, subst, False)
-                cond = self.conditions[(a, jpql_funct)]
-                if isinstance(cond, basestring):
+                for c in self.conditions[(a, jpql_funct)]:
                     conds.append(
-                            "%s(%s) %s" % (jpql_funct, attr, cond)
-                            if jpql_funct
-                            else "%s %s" % (attr, cond)
-                        )
-                else:
-                    for c in cond:
-                        conds.append(
-                            "%s(%s) %s" % (jpql_funct, attr, c)
-                            if jpql_funct
-                            else "%s %s" % (attr, c)
-                        )
+                        "%s(%s) %s" % (jpql_funct, attr, c)
+                        if jpql_funct
+                        else "%s %s" % (attr, c)
+                    )
             where = " WHERE " + " AND ".join(conds)
         else:
             where = ""
@@ -563,7 +552,9 @@ class Query(object):
         q.attributes = list(self.attributes)
         q.aggregate = self.aggregate
         q.order = list(self.order)
-        q.conditions = self.conditions.copy()
+        q.conditions = dict()
+        for k, v in self.conditions.items():
+            q.conditions[k] = self.conditions[k].copy()
         q.includes = self.includes.copy()
         q.limit = self.limit
         return q
