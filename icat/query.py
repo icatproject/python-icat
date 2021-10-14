@@ -1,6 +1,7 @@
 """Provide the Query class.
 """
 
+from collections import OrderedDict
 import re
 from warnings import warn
 try:
@@ -336,14 +337,17 @@ class Query(object):
             :exc:`~icat.exception.QueryOneToManyOrderWarning` rather
             then raising a :exc:`ValueError` in this case.
         """
+        # Note: with Python 3.7 and newer we could simplify this using
+        # a standard dict() rather then an OrderedDict().
+        self.order = OrderedDict()
+
         if order is True:
 
-            self.order = [ (a, None) 
-                           for a in self.entity.getNaturalOrder(self.client) ]
+            for a in self.entity.getNaturalOrder(self.client):
+                self.order[a] = "%s"
 
         elif order:
 
-            self.order = []
             for obj in order:
 
                 if isinstance(obj, tuple):
@@ -368,19 +372,21 @@ class Query(object):
                             warn(QueryOneToManyOrderWarning(pattr),
                                  stacklevel=sl)
 
+                vstr = "%%s %s" % direction if direction else "%s"
                 if rclass is None:
                     # obj is an attribute, use it right away.
-                    self.order.append( (obj, direction) )
+                    if obj in self.order:
+                        raise ValueError("Cannot add %s more than once" % obj)
+                    self.order[obj] = vstr
                 else:
                     # obj is a related object, use the natural order
                     # of its class.
-                    rorder = rclass.getNaturalOrder(self.client)
-                    self.order.extend([ ("%s.%s" % (obj, ra), direction) 
-                                        for ra in rorder ])
-
-        else:
-
-            self.order = []
+                    for ra in rclass.getNaturalOrder(self.client):
+                        attr = "%s.%s" % (obj, ra)
+                        if attr in self.order:
+                            raise ValueError("Cannot add %s more than once"
+                                             % attr)
+                        self.order[attr] = vstr
 
     def addConditions(self, conditions):
         """Add conditions to the constraints to build the WHERE clause from.
@@ -479,7 +485,7 @@ class Query(object):
         usefulness over formal correctness.  For Python 3, there is no
         distinction between Unicode and string objects anyway.
         """
-        joinattrs = ( { a for a, d in self.order } |
+        joinattrs = ( set(self.order.keys()) |
                       set(self.conditions.keys()) |
                       set(self.attributes) )
         subst = self._makesubst(joinattrs)
@@ -518,12 +524,8 @@ class Query(object):
             where = ""
         if self.order:
             orders = []
-            for a, d in self.order:
-                a = self._dosubst(a, subst, False)
-                if d:
-                    orders.append("%s %s" % (a, d))
-                else:
-                    orders.append(a)
+            for a in self.order.keys():
+                orders.append(self.order[a] % self._dosubst(a, subst, False))
             order = " ORDER BY " + ", ".join(orders)
         else:
             order = ""
