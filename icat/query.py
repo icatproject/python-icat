@@ -330,7 +330,9 @@ class Query(object):
             name and an order direction, the latter being either "ASC"
             or "DESC" for ascending or descending order respectively.
         :type order: iterable or :class:`bool`
-        :raise ValueError: if any attribute in `order` is not valid.
+        :raise ValueError: if any attribute in `order` is not valid or
+            if any attribute appears more than once in the resulting
+            ORDER BY clause.
 
         .. versionchanged:: 0.19.0
             allow one to many relationships in `order`.  Emit a
