@@ -308,7 +308,6 @@ def test_query_condition_jpql_function(client):
     res = client.search(query)
     assert len(res) == 1
 
-@pytest.mark.xfail(reason="See comment in #89")
 def test_query_condition_jpql_function_mixed(client):
     """Mix conditions with and without JPQL function on the same attribute.
     This test case failed for an early implementation of JPQL

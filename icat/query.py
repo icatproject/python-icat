@@ -356,12 +356,8 @@ class Query(object):
 
                 for (pattr, attrInfo, rclass) in self._attrpath(obj):
                     if attrInfo.relType == "ONE":
-                        conditions_attrs = [
-                            attr_name
-                            for attr_name, jpql_funct in self.conditions
-                        ]
                         if (not attrInfo.notNullable and
-                            pattr not in conditions_attrs and
+                            pattr not in self.conditions and
                             pattr not in self.join_specs):
                             sl = 3 if self._init else 2
                             warn(QueryNullableOrderWarning(pattr),
@@ -406,21 +402,26 @@ class Query(object):
         :type conditions: :class:`dict`
         :raise ValueError: if any key in `conditions` is not valid.
         """
+        def _cond_value(rhs, func):
+            rhs = rhs.replace('%', '%%')
+            if func:
+                return "%s(%%s) %s" % (func, rhs)
+            else:
+                return "%%s %s" % (rhs)
         if conditions:
-            for a in conditions.keys():
-                cond_key = self._split_db_functs(a)
-                for (pattr, attrInfo, rclass) in self._attrpath(cond_key[0]):
-                    pass
-                if cond_key in self.conditions:
-                    if isinstance(conditions[a], basestring):
-                        self.conditions[cond_key].append(conditions[a])
-                    else:
-                        self.conditions[cond_key].extend(conditions[a])
+            for k in conditions.keys():
+                if isinstance(conditions[k], basestring):
+                    conds = [conditions[k]]
                 else:
-                    if isinstance(conditions[a], basestring):
-                        self.conditions[cond_key] = [conditions[a]]
-                    else:
-                        self.conditions[cond_key] = conditions[a].copy()
+                    conds = conditions[k]
+                a, jpql_func = self._split_db_functs(k)
+                for (pattr, attrInfo, rclass) in self._attrpath(a):
+                    pass
+                v = [ _cond_value(rhs, jpql_func) for rhs in conds ]
+                if a in self.conditions:
+                    self.conditions[a].extend(v)
+                else:
+                    self.conditions[a] = v
 
     def addIncludes(self, includes):
         """Add related objects to build the INCLUDE clause from.
@@ -480,7 +481,7 @@ class Query(object):
         distinction between Unicode and string objects anyway.
         """
         joinattrs = ( { a for a, d in self.order } |
-                      {attr_name for attr_name, jpql_funct in self.conditions} |
+                      set(self.conditions.keys()) |
                       set(self.attributes) )
         subst = self._makesubst(joinattrs)
         if self.attributes:
@@ -509,14 +510,10 @@ class Query(object):
             joins += " %s %s" % (js, self._dosubst(obj, subst))
         if self.conditions:
             conds = []
-            for a, jpql_funct in sorted(self.conditions.keys()):
+            for a in sorted(self.conditions.keys()):
                 attr = self._dosubst(a, subst, False)
-                for c in self.conditions[(a, jpql_funct)]:
-                    conds.append(
-                        "%s(%s) %s" % (jpql_funct, attr, c)
-                        if jpql_funct
-                        else "%s %s" % (attr, c)
-                    )
+                for c in self.conditions[a]:
+                    conds.append(c % attr)
             where = " WHERE " + " AND ".join(conds)
         else:
             where = ""
