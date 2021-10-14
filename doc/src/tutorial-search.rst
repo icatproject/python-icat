@@ -183,7 +183,7 @@ We may also include related objects in the search results::
      visitId = "1.1-N"
    }]
 
-Python ICAT supports the use of some JPQL functions when specifying
+python-icat supports the use of some JPQL functions when specifying
 which attribute a condition should be applied to.  Consider the
 following query::
 

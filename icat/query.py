@@ -389,18 +389,17 @@ class Query(object):
             result.  This must be a mapping of attribute names to
             conditions on that attribute.  The latter may either be a
             string with a single condition or a list of strings to add
-            more then one condition on a single attribute.  If the
-            query already has a condition on a given attribute, it
-            will be turned into a list with the new condition(s)
-            appended.  The attribute name (the key of the condition)
-            can be wrapped with a JPQL function (such as
-            "UPPER(title)"), with each part of the key being split in
-            `_split_db_functs()`.  When the condition is added to
-            `self.conditions`, the condition's key is changed to a
-            tuple to represent the attribute name and the JPQL
-            function respectively.
+            more then one condition on a single attribute.  The
+            attribute name (the key of the condition) can be wrapped
+            with a JPQL function (such as "UPPER(title)").  If the
+            query already has a condition on a given attribute, the
+            previous condition(s) will be retained and the new
+            condition(s) added to that.
         :type conditions: :class:`dict`
         :raise ValueError: if any key in `conditions` is not valid.
+
+        .. versionchanged:: 0.20.0
+            allow a JPQL function in the attribute.
         """
         def _cond_value(rhs, func):
             rhs = rhs.replace('%', '%%')
