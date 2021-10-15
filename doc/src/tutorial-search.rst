@@ -723,11 +723,6 @@ shortest::
   8: John Doe
   4: Root
 
-Note: adding the nullable attribute `User.fullName` to the `ORDER BY`
-clause will implicitly add a `fullName IS NOT NULL` condition in the
-ICAT search backend.  We added that condition already to the query in
-this example in order to make that explicit.
-
 We may limit the number of returned items.  Search for the second to
 last dataset to have been finished::
 
