@@ -310,6 +310,20 @@ def test_query_condition_jpql_function_mixed(client):
     res = client.search(query)
     assert len(res) == 3
 
+def test_query_order_jpql_function(client):
+    """Functions may be applied to attribute names in order.
+
+    As an example, search for the User having the third longest
+    fullName.  (In the example data, the longest and second longest
+    fullName is somewhat ambiguous due to character encoding issues.)
+    """
+    query = Query(client, "User",
+                  order=[("LENGTH(fullName)", "DESC")], limit=(2,1))
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 1
+    assert res[0].fullName == "Nicolas Bourbaki"
+
 def test_query_rule_order(client):
     """Rule does not have a constraint, id is included in the natural order.
     """

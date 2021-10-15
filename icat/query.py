@@ -325,10 +325,12 @@ class Query(object):
         :param order: the list of the attributes used for sorting.  A
             special value of :const:`True` may be used to indicate the
             natural order of the entity type.  Any false value means
-            no ORDER BY clause.  Rather then only an attribute name,
-            any item in the list may also be a tuple of an attribute
-            name and an order direction, the latter being either "ASC"
-            or "DESC" for ascending or descending order respectively.
+            no ORDER BY clause.  The attribute name can be wrapped
+            with a JPQL function (such as "LENGTH(title)").  Rather
+            then only an attribute name, any item in the list may also
+            be a tuple of an attribute name and an order direction,
+            the latter being either "ASC" or "DESC" for ascending or
+            descending order respectively.
         :type order: iterable or :class:`bool`
         :raise ValueError: if any attribute in `order` is not valid or
             if any attribute appears more than once in the resulting
@@ -338,6 +340,8 @@ class Query(object):
             allow one to many relationships in `order`.  Emit a
             :exc:`~icat.exception.QueryOneToManyOrderWarning` rather
             then raising a :exc:`ValueError` in this case.
+        .. versionchanged:: 0.20.0
+            allow a JPQL function in the attribute.
         """
         # Note: with Python 3.7 and newer we could simplify this using
         # a standard dict() rather then an OrderedDict().
@@ -359,8 +363,9 @@ class Query(object):
                                          % direction)
                 else:
                     direction = None
+                attr, jpql_func = self._split_db_functs(obj)
 
-                for (pattr, attrInfo, rclass) in self._attrpath(obj):
+                for (pattr, attrInfo, rclass) in self._attrpath(attr):
                     if attrInfo.relType == "ONE":
                         if (not attrInfo.notNullable and
                             pattr not in self.conditions and
@@ -374,21 +379,33 @@ class Query(object):
                             warn(QueryOneToManyOrderWarning(pattr),
                                  stacklevel=sl)
 
-                vstr = "%%s %s" % direction if direction else "%s"
-                if rclass is None:
-                    # obj is an attribute, use it right away.
-                    if obj in self.order:
-                        raise ValueError("Cannot add %s more than once" % obj)
-                    self.order[obj] = vstr
+                if jpql_func:
+                    if rclass is not None:
+                        raise ValueError("Cannot apply a JPQL function "
+                                         "to a related object: %s" % obj)
+                    if direction:
+                        vstr = "%s(%%s) %s" % (jpql_func, direction)
+                    else:
+                        vstr = "%s(%%s)" % jpql_func
                 else:
-                    # obj is a related object, use the natural order
+                    if direction:
+                        vstr = "%%s %s" % direction
+                    else:
+                        vstr = "%s"
+                if rclass is None:
+                    # attr is an attribute, use it right away.
+                    if attr in self.order:
+                        raise ValueError("Cannot add %s more than once" % attr)
+                    self.order[attr] = vstr
+                else:
+                    # attr is a related object, use the natural order
                     # of its class.
                     for ra in rclass.getNaturalOrder(self.client):
-                        attr = "%s.%s" % (obj, ra)
-                        if attr in self.order:
+                        rattr = "%s.%s" % (attr, ra)
+                        if rattr in self.order:
                             raise ValueError("Cannot add %s more than once"
-                                             % attr)
-                        self.order[attr] = vstr
+                                             % rattr)
+                        self.order[rattr] = vstr
 
     def addConditions(self, conditions):
         """Add conditions to the constraints to build the WHERE clause from.
