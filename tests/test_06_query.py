@@ -299,6 +299,18 @@ def test_query_condition_jpql_function(client):
     res = client.search(query)
     assert len(res) == 1
 
+def test_query_condition_jpql_function_namelen(client):
+    """Functions may be applied to field names of conditions.
+    Similar to last test, but picking another example where the effect
+    of the JPQL function in the condition is easier to verify in the
+    result.
+    """
+    conditions = { "LENGTH(fullName)": "> 11" }
+    query = Query(client, "User", conditions=conditions)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 4
+
 def test_query_condition_jpql_function_mixed(client):
     """Mix conditions with and without JPQL function on the same attribute.
     This test case failed for an early implementation of JPQL
