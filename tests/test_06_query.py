@@ -150,7 +150,7 @@ def test_query_datacollection(client):
     """
     query = Query(client, "DataCollection", order=True)
     print(str(query))
-    assert ("id", None) in query.order
+    assert "id" in query.order
     res = client.search(query)
     assert len(res) == 2
 
@@ -285,11 +285,10 @@ def test_query_condition_obj(client):
     res = client.search(query)
     assert len(res) == 60
 
-@pytest.mark.dependency(depends=['get_investigation'])
 def test_query_condition_jpql_function(client):
     """Functions may be applied to field names of conditions.
-    This test also applies `UPPER()` on the data to mitigate instances of Oracle
-    databases which are case sensitive.
+    This test also applies `UPPER()` on the data to mitigate instances
+    of Oracle databases which are case sensitive.
     """
     conditions = {
         "UPPER(title)": "like UPPER('%Ni-Mn-Ga flat cone%')",
@@ -297,18 +296,21 @@ def test_query_condition_jpql_function(client):
     }
     query = Query(client, "Investigation", conditions=conditions)
     print(str(query))
-
-    expected_query_str = (
-        "SELECT o FROM Investigation o JOIN o.datasets AS s1"
-        " WHERE UPPER(s1.name) like UPPER('%e208341%') AND"
-        " UPPER(o.title) like UPPER('%Ni-Mn-Ga flat cone%')"
-    )
-    assert str(query) == expected_query_str
-
     res = client.search(query)
     assert len(res) == 1
 
-@pytest.mark.xfail(reason="See comment in #89")
+def test_query_condition_jpql_function_namelen(client):
+    """Functions may be applied to field names of conditions.
+    Similar to last test, but picking another example where the effect
+    of the JPQL function in the condition is easier to verify in the
+    result.
+    """
+    conditions = { "LENGTH(fullName)": "> 11" }
+    query = Query(client, "User", conditions=conditions)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 4
+
 def test_query_condition_jpql_function_mixed(client):
     """Mix conditions with and without JPQL function on the same attribute.
     This test case failed for an early implementation of JPQL
@@ -320,12 +322,26 @@ def test_query_condition_jpql_function_mixed(client):
     res = client.search(query)
     assert len(res) == 3
 
+def test_query_order_jpql_function(client):
+    """Functions may be applied to attribute names in order.
+
+    As an example, search for the User having the third longest
+    fullName.  (In the example data, the longest and second longest
+    fullName is somewhat ambiguous due to character encoding issues.)
+    """
+    query = Query(client, "User",
+                  order=[("LENGTH(fullName)", "DESC")], limit=(2,1))
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 1
+    assert res[0].fullName == "Nicolas Bourbaki"
+
 def test_query_rule_order(client):
     """Rule does not have a constraint, id is included in the natural order.
     """
     query = Query(client, "Rule", order=True)
     print(str(query))
-    assert ("id", None) in query.order
+    assert "id" in query.order
     res = client.search(query)
     assert len(res) == 104
 

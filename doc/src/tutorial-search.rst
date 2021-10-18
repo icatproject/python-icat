@@ -183,7 +183,7 @@ We may also include related objects in the search results::
      visitId = "1.1-N"
    }]
 
-Python ICAT supports the use of some JPQL functions when specifying
+python-icat supports the use of some JPQL functions when specifying
 which attribute a condition should be applied to.  Consider the
 following query::
 
@@ -701,6 +701,27 @@ dataset parameter, ordered by parameter type name (ascending), units
            verified = False
         }
    }]
+
+In a similar way as for `conditions`, we may use JPQL functions also
+in the `order` argument to :class:`~icat.query.Query`.  Let's search
+for user sorted by the length of their name, from longest to
+shortest::
+
+  >>> query = Query(client, "User", conditions={"fullName": "IS NOT NULL"}, order=[("LENGTH(fullName)", "DESC")])
+  >>> print(query)
+  SELECT o FROM User o WHERE o.fullName IS NOT NULL ORDER BY LENGTH(o.fullName) DESC
+  >>> for user in client.search(query):
+  ...     print("%d: %s" % (len(user.fullName), user.fullName))
+  ...
+  19: Rudolph Beck-Dülmen
+  19: Jean-Baptiste Botul
+  16: Nicolas Bourbaki
+  13: Aelius Cordus
+  11: User Office
+  10: Arnold Hau
+  10: IDS reader
+  8: John Doe
+  4: Root
 
 We may limit the number of returned items.  Search for the second to
 last dataset to have been finished::
