@@ -443,12 +443,13 @@ class Query(object):
         """Return a formal representation of the query.
         """
         return ("%s(%s, %s, attributes=%s, aggregate=%s, order=%s, "
-                "conditions=%s, includes=%s, limit=%s)"
+                "conditions=%s, includes=%s, limit=%s, join_specs=%s)"
                 % (self.__class__.__name__,
                    repr(self.client), repr(self.entity.BeanName),
                    repr(self.attributes), repr(self.aggregate),
                    repr(self.order), repr(self.conditions),
-                   repr(self.includes), repr(self.limit)))
+                   repr(self.includes), repr(self.limit),
+                   repr(self.join_specs)))
 
     def __str__(self):
         """Return a string representation of the query.
