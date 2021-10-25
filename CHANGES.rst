@@ -17,11 +17,10 @@ Incompatible changes and new bugs
 + `#94`_: the implementation of `#89`_ changed the internal data
   structures in :attr:`icat.query.Query.conditions` and
   :attr:`icat.query.Query.order`.  These attributes are considered
-  internal and deliberately not documented, so one could argue that
-  this is not an incompatible change, though.  But the changes also
-  have an impact on the return value of
-  :meth:`icat.query.Query.__repr__` such that it is not suitable to
-  recreate the query object.
+  internal and are deliberately not documented, so one could argue
+  that this is not an incompatible change.  But the changes also have
+  an impact on the return value of :meth:`icat.query.Query.__repr__`
+  such that it is not suitable to recreate the query object.
 
 Bug fixes and minor changes
 ---------------------------
