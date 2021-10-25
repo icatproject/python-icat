@@ -9,7 +9,8 @@ New features
 ------------
 
 + `#86`_, `#89`_: allow SQL functions to be used on the attributes in
-  the condtions and order keys in class :class:`icat.query.Query`.
+  the arguments to :meth:`icat.query.Query.setOrder` and
+  :meth:`icat.query.Query.addConditions`.
 
 Incompatible changes and new bugs
 ---------------------------------
