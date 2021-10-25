@@ -780,10 +780,8 @@ def test_query_aggregate_misc(client, attribute, aggregate, expected):
     ("Rule", dict(order=['grouping', 'what', 'id'],
                   conditions={"grouping":"IS NOT NULL"},
                   limit=(0,10))),
-    pytest.param("Rule",
-                 dict(order=['grouping', 'what', 'id'],
-                      join_specs={"grouping": "LEFT OUTER JOIN"}),
-                 marks=pytest.mark.xfail(reason="Issue #90")),
+    ("Rule", dict(order=['grouping', 'what', 'id'],
+                  join_specs={"grouping": "LEFT OUTER JOIN"})),
 ])
 def test_query_copy(client, entity, kwargs):
     """Test the Query.copy() method.

@@ -538,6 +538,7 @@ class Query(object):
         q.conditions = self.conditions.copy()
         q.includes = self.includes.copy()
         q.limit = self.limit
+        q.join_specs = self.join_specs.copy()
         return q
 
     def setAttribute(self, attribute):
