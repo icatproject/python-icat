@@ -2,6 +2,32 @@ Changelog
 =========
 
 
+0.20.0 (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#86`_, `#89`_: allow SQL functions to be used on the attributes in
+  the condtions and order keys in class :class:`icat.query.Query`.
+
+Incompatible changes and new bugs
+---------------------------------
+
++ `#94`_: the implementation of `#89`_ changed the internal data
+  structures in :attr:`icat.query.Query.conditions` and
+  :attr:`icat.query.Query.order`.  These attributes are considered
+  internal and deliberately not documented, so one could argue that
+  this is not an incompatible change, though.  But the changes also
+  have an impact on the return value of
+  :meth:`icat.query.Query.__repr__` such that it is not suitable to
+  recreate the query object.
+
+.. _#86: https://github.com/icatproject/python-icat/issues/86
+.. _#89: https://github.com/icatproject/python-icat/pull/89
+.. _#94: https://github.com/icatproject/python-icat/issues/94
+
+
 0.19.0 (2021-07-20)
 ~~~~~~~~~~~~~~~~~~~
 
