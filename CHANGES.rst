@@ -2,6 +2,21 @@ Changelog
 =========
 
 
+0.20.0 (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug fixes and minor changes
+---------------------------
+
++ `#90`_, `#91`_, `#95`_: :attr:`icat.query.Query.join_specs` was not
+  taken into account in :meth:`icat.query.Query.copy` and
+  :meth:`icat.query.Query.__repr__`.
+
+.. _#90: https://github.com/icatproject/python-icat/issues/90
+.. _#91: https://github.com/icatproject/python-icat/issues/91
+.. _#95: https://github.com/icatproject/python-icat/pull/95
+
+
 0.19.0 (2021-07-20)
 ~~~~~~~~~~~~~~~~~~~
 
