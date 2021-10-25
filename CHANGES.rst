@@ -23,9 +23,19 @@ Incompatible changes and new bugs
   :meth:`icat.query.Query.__repr__` such that it is not suitable to
   recreate the query object.
 
+Bug fixes and minor changes
+---------------------------
+
++ `#90`_, `#91`_, `#95`_: :attr:`icat.query.Query.join_specs` was not
+  taken into account in :meth:`icat.query.Query.copy` and
+  :meth:`icat.query.Query.__repr__`.
+
 .. _#86: https://github.com/icatproject/python-icat/issues/86
 .. _#89: https://github.com/icatproject/python-icat/pull/89
+.. _#90: https://github.com/icatproject/python-icat/issues/90
+.. _#91: https://github.com/icatproject/python-icat/issues/91
 .. _#94: https://github.com/icatproject/python-icat/issues/94
+.. _#95: https://github.com/icatproject/python-icat/pull/95
 
 
 0.19.0 (2021-07-20)

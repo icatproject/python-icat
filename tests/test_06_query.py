@@ -814,3 +814,32 @@ def test_query_aggregate_misc(client, attribute, aggregate, expected):
     assert len(res) == 1
     assert res[0] == expected
 
+@pytest.mark.parametrize(("entity", "kwargs"), [
+    ("Datafile", dict(attributes="name", order=True)),
+    ("InvestigationUser",
+     dict(attributes=("investigation.name", "role"),
+          conditions={"investigation.name": "= '08100122-EF'"},
+          aggregate="DISTINCT")),
+    ("Datafile", dict(order=[("name", "ASC")])),
+    ("Datafile", dict(conditions={
+        "name": "= 'e208945.nxs'",
+        "dataset.name": "= 'e208945'",
+        "dataset.investigation.name": "= '12100409-ST'",
+    })),
+    ("Instrument", dict(order=["name"],
+                        includes={"facility", "instrumentScientists.user"})),
+    ("Rule", dict(order=['grouping', 'what', 'id'],
+                  conditions={"grouping":"IS NOT NULL"},
+                  limit=(0,10))),
+    ("Rule", dict(order=['grouping', 'what', 'id'],
+                  join_specs={"grouping": "LEFT OUTER JOIN"})),
+])
+def test_query_copy(client, entity, kwargs):
+    """Test the Query.copy() method.
+
+    Very basic test: verify that Query.copy() yields an equivalent
+    query for various Query() constructor argument sets.
+    """
+    query = Query(client, entity, **kwargs)
+    clone = query.copy()
+    assert str(clone) == str(query)
