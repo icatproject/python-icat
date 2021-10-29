@@ -840,6 +840,9 @@ def test_query_copy(client, entity, kwargs):
     Very basic test: verify that Query.copy() yields an equivalent
     query for various Query() constructor argument sets.
     """
+    if ('attributes' in kwargs and len(kwargs['attributes']) > 1 and
+        not client._has_wsdl_type('fieldSet')):
+        pytest.skip("search for multiple fields not supported by this server")
     query = Query(client, entity, **kwargs)
     clone = query.copy()
     assert str(clone) == str(query)
