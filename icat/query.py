@@ -569,7 +569,7 @@ class Query(object):
         q = Query(self.client, self.entity)
         q.attributes = list(self.attributes)
         q.aggregate = self.aggregate
-        q.order = list(self.order)
+        q.order = self.order.copy()
         q.conditions = dict()
         for k, v in self.conditions.items():
             q.conditions[k] = self.conditions[k].copy()
