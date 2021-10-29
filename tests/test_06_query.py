@@ -150,7 +150,7 @@ def test_query_datacollection(client):
     """
     query = Query(client, "DataCollection", order=True)
     print(str(query))
-    assert ("id", None) in query.order
+    assert "id" in query.order
     res = client.search(query)
     assert len(res) == 2
 
@@ -285,12 +285,63 @@ def test_query_condition_obj(client):
     res = client.search(query)
     assert len(res) == 60
 
+def test_query_condition_jpql_function(client):
+    """Functions may be applied to field names of conditions.
+    This test also applies `UPPER()` on the data to mitigate instances
+    of Oracle databases which are case sensitive.
+    """
+    conditions = {
+        "UPPER(title)": "like UPPER('%Ni-Mn-Ga flat cone%')",
+        "UPPER(datasets.name)": "like UPPER('%e208341%')",
+    }
+    query = Query(client, "Investigation", conditions=conditions)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 1
+
+def test_query_condition_jpql_function_namelen(client):
+    """Functions may be applied to field names of conditions.
+    Similar to last test, but picking another example where the effect
+    of the JPQL function in the condition is easier to verify in the
+    result.
+    """
+    conditions = { "LENGTH(fullName)": "> 11" }
+    query = Query(client, "User", conditions=conditions)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 4
+
+def test_query_condition_jpql_function_mixed(client):
+    """Mix conditions with and without JPQL function on the same attribute.
+    This test case failed for an early implementation of JPQL
+    functions, see discussion in #89.
+    """
+    conditions = { "LENGTH(fullName)": "> 11", "fullName": "> 'C'" }
+    query = Query(client, "User", conditions=conditions)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+
+def test_query_order_jpql_function(client):
+    """Functions may be applied to attribute names in order.
+
+    As an example, search for the User having the third longest
+    fullName.  (In the example data, the longest and second longest
+    fullName is somewhat ambiguous due to character encoding issues.)
+    """
+    query = Query(client, "User",
+                  order=[("LENGTH(fullName)", "DESC")], limit=(2,1))
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 1
+    assert res[0].fullName == "Nicolas Bourbaki"
+
 def test_query_rule_order(client):
     """Rule does not have a constraint, id is included in the natural order.
     """
     query = Query(client, "Rule", order=True)
     print(str(query))
-    assert ("id", None) in query.order
+    assert "id" in query.order
     res = client.search(query)
     assert len(res) == 104
 
@@ -763,3 +814,35 @@ def test_query_aggregate_misc(client, attribute, aggregate, expected):
     assert len(res) == 1
     assert res[0] == expected
 
+@pytest.mark.parametrize(("entity", "kwargs"), [
+    ("Datafile", dict(attributes="name", order=True)),
+    ("InvestigationUser",
+     dict(attributes=("investigation.name", "role"),
+          conditions={"investigation.name": "= '08100122-EF'"},
+          aggregate="DISTINCT")),
+    ("Datafile", dict(order=[("name", "ASC")])),
+    ("Datafile", dict(conditions={
+        "name": "= 'e208945.nxs'",
+        "dataset.name": "= 'e208945'",
+        "dataset.investigation.name": "= '12100409-ST'",
+    })),
+    ("Instrument", dict(order=["name"],
+                        includes={"facility", "instrumentScientists.user"})),
+    ("Rule", dict(order=['grouping', 'what', 'id'],
+                  conditions={"grouping":"IS NOT NULL"},
+                  limit=(0,10))),
+    ("Rule", dict(order=['grouping', 'what', 'id'],
+                  join_specs={"grouping": "LEFT OUTER JOIN"})),
+])
+def test_query_copy(client, entity, kwargs):
+    """Test the Query.copy() method.
+
+    Very basic test: verify that Query.copy() yields an equivalent
+    query for various Query() constructor argument sets.
+    """
+    if ('attributes' in kwargs and len(kwargs['attributes']) > 1 and
+        not client._has_wsdl_type('fieldSet')):
+        pytest.skip("search for multiple fields not supported by this server")
+    query = Query(client, entity, **kwargs)
+    clone = query.copy()
+    assert str(clone) == str(query)
