@@ -2,6 +2,17 @@ Changelog
 =========
 
 
+0.20.1 (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug fixes and minor changes
+---------------------------
+
++ `#96`_: Fix failing build of the documentation at Read the Docs.
+
+.. _#96: https://github.com/icatproject/python-icat/pull/96
+
+
 0.20.0 (2021-10-29)
 ~~~~~~~~~~~~~~~~~~~
 
