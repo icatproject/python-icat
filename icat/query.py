@@ -113,7 +113,7 @@ class Query(object):
         add the `join_specs` argument.
     """
 
-    _db_func_re = re.compile(r"^(?:([A-Za-z_]+)\()?([A-Za-z.]+)(?(1)\))$")
+    _db_func_re = re.compile(r"(?:([A-Za-z_]+)\()?([A-Za-z.]+)(?(1)\))")
 
     def __init__(self, client, entity,
                  attributes=None, aggregate=None, order=None,
@@ -220,7 +220,7 @@ class Query(object):
         return n
 
     def _split_db_functs(self, attr):
-        m = self._db_func_re.match(attr)
+        m = self._db_func_re.fullmatch(attr)
         if not m:
             raise ValueError("Invalid attribute '%s'" % attr)
         return m.group(2,1)
@@ -572,7 +572,7 @@ class Query(object):
         q.order = self.order.copy()
         q.conditions = dict()
         for k, v in self.conditions.items():
-            q.conditions[k] = list(self.conditions[k])
+            q.conditions[k] = self.conditions[k].copy()
         q.includes = self.includes.copy()
         q.limit = self.limit
         q.join_specs = self.join_specs.copy()
