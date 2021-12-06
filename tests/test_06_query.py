@@ -285,6 +285,18 @@ def test_query_condition_obj(client):
     res = client.search(query)
     assert len(res) == 60
 
+def test_query_str_condition(client):
+    """Conditions can be manually constructed into a string and be passed to
+    `Query()` for use in the string representation of the class
+    """
+    conditions_string = "(o.name = 'test name' OR o.id = '3')"
+    query = Query(client, "Investigation",
+                  str_conditions=conditions_string)
+    print(str(query))
+    assert str(query) == (
+        f"SELECT o FROM Investigation o WHERE {conditions_string}"
+    )
+
 def test_query_condition_jpql_function(client):
     """Functions may be applied to field names of conditions.
     This test also applies `UPPER()` on the data to mitigate instances
