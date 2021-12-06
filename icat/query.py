@@ -118,7 +118,7 @@ class Query(object):
     def __init__(self, client, entity,
                  attributes=None, aggregate=None, order=None,
                  conditions=None, includes=None, limit=None,
-                 join_specs=None, attribute=None):
+                 join_specs=None, attribute=None, str_conditions=None):
         """Initialize the query.
         """
 
@@ -155,6 +155,7 @@ class Query(object):
         self.setOrder(order)
         self.setLimit(limit)
         self._init = None
+        self.str_conditions = str_conditions
 
     def _attrpath(self, attrname):
         """Follow the attribute path along related objects and iterate over
@@ -493,6 +494,22 @@ class Query(object):
                    repr(self.includes), repr(self.limit),
                    repr(self.join_specs)))
 
+    def get_joinattrs(self):
+        return ( set(self.order.keys()) |
+                 set(self.conditions.keys()) |
+                 set(self.attributes) )
+
+    def get_conditions_as_str(self):
+        joinattrs = self.get_joinattrs()
+        subst = self._makesubst(joinattrs)
+        conds = []
+        for a in sorted(self.conditions.keys()):
+            attr = self._dosubst(a, subst, False)
+            for c in self.conditions[a]:
+                conds.append(c % attr)
+
+        return conds
+
     def __str__(self):
         """Return a string representation of the query.
 
@@ -505,9 +522,7 @@ class Query(object):
         usefulness over formal correctness.  For Python 3, there is no
         distinction between Unicode and string objects anyway.
         """
-        joinattrs = ( set(self.order.keys()) |
-                      set(self.conditions.keys()) |
-                      set(self.attributes) )
+        joinattrs = self.get_joinattrs()
         subst = self._makesubst(joinattrs)
         if self.attributes:
             attrs = []
@@ -534,12 +549,10 @@ class Query(object):
             js = self.join_specs.get(obj, "JOIN")
             joins += " %s %s" % (js, self._dosubst(obj, subst))
         if self.conditions:
-            conds = []
-            for a in sorted(self.conditions.keys()):
-                attr = self._dosubst(a, subst, False)
-                for c in self.conditions[a]:
-                    conds.append(c % attr)
+            conds = self.get_conditions_as_str()
             where = " WHERE " + " AND ".join(conds)
+        elif self.str_conditions:where = " WHERE " + self.str_conditions
+            
         else:
             where = ""
         if self.order:
