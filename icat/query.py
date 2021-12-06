@@ -551,7 +551,8 @@ class Query(object):
         if self.conditions:
             conds = self.get_conditions_as_str()
             where = " WHERE " + " AND ".join(conds)
-        elif self.str_conditions:where = " WHERE " + self.str_conditions
+        elif self.str_conditions:
+            where = " WHERE " + self.str_conditions
             
         else:
             where = ""
