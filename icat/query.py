@@ -448,6 +448,9 @@ class Query(object):
                 else:
                     self.conditions[a] = v
 
+    def setConditionsByString(self, str_conditions):
+        self.str_conditions = str_conditions
+
     def addIncludes(self, includes):
         """Add related objects to build the INCLUDE clause from.
 
