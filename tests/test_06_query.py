@@ -297,6 +297,21 @@ def test_query_str_condition(client):
         f"SELECT o FROM Investigation o WHERE {conditions_string}"
     )
 
+def test_query_search_conditions(client):
+    """Test that conditions can be searched in `Query()`"""
+    conditions = {
+        "title": "like '%Ni-Mn-Ga flat cone%'",
+        "datasets.name": "like '%e208341%'",
+    }
+    query = Query(client, "Investigation", conditions=conditions)
+    print(str(query))
+
+    conds = query.search_conditions(
+        "title", {"title": "%s like '%%Ni-Mn-Ga flat cone%%'"},
+    )
+
+    assert conds == ["o.title like '%Ni-Mn-Ga flat cone%'"]
+
 def test_query_condition_jpql_function(client):
     """Functions may be applied to field names of conditions.
     This test also applies `UPPER()` on the data to mitigate instances
