@@ -44,23 +44,29 @@ def getAuthQueries(client):
 def getStaticQueries(client):
     """Return the queries to fetch all static objects.
     """
-    return [ Query(client, "Facility", order=True), 
-             Query(client, "Instrument", order=True, 
-                   includes={"facility", "instrumentScientists.user"}), 
-             Query(client, "ParameterType", order=True, 
-                   includes={"facility", "permissibleStringValues"}), 
-             Query(client, "InvestigationType", order=True, 
-                   includes={"facility"}), 
-             Query(client, "SampleType", order=True, 
-                   includes={"facility"}), 
-             Query(client, "DatasetType", order=True, 
-                   includes={"facility"}), 
-             Query(client, "DatafileFormat", order=True, 
-                   includes={"facility"}), 
-             Query(client, "FacilityCycle", order=True, 
-                   includes={"facility"}), 
-             Query(client, "Application", order=True, 
-                   includes={"facility"}) ]
+    # Compatibility between ICAT versions:
+    # - ICAT 5.0.0 added Technique.
+    queries = [ Query(client, "Facility", order=True),
+                Query(client, "Instrument", order=True,
+                      includes={"facility", "instrumentScientists.user"}),
+                Query(client, "ParameterType", order=True,
+                      includes={"facility", "permissibleStringValues"}),
+                Query(client, "InvestigationType", order=True,
+                      includes={"facility"}),
+                Query(client, "SampleType", order=True,
+                      includes={"facility"}),
+                Query(client, "DatasetType", order=True,
+                      includes={"facility"}),
+                Query(client, "DatafileFormat", order=True,
+                      includes={"facility"}),
+                Query(client, "FacilityCycle", order=True,
+                      includes={"facility"}),
+                Query(client, "Application", order=True,
+                      includes={"facility"}) ]
+    if 'technique' in client.typemap:
+        # ICAT >= 5.0.0
+        queries.append( Query(client, "Technique", order=True) )
+    return queries
 
 def getInvestigationQueries(client, invid):
     """Return the queries to fetch all objects related to an investigation.
@@ -68,6 +74,7 @@ def getInvestigationQueries(client, invid):
     # Compatibility between ICAT versions:
     # - ICAT 4.4.0 added InvestigationGroups.
     # - ICAT 4.10.0 added relation between Shift and Instrument.
+    # - ICAT 5.0.0 added DatasetInstrument and DatasetTechnique.
     inv_includes = { "facility", "type.facility", "investigationInstruments", 
                      "investigationInstruments.instrument.facility", "shifts", 
                      "keywords", "publications", "investigationUsers", 
@@ -80,6 +87,14 @@ def getInvestigationQueries(client, invid):
     if 'instrument' in client.typemap['shift'].InstRel:
         # ICAT >= 4.10.0
         inv_includes |= { "shifts.instrument.facility" }
+    ds_includes = { "investigation", "type.facility", "sample",
+                    "parameters.type.facility" }
+    if 'datasetInstruments' in client.typemap['dataset'].InstMRel:
+        # ICAT >= 5.0.0
+        ds_includes |= { "datasetInstruments.instrument.facility" }
+    if 'datasetTechniques' in client.typemap['dataset'].InstMRel:
+        # ICAT >= 5.0.0
+        ds_includes |= { "datasetTechniques" }
 
     return [ Query(client, "Investigation", 
                    conditions={"id": "= %d" % invid}, 
@@ -90,8 +105,7 @@ def getInvestigationQueries(client, invid):
                              "parameters", "parameters.type.facility"}), 
              Query(client, "Dataset", order=["name"], 
                    conditions={"investigation.id": "= %d" % invid}, 
-                   includes={"investigation", "type.facility", 
-                             "sample", "parameters.type.facility"}), 
+                   includes=ds_includes),
              Query(client, "Datafile", order=["dataset.name", "name"], 
                    conditions={"dataset.investigation.id": "= %d" % invid}, 
                    includes={"dataset", "datafileFormat.facility", 
