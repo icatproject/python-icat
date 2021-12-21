@@ -225,6 +225,13 @@ class Query(object):
         if not m:
             raise ValueError("Invalid attribute '%s'" % attr)
         return m.group(2,1)
+    
+    def _cond_value(self, rhs, func):
+        rhs = rhs.replace('%', '%%')
+        if func:
+            return "%s(%%s) %s" % (func, rhs)
+        else:
+            return "%%s %s" % (rhs)
 
     def setAttributes(self, attributes):
         """Set the attributes that the query shall return.
@@ -427,12 +434,6 @@ class Query(object):
         .. versionchanged:: 0.20.0
             allow a JPQL function in the attribute.
         """
-        def _cond_value(rhs, func):
-            rhs = rhs.replace('%', '%%')
-            if func:
-                return "%s(%%s) %s" % (func, rhs)
-            else:
-                return "%%s %s" % (rhs)
         if conditions:
             for k in conditions.keys():
                 if isinstance(conditions[k], basestring):
@@ -442,7 +443,7 @@ class Query(object):
                 a, jpql_func = self._split_db_functs(k)
                 for (pattr, attrInfo, rclass) in self._attrpath(a):
                     pass
-                v = [ _cond_value(rhs, jpql_func) for rhs in conds ]
+                v = [ self._cond_value(rhs, jpql_func) for rhs in conds ]
                 if a in self.conditions:
                     self.conditions[a].extend(v)
                 else:
