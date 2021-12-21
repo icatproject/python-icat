@@ -503,14 +503,17 @@ class Query(object):
                  set(self.conditions.keys()) |
                  set(self.attributes) )
 
-    def get_conditions_as_str(self):
+    def search_conditions(self, field_name, condition):
+        conds = []
         joinattrs = self.get_joinattrs()
         subst = self._makesubst(joinattrs)
-        conds = []
+
         for a in sorted(self.conditions.keys()):
-            attr = self._dosubst(a, subst, False)
-            for c in self.conditions[a]:
-                conds.append(c % attr)
+            if a == field_name:
+                attr = self._dosubst(a, subst, False)
+                for c in self.conditions[a]:
+                    if c == condition[a]:
+                        conds.append(c % attr)
 
         return conds
 
@@ -552,12 +555,15 @@ class Query(object):
         for obj in sorted(subst.keys()):
             js = self.join_specs.get(obj, "JOIN")
             joins += " %s %s" % (js, self._dosubst(obj, subst))
-        if self.conditions:
-            conds = self.get_conditions_as_str()
-            where = " WHERE " + " AND ".join(conds)
-        elif self.str_conditions:
+        if self.str_conditions:
             where = " WHERE " + self.str_conditions
-            
+        elif self.conditions:
+            conds = []
+            for a in sorted(self.conditions.keys()):
+                attr = self._dosubst(a, subst, False)
+                for c in self.conditions[a]:
+                    conds.append(c % attr)
+            where = " WHERE " + " AND ".join(conds) 
         else:
             where = ""
         if self.order:
