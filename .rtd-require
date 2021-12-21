@@ -1,4 +1,5 @@
+docutils<0.18
 setuptools_scm
-suds-jurko
+suds-community
 PyYAML
 lxml

@@ -183,6 +183,40 @@ We may also include related objects in the search results::
      visitId = "1.1-N"
    }]
 
+python-icat supports the use of some JPQL functions when specifying
+which attribute a condition should be applied to.  Consider the
+following query::
+
+  >>> query = Query(client, "Investigation", conditions={"LENGTH(title)": "= 18"})
+  >>> print(query)
+  SELECT o FROM Investigation o WHERE LENGTH(o.title) = 18
+  >>> client.search(query)
+  [(investigation){
+     createId = "simple/root"
+     createTime = 2021-10-05 14:09:57+00:00
+     id = 430
+     modId = "simple/root"
+     modTime = 2021-10-05 14:09:57+00:00
+     doi = "00.0815/inv-00601"
+     endDate = 2010-10-12 15:00:00+00:00
+     name = "10100601-ST"
+     startDate = 2010-09-30 10:27:24+00:00
+     title = "Ni-Mn-Ga flat cone"
+     visitId = "1.1-N"
+   }, (investigation){
+     createId = "simple/root"
+     createTime = 2021-10-05 14:09:58+00:00
+     id = 431
+     modId = "simple/root"
+     modTime = 2021-10-05 14:09:58+00:00
+     doi = "00.0815/inv-00409"
+     endDate = 2012-08-06 01:10:08+00:00
+     name = "12100409-ST"
+     startDate = 2012-07-26 15:44:24+00:00
+     title = "NiO SC OF1 JUH HHL"
+     visitId = "1.1-P"
+   }]
+
 The conditions in a query may also be put on the attributes of related
 objects.  This allows rather complex queries.  Let us search for the
 datasets in this investigation that have been measured in a magnetic
@@ -367,11 +401,22 @@ Instead of returning a list of the matching objects, we may also
 request single attributes.  The result will be a list of the attribute
 values of the matching objects.  Listing the names of all datasets::
 
-  >>> query = Query(client, "Dataset", attribute="name")
+  >>> query = Query(client, "Dataset", attributes="name")
   >>> print(query)
   SELECT o.name FROM Dataset o
   >>> client.search(query)
   [e201215, e201216, e208339, e208341, e208342, e208945, e208946, e208947]
+
+As the name of that keyword argument suggests, we may also search for
+multiple attributes at once.  The result will be a tuple of attribute
+values rather then a single value for each object found in the query.
+This requires an ICAT server version 4.11 or newer though::
+
+  >>> query = Query(client, "Dataset", attributes=["investigation.name", "name", "complete", "type.name"])
+  >>> print(query)
+  SELECT i.name, o.name, o.complete, t.name FROM Dataset o JOIN o.investigation AS i JOIN o.type AS t
+  >>> client.search(query)
+  [(08100122-EF, e201215, False, raw), (08100122-EF, e201216, False, raw), (10100601-ST, e208339, False, raw), (10100601-ST, e208341, False, raw), (10100601-ST, e208342, False, raw), (12100409-ST, e208945, False, raw), (12100409-ST, e208946, False, raw), (12100409-ST, e208947, True, analyzed)]
 
 There are also some aggregate functions that may be applied to search
 results.  Let's count all datasets::
@@ -395,7 +440,7 @@ average magnetic field applied in the measurements::
   ...     "type.name": "= 'Magnetic field'",
   ...     "type.units": "= 'T'",
   ... }
-  >>> query = Query(client, "DatasetParameter", conditions=conditions, attribute="numericValue")
+  >>> query = Query(client, "DatasetParameter", conditions=conditions, attributes="numericValue")
   >>> print(query)
   SELECT o.numericValue FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN o.type AS t WHERE i.name = '10100601-ST' AND t.name = 'Magnetic field' AND t.units = 'T'
   >>> client.search(query)
@@ -656,6 +701,27 @@ dataset parameter, ordered by parameter type name (ascending), units
            verified = False
         }
    }]
+
+In a similar way as for `conditions`, we may use JPQL functions also
+in the `order` argument to :class:`~icat.query.Query`.  Let's search
+for user sorted by the length of their name, from longest to
+shortest::
+
+  >>> query = Query(client, "User", conditions={"fullName": "IS NOT NULL"}, order=[("LENGTH(fullName)", "DESC")])
+  >>> print(query)
+  SELECT o FROM User o WHERE o.fullName IS NOT NULL ORDER BY LENGTH(o.fullName) DESC
+  >>> for user in client.search(query):
+  ...     print("%d: %s" % (len(user.fullName), user.fullName))
+  ...
+  19: Rudolph Beck-Dülmen
+  19: Jean-Baptiste Botul
+  16: Nicolas Bourbaki
+  13: Aelius Cordus
+  11: User Office
+  10: Arnold Hau
+  10: IDS reader
+  8: John Doe
+  4: Root
 
 We may limit the number of returned items.  Search for the second to
 last dataset to have been finished::

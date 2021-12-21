@@ -1,7 +1,10 @@
 """Provide the Query class.
 """
 
+from collections import OrderedDict
+import re
 from warnings import warn
+from collections.abc import Mapping
 import icat.entity
 from icat.exception import *
 
@@ -45,6 +48,16 @@ aggregate_fcts = frozenset([
 :meth:`icat.query.Query.setAggregate` method.
 """
 
+jpql_join_specs = frozenset([
+    "JOIN",
+    "INNER JOIN",
+    "LEFT JOIN",
+    "LEFT OUTER JOIN",
+])
+"""Allowed values for the `join_specs` argument to the
+:meth:`icat.query.Query.setJoinSpecs` method.
+"""
+
 # ========================== class Query =============================
 
 class Query():
@@ -58,8 +71,8 @@ class Query():
     :param entity: the type of objects to search for.  This may either
         be an :class:`icat.entity.Entity` subclass or the name of an
         entity type.
-    :param attribute: the attribute that the query shall return.  See
-        the :meth:`~icat.query.Query.setAttribute` method for details.
+    :param attributes: the attributes that the query shall return.  See
+        the :meth:`~icat.query.Query.setAttributes` method for details.
     :param aggregate: the aggregate function to be applied in the
         SELECT clause, if any.  See the
         :meth:`~icat.query.Query.setAggregate` method for details.
@@ -75,11 +88,29 @@ class Query():
     :param limit: a tuple (skip, count) to be used in the LIMIT
         clause.  See the :meth:`~icat.query.Query.setLimit` method for
         details.
+    :param join_specs: a mapping to override the join specification
+        for selected related objects.  See the
+        :meth:`~icat.query.Query.setJoinSpecs` method for details.
+    :raise TypeError: if `entity` is not a valid entity type or if any
+        of the keyword arguments have an invalid type, see the
+        corresponding method for details.
+    :raise ValueError: if any of the keyword arguments is not valid,
+        see the corresponding method for details.
+
+    .. versionchanged:: 0.18.0
+        add support for queries requesting a list of attributes rather
+        then a single one.  Consequently, the keyword argument
+        `attribute` has been renamed to `attributes` (in the plural).
+    .. versionchanged:: 0.19.0
+        add the `join_specs` argument.
     """
 
-    def __init__(self, client, entity, 
-                 attribute=None, aggregate=None, order=None, 
-                 conditions=None, includes=None, limit=None):
+    _db_func_re = re.compile(r"(?:([A-Za-z_]+)\()?([A-Za-z.]+)(?(1)\))")
+
+    def __init__(self, client, entity,
+                 attributes=None, aggregate=None, order=None,
+                 conditions=None, includes=None, limit=None,
+                 join_specs=None):
         """Initialize the query.
         """
 
@@ -98,12 +129,13 @@ class Query():
         else:
             raise EntityTypeError("Invalid entity type '%s'." % type(entity))
 
-        self.setAttribute(attribute)
+        self.setAttributes(attributes)
         self.setAggregate(aggregate)
         self.conditions = dict()
         self.addConditions(conditions)
         self.includes = set()
         self.addIncludes(includes)
+        self.setJoinSpecs(join_specs)
         self.setOrder(order)
         self.setLimit(limit)
         self._init = None
@@ -171,21 +203,45 @@ class Query():
             n += " AS %s" % (subst[obj])
         return n
 
-    def setAttribute(self, attribute):
-        """Set the attribute that the query shall return.
+    def _split_db_functs(self, attr):
+        m = self._db_func_re.fullmatch(attr)
+        if not m:
+            raise ValueError("Invalid attribute '%s'" % attr)
+        return m.group(2,1)
 
-        :param attribute: the name of the attribute.  The result of
-            the query will be a list of attribute values for the
-            matching entity objects.  If attribute is :const:`None`,
+    def setAttributes(self, attributes):
+        """Set the attributes that the query shall return.
+
+        :param attributes: the names of the attributes.  This can
+            either be a single name or a list of names.  The result of
+            the search will be a list with either a single attribute
+            value or a list of attribute values respectively for each
+            matching entity object.  If attributes is :const:`None`,
             the result will be the list of matching objects instead.
-        :type attribute: :class:`str`
-        :raise ValueError: if `attribute` is not valid.
+        :type attributes: :class:`str` or iterable of :class:`str`
+        :raise ValueError: if any name in `attributes` is not valid or
+            if multiple attributes are provided, but the ICAT server
+            does not support this.
+
+        .. versionchanged:: 0.18.0
+            also accept a list of attribute names.  Renamed from
+            :meth:`setAttribute` to :meth:`setAttributes` (in the
+            plural).
         """
-        if attribute is not None:
-            # Get the attribute path only to verify that the attribute is valid.
-            for (pattr, attrInfo, rclass) in self._attrpath(attribute):
-                pass
-        self.attribute = attribute
+        self.attributes = []
+        if attributes:
+            if isinstance(attributes, str):
+                attributes = [ attributes ]
+            if (len(attributes) > 1 and
+                not self.client._has_wsdl_type('fieldSet')):
+                raise ValueError("This ICAT server does not support queries "
+                                 "searching for multiple attributes")
+            for attr in attributes:
+                # Get the attribute path only to verify that the
+                # attribute is valid.
+                for (pattr, attrInfo, rclass) in self._attrpath(attr):
+                    pass
+                self.attributes.append(attr)
 
     def setAggregate(self, function):
         """Set the aggregate function to be applied to the result.
@@ -205,7 +261,7 @@ class Query():
             ":DISTINCT", may be appended to "COUNT", "AVG", and "SUM"
             to combine the respective function with "DISTINCT".
         :type function: :class:`str`
-        :raise ValueError: if `function` is not a valid.
+        :raise ValueError: if `function` is not valid.
         """
         if function:
             if function not in aggregate_fcts:
@@ -214,28 +270,74 @@ class Query():
         else:
             self.aggregate = None
 
+    def setJoinSpecs(self, join_specs):
+        """Override the join specifications.
+
+        :param join_specs: a mapping of related object names to join
+            specifications.  Allowed values are "JOIN", "INNER JOIN",
+            "LEFT JOIN", and "LEFT OUTER JOIN".  Any entry in this
+            mapping overrides how this particular related object is to
+            be joined.  The default for any relation not included in
+            the mapping is "JOIN".  A special value of :const:`None`
+            for `join_specs` is equivalent to the empty mapping.
+        :type join_specs: :class:`dict`
+        :raise TypeError: if `join_specs` is not a mapping.
+        :raise ValueError: if any key in `join_specs` is not a name of
+            a related object or if any value is not in the allowed
+            set.
+
+        .. versionadded:: 0.19.0
+        """
+        if join_specs:
+            if not isinstance(join_specs, Mapping):
+                raise TypeError("join_specs must be a mapping")
+            for obj, js in join_specs.items():
+                for (pattr, attrInfo, rclass) in self._attrpath(obj):
+                    pass
+                if rclass is None:
+                    raise ValueError("%s.%s is not a related object"
+                                     % (self.entity.BeanName, obj))
+                if js not in jpql_join_specs:
+                    raise ValueError("invalid join specification %s" % js)
+            self.join_specs = join_specs
+        else:
+            self.join_specs = dict()
+
     def setOrder(self, order):
         """Set the order to build the ORDER BY clause from.
 
         :param order: the list of the attributes used for sorting.  A
             special value of :const:`True` may be used to indicate the
             natural order of the entity type.  Any false value means
-            no ORDER BY clause.  Rather then only an attribute name,
-            any item in the list may also be a tuple of an attribute
-            name and an order direction, the latter being either "ASC"
-            or "DESC" for ascending or descending order respectively.
-        :type order: :class:`list` or :class:`bool`
-        :raise ValueError: if `order` contains invalid attributes that
-            either do not exist or contain one to many relationships.
+            no ORDER BY clause.  The attribute name can be wrapped
+            with a JPQL function (such as "LENGTH(title)").  Rather
+            then only an attribute name, any item in the list may also
+            be a tuple of an attribute name and an order direction,
+            the latter being either "ASC" or "DESC" for ascending or
+            descending order respectively.
+        :type order: iterable or :class:`bool`
+        :raise ValueError: if any attribute in `order` is not valid or
+            if any attribute appears more than once in the resulting
+            ORDER BY clause.
+
+        .. versionchanged:: 0.19.0
+            allow one to many relationships in `order`.  Emit a
+            :exc:`~icat.exception.QueryOneToManyOrderWarning` rather
+            then raising a :exc:`ValueError` in this case.
+        .. versionchanged:: 0.20.0
+            allow a JPQL function in the attribute.
         """
+        # Note: with Python 3.7 and newer we could simplify this using
+        # a standard dict() rather then an OrderedDict().
+        self.order = OrderedDict()
+
         if order is True:
 
-            self.order = [ (a, None) 
-                           for a in self.entity.getNaturalOrder(self.client) ]
+            for a in self.entity.getNaturalOrder(self.client):
+                self.order[a] = "%s"
 
         elif order:
 
-            self.order = []
             for obj in order:
 
                 if isinstance(obj, tuple):
@@ -245,32 +347,49 @@ class Query():
                                          % direction)
                 else:
                     direction = None
+                attr, jpql_func = self._split_db_functs(obj)
 
-                for (pattr, attrInfo, rclass) in self._attrpath(obj):
+                for (pattr, attrInfo, rclass) in self._attrpath(attr):
                     if attrInfo.relType == "ONE":
-                        if (not attrInfo.notNullable and 
-                            pattr not in self.conditions):
+                        if (not attrInfo.notNullable and
+                            pattr not in self.conditions and
+                            pattr not in self.join_specs):
                             sl = 3 if self._init else 2
-                            warn(QueryNullableOrderWarning(pattr), 
+                            warn(QueryNullableOrderWarning(pattr),
                                  stacklevel=sl)
                     elif attrInfo.relType == "MANY":
-                        raise ValueError("Cannot use one to many relationship "
-                                         "in '%s' to order %s." 
-                                         % (obj, self.entity.BeanName))
+                        if (pattr not in self.join_specs):
+                            sl = 3 if self._init else 2
+                            warn(QueryOneToManyOrderWarning(pattr),
+                                 stacklevel=sl)
 
-                if rclass is None:
-                    # obj is an attribute, use it right away.
-                    self.order.append( (obj, direction) )
+                if jpql_func:
+                    if rclass is not None:
+                        raise ValueError("Cannot apply a JPQL function "
+                                         "to a related object: %s" % obj)
+                    if direction:
+                        vstr = "%s(%%s) %s" % (jpql_func, direction)
+                    else:
+                        vstr = "%s(%%s)" % jpql_func
                 else:
-                    # obj is a related object, use the natural order
+                    if direction:
+                        vstr = "%%s %s" % direction
+                    else:
+                        vstr = "%s"
+                if rclass is None:
+                    # attr is an attribute, use it right away.
+                    if attr in self.order:
+                        raise ValueError("Cannot add %s more than once" % attr)
+                    self.order[attr] = vstr
+                else:
+                    # attr is a related object, use the natural order
                     # of its class.
-                    rorder = rclass.getNaturalOrder(self.client)
-                    self.order.extend([ ("%s.%s" % (obj, ra), direction) 
-                                        for ra in rorder ])
-
-        else:
-
-            self.order = []
+                    for ra in rclass.getNaturalOrder(self.client):
+                        rattr = "%s.%s" % (attr, ra)
+                        if rattr in self.order:
+                            raise ValueError("Cannot add %s more than once"
+                                             % rattr)
+                        self.order[rattr] = vstr
 
     def addConditions(self, conditions):
         """Add conditions to the constraints to build the WHERE clause from.
@@ -279,30 +398,38 @@ class Query():
             result.  This must be a mapping of attribute names to
             conditions on that attribute.  The latter may either be a
             string with a single condition or a list of strings to add
-            more then one condition on a single attribute.  If the
-            query already has a condition on a given attribute, it
-            will be turned into a list with the new condition(s)
-            appended.
+            more then one condition on a single attribute.  The
+            attribute name (the key of the condition) can be wrapped
+            with a JPQL function (such as "UPPER(title)").  If the
+            query already has a condition on a given attribute, the
+            previous condition(s) will be retained and the new
+            condition(s) added to that.
         :type conditions: :class:`dict`
         :raise ValueError: if any key in `conditions` is not valid.
+
+        .. versionchanged:: 0.20.0
+            allow a JPQL function in the attribute.
         """
+        def _cond_value(rhs, func):
+            rhs = rhs.replace('%', '%%')
+            if func:
+                return "%s(%%s) %s" % (func, rhs)
+            else:
+                return "%%s %s" % (rhs)
         if conditions:
-            for a in conditions.keys():
+            for k in conditions.keys():
+                if isinstance(conditions[k], str):
+                    conds = [conditions[k]]
+                else:
+                    conds = conditions[k]
+                a, jpql_func = self._split_db_functs(k)
                 for (pattr, attrInfo, rclass) in self._attrpath(a):
                     pass
+                v = [ _cond_value(rhs, jpql_func) for rhs in conds ]
                 if a in self.conditions:
-                    conds = []
-                    if isinstance(self.conditions[a], str):
-                        conds.append(self.conditions[a])
-                    else:
-                        conds.extend(self.conditions[a])
-                    if isinstance(conditions[a], str):
-                        conds.append(conditions[a])
-                    else:
-                        conds.extend(conditions[a])
-                    self.conditions[a] = conds
+                    self.conditions[a].extend(v)
                 else:
-                    self.conditions[a] = conditions[a]
+                    self.conditions[a] = v
 
     def addIncludes(self, includes):
         """Add related objects to build the INCLUDE clause from.
@@ -341,58 +468,59 @@ class Query():
     def __repr__(self):
         """Return a formal representation of the query.
         """
-        return ("%s(%s, %s, attribute=%s, aggregate=%s, order=%s, "
-                "conditions=%s, includes=%s, limit=%s)"
-                % (self.__class__.__name__, 
-                   repr(self.client), repr(self.entity.BeanName), 
-                   repr(self.attribute), repr(self.aggregate), 
-                   repr(self.order), repr(self.conditions), 
-                   repr(self.includes), repr(self.limit)))
+        return ("%s(%s, %s, attributes=%s, aggregate=%s, order=%s, "
+                "conditions=%s, includes=%s, limit=%s, join_specs=%s)"
+                % (self.__class__.__name__,
+                   repr(self.client), repr(self.entity.BeanName),
+                   repr(self.attributes), repr(self.aggregate),
+                   repr(self.order), repr(self.conditions),
+                   repr(self.includes), repr(self.limit),
+                   repr(self.join_specs)))
 
     def __str__(self):
         """Return a string representation of the query.
         """
-        joinattrs = { a for a, d in self.order } | set(self.conditions.keys())
-        if self.attribute:
-            joinattrs.add(self.attribute)
+        joinattrs = ( set(self.order.keys()) |
+                      set(self.conditions.keys()) |
+                      set(self.attributes) )
         subst = self._makesubst(joinattrs)
-        if self.attribute:
-            if self.client.apiversion >= "4.7.0":
-                res = self._dosubst(self.attribute, subst, False)
-            else:
-                # Old versions of icat.server do not accept
-                # substitution in the SELECT clause.
-                res = "o.%s" % self.attribute
+        if self.attributes:
+            attrs = []
+            for a in self.attributes:
+                if self.client.apiversion >= "4.7.0":
+                    attrs.append(self._dosubst(a, subst, False))
+                else:
+                    # Old versions of icat.server do not accept
+                    # substitution in the SELECT clause.
+                    attrs.append("o.%s" % a)
+            res = ", ".join(attrs)
         else:
             res = "o"
         if self.aggregate:
-            for fct in reversed(self.aggregate.split(':')):
-                res = "%s(%s)" % (fct, res)
+            if len(self.attributes) > 1 and self.aggregate == "DISTINCT":
+                # See discussion in #76
+                res = "%s %s" % (self.aggregate, res)
+            else:
+                for fct in reversed(self.aggregate.split(':')):
+                    res = "%s(%s)" % (fct, res)
         base = "SELECT %s FROM %s o" % (res, self.entity.BeanName)
         joins = ""
         for obj in sorted(subst.keys()):
-            joins += " JOIN %s" % self._dosubst(obj, subst)
+            js = self.join_specs.get(obj, "JOIN")
+            joins += " %s %s" % (js, self._dosubst(obj, subst))
         if self.conditions:
             conds = []
             for a in sorted(self.conditions.keys()):
                 attr = self._dosubst(a, subst, False)
-                cond = self.conditions[a]
-                if isinstance(cond, str):
-                    conds.append("%s %s" % (attr, cond))
-                else:
-                    for c in cond:
-                        conds.append("%s %s" % (attr, c))
+                for c in self.conditions[a]:
+                    conds.append(c % attr)
             where = " WHERE " + " AND ".join(conds)
         else:
             where = ""
         if self.order:
             orders = []
-            for a, d in self.order:
-                a = self._dosubst(a, subst, False)
-                if d:
-                    orders.append("%s %s" % (a, d))
-                else:
-                    orders.append(a)
+            for a in self.order.keys():
+                orders.append(self.order[a] % self._dosubst(a, subst, False))
             order = " ORDER BY " + ", ".join(orders)
         else:
             order = ""
@@ -414,10 +542,13 @@ class Query():
         """Return an independent clone of this query.
         """
         q = Query(self.client, self.entity)
-        q.attribute = self.attribute
+        q.attributes = list(self.attributes)
         q.aggregate = self.aggregate
-        q.order = list(self.order)
-        q.conditions = self.conditions.copy()
+        q.order = self.order.copy()
+        q.conditions = dict()
+        for k, v in self.conditions.items():
+            q.conditions[k] = self.conditions[k].copy()
         q.includes = self.includes.copy()
         q.limit = self.limit
+        q.join_specs = self.join_specs.copy()
         return q

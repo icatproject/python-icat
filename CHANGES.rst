@@ -31,6 +31,10 @@ Incompatible changes and deprecations
 
 + Drop support for Python 2 and Python 3.3.
 
++ Drop keyword argument `attribute` and method
+  :meth:`icat.query.Query.setAttribute` from class
+  :class:`icat.query.Query`, deprecated in 0.18.0.
+
 + Drop module :mod:`icat.cgi`, deprecated in 0.13.0.
 
 + Drop module :mod:`icat.icatcheck` and exception
@@ -57,6 +61,134 @@ Bug fixes and minor changes
 .. _#66: https://github.com/icatproject/python-icat/issues/66
 .. _#74: https://github.com/icatproject/python-icat/issues/74
 .. _#75: https://github.com/icatproject/python-icat/pull/75
+
+
+0.20.1 (2021-11-04)
+~~~~~~~~~~~~~~~~~~~
+
+Bug fixes and minor changes
+---------------------------
+
++ `#96`_: Fix failing build of the documentation at Read the Docs.
+
+.. _#96: https://github.com/icatproject/python-icat/pull/96
+
+
+0.20.0 (2021-10-29)
+~~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#86`_, `#89`_: allow SQL functions to be used on the attributes in
+  the arguments to :meth:`icat.query.Query.setOrder` and
+  :meth:`icat.query.Query.addConditions`.
+
+Incompatible changes and new bugs
+---------------------------------
+
++ `#94`_: the implementation of `#89`_ changed the internal data
+  structures in :attr:`icat.query.Query.conditions` and
+  :attr:`icat.query.Query.order`.  These attributes are considered
+  internal and are deliberately not documented, so one could argue
+  that this is not an incompatible change.  But the changes also have
+  an impact on the return value of :meth:`icat.query.Query.__repr__`
+  such that it is not suitable to recreate the query object.
+
+Bug fixes and minor changes
+---------------------------
+
++ `#90`_, `#91`_, `#95`_: :attr:`icat.query.Query.join_specs` was not
+  taken into account in :meth:`icat.query.Query.copy` and
+  :meth:`icat.query.Query.__repr__`.
+
+.. _#86: https://github.com/icatproject/python-icat/issues/86
+.. _#89: https://github.com/icatproject/python-icat/pull/89
+.. _#90: https://github.com/icatproject/python-icat/issues/90
+.. _#91: https://github.com/icatproject/python-icat/issues/91
+.. _#94: https://github.com/icatproject/python-icat/issues/94
+.. _#95: https://github.com/icatproject/python-icat/pull/95
+
+
+0.19.0 (2021-07-20)
+~~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#85`_: add an argument `join_specs` to the constructor of class
+  :class:`icat.query.Query` and a corresponding method
+  :meth:`icat.query.Query.setJoinSpecs` to override the join
+  specification to be used in the created query for selected related
+  objects.
+
+Bug fixes and minor changes
+---------------------------
+
++ `#83`_, `#84`_: enable ordering on one to many relationships in
+  class :class:`icat.query.Query`.
+
++ `#84`_: Add warning classes
+  :exc:`icat.exception.QueryOneToManyOrderWarning` and
+  :exc:`icat.exception.QueryWarning`, the latter being a common base
+  class for warnings emitted during creation of a query.
+
+.. _#83: https://github.com/icatproject/python-icat/issues/83
+.. _#84: https://github.com/icatproject/python-icat/pull/84
+.. _#85: https://github.com/icatproject/python-icat/pull/85
+
+
+0.18.1 (2021-04-13)
+~~~~~~~~~~~~~~~~~~~
+
+Bug fixes and minor changes
+---------------------------
+
++ `#82`_: Change the search result in the case of multiple fields from
+  list to tuple.
+
++ `#76`_, `#81`_: work around an issue in icat.server using `DISTINCT`
+  in search queries for multiple fields.
+
+.. _#76: https://github.com/icatproject/python-icat/issues/76
+.. _#81: https://github.com/icatproject/python-icat/pull/81
+.. _#82: https://github.com/icatproject/python-icat/pull/82
+
+
+0.18.0 (2021-03-29)
+~~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#76`_, `#78`_: add client side support for searching for multiple
+  fields introduced in icat.server 4.11.0.  Add support for building
+  the corresponding queries in the in class :class:`icat.query.Query`.
+
+Incompatible changes and deprecations
+-------------------------------------
+
++ Since :class:`icat.query.Query` now also accepts a list of attribute
+  names rather then only a single one, the corresponding keyword
+  argument `attribute` has been renamed to `attributes` (in the
+  plural).  Accordingly, the method
+  :meth:`icat.query.Query.setAttribute` has been renamed to
+  :meth:`icat.query.Query.setAttributes`.  The old names are retained
+  as aliases, but are deprecated.
+
+Bug fixes and minor changes
+---------------------------
+
++ `#79`_: fix an encoding issue in :attr:`icat.client.Client.apiversion`,
+  only relevant with Python 2.
+
++ `#80`_: add :exc:`TypeError` as additional ancestor of
+  :exc:`icat.exception.EntityTypeError`.
+
+.. _#76: https://github.com/icatproject/python-icat/issues/76
+.. _#78: https://github.com/icatproject/python-icat/pull/78
+.. _#79: https://github.com/icatproject/python-icat/pull/79
+.. _#80: https://github.com/icatproject/python-icat/pull/80
 
 
 0.17.0 (2020-04-30)

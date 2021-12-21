@@ -2,6 +2,8 @@
 """
 
 import datetime
+import re
+import warnings
 import pytest
 import icat
 import icat.config
@@ -44,8 +46,8 @@ def test_query_datafile(client):
     """Query a datafile by its name, dataset name, and investigation name.
     """
     dfdata = { 
-        'name': "e208945.nxs", 
-        'dataset': "e208945", 
+        'name': "e208945.nxs",
+        'dataset': "e208945",
         'investigation': "12100409-ST" 
     }
     conditions = { 
@@ -80,14 +82,14 @@ def test_query_datafile(client):
 def test_query_investigation_includes(client):
     """Query lots of information about one single investigation.
     """
-    includes = { "facility", "type.facility", "investigationInstruments", 
-                 "investigationInstruments.instrument.facility", "shifts", 
-                 "keywords", "publications", "investigationUsers", 
-                 "investigationUsers.user", "investigationGroups", 
-                 "investigationGroups.grouping", "parameters", 
+    includes = { "facility", "type.facility", "investigationInstruments",
+                 "investigationInstruments.instrument.facility", "shifts",
+                 "keywords", "publications", "investigationUsers",
+                 "investigationUsers.user", "investigationGroups",
+                 "investigationGroups.grouping", "parameters",
                  "parameters.type.facility" }
-    query = Query(client, "Investigation", 
-                  conditions={"id": "= %d" % investigation.id}, 
+    query = Query(client, "Investigation",
+                  conditions={"id": "= %d" % investigation.id},
                   includes=includes)
     print(str(query))
     res = client.search(query)
@@ -106,10 +108,10 @@ def test_query_investigation_includes(client):
 def test_query_instruments(client):
     """Query the instruments related to a given investigation.
     """
-    query = Query(client, "Instrument", 
-                  order=["name"], 
+    query = Query(client, "Instrument",
+                  order=["name"],
                   conditions={ "investigationInstruments.investigation.id":
-                               "= %d" % investigation.id }, 
+                               "= %d" % investigation.id },
                   includes={"facility", "instrumentScientists.user"})
     print(str(query))
     res = client.search(query)
@@ -122,10 +124,10 @@ def test_query_instruments(client):
 def test_query_datafile_by_investigation(client):
     """The datafiles related to a given investigation in natural order.
     """
-    query = Query(client, "Datafile", order=True, 
+    query = Query(client, "Datafile", order=True,
                   conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id }, 
-                  includes={"dataset", "datafileFormat.facility", 
+                               "= %d" % investigation.id },
+                  includes={"dataset", "datafileFormat.facility",
                             "parameters.type.facility"})
     print(str(query))
     res = client.search(query)
@@ -145,7 +147,7 @@ def test_query_datacollection(client):
     """
     query = Query(client, "DataCollection", order=True)
     print(str(query))
-    assert ("id", None) in query.order
+    assert "id" in query.order
     res = client.search(query)
     assert len(res) == 2
 
@@ -154,7 +156,7 @@ def test_query_datafiles_datafileformat(client, recwarn):
     Note: this raises a QueryNullableOrderWarning, see below.
     """
     recwarn.clear()
-    query = Query(client, "Datafile", 
+    query = Query(client, "Datafile",
                   order=['datafileFormat', 'dataset', 'name'])
     w = recwarn.pop(icat.QueryNullableOrderWarning)
     assert issubclass(w.category, icat.QueryNullableOrderWarning)
@@ -170,31 +172,31 @@ def test_query_order_direction(client):
     This has been added in Issue #48.
     """
     # Try without specifying the ordering direction first:
-    query = Query(client, "Datafile", 
-                  order=["name"], 
+    query = Query(client, "Datafile",
+                  order=["name"],
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
     res = client.search(query)
     assert len(res) == 4
     # Ascending order is the default, so we should get the same result:
-    query = Query(client, "Datafile", 
-                  order=[("name", "ASC")], 
+    query = Query(client, "Datafile",
+                  order=[("name", "ASC")],
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
     assert client.search(query) == res
     # Descending order should give the reverse result:
-    query = Query(client, "Datafile", 
-                  order=[("name", "DESC")], 
+    query = Query(client, "Datafile",
+                  order=[("name", "DESC")],
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
     assert list(reversed(client.search(query))) == res
     # We may even combine different ordering directions on multiple
     # attributes of the same query:
-    query = Query(client, "Datafile", 
-                  order=[("dataset.name", "DESC"), ("name", "ASC")], 
+    query = Query(client, "Datafile",
+                  order=[("dataset.name", "DESC"), ("name", "ASC")],
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -261,7 +263,7 @@ def test_query_in_operator(client):
     """Using "id in (i)" rather then "id = i" also works.
     (This may be needed to work around ICAT Issue 128.)
     """
-    query = Query(client, "Investigation", 
+    query = Query(client, "Investigation",
                   conditions={"id": "in (%d)" % investigation.id})
     print(str(query))
     res = client.search(query)
@@ -280,17 +282,71 @@ def test_query_condition_obj(client):
     res = client.search(query)
     assert len(res) == 60
 
+def test_query_condition_jpql_function(client):
+    """Functions may be applied to field names of conditions.
+    This test also applies `UPPER()` on the data to mitigate instances
+    of Oracle databases which are case sensitive.
+    """
+    conditions = {
+        "UPPER(title)": "like UPPER('%Ni-Mn-Ga flat cone%')",
+        "UPPER(datasets.name)": "like UPPER('%e208341%')",
+    }
+    query = Query(client, "Investigation", conditions=conditions)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 1
+
+def test_query_condition_jpql_function_namelen(client):
+    """Functions may be applied to field names of conditions.
+    Similar to last test, but picking another example where the effect
+    of the JPQL function in the condition is easier to verify in the
+    result.
+    """
+    conditions = { "LENGTH(fullName)": "> 11" }
+    query = Query(client, "User", conditions=conditions)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 4
+
+def test_query_condition_jpql_function_mixed(client):
+    """Mix conditions with and without JPQL function on the same attribute.
+    This test case failed for an early implementation of JPQL
+    functions, see discussion in #89.
+    """
+    conditions = { "LENGTH(fullName)": "> 11", "fullName": "> 'C'" }
+    query = Query(client, "User", conditions=conditions)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+
+def test_query_order_jpql_function(client):
+    """Functions may be applied to attribute names in order.
+
+    As an example, search for the User having the third longest
+    fullName.  (In the example data, the longest and second longest
+    fullName is somewhat ambiguous due to character encoding issues.)
+    """
+    query = Query(client, "User",
+                  order=[("LENGTH(fullName)", "DESC")], limit=(2,1))
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 1
+    assert res[0].fullName == "Nicolas Bourbaki"
+
 def test_query_rule_order(client):
     """Rule does not have a constraint, id is included in the natural order.
     """
     query = Query(client, "Rule", order=True)
     print(str(query))
-    assert ("id", None) in query.order
+    assert "id" in query.order
     res = client.search(query)
     assert len(res) == 104
 
-def test_query_nullable_warning(client, recwarn):
-    """Ordering on nullable relations emits a warning.
+def test_query_rule_order_group(client, recwarn):
+    """Ordering rule on grouping implicitely adds a "grouping IS NOT NULL"
+    condition, because it is internally implemented using an INNER
+    JOIN between the tables.  The Query class emits a warning about
+    this.
     """
     recwarn.clear()
     query = Query(client, "Rule", order=['grouping', 'what', 'id'])
@@ -301,21 +357,146 @@ def test_query_nullable_warning(client, recwarn):
     res = client.search(query)
     assert len(res) == 44
 
-def test_query_nullable_warning_suppressed(client, recwarn):
+def test_query_rule_order_group_suppress_warn_cond(client, recwarn):
     """The warning can be suppressed by making the condition explicit.
     """
     recwarn.clear()
-    query = Query(client, "Rule", order=['grouping', 'what', 'id'], 
-                  conditions={"grouping":"IS NOT NULL"})
+    query = Query(client, "Rule", order=['grouping', 'what', 'id'],
+                  conditions={"grouping": "IS NOT NULL"})
     assert len(recwarn.list) == 0
     print(str(query))
     res = client.search(query)
     assert len(res) == 44
 
+def test_query_rule_order_group_suppress_warn_join(client, recwarn):
+    """Another option to suppress the warning is to override the JOIN spec.
+    By confirming the default INNER JOIN, we get the Rules having
+    grouping NOT NULL.
+    """
+    recwarn.clear()
+    query = Query(client, "Rule", order=['grouping', 'what', 'id'],
+                  join_specs={"grouping": "INNER JOIN"})
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 44
+
+def test_query_rule_order_group_left_join(client, recwarn):
+    """Another option to suppress the warning is to override the JOIN spec.
+    By chosing a LEFT JOIN, we get all Rules.
+    """
+    recwarn.clear()
+    query = Query(client, "Rule", order=['grouping', 'what', 'id'],
+                  join_specs={"grouping": "LEFT OUTER JOIN"})
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 104
+
+def test_query_order_one_to_many(client, recwarn):
+    """Sort on a related object in a one yo many relation.
+    This has been enabled in #84, but a warning is still emitted.
+    """
+    recwarn.clear()
+    query = Query(client, "Investigation",
+                  order=['investigationInstruments.instrument.fullName'])
+    w = recwarn.pop(icat.QueryOneToManyOrderWarning)
+    assert issubclass(w.category, icat.QueryOneToManyOrderWarning)
+    assert "investigationInstruments" in str(w.message)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+
+def test_query_order_one_to_many_warning_suppressed(client, recwarn):
+    """Again, the warning can be suppressed by overriding the JOIN spec.
+    """
+    recwarn.clear()
+    query = Query(client, "Investigation",
+                  order=['investigationInstruments.instrument.fullName'],
+                  join_specs={"investigationInstruments": "INNER JOIN"})
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+
+def test_query_order_one_to_many_duplicate(client, recwarn):
+    """Note that sorting on a one yo many relation may have surprising
+    effects on the result list.  That is why class Query emits a
+    warning.
+    You may get duplicates in the result.
+    """
+    recwarn.clear()
+    # The query without ORDER BY clause.
+    query = Query(client, "Investigation")
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+    reference = res
+    # The same query adding a ORDER BY clause, we get two duplicates in
+    # the result.
+    recwarn.clear()
+    query = Query(client, "Investigation", order=['investigationUsers.role'])
+    w = recwarn.pop(icat.QueryOneToManyOrderWarning)
+    assert issubclass(w.category, icat.QueryOneToManyOrderWarning)
+    assert "investigationUsers" in str(w.message)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) > 3
+    assert set(res) == set(reference)
+
+def test_query_order_one_to_many_missing(client, recwarn):
+    """Note that sorting on a one yo many relation may have surprising
+    effects on the result list.  That is why class Query emits a
+    warning.
+    You may get misses in the result.
+    """
+    recwarn.clear()
+    # The query without ORDER BY clause.
+    query = Query(client, "Sample")
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+    reference = res
+    # The same query adding a ORDER BY clause, one item, a sample
+    # having no parameter with a string value, is missing from the result.
+    recwarn.clear()
+    query = Query(client, "Sample", order=['parameters.stringValue'])
+    w = recwarn.pop(icat.QueryOneToManyOrderWarning)
+    assert issubclass(w.category, icat.QueryOneToManyOrderWarning)
+    assert "parameters" in str(w.message)
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 2
+    # We can fix it in this case using a LEFT JOIN.
+    recwarn.clear()
+    query = Query(client, "Sample",
+                  order=['parameters.stringValue'],
+                  join_specs={"parameters": "LEFT JOIN"})
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+    assert set(res) == set(reference)
+
+def test_query_order_suppress_warnings(client, recwarn):
+    """Suppress all QueryWarnings.
+    """
+    recwarn.clear()
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=icat.QueryWarning)
+        query = Query(client, "Investigation",
+                      order=['investigationInstruments.instrument.fullName'])
+    assert len(recwarn.list) == 0
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 3
+
 def test_query_limit(client):
     """Add a LIMIT clause to the last example.
     """
-    query = Query(client, "Rule", order=['grouping', 'what', 'id'], 
+    query = Query(client, "Rule", order=['grouping', 'what', 'id'],
                   conditions={"grouping":"IS NOT NULL"})
     query.setLimit( (0,10) )
     print(str(query))
@@ -325,7 +506,7 @@ def test_query_limit(client):
 def test_query_limit_placeholder(client):
     """LIMIT clauses are particular useful with placeholders.
     """
-    query = Query(client, "Rule", order=['grouping', 'what', 'id'], 
+    query = Query(client, "Rule", order=['grouping', 'what', 'id'],
                   conditions={"grouping":"IS NOT NULL"})
     query.setLimit( ("%d","%d") )
     print(str(query))
@@ -345,7 +526,7 @@ def test_query_non_ascii(client):
     # String literal with unicode characters that will be understood
     # by both Python 2 and Python 3.
     fullName = b'Rudolph Beck-D\xc3\xbclmen'.decode('utf8')
-    query = Query(client, "User", 
+    query = Query(client, "User",
                   conditions={ "fullName": "= '%s'" % fullName })
     print(str(query))
     res = client.search(query)
@@ -362,10 +543,10 @@ def test_query_str(client):
     still a bug because a __str__() operator should not have any side
     effects at all.  It was fixed in changes 4688517 and 905dd8c.
     """
-    query = Query(client, "Datafile", order=True, 
+    query = Query(client, "Datafile", order=True,
                   conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id }, 
-                  includes={"dataset", "datafileFormat.facility", 
+                               "= %d" % investigation.id },
+                  includes={"dataset", "datafileFormat.facility",
                             "parameters.type.facility"})
     r = repr(query)
     print(str(query))
@@ -398,7 +579,23 @@ def test_query_attribute_datafile_name(client):
     Querying attributes rather then entire objects is a new feature
     added in Issue #28.
     """
-    query = Query(client, "Datafile", attribute="name", order=True, 
+    query = Query(client, "Datafile", attributes="name", order=True,
+                  conditions={ "dataset.investigation.id":
+                               "= %d" % investigation.id })
+    print(str(query))
+    res = client.search(query)
+    assert len(res) == 4
+    for n in res:
+        assert not isinstance(n, icat.entity.Entity)
+
+@pytest.mark.dependency(depends=['get_investigation'])
+def test_query_attribute_datafile_name_list(client):
+    """The datafiles names related to a given investigation in natural order.
+
+    Same as last test, but pass the attribute as a list having one
+    single element.
+    """
+    query = Query(client, "Datafile", attributes=["name"], order=True,
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -414,7 +611,7 @@ def test_query_related_obj_attribute(client):
     This requires icat.server 4.5 or newer to work.
     """
     require_icat_version("4.5.0", "SELECT related object's attribute")
-    query = Query(client, "Datafile", attribute="datafileFormat.name", 
+    query = Query(client, "Datafile", attributes="datafileFormat.name",
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -422,6 +619,81 @@ def test_query_related_obj_attribute(client):
     assert len(res) == 4
     for n in res:
         assert n in ['other', 'NeXus']
+
+def test_query_mulitple_attributes(client):
+    """Query multiple attributes in the SELECT clause.
+    """
+    if not client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields not supported by this server")
+
+    results = [("08100122-EF", "Durol single crystal",
+                datetime.datetime(2008, 3, 13, 10, 39, 42, tzinfo=tzinfo)),
+               ("10100601-ST", "Ni-Mn-Ga flat cone",
+                datetime.datetime(2010, 9, 30, 10, 27, 24, tzinfo=tzinfo)),
+               ("12100409-ST", "NiO SC OF1 JUH HHL",
+                datetime.datetime(2012, 7, 26, 15, 44, 24, tzinfo=tzinfo))]
+    query = Query(client, "Investigation",
+                  attributes=("name", "title", "startDate"), order=True)
+    print(str(query))
+    res = client.search(query)
+    assert res == results
+
+def test_query_mulitple_attributes_related_obj(client):
+    """Query multiple attributes including attributes of related objects.
+    """
+    if not client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields not supported by this server")
+
+    results = [("08100122-EF", "e201215"),
+               ("08100122-EF", "e201216"),
+               ("10100601-ST", "e208339"),
+               ("10100601-ST", "e208341"),
+               ("10100601-ST", "e208342")]
+    query = Query(client, "Dataset",
+                  attributes=("investigation.name", "name"), order=True,
+                  conditions={"investigation.startDate":  "< '2011-01-01'"})
+    print(str(query))
+    res = client.search(query)
+    assert res == results
+
+def test_query_mulitple_attributes_oldicat_valueerror(client):
+    """Query class should raise ValueError if multiple attributes are
+    requested, but the ICAT server is too old to support this.
+    """
+    if client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields is supported by this server")
+
+    with pytest.raises(ValueError) as err:
+        query = Query(client, "Investigation", attributes=("name", "title"))
+    err_pattern = r"\bICAT server\b.*\bnot support\b.*\bmultiple attributes\b"
+    assert re.search(err_pattern, str(err.value))
+
+def test_query_mulitple_attributes_distinct(client):
+    """Combine DISTINCT with a query for multiple attributes.
+
+    This requires a special handling due to some quirks in the
+    icat.server query parser.  Support for this has been added in
+    #81.
+    """
+    if not client._has_wsdl_type('fieldSet'):
+        pytest.skip("search for multiple fields not supported by this server")
+
+    # Try the query without DISTINCT first so that we can verify the effect.
+    query = Query(client, "InvestigationUser",
+                  attributes=("investigation.name", "role"),
+                  conditions={"investigation.name": "= '08100122-EF'"})
+    print(str(query))
+    res = client.search(query)
+    query = Query(client, "InvestigationUser",
+                  attributes=("investigation.name", "role"),
+                  conditions={"investigation.name": "= '08100122-EF'"},
+                  aggregate="DISTINCT")
+    print(str(query))
+    res_dist = client.search(query)
+    # The search with DISTINCT yields less items, but if we eliminate
+    # duplicates, the result set is the same:
+    assert len(res) > len(res_dist)
+    assert set(res) == set(res_dist)
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_aggregate_distinct_attribute(client):
@@ -431,8 +703,8 @@ def test_query_aggregate_distinct_attribute(client):
     Issue #32.
     """
     require_icat_version("4.7.0", "SELECT DISTINCT in queries")
-    query = Query(client, "Datafile", 
-                  attribute="datafileFormat.name", 
+    query = Query(client, "Datafile",
+                  attributes="datafileFormat.name",
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -451,8 +723,8 @@ def test_query_aggregate_distinct_related_obj(client):
     Issue #32.
     """
     require_icat_version("4.7.0", "SELECT DISTINCT in queries")
-    query = Query(client, "Datafile", 
-                  attribute="datafileFormat", 
+    query = Query(client, "Datafile",
+                  attributes="datafileFormat",
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -502,7 +774,8 @@ def test_query_aggregate_misc(client, attribute, aggregate, expected):
         require_icat_version("4.5.0", "SELECT related object's attribute")
     if "DISTINCT" in aggregate:
         require_icat_version("4.7.0", "SELECT DISTINCT in queries")
-    query = Query(client, "Datafile", attribute=attribute, aggregate=aggregate,
+    query = Query(client, "Datafile",
+                  attributes=attribute, aggregate=aggregate,
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
@@ -510,3 +783,35 @@ def test_query_aggregate_misc(client, attribute, aggregate, expected):
     assert len(res) == 1
     assert res[0] == expected
 
+@pytest.mark.parametrize(("entity", "kwargs"), [
+    ("Datafile", dict(attributes="name", order=True)),
+    ("InvestigationUser",
+     dict(attributes=("investigation.name", "role"),
+          conditions={"investigation.name": "= '08100122-EF'"},
+          aggregate="DISTINCT")),
+    ("Datafile", dict(order=[("name", "ASC")])),
+    ("Datafile", dict(conditions={
+        "name": "= 'e208945.nxs'",
+        "dataset.name": "= 'e208945'",
+        "dataset.investigation.name": "= '12100409-ST'",
+    })),
+    ("Instrument", dict(order=["name"],
+                        includes={"facility", "instrumentScientists.user"})),
+    ("Rule", dict(order=['grouping', 'what', 'id'],
+                  conditions={"grouping":"IS NOT NULL"},
+                  limit=(0,10))),
+    ("Rule", dict(order=['grouping', 'what', 'id'],
+                  join_specs={"grouping": "LEFT OUTER JOIN"})),
+])
+def test_query_copy(client, entity, kwargs):
+    """Test the Query.copy() method.
+
+    Very basic test: verify that Query.copy() yields an equivalent
+    query for various Query() constructor argument sets.
+    """
+    if ('attributes' in kwargs and len(kwargs['attributes']) > 1 and
+        not client._has_wsdl_type('fieldSet')):
+        pytest.skip("search for multiple fields not supported by this server")
+    query = Query(client, entity, **kwargs)
+    clone = query.copy()
+    assert str(clone) == str(query)

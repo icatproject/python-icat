@@ -179,7 +179,9 @@ Bugs and limitations
 
 + There are issues with ICAT server 4.8.0 and older when using
   suds-community, see `Issue #72`_ for details.  Use suds-jurko when
-  you need to talk to those older ICAT servers.
+  you need to talk to those older ICAT servers.  On the other hand,
+  suds-jurko does can not be installed with setuptools 58.0.0 and
+  newer.
 
 + If supported by the ICAT server (icat.server 4.9.0 and newer), the
   icat.config module queries the server for information on available
@@ -193,13 +195,10 @@ Bugs and limitations
   configuration variables and thus command line arguments are
   effective then those shown by the generic help message.
 
-+ For Python 2, the return value of the string representation operator
-  of class Query may be a Unicode object if any of the conditions
-  contains Unicode.  This violates the specification that requires the
-  result to be a string object.  But it makes non-ascii characters in
-  queries work.  A formal correct implementation would be much more
-  cumbersome and less useful.  For Python 3, there is no distinction
-  between Unicode and string objects anyway.
++ The return value of the formal string representation operator of
+  class Query can not be used to recreate another query object with
+  the same value as required by Python standards, see `Issue #94`_ for
+  details.
 
 + The entries in the no_proxy configuration variable are matched
   against the host part of the URL by simple string comparison.  The
@@ -224,7 +223,7 @@ when it is incompatible with PEP 440.
 Copyright and License
 ---------------------
 
-Copyright 2013–2020
+Copyright 2013–2021
 Helmholtz-Zentrum Berlin für Materialien und Energie GmbH
 
 Licensed under the `Apache License`_, Version 2.0 (the "License"); you
@@ -252,6 +251,7 @@ permissions and limitations under the License.
 .. _Read the Docs site: https://python-icat.readthedocs.io/
 .. _GitHub repository: https://github.com/icatproject/python-icat
 .. _Issue #72: https://github.com/icatproject/python-icat/issues/72
+.. _Issue #94: https://github.com/icatproject/python-icat/issues/94
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/
 .. _Semantic Versioning: https://semver.org/
 .. _Apache License: https://www.apache.org/licenses/LICENSE-2.0

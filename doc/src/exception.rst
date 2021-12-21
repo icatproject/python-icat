@@ -101,7 +101,15 @@ Exceptions raised by python-icat
     :members:
     :show-inheritance:
 
+.. autoexception:: icat.exception.QueryWarning
+    :members:
+    :show-inheritance:
+
 .. autoexception:: icat.exception.QueryNullableOrderWarning
+    :members:
+    :show-inheritance:
+
+.. autoexception:: icat.exception.QueryOneToManyOrderWarning
     :members:
     :show-inheritance:
 
@@ -163,17 +171,21 @@ The class hierarchy for the exceptions is::
    |         +-- IDSNotImplementedError
    +-- InternalError
    +-- ConfigError
-   +-- EntityTypeError
+   +-- TypeError
+   |    +-- EntityTypeError
    +-- VersionMethodError
    +-- SearchResultError
    |    +-- SearchAssertionError
    +-- DataConsistencyError
    +-- IDSResponseError
    +-- Warning
-        +-- QueryNullableOrderWarning
+        +-- QueryWarning
+        |    +-- QueryNullableOrderWarning
+        |    +-- QueryOneToManyOrderWarning
         +-- ClientVersionWarning
         +-- DeprecationWarning
              +-- ICATDeprecationWarning
 
-Here, :exc:`Exception`, :exc:`Warning`, and :exc:`DeprecationWarning`
-are build-in exceptions from the Python standard library.
+Here, :exc:`Exception`, :exc:`TypeError`, :exc:`Warning`, and
+:exc:`DeprecationWarning` are build-in exceptions from the Python
+standard library.

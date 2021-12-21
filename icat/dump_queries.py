@@ -36,11 +36,9 @@ def getAuthQueries(client):
     return [ Query(client, "User", order=True), 
              Query(client, "Grouping", order=True, 
                    includes={"userGroups", "userGroups.user"}),
-             Query(client, "Rule", order=["what", "id"], 
-                   conditions={"grouping": "IS NULL"}), 
              Query(client, "Rule", order=["grouping.name", "what", "id"], 
-                   conditions={"grouping": "IS NOT NULL"}, 
-                   includes={"grouping"}), 
+                   includes={"grouping"},
+                   join_specs={"grouping": "LEFT JOIN"}),
              Query(client, "PublicStep", order=True) ]
 
 def getStaticQueries(client):
@@ -75,10 +73,12 @@ def getInvestigationQueries(client, invid):
                      "keywords", "publications", "investigationUsers", 
                      "investigationUsers.user", "parameters", 
                      "parameters.type.facility" }
-    if client.apiversion >= '4.4.0':
+    if 'investigationGroup' in client.typemap:
+        # ICAT >= 4.4.0
         inv_includes |= { "investigationGroups", 
                           "investigationGroups.grouping" }
-    if client.apiversion >= '4.10.0':
+    if 'instrument' in client.typemap['shift'].InstRel:
+        # ICAT >= 4.10.0
         inv_includes |= { "shifts.instrument.facility" }
 
     return [ Query(client, "Investigation", 
@@ -103,10 +103,11 @@ def getOtherQueries(client):
     """
     # Compatibility ICAT 4.3.0 vs. ICAT 4.3.1 and later: name of the
     # parameters relation in DataCollection.
-    if client.apiversion < '4.3.1':
-        datacolparamname = 'dataCollectionParameters'
-    else:
+    if 'parameters' in client.typemap['dataCollection'].InstMRel:
+        # ICAT >= 4.3.1
         datacolparamname = 'parameters'
+    else:
+        datacolparamname = 'dataCollectionParameters'
 
     return [ Query(client, "Study", order=True, 
                    includes={"user", "studyInvestigations", 

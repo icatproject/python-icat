@@ -33,7 +33,9 @@ True
 {'name': 'ESNF'}
 """
 
+from contextlib import contextmanager
 import datetime
+import logging
 import suds.sax.date
 
 
@@ -194,3 +196,14 @@ def ms_timestamp(dt):
         dt = dt.replace(tzinfo=datetime.timezone.utc)
     ts = 1000 * dt.timestamp()
     return int(ts)
+
+
+@contextmanager
+def disable_logger(name):
+    """Context manager to temporarily disable a logger.
+    """
+    logger = logging.getLogger(name)
+    sav_state = logger.disabled
+    logger.disabled = True
+    yield
+    logger.disabled = sav_state
