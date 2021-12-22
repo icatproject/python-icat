@@ -85,10 +85,12 @@ def icatdump(client, f, backend):
     with open_dumpfile(client, f, backend, 'w') as dumpfile:
         dumpfile.writedata(getAuthQueries(client))
         dumpfile.writedata(getStaticQueries(client))
+        dumpfile.writedata(getFundingQueries(client))
         investsearch = Query(client, "Investigation", attributes="id",
                              order=["facility.name", "name", "visitId"])
         for i in client.searchChunked(investsearch):
             dumpfile.writedata(getInvestigationQueries(client, i), chunksize=5)
+        dumpfile.writedata(getDataCollectionQueries(client))
         dumpfile.writedata(getOtherQueries(client))
 
 # ============================ fixtures ==============================

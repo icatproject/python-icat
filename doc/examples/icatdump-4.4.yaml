@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Fri, 17 Apr 2020 19:03:56 +0000
+# Date: Wed, 22 Dec 2021 14:55:44 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 4.4
-# Generator: icatdump (python-icat 0.16.0)
+# Generator: icatdump (python-icat 0.20.2.dev66)
 ---
 grouping:
   Grouping_name-investigation=5F08100122=2DEF=5Fowner:
@@ -1283,6 +1283,7 @@ dataCollection:
     - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs
     dataCollectionDatasets:
     - dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947
+---
 job:
   Job_00000001:
     application: Application_facility-(name-ESNF)_name-gnomoanalytics_version-69

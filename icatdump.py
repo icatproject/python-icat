@@ -58,4 +58,5 @@ with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
         # of Datasets fetched at once.  Set a very small chunksize to
         # avoid hitting the limit.
         dumpfile.writedata(getInvestigationQueries(client, i), chunksize=5)
+    dumpfile.writedata(getDataCollectionQueries(client))
     dumpfile.writedata(getOtherQueries(client))

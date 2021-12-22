@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2020-04-17T17:59:17+00:00</date>
+  <date>2021-12-22T14:37:06+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
-  <apiversion>4.10</apiversion>
-  <generator>icatdump (python-icat 0.16.0)</generator>
+  <apiversion>4.11.1</apiversion>
+  <generator>icatdump (python-icat 0.20.2.dev66)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
@@ -1516,25 +1516,6 @@
   </datafile>
 </data>
 <data>
-  <study id="Study_00000001">
-    <endDate>2012-09-30T18:00:00+00:00</endDate>
-    <name>12-008</name>
-    <pid>00.0815/m-00333</pid>
-    <startDate>2012-07-09T06:00:00+00:00</startDate>
-    <status>COMPLETE</status>
-    <user ref="User_name-db=2Fnbour"/>
-    <studyInvestigations>
-      <investigation ref="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN"/>
-    </studyInvestigations>
-    <studyInvestigations>
-      <investigation ref="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP"/>
-    </studyInvestigations>
-  </study>
-  <relatedDatafile id="RelatedDatafile_sourceDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs)_destDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs)">
-    <relation>copy</relation>
-    <destDatafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs"/>
-    <sourceDatafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs"/>
-  </relatedDatafile>
   <dataCollection id="DataCollection_00000001">
     <dataCollectionDatafiles>
       <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs"/>
@@ -1556,6 +1537,27 @@
       <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947"/>
     </dataCollectionDatasets>
   </dataCollection>
+</data>
+<data>
+  <study id="Study_00000001">
+    <endDate>2012-09-30T18:00:00+00:00</endDate>
+    <name>12-008</name>
+    <pid>00.0815/m-00333</pid>
+    <startDate>2012-07-09T06:00:00+00:00</startDate>
+    <status>COMPLETE</status>
+    <user ref="User_name-db=2Fnbour"/>
+    <studyInvestigations>
+      <investigation ref="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN"/>
+    </studyInvestigations>
+    <studyInvestigations>
+      <investigation ref="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP"/>
+    </studyInvestigations>
+  </study>
+  <relatedDatafile id="RelatedDatafile_sourceDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs)_destDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs)">
+    <relation>copy</relation>
+    <destDatafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs"/>
+    <sourceDatafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs"/>
+  </relatedDatafile>
   <job id="Job_00000001">
     <application ref="Application_facility-(name-ESNF)_name-gnomoanalytics_version-69"/>
     <inputDataCollection ref="DataCollection_00000001"/>

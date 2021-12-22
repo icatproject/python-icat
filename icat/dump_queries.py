@@ -16,8 +16,9 @@ here is the following:
 3. The investigation data.  All content related to individual
    investigations.  Each investigation with all its data in one single
    chunk on its own.
-4. One last chunk with all remaining stuff (RelatedDatafile,
-   DataCollection, Job).
+4. DataCollections.
+5. One last chunk with all remaining stuff (Study, RelatedDatafile,
+   Job).
 
 The functions defined in this module each return a list of queries
 needed to fetch all objects to be included in one of these chunks.
@@ -27,7 +28,8 @@ import icat
 from icat.query import Query
 
 __all__ = [ 'getAuthQueries', 'getStaticQueries',
-            'getInvestigationQueries', 'getOtherQueries' ]
+            'getInvestigationQueries', 'getDataCollectionQueries',
+            'getOtherQueries' ]
 
 
 def getAuthQueries(client):
@@ -116,9 +118,8 @@ def getInvestigationQueries(client, invid):
                         "parameters.type.facility"})
     ]
 
-def getOtherQueries(client):
-    """Return the queries to fetch all other objects,
-    e.g. not static and not directly related to an investigation.
+def getDataCollectionQueries(client):
+    """Return the queries to fetch all DataCollections.
     """
     # Compatibility ICAT 4.3.0 vs. ICAT 4.3.1 and later: name of the
     # parameters relation in DataCollection.
@@ -132,7 +133,15 @@ def getOtherQueries(client):
     else:
         # ICAT == 4.3.0
         dc_includes |= { "dataCollectionParameters.type.facility" }
+    return [
+        Query(client, "DataCollection", order=True,
+              includes=dc_includes),
+    ]
 
+def getOtherQueries(client):
+    """Return the queries to fetch all other objects,
+    e.g. not static and not directly related to an investigation.
+    """
     return [
         Query(client, "Study", order=True,
               includes={"user", "studyInvestigations",
@@ -140,8 +149,6 @@ def getOtherQueries(client):
         Query(client, "RelatedDatafile", order=True,
               includes={"sourceDatafile.dataset.investigation.facility",
                         "destDatafile.dataset.investigation.facility"}),
-        Query(client, "DataCollection", order=True,
-              includes=dc_includes),
         Query(client, "Job", order=True,
               includes={"application.facility",
                         "inputDataCollection", "outputDataCollection"})
