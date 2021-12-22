@@ -60,4 +60,9 @@ with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
         # avoid hitting the limit.
         dumpfile.writedata(getInvestigationQueries(client, i), chunksize=5)
     dumpfile.writedata(getDataCollectionQueries(client))
+    if 'dataPublication' in client.typemap:
+        pubsearch = Query(client, "DataPublication", attributes="id",
+                          order=["facility.name", "pid"])
+        for i in client.searchChunked(pubsearch):
+            dumpfile.writedata(getDataPublicationQueries(client, i))
     dumpfile.writedata(getOtherQueries(client))

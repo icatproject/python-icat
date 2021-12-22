@@ -18,7 +18,9 @@ here is the following:
    investigations.  Each investigation with all its data in one single
    chunk on its own.
 5. DataCollections.
-6. One last chunk with all remaining stuff (Study, RelatedDatafile,
+6. DataPublications.  All content related to individual data
+   publications, each one in one chunk on its own respectively.
+7. One last chunk with all remaining stuff (Study, RelatedDatafile,
    Job).
 
 The functions defined in this module each return a list of queries
@@ -30,7 +32,7 @@ from icat.query import Query
 
 __all__ = [ 'getAuthQueries', 'getStaticQueries', 'getFundingQueries',
             'getInvestigationQueries', 'getDataCollectionQueries',
-            'getOtherQueries' ]
+            'getDataPublicationQueries', 'getOtherQueries' ]
 
 
 def getAuthQueries(client):
@@ -151,6 +153,22 @@ def getDataCollectionQueries(client):
     return [
         Query(client, "DataCollection", order=True,
               includes=dc_includes),
+    ]
+
+def getDataPublicationQueries(client, pubid):
+    """Return the queries to fetch all objects related to a data publication.
+    """
+    # Compatibility between ICAT versions:
+    # - ICAT 5.0.0 added DataPublication and related classes.
+    # This is not tested here, we assume the caller to check this.
+    # Otherwise the pubid argument would make no sense.
+    return [
+        Query(client, "DataPublication", order=True,
+              conditions={"id": "= %d" % pubid},
+              includes={"facility", "content", "dates",
+                        "fundingReferences.funding",
+                        "users.user", "users.affiliations",
+                        "relatedIdentifiers"}),
     ]
 
 def getOtherQueries(client):
