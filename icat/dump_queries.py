@@ -13,11 +13,12 @@ here is the following:
 2. All static content in one chunk, e.g. all objects not related to
    individual investigations and that need to be present, before we
    can add investigations.
-3. The investigation data.  All content related to individual
+3. FundingReferences.
+4. The investigation data.  All content related to individual
    investigations.  Each investigation with all its data in one single
    chunk on its own.
-4. DataCollections.
-5. One last chunk with all remaining stuff (Study, RelatedDatafile,
+5. DataCollections.
+6. One last chunk with all remaining stuff (Study, RelatedDatafile,
    Job).
 
 The functions defined in this module each return a list of queries
@@ -27,7 +28,7 @@ needed to fetch all objects to be included in one of these chunks.
 import icat
 from icat.query import Query
 
-__all__ = [ 'getAuthQueries', 'getStaticQueries',
+__all__ = [ 'getAuthQueries', 'getStaticQueries', 'getFundingQueries',
             'getInvestigationQueries', 'getDataCollectionQueries',
             'getOtherQueries' ]
 
@@ -73,12 +74,23 @@ def getStaticQueries(client):
         queries.append( Query(client, "Technique", order=True) )
     return queries
 
+def getFundingQueries(client):
+    """Return the queries to fetch all FundingReferences.
+    """
+    # Compatibility between ICAT versions:
+    # - ICAT 5.0.0 added FundingReference.
+    if 'fundingReference' in client.typemap:
+        return [ Query(client, "FundingReference", order=True), ]
+    else:
+        return []
+
 def getInvestigationQueries(client, invid):
     """Return the queries to fetch all objects related to an investigation.
     """
     # Compatibility between ICAT versions:
     # - ICAT 4.4.0 added InvestigationGroups.
     # - ICAT 4.10.0 added relation between Shift and Instrument.
+    # - ICAT 5.0.0 added InvestigationFunding.
     # - ICAT 5.0.0 added DatasetInstrument and DatasetTechnique.
     inv_includes = {
         "facility", "type.facility", "investigationInstruments",
@@ -93,6 +105,9 @@ def getInvestigationQueries(client, invid):
     if 'instrument' in client.typemap['shift'].InstRel:
         # ICAT >= 4.10.0
         inv_includes |= { "shifts.instrument.facility" }
+    if 'investigationFunding' in client.typemap:
+        # ICAT >= 5.0.0
+        inv_includes |= { "fundingReferences.funding" }
     ds_includes = { "investigation", "type.facility", "sample",
                     "parameters.type.facility" }
     if 'datasetInstruments' in client.typemap['dataset'].InstMRel:
