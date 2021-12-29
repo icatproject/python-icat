@@ -78,6 +78,7 @@ This package contains the manual pages for the command line scripts.
 %package -n python%{python3_pkgversion}-icat
 Summary:	Python interface to ICAT and IDS
 Requires:	%{name} = %{version}
+Requires:	python%{python3_pkgversion}-packaging
 Requires:	python%{python3_pkgversion}-suds
 %if 0%{?suse_version}
 Recommends:	%{name}-man
@@ -98,6 +99,7 @@ $long_description
 %package -n python%{python3_other_pkgversion}-icat
 Summary:	Python interface to ICAT and IDS
 Requires:	%{name} = %{version}
+Requires:	python%{python3_other_pkgversion}-packaging
 Requires:	python%{python3_other_pkgversion}-suds
 %if 0%{?centos_version} || 0%{?rhel_version} || 0%{?fedora_version}
 Requires(pre):	chkconfig

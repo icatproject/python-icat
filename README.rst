@@ -33,6 +33,8 @@ Python:
 
 Required Library packages:
 
++ `packaging`_
+
 + Suds.  The original version by Jeff Ortel is not maintained anymore
   since very long time and not recommended.  There are several forks
   around, most of them short-lived.  Two of them have been evaluated
@@ -238,6 +240,7 @@ permissions and limitations under the License.
 
 .. _ICAT: https://icatproject.org/
 .. _PyPI site: https://pypi.org/project/python-icat/
+.. _packaging: https://github.com/pypa/packaging
 .. _suds-jurko: https://bitbucket.org/jurko/suds
 .. _suds-community: https://github.com/suds-community/suds
 .. _PyYAML: https://github.com/yaml/pyyaml
