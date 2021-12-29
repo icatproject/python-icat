@@ -4,7 +4,6 @@ This is the only module that needs to be imported to use the icat.
 """
 
 import atexit
-from distutils.version import StrictVersion as Version
 import logging
 import os
 from pathlib import Path
@@ -20,7 +19,7 @@ import suds.sudsobject
 from icat.entities import getTypeMap
 from icat.entity import Entity
 from icat.exception import *
-from icat.helper import (simpleqp_unquote, parse_attr_val,
+from icat.helper import (Version, simpleqp_unquote, parse_attr_val,
                          ms_timestamp, disable_logger)
 from icat.ids import *
 from icat.query import Query
@@ -141,11 +140,7 @@ class Client(suds.client.Client):
             proxy = {}
         kwargs['transport'] = HTTPSTransport(self.sslContext, proxy=proxy)
         super().__init__(self.url, **kwargs)
-        apiversion = str(self.getApiVersion())
-        # Translate a version having a trailing '-SNAPSHOT' into
-        # something that StrictVersion would accept.
-        apiversion = re.sub(r'-SNAPSHOT$', 'a1', apiversion)
-        self.apiversion = Version(apiversion)
+        self.apiversion = Version(self.getApiVersion())
         log.debug("Connect to %s, ICAT version %s", url, self.apiversion)
 
         if self.apiversion < '4.3.0':
