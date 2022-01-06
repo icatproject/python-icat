@@ -27,11 +27,13 @@ The latest release version can be found in the
 System requirements
 -------------------
 
-Python:
+Python
+......
 
 + 3.4 and newer.
 
-Required Library packages:
+Required library packages
+.........................
 
 + Suds.  The original version by Jeff Ortel is not maintained anymore
   since very long time and not recommended.  There are several forks
@@ -42,8 +44,21 @@ Required Library packages:
 
 .. __: `suds-jurko`_
 
-Optional library packages, only needed to use certain extra features,
-not required to install or use python-icat itself:
+Conflicts with other packages
+.............................
+
++ `setuptools`_ >= 58.0
+
+  There is a breaking change in setuptools 58.0 that affects all
+  python-icat releases older than upcoming 1.0.  You must either not
+  install setuptools at all or at least downgrade it to 57.5 or older
+  in order to install python-icat.
+
+Optional library packages
+.........................
+
+These packages are only needed to use certain extra features.  They
+are not required to install or use python-icat itself:
 
 + `PyYAML`_
 
@@ -240,6 +255,7 @@ permissions and limitations under the License.
 .. _PyPI site: https://pypi.org/project/python-icat/
 .. _suds-jurko: https://bitbucket.org/jurko/suds
 .. _suds-community: https://github.com/suds-community/suds
+.. _setuptools: https://github.com/pypa/setuptools
 .. _PyYAML: https://github.com/yaml/pyyaml
 .. _lxml: https://lxml.de/
 .. _Requests: https://requests.readthedocs.io/
