@@ -155,6 +155,7 @@ class Query(object):
         self.setOrder(order)
         self.setLimit(limit)
         self._init = None
+        self._subst = None
 
     def _attrpath(self, attrname):
         """Follow the attribute path along related objects and iterate over
@@ -225,6 +226,14 @@ class Query(object):
             raise ValueError("Invalid attribute '%s'" % attr)
         return m.group(2,1)
 
+    def _get_subst(self):
+        if self._subst is None:
+            joinattrs = ( set(self.order.keys()) |
+                          set(self.conditions.keys()) |
+                          set(self.attributes) )
+            self._subst = self._makesubst(joinattrs)
+        return self._subst
+
     def setAttributes(self, attributes):
         """Set the attributes that the query shall return.
 
@@ -244,6 +253,7 @@ class Query(object):
             :meth:`setAttribute` to :meth:`setAttributes` (in the
             plural).
         """
+        self._subst = None
         self.attributes = []
         if attributes:
             if isinstance(attributes, str):
@@ -343,6 +353,7 @@ class Query(object):
         .. versionchanged:: 0.20.0
             allow a JPQL function in the attribute.
         """
+        self._subst = None
         # Note: with Python 3.7 and newer we could simplify this using
         # a standard dict() rather then an OrderedDict().
         self.order = OrderedDict()
@@ -433,6 +444,7 @@ class Query(object):
             else:
                 return "%%s %s" % (rhs)
         if conditions:
+            self._subst = None
             for k in conditions.keys():
                 if isinstance(conditions[k], basestring):
                     conds = [conditions[k]]
@@ -505,10 +517,7 @@ class Query(object):
         usefulness over formal correctness.  For Python 3, there is no
         distinction between Unicode and string objects anyway.
         """
-        joinattrs = ( set(self.order.keys()) |
-                      set(self.conditions.keys()) |
-                      set(self.attributes) )
-        subst = self._makesubst(joinattrs)
+        subst = self._get_subst()
         if self.attributes:
             attrs = []
             for a in self.attributes:
