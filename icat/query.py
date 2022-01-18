@@ -120,11 +120,11 @@ class Query():
         if isinstance(entity, str):
             self.entity = self.client.getEntityClass(entity)
         elif issubclass(entity, icat.entity.Entity):
-            if (entity in self.client.typemap.values() and 
+            if (entity in self.client.typemap.values() and
                 entity.BeanName is not None):
                 self.entity = entity
             else:
-                raise EntityTypeError("Invalid entity type '%s'." 
+                raise EntityTypeError("Invalid entity type '%s'."
                                       % entity.__name__)
         else:
             raise EntityTypeError("Invalid entity type '%s'." % type(entity))
@@ -154,12 +154,12 @@ class Query():
             if rclass is None:
                 # Last component was not a relation, no further components
                 # in the name allowed.
-                raise ValueError("Invalid attrname '%s' for %s." 
+                raise ValueError("Invalid attrname '%s' for %s."
                                  % (attrname, self.entity.BeanName))
             attrInfo = rclass.getAttrInfo(self.client, attr)
             if attrInfo.relType == "ATTRIBUTE":
                 rclass = None
-            elif (attrInfo.relType == "ONE" or 
+            elif (attrInfo.relType == "ONE" or
                   attrInfo.relType == "MANY"):
                 rclass = self.client.getEntityClass(attrInfo.type)
             else:
@@ -343,7 +343,7 @@ class Query():
                 if isinstance(obj, tuple):
                     obj, direction = obj
                     if direction not in ("ASC", "DESC"):
-                        raise ValueError("Invalid ordering direction '%s'" 
+                        raise ValueError("Invalid ordering direction '%s'"
                                          % direction)
                 else:
                     direction = None
@@ -447,7 +447,7 @@ class Query():
                 for (pattr, attrInfo, rclass) in self._attrpath(iobj):
                     pass
                 if rclass is None:
-                    raise ValueError("%s.%s is not a related object." 
+                    raise ValueError("%s.%s is not a related object."
                                      % (self.entity.BeanName, iobj))
             self.includes.update(includes)
 
@@ -463,7 +463,7 @@ class Query():
                 raise TypeError("limit must be a tuple of two elements.")
             self.limit = limit
         else:
-            self.limit = None            
+            self.limit = None
 
     def __repr__(self):
         """Return a formal representation of the query.
