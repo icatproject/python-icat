@@ -394,7 +394,7 @@ def test_query_rule_order_group_left_join(client, recwarn):
     assert len(res) == 104
 
 def test_query_order_one_to_many(client, recwarn):
-    """Sort on a related object in a one yo many relation.
+    """Sort on a related object in a one to many relation.
     This has been enabled in #84, but a warning is still emitted.
     """
     recwarn.clear()
@@ -420,7 +420,7 @@ def test_query_order_one_to_many_warning_suppressed(client, recwarn):
     assert len(res) == 3
 
 def test_query_order_one_to_many_duplicate(client, recwarn):
-    """Note that sorting on a one yo many relation may have surprising
+    """Note that sorting on a one to many relation may have surprising
     effects on the result list.  That is why class Query emits a
     warning.
     You may get duplicates in the result.
@@ -446,7 +446,7 @@ def test_query_order_one_to_many_duplicate(client, recwarn):
     assert set(res) == set(reference)
 
 def test_query_order_one_to_many_missing(client, recwarn):
-    """Note that sorting on a one yo many relation may have surprising
+    """Note that sorting on a one to many relation may have surprising
     effects on the result list.  That is why class Query emits a
     warning.
     You may get misses in the result.
@@ -494,7 +494,7 @@ def test_query_order_suppress_warnings(client, recwarn):
     assert len(res) == 3
 
 def test_query_limit(client):
-    """Add a LIMIT clause to the last example.
+    """Add a LIMIT clause to an earlier example.
     """
     query = Query(client, "Rule", order=['grouping', 'what', 'id'],
                   conditions={"grouping":"IS NOT NULL"})
@@ -751,9 +751,9 @@ def test_query_aggregate_distinct_related_obj(client):
     ("fileSize", "MIN", 394),
     ("fileSize", "SUM", 127125),
     # Note that the number of datafiles is four which is a power of
-    # two.  Therefore we may assume the double representation of an
-    # average of integers is exact, so we may even dare to compare
-    # the double value for equality.
+    # two.  Therefore we may assume the float representation of an
+    # average of integers is exact, so we may even dare to compare the
+    # float value for equality.
     ("fileSize", "AVG", 31781.25),
     ("name", "MAX", "e208341.nxs"),
     ("name", "MIN", "e208339.dat"),
