@@ -139,6 +139,7 @@ class Query():
         self.setOrder(order)
         self.setLimit(limit)
         self._init = None
+        self._subst = None
 
     def _attrpath(self, attrname):
         """Follow the attribute path along related objects and iterate over
@@ -209,6 +210,14 @@ class Query():
             raise ValueError("Invalid attribute '%s'" % attr)
         return m.group(2,1)
 
+    def _get_subst(self):
+        if self._subst is None:
+            joinattrs = ( set(self.order.keys()) |
+                          set(self.conditions.keys()) |
+                          set(self.attributes) )
+            self._subst = self._makesubst(joinattrs)
+        return self._subst
+
     def setAttributes(self, attributes):
         """Set the attributes that the query shall return.
 
@@ -228,6 +237,7 @@ class Query():
             :meth:`setAttribute` to :meth:`setAttributes` (in the
             plural).
         """
+        self._subst = None
         self.attributes = []
         if attributes:
             if isinstance(attributes, str):
@@ -327,6 +337,7 @@ class Query():
         .. versionchanged:: 0.20.0
             allow a JPQL function in the attribute.
         """
+        self._subst = None
         # Note: with Python 3.7 and newer we could simplify this using
         # a standard dict() rather then an OrderedDict().
         self.order = OrderedDict()
@@ -417,6 +428,7 @@ class Query():
             else:
                 return "%%s %s" % (rhs)
         if conditions:
+            self._subst = None
             for k in conditions.keys():
                 if isinstance(conditions[k], str):
                     conds = [conditions[k]]
@@ -465,25 +477,13 @@ class Query():
         else:
             self.limit = None
 
-    def __repr__(self):
-        """Return a formal representation of the query.
-        """
-        return ("%s(%s, %s, attributes=%s, aggregate=%s, order=%s, "
-                "conditions=%s, includes=%s, limit=%s, join_specs=%s)"
-                % (self.__class__.__name__,
-                   repr(self.client), repr(self.entity.BeanName),
-                   repr(self.attributes), repr(self.aggregate),
-                   repr(self.order), repr(self.conditions),
-                   repr(self.includes), repr(self.limit),
-                   repr(self.join_specs)))
+    @property
+    def select_clause(self):
+        """The SELECT clause of the query.
 
-    def __str__(self):
-        """Return a string representation of the query.
+        .. versionadded:: 0.21.0
         """
-        joinattrs = ( set(self.order.keys()) |
-                      set(self.conditions.keys()) |
-                      set(self.attributes) )
-        subst = self._makesubst(joinattrs)
+        subst = self._get_subst()
         if self.attributes:
             attrs = []
             for a in self.attributes:
@@ -503,40 +503,106 @@ class Query():
             else:
                 for fct in reversed(self.aggregate.split(':')):
                     res = "%s(%s)" % (fct, res)
-        base = "SELECT %s FROM %s o" % (res, self.entity.BeanName)
-        joins = ""
+        return "SELECT %s FROM %s o" % (res, self.entity.BeanName)
+
+    @property
+    def join_clause(self):
+        """The JOIN clause of the query.
+
+        .. versionadded:: 0.21.0
+        """
+        subst = self._get_subst()
+        joins = []
         for obj in sorted(subst.keys()):
             js = self.join_specs.get(obj, "JOIN")
-            joins += " %s %s" % (js, self._dosubst(obj, subst))
+            joins.append("%s %s" % (js, self._dosubst(obj, subst)))
+        if joins:
+            return " ".join(joins)
+        else:
+            return None
+
+    @property
+    def where_clause(self):
+        """The WHERE clause of the query.
+
+        .. versionadded:: 0.21.0
+        """
+        subst = self._get_subst()
         if self.conditions:
             conds = []
             for a in sorted(self.conditions.keys()):
                 attr = self._dosubst(a, subst, False)
                 for c in self.conditions[a]:
                     conds.append(c % attr)
-            where = " WHERE " + " AND ".join(conds)
+            return "WHERE " + " AND ".join(conds)
         else:
-            where = ""
+            return None
+
+    @property
+    def order_clause(self):
+        """The ORDER BY clause of the query.
+
+        .. versionadded:: 0.21.0
+        """
+        subst = self._get_subst()
         if self.order:
             orders = []
             for a in self.order.keys():
                 orders.append(self.order[a] % self._dosubst(a, subst, False))
-            order = " ORDER BY " + ", ".join(orders)
+            return "ORDER BY " + ", ".join(orders)
         else:
-            order = ""
+            return None
+
+    @property
+    def include_clause(self):
+        """The INCLUDE clause of the query.
+
+        .. versionadded:: 0.21.0
+        """
         if self.includes:
             subst = self._makesubst(self.includes)
             includes = set(self.includes)
             includes.update(subst.keys())
             incl = [ self._dosubst(obj, subst) for obj in sorted(includes) ]
-            include = " INCLUDE " + ", ".join(incl)
+            return "INCLUDE " + ", ".join(incl)
         else:
-            include = ""
+            return None
+
+    @property
+    def limit_clause(self):
+        """The LIMIT clause of the query.
+
+        .. versionadded:: 0.21.0
+        """
         if self.limit:
-            limit = " LIMIT %s, %s" % self.limit
+            return "LIMIT %s, %s" % self.limit
         else:
-            limit = ""
-        return base + joins + where + order + include + limit
+            return None
+
+    def __repr__(self):
+        """Return a formal representation of the query.
+        """
+        return ("%s(%s, %s, attributes=%s, aggregate=%s, order=%s, "
+                "conditions=%s, includes=%s, limit=%s, join_specs=%s)"
+                % (self.__class__.__name__,
+                   repr(self.client), repr(self.entity.BeanName),
+                   repr(self.attributes), repr(self.aggregate),
+                   repr(self.order), repr(self.conditions),
+                   repr(self.includes), repr(self.limit),
+                   repr(self.join_specs)))
+
+    def __str__(self):
+        """Return a string representation of the query.
+        """
+        clauses = filter(None, (
+            self.select_clause,
+            self.join_clause,
+            self.where_clause,
+            self.order_clause,
+            self.include_clause,
+            self.limit_clause,
+        ))
+        return " ".join(clauses)
 
     def copy(self):
         """Return an independent clone of this query.
