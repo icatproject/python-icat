@@ -11,7 +11,7 @@ import icat
 # -- Project information -----------------------------------------------------
 
 project = 'python-icat'
-copyright = ('2013–2021, '
+copyright = ('2013–2022, '
              'Helmholtz-Zentrum Berlin für Materialien und Energie GmbH')
 author = 'Rolf Krahl'
 
