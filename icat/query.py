@@ -495,7 +495,9 @@ class Query(object):
 
     @property
     def select_clause(self):
-        """The SELECT clause of the query
+        """The SELECT clause of the query.
+
+        .. versionadded:: 0.21.0
         """
         subst = self._get_subst()
         if self.attributes:
@@ -521,7 +523,9 @@ class Query(object):
 
     @property
     def join_clause(self):
-        """The JOIN clause of the query
+        """The JOIN clause of the query.
+
+        .. versionadded:: 0.21.0
         """
         subst = self._get_subst()
         joins = []
@@ -535,7 +539,9 @@ class Query(object):
 
     @property
     def where_clause(self):
-        """The WHERE clause of the query
+        """The WHERE clause of the query.
+
+        .. versionadded:: 0.21.0
         """
         subst = self._get_subst()
         if self.conditions:
@@ -550,7 +556,9 @@ class Query(object):
 
     @property
     def order_clause(self):
-        """The ORDER BY clause of the query
+        """The ORDER BY clause of the query.
+
+        .. versionadded:: 0.21.0
         """
         subst = self._get_subst()
         if self.order:
@@ -563,7 +571,9 @@ class Query(object):
 
     @property
     def include_clause(self):
-        """The INCLUDE clause of the query
+        """The INCLUDE clause of the query.
+
+        .. versionadded:: 0.21.0
         """
         if self.includes:
             subst = self._makesubst(self.includes)
@@ -576,7 +586,9 @@ class Query(object):
 
     @property
     def limit_clause(self):
-        """The LIMIT clause of the query
+        """The LIMIT clause of the query.
+
+        .. versionadded:: 0.21.0
         """
         if self.limit:
             return "LIMIT %s, %s" % self.limit
