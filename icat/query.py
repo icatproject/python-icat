@@ -129,11 +129,11 @@ class Query(object):
         if isinstance(entity, basestring):
             self.entity = self.client.getEntityClass(entity)
         elif issubclass(entity, icat.entity.Entity):
-            if (entity in self.client.typemap.values() and 
+            if (entity in self.client.typemap.values() and
                 entity.BeanName is not None):
                 self.entity = entity
             else:
-                raise EntityTypeError("Invalid entity type '%s'." 
+                raise EntityTypeError("Invalid entity type '%s'."
                                       % entity.__name__)
         else:
             raise EntityTypeError("Invalid entity type '%s'." % type(entity))
@@ -155,6 +155,7 @@ class Query(object):
         self.setOrder(order)
         self.setLimit(limit)
         self._init = None
+        self._subst = None
 
     def _attrpath(self, attrname):
         """Follow the attribute path along related objects and iterate over
@@ -170,12 +171,12 @@ class Query(object):
             if rclass is None:
                 # Last component was not a relation, no further components
                 # in the name allowed.
-                raise ValueError("Invalid attrname '%s' for %s." 
+                raise ValueError("Invalid attrname '%s' for %s."
                                  % (attrname, self.entity.BeanName))
             attrInfo = rclass.getAttrInfo(self.client, attr)
             if attrInfo.relType == "ATTRIBUTE":
                 rclass = None
-            elif (attrInfo.relType == "ONE" or 
+            elif (attrInfo.relType == "ONE" or
                   attrInfo.relType == "MANY"):
                 rclass = self.client.getEntityClass(attrInfo.type)
             else:
@@ -225,6 +226,14 @@ class Query(object):
             raise ValueError("Invalid attribute '%s'" % attr)
         return m.group(2,1)
 
+    def _get_subst(self):
+        if self._subst is None:
+            joinattrs = ( set(self.order.keys()) |
+                          set(self.conditions.keys()) |
+                          set(self.attributes) )
+            self._subst = self._makesubst(joinattrs)
+        return self._subst
+
     def setAttributes(self, attributes):
         """Set the attributes that the query shall return.
 
@@ -244,6 +253,7 @@ class Query(object):
             :meth:`setAttribute` to :meth:`setAttributes` (in the
             plural).
         """
+        self._subst = None
         self.attributes = []
         if attributes:
             if isinstance(attributes, str):
@@ -343,6 +353,7 @@ class Query(object):
         .. versionchanged:: 0.20.0
             allow a JPQL function in the attribute.
         """
+        self._subst = None
         # Note: with Python 3.7 and newer we could simplify this using
         # a standard dict() rather then an OrderedDict().
         self.order = OrderedDict()
@@ -359,7 +370,7 @@ class Query(object):
                 if isinstance(obj, tuple):
                     obj, direction = obj
                     if direction not in ("ASC", "DESC"):
-                        raise ValueError("Invalid ordering direction '%s'" 
+                        raise ValueError("Invalid ordering direction '%s'"
                                          % direction)
                 else:
                     direction = None
@@ -433,6 +444,7 @@ class Query(object):
             else:
                 return "%%s %s" % (rhs)
         if conditions:
+            self._subst = None
             for k in conditions.keys():
                 if isinstance(conditions[k], basestring):
                     conds = [conditions[k]]
@@ -463,7 +475,7 @@ class Query(object):
                 for (pattr, attrInfo, rclass) in self._attrpath(iobj):
                     pass
                 if rclass is None:
-                    raise ValueError("%s.%s is not a related object." 
+                    raise ValueError("%s.%s is not a related object."
                                      % (self.entity.BeanName, iobj))
             self.includes.update(includes)
 
@@ -479,7 +491,109 @@ class Query(object):
                 raise TypeError("limit must be a tuple of two elements.")
             self.limit = limit
         else:
-            self.limit = None            
+            self.limit = None
+
+    @property
+    def select_clause(self):
+        """The SELECT clause of the query.
+
+        .. versionadded:: 0.21.0
+        """
+        subst = self._get_subst()
+        if self.attributes:
+            attrs = []
+            for a in self.attributes:
+                if self.client.apiversion >= "4.7.0":
+                    attrs.append(self._dosubst(a, subst, False))
+                else:
+                    # Old versions of icat.server do not accept
+                    # substitution in the SELECT clause.
+                    attrs.append("o.%s" % a)
+            res = ", ".join(attrs)
+        else:
+            res = "o"
+        if self.aggregate:
+            if len(self.attributes) > 1 and self.aggregate == "DISTINCT":
+                # See discussion in #76
+                res = "%s %s" % (self.aggregate, res)
+            else:
+                for fct in reversed(self.aggregate.split(':')):
+                    res = "%s(%s)" % (fct, res)
+        return "SELECT %s FROM %s o" % (res, self.entity.BeanName)
+
+    @property
+    def join_clause(self):
+        """The JOIN clause of the query.
+
+        .. versionadded:: 0.21.0
+        """
+        subst = self._get_subst()
+        joins = []
+        for obj in sorted(subst.keys()):
+            js = self.join_specs.get(obj, "JOIN")
+            joins.append("%s %s" % (js, self._dosubst(obj, subst)))
+        if joins:
+            return " ".join(joins)
+        else:
+            return None
+
+    @property
+    def where_clause(self):
+        """The WHERE clause of the query.
+
+        .. versionadded:: 0.21.0
+        """
+        subst = self._get_subst()
+        if self.conditions:
+            conds = []
+            for a in sorted(self.conditions.keys()):
+                attr = self._dosubst(a, subst, False)
+                for c in self.conditions[a]:
+                    conds.append(c % attr)
+            return "WHERE " + " AND ".join(conds)
+        else:
+            return None
+
+    @property
+    def order_clause(self):
+        """The ORDER BY clause of the query.
+
+        .. versionadded:: 0.21.0
+        """
+        subst = self._get_subst()
+        if self.order:
+            orders = []
+            for a in self.order.keys():
+                orders.append(self.order[a] % self._dosubst(a, subst, False))
+            return "ORDER BY " + ", ".join(orders)
+        else:
+            return None
+
+    @property
+    def include_clause(self):
+        """The INCLUDE clause of the query.
+
+        .. versionadded:: 0.21.0
+        """
+        if self.includes:
+            subst = self._makesubst(self.includes)
+            includes = set(self.includes)
+            includes.update(subst.keys())
+            incl = [ self._dosubst(obj, subst) for obj in sorted(includes) ]
+            return "INCLUDE " + ", ".join(incl)
+        else:
+            return None
+
+    @property
+    def limit_clause(self):
+        """The LIMIT clause of the query.
+
+        .. versionadded:: 0.21.0
+        """
+        if self.limit:
+            return "LIMIT %s, %s" % self.limit
+        else:
+            return None
 
     def __repr__(self):
         """Return a formal representation of the query.
@@ -505,63 +619,15 @@ class Query(object):
         usefulness over formal correctness.  For Python 3, there is no
         distinction between Unicode and string objects anyway.
         """
-        joinattrs = ( set(self.order.keys()) |
-                      set(self.conditions.keys()) |
-                      set(self.attributes) )
-        subst = self._makesubst(joinattrs)
-        if self.attributes:
-            attrs = []
-            for a in self.attributes:
-                if self.client.apiversion >= "4.7.0":
-                    attrs.append(self._dosubst(a, subst, False))
-                else:
-                    # Old versions of icat.server do not accept
-                    # substitution in the SELECT clause.
-                    attrs.append("o.%s" % a)
-            res = ", ".join(attrs)
-        else:
-            res = "o"
-        if self.aggregate:
-            if len(self.attributes) > 1 and self.aggregate == "DISTINCT":
-                # See discussion in #76
-                res = "%s %s" % (self.aggregate, res)
-            else:
-                for fct in reversed(self.aggregate.split(':')):
-                    res = "%s(%s)" % (fct, res)
-        base = "SELECT %s FROM %s o" % (res, self.entity.BeanName)
-        joins = ""
-        for obj in sorted(subst.keys()):
-            js = self.join_specs.get(obj, "JOIN")
-            joins += " %s %s" % (js, self._dosubst(obj, subst))
-        if self.conditions:
-            conds = []
-            for a in sorted(self.conditions.keys()):
-                attr = self._dosubst(a, subst, False)
-                for c in self.conditions[a]:
-                    conds.append(c % attr)
-            where = " WHERE " + " AND ".join(conds)
-        else:
-            where = ""
-        if self.order:
-            orders = []
-            for a in self.order.keys():
-                orders.append(self.order[a] % self._dosubst(a, subst, False))
-            order = " ORDER BY " + ", ".join(orders)
-        else:
-            order = ""
-        if self.includes:
-            subst = self._makesubst(self.includes)
-            includes = set(self.includes)
-            includes.update(subst.keys())
-            incl = [ self._dosubst(obj, subst) for obj in sorted(includes) ]
-            include = " INCLUDE " + ", ".join(incl)
-        else:
-            include = ""
-        if self.limit:
-            limit = " LIMIT %s, %s" % self.limit
-        else:
-            limit = ""
-        return base + joins + where + order + include + limit
+        clauses = filter(None, (
+            self.select_clause,
+            self.join_clause,
+            self.where_clause,
+            self.order_clause,
+            self.include_clause,
+            self.limit_clause,
+        ))
+        return " ".join(clauses)
 
     def copy(self):
         """Return an independent clone of this query.

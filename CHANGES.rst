@@ -2,6 +2,23 @@ Changelog
 =========
 
 
+0.21.0 (2022-01-28)
+~~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#100`_: Add read only attributes
+  :attr:`icat.query.Query.select_clause`,
+  :attr:`icat.query.Query.join_clause`,
+  :attr:`icat.query.Query.where_clause`,
+  :attr:`icat.query.Query.order_clause`,
+  :attr:`icat.query.Query.include_clause`, and
+  :attr:`icat.query.Query.limit_clause` to access the respective
+  clauses of the query string.
+
+.. _#100: https://github.com/icatproject/python-icat/pull/100
+
 0.20.1 (2021-11-04)
 ~~~~~~~~~~~~~~~~~~~
 
