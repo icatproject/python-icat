@@ -63,6 +63,7 @@ Bug fixes and minor changes
 .. _#66: https://github.com/icatproject/python-icat/issues/66
 .. _#74: https://github.com/icatproject/python-icat/issues/74
 .. _#75: https://github.com/icatproject/python-icat/pull/75
+.. _#101: https://github.com/icatproject/python-icat/pull/101
 
 
 0.21.0 (2022-01-28)
