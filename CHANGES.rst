@@ -56,6 +56,8 @@ Incompatible changes and deprecations
 Bug fixes and minor changes
 ---------------------------
 
++ `#101`_: Fix tests failing with PyYAML 6.0.
+
 + Some (more) example scripts now require ICAT 4.4.0 or newer.
 
 .. _#66: https://github.com/icatproject/python-icat/issues/66
