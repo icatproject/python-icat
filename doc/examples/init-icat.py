@@ -62,7 +62,7 @@ if conf.datafile == "-":
     f = sys.stdin
 else:
     f = open(conf.datafile, 'r')
-data = yaml.load(f)
+data = yaml.safe_load(f)
 f.close()
 
 
