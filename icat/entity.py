@@ -55,6 +55,14 @@ class Entity():
     """
 
     @classmethod
+    def getInstanceName(cls):
+        """Get the name of this class in the ICAT WSDL"""
+        if cls is Entity:
+            return 'entityBaseBean'
+        else:
+            return cls.__name__[0].lower() + cls.__name__[1:]
+
+    @classmethod
     def getInstance(cls, obj):
         """Get the corresponding instance from an object."""
         if obj is None:
