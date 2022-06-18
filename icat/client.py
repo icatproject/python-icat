@@ -249,12 +249,12 @@ class Client(suds.client.Client):
                                       % instancetype)
         elif isinstance(obj, str):
             # obj is the name of an instance type, create the instance
-            instancetype = obj
             try:
-                Class = self.typemap[instancetype]
+                Class = self.typemap[obj.lower()]
             except KeyError:
                 raise EntityTypeError("Invalid instance type '%s'." 
-                                      % instancetype)
+                                      % obj)
+            instancetype = Class.getInstanceName()
             instance = self.factory.create(instancetype)
             # The factory creates a whole tree of dummy objects for
             # all relationships of the instance object and the

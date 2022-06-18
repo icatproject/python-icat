@@ -231,6 +231,7 @@ def getTypeMap(client):
     def addType(typemap, cls):
         instanceName = cls.getInstanceName()
         typemap[instanceName] = cls
+        typemap[instanceName.lower()] = cls
 
     typemap = dict()
     addType(typemap, Entity)
