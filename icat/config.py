@@ -342,6 +342,18 @@ class ConfigSourceInteractive(ConfigSource):
             return variable.get(getpass.getpass(prompt))
 
 
+class ConfigSourcePreset(ConfigSource):
+    """Apply presets of configuration values from the calling script.
+    """
+
+    def __init__(self, values):
+        super().__init__()
+        self.preset_values = values
+
+    def get(self, variable):
+        return variable.get(self.preset_values.get(variable.name))
+
+
 class ConfigSourceDefault(ConfigSource):
     """Handle the case that some variable is not set from any other source.
     """
@@ -628,6 +640,8 @@ class Config(BaseConfig):
         variable, if this is set to :const:`False`, to 'mandatory', or
         to 'optional' respectively.
     :type ids: :class:`bool` or :class:`str`
+    :param preset: mapping of configuration variable names to preset values.
+    :type preset: :class:`dict`
     :param args: list of command line arguments or :const:`None`.  If
         not set, the command line arguments will be taken from
         :data:`sys.argv`.
@@ -635,7 +649,7 @@ class Config(BaseConfig):
     """
 
     def __init__(self, defaultvars=True, needlogin=True, ids="optional", 
-                 args=None):
+                 preset=None, args=None):
         """Initialize the object.
         """
         super().__init__(argparse.ArgumentParser())
@@ -645,8 +659,13 @@ class Config(BaseConfig):
         self.conffile = ConfigSourceFile(defaultFiles)
         self.interactive = ConfigSourceInteractive()
         self.defaults = ConfigSourceDefault()
-        self.sources = [ self.cmdargs, self.environ, self.conffile, 
-                         self.interactive, self.defaults ]
+        if preset:
+            self.preset = ConfigSourcePreset(preset)
+            self.sources = [ self.cmdargs, self.environ, self.conffile,
+                             self.interactive, self.preset, self.defaults ]
+        else:
+            self.sources = [ self.cmdargs, self.environ, self.conffile,
+                             self.interactive, self.defaults ]
         self.args = args
         self._add_fundamental_variables()
         if defaultvars:
