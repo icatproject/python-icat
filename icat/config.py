@@ -662,7 +662,7 @@ class Config(BaseConfig):
         if preset:
             self.preset = ConfigSourcePreset(preset)
             self.sources = [ self.cmdargs, self.environ, self.conffile,
-                             self.interactive, self.preset, self.defaults ]
+                             self.preset, self.interactive, self.defaults ]
         else:
             self.sources = [ self.cmdargs, self.environ, self.conffile,
                              self.interactive, self.defaults ]
