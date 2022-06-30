@@ -37,7 +37,11 @@ else:
 cfgfile = "icat.cfg"
 """Configuration file name"""
 defaultsection = None
-"""Default value for `configSection`"""
+"""Default value for `configSection`
+
+.. deprecated:: 1.0.0
+   Use the `preset` keyword argument to :class:`icat.config.Config` instead.
+"""
 
 # Internal hack, intentionally not documented.
 _argparse_divert_syserr = True
