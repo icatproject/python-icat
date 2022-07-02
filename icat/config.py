@@ -671,6 +671,11 @@ class Config(BaseConfig):
             self.sources = [ self.cmdargs, self.environ, self.conffile,
                              self.interactive, self.defaults ]
         self.args = args
+        if defaultsection is not None:
+            warnings.warn("Deprecated setting of 'defaultsection' detected. "
+                          "Use the 'preset' keyword argument "
+                          "to class 'Config' instead.",
+                          DeprecationWarning, stacklevel=2)
         self._add_fundamental_variables()
         if defaultvars:
             self.needlogin = needlogin

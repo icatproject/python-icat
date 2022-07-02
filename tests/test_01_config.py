@@ -1234,3 +1234,31 @@ def test_config_subcmd_err_add_more_vars(fakeClient, tmpconfigfile):
     with pytest.raises(RuntimeError) as err:
         config.add_variable('name', ("--name",), dict(help="name"))
     assert "config already has subcommands" in str(err.value)
+
+
+def test_deprecated_config_defaultsection(fakeClient, tmpconfigfile,
+                                          monkeypatch):
+    """The module variable icat.config.defaultsection is deprecated since
+    1.0.0.
+
+    Setting it should raise a DeprecationWarning.
+    """
+
+    # Use the same setting as test_config_minimal_file(), but don't
+    # set the configSection via a command line argument, but by
+    # setting defaultsection.  Note that setting the variable cannot
+    # easily be detected, the DeprecationWarning is raised during
+    # icat.config.Config() later on.
+    cfgdirs = [ tmpconfigfile.dir / "wobble", Path(".") ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(str(tmpconfigfile.dir))
+
+    monkeypatch.setattr(icat.config, "defaultsection", "example_root")
+    with pytest.deprecated_call():
+        config = icat.config.Config(needlogin=False, ids=False)
+    _, conf = config.getconfig()
+
+    ex = ExpectedConf(configFile=[Path("icat.cfg")],
+                      configSection="example_root",
+                      url=ex_icat)
+    assert ex <= conf
