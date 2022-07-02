@@ -287,7 +287,6 @@ def getTypeMap(client):
             bases = (parent, mixin)
         else:
             bases = (parent,)
-        instanceName = beanName[0].lower() + beanName[1:]
         cls = type(str(beanName), bases, attrs)
         addType(typemap, cls)
     return typemap
