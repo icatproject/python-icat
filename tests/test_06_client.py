@@ -36,6 +36,40 @@ def test_logout_no_session_error(client):
     with tmpSessionId(client, "-=- Invalid -=-"):
         client.logout()
 
+# ========================== test new() ============================
+
+def test_new_obj_instance(client):
+    """Pass an instance object to new.
+    """
+    entity = client.assertedSearch("Facility")[0]
+    obj = client.new(entity.instance)
+    assert obj == entity
+
+@pytest.mark.parametrize(("typename", "beanname"), [
+    ("investigation", "Investigation"),
+    ("Investigation", "Investigation"),
+    ("INVESTIGATION", "Investigation"),
+    ("investigationUser", "InvestigationUser"),
+    ("InvestigationUser", "InvestigationUser"),
+    ("INVESTIGATIONUSER", "InvestigationUser"),
+])
+def test_new_obj_name(client, typename, beanname):
+    """Pass the name of the object type to new.
+
+    In earlier versions, this name was case sensitive and needed to be
+    spelled as indicated in the WSDL downloaded from icat.server.  In
+    #104, this has been changed, so that the type name is case
+    insensitive now.  As result, the type can now be spelled as in the
+    ICAT schema.
+    """
+    obj = client.new(typename)
+    assert obj.BeanName == beanname
+
+def test_new_obj_none(client):
+    """Pass None to new.
+    """
+    assert client.new(None) is None
+
 # ======================== test search() ===========================
 
 cet = datetime.timezone(datetime.timedelta(hours=1))
