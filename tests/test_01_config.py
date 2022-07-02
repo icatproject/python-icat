@@ -14,7 +14,7 @@ import icat.exception
 # an ICAT client.  Prevent this, as we don't want to connect to a real
 # server in this test module.  Foist a fake client class on the
 # icat.config module.  Note that we must monkeypatch icat.config
-# rather then icat.client, as the former already imported the Client
+# rather than icat.client, as the former already imported the Client
 # class at this point.
 
 class Namespace():
@@ -212,7 +212,7 @@ def test_config_minimal_defaultfile(fakeClient, tmpconfigfile, monkeypatch):
     """Minimal example.
 
     Almost the same as test_config_minimal_file(), but let the
-    configuration file be found in the default search path rather then
+    configuration file be found in the default search path rather than
     pointing to the full path.
     """
 

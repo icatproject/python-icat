@@ -1,7 +1,7 @@
 """Test module icat.dumpfile.
 
 This test module has a similar structure as test_05_dump.py, but
-rather then calling icatdump and icatingest as external scripts, it
+rather than calling icatdump and icatingest as external scripts, it
 uses the internal API icat.dumpfile.
 """
 

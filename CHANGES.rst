@@ -56,11 +56,32 @@ Incompatible changes and deprecations
 Bug fixes and minor changes
 ---------------------------
 
++ `#101`_: Fix tests failing with PyYAML 6.0.
+
 + Some (more) example scripts now require ICAT 4.4.0 or newer.
 
 .. _#66: https://github.com/icatproject/python-icat/issues/66
 .. _#74: https://github.com/icatproject/python-icat/issues/74
 .. _#75: https://github.com/icatproject/python-icat/pull/75
+.. _#101: https://github.com/icatproject/python-icat/pull/101
+
+
+0.21.0 (2022-01-28)
+~~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#100`_: Add read only attributes
+  :attr:`icat.query.Query.select_clause`,
+  :attr:`icat.query.Query.join_clause`,
+  :attr:`icat.query.Query.where_clause`,
+  :attr:`icat.query.Query.order_clause`,
+  :attr:`icat.query.Query.include_clause`, and
+  :attr:`icat.query.Query.limit_clause` to access the respective
+  clauses of the query string.
+
+.. _#100: https://github.com/icatproject/python-icat/pull/100
 
 
 0.20.1 (2021-11-04)

@@ -27,7 +27,7 @@ if conf.datafile == "-":
     f = sys.stdin
 else:
     f = open(conf.datafile, 'r')
-data = yaml.load(f)
+data = yaml.safe_load(f)
 f.close()
 
 
@@ -149,7 +149,7 @@ q.addConditions({"datafileCreateTime":"< '2013-01-01'"})
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
-print("\nUsing \"id in (i)\" rather then \"id = i\" also works.")
+print("\nUsing \"id in (i)\" rather than \"id = i\" also works.")
 print("(This may be needed to work around ICAT Issue 149.)")
 q = Query(client, "Investigation", conditions={"id":"in (%d)" % invid})
 print(str(q))

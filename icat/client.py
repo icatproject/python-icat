@@ -525,7 +525,7 @@ class Client(suds.client.Client):
         must not contain a LIMIT clause (use the skip and count
         arguments instead) and should contain an ORDER BY clause.  The
         return value is a generator yielding successively the items in
-        the search result rather then a list.  The individual search
+        the search result rather than a list.  The individual search
         calls are done lazily, e.g. they are not done until needed to
         yield the next item from the generator.
 

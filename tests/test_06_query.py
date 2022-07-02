@@ -22,7 +22,11 @@ def client(setupicat):
 # attributes obviously depend on the content of the ICAT and need to
 # be kept in sync with the reference input used in the setupicat
 # fixture.
-
+#
+# Note: the exact query string is considered an implementation detail
+# that is deliberately not tested here.  We limit the tests to check
+# the presence of some key fragments in the various clauses of the
+# queries.
 
 investigation = None
 tzinfo = UtcTimezone() if UtcTimezone else None
@@ -36,6 +40,12 @@ def test_query_simple(client):
     name = "10100601-ST"
     query = Query(client, "Investigation", conditions={"name":"= '%s'" % name})
     print(str(query))
+    assert "Investigation" in query.select_clause
+    assert query.join_clause is None
+    assert "name" in query.where_clause
+    assert query.order_clause is None
+    assert query.include_clause is None
+    assert query.limit_clause is None
     res = client.search(query)
     assert len(res) == 1
     investigation = res[0]
@@ -57,6 +67,12 @@ def test_query_datafile(client):
     }
     query = Query(client, "Datafile", conditions=conditions)
     print(str(query))
+    assert "Datafile" in query.select_clause
+    assert "investigation" in query.join_clause
+    assert dfdata['investigation'] in query.where_clause
+    assert query.order_clause is None
+    assert query.include_clause is None
+    assert query.limit_clause is None
     qstr = str(query)
     res = client.search(query)
     assert len(res) == 1
@@ -92,6 +108,10 @@ def test_query_investigation_includes(client):
                   conditions={"id": "= %d" % investigation.id},
                   includes=includes)
     print(str(query))
+    assert "Investigation" in query.select_clause
+    assert query.join_clause is None
+    assert "id" in query.where_clause
+    assert "investigationInstruments" in query.include_clause
     res = client.search(query)
     assert len(res) == 1
     inv = res[0]
@@ -114,6 +134,11 @@ def test_query_instruments(client):
                                "= %d" % investigation.id },
                   includes={"facility", "instrumentScientists.user"})
     print(str(query))
+    assert "Instrument" in query.select_clause
+    assert "investigation" in query.join_clause
+    assert "id" in query.where_clause
+    assert "name" in query.order_clause
+    assert "instrumentScientists" in query.include_clause
     res = client.search(query)
     assert len(res) == 1
     instr = res[0]
@@ -130,6 +155,10 @@ def test_query_datafile_by_investigation(client):
                   includes={"dataset", "datafileFormat.facility",
                             "parameters.type.facility"})
     print(str(query))
+    assert "Datafile" in query.select_clause
+    assert "investigation" in query.join_clause
+    assert "id" in query.where_clause
+    assert "datafileFormat" in query.include_clause
     res = client.search(query)
     assert len(res) == 4
 
@@ -139,6 +168,11 @@ def test_query_relateddatafile(client):
     """
     query = Query(client, "RelatedDatafile", order=True)
     print(str(query))
+    assert "RelatedDatafile" in query.select_clause
+    assert query.where_clause is None
+    assert query.order_clause is not None
+    assert query.include_clause is None
+    assert query.limit_clause is None
     res = client.search(query)
     assert len(res) == 1
 
@@ -147,7 +181,12 @@ def test_query_datacollection(client):
     """
     query = Query(client, "DataCollection", order=True)
     print(str(query))
-    assert "id" in query.order
+    assert "DataCollection" in query.select_clause
+    assert query.join_clause is None
+    assert query.where_clause is None
+    assert "id" in query.order_clause
+    assert query.include_clause is None
+    assert query.limit_clause is None
     res = client.search(query)
     assert len(res) == 2
 
@@ -162,6 +201,12 @@ def test_query_datafiles_datafileformat(client, recwarn):
     assert issubclass(w.category, icat.QueryNullableOrderWarning)
     assert "datafileFormat" in str(w.message)
     print(str(query))
+    assert "Datafile" in query.select_clause
+    assert "datafileFormat" in query.join_clause
+    assert query.where_clause is None
+    assert query.order_clause is not None
+    assert query.include_clause is None
+    assert query.limit_clause is None
     res = client.search(query)
     assert len(res) == 10
 
@@ -177,6 +222,10 @@ def test_query_order_direction(client):
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
+    assert "Datafile" in query.select_clause
+    assert "investigation" in query.join_clause
+    assert "id" in query.where_clause
+    assert "name" in query.order_clause
     res = client.search(query)
     assert len(res) == 4
     # Ascending order is the default, so we should get the same result:
@@ -215,6 +264,10 @@ def test_query_order_direction_relation(client):
     # in ascending order:
     query = Query(client, "Datafile", order=[("dataset", "DESC"), "name"])
     print(str(query))
+    assert "Datafile" in query.select_clause
+    assert "dataset" in query.join_clause
+    assert query.where_clause is None
+    assert "name" in query.order_clause
     dff = client.search(query)
     # verify:
     offs = 0
@@ -231,6 +284,9 @@ def test_query_condition_greaterthen(client):
     condition = {"datafileCreateTime": ">= '2012-01-01'"}
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
+    assert "Datafile" in query.select_clause
+    assert query.join_clause is None
+    assert "datafileCreateTime" in query.where_clause
     res = client.search(query)
     assert len(res) == 4
     condition = {"datafileCreateTime": "< '2012-01-01'"}
@@ -245,6 +301,9 @@ def test_query_condition_list(client):
     condition = {"datafileCreateTime": [">= '2012-01-01'", "< '2013-01-01'"]}
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
+    assert "Datafile" in query.select_clause
+    assert query.join_clause is None
+    assert "datafileCreateTime" in query.where_clause
     qstr = str(query)
     res = client.search(query)
     assert len(res) == 3
@@ -260,12 +319,15 @@ def test_query_condition_list(client):
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_in_operator(client):
-    """Using "id in (i)" rather then "id = i" also works.
+    """Using "id in (i)" rather than "id = i" also works.
     (This may be needed to work around ICAT Issue 128.)
     """
     query = Query(client, "Investigation",
                   conditions={"id": "in (%d)" % investigation.id})
     print(str(query))
+    assert "Investigation" in query.select_clause
+    assert query.join_clause is None
+    assert "in" in query.where_clause
     res = client.search(query)
     assert len(res) == 1
     inv = res[0]
@@ -279,6 +341,7 @@ def test_query_condition_obj(client):
     """
     query = Query(client, "Rule", conditions={"grouping": "IS NULL"})
     print(str(query))
+    assert "Rule" in query.select_clause
     res = client.search(query)
     assert len(res) == 60
 
@@ -293,6 +356,9 @@ def test_query_condition_jpql_function(client):
     }
     query = Query(client, "Investigation", conditions=conditions)
     print(str(query))
+    assert "Investigation" in query.select_clause
+    assert "datasets" in query.join_clause
+    assert "UPPER" in query.where_clause
     res = client.search(query)
     assert len(res) == 1
 
@@ -305,6 +371,9 @@ def test_query_condition_jpql_function_namelen(client):
     conditions = { "LENGTH(fullName)": "> 11" }
     query = Query(client, "User", conditions=conditions)
     print(str(query))
+    assert "User" in query.select_clause
+    assert query.join_clause is None
+    assert "LENGTH" in query.where_clause
     res = client.search(query)
     assert len(res) == 4
 
@@ -316,6 +385,9 @@ def test_query_condition_jpql_function_mixed(client):
     conditions = { "LENGTH(fullName)": "> 11", "fullName": "> 'C'" }
     query = Query(client, "User", conditions=conditions)
     print(str(query))
+    assert "User" in query.select_clause
+    assert query.join_clause is None
+    assert "LENGTH" in query.where_clause
     res = client.search(query)
     assert len(res) == 3
 
@@ -329,6 +401,11 @@ def test_query_order_jpql_function(client):
     query = Query(client, "User",
                   order=[("LENGTH(fullName)", "DESC")], limit=(2,1))
     print(str(query))
+    assert "User" in query.select_clause
+    assert query.join_clause is None
+    assert query.where_clause is None
+    assert "LENGTH" in query.order_clause
+    assert query.limit_clause is not None
     res = client.search(query)
     assert len(res) == 1
     assert res[0].fullName == "Nicolas Bourbaki"
@@ -338,7 +415,10 @@ def test_query_rule_order(client):
     """
     query = Query(client, "Rule", order=True)
     print(str(query))
-    assert "id" in query.order
+    assert "Rule" in query.select_clause
+    assert query.join_clause is None
+    assert query.where_clause is None
+    assert "id" in query.order_clause
     res = client.search(query)
     assert len(res) == 104
 
@@ -354,6 +434,10 @@ def test_query_rule_order_group(client, recwarn):
     assert issubclass(w.category, icat.QueryNullableOrderWarning)
     assert "grouping" in str(w.message)
     print(str(query))
+    assert "Rule" in query.select_clause
+    assert "grouping" in query.join_clause
+    assert query.where_clause is None
+    assert "what" in query.order_clause
     res = client.search(query)
     assert len(res) == 44
 
@@ -365,6 +449,10 @@ def test_query_rule_order_group_suppress_warn_cond(client, recwarn):
                   conditions={"grouping": "IS NOT NULL"})
     assert len(recwarn.list) == 0
     print(str(query))
+    assert "Rule" in query.select_clause
+    assert "grouping" in query.join_clause
+    assert "grouping" in query.where_clause
+    assert "what" in query.order_clause
     res = client.search(query)
     assert len(res) == 44
 
@@ -378,6 +466,10 @@ def test_query_rule_order_group_suppress_warn_join(client, recwarn):
                   join_specs={"grouping": "INNER JOIN"})
     assert len(recwarn.list) == 0
     print(str(query))
+    assert "Rule" in query.select_clause
+    assert "INNER JOIN" in query.join_clause
+    assert query.where_clause is None
+    assert "what" in query.order_clause
     res = client.search(query)
     assert len(res) == 44
 
@@ -390,11 +482,15 @@ def test_query_rule_order_group_left_join(client, recwarn):
                   join_specs={"grouping": "LEFT OUTER JOIN"})
     assert len(recwarn.list) == 0
     print(str(query))
+    assert "Rule" in query.select_clause
+    assert "LEFT OUTER JOIN" in query.join_clause
+    assert query.where_clause is None
+    assert "what" in query.order_clause
     res = client.search(query)
     assert len(res) == 104
 
 def test_query_order_one_to_many(client, recwarn):
-    """Sort on a related object in a one yo many relation.
+    """Sort on a related object in a one to many relation.
     This has been enabled in #84, but a warning is still emitted.
     """
     recwarn.clear()
@@ -404,6 +500,10 @@ def test_query_order_one_to_many(client, recwarn):
     assert issubclass(w.category, icat.QueryOneToManyOrderWarning)
     assert "investigationInstruments" in str(w.message)
     print(str(query))
+    assert "Investigation" in query.select_clause
+    assert "instrument" in query.join_clause
+    assert query.where_clause is None
+    assert "fullName" in query.order_clause
     res = client.search(query)
     assert len(res) == 3
 
@@ -416,11 +516,16 @@ def test_query_order_one_to_many_warning_suppressed(client, recwarn):
                   join_specs={"investigationInstruments": "INNER JOIN"})
     assert len(recwarn.list) == 0
     print(str(query))
+    assert "Investigation" in query.select_clause
+    assert "INNER JOIN" in query.join_clause
+    assert "instrument" in query.join_clause
+    assert query.where_clause is None
+    assert "fullName" in query.order_clause
     res = client.search(query)
     assert len(res) == 3
 
 def test_query_order_one_to_many_duplicate(client, recwarn):
-    """Note that sorting on a one yo many relation may have surprising
+    """Note that sorting on a one to many relation may have surprising
     effects on the result list.  That is why class Query emits a
     warning.
     You may get duplicates in the result.
@@ -446,7 +551,7 @@ def test_query_order_one_to_many_duplicate(client, recwarn):
     assert set(res) == set(reference)
 
 def test_query_order_one_to_many_missing(client, recwarn):
-    """Note that sorting on a one yo many relation may have surprising
+    """Note that sorting on a one to many relation may have surprising
     effects on the result list.  That is why class Query emits a
     warning.
     You may get misses in the result.
@@ -494,12 +599,17 @@ def test_query_order_suppress_warnings(client, recwarn):
     assert len(res) == 3
 
 def test_query_limit(client):
-    """Add a LIMIT clause to the last example.
+    """Add a LIMIT clause to an earlier example.
     """
     query = Query(client, "Rule", order=['grouping', 'what', 'id'],
                   conditions={"grouping":"IS NOT NULL"})
     query.setLimit( (0,10) )
     print(str(query))
+    assert "Rule" in query.select_clause
+    assert "grouping" in query.join_clause
+    assert "grouping" in query.where_clause
+    assert "what" in query.order_clause
+    assert query.limit_clause is not None
     res = client.search(query)
     assert len(res) == 10
 
@@ -511,6 +621,11 @@ def test_query_limit_placeholder(client):
     query.setLimit( ("%d","%d") )
     print(str(query))
     print(str(query) % (0,30))
+    assert "Rule" in query.select_clause
+    assert "grouping" in query.join_clause
+    assert "grouping" in query.where_clause
+    assert "what" in query.order_clause
+    assert query.limit_clause is not None
     res = client.search(str(query) % (0,30))
     assert len(res) == 30
     print(str(query) % (30,30))
@@ -529,6 +644,9 @@ def test_query_non_ascii(client):
     query = Query(client, "User",
                   conditions={ "fullName": "= '%s'" % fullName })
     print(str(query))
+    assert "User" in query.select_clause
+    assert query.join_clause is None
+    assert fullName in query.where_clause
     res = client.search(query)
     assert len(res) == 1
 
@@ -550,6 +668,10 @@ def test_query_str(client):
                             "parameters.type.facility"})
     r = repr(query)
     print(str(query))
+    assert "Datafile" in query.select_clause
+    assert "investigation" in query.join_clause
+    assert "id" in query.where_clause
+    assert "datafileFormat" in query.include_clause
     assert repr(query) == r
 
 def test_query_metaattr(client):
@@ -557,6 +679,9 @@ def test_query_metaattr(client):
     """
     query = Query(client, "Datafile", conditions={ "modId": "= 'jdoe'" })
     print(str(query))
+    assert "Datafile" in query.select_clause
+    assert query.join_clause is None
+    assert "modId" in query.where_clause
     res = client.search(query)
     assert len(res) == 0
 
@@ -565,6 +690,11 @@ def test_query_include_1(client):
     """
     query = Query(client, "Investigation", includes="1")
     print(str(query))
+    assert "Investigation" in query.select_clause
+    assert query.join_clause is None
+    assert query.where_clause is None
+    assert "facility" in query.include_clause
+    assert "type" in query.include_clause
     res = client.search(query)
     assert len(res) > 0
     inv = res[0]
@@ -576,13 +706,17 @@ def test_query_include_1(client):
 def test_query_attribute_datafile_name(client):
     """The datafiles names related to a given investigation in natural order.
 
-    Querying attributes rather then entire objects is a new feature
+    Querying attributes rather than entire objects is a new feature
     added in Issue #28.
     """
     query = Query(client, "Datafile", attributes="name", order=True,
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
+    assert "name" in query.select_clause
+    assert "investigation" in query.join_clause
+    assert "id" in query.where_clause
+    assert query.order_clause is not None
     res = client.search(query)
     assert len(res) == 4
     for n in res:
@@ -599,6 +733,10 @@ def test_query_attribute_datafile_name_list(client):
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
+    assert "name" in query.select_clause
+    assert "investigation" in query.join_clause
+    assert "id" in query.where_clause
+    assert query.order_clause is not None
     res = client.search(query)
     assert len(res) == 4
     for n in res:
@@ -615,6 +753,10 @@ def test_query_related_obj_attribute(client):
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
+    assert "name" in query.select_clause
+    assert "datafileFormat" in query.join_clause
+    assert "investigation" in query.join_clause
+    assert "id" in query.where_clause
     res = client.search(query)
     assert len(res) == 4
     for n in res:
@@ -635,6 +777,11 @@ def test_query_mulitple_attributes(client):
     query = Query(client, "Investigation",
                   attributes=("name", "title", "startDate"), order=True)
     print(str(query))
+    assert "name" in query.select_clause
+    assert "title" in query.select_clause
+    assert "startDate" in query.select_clause
+    assert "facility" in query.join_clause
+    assert query.order_clause is not None
     res = client.search(query)
     assert res == results
 
@@ -653,6 +800,10 @@ def test_query_mulitple_attributes_related_obj(client):
                   attributes=("investigation.name", "name"), order=True,
                   conditions={"investigation.startDate":  "< '2011-01-01'"})
     print(str(query))
+    assert "name" in query.select_clause
+    assert "investigation" in query.join_clause
+    assert "startDate" in query.where_clause
+    assert query.order_clause is not None
     res = client.search(query)
     assert res == results
 
@@ -689,6 +840,10 @@ def test_query_mulitple_attributes_distinct(client):
                   conditions={"investigation.name": "= '08100122-EF'"},
                   aggregate="DISTINCT")
     print(str(query))
+    assert "DISTINCT" in query.select_clause
+    assert "role" in query.select_clause
+    assert "investigation" in query.join_clause
+    assert "name" in query.where_clause
     res_dist = client.search(query)
     # The search with DISTINCT yields less items, but if we eliminate
     # duplicates, the result set is the same:
@@ -712,6 +867,10 @@ def test_query_aggregate_distinct_attribute(client):
     assert sorted(res) == ["NeXus", "NeXus", "other", "other"]
     query.setAggregate("DISTINCT")
     print(str(query))
+    assert "DISTINCT" in query.select_clause
+    assert "name" in query.select_clause
+    assert "datafileFormat" in query.join_clause
+    assert "id" in query.where_clause
     res = client.search(query)
     assert sorted(res) == ["NeXus", "other"]
 
@@ -734,6 +893,10 @@ def test_query_aggregate_distinct_related_obj(client):
         assert isinstance(n, icat.entity.Entity)
     query.setAggregate("DISTINCT")
     print(str(query))
+    assert "DISTINCT" in query.select_clause
+    assert "datafileFormat" in query.select_clause
+    assert "investigation" in query.join_clause
+    assert "id" in query.where_clause
     res = client.search(query)
     assert len(res) == 2
     for n in res:
@@ -751,9 +914,9 @@ def test_query_aggregate_distinct_related_obj(client):
     ("fileSize", "MIN", 394),
     ("fileSize", "SUM", 127125),
     # Note that the number of datafiles is four which is a power of
-    # two.  Therefore we may assume the double representation of an
-    # average of integers is exact, so we may even dare to compare
-    # the double value for equality.
+    # two.  Therefore we may assume the float representation of an
+    # average of integers is exact, so we may even dare to compare the
+    # float value for equality.
     ("fileSize", "AVG", 31781.25),
     ("name", "MAX", "e208341.nxs"),
     ("name", "MIN", "e208339.dat"),
@@ -779,6 +942,12 @@ def test_query_aggregate_misc(client, attribute, aggregate, expected):
                   conditions={ "dataset.investigation.id":
                                "= %d" % investigation.id })
     print(str(query))
+    if ':' not in aggregate:
+        assert aggregate in query.select_clause
+    if attribute is not None and '.' not in attribute:
+        assert attribute in query.select_clause
+    assert "investigation" in query.join_clause
+    assert "id" in query.where_clause
     res = client.search(query)
     assert len(res) == 1
     assert res[0] == expected
@@ -815,3 +984,4 @@ def test_query_copy(client, entity, kwargs):
     query = Query(client, entity, **kwargs)
     clone = query.copy()
     assert str(clone) == str(query)
+    assert entity in clone.select_clause
