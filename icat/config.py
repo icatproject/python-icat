@@ -644,7 +644,11 @@ class Config(BaseConfig):
         variable, if this is set to :const:`False`, to 'mandatory', or
         to 'optional' respectively.
     :type ids: :class:`bool` or :class:`str`
-    :param preset: mapping of configuration variable names to preset values.
+    :param preset: mapping of configuration variable names to preset
+        values.  These preset values override the default value for
+        the corresponding variable.  Note that command line arguments,
+        environment variables, and settings in the configuration files
+        still take precedence over the preset values.
     :type preset: :class:`dict`
     :param args: list of command line arguments or :const:`None`.  If
         not set, the command line arguments will be taken from
