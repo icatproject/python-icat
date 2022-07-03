@@ -92,6 +92,10 @@ username = nbour
 url = https://icat.example.com/ICATService/ICAT?wsdl
 auth = anon
 
+[example_quirks]
+url = https://icat.example.com/ICATService/ICAT?wsdl
+auth = quirks
+
 [test21]
 url = https://icat.example.com/ICATService/ICAT?wsdl
 auth = simple
@@ -180,6 +184,34 @@ def test_config_minimal_file(fakeClient, tmpconfigfile, monkeypatch):
 
     ex = ExpectedConf(configFile=[Path("icat.cfg")],
                       configSection="example_root", 
+                      url=ex_icat)
+    assert ex <= conf
+
+
+def test_config_minimal_file_preset(fakeClient, tmpconfigfile, monkeypatch):
+    """Minimal example.
+
+    Almost the same as test_config_minimal_file(), but set the section
+    to be read from the config file as a preset variable rather than
+    faking the comandline arguments.
+
+    The `preset` keyword argument to `Config()` was added in response
+    to the feature request Issue #77.
+    """
+
+    # Let the config file be found in the default location, but
+    # manipulate the search path such that only the cwd exists.
+    cfgdirs = [ tmpconfigfile.dir / "wobble", Path(".") ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(str(tmpconfigfile.dir))
+
+    preset = {"configSection": "example_root"}
+    config = icat.config.Config(needlogin=False, ids=False,
+                                preset=preset, args=())
+    _, conf = config.getconfig()
+
+    ex = ExpectedConf(configFile=[Path("icat.cfg")],
+                      configSection="example_root",
                       url=ex_icat)
     assert ex <= conf
 
@@ -799,14 +831,51 @@ def test_config_authinfo_strange(fakeClient, monkeypatch, tmpconfigfile):
     ]
     monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
 
-    args = ["-c", str(tmpconfigfile.path), "-s", "example_root",
-            "-a", "quirks", "--cred_secret", "geheim"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_quirks",
+            "--cred_secret", "geheim"]
     config = icat.config.Config(args=args)
     assert list(config.authenticatorInfo) == authInfo
     _, conf = config.getconfig()
 
     ex = ExpectedConf(configFile=[tmpconfigfile.path],
-                      configSection="example_root",
+                      configSection="example_quirks",
+                      url=ex_icat,
+                      auth="quirks",
+                      promptPass=False,
+                      cred_secret="geheim",
+                      credentials={'secret': 'geheim'})
+    assert ex <= conf
+    assert not hasattr(conf, 'username')
+
+
+def test_config_authinfo_strange_preset(fakeClient, monkeypatch, tmpconfigfile):
+    """Talk to a server that requests strange credential keys.
+
+    Almost the same as test_config_authinfo_strange(), but set the
+    configuration as preset variables rather than faking the
+    comandline arguments.
+
+    The `preset` keyword argument to `Config()` was added in response
+    to the feature request Issue #77.  One major use case for
+    requesting that feature was related to custom authenticators.
+    """
+
+    secretkey = Namespace(name='secret', hide=True)
+    authInfo = [
+        Namespace(mnemonic="quirks",
+                  keys=[secretkey]),
+    ]
+    monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
+
+    preset = {"configFile": str(tmpconfigfile.path),
+              "configSection": "example_quirks",
+              "cred_secret": "geheim",}
+    config = icat.config.Config(preset=preset, args=())
+    assert list(config.authenticatorInfo) == authInfo
+    _, conf = config.getconfig()
+
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_quirks",
                       url=ex_icat,
                       auth="quirks",
                       promptPass=False,
@@ -1165,3 +1234,31 @@ def test_config_subcmd_err_add_more_vars(fakeClient, tmpconfigfile):
     with pytest.raises(RuntimeError) as err:
         config.add_variable('name', ("--name",), dict(help="name"))
     assert "config already has subcommands" in str(err.value)
+
+
+def test_deprecated_config_defaultsection(fakeClient, tmpconfigfile,
+                                          monkeypatch):
+    """The module variable icat.config.defaultsection is deprecated since
+    1.0.0.
+
+    Setting it should raise a DeprecationWarning.
+    """
+
+    # Use the same setting as test_config_minimal_file(), but don't
+    # set the configSection via a command line argument, but by
+    # setting defaultsection.  Note that setting the variable cannot
+    # easily be detected, the DeprecationWarning is raised during
+    # icat.config.Config() later on.
+    cfgdirs = [ tmpconfigfile.dir / "wobble", Path(".") ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(str(tmpconfigfile.dir))
+
+    monkeypatch.setattr(icat.config, "defaultsection", "example_root")
+    with pytest.deprecated_call():
+        config = icat.config.Config(needlogin=False, ids=False)
+    _, conf = config.getconfig()
+
+    ex = ExpectedConf(configFile=[Path("icat.cfg")],
+                      configSection="example_root",
+                      url=ex_icat)
+    assert ex <= conf
