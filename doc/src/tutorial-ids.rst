@@ -55,7 +55,7 @@ so let's create one::
 
   >>> from icat.query import Query
   >>> investigation = client.assertedSearch(Query(client, "Investigation", conditions={"name": "= '12100409-ST'"}))[0]
-  >>> dataset = client.new("dataset")
+  >>> dataset = client.new("Dataset")
   >>> dataset.investigation = investigation
   >>> dataset.type = client.assertedSearch(Query(client, "DatasetType", conditions={"name": "= 'other'"}))[0]
   >>> dataset.name = "greetings"
@@ -67,7 +67,7 @@ For each of the files, we create a new datafile object and call the
 
   >>> df_format = client.assertedSearch(Query(client, "DatafileFormat", conditions={"name": "= 'Text'"}))[0]
   >>> for fname in ("greet-jdoe.txt", "greet-nbour.txt", "greet-rbeck.txt"):
-  ...     datafile = client.new("datafile", name=fname, dataset=dataset, datafileFormat=df_format)
+  ...     datafile = client.new("Datafile", name=fname, dataset=dataset, datafileFormat=df_format)
   ...     client.putData(fname, datafile)
   ...
   (datafile){

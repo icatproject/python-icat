@@ -228,7 +228,13 @@ def getTypeMap(client):
     :rtype: :class:`dict`
 
     """
-    typemap = { 'entityBaseBean': Entity, }
+    def addType(typemap, cls):
+        instanceName = cls.getInstanceName()
+        typemap[instanceName] = cls
+        typemap[instanceName.lower()] = cls
+
+    typemap = dict()
+    addType(typemap, Entity)
     for beanName in itertools.chain(('Parameter',), client.getEntityNames()):
         try:
             parent = typemap[_parent[beanName]]
@@ -281,6 +287,6 @@ def getTypeMap(client):
             bases = (parent, mixin)
         else:
             bases = (parent,)
-        instanceName = beanName[0].lower() + beanName[1:]
-        typemap[instanceName] = type(str(beanName), bases, attrs)
+        cls = type(str(beanName), bases, attrs)
+        addType(typemap, cls)
     return typemap
