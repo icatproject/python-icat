@@ -8,6 +8,10 @@ Changelog
 New features
 ------------
 
++ `#77`_, `#103`_: Add a keyword argument `preset` to allow directly
+  passing configuration values to the constructor of class
+  :class:`icat.config.Config`.
+
 + `#66`_, `#75`_: Add pathlib support: methods that take a file name
   argument also accept a :class:`pathlib.Path` object. Internal
   representation of filesystem paths are changed to use
@@ -53,6 +57,9 @@ Incompatible changes and deprecations
 + Drop helper function :func:`icat.exception.stripCause`, deprecated
   in 0.14.0.
 
++ Deprecate :data:`icat.config.defaultsection`.  Use the new `preset`
+  keyword argument to :class:`icat.config.Config` instead.
+
 Bug fixes and minor changes
 ---------------------------
 
@@ -63,7 +70,9 @@ Bug fixes and minor changes
 .. _#66: https://github.com/icatproject/python-icat/issues/66
 .. _#74: https://github.com/icatproject/python-icat/issues/74
 .. _#75: https://github.com/icatproject/python-icat/pull/75
+.. _#77: https://github.com/icatproject/python-icat/issues/77
 .. _#101: https://github.com/icatproject/python-icat/pull/101
+.. _#103: https://github.com/icatproject/python-icat/pull/103
 
 
 0.21.0 (2022-01-28)

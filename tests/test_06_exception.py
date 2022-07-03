@@ -114,7 +114,7 @@ def test_ids_exception(client, errcond):
     exceptions in the icat.IDSError hierarchy.
 
     There used to be bugs in the client that caused a HTTP error to be
-    raised rather then the corresponding IDSError exception.  (Fixed
+    raised rather than the corresponding IDSError exception.  (Fixed
     in 56905f1.)
     """
     # Same comment as in test_icat_exception() applies.

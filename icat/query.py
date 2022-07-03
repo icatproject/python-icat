@@ -99,7 +99,7 @@ class Query():
 
     .. versionchanged:: 0.18.0
         add support for queries requesting a list of attributes rather
-        then a single one.  Consequently, the keyword argument
+        than a single one.  Consequently, the keyword argument
         `attribute` has been renamed to `attributes` (in the plural).
     .. versionchanged:: 0.19.0
         add the `join_specs` argument.
@@ -321,7 +321,7 @@ class Query():
             natural order of the entity type.  Any false value means
             no ORDER BY clause.  The attribute name can be wrapped
             with a JPQL function (such as "LENGTH(title)").  Rather
-            then only an attribute name, any item in the list may also
+            than only an attribute name, any item in the list may also
             be a tuple of an attribute name and an order direction,
             the latter being either "ASC" or "DESC" for ascending or
             descending order respectively.
@@ -333,13 +333,13 @@ class Query():
         .. versionchanged:: 0.19.0
             allow one to many relationships in `order`.  Emit a
             :exc:`~icat.exception.QueryOneToManyOrderWarning` rather
-            then raising a :exc:`ValueError` in this case.
+            than raising a :exc:`ValueError` in this case.
         .. versionchanged:: 0.20.0
             allow a JPQL function in the attribute.
         """
         self._subst = None
         # Note: with Python 3.7 and newer we could simplify this using
-        # a standard dict() rather then an OrderedDict().
+        # a standard dict() rather than an OrderedDict().
         self.order = OrderedDict()
 
         if order is True:

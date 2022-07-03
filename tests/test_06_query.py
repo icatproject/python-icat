@@ -319,7 +319,7 @@ def test_query_condition_list(client):
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_in_operator(client):
-    """Using "id in (i)" rather then "id = i" also works.
+    """Using "id in (i)" rather than "id = i" also works.
     (This may be needed to work around ICAT Issue 128.)
     """
     query = Query(client, "Investigation",
@@ -706,7 +706,7 @@ def test_query_include_1(client):
 def test_query_attribute_datafile_name(client):
     """The datafiles names related to a given investigation in natural order.
 
-    Querying attributes rather then entire objects is a new feature
+    Querying attributes rather than entire objects is a new feature
     added in Issue #28.
     """
     query = Query(client, "Datafile", attributes="name", order=True,
