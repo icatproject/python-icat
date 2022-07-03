@@ -8,6 +8,9 @@ Changelog
 New features
 ------------
 
++ `#102`_, `#104`_: Make the obj argument to client.new() case
+  insensitive.
+
 + `#77`_, `#103`_: Add a keyword argument `preset` to allow directly
   passing configuration values to the constructor of class
   :class:`icat.config.Config`.
@@ -72,7 +75,9 @@ Bug fixes and minor changes
 .. _#75: https://github.com/icatproject/python-icat/pull/75
 .. _#77: https://github.com/icatproject/python-icat/issues/77
 .. _#101: https://github.com/icatproject/python-icat/pull/101
+.. _#102: https://github.com/icatproject/python-icat/issues/102
 .. _#103: https://github.com/icatproject/python-icat/pull/103
+.. _#104: https://github.com/icatproject/python-icat/pull/104
 
 
 0.21.0 (2022-01-28)
