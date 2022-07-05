@@ -385,3 +385,25 @@ object's ID is 10, so we write::
   deleting the User object with ID 10...
   done
 
+Preset configuration values in the program
+------------------------------------------
+
+It is possible to preset the value for configuration variables in the
+program, using the `preset` keyword argument to
+:class:`~icat.config.Config`.  Consider the following example program:
+
+.. literalinclude:: ../tutorial/config-preset.py
+
+You can call this as follows::
+
+  $ python config-preset.py
+  Login to https://icat.example.com:8181 was successful.
+  User: simple/root
+
+Note that we did not specify the configuration section on the command
+line, yet the program picked the configuration values from the
+`myicat_root` section in the configuration file.  Setting values using
+the `preset` keyword argument has a similar effect as setting a
+default for the respective configuration variable.  But it also allows
+to override the default for configuration variables that are
+predefined by :mod:`icat.config`.

@@ -148,11 +148,11 @@ for the configuration variables are as follows:
 +=================+=============================+=======================+================+===========+==============+
 | `configFile`    | ``-c``, ``--configfile``    | ``ICAT_CFG``          | depends        | no        | \(1)         |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `configSection` | ``-s``, ``--configsection`` | ``ICAT_CFG_SECTION``  | :const:`None`  | no        | \(2)         |
+| `configSection` | ``-s``, ``--configsection`` | ``ICAT_CFG_SECTION``  | :const:`None`  | no        |              |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
 | `url`           | ``-w``, ``--url``           | ``ICAT_SERVICE``      |                | yes       |              |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `idsurl`        | ``--idsurl``                | ``ICAT_DATA_SERVICE`` | :const:`None`  | depends   | \(3)         |
+| `idsurl`        | ``--idsurl``                | ``ICAT_DATA_SERVICE`` | :const:`None`  | depends   | \(2)         |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
 | `checkCert`     | ``--check-certificate``,    |                       | :const:`True`  | no        |              |
 |                 | ``--no-check-certificate``  |                       |                |           |              |
@@ -163,13 +163,13 @@ for the configuration variables are as follows:
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
 | `no_proxy`      | ``--no-proxy``              | ``no_proxy``          | :const:`None`  | no        |              |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `auth`          | ``-a``, ``--auth``          | ``ICAT_AUTH``         |                | yes       | \(4)         |
+| `auth`          | ``-a``, ``--auth``          | ``ICAT_AUTH``         |                | yes       | \(3)         |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `username`      | ``-u``, ``--user``          | ``ICAT_USER``         |                | yes       | \(4),(5)     |
+| `username`      | ``-u``, ``--user``          | ``ICAT_USER``         |                | yes       | \(3),(4)     |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `password`      | ``-p``, ``--pass``          |                       | interactive    | yes       | \(4),(5),(6) |
+| `password`      | ``-p``, ``--pass``          |                       | interactive    | yes       | \(3),(4),(5) |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `promptPass`    | ``-P``, ``--prompt-pass``   |                       | :const:`False` | no        | \(4),(5),(6) |
+| `promptPass`    | ``-P``, ``--prompt-pass``   |                       | :const:`False` | no        | \(3),(4),(5) |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
 
 Mandatory means that an error will be raised in
@@ -180,20 +180,17 @@ Notes:
 
 1. The default value for `configFile` depends on the operating system.
 
-2. The default value for `configSection` may be changed in
-   :data:`icat.config.defaultsection`.
-
-3. The configuration variable `idsurl` will not be set up at all, or
+2. The configuration variable `idsurl` will not be set up at all, or
    be set up as a mandatory, or as an optional variable, if the `ids`
    argument to the constructor of :class:`icat.config.Config` is set
    to :const:`False`, to "mandatory", or to "optional" respectively.
 
-4. If the argument `needlogin` to the constructor of
+3. If the argument `needlogin` to the constructor of
    :class:`icat.config.Config` is set to :const:`False`, the
    configuration variables `auth`, `username`, `password`,
    `promptPass`, and `credentials` will be left out.
 
-5. If the ICAT server supports the
+4. If the ICAT server supports the
    :meth:`icat.client.Client.getAuthenticatorInfo` API call
    (icat.server 4.9.0 and newer), the server will be queried about the
    credentials required for the authenticator indicated by the value
@@ -202,7 +199,7 @@ Notes:
    setup only if any of the credentials is marked as hidden in the
    authenticator information.
 
-6. The user will be prompted for the password if `promptPass` is
+5. The user will be prompted for the password if `promptPass` is
    :const:`True`, if no `password` is provided in the command line or
    the configuration file, or if the `username`, but not the
    `password` has been provided by command line arguments.  This
