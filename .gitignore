@@ -1,8 +1,6 @@
-*.pyc
 *~
 __pycache__/
 /.version
-/.vscode
 /MANIFEST
 /build/
 /dist/
