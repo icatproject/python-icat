@@ -8,7 +8,6 @@ is based on Suds and extends it with ICAT specific features.
 .. _ICAT: https://icatproject.org/
 """
 
-from __future__ import print_function
 import distutils.command.build_py
 import distutils.command.sdist
 import distutils.core
