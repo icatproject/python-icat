@@ -517,25 +517,25 @@ studies:
     user: nbour
 techniques:
   arpes:
-    name: ARPES
-    description: Angular-resolved Photoelectron Emission Spectroscopy
-    pid: 00.0815/it-02427
+    name: Angle Resolved Photoemission Spectroscopy
+    description: Angle Resolved Photoemission Spectroscopy
+    pid: http://purl.org/pan-science/PaNET/PaNET01089
   haxpes:
-    name: HAXPES
+    name: Hard X-ray Photoelectron Spectroscopy
     description: Hard X-ray Photoelectron Spectroscopy
     instruments:
       - hike
-    pid: 00.0815/it-00937
+    pid: http://purl.org/pan-science/PaNET/PaNET01103
   ndiff:
     name: Neutron Diffraction
     description: Neutron Diffraction
     instruments:
       - e2
-    pid: 00.0815/it-01493
+    pid: http://purl.org/pan-science/PaNET/PaNET01217
   xtomo:
     name: X-ray Tomography
     description: X-ray Tomography
-    pid: 00.0815/it-06930
+    pid: http://purl.org/pan-science/PaNET/PaNET01207
 users:
   acord:
     affiliation: University of Ravenna, Institute of Modern History
