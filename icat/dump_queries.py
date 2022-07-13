@@ -71,9 +71,13 @@ def getStaticQueries(client):
         Query(client, "Application", order=True,
               includes={"facility"})
     ]
+    if 'dataPublicationType' in client.typemap:
+        # ICAT >= 5.0.0
+        queries.insert(3, Query(client, "DataPublicationType", order=True,
+                                includes={"facility"}) )
     if 'technique' in client.typemap:
         # ICAT >= 5.0.0
-        queries.append( Query(client, "Technique", order=True) )
+        queries.insert(0, Query(client, "Technique", order=True) )
     return queries
 
 def getFundingQueries(client):
@@ -92,7 +96,7 @@ def getInvestigationQueries(client, invid):
     # Compatibility between ICAT versions:
     # - ICAT 4.4.0 added InvestigationGroups.
     # - ICAT 4.10.0 added relation between Shift and Instrument.
-    # - ICAT 5.0.0 added InvestigationFunding.
+    # - ICAT 5.0.0 added InvestigationFunding and InvestigationFacilityCycle.
     # - ICAT 5.0.0 added DatasetInstrument and DatasetTechnique.
     inv_includes = {
         "facility", "type.facility", "investigationInstruments",
@@ -107,6 +111,9 @@ def getInvestigationQueries(client, invid):
     if 'instrument' in client.typemap['shift'].InstRel:
         # ICAT >= 4.10.0
         inv_includes |= { "shifts.instrument.facility" }
+    if 'investigationFacilityCycle' in client.typemap:
+        # ICAT >= 5.0.0
+        inv_includes |= { "investigationFacilityCycles.facilityCycle.facility" }
     if 'investigationFunding' in client.typemap:
         # ICAT >= 5.0.0
         inv_includes |= { "fundingReferences.funding" }
@@ -138,8 +145,10 @@ def getInvestigationQueries(client, invid):
 def getDataCollectionQueries(client):
     """Return the queries to fetch all DataCollections.
     """
-    # Compatibility ICAT 4.3.0 vs. ICAT 4.3.1 and later: name of the
-    # parameters relation in DataCollection.
+    # Compatibility between ICAT versions:
+    # - ICAT 4.3.0 vs. ICAT 4.3.1 and later: name of the parameters
+    #   relation in DataCollection.
+    # - ICAT 5.0.0 added DatasetInstrument and DatasetTechnique.
     dc_includes = {
         "dataCollectionDatasets.dataset.investigation.facility",
         "dataCollectionDatafiles.datafile.dataset.investigation.facility",
@@ -150,6 +159,9 @@ def getDataCollectionQueries(client):
     else:
         # ICAT == 4.3.0
         dc_includes |= { "dataCollectionParameters.type.facility" }
+    if 'dataCollectionInvestigation' in client.typemap:
+        # ICAT >= 5.0.0
+        dc_includes |= { "dataCollectionInvestigations.investigation.facility" }
     return [
         Query(client, "DataCollection", order=True,
               includes=dc_includes),
@@ -165,10 +177,12 @@ def getDataPublicationQueries(client, pubid):
     return [
         Query(client, "DataPublication", order=True,
               conditions={"id": "= %d" % pubid},
-              includes={"facility", "content", "dates",
+              includes={"facility", "content", "type", "dates",
                         "fundingReferences.funding",
-                        "users.user", "users.affiliations",
                         "relatedIdentifiers"}),
+        Query(client, "DataPublicationUser", order=True,
+              conditions={"publication.id": "= %d" % pubid},
+              includes={"publication", "user", "affiliations"}),
     ]
 
 def getOtherQueries(client):
