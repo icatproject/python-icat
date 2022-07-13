@@ -14,9 +14,9 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import (getConfig, icat_version,
-                      gettestdata, get_reference_dumpfile, callscript,
-                      filter_file, yaml_filter)
+from conftest import (getConfig, icat_version, gettestdata,
+                      get_reference_dumpfile, get_reference_summary,
+                      callscript, filter_file, yaml_filter)
 
 
 # Study is broken in icat.server older then 4.6.0, see
@@ -26,11 +26,9 @@ from conftest import (getConfig, icat_version,
 skip_study = icat_version < "4.7.0"
 
 testinput = gettestdata("example_data.yaml")
-refdump = get_reference_dumpfile("yaml")
 users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
-refsummary = { "root": gettestdata("summary") }
-for u in users:
-    refsummary[u] = gettestdata("summary.%s" % u)
+refdump = get_reference_dumpfile("yaml")
+refsummary = get_reference_summary()
 # Labels used in test dependencies.
 if not skip_study:
     alldata = ["init", "sample_durol", "sample_nimnga", "sample_nio",
@@ -94,6 +92,39 @@ def create_datafile(client, data, df):
     datafile.create()
     return datafile
 
+def fix_file_size(inv_name):
+    client, conf = getConfig()
+    if 'fileSize' not in client.typemap['investigation'].InstAttr:
+        # ICAT < 5.0: there are no fileSize and fileCount attributes
+        # to fix in Investigation and Dataset.  Nothing to do.
+        return
+    client.login(conf.auth, conf.credentials)
+    inv_query = Query(client, "Investigation", conditions={
+        "name":"= '%s'" % inv_name
+    }, includes="1")
+    inv = client.assertedSearch(inv_query)[0]
+    inv.fileCount = 0
+    inv.fileSize = 0
+    ds_query = Query(client, "Dataset", conditions={
+        "investigation.id": "= %d" % inv.id
+    }, includes="1")
+    for ds in client.search(ds_query):
+        fileCount_query = Query(client, "Datafile", conditions={
+            "dataset.id": "= %d" % ds.id
+        }, aggregate="COUNT")
+        ds.fileCount = int(client.assertedSearch(fileCount_query)[0])
+        if not ds.fileCount:
+            ds.fileSize = 0
+        else:
+            fileSize_query = Query(client, "Datafile", conditions={
+                "dataset.id": "= %d" % ds.id
+            }, attributes="fileSize", aggregate="SUM")
+            ds.fileSize = int(client.assertedSearch(fileSize_query)[0])
+        ds.update()
+        inv.fileCount += ds.fileCount
+        inv.fileSize += ds.fileSize
+    inv.update()
+
 
 @pytest.mark.dependency(name="init")
 def test_init(standardCmdArgs):
@@ -148,6 +179,7 @@ def test_addinvdata(user, invname):
     _, conf = getConfig(confSection=user)
     args = conf.cmdargs + [str(testinput), invname]
     callscript("add-investigation-data.py", args)
+    fix_file_size(invname)
 
 @pytest.mark.parametrize(("user", "jobname"), [
     pytest.param("nbour", "job1",
@@ -173,6 +205,7 @@ def test_add_relateddatafile(data, user, rdfname):
     rdf.sourceDatafile = get_datafile(client, rdfdata['source'])
     rdf.destDatafile = create_datafile(client, data, rdfdata['dest'])
     rdf.create()
+    fix_file_size(rdfdata['dest']['investigation'])
 
 @pytest.mark.parametrize(("user", "studyname"), [
     pytest.param("useroffice", "study1",

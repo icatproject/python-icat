@@ -151,9 +151,23 @@ def get_reference_dumpfile(ext = "yaml"):
         fname = "icatdump-4.4.%s" % ext
     elif icat_version < "4.10":
         fname = "icatdump-4.7.%s" % ext
-    else:
+    elif icat_version < "5.0a1":   # FIXME: change the version number to compare  with to "5.0" as soon as icat.server 5.0 is released
         fname = "icatdump-4.10.%s" % ext
+    else:
+        fname = "icatdump-5.0.%s" % ext
     return gettestdata(fname)
+
+
+def get_reference_summary():
+    if icat_version < "5.0a1":   # FIXME: change the version number to compare  with to "5.0" as soon as icat.server 5.0 is released
+        version_suffix = "4"
+    else:
+        version_suffix = "5"
+    users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
+    refsummary = { "root": gettestdata("summary-%s" % version_suffix) }
+    for u in users:
+        refsummary[u] = gettestdata("summary-%s.%s" % (version_suffix, u))
+    return refsummary
 
 
 def callscript(scriptname, args, stdin=None, stdout=None, stderr=None):

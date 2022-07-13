@@ -420,7 +420,10 @@ def test_query_rule_order(client):
     assert query.where_clause is None
     assert "id" in query.order_clause
     res = client.search(query)
-    assert len(res) == 104
+    # Note: the actual number of rules depend on the ICAT version of
+    # the test data.  FIXME: update the upper limit for the final
+    # version of ICAT 5.0 test data.
+    assert 104 <= len(res) <= 118
 
 def test_query_rule_order_group(client, recwarn):
     """Ordering rule on grouping implicitely adds a "grouping IS NOT NULL"
@@ -439,7 +442,10 @@ def test_query_rule_order_group(client, recwarn):
     assert query.where_clause is None
     assert "what" in query.order_clause
     res = client.search(query)
-    assert len(res) == 44
+    # Note: the actual number of rules depend on the ICAT version of
+    # the test data.  FIXME: update the upper limit for the final
+    # version of ICAT 5.0 test data.
+    assert 44 <= len(res) <= 58
 
 def test_query_rule_order_group_suppress_warn_cond(client, recwarn):
     """The warning can be suppressed by making the condition explicit.
@@ -454,7 +460,10 @@ def test_query_rule_order_group_suppress_warn_cond(client, recwarn):
     assert "grouping" in query.where_clause
     assert "what" in query.order_clause
     res = client.search(query)
-    assert len(res) == 44
+    # Note: the actual number of rules depend on the ICAT version of
+    # the test data.  FIXME: update the upper limit for the final
+    # version of ICAT 5.0 test data.
+    assert 44 <= len(res) <= 58
 
 def test_query_rule_order_group_suppress_warn_join(client, recwarn):
     """Another option to suppress the warning is to override the JOIN spec.
@@ -471,7 +480,10 @@ def test_query_rule_order_group_suppress_warn_join(client, recwarn):
     assert query.where_clause is None
     assert "what" in query.order_clause
     res = client.search(query)
-    assert len(res) == 44
+    # Note: the actual number of rules depend on the ICAT version of
+    # the test data.  FIXME: update the upper limit for the final
+    # version of ICAT 5.0 test data.
+    assert 44 <= len(res) <= 58
 
 def test_query_rule_order_group_left_join(client, recwarn):
     """Another option to suppress the warning is to override the JOIN spec.
@@ -487,7 +499,10 @@ def test_query_rule_order_group_left_join(client, recwarn):
     assert query.where_clause is None
     assert "what" in query.order_clause
     res = client.search(query)
-    assert len(res) == 104
+    # Note: the actual number of rules depend on the ICAT version of
+    # the test data.  FIXME: update the upper limit for the final
+    # version of ICAT 5.0 test data.
+    assert 104 <= len(res) <= 118
 
 def test_query_order_one_to_many(client, recwarn):
     """Sort on a related object in a one to many relation.
@@ -630,7 +645,10 @@ def test_query_limit_placeholder(client):
     assert len(res) == 30
     print(str(query) % (30,30))
     res = client.search(str(query) % (30,30))
-    assert len(res) == 14
+    # Note: the actual number of rules depend on the ICAT version of
+    # the test data.  FIXME: update the upper limit for the final
+    # version of ICAT 5.0 test data.
+    assert 14 <= len(res) <= 28
 
 def test_query_non_ascii(client):
     """Test if query strings with non-ascii characters work.

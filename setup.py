@@ -113,7 +113,7 @@ class build_test(distutils.core.Command):
         destdir = os.path.join("tests", "data")
         self.mkpath(destdir)
         refdumpfiles = ["icatdump-%s.%s" % (ver, ext)
-                        for ver in ("4.4", "4.7", "4.10")
+                        for ver in ("4.4", "4.7", "4.10", "5.0")
                         for ext in ("xml", "yaml")]
         files = ["example_data.yaml",
                  "ingest-datafiles.xml", "ingest-ds-params.xml"] + refdumpfiles

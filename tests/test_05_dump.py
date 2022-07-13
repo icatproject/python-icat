@@ -11,9 +11,9 @@ except ImportError:
         pass
 import icat
 import icat.config
-from conftest import (getConfig, icat_version,
-                      gettestdata, get_reference_dumpfile, callscript,
-                      filter_file, yaml_filter, xml_filter)
+from conftest import (getConfig, icat_version, gettestdata,
+                      get_reference_dumpfile, get_reference_summary,
+                      callscript, filter_file, yaml_filter, xml_filter)
 
 
 backends = {
@@ -29,9 +29,7 @@ backends = {
     },
 }
 users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
-refsummary = { "root": gettestdata("summary") }
-for u in users:
-    refsummary[u] = gettestdata("summary.%s" % u)
+refsummary = get_reference_summary()
 
 # The following cases are tuples of a backend and a file type (regular
 # file, stdin/stdout, in-memory stream).  They are used for both,
