@@ -34,16 +34,16 @@ import icat.config
 logging.basicConfig(level=logging.INFO)
 
 config = icat.config.Config(ids="mandatory")
-config.add_variable('outputfile', ("--outputfile",), 
+config.add_variable('outputfile', ("--outputfile",),
                     dict(help="name of the output file"), optional=True)
-config.add_variable('investigation', ("investigation",), 
+config.add_variable('investigation', ("investigation",),
                     dict(help="name and optionally visit id "
                          "(separated by a colon) of the investigation"))
-config.add_variable('dataset', ("dataset",), 
+config.add_variable('dataset', ("dataset",),
                     dict(help="name of the dataset"))
-config.add_variable('method', ("method",), 
-                    dict(choices=['getData', 'getDataUrl', 
-                                  'getPreparedData', 'getPreparedDataUrl'], 
+config.add_variable('method', ("method",),
+                    dict(choices=['getData', 'getDataUrl',
+                                  'getPreparedData', 'getPreparedDataUrl'],
                          help="download method"))
 client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
@@ -82,7 +82,7 @@ def getinvestigation(invid):
     return (client.assertedSearch(searchexp)[0])
 
 def getdataset(dsname, investigation):
-    searchexp = ("Dataset [name='%s' AND investigation.id=%d]" 
+    searchexp = ("Dataset [name='%s' AND investigation.id=%d]"
                  % (dsname, investigation.id))
     return (client.assertedSearch(searchexp)[0])
 
@@ -110,7 +110,7 @@ if conf.method == 'getData':
 elif conf.method == 'getDataUrl':
 
     print(client.getDataUrl(datafiles))
-    # Must not logout to keep the sessionId in the download url valid. 
+    # Must not logout to keep the sessionId in the download url valid.
     client.autoLogout = False
 
 elif conf.method == 'getPreparedData':

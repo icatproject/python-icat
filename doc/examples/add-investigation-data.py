@@ -17,12 +17,12 @@ import icat.config
 logging.basicConfig(level=logging.INFO)
 
 config = icat.config.Config()
-config.add_variable('skipfiles', ("--skipdatafiles",), 
+config.add_variable('skipfiles', ("--skipdatafiles",),
                     dict(help="skip adding Datafiles", action='store_true'))
-config.add_variable('datafile', ("datafile",), 
-                    dict(metavar="inputdata.yaml", 
+config.add_variable('datafile', ("datafile",),
+                    dict(metavar="inputdata.yaml",
                          help="name of the input datafile"))
-config.add_variable('investigationname', ("investigationname",), 
+config.add_variable('investigationname', ("investigationname",),
                     dict(help="name of the investigation to add"))
 client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
@@ -86,15 +86,15 @@ for ds in investigationdata['datasets']:
 
 dataset_types = {}
 for t in need_dataset_types:
-    dstsearch = ("DatasetType[name='%s' %s]" 
+    dstsearch = ("DatasetType[name='%s' %s]"
                  % (data['dataset_types'][t]['name'], facility_const))
     dataset_types[t] = client.assertedSearch(dstsearch)[0]
 
 datafile_formats = {}
 for t in need_datafile_formats:
-    dffsearch = ("DatafileFormat[name='%s' AND version='%s' %s]" 
-                 % (data['datafile_formats'][t]['name'], 
-                    data['datafile_formats'][t]['version'], 
+    dffsearch = ("DatafileFormat[name='%s' AND version='%s' %s]"
+                 % (data['datafile_formats'][t]['name'],
+                    data['datafile_formats'][t]['version'],
                     facility_const))
     datafile_formats[t] = client.assertedSearch(dffsearch)[0]
 
@@ -105,7 +105,7 @@ for t in need_datafile_formats:
 
 sampledata = investigationdata['sample']
 
-stsearch = ("SampleType[name='%s']" 
+stsearch = ("SampleType[name='%s']"
             % data['sample_types'][sampledata['type']]['name'])
 sample_type = client.assertedSearch(stsearch)[0]
 
@@ -142,7 +142,7 @@ for datasetdata in investigationdata['datasets']:
             datafile.datafileFormat = datafile_formats[datafiledata['format']]
             if 'parameters' in datafiledata:
                 for pdata in datafiledata['parameters']:
-                    datafile.parameters.append(makeparam('datafileParameter', 
+                    datafile.parameters.append(makeparam('datafileParameter',
                                                          pdata))
             dataset.datafiles.append(datafile)
 

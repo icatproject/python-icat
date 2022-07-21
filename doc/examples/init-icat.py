@@ -22,8 +22,8 @@ from icat.query import Query
 logging.basicConfig(level=logging.INFO)
 
 config = icat.config.Config()
-config.add_variable('datafile', ("datafile",), 
-                    dict(metavar="inputdata.yaml", 
+config.add_variable('datafile', ("datafile",),
+                    dict(metavar="inputdata.yaml",
                          help="name of the input datafile"))
 client, conf = config.getconfig()
 
@@ -75,19 +75,19 @@ alltables = set(client.getEntityNames())
 
 # Public tables that may be read by anybody.  Basically anything thats
 # static and not related to any particular investigation.
-pubtables = { "Application", "DatafileFormat", "DatasetType", 
-              "Facility", "FacilityCycle", "Instrument", 
-              "InvestigationType", "ParameterType", 
+pubtables = { "Application", "DatafileFormat", "DatasetType",
+              "Facility", "FacilityCycle", "Instrument",
+              "InvestigationType", "ParameterType",
               "PermissibleStringValue", "SampleType", "User", }
 
 # Objects that useroffice might need to create.  Basically anything
 # related to a particular investigation as a whole, but not to
 # individual items created during the investigation (Datafiles and
 # Datasets).  Plus FacilityCycle and InstrumentScientist.
-uotables = { "FacilityCycle", "Grouping", "InstrumentScientist", 
-             "Investigation", "InvestigationGroup", 
-             "InvestigationInstrument", "InvestigationParameter", 
-             "InvestigationUser", "Keyword", "Publication", "Shift", 
+uotables = { "FacilityCycle", "Grouping", "InstrumentScientist",
+             "Investigation", "InvestigationGroup",
+             "InvestigationInstrument", "InvestigationParameter",
+             "InvestigationUser", "Keyword", "Publication", "Shift",
              "Study", "StudyInvestigation", "User", "UserGroup", }
 
 # Create a root user for the sake of completeness.  No need to grant
@@ -145,10 +145,10 @@ client.createRules("RU", ["Sample"], staff)
 # DataCollections they created themselves.  Similar thing for Job and
 # RelatedDatafile.
 owndccond = "DataCollection [createId=:user]"
-owndc = [ s % owndccond for s in 
-          [ "%s", 
-            "DataCollectionDatafile <-> %s", 
-            "DataCollectionDataset <-> %s", 
+owndc = [ s % owndccond for s in
+          [ "%s",
+            "DataCollectionDatafile <-> %s",
+            "DataCollectionDataset <-> %s",
             "DataCollectionParameter <-> %s" ] ]
 client.createRules("CRUD", owndc)
 client.createRules("CRUD", ["Job [createId=:user]"])
@@ -232,7 +232,7 @@ tig = "grouping.investigationGroups"
 uig = "grouping.investigationGroups.investigation.investigationGroups"
 item = Query(client, "UserGroup", conditions={
     uig + ".grouping.userGroups.user.name":"= :user",
-    uig + ".role":"= 'owner'", 
+    uig + ".role":"= 'owner'",
     tig + ".role":"in ('reader', 'writer')"
 })
 client.createRules("CRUD", [ item ])
@@ -270,30 +270,32 @@ client.createRules("R", items)
 # Public steps
 # ------------------------------------------------------------
 
-pubsteps = [ ("DataCollection", "dataCollectionDatafiles"), 
-             ("DataCollection", "dataCollectionDatasets"), 
-             ("DataCollection", "parameters"), 
-             ("Datafile", "dataset"), 
-             ("Datafile", "parameters"), 
-             ("Dataset", "datafiles"), 
-             ("Dataset", "investigation"), 
-             ("Dataset", "parameters"), 
-             ("Dataset", "sample"), 
-             ("Grouping", "userGroups"), 
-             ("Instrument", "instrumentScientists"), 
-             ("Investigation", "investigationGroups"), 
-             ("Investigation", "investigationInstruments"), 
-             ("Investigation", "investigationUsers"), 
-             ("Investigation", "keywords"), 
-             ("Investigation", "parameters"), 
-             ("Investigation", "publications"), 
-             ("Investigation", "samples"), 
-             ("Investigation", "shifts"), 
-             ("InvestigationGroup", "grouping"), 
-             ("Job", "inputDataCollection"), 
-             ("Job", "outputDataCollection"), 
-             ("Sample", "parameters"), 
-             ("Study", "studyInvestigations"), ]
+pubsteps = [
+    ("DataCollection", "dataCollectionDatafiles"),
+    ("DataCollection", "dataCollectionDatasets"),
+    ("DataCollection", "parameters"),
+    ("Datafile", "dataset"),
+    ("Datafile", "parameters"),
+    ("Dataset", "datafiles"),
+    ("Dataset", "investigation"),
+    ("Dataset", "parameters"),
+    ("Dataset", "sample"),
+    ("Grouping", "userGroups"),
+    ("Instrument", "instrumentScientists"),
+    ("Investigation", "investigationGroups"),
+    ("Investigation", "investigationInstruments"),
+    ("Investigation", "investigationUsers"),
+    ("Investigation", "keywords"),
+    ("Investigation", "parameters"),
+    ("Investigation", "publications"),
+    ("Investigation", "samples"),
+    ("Investigation", "shifts"),
+    ("InvestigationGroup", "grouping"),
+    ("Job", "inputDataCollection"),
+    ("Job", "outputDataCollection"),
+    ("Sample", "parameters"),
+    ("Study", "studyInvestigations"),
+]
 objs = [ client.new("publicStep", origin=origin, field=field)
          for (origin, field) in pubsteps ]
 client.createMany(objs)
@@ -403,13 +405,13 @@ for fcdata in data['facility_cycles']:
             c += 1
             cycle = client.new("facilityCycle")
             cycle.name = "%02d%d" % (y, c)
-            cycle.startDate = datetime.datetime(year, p[0], p[1], 
+            cycle.startDate = datetime.datetime(year, p[0], p[1],
                                                 tzinfo=gettz(p[0]))
             if p[2] > p[0]:
-                cycle.endDate = datetime.datetime(year, p[2], p[3], 
+                cycle.endDate = datetime.datetime(year, p[2], p[3],
                                                   tzinfo=gettz(p[2]))
             else:
-                cycle.endDate = datetime.datetime(year+1, p[2], p[3], 
+                cycle.endDate = datetime.datetime(year+1, p[2], p[3],
                                                   tzinfo=gettz(p[2]))
             cycle.facility = facilities[fcdata['facility']]
             facility_cycles.append(cycle)
