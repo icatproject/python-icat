@@ -105,7 +105,7 @@ client.createRules("R", pubtables - {"SampleType"})
 client.createRules("R", ["Grouping <-> UserGroup <-> User [name=:user]"])
 client.createRules("R", ["Study <-> User [name=:user]"])
 
-# Add a sepcial user to be configured as reader in ids.server.  This
+# Add a special user to be configured as reader in ids.server.  This
 # user needs at least permission to read all datasets, datafiles,
 # investigations and facilities.  But well, then we can make live
 # simple by giving him read all permissions.
@@ -114,9 +114,7 @@ rallgroup = client.createGroup("rall", [ idsreader ])
 client.createRules("R", alltables - pubtables - {"Log"}, rallgroup)
 
 # Setup permissions for useroffice.  They need to create
-# Investigations and to setup access permissions for them.  Note that
-# this requires the useroffice to have write permission to authz
-# tables which basically gives useroffice root power.
+# Investigations and related objects, including Users.
 useroffice = client.createUser("simple/useroffice", fullName="User Office")
 uogroup = client.createGroup("useroffice", [ useroffice ])
 client.createRules("CRUD", uotables, uogroup)
