@@ -14,10 +14,10 @@ import icat.config
 logging.basicConfig(level=logging.INFO)
 
 config = icat.config.Config()
-config.add_variable('datafile', ("datafile",), 
-                    dict(metavar="inputdata.yaml", 
+config.add_variable('datafile', ("datafile",),
+                    dict(metavar="inputdata.yaml",
                          help="name of the input datafile"))
-config.add_variable('investigationname', ("investigationname",), 
+config.add_variable('investigationname', ("investigationname",),
                     dict(help="name of the investigation to add"))
 client, conf = config.getconfig()
 
@@ -92,7 +92,7 @@ try:
 except icat.exception.SearchResultError:
     pass
 else:
-    raise RuntimeError("Investigation: '%s' already exists ..." 
+    raise RuntimeError("Investigation: '%s' already exists ..."
                        % investigationdata['name'])
 
 print("Investigation: creating '%s' ..." % investigationdata['name'])

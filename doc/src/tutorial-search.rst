@@ -809,7 +809,7 @@ first glance, it has a particular use case::
       If it already exists, search and return it, create it, if not.
       """
       try:
-          dataset = client.new("dataset")
+          dataset = client.new("Dataset")
           query = Query(client, "Investigation", conditions={
               "name": "= '%s'" % inv_name
           })

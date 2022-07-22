@@ -220,12 +220,13 @@ class Client(suds.client.Client):
 
         """Instantiate a new :class:`icat.entity.Entity` object.
 
-        If obj is a string, take it as the name of an instance type.
-        Create a new instance object of this type and lookup the class
-        for the object in the :attr:`typemap` using this type name.
-        If obj is an instance object, look up its class name in the
-        typemap to determine the class.  If obj is :const:`None`, do
-        nothing and return :const:`None`.
+        If obj is a Suds instance object or a string, lookup the
+        corresponding entity class in the :attr:`typemap`.  If obj is
+        a string, this lookup is case insensitive and a new entity
+        object is instantiated.  If obj is a Suds instance object, an
+        entity object corresponding to this instance object is
+        instantiated.  If obj is :const:`None`, do nothing and return
+        :const:`None`.
         
         :param obj: either a Suds instance object, a name of an
             instance type, or :const:`None`.
@@ -249,12 +250,12 @@ class Client(suds.client.Client):
                                       % instancetype)
         elif isinstance(obj, str):
             # obj is the name of an instance type, create the instance
-            instancetype = obj
             try:
-                Class = self.typemap[instancetype]
+                Class = self.typemap[obj.lower()]
             except KeyError:
                 raise EntityTypeError("Invalid instance type '%s'." 
-                                      % instancetype)
+                                      % obj)
+            instancetype = Class.getInstanceName()
             instance = self.factory.create(instancetype)
             # The factory creates a whole tree of dummy objects for
             # all relationships of the instance object and the

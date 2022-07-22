@@ -22,8 +22,8 @@ from icat.query import Query
 logging.basicConfig(level=logging.INFO)
 
 config = icat.config.Config()
-config.add_variable('datafile', ("datafile",), 
-                    dict(metavar="inputdata.yaml", 
+config.add_variable('datafile', ("datafile",),
+                    dict(metavar="inputdata.yaml",
                          help="name of the input datafile"))
 client, conf = config.getconfig()
 
@@ -75,19 +75,19 @@ alltables = set(client.getEntityNames())
 
 # Public tables that may be read by anybody.  Basically anything thats
 # static and not related to any particular investigation.
-pubtables = { "Application", "DatafileFormat", "DatasetType", 
-              "Facility", "FacilityCycle", "Instrument", 
-              "InvestigationType", "ParameterType", 
+pubtables = { "Application", "DatafileFormat", "DatasetType",
+              "Facility", "FacilityCycle", "Instrument",
+              "InvestigationType", "ParameterType",
               "PermissibleStringValue", "SampleType", "User", }
 
 # Objects that useroffice might need to create.  Basically anything
 # related to a particular investigation as a whole, but not to
 # individual items created during the investigation (Datafiles and
 # Datasets).  Plus FacilityCycle and InstrumentScientist.
-uotables = { "FacilityCycle", "Grouping", "InstrumentScientist", 
-             "Investigation", "InvestigationGroup", 
-             "InvestigationInstrument", "InvestigationParameter", 
-             "InvestigationUser", "Keyword", "Publication", "Shift", 
+uotables = { "FacilityCycle", "Grouping", "InstrumentScientist",
+             "Investigation", "InvestigationGroup",
+             "InvestigationInstrument", "InvestigationParameter",
+             "InvestigationUser", "Keyword", "Publication", "Shift",
              "Study", "StudyInvestigation", "User", "UserGroup", }
 
 # Create a root user for the sake of completeness.  No need to grant
@@ -105,7 +105,7 @@ client.createRules("R", pubtables - {"SampleType"})
 client.createRules("R", ["Grouping <-> UserGroup <-> User [name=:user]"])
 client.createRules("R", ["Study <-> User [name=:user]"])
 
-# Add a sepcial user to be configured as reader in ids.server.  This
+# Add a special user to be configured as reader in ids.server.  This
 # user needs at least permission to read all datasets, datafiles,
 # investigations and facilities.  But well, then we can make live
 # simple by giving him read all permissions.
@@ -114,9 +114,7 @@ rallgroup = client.createGroup("rall", [ idsreader ])
 client.createRules("R", alltables - pubtables - {"Log"}, rallgroup)
 
 # Setup permissions for useroffice.  They need to create
-# Investigations and to setup access permissions for them.  Note that
-# this requires the useroffice to have write permission to authz
-# tables which basically gives useroffice root power.
+# Investigations and related objects, including Users.
 useroffice = client.createUser("simple/useroffice", fullName="User Office")
 uogroup = client.createGroup("useroffice", [ useroffice ])
 client.createRules("CRUD", uotables, uogroup)
@@ -145,10 +143,10 @@ client.createRules("RU", ["Sample"], staff)
 # DataCollections they created themselves.  Similar thing for Job and
 # RelatedDatafile.
 owndccond = "DataCollection [createId=:user]"
-owndc = [ s % owndccond for s in 
-          [ "%s", 
-            "DataCollectionDatafile <-> %s", 
-            "DataCollectionDataset <-> %s", 
+owndc = [ s % owndccond for s in
+          [ "%s",
+            "DataCollectionDatafile <-> %s",
+            "DataCollectionDataset <-> %s",
             "DataCollectionParameter <-> %s" ] ]
 client.createRules("CRUD", owndc)
 client.createRules("CRUD", ["Job [createId=:user]"])
@@ -232,7 +230,7 @@ tig = "grouping.investigationGroups"
 uig = "grouping.investigationGroups.investigation.investigationGroups"
 item = Query(client, "UserGroup", conditions={
     uig + ".grouping.userGroups.user.name":"= :user",
-    uig + ".role":"= 'owner'", 
+    uig + ".role":"= 'owner'",
     tig + ".role":"in ('reader', 'writer')"
 })
 client.createRules("CRUD", [ item ])
@@ -270,30 +268,32 @@ client.createRules("R", items)
 # Public steps
 # ------------------------------------------------------------
 
-pubsteps = [ ("DataCollection", "dataCollectionDatafiles"), 
-             ("DataCollection", "dataCollectionDatasets"), 
-             ("DataCollection", "parameters"), 
-             ("Datafile", "dataset"), 
-             ("Datafile", "parameters"), 
-             ("Dataset", "datafiles"), 
-             ("Dataset", "investigation"), 
-             ("Dataset", "parameters"), 
-             ("Dataset", "sample"), 
-             ("Grouping", "userGroups"), 
-             ("Instrument", "instrumentScientists"), 
-             ("Investigation", "investigationGroups"), 
-             ("Investigation", "investigationInstruments"), 
-             ("Investigation", "investigationUsers"), 
-             ("Investigation", "keywords"), 
-             ("Investigation", "parameters"), 
-             ("Investigation", "publications"), 
-             ("Investigation", "samples"), 
-             ("Investigation", "shifts"), 
-             ("InvestigationGroup", "grouping"), 
-             ("Job", "inputDataCollection"), 
-             ("Job", "outputDataCollection"), 
-             ("Sample", "parameters"), 
-             ("Study", "studyInvestigations"), ]
+pubsteps = [
+    ("DataCollection", "dataCollectionDatafiles"),
+    ("DataCollection", "dataCollectionDatasets"),
+    ("DataCollection", "parameters"),
+    ("Datafile", "dataset"),
+    ("Datafile", "parameters"),
+    ("Dataset", "datafiles"),
+    ("Dataset", "investigation"),
+    ("Dataset", "parameters"),
+    ("Dataset", "sample"),
+    ("Grouping", "userGroups"),
+    ("Instrument", "instrumentScientists"),
+    ("Investigation", "investigationGroups"),
+    ("Investigation", "investigationInstruments"),
+    ("Investigation", "investigationUsers"),
+    ("Investigation", "keywords"),
+    ("Investigation", "parameters"),
+    ("Investigation", "publications"),
+    ("Investigation", "samples"),
+    ("Investigation", "shifts"),
+    ("InvestigationGroup", "grouping"),
+    ("Job", "inputDataCollection"),
+    ("Job", "outputDataCollection"),
+    ("Sample", "parameters"),
+    ("Study", "studyInvestigations"),
+]
 objs = [ client.new("publicStep", origin=origin, field=field)
          for (origin, field) in pubsteps ]
 client.createMany(objs)
@@ -403,13 +403,13 @@ for fcdata in data['facility_cycles']:
             c += 1
             cycle = client.new("facilityCycle")
             cycle.name = "%02d%d" % (y, c)
-            cycle.startDate = datetime.datetime(year, p[0], p[1], 
+            cycle.startDate = datetime.datetime(year, p[0], p[1],
                                                 tzinfo=gettz(p[0]))
             if p[2] > p[0]:
-                cycle.endDate = datetime.datetime(year, p[2], p[3], 
+                cycle.endDate = datetime.datetime(year, p[2], p[3],
                                                   tzinfo=gettz(p[2]))
             else:
-                cycle.endDate = datetime.datetime(year+1, p[2], p[3], 
+                cycle.endDate = datetime.datetime(year+1, p[2], p[3],
                                                   tzinfo=gettz(p[2]))
             cycle.facility = facilities[fcdata['facility']]
             facility_cycles.append(cycle)

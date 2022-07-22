@@ -29,12 +29,12 @@ import icat.config
 logging.basicConfig(level=logging.INFO)
 
 config = icat.config.Config(ids="mandatory")
-config.add_variable('investigation', ("investigation",), 
+config.add_variable('investigation', ("investigation",),
                     dict(help="name and optionally visit id "
                          "(separated by a colon) of the investigation"))
-config.add_variable('dataset', ("dataset",), 
+config.add_variable('dataset', ("dataset",),
                     dict(help="name of the dataset"))
-config.add_variable('datafileformat', ("datafileformat",), 
+config.add_variable('datafileformat', ("datafileformat",),
                     dict(help="name and optionally version "
                          "(separated by a colon) of the datafile format"))
 config.add_variable('files', ("files",),
@@ -62,7 +62,7 @@ def getinvestigation(invid):
     return (client.assertedSearch(searchexp)[0])
 
 def getdataset(dsname, investigation):
-    searchexp = ("Dataset [name='%s' AND investigation.id=%d]" 
+    searchexp = ("Dataset [name='%s' AND investigation.id=%d]"
                  % (dsname, investigation.id))
     return (client.assertedSearch(searchexp)[0])
 
