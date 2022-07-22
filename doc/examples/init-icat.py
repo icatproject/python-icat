@@ -79,6 +79,8 @@ pubtables = { "Application", "DatafileFormat", "DatasetType",
               "Facility", "FacilityCycle", "Instrument",
               "InvestigationType", "ParameterType",
               "PermissibleStringValue", "SampleType", "User", }
+if "technique" in client.typemap:
+    pubtables |= { "Technique" }
 
 # Objects that useroffice might need to create.  Basically anything
 # related to a particular investigation as a whole, but not to
@@ -89,6 +91,8 @@ uotables = { "FacilityCycle", "Grouping", "InstrumentScientist",
              "InvestigationInstrument", "InvestigationParameter",
              "InvestigationUser", "Keyword", "Publication", "Shift",
              "Study", "StudyInvestigation", "User", "UserGroup", }
+if "fundingReference" in client.typemap:
+    uotables |= { "InvestigationFunding", "FundingReference" }
 
 # Create a root user for the sake of completeness.  No need to grant
 # any access rights, because with ICAT 4.4 and newer, the root user
@@ -121,6 +125,61 @@ client.createRules("CRUD", uotables, uogroup)
 
 
 # ------------------------------------------------------------
+# Permissions for DataPublications (if available)
+# ------------------------------------------------------------
+
+if "dataPublication" in client.typemap:
+    # Create a dedicated user to generate data publication landing
+    # pages.  Add two groups: publisher and pubreader.  The former
+    # gets the required permissions to create a data publication, the
+    # latter the permissions to read all objects related to a data
+    # publications.
+    pubreader = client.createUser("simple/pubreader", fullName="Pub reader")
+    publisher_group = client.createGroup("publisher", [ useroffice ])
+    pubreader_group = client.createGroup("pubreader", [ pubreader ])
+
+    # publisher: CRUD permission on Datapublications and related classes
+    publisher_tables = { "Affiliation", "DataPublication",
+                         "DataPublicationDate", "DataPublicationFunding",
+                         "DataPublicationUser", "FundingReference",
+                         "FundingReference", "RelatedIdentifier" }
+    client.createRules("CRUD", publisher_tables, publisher_group)
+
+    # read permissions: DataPublication should be publicly readable as
+    # soon as they are published.  But pubreader also needs access to
+    # not yet published ones.  Access permissions to some related
+    # objects are covered by PublicStep below and don't need included
+    # here.
+    dpitems = [
+        ("DataPublication", ""),
+        ("Datafile", "dataCollectionDatafiles.dataCollection.dataPublications"),
+        ("Datafile",
+         "dataset.dataCollectionDatasets.dataCollection.dataPublications"),
+        ("Datafile",
+         "dataset.investigation.dataCollectionInvestigations.dataCollection."
+         "dataPublications"),
+        ("Dataset", "dataCollectionDatasets.dataCollection.dataPublications"),
+        ("Dataset",
+         "investigation.dataCollectionInvestigations.dataCollection."
+         "dataPublications"),
+        ("Investigation",
+         "dataCollectionInvestigations.dataCollection.dataPublications"),
+    ]
+    all_items = []
+    pr_items = []
+    for name, a in dpitems:
+        query = Query(client, name)
+        if a:
+            query.addConditions({("%s.id" % a): "IS NOT NULL"})
+        pr_items.append(query)
+        pd_attr = "%s.publicationDate" % a if a else "publicationDate"
+        query = Query(client, name, conditions={pd_attr: "< CURRENT_TIMESTAMP"})
+        all_items.append(query)
+    client.createRules("R", all_items)
+    client.createRules("R", pr_items, pubreader_group)
+
+
+# ------------------------------------------------------------
 # Permissions for some special cases
 # ------------------------------------------------------------
 
@@ -142,15 +201,25 @@ client.createRules("RU", ["Sample"], staff)
 # private, so users are only allowed to read, update or delete
 # DataCollections they created themselves.  Similar thing for Job and
 # RelatedDatafile.
-owndccond = "DataCollection [createId=:user]"
-owndc = [ s % owndccond for s in
-          [ "%s",
-            "DataCollectionDatafile <-> %s",
-            "DataCollectionDataset <-> %s",
-            "DataCollectionParameter <-> %s" ] ]
-client.createRules("CRUD", owndc)
-client.createRules("CRUD", ["Job [createId=:user]"])
-client.createRules("CRUD", ["RelatedDatafile [createId=:user]"])
+#
+# *Note*: allowing everybody to create their own DataCollections was a
+# nice idea to try out and it even works.  But it has some security
+# implications that are quite difficult to handle.  I leave it in
+# here, because some other example scripts need it.  But I'd rather
+# not recommended to do this on a production server.
+dcitems = [
+    ( "DataCollection", "" ),
+    ( "DataCollectionDatafile", "dataCollection." ),
+    ( "DataCollectionDataset", "dataCollection." ),
+    ( "DataCollectionParameter", "dataCollection." ),
+    ( "Job", "" ),
+    ( "RelatedDatafile", "" ),
+]
+if "dataCollectionInvestigation" in client.typemap:
+    dcitems.insert(3, ( "DataCollectionInvestigation", "dataCollection." ))
+items = [ Query(client, name, conditions={ (a + "createId"): "= :user" })
+          for name, a in dcitems ]
+client.createRules("CRUD", items)
 
 
 # ------------------------------------------------------------
@@ -182,6 +251,10 @@ invitems = [
     ( "DatasetParameter", "dataset.investigation.", "" ),
     ( "DatafileParameter", "datafile.dataset.investigation.", "" ),
 ]
+if "datasetInstrument" in client.typemap:
+    invitems.append(( "DatasetInstrument", "dataset.investigation.", "" ))
+if "datasetTechnique" in client.typemap:
+    invitems.append(( "DatasetTechnique", "dataset.investigation.", "" ))
 
 # Set write permissions
 items = []
@@ -294,6 +367,25 @@ pubsteps = [
     ("Sample", "parameters"),
     ("Study", "studyInvestigations"),
 ]
+# Note: to simplify things, we take DataPublication as pars pro toto
+# for all the schema extensions in ICAT 5.0 here.
+if "dataPublication" in client.typemap:
+    pubsteps.extend([
+        ( "DataCollection", "dataCollectionInvestigations" ),
+        ( "DataPublication", "content"),
+        ( "DataPublication", "dates"),
+        ( "DataPublication", "fundingReferences"),
+        ( "DataPublication", "relatedIdentifiers"),
+        ( "DataPublication", "users"),
+        ( "DataPublicationFunding", "funding"),
+        ( "DataPublicationUser", "affiliations"),
+        ( "DataPublicationUser", "user"),
+        ( "Dataset", "datasetInstruments"),
+        ( "Dataset", "datasetTechniques"),
+        ( "Investigation", "fundingReferences"),
+        ( "InvestigationFunding", "funding"),
+    ])
+    pubsteps.sort()
 objs = [ client.new("publicStep", origin=origin, field=field)
          for (origin, field) in pubsteps ]
 client.createMany(objs)

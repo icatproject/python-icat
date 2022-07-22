@@ -8,7 +8,7 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import getConfig, require_icat_version, UtcTimezone
+from conftest import getConfig, icat_version, require_icat_version, UtcTimezone
 
 
 @pytest.fixture(scope="module")
@@ -30,6 +30,15 @@ def client(setupicat):
 
 investigation = None
 tzinfo = UtcTimezone() if UtcTimezone else None
+
+# The the actual number of rules in the test data differs with the
+# ICAT version.
+if icat_version < "5.0a1":   # FIXME: change the version number to compare with to "5.0" as soon as icat.server 5.0 is released
+    all_rules = 104
+    grp_rules = 44
+else:
+    all_rules = 150
+    grp_rules = 73
 
 @pytest.mark.dependency(name='get_investigation')
 def test_query_simple(client):
@@ -343,7 +352,7 @@ def test_query_condition_obj(client):
     print(str(query))
     assert "Rule" in query.select_clause
     res = client.search(query)
-    assert len(res) == 60
+    assert len(res) == all_rules - grp_rules
 
 def test_query_condition_jpql_function(client):
     """Functions may be applied to field names of conditions.
@@ -420,10 +429,7 @@ def test_query_rule_order(client):
     assert query.where_clause is None
     assert "id" in query.order_clause
     res = client.search(query)
-    # Note: the actual number of rules depend on the ICAT version of
-    # the test data.  FIXME: update the upper limit for the final
-    # version of ICAT 5.0 test data.
-    assert 104 <= len(res) <= 118
+    assert len(res) == all_rules
 
 def test_query_rule_order_group(client, recwarn):
     """Ordering rule on grouping implicitely adds a "grouping IS NOT NULL"
@@ -442,10 +448,7 @@ def test_query_rule_order_group(client, recwarn):
     assert query.where_clause is None
     assert "what" in query.order_clause
     res = client.search(query)
-    # Note: the actual number of rules depend on the ICAT version of
-    # the test data.  FIXME: update the upper limit for the final
-    # version of ICAT 5.0 test data.
-    assert 44 <= len(res) <= 58
+    assert len(res) == grp_rules
 
 def test_query_rule_order_group_suppress_warn_cond(client, recwarn):
     """The warning can be suppressed by making the condition explicit.
@@ -460,10 +463,7 @@ def test_query_rule_order_group_suppress_warn_cond(client, recwarn):
     assert "grouping" in query.where_clause
     assert "what" in query.order_clause
     res = client.search(query)
-    # Note: the actual number of rules depend on the ICAT version of
-    # the test data.  FIXME: update the upper limit for the final
-    # version of ICAT 5.0 test data.
-    assert 44 <= len(res) <= 58
+    assert len(res) == grp_rules
 
 def test_query_rule_order_group_suppress_warn_join(client, recwarn):
     """Another option to suppress the warning is to override the JOIN spec.
@@ -480,10 +480,7 @@ def test_query_rule_order_group_suppress_warn_join(client, recwarn):
     assert query.where_clause is None
     assert "what" in query.order_clause
     res = client.search(query)
-    # Note: the actual number of rules depend on the ICAT version of
-    # the test data.  FIXME: update the upper limit for the final
-    # version of ICAT 5.0 test data.
-    assert 44 <= len(res) <= 58
+    assert len(res) == grp_rules
 
 def test_query_rule_order_group_left_join(client, recwarn):
     """Another option to suppress the warning is to override the JOIN spec.
@@ -499,10 +496,7 @@ def test_query_rule_order_group_left_join(client, recwarn):
     assert query.where_clause is None
     assert "what" in query.order_clause
     res = client.search(query)
-    # Note: the actual number of rules depend on the ICAT version of
-    # the test data.  FIXME: update the upper limit for the final
-    # version of ICAT 5.0 test data.
-    assert 104 <= len(res) <= 118
+    assert len(res) == all_rules
 
 def test_query_order_one_to_many(client, recwarn):
     """Sort on a related object in a one to many relation.
@@ -635,20 +629,17 @@ def test_query_limit_placeholder(client):
                   conditions={"grouping":"IS NOT NULL"})
     query.setLimit( ("%d","%d") )
     print(str(query))
-    print(str(query) % (0,30))
+    print(str(query) % (0,40))
     assert "Rule" in query.select_clause
     assert "grouping" in query.join_clause
     assert "grouping" in query.where_clause
     assert "what" in query.order_clause
     assert query.limit_clause is not None
-    res = client.search(str(query) % (0,30))
-    assert len(res) == 30
-    print(str(query) % (30,30))
-    res = client.search(str(query) % (30,30))
-    # Note: the actual number of rules depend on the ICAT version of
-    # the test data.  FIXME: update the upper limit for the final
-    # version of ICAT 5.0 test data.
-    assert 14 <= len(res) <= 28
+    res = client.search(str(query) % (0,40))
+    assert len(res) == 40
+    print(str(query) % (40,40))
+    res = client.search(str(query) % (40,40))
+    assert len(res) == grp_rules - 40
 
 def test_query_non_ascii(client):
     """Test if query strings with non-ascii characters work.
