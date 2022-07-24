@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2022-07-22T14:11:51+00:00</date>
+  <date>2022-07-24T09:08:37+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>5.0a1</apiversion>
-  <generator>icatdump (python-icat 0.21.1.dev106)</generator>
+  <generator>icatdump (python-icat 0.21.1.dev108)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
@@ -994,6 +994,26 @@
   </publicStep>
 </data>
 <data>
+  <technique id="Technique_name-Angle=20Resolved=20Photoemission=20Spectroscopy">
+    <description>Angle Resolved Photoemission Spectroscopy</description>
+    <name>Angle Resolved Photoemission Spectroscopy</name>
+    <pid>http://purl.org/pan-science/PaNET/PaNET01089</pid>
+  </technique>
+  <technique id="Technique_name-Hard=20X=2Dray=20Photoelectron=20Spectroscopy">
+    <description>Hard X-ray Photoelectron Spectroscopy</description>
+    <name>Hard X-ray Photoelectron Spectroscopy</name>
+    <pid>http://purl.org/pan-science/PaNET/PaNET01103</pid>
+  </technique>
+  <technique id="Technique_name-Neutron=20Diffraction">
+    <description>Neutron Diffraction</description>
+    <name>Neutron Diffraction</name>
+    <pid>http://purl.org/pan-science/PaNET/PaNET01217</pid>
+  </technique>
+  <technique id="Technique_name-X=2Dray=20Tomography">
+    <description>X-ray Tomography</description>
+    <name>X-ray Tomography</name>
+    <pid>http://purl.org/pan-science/PaNET/PaNET01207</pid>
+  </technique>
   <facility id="Facility_name-ESNF">
     <description>ESNF is an example facility</description>
     <fullName>Example Synchrotron and Neutron Facility</fullName>
@@ -1449,6 +1469,12 @@
     <investigation ref="Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP"/>
     <sample ref="Sample_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-Durol=20SC"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-raw"/>
+    <datasetInstruments>
+      <instrument ref="Instrument_facility-(name-ESNF)_name-HIKE"/>
+    </datasetInstruments>
+    <datasetTechniques>
+      <technique ref="Technique_name-Hard=20X=2Dray=20Photoelectron=20Spectroscopy"/>
+    </datasetTechniques>
   </dataset>
   <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201216">
     <complete>false</complete>
@@ -1459,6 +1485,12 @@
     <investigation ref="Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP"/>
     <sample ref="Sample_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-Durol=20SC"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-raw"/>
+    <datasetInstruments>
+      <instrument ref="Instrument_facility-(name-ESNF)_name-HIKE"/>
+    </datasetInstruments>
+    <datasetTechniques>
+      <technique ref="Technique_name-Hard=20X=2Dray=20Photoelectron=20Spectroscopy"/>
+    </datasetTechniques>
   </dataset>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215)_name-e201215=2Enxs">
     <checksum>ac69460a</checksum>
@@ -1558,6 +1590,12 @@
     <investigation ref="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN"/>
     <sample ref="Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-raw"/>
+    <datasetInstruments>
+      <instrument ref="Instrument_facility-(name-ESNF)_name-E2"/>
+    </datasetInstruments>
+    <datasetTechniques>
+      <technique ref="Technique_name-Neutron=20Diffraction"/>
+    </datasetTechniques>
     <parameters>
       <numericValue>7.3</numericValue>
       <type ref="ParameterType_facility-(name-ESNF)_name-Magnetic=20field_units-T"/>
@@ -1577,6 +1615,12 @@
     <investigation ref="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN"/>
     <sample ref="Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-raw"/>
+    <datasetInstruments>
+      <instrument ref="Instrument_facility-(name-ESNF)_name-E2"/>
+    </datasetInstruments>
+    <datasetTechniques>
+      <technique ref="Technique_name-Neutron=20Diffraction"/>
+    </datasetTechniques>
     <parameters>
       <numericValue>2.7</numericValue>
       <type ref="ParameterType_facility-(name-ESNF)_name-Magnetic=20field_units-T"/>
@@ -1596,6 +1640,12 @@
     <investigation ref="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN"/>
     <sample ref="Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-raw"/>
+    <datasetInstruments>
+      <instrument ref="Instrument_facility-(name-ESNF)_name-E2"/>
+    </datasetInstruments>
+    <datasetTechniques>
+      <technique ref="Technique_name-Neutron=20Diffraction"/>
+    </datasetTechniques>
   </dataset>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339)_name-e208339=2Edat">
     <checksum>81c44870</checksum>
@@ -1724,6 +1774,9 @@
     <investigation ref="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP"/>
     <sample ref="Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-raw"/>
+    <datasetInstruments>
+      <instrument ref="Instrument_facility-(name-ESNF)_name-EDDI"/>
+    </datasetInstruments>
     <parameters>
       <numericValue>3.92</numericValue>
       <type ref="ParameterType_facility-(name-ESNF)_name-Sample=20temperature_units-C"/>
@@ -1743,6 +1796,9 @@
     <investigation ref="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP"/>
     <sample ref="Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-raw"/>
+    <datasetInstruments>
+      <instrument ref="Instrument_facility-(name-ESNF)_name-EDDI"/>
+    </datasetInstruments>
   </dataset>
   <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947">
     <complete>true</complete>

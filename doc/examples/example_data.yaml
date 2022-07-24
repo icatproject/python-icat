@@ -71,6 +71,7 @@ instruments:
     instrumentscientist: acord
     name: E2
     pid: 00.0815/inst-00001
+    technique: ndiff
     type: null
   eddi:
     description: >
@@ -89,6 +90,7 @@ instruments:
     instrumentscientist: acord
     name: EDDI
     pid: 00.0815/inst-00048
+    technique: null
     type: null
   hike:
     description: >
@@ -104,6 +106,7 @@ instruments:
     instrumentscientist: acord
     name: HIKE
     pid: 00.0815/inst-00027
+    technique: haxpes
     type: null
 investigation_types:
   calibration:
@@ -523,14 +526,10 @@ techniques:
   haxpes:
     name: Hard X-ray Photoelectron Spectroscopy
     description: Hard X-ray Photoelectron Spectroscopy
-    instruments:
-      - hike
     pid: http://purl.org/pan-science/PaNET/PaNET01103
   ndiff:
     name: Neutron Diffraction
     description: Neutron Diffraction
-    instruments:
-      - e2
     pid: http://purl.org/pan-science/PaNET/PaNET01217
   xtomo:
     name: X-ray Tomography

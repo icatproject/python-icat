@@ -404,6 +404,19 @@ for k in data['facilities'].keys():
 
 
 # ------------------------------------------------------------
+# Create techniques (if available)
+# ------------------------------------------------------------
+
+if "technique" in client.typemap:
+    techniques = []
+    for k in data['techniques'].keys():
+        t = client.new("technique")
+        initobj(t, data['techniques'][k])
+        techniques.append(t)
+    client.createMany(techniques)
+
+
+# ------------------------------------------------------------
 # Create instruments
 # ------------------------------------------------------------
 

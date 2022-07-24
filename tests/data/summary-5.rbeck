@@ -18,9 +18,9 @@ Datafile                 : 6
 DatafileFormat           : 5
 DatafileParameter        : 6
 Dataset                  : 5
-DatasetInstrument        : 0
+DatasetInstrument        : 4
 DatasetParameter         : 2
-DatasetTechnique         : 0
+DatasetTechnique         : 2
 DatasetType              : 3
 Facility                 : 1
 FacilityCycle            : 20
@@ -51,7 +51,7 @@ SampleType               : 3
 Shift                    : 2
 Study                    : 0
 StudyInvestigation       : 0
-Technique                : 0
+Technique                : 4
 User                     : 10
 UserGroup                : 0
 

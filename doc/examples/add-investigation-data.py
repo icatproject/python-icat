@@ -76,6 +76,18 @@ facility_const = "AND facility.id=%d" % facility.id
 invsearch = "Investigation[name='%s']" % investigationdata['name']
 investigation = client.assertedSearch(invsearch)[0]
 
+instrumentname = data['instruments'][investigationdata['instrument']]['name']
+instrsearch = "Instrument[name='%s' %s]" % (instrumentname, facility_const)
+instrument = client.assertedSearch(instrsearch)[0]
+
+technique = None
+if "technique" in client.typemap:
+    t = data['instruments'][investigationdata['instrument']]['technique']
+    if t:
+        tn = data['techniques'][t]['name']
+        techsearch = "Technique [name='%s']" % tn
+        technique = client.assertedSearch(techsearch)[0]
+
 need_dataset_types = set()
 need_datafile_formats = set()
 for ds in investigationdata['datasets']:
@@ -146,5 +158,11 @@ for datasetdata in investigationdata['datasets']:
                                                          pdata))
             dataset.datafiles.append(datafile)
 
-    dataset.create()
+    if 'datasetInstruments' in dataset.InstMRel:
+        di = client.new("datasetInstrument", instrument=instrument)
+        dataset.datasetInstruments.append(di)
+    if 'datasetTechniques' in dataset.InstMRel and technique:
+        dt = client.new("datasetTechnique", technique=technique)
+        dataset.datasetTechniques.append(dt)
 
+    dataset.create()
