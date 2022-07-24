@@ -124,7 +124,7 @@ def getInvestigationQueries(client, invid):
         ds_includes |= { "datasetInstruments.instrument.facility" }
     if 'datasetTechniques' in client.typemap['dataset'].InstMRel:
         # ICAT >= 5.0.0
-        ds_includes |= { "datasetTechniques" }
+        ds_includes |= { "datasetTechniques.technique" }
 
     return [
         Query(client, "Investigation",
