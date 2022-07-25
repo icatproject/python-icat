@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Sun, 24 Jul 2022 09:08:35 +0000
+# Date: Mon, 25 Jul 2022 09:51:32 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 5.0a1
-# Generator: icatdump (python-icat 0.21.1.dev108)
+# Generator: icatdump (python-icat 0.21.1.dev109)
 ---
 grouping:
   Grouping_name-investigation=5F08100122=2DEF=5Fowner:
@@ -1297,6 +1297,8 @@ investigation:
     facility: Facility_name-ESNF
     fileCount: 1
     fileSize: 368369
+    investigationFacilityCycles:
+    - facilityCycle: FacilityCycle_facility-(name-ESNF)_name-081
     investigationGroups:
     - grouping: Grouping_name-investigation=5F08100122=2DEF=5Fowner
       role: owner
@@ -1440,6 +1442,8 @@ investigation:
     facility: Facility_name-ESNF
     fileCount: 4
     fileSize: 127125
+    investigationFacilityCycles:
+    - facilityCycle: FacilityCycle_facility-(name-ESNF)_name-102
     investigationGroups:
     - grouping: Grouping_name-investigation=5F10100601=2DST=5Fowner
       role: owner
@@ -1587,6 +1591,8 @@ investigation:
     facility: Facility_name-ESNF
     fileCount: 5
     fileSize: 493648
+    investigationFacilityCycles:
+    - facilityCycle: FacilityCycle_facility-(name-ESNF)_name-121
     investigationGroups:
     - grouping: Grouping_name-investigation=5F12100409=2DST=5Fowner
       role: owner

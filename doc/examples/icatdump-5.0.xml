@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2022-07-24T09:08:37+00:00</date>
+  <date>2022-07-25T09:51:47+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>5.0a1</apiversion>
-  <generator>icatdump (python-icat 0.21.1.dev108)</generator>
+  <generator>icatdump (python-icat 0.21.1.dev109)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
@@ -1413,6 +1413,9 @@
     <visitId>1.1-P</visitId>
     <facility ref="Facility_name-ESNF"/>
     <type ref="InvestigationType_name-Experiment_facility-(name-ESNF)"/>
+    <investigationFacilityCycles>
+      <facilityCycle ref="FacilityCycle_facility-(name-ESNF)_name-081"/>
+    </investigationFacilityCycles>
     <investigationGroups>
       <role>owner</role>
       <grouping ref="Grouping_name-investigation=5F08100122=2DEF=5Fowner"/>
@@ -1518,6 +1521,9 @@
     <visitId>1.1-N</visitId>
     <facility ref="Facility_name-ESNF"/>
     <type ref="InvestigationType_name-Experiment_facility-(name-ESNF)"/>
+    <investigationFacilityCycles>
+      <facilityCycle ref="FacilityCycle_facility-(name-ESNF)_name-102"/>
+    </investigationFacilityCycles>
     <investigationGroups>
       <role>owner</role>
       <grouping ref="Grouping_name-investigation=5F10100601=2DST=5Fowner"/>
@@ -1712,6 +1718,9 @@
     <visitId>1.1-P</visitId>
     <facility ref="Facility_name-ESNF"/>
     <type ref="InvestigationType_name-Experiment_facility-(name-ESNF)"/>
+    <investigationFacilityCycles>
+      <facilityCycle ref="FacilityCycle_facility-(name-ESNF)_name-121"/>
+    </investigationFacilityCycles>
     <investigationGroups>
       <role>owner</role>
       <grouping ref="Grouping_name-investigation=5F12100409=2DST=5Fowner"/>
