@@ -1255,7 +1255,7 @@ def test_deprecated_config_defaultsection(fakeClient, tmpconfigfile,
 
     monkeypatch.setattr(icat.config, "defaultsection", "example_root")
     with pytest.deprecated_call():
-        config = icat.config.Config(needlogin=False, ids=False)
+        config = icat.config.Config(needlogin=False, ids=False, args=())
     _, conf = config.getconfig()
 
     ex = ExpectedConf(configFile=[Path("icat.cfg")],

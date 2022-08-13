@@ -25,10 +25,10 @@ if len(formats) == 0:
     raise RuntimeError("No datafile backends available.")
 
 config = icat.config.Config()
-config.add_variable('file', ("-o", "--outputfile"), 
+config.add_variable('file', ("-o", "--outputfile"),
                     dict(help="output file name or '-' for stdout"),
                     default='-')
-config.add_variable('format', ("-f", "--format"), 
+config.add_variable('format', ("-f", "--format"),
                     dict(help="output file format", choices=formats),
                     default='YAML')
 client, conf = config.getconfig()

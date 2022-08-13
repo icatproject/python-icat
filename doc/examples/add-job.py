@@ -18,10 +18,10 @@ from icat.query import Query
 logging.basicConfig(level=logging.INFO)
 
 config = icat.config.Config()
-config.add_variable('datafile', ("datafile",), 
-                    dict(metavar="inputdata.yaml", 
+config.add_variable('datafile', ("datafile",),
+                    dict(metavar="inputdata.yaml",
                          help="name of the input datafile"))
-config.add_variable('jobname', ("jobname",), 
+config.add_variable('jobname', ("jobname",),
                     dict(help="name of the job to add"))
 client, conf = config.getconfig()
 
@@ -79,7 +79,7 @@ initobj(inputcollection, jobdata['input'])
 
 for ds in jobdata['input']['datasets']:
     query = Query(client, "Dataset", conditions={
-        "name":"= '%s'" % ds['name'], 
+        "name":"= '%s'" % ds['name'],
         "investigation.name":"= '%s'" % ds['investigation']
     })
     dataset = client.assertedSearch(query)[0]
@@ -88,8 +88,8 @@ for ds in jobdata['input']['datasets']:
 
 for df in jobdata['input']['datafiles']:
     query = Query(client, "Datafile", conditions={
-        "name":"= '%s'" % df['name'], 
-        "dataset.name":"= '%s'" % df['dataset'], 
+        "name":"= '%s'" % df['name'],
+        "dataset.name":"= '%s'" % df['dataset'],
         "dataset.investigation.name":"= '%s'" % df['investigation']
     })
     datafile = client.assertedSearch(query)[0]
@@ -132,8 +132,8 @@ for ds in jobdata['output']['datasets']:
     for df in ds['datafiles']:
         dff = data['datafile_formats'][df['format']]
         query = Query(client, "DatafileFormat", conditions={
-            "name":"= '%s'" % dff['name'], 
-            "version":"= '%s'" % dff['version'], 
+            "name":"= '%s'" % dff['name'],
+            "version":"= '%s'" % dff['version'],
         })
         datafile_format = client.assertedSearch(query)[0]
         print("Datafile: creating '%s' ..." % df['name'])
@@ -158,14 +158,14 @@ for ds in jobdata['output']['datasets']:
 
 for df in jobdata['output']['datafiles']:
     query = Query(client, "Dataset", conditions={
-        "name":"= '%s'" % df['dataset'], 
+        "name":"= '%s'" % df['dataset'],
         "investigation.name":"= '%s'" % df['investigation']
     })
     dataset = client.assertedSearch(query)[0]
     dff = data['datafile_formats'][df['format']]
     query = Query(client, "DatafileFormat", conditions={
-        "name":"= '%s'" % dff['name'], 
-        "version":"= '%s'" % dff['version'], 
+        "name":"= '%s'" % dff['name'],
+        "version":"= '%s'" % dff['version'],
     })
     datafile_format = client.assertedSearch(query)[0]
     print("Datafile: creating '%s' ..." % df['name'])
@@ -193,13 +193,13 @@ outputcollection.create()
 # ------------------------------------------------------------
 
 appdata = data['applications'][jobdata['application']]
-appsearch = ("Application [name='%s' AND version='%s']" 
+appsearch = ("Application [name='%s' AND version='%s']"
              % ( appdata['name'], appdata['version'] ))
 application = client.assertedSearch(appsearch)[0]
 
-job = client.new("job", 
-                 application=application, 
-                 inputDataCollection=inputcollection, 
+job = client.new("job",
+                 application=application,
+                 inputDataCollection=inputcollection,
                  outputDataCollection=outputcollection)
 job.create()
 

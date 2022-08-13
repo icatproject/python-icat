@@ -14,10 +14,10 @@ import icat.config
 logging.basicConfig(level=logging.INFO)
 
 config = icat.config.Config()
-config.add_variable('datafile', ("datafile",), 
-                    dict(metavar="inputdata.yaml", 
+config.add_variable('datafile', ("datafile",),
+                    dict(metavar="inputdata.yaml",
                          help="name of the input datafile"))
-config.add_variable('sampletypename', ("sampletypename",), 
+config.add_variable('sampletypename', ("sampletypename",),
                     dict(help="name of the sample type to add"))
 client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
@@ -57,7 +57,7 @@ try:
 except icat.exception.SearchResultError:
     pass
 else:
-    raise RuntimeError("SampleType: '%s' already exists." 
+    raise RuntimeError("SampleType: '%s' already exists."
                        % sampletypedata['name'])
 
 print("SampleType: creating '%s' ..." % sampletypedata['name'])
