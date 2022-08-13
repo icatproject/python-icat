@@ -21,8 +21,9 @@ import string
 import sys
 try:
     import distutils_pytest
-except ImportError:
-    pass
+    cmdclass = distutils_pytest.cmdclass
+except (ImportError, AttributeError):
+    cmdclass = dict()
 try:
     import setuptools_scm
     version = setuptools_scm.get_version()
@@ -174,10 +175,9 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    cmdclass = {
-        'build_py': build_py,
-        'build_test': build_test,
-        'init_py': init_py,
-        'sdist': sdist,
-    },
+    cmdclass = dict(cmdclass,
+                    build_py=build_py,
+                    build_test=build_test,
+                    init_py=init_py,
+                    sdist=sdist),
 )
