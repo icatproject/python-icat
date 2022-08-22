@@ -43,7 +43,7 @@ PermissibleStringValue   : 6
 PublicStep               : 0
 Publication              : 1
 RelatedDatafile          : 1
-RelatedIdentifier        : 0
+RelatedItem              : 0
 Rule                     : 0
 Sample                   : 3
 SampleParameter          : 2

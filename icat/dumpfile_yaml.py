@@ -62,7 +62,7 @@ entitytypes = [
     'dataPublicationFunding',
     'dataPublicationUser',
     'affiliation',
-    'relatedIdentifier',
+    'relatedItem',
     'study',
     'studyInvestigation',
     'relatedDatafile',

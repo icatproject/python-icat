@@ -511,7 +511,7 @@
   </rule>
   <rule id="Rule_00000084">
     <crudFlags>CRUD</crudFlags>
-    <what>RelatedIdentifier</what>
+    <what>RelatedItem</what>
     <grouping ref="Grouping_name-publisher"/>
   </rule>
   <rule id="Rule_00000085">
@@ -711,7 +711,7 @@
   </rule>
   <rule id="Rule_00000124">
     <crudFlags>R</crudFlags>
-    <what>RelatedIdentifier</what>
+    <what>RelatedItem</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000125">
@@ -872,8 +872,8 @@
     <field>fundingReferences</field>
     <origin>DataPublication</origin>
   </publicStep>
-  <publicStep id="PublicStep_origin-DataPublication_field-relatedIdentifiers">
-    <field>relatedIdentifiers</field>
+  <publicStep id="PublicStep_origin-DataPublication_field-relatedItems">
+    <field>relatedItems</field>
     <origin>DataPublication</origin>
   </publicStep>
   <publicStep id="PublicStep_origin-DataPublication_field-users">

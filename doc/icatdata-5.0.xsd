@@ -177,7 +177,7 @@
 		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="dataPublicationFunding" type="dataPublicationFunding"
 		 minOccurs="0" maxOccurs="unbounded"/>
-    <xsd:element name="relatedIdentifier" type="relatedIdentifier"
+    <xsd:element name="relatedItem" type="relatedItem"
 		 minOccurs="0" maxOccurs="unbounded"/>
     <!-- other -->
     <xsd:element name="study" type="study"
@@ -576,7 +576,7 @@
 		     minOccurs="0" maxOccurs="unbounded"/>
 	<xsd:element name="fundingReferences" type="dataPublicationFunding"
 		     minOccurs="0" maxOccurs="unbounded"/>
-	<xsd:element name="relatedIdentifiers" type="relatedIdentifier"
+	<xsd:element name="relatedItems" type="relatedItem"
 		     minOccurs="0" maxOccurs="unbounded"/>
 	<xsd:element name="users" type="dataPublicationUser"
 		     minOccurs="0" maxOccurs="unbounded"/>
@@ -630,6 +630,7 @@
     <xsd:extension base="entityBase">
       <xsd:sequence>
 	<xsd:element name="contributorType" type="xsd:string"/>
+	<xsd:element name="email" type="xsd:string" minOccurs="0"/>
 	<xsd:element name="familyName" type="xsd:string" minOccurs="0"/>
 	<xsd:element name="fullName" type="xsd:string" minOccurs="0"/>
 	<xsd:element name="givenName" type="xsd:string" minOccurs="0"/>
@@ -1184,13 +1185,15 @@
   </xsd:complexContent>
 </xsd:complexType>
 
-<xsd:complexType name="relatedIdentifier">
+<xsd:complexType name="relatedItem">
   <xsd:complexContent>
     <xsd:extension base="entityBase">
       <xsd:sequence>
 	<xsd:element name="fullReference" type="xsd:string" minOccurs="0"/>
 	<xsd:element name="identifier" type="xsd:string"/>
+	<xsd:element name="relatedItemType" type="xsd:string"/>
 	<xsd:element name="relationType" type="xsd:string"/>
+	<xsd:element name="title" type="xsd:string"/>
 	<xsd:element name="publication" type="dataPublicationRef"
 		     minOccurs="0"/>
       </xsd:sequence>

@@ -142,7 +142,7 @@ if "dataPublication" in client.typemap:
     publisher_tables = { "Affiliation", "DataPublication",
                          "DataPublicationDate", "DataPublicationFunding",
                          "DataPublicationUser", "FundingReference",
-                         "FundingReference", "RelatedIdentifier" }
+                         "FundingReference", "RelatedItem" }
     client.createRules("CRUD", publisher_tables, publisher_group)
 
     # read permissions: DataPublication should be publicly readable as
@@ -375,7 +375,7 @@ if "dataPublication" in client.typemap:
         ( "DataPublication", "content"),
         ( "DataPublication", "dates"),
         ( "DataPublication", "fundingReferences"),
-        ( "DataPublication", "relatedIdentifiers"),
+        ( "DataPublication", "relatedItems"),
         ( "DataPublication", "users"),
         ( "DataPublicationFunding", "funding"),
         ( "DataPublicationUser", "affiliations"),

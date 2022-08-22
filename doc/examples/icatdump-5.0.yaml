@@ -96,8 +96,8 @@ publicStep:
   PublicStep_origin-DataPublication_field-fundingReferences:
     field: fundingReferences
     origin: DataPublication
-  PublicStep_origin-DataPublication_field-relatedIdentifiers:
-    field: relatedIdentifiers
+  PublicStep_origin-DataPublication_field-relatedItems:
+    field: relatedItems
     origin: DataPublication
   PublicStep_origin-DataPublication_field-users:
     field: users
@@ -548,7 +548,7 @@ rule:
   Rule_00000084:
     crudFlags: CRUD
     grouping: Grouping_name-publisher
-    what: RelatedIdentifier
+    what: RelatedItem
   Rule_00000085:
     crudFlags: R
     grouping: Grouping_name-pubreader
@@ -718,7 +718,7 @@ rule:
   Rule_00000124:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: RelatedIdentifier
+    what: RelatedItem
   Rule_00000125:
     crudFlags: R
     grouping: Grouping_name-rall
