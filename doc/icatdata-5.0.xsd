@@ -728,6 +728,10 @@
 		     minOccurs="0" maxOccurs="unbounded"/>
 	<xsd:element name="datafiles" type="datafile"
 		     minOccurs="0" maxOccurs="unbounded"/>
+	<xsd:element name="datasetInstruments" type="datasetInstrument"
+		     minOccurs="0" maxOccurs="unbounded"/>
+	<xsd:element name="datasetTechniques" type="datasetTechnique"
+		     minOccurs="0" maxOccurs="unbounded"/>
 	<xsd:element name="parameters" type="datasetParameter"
 		     minOccurs="0" maxOccurs="unbounded"/>
       </xsd:sequence>
