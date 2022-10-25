@@ -40,11 +40,13 @@ Required library packages
 + `packaging`_
 
 + Suds.  The original version by Jeff Ortel is not maintained anymore
-  since very long time and not recommended.  There are several forks
+  since very long time and not supported.  There are several forks
   around, most of them short-lived.  Two of them have been evaluated
   with python-icat and found to work: the `fork by Jurko
-  Gospodnetić`__ and the more recent `suds-community`_.  Note that
-  suds-community does not work with older ICAT servers, see below.
+  Gospodnetić`__ and the more recent `suds-community`_.  The latter
+  has officially been renamed back to suds since version 1.0.0.  Note
+  that suds-community does not work with older ICAT servers, see
+  below.
 
 .. __: `suds-jurko`_
 
@@ -189,8 +191,8 @@ Bugs and limitations
 + There are issues with ICAT server 4.8.0 and older when using
   suds-community, see `Issue #72`_ for details.  Use suds-jurko when
   you need to talk to those older ICAT servers.  On the other hand,
-  suds-jurko does can not be installed with setuptools 58.0.0 and
-  newer.
+  suds-jurko does not seem to be maintained any more and can not be
+  installed with setuptools 58.0.0 and newer.
 
 + If supported by the ICAT server (icat.server 4.9.0 and newer), the
   icat.config module queries the server for information on available
