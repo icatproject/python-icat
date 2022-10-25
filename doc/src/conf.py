@@ -6,6 +6,12 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
+from pathlib import Path
+import sys
+
+maindir = Path(__file__).resolve().parent.parent.parent
+sys.path[0] = str(maindir)
+
 import _meta
 
 
