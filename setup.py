@@ -155,6 +155,19 @@ class build_py(setuptools.command.build_py.build_py):
         super().run()
 
 
+# There are several forks of the original suds package around, most of
+# them short-lived.  Two of them have been evaluated with python-icat
+# and found to work: suds-jurko and the more recent suds-community.
+# The latter has been renamed to suds.  We don't want to force to use
+# one particular suds clone.  Therefore, we first try if (any clone
+# of) suds is already installed and only add suds to install_requires
+# if not.
+requires = ["packaging"]
+try:
+    import suds
+except ImportError:
+    requires.append("suds")
+
 with Path("README.rst").open("rt", encoding="utf8") as f:
     readme = f.read()
 
@@ -185,7 +198,7 @@ setup(
     ],
     packages = ["icat"],
     python_requires = ">=3.4",
-    install_requires = ["packaging", "suds"],
+    install_requires = requires,
     scripts = ["icatdump.py", "icatingest.py", "wipeicat.py"],
     cmdclass = dict(cmdclass,
                     meta=meta,
