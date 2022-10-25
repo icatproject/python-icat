@@ -39,9 +39,11 @@ Group:		Development/Languages/Python
 Url:		$url
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
-BuildRequires:	python%{python3_pkgversion}-devel >= 3.4
+BuildRequires:	python%{python3_pkgversion} >= 3.4
+BuildRequires:	python%{python3_pkgversion}-setuptools
 %if 0%{?python3_other_pkgversion}
-BuildRequires:	python%{python3_other_pkgversion}-devel >= 3.4
+BuildRequires:	python%{python3_other_pkgversion} >= 3.4
+BuildRequires:	python%{python3_other_pkgversion}-setuptools
 %endif
 %if 0%{?suse_version}
 BuildRequires:	fdupes
@@ -78,6 +80,7 @@ This package contains the manual pages for the command line scripts.
 %package -n python%{python3_pkgversion}-icat
 Summary:	Python interface to ICAT and IDS
 Requires:	%{name} = %{version}
+Requires:	python%{python3_pkgversion}-packaging
 Requires:	python%{python3_pkgversion}-suds
 %if 0%{?suse_version}
 Recommends:	%{name}-man
@@ -98,6 +101,7 @@ $long_description
 %package -n python%{python3_other_pkgversion}-icat
 Summary:	Python interface to ICAT and IDS
 Requires:	%{name} = %{version}
+Requires:	python%{python3_other_pkgversion}-packaging
 Requires:	python%{python3_other_pkgversion}-suds
 %if 0%{?centos_version} || 0%{?rhel_version} || 0%{?fedora_version}
 Requires(pre):	chkconfig

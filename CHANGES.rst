@@ -66,6 +66,9 @@ Incompatible changes and deprecations
 Bug fixes and minor changes
 ---------------------------
 
++ `#98`_, `#105`_: Review build tool chain.  Add a helper class
+  :class:`icat.helper.Version`.
+
 + `#101`_: Fix tests failing with PyYAML 6.0.
 
 + Some (more) example scripts now require ICAT 4.4.0 or newer.
@@ -74,10 +77,12 @@ Bug fixes and minor changes
 .. _#74: https://github.com/icatproject/python-icat/issues/74
 .. _#75: https://github.com/icatproject/python-icat/pull/75
 .. _#77: https://github.com/icatproject/python-icat/issues/77
+.. _#98: https://github.com/icatproject/python-icat/issues/98
 .. _#101: https://github.com/icatproject/python-icat/pull/101
 .. _#102: https://github.com/icatproject/python-icat/issues/102
 .. _#103: https://github.com/icatproject/python-icat/pull/103
 .. _#104: https://github.com/icatproject/python-icat/pull/104
+.. _#105: https://github.com/icatproject/python-icat/pull/105
 
 
 0.21.0 (2022-01-28)
