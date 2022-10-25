@@ -35,6 +35,8 @@ Python
 Required library packages
 .........................
 
++ `setuptools`_
+
 + `packaging`_
 
 + Suds.  The original version by Jeff Ortel is not maintained anymore
@@ -45,16 +47,6 @@ Required library packages
   suds-community does not work with older ICAT servers, see below.
 
 .. __: `suds-jurko`_
-
-Conflicts with other packages
-.............................
-
-+ `setuptools`_ >= 58.0
-
-  There is a breaking change in setuptools 58.0 that affects all
-  python-icat releases older than upcoming 1.0.  You must either not
-  install setuptools at all or at least downgrade it to 57.5 or older
-  in order to install python-icat.
 
 Optional library packages
 .........................
@@ -255,10 +247,10 @@ permissions and limitations under the License.
 
 .. _ICAT: https://icatproject.org/
 .. _PyPI site: https://pypi.org/project/python-icat/
+.. _setuptools: https://github.com/pypa/setuptools/
 .. _packaging: https://github.com/pypa/packaging
 .. _suds-jurko: https://bitbucket.org/jurko/suds
 .. _suds-community: https://github.com/suds-community/suds
-.. _setuptools: https://github.com/pypa/setuptools
 .. _PyYAML: https://github.com/yaml/pyyaml
 .. _lxml: https://lxml.de/
 .. _Requests: https://requests.readthedocs.io/

@@ -1,12 +1,9 @@
-*~
 __pycache__/
-/.version
 /MANIFEST
+/_meta.py
 /build/
 /dist/
-/icat.cfg
 /icat/__init__.py
-/tests/.cache/
 /tests/data/example_data.yaml
 /tests/data/icat.cfg
 /tests/data/icatdump-*.xml

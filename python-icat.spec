@@ -39,9 +39,11 @@ Group:		Development/Languages/Python
 Url:		$url
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
-BuildRequires:	python%{python3_pkgversion}-devel >= 3.4
+BuildRequires:	python%{python3_pkgversion} >= 3.4
+BuildRequires:	python%{python3_pkgversion}-setuptools
 %if 0%{?python3_other_pkgversion}
-BuildRequires:	python%{python3_other_pkgversion}-devel >= 3.4
+BuildRequires:	python%{python3_other_pkgversion} >= 3.4
+BuildRequires:	python%{python3_other_pkgversion}-setuptools
 %endif
 %if 0%{?suse_version}
 BuildRequires:	fdupes
