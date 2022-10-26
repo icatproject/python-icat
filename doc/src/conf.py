@@ -6,7 +6,14 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
-import icat
+from pathlib import Path
+import sys
+
+maindir = Path(__file__).resolve().parent.parent.parent
+sys.path[0] = str(maindir)
+
+import _meta
+
 
 # -- Project information -----------------------------------------------------
 
@@ -16,7 +23,7 @@ copyright = ('2013–2022, '
 author = 'Rolf Krahl'
 
 # The full version, including alpha/beta/rc tags
-release = icat.__version__
+release = _meta.__version__
 # The short X.Y version
 version = ".".join(release.split(".")[0:2])
 
@@ -60,15 +67,15 @@ exclude_patterns = []
 pygments_style = 'sphinx'
 
 
-# -- Options for autodoc extension ---------------------------------------------
+# -- Options for autodoc extension -------------------------------------------
 
 autodoc_member_order = 'bysource'
 
-# -- Options for intersphinx extension -----------------------------------------
+# -- Options for intersphinx extension ---------------------------------------
 
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
 
-# -- Options for HTML output ---------------------------------------------------
+# -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.

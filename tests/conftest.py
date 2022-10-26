@@ -2,7 +2,6 @@
 """
 
 import datetime
-from distutils.version import StrictVersion as Version
 import locale
 import logging
 import os
@@ -17,6 +16,7 @@ import zlib
 import pytest
 import icat
 import icat.config
+from icat.helper import Version
 try:
     from suds.sax.date import UtcTimezone
 except ImportError:

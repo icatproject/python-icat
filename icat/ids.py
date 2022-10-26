@@ -9,7 +9,6 @@ author.
 """
 
 from collections.abc import Mapping, Iterable
-from distutils.version import StrictVersion as Version
 import getpass
 import json
 import re
@@ -23,6 +22,7 @@ import zlib
 
 from icat.entity import Entity
 from icat.exception import *
+from icat.helper import Version
 
 # For Python versions older then 3.6.0b1, the standard library does
 # not support sending the body using chunked transfer encoding.  Need
@@ -208,11 +208,7 @@ class IDSClient():
         else:
             self.opener = build_opener(HTTPHandler, httpsHandler, 
                                        IDSHTTPErrorHandler)
-        apiversion = self.version()["version"]
-        # Translate a version having a trailing '-SNAPSHOT' into
-        # something that StrictVersion would accept.
-        apiversion = re.sub(r'-SNAPSHOT$', 'a1', apiversion)
-        self.apiversion = Version(apiversion)
+        self.apiversion = Version(self.version()["version"])
 
     def ping(self):
         """Check that the server is alive and is an IDS server.

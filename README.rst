@@ -35,24 +35,20 @@ Python
 Required library packages
 .........................
 
++ `setuptools`_
+
++ `packaging`_
+
 + Suds.  The original version by Jeff Ortel is not maintained anymore
-  since very long time and not recommended.  There are several forks
+  since very long time and not supported.  There are several forks
   around, most of them short-lived.  Two of them have been evaluated
   with python-icat and found to work: the `fork by Jurko
-  Gospodnetić`__ and the more recent `suds-community`_.  Note that
-  suds-community does not work with older ICAT servers, see below.
+  Gospodnetić`__ and the more recent `suds-community`_.  The latter
+  has officially been renamed back to suds since version 1.0.0.  Note
+  that suds-community does not work with older ICAT servers, see
+  below.
 
 .. __: `suds-jurko`_
-
-Conflicts with other packages
-.............................
-
-+ `setuptools`_ >= 58.0
-
-  There is a breaking change in setuptools 58.0 that affects all
-  python-icat releases older than upcoming 1.0.  You must either not
-  install setuptools at all or at least downgrade it to 57.5 or older
-  in order to install python-icat.
 
 Optional library packages
 .........................
@@ -195,8 +191,8 @@ Bugs and limitations
 + There are issues with ICAT server 4.8.0 and older when using
   suds-community, see `Issue #72`_ for details.  Use suds-jurko when
   you need to talk to those older ICAT servers.  On the other hand,
-  suds-jurko does can not be installed with setuptools 58.0.0 and
-  newer.
+  suds-jurko does not seem to be maintained any more and can not be
+  installed with setuptools 58.0.0 and newer.
 
 + If supported by the ICAT server (icat.server 4.9.0 and newer), the
   icat.config module queries the server for information on available
@@ -253,9 +249,10 @@ permissions and limitations under the License.
 
 .. _ICAT: https://icatproject.org/
 .. _PyPI site: https://pypi.org/project/python-icat/
+.. _setuptools: https://github.com/pypa/setuptools/
+.. _packaging: https://github.com/pypa/packaging
 .. _suds-jurko: https://bitbucket.org/jurko/suds
 .. _suds-community: https://github.com/suds-community/suds
-.. _setuptools: https://github.com/pypa/setuptools
 .. _PyYAML: https://github.com/yaml/pyyaml
 .. _lxml: https://lxml.de/
 .. _Requests: https://requests.readthedocs.io/
