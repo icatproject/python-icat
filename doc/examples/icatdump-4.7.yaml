@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Fri, 22 Jul 2022 15:22:27 +0000
+# Date: Tue, 08 Nov 2022 15:38:23 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
-# ICAT-API: 4.7
-# Generator: icatdump (python-icat 0.21.1.dev106)
+# ICAT-API: 4.7.0
+# Generator: icatdump (python-icat 0.21.1.dev128)
 ---
 grouping:
   Grouping_name-investigation=5F08100122=2DEF=5Fowner:
@@ -990,7 +990,7 @@ dataset:
     type: DatasetType_facility-(name-ESNF)_name-raw
 investigation:
   Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP:
-    doi: 00.0815/inv-00122
+    doi: DOI:00.0815/inv-00122
     facility: Facility_name-ESNF
     investigationGroups:
     - grouping: Grouping_name-investigation=5F08100122=2DEF=5Fowner
@@ -1110,7 +1110,7 @@ dataset:
     type: DatasetType_facility-(name-ESNF)_name-raw
 investigation:
   Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN:
-    doi: 00.0815/inv-00601
+    doi: DOI:00.0815/inv-00601
     endDate: '2010-10-12T15:00:00+00:00'
     facility: Facility_name-ESNF
     investigationGroups:
@@ -1135,7 +1135,7 @@ investigation:
     - stringValue: neutron
       type: ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA
     publications:
-    - doi: 0.1002/adma.201101001
+    - doi: DOI:00.1002/adma.201101001
       fullReference: A. Hau.  Properties of NiMnGa.  Adv. Mater. 2011, 1
     shifts:
     - comment: Beamtime at E2
@@ -1242,7 +1242,7 @@ dataset:
     type: DatasetType_facility-(name-ESNF)_name-analyzed
 investigation:
   Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP:
-    doi: 00.0815/inv-00409
+    doi: DOI:00.0815/inv-00409
     endDate: '2012-08-06T01:10:08+00:00'
     facility: Facility_name-ESNF
     investigationGroups:
@@ -1297,7 +1297,7 @@ dataCollection:
     - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs
     dataCollectionDatasets:
     - dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947
-    doi: 00.0815/dat-004711
+    doi: DOI:00.0815/dat-004711
 ---
 job:
   Job_00000001:

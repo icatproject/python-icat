@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2022-07-22T15:22:30+00:00</date>
+  <date>2022-11-08T15:38:26+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
-  <apiversion>4.7</apiversion>
-  <generator>icatdump (python-icat 0.21.1.dev106)</generator>
+  <apiversion>4.7.0</apiversion>
+  <generator>icatdump (python-icat 0.21.1.dev128)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
@@ -1083,7 +1083,7 @@
 </data>
 <data>
   <investigation id="Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP">
-    <doi>00.0815/inv-00122</doi>
+    <doi>DOI:00.0815/inv-00122</doi>
     <name>08100122-EF</name>
     <startDate>2008-03-13T10:39:42+00:00</startDate>
     <title>Durol single crystal</title>
@@ -1167,7 +1167,7 @@
 </data>
 <data>
   <investigation id="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN">
-    <doi>00.0815/inv-00601</doi>
+    <doi>DOI:00.0815/inv-00601</doi>
     <endDate>2010-10-12T15:00:00+00:00</endDate>
     <name>10100601-ST</name>
     <startDate>2010-09-30T10:27:24+00:00</startDate>
@@ -1211,7 +1211,7 @@
       <type ref="ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA"/>
     </parameters>
     <publications>
-      <doi>0.1002/adma.201101001</doi>
+      <doi>DOI:00.1002/adma.201101001</doi>
       <fullReference>A. Hau.  Properties of NiMnGa.  Adv. Mater. 2011, 1</fullReference>
     </publications>
     <shifts>
@@ -1332,7 +1332,7 @@
 </data>
 <data>
   <investigation id="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP">
-    <doi>00.0815/inv-00409</doi>
+    <doi>DOI:00.0815/inv-00409</doi>
     <endDate>2012-08-06T01:10:08+00:00</endDate>
     <name>12100409-ST</name>
     <startDate>2012-07-26T15:44:24+00:00</startDate>
@@ -1502,7 +1502,7 @@
     </parameters>
   </dataCollection>
   <dataCollection id="DataCollection_00000002">
-    <doi>00.0815/dat-004711</doi>
+    <doi>DOI:00.0815/dat-004711</doi>
     <dataCollectionDatafiles>
       <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs"/>
     </dataCollectionDatafiles>

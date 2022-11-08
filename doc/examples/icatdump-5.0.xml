@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2022-07-25T09:51:47+00:00</date>
+  <date>2022-11-08T16:18:57+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
-  <apiversion>5.0a1</apiversion>
-  <generator>icatdump (python-icat 0.21.1.dev109)</generator>
+  <apiversion>5.0.0</apiversion>
+  <generator>icatdump (python-icat 0.21.1.dev128)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
@@ -997,22 +997,22 @@
   <technique id="Technique_name-Angle=20Resolved=20Photoemission=20Spectroscopy">
     <description>Angle Resolved Photoemission Spectroscopy</description>
     <name>Angle Resolved Photoemission Spectroscopy</name>
-    <pid>http://purl.org/pan-science/PaNET/PaNET01089</pid>
+    <pid>PaNET:PaNET01089</pid>
   </technique>
   <technique id="Technique_name-Hard=20X=2Dray=20Photoelectron=20Spectroscopy">
     <description>Hard X-ray Photoelectron Spectroscopy</description>
     <name>Hard X-ray Photoelectron Spectroscopy</name>
-    <pid>http://purl.org/pan-science/PaNET/PaNET01103</pid>
+    <pid>PaNET:PaNET01103</pid>
   </technique>
   <technique id="Technique_name-Neutron=20Diffraction">
     <description>Neutron Diffraction</description>
     <name>Neutron Diffraction</name>
-    <pid>http://purl.org/pan-science/PaNET/PaNET01217</pid>
+    <pid>PaNET:PaNET01217</pid>
   </technique>
   <technique id="Technique_name-X=2Dray=20Tomography">
     <description>X-ray Tomography</description>
     <name>X-ray Tomography</name>
-    <pid>http://purl.org/pan-science/PaNET/PaNET01207</pid>
+    <pid>PaNET:PaNET01207</pid>
   </technique>
   <facility id="Facility_name-ESNF">
     <description>ESNF is an example facility</description>
@@ -1025,7 +1025,7 @@
 </description>
     <fullName>E2 - Flat-Cone Diffractometer</fullName>
     <name>E2</name>
-    <pid>00.0815/inst-00001</pid>
+    <pid>DOI:00.0815/inst-00001</pid>
     <facility ref="Facility_name-ESNF"/>
     <instrumentScientists>
       <user ref="User_name-db=2Facord"/>
@@ -1036,7 +1036,7 @@
 </description>
     <fullName>EDDI - Energy Dispersive Diffraction</fullName>
     <name>EDDI</name>
-    <pid>00.0815/inst-00048</pid>
+    <pid>DOI:00.0815/inst-00048</pid>
     <facility ref="Facility_name-ESNF"/>
     <instrumentScientists>
       <user ref="User_name-db=2Facord"/>
@@ -1047,7 +1047,7 @@
 </description>
     <fullName>HIKE - High Kinetic Energy Photoelectron Spectroscopy</fullName>
     <name>HIKE</name>
-    <pid>00.0815/inst-00027</pid>
+    <pid>DOI:00.0815/inst-00027</pid>
     <facility ref="Facility_name-ESNF"/>
     <instrumentScientists>
       <user ref="User_name-db=2Facord"/>
@@ -1404,7 +1404,7 @@
 </data>
 <data>
   <investigation id="Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP">
-    <doi>00.0815/inv-00122</doi>
+    <doi>DOI:00.0815/inv-00122</doi>
     <fileCount>1</fileCount>
     <fileSize>368369</fileSize>
     <name>08100122-EF</name>
@@ -1459,7 +1459,7 @@
   </investigation>
   <sample id="Sample_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-Durol=20SC">
     <name>Durol SC</name>
-    <pid>ESNFHNS8AYEZ</pid>
+    <pid>IGSN:ESNFHNS8AYEZ</pid>
     <investigation ref="Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP"/>
     <type ref="SampleType_facility-(name-ESNF)_name-Durol=20SC_molecularFormula-C10H14"/>
   </sample>
@@ -1511,7 +1511,7 @@
 </data>
 <data>
   <investigation id="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN">
-    <doi>00.0815/inv-00601</doi>
+    <doi>DOI:00.0815/inv-00601</doi>
     <endDate>2010-10-12T15:00:00+00:00</endDate>
     <fileCount>4</fileCount>
     <fileSize>127125</fileSize>
@@ -1560,7 +1560,7 @@
       <type ref="ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA"/>
     </parameters>
     <publications>
-      <doi>0.1002/adma.201101001</doi>
+      <doi>DOI:00.1002/adma.201101001</doi>
       <fullReference>A. Hau.  Properties of NiMnGa.  Adv. Mater. 2011, 1</fullReference>
     </publications>
     <shifts>
@@ -1578,7 +1578,7 @@
   </investigation>
   <sample id="Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027">
     <name>NiMnGa 991027</name>
-    <pid>ESNFZDVHICBD</pid>
+    <pid>IGSN:ESNFZDVHICBD</pid>
     <investigation ref="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN"/>
     <type ref="SampleType_facility-(name-ESNF)_name-NiMnGa_molecularFormula-NiMnGa"/>
     <parameters>
@@ -1708,7 +1708,7 @@
 </data>
 <data>
   <investigation id="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP">
-    <doi>00.0815/inv-00409</doi>
+    <doi>DOI:00.0815/inv-00409</doi>
     <endDate>2012-08-06T01:10:08+00:00</endDate>
     <fileCount>5</fileCount>
     <fileSize>493648</fileSize>
@@ -1765,7 +1765,7 @@
   </investigation>
   <sample id="Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC">
     <name>Nickel(II) oxide SC</name>
-    <pid>ESNFX8C7B53W</pid>
+    <pid>IGSN:ESNFX8C7B53W</pid>
     <investigation ref="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP"/>
     <type ref="SampleType_facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO"/>
     <parameters>
@@ -1897,7 +1897,7 @@
     </parameters>
   </dataCollection>
   <dataCollection id="DataCollection_00000002">
-    <doi>00.0815/dat-004711</doi>
+    <doi>DOI:00.0815/dat-004711</doi>
     <dataCollectionDatafiles>
       <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs"/>
     </dataCollectionDatafiles>
@@ -1910,7 +1910,7 @@
   <study id="Study_00000001">
     <endDate>2012-09-30T18:00:00+00:00</endDate>
     <name>12-008</name>
-    <pid>00.0815/m-00333</pid>
+    <pid>DOI:00.0815/m-00333</pid>
     <startDate>2012-07-09T06:00:00+00:00</startDate>
     <status>COMPLETE</status>
     <user ref="User_name-db=2Fnbour"/>

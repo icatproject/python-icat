@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Fri, 22 Jul 2022 15:02:49 +0000
+# Date: Tue, 08 Nov 2022 15:57:32 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
-# ICAT-API: 4.11.1
-# Generator: icatdump (python-icat 0.21.1.dev106)
+# ICAT-API: 4.10.0
+# Generator: icatdump (python-icat 0.21.1.dev128)
 ---
 grouping:
   Grouping_name-investigation=5F08100122=2DEF=5Fowner:
@@ -797,7 +797,7 @@ instrument:
     instrumentScientists:
     - user: User_name-db=2Facord
     name: E2
-    pid: 00.0815/inst-00001
+    pid: DOI:00.0815/inst-00001
   Instrument_facility-(name-ESNF)_name-EDDI:
     description: 'The experimental station EDDI (Energy Dispersive Diffraction) is
       a fixed station at the 7T-MPW-EDDI beamline.  The beamline provides the direct
@@ -814,7 +814,7 @@ instrument:
     instrumentScientists:
     - user: User_name-db=2Facord
     name: EDDI
-    pid: 00.0815/inst-00048
+    pid: DOI:00.0815/inst-00048
   Instrument_facility-(name-ESNF)_name-HIKE:
     description: 'The system is designed for hard X-ray high kinetic energy photoelectron
       spectroscopy (HAXPES or HIKE) experiments in the excitation energy range from
@@ -829,7 +829,7 @@ instrument:
     instrumentScientists:
     - user: User_name-db=2Facord
     name: HIKE
-    pid: 00.0815/inst-00027
+    pid: DOI:00.0815/inst-00027
 investigationType:
   InvestigationType_name-Calibration_facility-(name-ESNF):
     facility: Facility_name-ESNF
@@ -1010,7 +1010,7 @@ dataset:
     type: DatasetType_facility-(name-ESNF)_name-raw
 investigation:
   Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP:
-    doi: 00.0815/inv-00122
+    doi: DOI:00.0815/inv-00122
     facility: Facility_name-ESNF
     investigationGroups:
     - grouping: Grouping_name-investigation=5F08100122=2DEF=5Fowner
@@ -1047,7 +1047,7 @@ sample:
   Sample_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-Durol=20SC:
     investigation: Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP
     name: Durol SC
-    pid: ESNFHNS8AYEZ
+    pid: IGSN:ESNFHNS8AYEZ
     type: SampleType_facility-(name-ESNF)_name-Durol=20SC_molecularFormula-C10H14
 ---
 datafile:
@@ -1132,7 +1132,7 @@ dataset:
     type: DatasetType_facility-(name-ESNF)_name-raw
 investigation:
   Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN:
-    doi: 00.0815/inv-00601
+    doi: DOI:00.0815/inv-00601
     endDate: '2010-10-12T15:00:00+00:00'
     facility: Facility_name-ESNF
     investigationGroups:
@@ -1157,7 +1157,7 @@ investigation:
     - stringValue: neutron
       type: ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA
     publications:
-    - doi: 0.1002/adma.201101001
+    - doi: DOI:00.1002/adma.201101001
       fullReference: A. Hau.  Properties of NiMnGa.  Adv. Mater. 2011, 1
     shifts:
     - comment: Beamtime at E2
@@ -1179,7 +1179,7 @@ sample:
     parameters:
     - stringValue: 2046c9a7-ab07-4594-84a2-101617073a79
       type: ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA
-    pid: ESNFZDVHICBD
+    pid: IGSN:ESNFZDVHICBD
     type: SampleType_facility-(name-ESNF)_name-NiMnGa_molecularFormula-NiMnGa
 ---
 datafile:
@@ -1267,7 +1267,7 @@ dataset:
     type: DatasetType_facility-(name-ESNF)_name-analyzed
 investigation:
   Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP:
-    doi: 00.0815/inv-00409
+    doi: DOI:00.0815/inv-00409
     endDate: '2012-08-06T01:10:08+00:00'
     facility: Facility_name-ESNF
     investigationGroups:
@@ -1307,7 +1307,7 @@ sample:
     parameters:
     - stringValue: c1b0a101-03aa-4d02-a1a2-e2826ba7871b
       type: ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA
-    pid: ESNFX8C7B53W
+    pid: IGSN:ESNFX8C7B53W
     type: SampleType_facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO
 ---
 dataCollection:
@@ -1324,7 +1324,7 @@ dataCollection:
     - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs
     dataCollectionDatasets:
     - dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947
-    doi: 00.0815/dat-004711
+    doi: DOI:00.0815/dat-004711
 ---
 job:
   Job_00000001:
@@ -1340,7 +1340,7 @@ study:
   Study_00000001:
     endDate: '2012-09-30T18:00:00+00:00'
     name: 12-008
-    pid: 00.0815/m-00333
+    pid: DOI:00.0815/m-00333
     startDate: '2012-07-09T06:00:00+00:00'
     status: COMPLETE
     studyInvestigations:
