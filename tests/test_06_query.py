@@ -197,7 +197,7 @@ def test_query_datacollection(client):
     assert query.include_clause is None
     assert query.limit_clause is None
     res = client.search(query)
-    assert len(res) == 2
+    assert 2 <= len(res) <= 3
 
 def test_query_datafiles_datafileformat(client, recwarn):
     """Datafiles ordered by format.
@@ -217,7 +217,7 @@ def test_query_datafiles_datafileformat(client, recwarn):
     assert query.include_clause is None
     assert query.limit_clause is None
     res = client.search(query)
-    assert len(res) == 10
+    assert 10 <= len(res) <= 11
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_order_direction(client):
@@ -297,7 +297,7 @@ def test_query_condition_greaterthen(client):
     assert query.join_clause is None
     assert "datafileCreateTime" in query.where_clause
     res = client.search(query)
-    assert len(res) == 4
+    assert 4 <= len(res) <= 5
     condition = {"datafileCreateTime": "< '2012-01-01'"}
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
@@ -315,7 +315,7 @@ def test_query_condition_list(client):
     assert "datafileCreateTime" in query.where_clause
     qstr = str(query)
     res = client.search(query)
-    assert len(res) == 3
+    assert 3 <= len(res) <= 4
 
     # The last example also works by adding the conditions separately.
     query = Query(client, "Datafile")
@@ -324,7 +324,7 @@ def test_query_condition_list(client):
     print(str(query))
     assert str(query) == qstr
     res = client.search(query)
-    assert len(res) == 3
+    assert 3 <= len(res) <= 4
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_in_operator(client):

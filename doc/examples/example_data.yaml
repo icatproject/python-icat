@@ -3,6 +3,60 @@ applications:
     facility: example_facility
     name: gnomoanalytics
     version: 69
+data_publications:
+  data_pub1:
+    dataset:
+      complete: true
+      datafiles:
+      - datafileCreateTime: 2012-08-01 00:52:23+02:00
+        datafileModTime: 2012-08-01 00:52:23+02:00
+        fileSize: 264188
+        format: hdf5
+        name: A000027.hdf5
+      endDate: 2012-08-01 00:52:23+02:00
+      investigation: 12100409-ST
+      name: pub-00027
+      startDate: 2012-07-31 22:20:37+02:00
+      type: other
+    dates:
+    - date: '2012-08-01'
+      dateType: Created
+    - date: '2022-04-29'
+      dateType: Submitted
+    description: >-
+      We provide the first 65535 integers from sequence A000027 of the
+      On-Line Encyclopedia of Integer Sequences. The data consists of an
+      HDF5 file, having one single entry: a one dimensional integer
+      array.
+    facility: example_facility
+    fundingReferences: []
+    pid: DOI:00.0815/pub-00027
+    publicationDate: 2022-10-31
+    relatedItems:
+    - fullReference: >-
+        OEIS Foundation Inc. (2022), The positive integers, Entry
+        A000027 in The On-Line Encyclopedia of Integer Sequences
+      identifier: URL:http://oeis.org/A000027
+      relatedItemType: Other
+      relationType: References
+      title: The positive integers
+    subject: integer sequence; OEIS; On-Line Encyclopedia of Integer Sequences
+    title: Data from OEIS sequence A000027
+    type: null
+    users:
+    - affiliations:
+      - fullReference: "Universit\xE9 de Nancy"
+        name: '01: Nancy'
+      - fullReference: University of Chicago
+        name: '02: Chicago'
+        pid: ROR:024mw5h28
+      contributorType: Creator
+      email: nbour@example.org
+      familyName: Bourbaki
+      fullName: Bourbaki, Nicolas
+      givenName: Nicolas
+      orderKey: '01'
+      user: nbour
 datafile_formats:
   csv:
     description: Comma separated values

@@ -65,9 +65,8 @@ else:
 # to verify that object relations are kept intact after an icatdump /
 # icatingest cycle.
 queries = [
-    ("Datafile.name <-> Dataset <-> Investigation [name='12100409-ST']",
-     ['e208341.nxs', 'e208945-2.nxs', 'e208945.dat', 'e208945.nxs',
-      'e208947.nxs']),
+    ("Datafile.name <-> Dataset <-> Investigation [name='10100601-ST']",
+     ['e208339.dat', 'e208339.nxs', 'e208341.dat', 'e208341.nxs']),
     ("SELECT p.numericValue FROM DatasetParameter p "
      "JOIN p.dataset AS ds JOIN ds.investigation AS i JOIN p.type AS t "
      "WHERE i.name = '10100601-ST' AND ds.name = 'e208339' "

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2022-11-09T21:25:21+00:00</date>
+  <date>2022-11-09T23:28:18+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>5.0.0</apiversion>
-  <generator>icatdump (python-icat 0.21.1.dev130)</generator>
+  <generator>icatdump (python-icat 0.21.1.dev131)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
@@ -1767,8 +1767,8 @@
   <investigation id="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP">
     <doi>DOI:00.0815/inv-00409</doi>
     <endDate>2012-08-06T01:10:08+00:00</endDate>
-    <fileCount>5</fileCount>
-    <fileSize>493648</fileSize>
+    <fileCount>6</fileCount>
+    <fileSize>757836</fileSize>
     <name>12100409-ST</name>
     <startDate>2012-07-26T15:44:24+00:00</startDate>
     <title>NiO SC OF1 JUH HHL</title>
@@ -1876,6 +1876,16 @@
     <investigation ref="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP"/>
     <type ref="DatasetType_facility-(name-ESNF)_name-analyzed"/>
   </dataset>
+  <dataset id="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-pub=2D00027">
+    <complete>true</complete>
+    <endDate>2012-07-31T22:52:23+00:00</endDate>
+    <fileCount>1</fileCount>
+    <fileSize>264188</fileSize>
+    <name>pub-00027</name>
+    <startDate>2012-07-31T20:20:37+00:00</startDate>
+    <investigation ref="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP"/>
+    <type ref="DatasetType_facility-(name-ESNF)_name-other"/>
+  </dataset>
   <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs">
     <checksum>7c72b4bc</checksum>
     <datafileCreateTime>2010-10-05T09:31:53+00:00</datafileCreateTime>
@@ -1939,6 +1949,14 @@
       <type ref="ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA"/>
     </parameters>
   </datafile>
+  <datafile id="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-pub=2D00027)_name-A000027=2Ehdf5">
+    <datafileCreateTime>2012-07-31T22:52:23+00:00</datafileCreateTime>
+    <datafileModTime>2012-07-31T22:52:23+00:00</datafileModTime>
+    <fileSize>264188</fileSize>
+    <name>A000027.hdf5</name>
+    <datafileFormat ref="DatafileFormat_facility-(name-ESNF)_name-HDF5_version-N=2FA"/>
+    <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-pub=2D00027"/>
+  </datafile>
 </data>
 <data>
   <dataCollection id="DataCollection_00000001">
@@ -1962,6 +1980,56 @@
       <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947"/>
     </dataCollectionDatasets>
   </dataCollection>
+  <dataCollection id="DataCollection_00000003">
+    <dataCollectionDatasets>
+      <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-pub=2D00027"/>
+    </dataCollectionDatasets>
+  </dataCollection>
+</data>
+<data>
+  <dataPublication id="DataPublication_facility-(name-ESNF)_pid-DOI=3A00=2E0815=2Fpub=2D00027">
+    <description>We provide the first 65535 integers from sequence A000027 of the On-Line Encyclopedia of Integer Sequences. The data consists of an HDF5 file, having one single entry: a one dimensional integer array.</description>
+    <pid>DOI:00.0815/pub-00027</pid>
+    <publicationDate>2022-10-30T23:00:00+00:00</publicationDate>
+    <subject>integer sequence; OEIS; On-Line Encyclopedia of Integer Sequences</subject>
+    <title>Data from OEIS sequence A000027</title>
+    <content ref="DataCollection_00000003"/>
+    <facility ref="Facility_name-ESNF"/>
+    <dates>
+      <date>2012-08-01</date>
+      <dateType>Created</dateType>
+    </dates>
+    <dates>
+      <date>2022-04-29</date>
+      <dateType>Submitted</dateType>
+    </dates>
+    <relatedItems>
+      <fullReference>OEIS Foundation Inc. (2022), The positive integers, Entry A000027 in The On-Line Encyclopedia of Integer Sequences</fullReference>
+      <identifier>URL:http://oeis.org/A000027</identifier>
+      <relatedItemType>Other</relatedItemType>
+      <relationType>References</relationType>
+      <title>The positive integers</title>
+    </relatedItems>
+  </dataPublication>
+  <dataPublicationUser id="DataPublicationUser_publication-(facility-(name-ESNF)_pid-DOI=3A00=2E0815=2Fpub=2D00027)_user-(name-db=2Fnbour)_contributorType-Creator">
+    <contributorType>Creator</contributorType>
+    <email>nbour@example.org</email>
+    <familyName>Bourbaki</familyName>
+    <fullName>Bourbaki, Nicolas</fullName>
+    <givenName>Nicolas</givenName>
+    <orderKey>01</orderKey>
+    <publication ref="DataPublication_facility-(name-ESNF)_pid-DOI=3A00=2E0815=2Fpub=2D00027"/>
+    <user ref="User_name-db=2Fnbour"/>
+    <affiliations>
+      <fullReference>Universit&#233; de Nancy</fullReference>
+      <name>01: Nancy</name>
+    </affiliations>
+    <affiliations>
+      <fullReference>University of Chicago</fullReference>
+      <name>02: Chicago</name>
+      <pid>ROR:024mw5h28</pid>
+    </affiliations>
+  </dataPublicationUser>
 </data>
 <data>
   <study id="Study_00000001">

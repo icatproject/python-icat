@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Wed, 09 Nov 2022 21:25:18 +0000
+# Date: Wed, 09 Nov 2022 23:28:15 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 5.0.0
-# Generator: icatdump (python-icat 0.21.1.dev130)
+# Generator: icatdump (python-icat 0.21.1.dev131)
 ---
 grouping:
   Grouping_name-ingest:
@@ -1590,6 +1590,13 @@ datafile:
     parameters:
     - dateTimeValue: '2012-07-17T07:28:18+00:00'
       type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
+  ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-pub=2D00027)_name-A000027=2Ehdf5
+  : datafileCreateTime: '2012-07-31T22:52:23+00:00'
+    datafileFormat: DatafileFormat_facility-(name-ESNF)_name-HDF5_version-N=2FA
+    datafileModTime: '2012-07-31T22:52:23+00:00'
+    dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-pub=2D00027
+    fileSize: 264188
+    name: A000027.hdf5
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945:
     complete: false
@@ -1629,13 +1636,22 @@ dataset:
     name: e208947
     startDate: '2012-07-16T11:42:05+00:00'
     type: DatasetType_facility-(name-ESNF)_name-analyzed
+  Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-pub=2D00027:
+    complete: true
+    endDate: '2012-07-31T22:52:23+00:00'
+    fileCount: 1
+    fileSize: 264188
+    investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
+    name: pub-00027
+    startDate: '2012-07-31T20:20:37+00:00'
+    type: DatasetType_facility-(name-ESNF)_name-other
 investigation:
   Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP:
     doi: DOI:00.0815/inv-00409
     endDate: '2012-08-06T01:10:08+00:00'
     facility: Facility_name-ESNF
-    fileCount: 5
-    fileSize: 493648
+    fileCount: 6
+    fileSize: 757836
     investigationFacilityCycles:
     - facilityCycle: FacilityCycle_facility-(name-ESNF)_name-121
     investigationGroups:
@@ -1693,6 +1709,49 @@ dataCollection:
     dataCollectionDatasets:
     - dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947
     doi: DOI:00.0815/dat-004711
+  DataCollection_00000003:
+    dataCollectionDatasets:
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-pub=2D00027
+---
+dataPublication:
+  DataPublication_facility-(name-ESNF)_pid-DOI=3A00=2E0815=2Fpub=2D00027:
+    content: DataCollection_00000003
+    dates:
+    - date: '2012-08-01'
+      dateType: Created
+    - date: '2022-04-29'
+      dateType: Submitted
+    description: 'We provide the first 65535 integers from sequence A000027 of the
+      On-Line Encyclopedia of Integer Sequences. The data consists of an HDF5 file,
+      having one single entry: a one dimensional integer array.'
+    facility: Facility_name-ESNF
+    pid: DOI:00.0815/pub-00027
+    publicationDate: '2022-10-30T23:00:00+00:00'
+    relatedItems:
+    - fullReference: OEIS Foundation Inc. (2022), The positive integers, Entry A000027
+        in The On-Line Encyclopedia of Integer Sequences
+      identifier: URL:http://oeis.org/A000027
+      relatedItemType: Other
+      relationType: References
+      title: The positive integers
+    subject: integer sequence; OEIS; On-Line Encyclopedia of Integer Sequences
+    title: Data from OEIS sequence A000027
+dataPublicationUser:
+  ? DataPublicationUser_publication-(facility-(name-ESNF)_pid-DOI=3A00=2E0815=2Fpub=2D00027)_user-(name-db=2Fnbour)_contributorType-Creator
+  : affiliations:
+    - fullReference: "Universit\xE9 de Nancy"
+      name: '01: Nancy'
+    - fullReference: University of Chicago
+      name: '02: Chicago'
+      pid: ROR:024mw5h28
+    contributorType: Creator
+    email: nbour@example.org
+    familyName: Bourbaki
+    fullName: Bourbaki, Nicolas
+    givenName: Nicolas
+    orderKey: '01'
+    publication: DataPublication_facility-(name-ESNF)_pid-DOI=3A00=2E0815=2Fpub=2D00027
+    user: User_name-db=2Fnbour
 ---
 job:
   Job_00000001:

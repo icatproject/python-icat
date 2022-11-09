@@ -2,22 +2,22 @@ User: simple/root
 
 Entity                     count
 --------------------------------
-Affiliation              : 0
+Affiliation              : 2
 Application              : 1
-DataCollection           : 2
+DataCollection           : 3
 DataCollectionDatafile   : 2
-DataCollectionDataset    : 2
+DataCollectionDataset    : 3
 DataCollectionInvestigation : 0
 DataCollectionParameter  : 1
-DataPublication          : 0
-DataPublicationDate      : 0
+DataPublication          : 1
+DataPublicationDate      : 2
 DataPublicationFunding   : 0
 DataPublicationType      : 0
-DataPublicationUser      : 0
-Datafile                 : 10
+DataPublicationUser      : 1
+Datafile                 : 11
 DatafileFormat           : 6
 DatafileParameter        : 10
-Dataset                  : 8
+Dataset                  : 9
 DatasetInstrument        : 7
 DatasetParameter         : 6
 DatasetTechnique         : 5
@@ -43,7 +43,7 @@ PermissibleStringValue   : 6
 PublicStep               : 37
 Publication              : 1
 RelatedDatafile          : 1
-RelatedItem              : 0
+RelatedItem              : 1
 Rule                     : 158
 Sample                   : 3
 SampleParameter          : 2

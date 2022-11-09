@@ -25,6 +25,8 @@ from conftest import (getConfig, icat_version, gettestdata,
 # then 4.7.
 skip_study = icat_version < "4.7.0"
 
+have_data_publication = icat_version >= "5.0.0"
+
 testinput = gettestdata("example_data.yaml")
 users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
 refdump = get_reference_dumpfile("yaml")
@@ -40,6 +42,8 @@ else:
                "inv_081", "inv_101", "inv_121",
                "invdata_081", "invdata_101", "invdata_121",
                "job1", "rdf1", "pub1"]
+if have_data_publication:
+    alldata.append("data_pub1")
 summary_study_filter = (re.compile(r"^((?:Study(?:Investigation)?)\s*) : \d+$"),
                         r"\1 : 0")
 
@@ -242,6 +246,79 @@ def test_add_publication(data, user, pubname):
     query = "Investigation [name='%s']" % pubdata['investigation']
     publication.investigation = client.assertedSearch(query)[0]
     publication.create()
+
+@pytest.mark.parametrize("pubname", [
+    pytest.param("data_pub1",
+                 marks=pytest.mark.dependency(name="data_pub1",
+                                              depends=["inv_121"])),
+])
+@pytest.mark.skipif(not have_data_publication,
+                    reason=("need ICAT server version 5.0.0 or newer: "
+                            "need DataPublication"))
+def test_add_data_publication(data, pubname):
+    pubdata = data['data_publications'][pubname]
+    client, conf = getConfig(confSection="ingest")
+    client.login(conf.auth, conf.credentials)
+    content = client.new("dataCollection")
+    ds = pubdata['dataset']
+    query = Query(client, "Investigation", conditions={
+        "name":"= '%s'" % ds['investigation']
+    })
+    investigation = client.assertedSearch(query)[0]
+    query = Query(client, "DatasetType", conditions={
+        "name":"= '%s'" % data['dataset_types'][ds['type']]['name']
+    })
+    dataset_type = client.assertedSearch(query)[0]
+    dataset = client.new("dataset")
+    initobj(dataset, ds)
+    dataset.investigation = investigation
+    dataset.type = dataset_type
+    for df in ds['datafiles']:
+        dff = data['datafile_formats'][df['format']]
+        query = Query(client, "DatafileFormat", conditions={
+            "name":"= '%s'" % dff['name'],
+            "version":"= '%s'" % dff['version'],
+        })
+        datafile_format = client.assertedSearch(query)[0]
+        datafile = client.new("datafile")
+        initobj(datafile, df)
+        datafile.datafileFormat = datafile_format
+        dataset.datafiles.append(datafile)
+    dataset.complete = False
+    dataset.create()
+    if ds['complete']:
+        del dataset.datafiles
+        dataset.complete = True
+        dataset.update()
+    dcs = client.new("dataCollectionDataset", dataset=dataset)
+    content.dataCollectionDatasets.append(dcs)
+    content.create()
+    content.truncateRelations()
+    fix_file_size(ds['investigation'])
+    client, conf = getConfig(confSection="useroffice")
+    client.login(conf.auth, conf.credentials)
+    data_publication = client.new("dataPublication")
+    initobj(data_publication, pubdata)
+    query = Query(client, "Facility", conditions={
+        "name": "= '%s'" % data['facilities'][pubdata['facility']]['name']
+    })
+    data_publication.facility = client.assertedSearch(query)[0]
+    data_publication.content = content
+    for d in pubdata['dates']:
+        data_publication.dates.append(client.new("dataPublicationDate", **d))
+    for ri in pubdata['relatedItems']:
+        data_publication.relatedItems.append(client.new("relatedItem", **ri))
+    for u in pubdata['users']:
+        pub_user = client.new("dataPublicationUser")
+        initobj(pub_user, u)
+        query = Query(client, "User", conditions={
+            "name": "= '%s'" % data['users'][u['user']]['name']
+        })
+        pub_user.user = client.assertedSearch(query)[0]
+        for a in u['affiliations']:
+            pub_user.affiliations.append(client.new("affiliation", **a))
+        data_publication.users.append(pub_user)
+    data_publication.create()
 
 @pytest.mark.dependency(depends=alldata)
 def test_check_content(standardCmdArgs, tmpdirsec):
