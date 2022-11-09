@@ -34,11 +34,11 @@ tzinfo = UtcTimezone() if UtcTimezone else None
 # The the actual number of rules in the test data differs with the
 # ICAT version.
 if icat_version < "5.0a1":   # FIXME: change the version number to compare with to "5.0" as soon as icat.server 5.0 is released
-    all_rules = 104
-    grp_rules = 44
+    all_rules = 110
+    grp_rules = 50
 else:
-    all_rules = 150
-    grp_rules = 73
+    all_rules = 158
+    grp_rules = 81
 
 @pytest.mark.dependency(name='get_investigation')
 def test_query_simple(client):
@@ -377,7 +377,8 @@ def test_query_condition_jpql_function_namelen(client):
     of the JPQL function in the condition is easier to verify in the
     result.
     """
-    conditions = { "LENGTH(fullName)": "> 11" }
+    conditions = { "name": "LIKE 'db/%'",
+                   "LENGTH(fullName)": "> 11" }
     query = Query(client, "User", conditions=conditions)
     print(str(query))
     assert "User" in query.select_clause
@@ -391,7 +392,8 @@ def test_query_condition_jpql_function_mixed(client):
     This test case failed for an early implementation of JPQL
     functions, see discussion in #89.
     """
-    conditions = { "LENGTH(fullName)": "> 11", "fullName": "> 'C'" }
+    conditions = { "name": "LIKE 'db/%'",
+                   "LENGTH(fullName)": "> 11", "fullName": "> 'C'" }
     query = Query(client, "User", conditions=conditions)
     print(str(query))
     assert "User" in query.select_clause
@@ -407,12 +409,11 @@ def test_query_order_jpql_function(client):
     fullName.  (In the example data, the longest and second longest
     fullName is somewhat ambiguous due to character encoding issues.)
     """
-    query = Query(client, "User",
+    query = Query(client, "User", conditions={ "name": "LIKE 'db/%'" },
                   order=[("LENGTH(fullName)", "DESC")], limit=(2,1))
     print(str(query))
     assert "User" in query.select_clause
     assert query.join_clause is None
-    assert query.where_clause is None
     assert "LENGTH" in query.order_clause
     assert query.limit_clause is not None
     res = client.search(query)
@@ -628,18 +629,19 @@ def test_query_limit_placeholder(client):
     query = Query(client, "Rule", order=['grouping', 'what', 'id'],
                   conditions={"grouping":"IS NOT NULL"})
     query.setLimit( ("%d","%d") )
+    chunksize = 45
     print(str(query))
-    print(str(query) % (0,40))
+    print(str(query) % (0,chunksize))
     assert "Rule" in query.select_clause
     assert "grouping" in query.join_clause
     assert "grouping" in query.where_clause
     assert "what" in query.order_clause
     assert query.limit_clause is not None
-    res = client.search(str(query) % (0,40))
-    assert len(res) == 40
-    print(str(query) % (40,40))
-    res = client.search(str(query) % (40,40))
-    assert len(res) == grp_rules - 40
+    res = client.search(str(query) % (0,chunksize))
+    assert len(res) == chunksize
+    print(str(query) % (chunksize,chunksize))
+    res = client.search(str(query) % (chunksize,chunksize))
+    assert len(res) == grp_rules - chunksize
 
 def test_query_non_ascii(client):
     """Test if query strings with non-ascii characters work.

@@ -15,7 +15,7 @@ DatasetParameter         : 6
 DatasetType              : 3
 Facility                 : 1
 FacilityCycle            : 20
-Grouping                 : 12
+Grouping                 : 13
 Instrument               : 3
 InstrumentScientist      : 3
 Investigation            : 3
@@ -31,13 +31,13 @@ PermissibleStringValue   : 6
 PublicStep               : 24
 Publication              : 1
 RelatedDatafile          : 1
-Rule                     : 104
+Rule                     : 110
 Sample                   : 3
 SampleParameter          : 2
 SampleType               : 3
 Shift                    : 4
 Study                    : 1
 StudyInvestigation       : 2
-User                     : 9
-UserGroup                : 16
+User                     : 10
+UserGroup                : 17
 

@@ -25,7 +25,7 @@ DatasetType              : 3
 Facility                 : 1
 FacilityCycle            : 20
 FundingReference         : 0
-Grouping                 : 14
+Grouping                 : 15
 Instrument               : 3
 InstrumentScientist      : 3
 Investigation            : 3
@@ -44,7 +44,7 @@ PublicStep               : 37
 Publication              : 1
 RelatedDatafile          : 1
 RelatedItem              : 0
-Rule                     : 150
+Rule                     : 158
 Sample                   : 3
 SampleParameter          : 2
 SampleType               : 3
@@ -52,6 +52,6 @@ Shift                    : 4
 Study                    : 1
 StudyInvestigation       : 2
 Technique                : 4
-User                     : 10
-UserGroup                : 18
+User                     : 11
+UserGroup                : 19
 
