@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2022-11-08T15:23:17+00:00</date>
+  <date>2022-11-09T15:51:08+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>4.4.0</apiversion>
-  <generator>icatdump (python-icat 0.21.1.dev128)</generator>
+  <generator>icatdump (python-icat 0.21.1.dev129)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
@@ -917,10 +917,17 @@
     <version>N/A</version>
     <facility ref="Facility_name-ESNF"/>
   </datafileFormat>
+  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-HDF5_version-N=2FA">
+    <description>Hierarchical Data Format version 5</description>
+    <name>HDF5</name>
+    <type>application/x-hdf5</type>
+    <version>N/A</version>
+    <facility ref="Facility_name-ESNF"/>
+  </datafileFormat>
   <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-N=2FA">
     <description>A common data format for neutron, x-ray and muon science</description>
     <name>NeXus</name>
-    <type>application/x-hdf</type>
+    <type>application/x-hdf5</type>
     <version>N/A</version>
     <facility ref="Facility_name-ESNF"/>
   </datafileFormat>

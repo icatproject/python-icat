@@ -15,7 +15,7 @@ DataPublicationFunding   : 0
 DataPublicationType      : 0
 DataPublicationUser      : 0
 Datafile                 : 5
-DatafileFormat           : 5
+DatafileFormat           : 6
 DatafileParameter        : 5
 Dataset                  : 5
 DatasetInstrument        : 5

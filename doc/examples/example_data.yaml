@@ -10,11 +10,17 @@ datafile_formats:
     name: CSV
     type: text/csv
     version: N/A
+  hdf5:
+    description: Hierarchical Data Format version 5
+    facility: example_facility
+    name: HDF5
+    type: application/x-hdf5
+    version: N/A
   nexus:
     description: A common data format for neutron, x-ray and muon science
     facility: example_facility
     name: NeXus
-    type: application/x-hdf
+    type: application/x-hdf5
     version: N/A
   text:
     description: Plain text file

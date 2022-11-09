@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Tue, 08 Nov 2022 15:23:03 +0000
+# Date: Wed, 09 Nov 2022 15:50:43 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 4.4.0
-# Generator: icatdump (python-icat 0.21.1.dev128)
+# Generator: icatdump (python-icat 0.21.1.dev129)
 ---
 grouping:
   Grouping_name-investigation=5F08100122=2DEF=5Fowner:
@@ -613,11 +613,17 @@ datafileFormat:
     name: CSV
     type: text/csv
     version: N/A
+  DatafileFormat_facility-(name-ESNF)_name-HDF5_version-N=2FA:
+    description: Hierarchical Data Format version 5
+    facility: Facility_name-ESNF
+    name: HDF5
+    type: application/x-hdf5
+    version: N/A
   DatafileFormat_facility-(name-ESNF)_name-NeXus_version-N=2FA:
     description: A common data format for neutron, x-ray and muon science
     facility: Facility_name-ESNF
     name: NeXus
-    type: application/x-hdf
+    type: application/x-hdf5
     version: N/A
   DatafileFormat_facility-(name-ESNF)_name-Text_version-N=2FA:
     description: Plain text file
