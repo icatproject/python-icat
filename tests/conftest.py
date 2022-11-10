@@ -151,7 +151,7 @@ def get_reference_dumpfile(ext = "yaml"):
         fname = "icatdump-4.4.%s" % ext
     elif icat_version < "4.10":
         fname = "icatdump-4.7.%s" % ext
-    elif icat_version < "5.0a1":   # FIXME: change the version number to compare  with to "5.0" as soon as icat.server 5.0 is released
+    elif icat_version < "5.0":
         fname = "icatdump-4.10.%s" % ext
     else:
         fname = "icatdump-5.0.%s" % ext
@@ -159,7 +159,7 @@ def get_reference_dumpfile(ext = "yaml"):
 
 
 def get_reference_summary():
-    if icat_version < "5.0a1":   # FIXME: change the version number to compare  with to "5.0" as soon as icat.server 5.0 is released
+    if icat_version < "5.0":
         version_suffix = "4"
     else:
         version_suffix = "5"

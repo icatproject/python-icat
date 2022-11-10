@@ -33,7 +33,7 @@ tzinfo = UtcTimezone() if UtcTimezone else None
 
 # The the actual number of rules in the test data differs with the
 # ICAT version.
-if icat_version < "5.0a1":   # FIXME: change the version number to compare with to "5.0" as soon as icat.server 5.0 is released
+if icat_version < "5.0":
     all_rules = 110
     grp_rules = 50
 else:
