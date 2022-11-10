@@ -21,7 +21,8 @@ def client(setupicat):
 # Note: the number of objects returned in the queries and their
 # attributes obviously depend on the content of the ICAT and need to
 # be kept in sync with the reference input used in the setupicat
-# fixture.
+# fixture.  This content also depends on the version of ICAT server we
+# are talking to and the ICAT schema this server provides.
 #
 # Note: the exact query string is considered an implementation detail
 # that is deliberately not tested here.  We limit the tests to check
@@ -33,12 +34,9 @@ tzinfo = UtcTimezone() if UtcTimezone else None
 
 # The the actual number of rules in the test data differs with the
 # ICAT version.
-if icat_version < "5.0":
-    all_rules = 110
-    grp_rules = 50
-else:
-    all_rules = 158
-    grp_rules = 81
+have_icat_5 = 0 if icat_version < "5.0" else 1
+all_rules = 110 + 48*have_icat_5
+grp_rules = 50 + 31*have_icat_5
 
 @pytest.mark.dependency(name='get_investigation')
 def test_query_simple(client):
@@ -197,7 +195,7 @@ def test_query_datacollection(client):
     assert query.include_clause is None
     assert query.limit_clause is None
     res = client.search(query)
-    assert 2 <= len(res) <= 3
+    assert len(res) == 2 + have_icat_5
 
 def test_query_datafiles_datafileformat(client, recwarn):
     """Datafiles ordered by format.
@@ -217,7 +215,7 @@ def test_query_datafiles_datafileformat(client, recwarn):
     assert query.include_clause is None
     assert query.limit_clause is None
     res = client.search(query)
-    assert 10 <= len(res) <= 11
+    assert len(res) == 10 + have_icat_5
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_order_direction(client):
@@ -297,7 +295,7 @@ def test_query_condition_greaterthen(client):
     assert query.join_clause is None
     assert "datafileCreateTime" in query.where_clause
     res = client.search(query)
-    assert 4 <= len(res) <= 5
+    assert len(res) == 4 + have_icat_5
     condition = {"datafileCreateTime": "< '2012-01-01'"}
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
@@ -315,7 +313,7 @@ def test_query_condition_list(client):
     assert "datafileCreateTime" in query.where_clause
     qstr = str(query)
     res = client.search(query)
-    assert 3 <= len(res) <= 4
+    assert len(res) == 3 + have_icat_5
 
     # The last example also works by adding the conditions separately.
     query = Query(client, "Datafile")
@@ -324,7 +322,7 @@ def test_query_condition_list(client):
     print(str(query))
     assert str(query) == qstr
     res = client.search(query)
-    assert 3 <= len(res) <= 4
+    assert len(res) == 3 + have_icat_5
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_in_operator(client):
