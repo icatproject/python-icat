@@ -29,7 +29,8 @@ data_publications:
       HDF5 file, having one single entry: a one dimensional integer
       array.
     facility: example_facility
-    fundingReferences: []
+    fundingReferences:
+    - fund1
     pid: DOI:00.0815/pub-00027
     publicationDate: 2022-10-31
     relatedItems:
@@ -119,6 +120,11 @@ facility_cycles:
   endYear: 17
   facility: example_facility
   startYear: 7
+fundings:
+  fund1:
+    awardNumber: AIS3241330750
+    funderIdentifier: Crossref Funder ID:10.13039/100005376
+    funderName: American Mathematical Society
 instruments:
   e2:
     description: >
@@ -216,6 +222,7 @@ investigations:
     doi: DOI:00.0815/inv-00122
     endDate: null
     facility: example_facility
+    fundingReferences: []
     instrument: hike
     invcol:
     - nbour
@@ -310,6 +317,7 @@ investigations:
     doi: DOI:00.0815/inv-00601
     endDate: '2010-10-12T17:00:00+02:00'
     facility: example_facility
+    fundingReferences: []
     instrument: e2
     invcol: []
     invguest:
@@ -384,6 +392,8 @@ investigations:
     doi: DOI:00.0815/inv-00409
     endDate: '2012-08-06T03:10:08+02:00'
     facility: example_facility
+    fundingReferences:
+    - fund1
     instrument: eddi
     invcol: []
     invguest:

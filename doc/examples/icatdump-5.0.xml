@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2022-11-09T23:28:18+00:00</date>
+  <date>2022-11-23T10:27:13+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>5.0.0</apiversion>
-  <generator>icatdump (python-icat 0.21.1.dev131)</generator>
+  <generator>icatdump (python-icat 0.21.1.dev134)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
@@ -1460,6 +1460,13 @@
   </application>
 </data>
 <data>
+  <fundingReference id="FundingReference_funderName-American=20Mathematical=20Society_awardNumber-AIS3241330750">
+    <awardNumber>AIS3241330750</awardNumber>
+    <funderIdentifier>Crossref Funder ID:10.13039/100005376</funderIdentifier>
+    <funderName>American Mathematical Society</funderName>
+  </fundingReference>
+</data>
+<data>
   <investigation id="Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP">
     <doi>DOI:00.0815/inv-00122</doi>
     <fileCount>1</fileCount>
@@ -1775,6 +1782,9 @@
     <visitId>1.1-P</visitId>
     <facility ref="Facility_name-ESNF"/>
     <type ref="InvestigationType_name-Experiment_facility-(name-ESNF)"/>
+    <fundingReferences>
+      <funding ref="FundingReference_funderName-American=20Mathematical=20Society_awardNumber-AIS3241330750"/>
+    </fundingReferences>
     <investigationFacilityCycles>
       <facilityCycle ref="FacilityCycle_facility-(name-ESNF)_name-121"/>
     </investigationFacilityCycles>
@@ -2003,6 +2013,9 @@
       <date>2022-04-29</date>
       <dateType>Submitted</dateType>
     </dates>
+    <fundingReferences>
+      <funding ref="FundingReference_funderName-American=20Mathematical=20Society_awardNumber-AIS3241330750"/>
+    </fundingReferences>
     <relatedItems>
       <fullReference>OEIS Foundation Inc. (2022), The positive integers, Entry A000027 in The On-Line Encyclopedia of Integer Sequences</fullReference>
       <identifier>URL:http://oeis.org/A000027</identifier>

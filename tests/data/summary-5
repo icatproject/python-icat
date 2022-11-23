@@ -11,7 +11,7 @@ DataCollectionInvestigation : 0
 DataCollectionParameter  : 1
 DataPublication          : 1
 DataPublicationDate      : 2
-DataPublicationFunding   : 0
+DataPublicationFunding   : 1
 DataPublicationType      : 0
 DataPublicationUser      : 1
 Datafile                 : 11
@@ -24,13 +24,13 @@ DatasetTechnique         : 5
 DatasetType              : 3
 Facility                 : 1
 FacilityCycle            : 20
-FundingReference         : 0
+FundingReference         : 1
 Grouping                 : 15
 Instrument               : 3
 InstrumentScientist      : 3
 Investigation            : 3
 InvestigationFacilityCycle : 3
-InvestigationFunding     : 0
+InvestigationFunding     : 1
 InvestigationGroup       : 9
 InvestigationInstrument  : 3
 InvestigationParameter   : 3

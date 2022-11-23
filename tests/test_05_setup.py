@@ -318,6 +318,15 @@ def test_add_data_publication(data, pubname):
         for a in u['affiliations']:
             pub_user.affiliations.append(client.new("affiliation", **a))
         data_publication.users.append(pub_user)
+    for fr in pubdata['fundingReferences']:
+        funding_ref = client.new('fundingReference')
+        initobj(funding_ref, data['fundings'][fr])
+        try:
+            funding_ref.create()
+        except icat.ICATObjectExistsError:
+            funding_ref = client.searchMatching(funding_ref)
+        dp_fund = client.new('dataPublicationFunding', funding=funding_ref)
+        data_publication.fundingReferences.append(dp_fund)
     data_publication.create()
 
 @pytest.mark.dependency(depends=alldata)

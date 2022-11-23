@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Wed, 09 Nov 2022 23:28:15 +0000
+# Date: Wed, 23 Nov 2022 10:27:02 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 5.0.0
-# Generator: icatdump (python-icat 0.21.1.dev131)
+# Generator: icatdump (python-icat 0.21.1.dev134)
 ---
 grouping:
   Grouping_name-ingest:
@@ -1297,6 +1297,12 @@ technique:
     name: X-ray Tomography
     pid: PaNET:PaNET01207
 ---
+fundingReference:
+  FundingReference_funderName-American=20Mathematical=20Society_awardNumber-AIS3241330750:
+    awardNumber: AIS3241330750
+    funderIdentifier: Crossref Funder ID:10.13039/100005376
+    funderName: American Mathematical Society
+---
 datafile:
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215)_name-e201215=2Enxs
   : checksum: ac69460a
@@ -1652,6 +1658,8 @@ investigation:
     facility: Facility_name-ESNF
     fileCount: 6
     fileSize: 757836
+    fundingReferences:
+    - funding: FundingReference_funderName-American=20Mathematical=20Society_awardNumber-AIS3241330750
     investigationFacilityCycles:
     - facilityCycle: FacilityCycle_facility-(name-ESNF)_name-121
     investigationGroups:
@@ -1725,6 +1733,8 @@ dataPublication:
       On-Line Encyclopedia of Integer Sequences. The data consists of an HDF5 file,
       having one single entry: a one dimensional integer array.'
     facility: Facility_name-ESNF
+    fundingReferences:
+    - funding: FundingReference_funderName-American=20Mathematical=20Society_awardNumber-AIS3241330750
     pid: DOI:00.0815/pub-00027
     publicationDate: '2022-10-30T23:00:00+00:00'
     relatedItems:

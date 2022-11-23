@@ -130,6 +130,16 @@ if 'investigationFacilityCycles' in investigation.InstMRel:
         for fc in client.search(query):
             ifc = client.new("investigationFacilityCycle", facilityCycle=fc)
             investigation.investigationFacilityCycles.append(ifc)
+if 'fundingReferences' in investigation.InstMRel:
+    for fr in investigationdata['fundingReferences']:
+        funding_ref = client.new('fundingReference')
+        initobj(funding_ref, data['fundings'][fr])
+        try:
+            funding_ref.create()
+        except icat.ICATObjectExistsError:
+            funding_ref = client.searchMatching(funding_ref)
+        inv_fund = client.new('investigationFunding', funding=funding_ref)
+        investigation.fundingReferences.append(inv_fund)
 investigation.create()
 investigation.addInstrument(instrument)
 investigation.addKeywords(investigationdata['keywords'])
