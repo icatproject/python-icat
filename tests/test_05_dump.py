@@ -11,9 +11,9 @@ except ImportError:
         pass
 import icat
 import icat.config
-from conftest import (getConfig, icat_version,
-                      gettestdata, get_reference_dumpfile, callscript,
-                      filter_file, yaml_filter, xml_filter)
+from conftest import (getConfig, icat_version, gettestdata,
+                      get_reference_dumpfile, get_reference_summary,
+                      callscript, filter_file, yaml_filter, xml_filter)
 
 
 backends = {
@@ -29,9 +29,7 @@ backends = {
     },
 }
 users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
-refsummary = { "root": gettestdata("summary") }
-for u in users:
-    refsummary[u] = gettestdata("summary.%s" % u)
+refsummary = get_reference_summary()
 
 # The following cases are tuples of a backend and a file type (regular
 # file, stdin/stdout, in-memory stream).  They are used for both,
@@ -60,16 +58,15 @@ if icat_version < "4.7.0":
                            r"\1 : 0")
 else:
     summary_root_filter = None
-    summary_user_filter = (re.compile(r"^((?:DataCollection(?:Datafile|Dataset|Parameter)?|Job|RelatedDatafile)\s*) : \d+$"),
+    summary_user_filter = (re.compile(r"^((?:DataCollection(?:Datafile|Dataset|Investigation|Parameter)?|Job|RelatedDatafile)\s*) : \d+$"),
                            r"\1 : 0")
 
 # Test queries and results for test_check_queries().  This is mostly
 # to verify that object relations are kept intact after an icatdump /
 # icatingest cycle.
 queries = [
-    ("Datafile.name <-> Dataset <-> Investigation [name='12100409-ST']",
-     ['e208341.nxs', 'e208945-2.nxs', 'e208945.dat', 'e208945.nxs',
-      'e208947.nxs']),
+    ("Datafile.name <-> Dataset <-> Investigation [name='10100601-ST']",
+     ['e208339.dat', 'e208339.nxs', 'e208341.dat', 'e208341.nxs']),
     ("SELECT p.numericValue FROM DatasetParameter p "
      "JOIN p.dataset AS ds JOIN ds.investigation AS i JOIN p.type AS t "
      "WHERE i.name = '10100601-ST' AND ds.name = 'e208339' "
@@ -85,6 +82,10 @@ queries = [
      "JOIN dcdf.dataCollection AS dc JOIN dc.jobsAsInput AS j "
      "WHERE j.id IS NOT NULL",
      ["e208945.nxs"]),
+    ("SELECT COUNT(dc) FROM DataCollection dc "
+     "JOIN dc.dataCollectionDatasets AS dcds JOIN dcds.dataset AS ds "
+     "WHERE ds.name = 'e201215'",
+     [1]),
 ]
 
 @pytest.fixture(scope="module")

@@ -1,7 +1,7 @@
 %YAML 1.1
-# Date: Wed, 23 Nov 2022 16:39:39 +0000
+# Date: Wed, 23 Nov 2022 15:30:08 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
-# ICAT-API: 4.4.0
+# ICAT-API: 5.0.0
 # Generator: icatdump (python-icat 0.21.1.dev138)
 ---
 grouping:
@@ -49,6 +49,14 @@ grouping:
     name: investigation_12100409-ST_writer
     userGroups:
     - user: User_name-db=2Fnbour
+  Grouping_name-publisher:
+    name: publisher
+    userGroups:
+    - user: User_name-simple=2Fuseroffice
+  Grouping_name-pubreader:
+    name: pubreader
+    userGroups:
+    - user: User_name-simple=2Fpubreader
   Grouping_name-rall:
     name: rall
     userGroups:
@@ -68,9 +76,36 @@ publicStep:
   PublicStep_origin-DataCollection_field-dataCollectionDatasets:
     field: dataCollectionDatasets
     origin: DataCollection
+  PublicStep_origin-DataCollection_field-dataCollectionInvestigations:
+    field: dataCollectionInvestigations
+    origin: DataCollection
   PublicStep_origin-DataCollection_field-parameters:
     field: parameters
     origin: DataCollection
+  PublicStep_origin-DataPublicationFunding_field-funding:
+    field: funding
+    origin: DataPublicationFunding
+  PublicStep_origin-DataPublicationUser_field-affiliations:
+    field: affiliations
+    origin: DataPublicationUser
+  PublicStep_origin-DataPublicationUser_field-user:
+    field: user
+    origin: DataPublicationUser
+  PublicStep_origin-DataPublication_field-content:
+    field: content
+    origin: DataPublication
+  PublicStep_origin-DataPublication_field-dates:
+    field: dates
+    origin: DataPublication
+  PublicStep_origin-DataPublication_field-fundingReferences:
+    field: fundingReferences
+    origin: DataPublication
+  PublicStep_origin-DataPublication_field-relatedItems:
+    field: relatedItems
+    origin: DataPublication
+  PublicStep_origin-DataPublication_field-users:
+    field: users
+    origin: DataPublication
   PublicStep_origin-Datafile_field-dataset:
     field: dataset
     origin: Datafile
@@ -79,6 +114,12 @@ publicStep:
     origin: Datafile
   PublicStep_origin-Dataset_field-datafiles:
     field: datafiles
+    origin: Dataset
+  PublicStep_origin-Dataset_field-datasetInstruments:
+    field: datasetInstruments
+    origin: Dataset
+  PublicStep_origin-Dataset_field-datasetTechniques:
+    field: datasetTechniques
     origin: Dataset
   PublicStep_origin-Dataset_field-investigation:
     field: investigation
@@ -95,9 +136,15 @@ publicStep:
   PublicStep_origin-Instrument_field-instrumentScientists:
     field: instrumentScientists
     origin: Instrument
+  PublicStep_origin-InvestigationFunding_field-funding:
+    field: funding
+    origin: InvestigationFunding
   PublicStep_origin-InvestigationGroup_field-grouping:
     field: grouping
     origin: InvestigationGroup
+  PublicStep_origin-Investigation_field-fundingReferences:
+    field: fundingReferences
+    origin: Investigation
   PublicStep_origin-Investigation_field-investigationGroups:
     field: investigationGroups
     origin: Investigation
@@ -140,491 +187,733 @@ rule:
     what: Application
   Rule_00000002:
     crudFlags: R
-    what: DatafileFormat
+    what: DataPublicationType
   Rule_00000003:
     crudFlags: R
-    what: DatasetType
+    what: DatafileFormat
   Rule_00000004:
     crudFlags: R
-    what: Facility
+    what: DatasetType
   Rule_00000005:
     crudFlags: R
-    what: FacilityCycle
+    what: Facility
   Rule_00000006:
     crudFlags: R
-    what: Grouping <-> UserGroup <-> User [name=:user]
+    what: FacilityCycle
   Rule_00000007:
     crudFlags: R
-    what: Instrument
+    what: Grouping <-> UserGroup <-> User [name=:user]
   Rule_00000008:
     crudFlags: R
-    what: InvestigationType
+    what: Instrument
   Rule_00000009:
     crudFlags: R
-    what: ParameterType
+    what: InvestigationType
   Rule_00000010:
     crudFlags: R
-    what: PermissibleStringValue
+    what: ParameterType
   Rule_00000011:
+    crudFlags: R
+    what: PermissibleStringValue
+  Rule_00000012:
     crudFlags: CRUD
     what: SELECT o FROM DataCollection o WHERE o.createId = :user
-  Rule_00000012:
+  Rule_00000013:
     crudFlags: CRUD
     what: SELECT o FROM DataCollectionDatafile o JOIN o.dataCollection AS s1 WHERE
       s1.createId = :user
-  Rule_00000013:
+  Rule_00000014:
     crudFlags: CRUD
     what: SELECT o FROM DataCollectionDataset o JOIN o.dataCollection AS s1 WHERE
       s1.createId = :user
-  Rule_00000014:
+  Rule_00000015:
+    crudFlags: CRUD
+    what: SELECT o FROM DataCollectionInvestigation o JOIN o.dataCollection AS s1
+      WHERE s1.createId = :user
+  Rule_00000016:
     crudFlags: CRUD
     what: SELECT o FROM DataCollectionParameter o JOIN o.dataCollection AS s1 WHERE
       s1.createId = :user
-  Rule_00000015:
+  Rule_00000017:
+    crudFlags: R
+    what: SELECT o FROM DataPublication o WHERE o.publicationDate < CURRENT_TIMESTAMP
+  Rule_00000018:
+    crudFlags: R
+    what: SELECT o FROM Datafile o JOIN o.dataCollectionDatafiles AS s1 JOIN s1.dataCollection
+      AS s2 JOIN s2.dataPublications AS s3 WHERE s3.publicationDate < CURRENT_TIMESTAMP
+  Rule_00000019:
+    crudFlags: R
+    what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.dataCollectionDatasets
+      AS s1 JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.publicationDate
+      < CURRENT_TIMESTAMP
+  Rule_00000020:
     crudFlags: R
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN ds.type AS s1 WHERE i.releaseDate < CURRENT_TIMESTAMP AND s1.name = 'raw'
-  Rule_00000016:
+  Rule_00000021:
+    crudFlags: R
+    what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
+      JOIN i.dataCollectionInvestigations AS s1 JOIN s1.dataCollection AS s2 JOIN
+      s2.dataPublications AS s3 WHERE s3.publicationDate < CURRENT_TIMESTAMP
+  Rule_00000022:
     crudFlags: CUD
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS
       s3 JOIN s3.user AS s4 WHERE ds.complete = False AND s4.name = :user AND s1.role
       = 'writer'
-  Rule_00000017:
+  Rule_00000023:
     crudFlags: R
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS
       s3 JOIN s3.user AS s4 WHERE s4.name = :user
-  Rule_00000018:
+  Rule_00000024:
     crudFlags: CUD
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
       AS s3 JOIN s3.user AS s4 WHERE ds.complete = False AND s4.name = :user
-  Rule_00000019:
+  Rule_00000025:
     crudFlags: R
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
-  Rule_00000020:
+  Rule_00000026:
     crudFlags: R
     what: SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset
       AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationGroups AS s4 JOIN s4.grouping
       AS s5 JOIN s5.userGroups AS s6 JOIN s6.user AS s7 WHERE s7.name = :user
-  Rule_00000021:
+  Rule_00000027:
     crudFlags: CUD
     what: SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset
       AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationGroups AS s4 JOIN s4.grouping
       AS s5 JOIN s5.userGroups AS s6 JOIN s6.user AS s7 WHERE s7.name = :user AND
       s4.role = 'writer'
-  Rule_00000022:
+  Rule_00000028:
     crudFlags: CUD
     what: SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset
       AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationInstruments AS s4 JOIN
       s4.instrument AS s5 JOIN s5.instrumentScientists AS s6 JOIN s6.user AS s7 WHERE
       s7.name = :user
-  Rule_00000023:
+  Rule_00000029:
     crudFlags: R
     what: SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset
       AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationInstruments AS s4 JOIN
       s4.instrument AS s5 JOIN s5.instrumentScientists AS s6 JOIN s6.user AS s7 WHERE
       s7.name = :user
-  Rule_00000024:
+  Rule_00000030:
+    crudFlags: R
+    what: SELECT o FROM Dataset o JOIN o.dataCollectionDatasets AS s1 JOIN s1.dataCollection
+      AS s2 JOIN s2.dataPublications AS s3 WHERE s3.publicationDate < CURRENT_TIMESTAMP
+  Rule_00000031:
+    crudFlags: R
+    what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.dataCollectionInvestigations
+      AS s1 JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.publicationDate
+      < CURRENT_TIMESTAMP
+  Rule_00000032:
     crudFlags: CUD
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       o.complete = False AND s4.name = :user AND s1.role = 'writer'
-  Rule_00000025:
+  Rule_00000033:
     crudFlags: R
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000026:
+  Rule_00000034:
     crudFlags: CUD
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE o.complete = False AND s4.name = :user
-  Rule_00000027:
+  Rule_00000035:
     crudFlags: R
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000028:
+  Rule_00000036:
     crudFlags: R
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN o.type AS t WHERE
       i.releaseDate < CURRENT_TIMESTAMP AND t.name = 'raw'
-  Rule_00000029:
+  Rule_00000037:
+    crudFlags: R
+    what: SELECT o FROM DatasetInstrument o JOIN o.dataset AS ds JOIN ds.investigation
+      AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups
+      AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
+  Rule_00000038:
+    crudFlags: CUD
+    what: SELECT o FROM DatasetInstrument o JOIN o.dataset AS ds JOIN ds.investigation
+      AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups
+      AS s3 JOIN s3.user AS s4 WHERE s4.name = :user AND s1.role = 'writer'
+  Rule_00000039:
+    crudFlags: CUD
+    what: SELECT o FROM DatasetInstrument o JOIN o.dataset AS ds JOIN ds.investigation
+      AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
+      AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
+  Rule_00000040:
+    crudFlags: R
+    what: SELECT o FROM DatasetInstrument o JOIN o.dataset AS ds JOIN ds.investigation
+      AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
+      AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
+  Rule_00000041:
     crudFlags: R
     what: SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation
       AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
-  Rule_00000030:
+  Rule_00000042:
     crudFlags: CUD
     what: SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation
       AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user AND s1.role = 'writer'
-  Rule_00000031:
+  Rule_00000043:
     crudFlags: CUD
     what: SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation
       AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
-  Rule_00000032:
+  Rule_00000044:
     crudFlags: R
     what: SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation
       AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
       AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
-  Rule_00000033:
+  Rule_00000045:
+    crudFlags: R
+    what: SELECT o FROM DatasetTechnique o JOIN o.dataset AS ds JOIN ds.investigation
+      AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups
+      AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
+  Rule_00000046:
+    crudFlags: CUD
+    what: SELECT o FROM DatasetTechnique o JOIN o.dataset AS ds JOIN ds.investigation
+      AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups
+      AS s3 JOIN s3.user AS s4 WHERE s4.name = :user AND s1.role = 'writer'
+  Rule_00000047:
+    crudFlags: CUD
+    what: SELECT o FROM DatasetTechnique o JOIN o.dataset AS ds JOIN ds.investigation
+      AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
+      AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
+  Rule_00000048:
+    crudFlags: R
+    what: SELECT o FROM DatasetTechnique o JOIN o.dataset AS ds JOIN ds.investigation
+      AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists
+      AS s3 JOIN s3.user AS s4 WHERE s4.name = :user
+  Rule_00000049:
     crudFlags: R
     what: SELECT o FROM Grouping o JOIN o.investigationGroups AS ig JOIN ig.investigation
       AS s1 JOIN s1.investigationGroups AS s2 JOIN s2.grouping AS s3 JOIN s3.userGroups
       AS s4 JOIN s4.user AS s5 WHERE s5.name = :user AND s2.role = 'owner'
-  Rule_00000034:
+  Rule_00000050:
+    crudFlags: R
+    what: SELECT o FROM Investigation o JOIN o.dataCollectionInvestigations AS s1
+      JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.publicationDate
+      < CURRENT_TIMESTAMP
+  Rule_00000051:
     crudFlags: R
     what: SELECT o FROM Investigation o JOIN o.investigationGroups AS ig JOIN ig.grouping
       AS s1 JOIN s1.userGroups AS s2 JOIN s2.user AS s3 WHERE s3.name = :user
-  Rule_00000035:
+  Rule_00000052:
     crudFlags: R
     what: SELECT o FROM Investigation o JOIN o.investigationInstruments AS ii JOIN
       ii.instrument AS s1 JOIN s1.instrumentScientists AS s2 JOIN s2.user AS s3 WHERE
       s3.name = :user
-  Rule_00000036:
+  Rule_00000053:
     crudFlags: R
     what: SELECT o FROM Investigation o WHERE o.releaseDate < CURRENT_TIMESTAMP
-  Rule_00000037:
+  Rule_00000054:
     crudFlags: R
     what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000038:
+  Rule_00000055:
     crudFlags: CUD
     what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user AND s1.role = 'writer'
-  Rule_00000039:
+  Rule_00000056:
     crudFlags: CUD
     what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000040:
+  Rule_00000057:
     crudFlags: R
     what: SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000041:
+  Rule_00000058:
     crudFlags: CRUD
     what: SELECT o FROM Job o WHERE o.createId = :user
-  Rule_00000042:
+  Rule_00000059:
     crudFlags: R
     what: SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000043:
+  Rule_00000060:
     crudFlags: R
     what: SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000044:
+  Rule_00000061:
     crudFlags: R
     what: SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000045:
+  Rule_00000062:
     crudFlags: R
     what: SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000046:
+  Rule_00000063:
     crudFlags: CRUD
     what: SELECT o FROM RelatedDatafile o WHERE o.createId = :user
-  Rule_00000047:
+  Rule_00000064:
     crudFlags: R
     what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000048:
+  Rule_00000065:
     crudFlags: CUD
     what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user AND s1.role = 'writer'
-  Rule_00000049:
+  Rule_00000066:
     crudFlags: CUD
     what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000050:
+  Rule_00000067:
     crudFlags: R
     what: SELECT o FROM Sample o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000051:
+  Rule_00000068:
     crudFlags: R
     what: SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation
       AS s2 JOIN s2.investigationGroups AS s3 JOIN s3.grouping AS s4 JOIN s4.userGroups
       AS s5 JOIN s5.user AS s6 WHERE s6.name = :user
-  Rule_00000052:
+  Rule_00000069:
     crudFlags: CUD
     what: SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation
       AS s2 JOIN s2.investigationGroups AS s3 JOIN s3.grouping AS s4 JOIN s4.userGroups
       AS s5 JOIN s5.user AS s6 WHERE s6.name = :user AND s3.role = 'writer'
-  Rule_00000053:
+  Rule_00000070:
     crudFlags: CUD
     what: SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation
       AS s2 JOIN s2.investigationInstruments AS s3 JOIN s3.instrument AS s4 JOIN s4.instrumentScientists
       AS s5 JOIN s5.user AS s6 WHERE s6.name = :user
-  Rule_00000054:
+  Rule_00000071:
     crudFlags: R
     what: SELECT o FROM SampleParameter o JOIN o.sample AS s1 JOIN s1.investigation
       AS s2 JOIN s2.investigationInstruments AS s3 JOIN s3.instrument AS s4 JOIN s4.instrumentScientists
       AS s5 JOIN s5.user AS s6 WHERE s6.name = :user
-  Rule_00000055:
+  Rule_00000072:
     crudFlags: R
     what: SELECT o FROM Shift o JOIN o.investigation AS i JOIN i.investigationGroups
       AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE
       s4.name = :user
-  Rule_00000056:
+  Rule_00000073:
     crudFlags: R
     what: SELECT o FROM Shift o JOIN o.investigation AS i JOIN i.investigationInstruments
       AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user
       AS s4 WHERE s4.name = :user
-  Rule_00000057:
+  Rule_00000074:
     crudFlags: CRUD
     what: SELECT o FROM UserGroup o JOIN o.grouping AS g JOIN g.investigationGroups
       AS s1 JOIN s1.investigation AS s2 JOIN s2.investigationGroups AS s3 JOIN s3.grouping
       AS s4 JOIN s4.userGroups AS s5 JOIN s5.user AS s6 WHERE s6.name = :user AND
       s3.role = 'owner' AND s1.role in ('reader', 'writer')
-  Rule_00000058:
+  Rule_00000075:
     crudFlags: CR
     what: SampleType
-  Rule_00000059:
+  Rule_00000076:
     crudFlags: R
     what: Study <-> User [name=:user]
-  Rule_00000060:
+  Rule_00000077:
+    crudFlags: R
+    what: Technique
+  Rule_00000078:
     crudFlags: R
     what: User
-  Rule_00000061:
+  Rule_00000079:
     crudFlags: CRU
     grouping: Grouping_name-ingest
     what: Datafile
-  Rule_00000062:
+  Rule_00000080:
     crudFlags: CRU
     grouping: Grouping_name-ingest
     what: DatafileParameter
-  Rule_00000063:
+  Rule_00000081:
     crudFlags: CRU
     grouping: Grouping_name-ingest
     what: Dataset
-  Rule_00000064:
+  Rule_00000082:
+    crudFlags: CRU
+    grouping: Grouping_name-ingest
+    what: DatasetInstrument
+  Rule_00000083:
     crudFlags: CRU
     grouping: Grouping_name-ingest
     what: DatasetParameter
-  Rule_00000065:
+  Rule_00000084:
+    crudFlags: CRU
+    grouping: Grouping_name-ingest
+    what: DatasetTechnique
+  Rule_00000085:
     crudFlags: R
     grouping: Grouping_name-ingest
     what: Investigation
-  Rule_00000066:
+  Rule_00000086:
     crudFlags: R
     grouping: Grouping_name-ingest
     what: Shift
-  Rule_00000067:
+  Rule_00000087:
+    crudFlags: CRUD
+    grouping: Grouping_name-publisher
+    what: Affiliation
+  Rule_00000088:
+    crudFlags: CRUD
+    grouping: Grouping_name-publisher
+    what: DataPublication
+  Rule_00000089:
+    crudFlags: CRUD
+    grouping: Grouping_name-publisher
+    what: DataPublicationDate
+  Rule_00000090:
+    crudFlags: CRUD
+    grouping: Grouping_name-publisher
+    what: DataPublicationFunding
+  Rule_00000091:
+    crudFlags: CRUD
+    grouping: Grouping_name-publisher
+    what: DataPublicationUser
+  Rule_00000092:
+    crudFlags: CRUD
+    grouping: Grouping_name-publisher
+    what: FundingReference
+  Rule_00000093:
+    crudFlags: CRUD
+    grouping: Grouping_name-publisher
+    what: RelatedItem
+  Rule_00000094:
+    crudFlags: R
+    grouping: Grouping_name-pubreader
+    what: SELECT o FROM DataPublication o
+  Rule_00000095:
+    crudFlags: R
+    grouping: Grouping_name-pubreader
+    what: SELECT o FROM Datafile o JOIN o.dataCollectionDatafiles AS s1 JOIN s1.dataCollection
+      AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id IS NOT NULL
+  Rule_00000096:
+    crudFlags: R
+    grouping: Grouping_name-pubreader
+    what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.dataCollectionDatasets
+      AS s1 JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id
+      IS NOT NULL
+  Rule_00000097:
+    crudFlags: R
+    grouping: Grouping_name-pubreader
+    what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
+      JOIN i.dataCollectionInvestigations AS s1 JOIN s1.dataCollection AS s2 JOIN
+      s2.dataPublications AS s3 WHERE s3.id IS NOT NULL
+  Rule_00000098:
+    crudFlags: R
+    grouping: Grouping_name-pubreader
+    what: SELECT o FROM Dataset o JOIN o.dataCollectionDatasets AS s1 JOIN s1.dataCollection
+      AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id IS NOT NULL
+  Rule_00000099:
+    crudFlags: R
+    grouping: Grouping_name-pubreader
+    what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.dataCollectionInvestigations
+      AS s1 JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id
+      IS NOT NULL
+  Rule_00000100:
+    crudFlags: R
+    grouping: Grouping_name-pubreader
+    what: SELECT o FROM Investigation o JOIN o.dataCollectionInvestigations AS s1
+      JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id IS NOT
+      NULL
+  Rule_00000101:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: Affiliation
+  Rule_00000102:
     crudFlags: R
     grouping: Grouping_name-rall
     what: DataCollection
-  Rule_00000068:
+  Rule_00000103:
     crudFlags: R
     grouping: Grouping_name-rall
     what: DataCollectionDatafile
-  Rule_00000069:
+  Rule_00000104:
     crudFlags: R
     grouping: Grouping_name-rall
     what: DataCollectionDataset
-  Rule_00000070:
+  Rule_00000105:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: DataCollectionInvestigation
+  Rule_00000106:
     crudFlags: R
     grouping: Grouping_name-rall
     what: DataCollectionParameter
-  Rule_00000071:
+  Rule_00000107:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: DataPublication
+  Rule_00000108:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: DataPublicationDate
+  Rule_00000109:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: DataPublicationFunding
+  Rule_00000110:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: DataPublicationUser
+  Rule_00000111:
     crudFlags: R
     grouping: Grouping_name-rall
     what: Datafile
-  Rule_00000072:
+  Rule_00000112:
     crudFlags: R
     grouping: Grouping_name-rall
     what: DatafileParameter
-  Rule_00000073:
+  Rule_00000113:
     crudFlags: R
     grouping: Grouping_name-rall
     what: Dataset
-  Rule_00000074:
+  Rule_00000114:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: DatasetInstrument
+  Rule_00000115:
     crudFlags: R
     grouping: Grouping_name-rall
     what: DatasetParameter
-  Rule_00000075:
+  Rule_00000116:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: DatasetTechnique
+  Rule_00000117:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: FundingReference
+  Rule_00000118:
     crudFlags: R
     grouping: Grouping_name-rall
     what: Grouping
-  Rule_00000076:
+  Rule_00000119:
     crudFlags: R
     grouping: Grouping_name-rall
     what: InstrumentScientist
-  Rule_00000077:
+  Rule_00000120:
     crudFlags: R
     grouping: Grouping_name-rall
     what: Investigation
-  Rule_00000078:
+  Rule_00000121:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: InvestigationFacilityCycle
+  Rule_00000122:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: InvestigationFunding
+  Rule_00000123:
     crudFlags: R
     grouping: Grouping_name-rall
     what: InvestigationGroup
-  Rule_00000079:
+  Rule_00000124:
     crudFlags: R
     grouping: Grouping_name-rall
     what: InvestigationInstrument
-  Rule_00000080:
+  Rule_00000125:
     crudFlags: R
     grouping: Grouping_name-rall
     what: InvestigationParameter
-  Rule_00000081:
+  Rule_00000126:
     crudFlags: R
     grouping: Grouping_name-rall
     what: InvestigationUser
-  Rule_00000082:
+  Rule_00000127:
     crudFlags: R
     grouping: Grouping_name-rall
     what: Job
-  Rule_00000083:
+  Rule_00000128:
     crudFlags: R
     grouping: Grouping_name-rall
     what: Keyword
-  Rule_00000084:
+  Rule_00000129:
     crudFlags: R
     grouping: Grouping_name-rall
     what: PublicStep
-  Rule_00000085:
+  Rule_00000130:
     crudFlags: R
     grouping: Grouping_name-rall
     what: Publication
-  Rule_00000086:
+  Rule_00000131:
     crudFlags: R
     grouping: Grouping_name-rall
     what: RelatedDatafile
-  Rule_00000087:
+  Rule_00000132:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: RelatedItem
+  Rule_00000133:
     crudFlags: R
     grouping: Grouping_name-rall
     what: Rule
-  Rule_00000088:
+  Rule_00000134:
     crudFlags: R
     grouping: Grouping_name-rall
     what: Sample
-  Rule_00000089:
+  Rule_00000135:
     crudFlags: R
     grouping: Grouping_name-rall
     what: SampleParameter
-  Rule_00000090:
+  Rule_00000136:
     crudFlags: R
     grouping: Grouping_name-rall
     what: Shift
-  Rule_00000091:
+  Rule_00000137:
     crudFlags: R
     grouping: Grouping_name-rall
     what: Study
-  Rule_00000092:
+  Rule_00000138:
     crudFlags: R
     grouping: Grouping_name-rall
     what: StudyInvestigation
-  Rule_00000093:
+  Rule_00000139:
     crudFlags: R
     grouping: Grouping_name-rall
     what: UserGroup
-  Rule_00000094:
+  Rule_00000140:
     crudFlags: RU
     grouping: Grouping_name-scientific=5Fstaff
     what: Sample
-  Rule_00000095:
+  Rule_00000141:
     crudFlags: UD
     grouping: Grouping_name-scientific=5Fstaff
     what: SampleType
-  Rule_00000096:
+  Rule_00000142:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: FacilityCycle
-  Rule_00000097:
+  Rule_00000143:
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: FundingReference
+  Rule_00000144:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: Grouping
-  Rule_00000098:
+  Rule_00000145:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: InstrumentScientist
-  Rule_00000099:
+  Rule_00000146:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: Investigation
-  Rule_00000100:
+  Rule_00000147:
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: InvestigationFunding
+  Rule_00000148:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: InvestigationGroup
-  Rule_00000101:
+  Rule_00000149:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: InvestigationInstrument
-  Rule_00000102:
+  Rule_00000150:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: InvestigationParameter
-  Rule_00000103:
+  Rule_00000151:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: InvestigationUser
-  Rule_00000104:
+  Rule_00000152:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: Keyword
-  Rule_00000105:
+  Rule_00000153:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: Publication
-  Rule_00000106:
+  Rule_00000154:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: Shift
-  Rule_00000107:
+  Rule_00000155:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: Study
-  Rule_00000108:
+  Rule_00000156:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: StudyInvestigation
-  Rule_00000109:
+  Rule_00000157:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: User
-  Rule_00000110:
+  Rule_00000158:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: UserGroup
 user:
   User_name-db=2Facord:
+    affiliation: University of Ravenna, Institute of Modern History
+    email: acord@example.org
+    familyName: Cordus
     fullName: Aelius Cordus
+    givenName: Aelius
     name: db/acord
+    orcidId: 0000-0002-3262
   User_name-db=2Fahau:
+    affiliation: Goethe University Frankfurt, Faculty of Philosophy and History
+    email: ahau@example.org
+    familyName: Hau
     fullName: Arnold Hau
+    givenName: Arnold
     name: db/ahau
+    orcidId: 0000-0002-3263
   User_name-db=2Fjbotu:
+    affiliation: "Universit\xE9 Paul-Val\xE9ry Montpellier 3"
+    email: jbotu@example.org
+    familyName: Botul
     fullName: Jean-Baptiste Botul
+    givenName: Jean-Baptiste
     name: db/jbotu
+    orcidId: 0000-0002-3264
   User_name-db=2Fjdoe:
+    email: jdoe@example.org
+    familyName: Doe
     fullName: John Doe
+    givenName: John
     name: db/jdoe
   User_name-db=2Fnbour:
+    affiliation: University of Nancago
+    email: nbour@example.org
+    familyName: Bourbaki
     fullName: Nicolas Bourbaki
+    givenName: Nicolas
     name: db/nbour
+    orcidId: 0000-0002-3266
   User_name-db=2Frbeck:
+    affiliation: "Kaiser-Wilhelms-Akademie f\xFCr das milit\xE4r\xE4rztliche Bildungswesen"
+    email: rbeck@example.org
+    familyName: "Beck-D\xFClmen"
     fullName: "Rudolph Beck-D\xFClmen"
+    givenName: Rudolph
     name: db/rbeck
+    orcidId: 0000-0002-3267
   User_name-simple=2Fdataingest:
     fullName: Data Ingester
     name: simple/dataingest
   User_name-simple=2Fidsreader:
     fullName: IDS reader
     name: simple/idsreader
+  User_name-simple=2Fpubreader:
+    fullName: Pub reader
+    name: simple/pubreader
   User_name-simple=2Froot:
     fullName: Root
     name: simple/root
@@ -637,6 +926,15 @@ application:
     facility: Facility_name-ESNF
     name: gnomoanalytics
     version: '69'
+dataPublicationType:
+  DataPublicationType_facility-(name-ESNF)_name-curated:
+    description: Curated data publication
+    facility: Facility_name-ESNF
+    name: curated
+  DataPublicationType_facility-(name-ESNF)_name-raw:
+    description: Open access raw data
+    facility: Facility_name-ESNF
+    name: raw
 datafileFormat:
   DatafileFormat_facility-(name-ESNF)_name-CSV_version-N=2FA:
     description: Comma separated values
@@ -806,6 +1104,7 @@ instrument:
     instrumentScientists:
     - user: User_name-db=2Facord
     name: E2
+    pid: DOI:00.0815/inst-00001
   Instrument_facility-(name-ESNF)_name-EDDI:
     description: 'The experimental station EDDI (Energy Dispersive Diffraction) is
       a fixed station at the 7T-MPW-EDDI beamline.  The beamline provides the direct
@@ -822,6 +1121,7 @@ instrument:
     instrumentScientists:
     - user: User_name-db=2Facord
     name: EDDI
+    pid: DOI:00.0815/inst-00048
   Instrument_facility-(name-ESNF)_name-HIKE:
     description: 'The system is designed for hard X-ray high kinetic energy photoelectron
       spectroscopy (HAXPES or HIKE) experiments in the excitation energy range from
@@ -836,6 +1136,7 @@ instrument:
     instrumentScientists:
     - user: User_name-db=2Facord
     name: HIKE
+    pid: DOI:00.0815/inst-00027
 investigationType:
   InvestigationType_name-Calibration_facility-(name-ESNF):
     facility: Facility_name-ESNF
@@ -986,6 +1287,29 @@ sampleType:
     facility: Facility_name-ESNF
     molecularFormula: NiO
     name: Nickel(II) oxide SC
+technique:
+  Technique_name-Angle=20Resolved=20Photoemission=20Spectroscopy:
+    description: Angle Resolved Photoemission Spectroscopy
+    name: Angle Resolved Photoemission Spectroscopy
+    pid: PaNET:PaNET01089
+  Technique_name-Hard=20X=2Dray=20Photoelectron=20Spectroscopy:
+    description: Hard X-ray Photoelectron Spectroscopy
+    name: Hard X-ray Photoelectron Spectroscopy
+    pid: PaNET:PaNET01103
+  Technique_name-Neutron=20Diffraction:
+    description: Neutron Diffraction
+    name: Neutron Diffraction
+    pid: PaNET:PaNET01217
+  Technique_name-X=2Dray=20Tomography:
+    description: X-ray Tomography
+    name: X-ray Tomography
+    pid: PaNET:PaNET01207
+---
+fundingReference:
+  FundingReference_funderName-American=20Mathematical=20Society_awardNumber-AIS3241330750:
+    awardNumber: AIS3241330750
+    funderIdentifier: Crossref Funder ID:10.13039/100005376
+    funderName: American Mathematical Society
 ---
 datafile:
   ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215)_name-e201215=2Enxs
@@ -1002,6 +1326,12 @@ datafile:
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215:
     complete: false
+    datasetInstruments:
+    - instrument: Instrument_facility-(name-ESNF)_name-HIKE
+    datasetTechniques:
+    - technique: Technique_name-Hard=20X=2Dray=20Photoelectron=20Spectroscopy
+    fileCount: 1
+    fileSize: 368369
     investigation: Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP
     name: e201215
     sample: Sample_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-Durol=20SC
@@ -1009,6 +1339,12 @@ dataset:
     type: DatasetType_facility-(name-ESNF)_name-raw
   Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201216:
     complete: false
+    datasetInstruments:
+    - instrument: Instrument_facility-(name-ESNF)_name-HIKE
+    datasetTechniques:
+    - technique: Technique_name-Hard=20X=2Dray=20Photoelectron=20Spectroscopy
+    fileCount: 0
+    fileSize: 0
     investigation: Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP
     name: e201216
     sample: Sample_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-Durol=20SC
@@ -1018,6 +1354,10 @@ investigation:
   Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP:
     doi: DOI:00.0815/inv-00122
     facility: Facility_name-ESNF
+    fileCount: 1
+    fileSize: 368369
+    investigationFacilityCycles:
+    - facilityCycle: FacilityCycle_facility-(name-ESNF)_name-081
     investigationGroups:
     - grouping: Grouping_name-investigation=5F08100122=2DEF=5Fowner
       role: owner
@@ -1043,6 +1383,7 @@ investigation:
     shifts:
     - comment: Beamtime at HIKE
       endDate: '2008-03-13T15:00:00+00:00'
+      instrument: Instrument_facility-(name-ESNF)_name-HIKE
       startDate: '2008-03-13T07:00:00+00:00'
     startDate: '2008-03-13T10:39:42+00:00'
     title: Durol single crystal
@@ -1052,6 +1393,7 @@ sample:
   Sample_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-Durol=20SC:
     investigation: Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP
     name: Durol SC
+    pid: IGSN:ESNFHNS8AYEZ
     type: SampleType_facility-(name-ESNF)_name-Durol=20SC_molecularFormula-C10H14
 ---
 datafile:
@@ -1102,7 +1444,13 @@ datafile:
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339:
     complete: false
+    datasetInstruments:
+    - instrument: Instrument_facility-(name-ESNF)_name-E2
+    datasetTechniques:
+    - technique: Technique_name-Neutron=20Diffraction
     endDate: '2010-10-01T06:17:48+00:00'
+    fileCount: 2
+    fileSize: 73874
     investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
     name: e208339
     parameters:
@@ -1115,7 +1463,13 @@ dataset:
     type: DatasetType_facility-(name-ESNF)_name-raw
   Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341:
     complete: false
+    datasetInstruments:
+    - instrument: Instrument_facility-(name-ESNF)_name-E2
+    datasetTechniques:
+    - technique: Technique_name-Neutron=20Diffraction
     endDate: '2010-10-05T08:32:21+00:00'
+    fileCount: 2
+    fileSize: 53251
     investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
     name: e208341
     parameters:
@@ -1128,7 +1482,13 @@ dataset:
     type: DatasetType_facility-(name-ESNF)_name-raw
   Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208342:
     complete: false
+    datasetInstruments:
+    - instrument: Instrument_facility-(name-ESNF)_name-E2
+    datasetTechniques:
+    - technique: Technique_name-Neutron=20Diffraction
     endDate: '2010-10-12T15:00:00+00:00'
+    fileCount: 0
+    fileSize: 0
     investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
     name: e208342
     sample: Sample_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-NiMnGa=20991027
@@ -1139,6 +1499,10 @@ investigation:
     doi: DOI:00.0815/inv-00601
     endDate: '2010-10-12T15:00:00+00:00'
     facility: Facility_name-ESNF
+    fileCount: 4
+    fileSize: 127125
+    investigationFacilityCycles:
+    - facilityCycle: FacilityCycle_facility-(name-ESNF)_name-102
     investigationGroups:
     - grouping: Grouping_name-investigation=5F10100601=2DST=5Fowner
       role: owner
@@ -1166,9 +1530,11 @@ investigation:
     shifts:
     - comment: Beamtime at E2
       endDate: '2010-10-06T06:00:00+00:00'
+      instrument: Instrument_facility-(name-ESNF)_name-E2
       startDate: '2010-09-29T06:00:00+00:00'
     - comment: Beamtime at E2
       endDate: '2010-10-13T06:00:00+00:00'
+      instrument: Instrument_facility-(name-ESNF)_name-E2
       startDate: '2010-10-09T06:00:00+00:00'
     startDate: '2010-09-30T10:27:24+00:00'
     title: Ni-Mn-Ga flat cone
@@ -1181,6 +1547,7 @@ sample:
     parameters:
     - stringValue: 2046c9a7-ab07-4594-84a2-101617073a79
       type: ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA
+    pid: IGSN:ESNFZDVHICBD
     type: SampleType_facility-(name-ESNF)_name-NiMnGa_molecularFormula-NiMnGa
 ---
 datafile:
@@ -1237,10 +1604,21 @@ datafile:
     parameters:
     - dateTimeValue: '2012-07-17T07:28:18+00:00'
       type: ParameterType_facility-(name-ESNF)_name-Last=20access_units-N=2FA
+  ? Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-pub=2D00027)_name-A000027=2Ehdf5
+  : datafileCreateTime: '2012-07-31T22:52:23+00:00'
+    datafileFormat: DatafileFormat_facility-(name-ESNF)_name-HDF5_version-N=2FA
+    datafileModTime: '2012-07-31T22:52:23+00:00'
+    dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-pub=2D00027
+    fileSize: 264188
+    name: A000027.hdf5
 dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945:
     complete: false
+    datasetInstruments:
+    - instrument: Instrument_facility-(name-ESNF)_name-EDDI
     endDate: '2012-07-30T01:10:08+00:00'
+    fileCount: 4
+    fileSize: 478683
     investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
     name: e208945
     parameters:
@@ -1253,7 +1631,11 @@ dataset:
     type: DatasetType_facility-(name-ESNF)_name-raw
   Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208946:
     complete: false
+    datasetInstruments:
+    - instrument: Instrument_facility-(name-ESNF)_name-EDDI
     endDate: '2012-08-06T01:10:08+00:00'
+    fileCount: 0
+    fileSize: 0
     investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
     name: e208946
     sample: Sample_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-Nickel=28II=29=20oxide=20SC
@@ -1262,15 +1644,32 @@ dataset:
   Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947:
     complete: true
     endDate: '2012-07-16T14:30:17+00:00'
+    fileCount: 1
+    fileSize: 14965
     investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
     name: e208947
     startDate: '2012-07-16T11:42:05+00:00'
     type: DatasetType_facility-(name-ESNF)_name-analyzed
+  Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-pub=2D00027:
+    complete: true
+    endDate: '2012-07-31T22:52:23+00:00'
+    fileCount: 1
+    fileSize: 264188
+    investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
+    name: pub-00027
+    startDate: '2012-07-31T20:20:37+00:00'
+    type: DatasetType_facility-(name-ESNF)_name-other
 investigation:
   Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP:
     doi: DOI:00.0815/inv-00409
     endDate: '2012-08-06T01:10:08+00:00'
     facility: Facility_name-ESNF
+    fileCount: 6
+    fileSize: 757836
+    fundingReferences:
+    - funding: FundingReference_funderName-American=20Mathematical=20Society_awardNumber-AIS3241330750
+    investigationFacilityCycles:
+    - facilityCycle: FacilityCycle_facility-(name-ESNF)_name-121
     investigationGroups:
     - grouping: Grouping_name-investigation=5F12100409=2DST=5Fowner
       role: owner
@@ -1295,6 +1694,7 @@ investigation:
     shifts:
     - comment: Beamtime at EDDI
       endDate: '2012-08-07T04:00:00+00:00'
+      instrument: Instrument_facility-(name-ESNF)_name-EDDI
       startDate: '2012-07-24T04:00:00+00:00'
     startDate: '2012-07-26T15:44:24+00:00'
     title: NiO SC OF1 JUH HHL
@@ -1307,6 +1707,7 @@ sample:
     parameters:
     - stringValue: c1b0a101-03aa-4d02-a1a2-e2826ba7871b
       type: ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA
+    pid: IGSN:ESNFX8C7B53W
     type: SampleType_facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO
 ---
 dataCollection:
@@ -1320,23 +1721,88 @@ dataCollection:
     dataCollectionDatafiles:
     - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs
     dataCollectionDatasets:
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201216
+    dataCollectionInvestigations:
+    - investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
+  DataCollection_00000003:
+    dataCollectionDatafiles:
+    - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs
+    dataCollectionDatasets:
     - dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341
     parameters:
     - stringValue: Make a synthesis of 10100601-ST and 12100409-ST
       type: ParameterType_facility-(name-ESNF)_name-Comment_units-N=2FA
-  DataCollection_00000003:
+  DataCollection_00000004:
     dataCollectionDatafiles:
     - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs
     dataCollectionDatasets:
     - dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947
+    doi: DOI:00.0815/dat-004711
+  DataCollection_00000005:
+    dataCollectionDatasets:
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-pub=2D00027
+---
+dataPublication:
+  DataPublication_facility-(name-ESNF)_pid-DOI=3A00=2E0815=2Fpub=2D00027:
+    content: DataCollection_00000005
+    dates:
+    - date: '2012-08-01'
+      dateType: Created
+    - date: '2022-04-29'
+      dateType: Submitted
+    description: 'We provide the first 65535 integers from sequence A000027 of the
+      On-Line Encyclopedia of Integer Sequences. The data consists of an HDF5 file,
+      having one single entry: a one dimensional integer array.'
+    facility: Facility_name-ESNF
+    fundingReferences:
+    - funding: FundingReference_funderName-American=20Mathematical=20Society_awardNumber-AIS3241330750
+    pid: DOI:00.0815/pub-00027
+    publicationDate: '2022-10-30T23:00:00+00:00'
+    relatedItems:
+    - fullReference: OEIS Foundation Inc. (2022), The positive integers, Entry A000027
+        in The On-Line Encyclopedia of Integer Sequences
+      identifier: URL:http://oeis.org/A000027
+      relatedItemType: Other
+      relationType: References
+      title: The positive integers
+    subject: integer sequence; OEIS; On-Line Encyclopedia of Integer Sequences
+    title: Data from OEIS sequence A000027
+    type: DataPublicationType_facility-(name-ESNF)_name-curated
+dataPublicationUser:
+  ? DataPublicationUser_publication-(facility-(name-ESNF)_pid-DOI=3A00=2E0815=2Fpub=2D00027)_user-(name-db=2Fnbour)_contributorType-Creator
+  : affiliations:
+    - fullReference: "Universit\xE9 de Nancy"
+      name: '01: Nancy'
+    - fullReference: University of Chicago
+      name: '02: Chicago'
+      pid: ROR:024mw5h28
+    contributorType: Creator
+    email: nbour@example.org
+    familyName: Bourbaki
+    fullName: Bourbaki, Nicolas
+    givenName: Nicolas
+    orderKey: '01'
+    publication: DataPublication_facility-(name-ESNF)_pid-DOI=3A00=2E0815=2Fpub=2D00027
+    user: User_name-db=2Fnbour
 ---
 job:
   Job_00000001:
     application: Application_facility-(name-ESNF)_name-gnomoanalytics_version-69
-    inputDataCollection: DataCollection_00000002
-    outputDataCollection: DataCollection_00000003
+    inputDataCollection: DataCollection_00000003
+    outputDataCollection: DataCollection_00000004
 relatedDatafile:
   ? RelatedDatafile_sourceDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs)_destDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs)
   : destDatafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs
     relation: copy
     sourceDatafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs
+study:
+  Study_00000001:
+    endDate: '2012-09-30T18:00:00+00:00'
+    name: 12-008
+    pid: DOI:00.0815/m-00333
+    startDate: '2012-07-09T06:00:00+00:00'
+    status: COMPLETE
+    studyInvestigations:
+    - investigation: Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN
+    - investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
+    user: User_name-db=2Fnbour

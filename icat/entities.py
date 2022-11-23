@@ -153,6 +153,16 @@ _extra_attrs = {
             'SortAttrs': ('dataset',),
         }),
     ],
+    'DataPublicationDate': [
+        (None, {
+            'SortAttrs': ('publication', 'date', 'dateType'),
+        }),
+    ],
+    'DataPublicationUser': [
+        (None, {
+            'SortAttrs': ('publication', 'contributorType', 'orderKey', 'user'),
+        }),
+    ],
     'Grouping': [
         (None, {
             'Mixin': GroupingMixin,

@@ -197,7 +197,7 @@ following query::
      id = 430
      modId = "simple/root"
      modTime = 2021-10-05 14:09:57+00:00
-     doi = "00.0815/inv-00601"
+     doi = "DOI:00.0815/inv-00601"
      endDate = 2010-10-12 15:00:00+00:00
      name = "10100601-ST"
      startDate = 2010-09-30 10:27:24+00:00
@@ -209,7 +209,7 @@ following query::
      id = 431
      modId = "simple/root"
      modTime = 2021-10-05 14:09:58+00:00
-     doi = "00.0815/inv-00409"
+     doi = "DOI:00.0815/inv-00409"
      endDate = 2012-08-06 01:10:08+00:00
      name = "12100409-ST"
      startDate = 2012-07-26 15:44:24+00:00

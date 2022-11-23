@@ -47,10 +47,32 @@ only a reference to the related object will be included in the data
 file.  The related object must have its own list entry.
 """
 
+from collections import ChainMap
 import os
 import sys
 import icat
 from icat.query import Query
+
+
+def _get_retain_entities(client):
+    """Get a list of object types to retain in the index.
+
+    Some objects can't be queried based on their attributes.  They
+    should thus not be discarded from the index.  A particular
+    relevant example is DataCollection.  The list of object types to
+    retain depends on the ICAT schema version and thus on the server
+    we talk to.  That is why we compile that list at runtime.
+
+    The criterion is: we need to retain all object types having any
+    one-to-many relationship and not having a uniqueness constraint.
+    """
+    retain_set = set()
+    for cls in client.typemap.values():
+        if not cls.BeanName:
+            continue
+        if cls.InstMRel and 'id' in cls.Constraint:
+            retain_set.add(cls.BeanName)
+    return frozenset(retain_set)
 
 
 # ------------------------------------------------------------
@@ -91,6 +113,8 @@ class DumpFileReader():
             self._closefile = True
         else:
             self.infile = infile
+        self._retain_entities = _get_retain_entities(client)
+        self.objindex = {}
 
     def _file_open(self, infile):
         if hasattr(infile, 'open'):
@@ -143,12 +167,15 @@ class DumpFileReader():
         for data in self.getdata():
             self.client.autoRefresh()
             if resetindex:
-                objindex = {}
+                objindex = ChainMap(dict(), self.objindex)
             for key, obj in self.getobjs_from_data(data, objindex):
                 yield obj
                 obj.truncateRelations()
                 if key:
-                    objindex[key] = obj
+                    if obj.BeanName in self._retain_entities:
+                        self.objindex[key] = obj
+                    else:
+                        objindex[key] = obj
 
 
 # ------------------------------------------------------------
@@ -187,6 +214,8 @@ class DumpFileWriter():
         else:
             self.outfile = outfile
         self.idcounter = {}
+        self._retain_entities = _get_retain_entities(client)
+        self.keyindex = {}
 
     def _file_open(self, outfile):
         if hasattr(outfile, 'open'):
@@ -276,7 +305,10 @@ class DumpFileWriter():
                     self.idcounter[t] = 0
                 self.idcounter[t] += 1
                 k = "%s_%08d" % (t, self.idcounter[t])
-                keyindex[(obj.BeanName, obj.id)] = k
+                if obj.BeanName in self._retain_entities:
+                    self.keyindex[(obj.BeanName, obj.id)] = k
+                else:
+                    keyindex[(obj.BeanName, obj.id)] = k
             else:
                 k = obj.getUniqueKey(keyindex=keyindex)
             self.writeobj(k, obj, keyindex)
@@ -299,7 +331,7 @@ class DumpFileWriter():
         """
         self.client.autoRefresh()
         if keyindex is None:
-            keyindex = {}
+            keyindex = ChainMap(dict(), self.keyindex)
         self.startdata()
         for o in objs:
             self.writeobjs(o, keyindex, chunksize=chunksize)

@@ -8,7 +8,7 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import getConfig, require_icat_version, UtcTimezone
+from conftest import getConfig, icat_version, require_icat_version, UtcTimezone
 
 
 @pytest.fixture(scope="module")
@@ -21,7 +21,8 @@ def client(setupicat):
 # Note: the number of objects returned in the queries and their
 # attributes obviously depend on the content of the ICAT and need to
 # be kept in sync with the reference input used in the setupicat
-# fixture.
+# fixture.  This content also depends on the version of ICAT server we
+# are talking to and the ICAT schema this server provides.
 #
 # Note: the exact query string is considered an implementation detail
 # that is deliberately not tested here.  We limit the tests to check
@@ -30,6 +31,12 @@ def client(setupicat):
 
 investigation = None
 tzinfo = UtcTimezone() if UtcTimezone else None
+
+# The the actual number of rules in the test data differs with the
+# ICAT version.
+have_icat_5 = 0 if icat_version < "5.0" else 1
+all_rules = 110 + 48*have_icat_5
+grp_rules = 50 + 30*have_icat_5
 
 @pytest.mark.dependency(name='get_investigation')
 def test_query_simple(client):
@@ -188,7 +195,7 @@ def test_query_datacollection(client):
     assert query.include_clause is None
     assert query.limit_clause is None
     res = client.search(query)
-    assert len(res) == 2
+    assert len(res) == 3 + 2*have_icat_5
 
 def test_query_datafiles_datafileformat(client, recwarn):
     """Datafiles ordered by format.
@@ -208,7 +215,7 @@ def test_query_datafiles_datafileformat(client, recwarn):
     assert query.include_clause is None
     assert query.limit_clause is None
     res = client.search(query)
-    assert len(res) == 10
+    assert len(res) == 10 + have_icat_5
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_order_direction(client):
@@ -288,7 +295,7 @@ def test_query_condition_greaterthen(client):
     assert query.join_clause is None
     assert "datafileCreateTime" in query.where_clause
     res = client.search(query)
-    assert len(res) == 4
+    assert len(res) == 4 + have_icat_5
     condition = {"datafileCreateTime": "< '2012-01-01'"}
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
@@ -306,7 +313,7 @@ def test_query_condition_list(client):
     assert "datafileCreateTime" in query.where_clause
     qstr = str(query)
     res = client.search(query)
-    assert len(res) == 3
+    assert len(res) == 3 + have_icat_5
 
     # The last example also works by adding the conditions separately.
     query = Query(client, "Datafile")
@@ -315,7 +322,7 @@ def test_query_condition_list(client):
     print(str(query))
     assert str(query) == qstr
     res = client.search(query)
-    assert len(res) == 3
+    assert len(res) == 3 + have_icat_5
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_in_operator(client):
@@ -343,7 +350,7 @@ def test_query_condition_obj(client):
     print(str(query))
     assert "Rule" in query.select_clause
     res = client.search(query)
-    assert len(res) == 60
+    assert len(res) == all_rules - grp_rules
 
 def test_query_condition_jpql_function(client):
     """Functions may be applied to field names of conditions.
@@ -368,7 +375,8 @@ def test_query_condition_jpql_function_namelen(client):
     of the JPQL function in the condition is easier to verify in the
     result.
     """
-    conditions = { "LENGTH(fullName)": "> 11" }
+    conditions = { "name": "LIKE 'db/%'",
+                   "LENGTH(fullName)": "> 11" }
     query = Query(client, "User", conditions=conditions)
     print(str(query))
     assert "User" in query.select_clause
@@ -382,7 +390,8 @@ def test_query_condition_jpql_function_mixed(client):
     This test case failed for an early implementation of JPQL
     functions, see discussion in #89.
     """
-    conditions = { "LENGTH(fullName)": "> 11", "fullName": "> 'C'" }
+    conditions = { "name": "LIKE 'db/%'",
+                   "LENGTH(fullName)": "> 11", "fullName": "> 'C'" }
     query = Query(client, "User", conditions=conditions)
     print(str(query))
     assert "User" in query.select_clause
@@ -398,12 +407,11 @@ def test_query_order_jpql_function(client):
     fullName.  (In the example data, the longest and second longest
     fullName is somewhat ambiguous due to character encoding issues.)
     """
-    query = Query(client, "User",
+    query = Query(client, "User", conditions={ "name": "LIKE 'db/%'" },
                   order=[("LENGTH(fullName)", "DESC")], limit=(2,1))
     print(str(query))
     assert "User" in query.select_clause
     assert query.join_clause is None
-    assert query.where_clause is None
     assert "LENGTH" in query.order_clause
     assert query.limit_clause is not None
     res = client.search(query)
@@ -420,7 +428,7 @@ def test_query_rule_order(client):
     assert query.where_clause is None
     assert "id" in query.order_clause
     res = client.search(query)
-    assert len(res) == 104
+    assert len(res) == all_rules
 
 def test_query_rule_order_group(client, recwarn):
     """Ordering rule on grouping implicitely adds a "grouping IS NOT NULL"
@@ -439,7 +447,7 @@ def test_query_rule_order_group(client, recwarn):
     assert query.where_clause is None
     assert "what" in query.order_clause
     res = client.search(query)
-    assert len(res) == 44
+    assert len(res) == grp_rules
 
 def test_query_rule_order_group_suppress_warn_cond(client, recwarn):
     """The warning can be suppressed by making the condition explicit.
@@ -454,7 +462,7 @@ def test_query_rule_order_group_suppress_warn_cond(client, recwarn):
     assert "grouping" in query.where_clause
     assert "what" in query.order_clause
     res = client.search(query)
-    assert len(res) == 44
+    assert len(res) == grp_rules
 
 def test_query_rule_order_group_suppress_warn_join(client, recwarn):
     """Another option to suppress the warning is to override the JOIN spec.
@@ -471,7 +479,7 @@ def test_query_rule_order_group_suppress_warn_join(client, recwarn):
     assert query.where_clause is None
     assert "what" in query.order_clause
     res = client.search(query)
-    assert len(res) == 44
+    assert len(res) == grp_rules
 
 def test_query_rule_order_group_left_join(client, recwarn):
     """Another option to suppress the warning is to override the JOIN spec.
@@ -487,7 +495,7 @@ def test_query_rule_order_group_left_join(client, recwarn):
     assert query.where_clause is None
     assert "what" in query.order_clause
     res = client.search(query)
-    assert len(res) == 104
+    assert len(res) == all_rules
 
 def test_query_order_one_to_many(client, recwarn):
     """Sort on a related object in a one to many relation.
@@ -619,18 +627,19 @@ def test_query_limit_placeholder(client):
     query = Query(client, "Rule", order=['grouping', 'what', 'id'],
                   conditions={"grouping":"IS NOT NULL"})
     query.setLimit( ("%d","%d") )
+    chunksize = 45
     print(str(query))
-    print(str(query) % (0,30))
+    print(str(query) % (0,chunksize))
     assert "Rule" in query.select_clause
     assert "grouping" in query.join_clause
     assert "grouping" in query.where_clause
     assert "what" in query.order_clause
     assert query.limit_clause is not None
-    res = client.search(str(query) % (0,30))
-    assert len(res) == 30
-    print(str(query) % (30,30))
-    res = client.search(str(query) % (30,30))
-    assert len(res) == 14
+    res = client.search(str(query) % (0,chunksize))
+    assert len(res) == chunksize
+    print(str(query) % (chunksize,chunksize))
+    res = client.search(str(query) % (chunksize,chunksize))
+    assert len(res) == grp_rules - chunksize
 
 def test_query_non_ascii(client):
     """Test if query strings with non-ascii characters work.

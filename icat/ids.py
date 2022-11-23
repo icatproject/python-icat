@@ -161,6 +161,11 @@ class DataSelection():
                         for dcdf in o.dataCollectionDatafiles:
                             if dcdf.datafile:
                                 self.dfIds.add(dcdf.datafile.id)
+                        if 'dataCollectionInvestigations' in o.InstMRel:
+                            # icat.server >= 5.0
+                            for dcinv in o.dataCollectionInvestigations:
+                                if dcinv.investigation:
+                                    self.invIds.add(dcinv.investigation.id)
                     else:
                         raise ValueError("invalid object '%s'." % o.BeanName)
                 else:

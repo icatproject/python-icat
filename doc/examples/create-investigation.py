@@ -10,6 +10,8 @@ import sys
 import yaml
 import icat
 import icat.config
+from icat.helper import parse_attr_string
+from icat.query import Query
 
 logging.basicConfig(level=logging.INFO)
 
@@ -116,6 +118,28 @@ if 'shifts' in investigationdata:
         if 'instrument' in s.InstRel:
             s.instrument = instrument
         investigation.shifts.append(s)
+if 'investigationFacilityCycles' in investigation.InstMRel:
+    # ICAT 5.0 or newer
+    sd = investigation.startDate or investigation.endDate
+    ed = investigation.endDate or investigation.startDate
+    if sd and ed:
+        query = Query(client, "FacilityCycle", conditions={
+            "startDate": "<= '%s'" % parse_attr_string(ed, "Date"),
+            "endDate": "> '%s'" % parse_attr_string(sd, "Date"),
+        })
+        for fc in client.search(query):
+            ifc = client.new("investigationFacilityCycle", facilityCycle=fc)
+            investigation.investigationFacilityCycles.append(ifc)
+if 'fundingReferences' in investigation.InstMRel:
+    for fr in investigationdata['fundingReferences']:
+        funding_ref = client.new('fundingReference')
+        initobj(funding_ref, data['fundings'][fr])
+        try:
+            funding_ref.create()
+        except icat.ICATObjectExistsError:
+            funding_ref = client.searchMatching(funding_ref)
+        inv_fund = client.new('investigationFunding', funding=funding_ref)
+        investigation.fundingReferences.append(inv_fund)
 investigation.create()
 investigation.addInstrument(instrument)
 investigation.addKeywords(investigationdata['keywords'])

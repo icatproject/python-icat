@@ -2,23 +2,35 @@ User: db/jdoe
 
 Entity                     count
 --------------------------------
+Affiliation              : 0
 Application              : 1
 DataCollection           : 0
 DataCollectionDatafile   : 0
 DataCollectionDataset    : 0
+DataCollectionInvestigation : 0
 DataCollectionParameter  : 0
-Datafile                 : 5
-DatafileFormat           : 5
+DataPublication          : 1
+DataPublicationDate      : 0
+DataPublicationFunding   : 0
+DataPublicationType      : 2
+DataPublicationUser      : 0
+Datafile                 : 6
+DatafileFormat           : 6
 DatafileParameter        : 5
-Dataset                  : 5
+Dataset                  : 6
+DatasetInstrument        : 5
 DatasetParameter         : 4
+DatasetTechnique         : 5
 DatasetType              : 3
 Facility                 : 1
 FacilityCycle            : 20
+FundingReference         : 0
 Grouping                 : 2
 Instrument               : 3
 InstrumentScientist      : 0
 Investigation            : 2
+InvestigationFacilityCycle : 0
+InvestigationFunding     : 0
 InvestigationGroup       : 0
 InvestigationInstrument  : 0
 InvestigationParameter   : 2
@@ -31,6 +43,7 @@ PermissibleStringValue   : 6
 PublicStep               : 0
 Publication              : 1
 RelatedDatafile          : 0
+RelatedItem              : 0
 Rule                     : 0
 Sample                   : 2
 SampleParameter          : 1
@@ -38,6 +51,7 @@ SampleType               : 3
 Shift                    : 3
 Study                    : 0
 StudyInvestigation       : 0
-User                     : 9
+Technique                : 4
+User                     : 11
 UserGroup                : 0
 

@@ -1,0 +1,43 @@
+User: db/ahau
+
+Entity                     count
+--------------------------------
+Application              : 1
+DataCollection           : 0
+DataCollectionDatafile   : 0
+DataCollectionDataset    : 0
+DataCollectionParameter  : 0
+Datafile                 : 4
+DatafileFormat           : 6
+DatafileParameter        : 4
+Dataset                  : 3
+DatasetParameter         : 4
+DatasetType              : 3
+Facility                 : 1
+FacilityCycle            : 20
+Grouping                 : 3
+Instrument               : 3
+InstrumentScientist      : 0
+Investigation            : 1
+InvestigationGroup       : 0
+InvestigationInstrument  : 0
+InvestigationParameter   : 1
+InvestigationType        : 5
+InvestigationUser        : 0
+Job                      : 0
+Keyword                  : 4
+ParameterType            : 9
+PermissibleStringValue   : 6
+PublicStep               : 0
+Publication              : 1
+RelatedDatafile          : 0
+Rule                     : 0
+Sample                   : 1
+SampleParameter          : 1
+SampleType               : 3
+Shift                    : 2
+Study                    : 0
+StudyInvestigation       : 0
+User                     : 10
+UserGroup                : 4
+

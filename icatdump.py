@@ -49,6 +49,7 @@ client.login(conf.auth, conf.credentials)
 with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     dumpfile.writedata(getAuthQueries(client))
     dumpfile.writedata(getStaticQueries(client))
+    dumpfile.writedata(getFundingQueries(client))
     # Dump the investigations each in their own chunk
     investsearch = Query(client, "Investigation", attributes="id",
                          order=["facility.name", "name", "visitId"])
@@ -58,4 +59,10 @@ with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
         # of Datasets fetched at once.  Set a very small chunksize to
         # avoid hitting the limit.
         dumpfile.writedata(getInvestigationQueries(client, i), chunksize=5)
+    dumpfile.writedata(getDataCollectionQueries(client))
+    if 'dataPublication' in client.typemap:
+        pubsearch = Query(client, "DataPublication", attributes="id",
+                          order=["facility.name", "pid"])
+        for i in client.searchChunked(pubsearch):
+            dumpfile.writedata(getDataPublicationQueries(client, i))
     dumpfile.writedata(getOtherQueries(client))

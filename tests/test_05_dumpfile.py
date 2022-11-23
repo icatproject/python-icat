@@ -54,9 +54,8 @@ ocases = cases
 # to verify that object relations are kept intact after an icatdump /
 # icatingest cycle.
 queries = [
-    ("Datafile.name <-> Dataset <-> Investigation [name='12100409-ST']",
-     ['e208341.nxs', 'e208945-2.nxs', 'e208945.dat', 'e208945.nxs',
-      'e208947.nxs']),
+    ("Datafile.name <-> Dataset <-> Investigation [name='10100601-ST']",
+     ['e208339.dat', 'e208339.nxs', 'e208341.dat', 'e208341.nxs']),
     ("SELECT p.numericValue FROM DatasetParameter p "
      "JOIN p.dataset AS ds JOIN ds.investigation AS i JOIN p.type AS t "
      "WHERE i.name = '10100601-ST' AND ds.name = 'e208339' "
@@ -72,6 +71,10 @@ queries = [
      "JOIN dcdf.dataCollection AS dc JOIN dc.jobsAsInput AS j "
      "WHERE j.id IS NOT NULL",
      ["e208945.nxs"]),
+    ("SELECT COUNT(dc) FROM DataCollection dc "
+     "JOIN dc.dataCollectionDatasets AS dcds JOIN dcds.dataset AS ds "
+     "WHERE ds.name = 'e201215'",
+     [1]),
 ]
 
 # ======== function equivalents to icatdump and icatingest ===========
@@ -85,10 +88,17 @@ def icatdump(client, f, backend):
     with open_dumpfile(client, f, backend, 'w') as dumpfile:
         dumpfile.writedata(getAuthQueries(client))
         dumpfile.writedata(getStaticQueries(client))
+        dumpfile.writedata(getFundingQueries(client))
         investsearch = Query(client, "Investigation", attributes="id",
                              order=["facility.name", "name", "visitId"])
         for i in client.searchChunked(investsearch):
             dumpfile.writedata(getInvestigationQueries(client, i), chunksize=5)
+        dumpfile.writedata(getDataCollectionQueries(client))
+        if 'dataPublication' in client.typemap:
+            pubsearch = Query(client, "DataPublication", attributes="id",
+                              order=["facility.name", "pid"])
+            for i in client.searchChunked(pubsearch):
+                dumpfile.writedata(getDataPublicationQueries(client, i))
         dumpfile.writedata(getOtherQueries(client))
 
 # ============================ fixtures ==============================

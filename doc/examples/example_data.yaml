@@ -3,6 +3,70 @@ applications:
     facility: example_facility
     name: gnomoanalytics
     version: 69
+data_publication_types:
+  curated:
+    description: Curated data publication
+    facility: example_facility
+    name: curated
+  raw:
+    description: Open access raw data
+    facility: example_facility
+    name: raw
+data_publications:
+  data_pub1:
+    dataset:
+      complete: true
+      datafiles:
+      - datafileCreateTime: 2012-08-01 00:52:23+02:00
+        datafileModTime: 2012-08-01 00:52:23+02:00
+        fileSize: 264188
+        format: hdf5
+        name: A000027.hdf5
+      endDate: 2012-08-01 00:52:23+02:00
+      investigation: 12100409-ST
+      name: pub-00027
+      startDate: 2012-07-31 22:20:37+02:00
+      type: other
+    dates:
+    - date: '2012-08-01'
+      dateType: Created
+    - date: '2022-04-29'
+      dateType: Submitted
+    description: >-
+      We provide the first 65535 integers from sequence A000027 of the
+      On-Line Encyclopedia of Integer Sequences. The data consists of an
+      HDF5 file, having one single entry: a one dimensional integer
+      array.
+    facility: example_facility
+    fundingReferences:
+    - fund1
+    pid: DOI:00.0815/pub-00027
+    publicationDate: 2022-10-31
+    relatedItems:
+    - fullReference: >-
+        OEIS Foundation Inc. (2022), The positive integers, Entry
+        A000027 in The On-Line Encyclopedia of Integer Sequences
+      identifier: URL:http://oeis.org/A000027
+      relatedItemType: Other
+      relationType: References
+      title: The positive integers
+    subject: integer sequence; OEIS; On-Line Encyclopedia of Integer Sequences
+    title: Data from OEIS sequence A000027
+    type: curated
+    users:
+    - affiliations:
+      - fullReference: "Universit\xE9 de Nancy"
+        name: '01: Nancy'
+      - fullReference: University of Chicago
+        name: '02: Chicago'
+        pid: ROR:024mw5h28
+      contributorType: Creator
+      email: nbour@example.org
+      familyName: Bourbaki
+      fullName: Bourbaki, Nicolas
+      givenName: Nicolas
+      orderKey: '01'
+      user: nbour
 datafile_formats:
   csv:
     description: Comma separated values
@@ -10,11 +74,17 @@ datafile_formats:
     name: CSV
     type: text/csv
     version: N/A
+  hdf5:
+    description: Hierarchical Data Format version 5
+    facility: example_facility
+    name: HDF5
+    type: application/x-hdf5
+    version: N/A
   nexus:
     description: A common data format for neutron, x-ray and muon science
     facility: example_facility
     name: NeXus
-    type: application/x-hdf
+    type: application/x-hdf5
     version: N/A
   text:
     description: Plain text file
@@ -53,12 +123,17 @@ facilities:
     name: ESNF
     url: http://www.esnf.example.org/
 facility_cycles:
-  - cycles:
-      - [2, 15, 8, 15]
-      - [8, 15, 2, 15]
-    endYear: 17
-    facility: example_facility
-    startYear: 7
+- cycles:
+  - [2, 15, 8, 15]
+  - [8, 15, 2, 15]
+  endYear: 17
+  facility: example_facility
+  startYear: 7
+fundings:
+  fund1:
+    awardNumber: AIS3241330750
+    funderIdentifier: Crossref Funder ID:10.13039/100005376
+    funderName: American Mathematical Society
 instruments:
   e2:
     description: >
@@ -70,7 +145,8 @@ instruments:
     fullName: E2 - Flat-Cone Diffractometer
     instrumentscientist: acord
     name: E2
-    pid: 00.0815/inst-00001
+    pid: DOI:00.0815/inst-00001
+    technique: ndiff
     type: null
   eddi:
     description: >
@@ -88,7 +164,8 @@ instruments:
     fullName: EDDI - Energy Dispersive Diffraction
     instrumentscientist: acord
     name: EDDI
-    pid: 00.0815/inst-00048
+    pid: DOI:00.0815/inst-00048
+    technique: null
     type: null
   hike:
     description: >
@@ -103,7 +180,8 @@ instruments:
     fullName: HIKE - High Kinetic Energy Photoelectron Spectroscopy
     instrumentscientist: acord
     name: HIKE
-    pid: 00.0815/inst-00027
+    pid: DOI:00.0815/inst-00027
+    technique: haxpes
     type: null
 investigation_types:
   calibration:
@@ -150,9 +228,10 @@ investigations:
       name: e201216
       startDate: '2008-03-20T08:20:00+01:00'
       type: raw
-    doi: 00.0815/inv-00122
+    doi: DOI:00.0815/inv-00122
     endDate: null
     facility: example_facility
+    fundingReferences: []
     instrument: hike
     invcol:
     - nbour
@@ -168,7 +247,7 @@ investigations:
       type: probe
     sample:
       name: Durol SC
-      pid: ESNFHNS8AYEZ
+      pid: IGSN:ESNFHNS8AYEZ
       type: durol
     shifts:
     - comment: Beamtime at HIKE
@@ -244,9 +323,10 @@ investigations:
       name: e208342
       startDate: '2010-10-09T07:00:00+02:00'
       type: raw
-    doi: 00.0815/inv-00601
+    doi: DOI:00.0815/inv-00601
     endDate: '2010-10-12T17:00:00+02:00'
     facility: example_facility
+    fundingReferences: []
     instrument: e2
     invcol: []
     invguest:
@@ -268,7 +348,7 @@ investigations:
       parameters:
       - stringValue: 2046c9a7-ab07-4594-84a2-101617073a79
         type: sample_ref
-      pid: ESNFZDVHICBD
+      pid: IGSN:ESNFZDVHICBD
       type: nimnga
     shifts:
     - comment: Beamtime at E2
@@ -318,9 +398,11 @@ investigations:
       name: e208946
       startDate: '2012-08-02T07:30:00+02:00'
       type: raw
-    doi: 00.0815/inv-00409
+    doi: DOI:00.0815/inv-00409
     endDate: '2012-08-06T03:10:08+02:00'
     facility: example_facility
+    fundingReferences:
+    - fund1
     instrument: eddi
     invcol: []
     invguest:
@@ -340,7 +422,7 @@ investigations:
       parameters:
       - stringValue: c1b0a101-03aa-4d02-a1a2-e2826ba7871b
         type: sample_ref
-      pid: ESNFX8C7B53W
+      pid: IGSN:ESNFX8C7B53W
       type: nio
     shifts:
     - comment: Beamtime at EDDI
@@ -355,44 +437,44 @@ jobs:
     application: gnomoanalytics
     input:
       datasets:
-        - investigation: 10100601-ST
-          name: e208341
+      - investigation: 10100601-ST
+        name: e208341
       datafiles:
-        - dataset: e208945
-          investigation: 12100409-ST
-          name: e208945.nxs
+      - dataset: e208945
+        investigation: 12100409-ST
+        name: e208945.nxs
       parameters:
-        - stringValue: Make a synthesis of 10100601-ST and 12100409-ST
-          type: comment
+      - stringValue: Make a synthesis of 10100601-ST and 12100409-ST
+        type: comment
     output:
       datasets:
-        - complete: true
-          datafiles:
-            - datafileCreateTime: '2012-07-16T16:30:17+02:00'
-              datafileModTime: '2012-07-16T16:30:17+02:00'
-              fileSize: 14965
-              format: nexus
-              name: e208947.nxs
-              parameters:
-                - dateTimeValue: '2012-07-17T09:28:18+02:00'
-                  type: lastaccess
-          endDate: '2012-07-16T16:30:17+02:00'
-          investigation: 12100409-ST
-          name: e208947
-          startDate: '2012-07-16T13:42:05+02:00'
-          type: analyzed
-      datafiles:
+      - complete: true
+        datafiles:
         - datafileCreateTime: '2012-07-16T16:30:17+02:00'
           datafileModTime: '2012-07-16T16:30:17+02:00'
-          dataset: e208945
-          fileSize: 28937
+          fileSize: 14965
           format: nexus
-          investigation: 12100409-ST
-          name: e208945-2.nxs
+          name: e208947.nxs
           parameters:
-            - dateTimeValue: '2014-10-02T14:32:51+02:00'
-              type: lastaccess
-      doi: 00.0815/dat-004711
+          - dateTimeValue: '2012-07-17T09:28:18+02:00'
+            type: lastaccess
+        endDate: '2012-07-16T16:30:17+02:00'
+        investigation: 12100409-ST
+        name: e208947
+        startDate: '2012-07-16T13:42:05+02:00'
+        type: analyzed
+      datafiles:
+      - datafileCreateTime: '2012-07-16T16:30:17+02:00'
+        datafileModTime: '2012-07-16T16:30:17+02:00'
+        dataset: e208945
+        fileSize: 28937
+        format: nexus
+        investigation: 12100409-ST
+        name: e208945-2.nxs
+        parameters:
+        - dateTimeValue: '2014-10-02T14:32:51+02:00'
+          type: lastaccess
+      doi: DOI:00.0815/dat-004711
 parameter_types:
   comment:
     applicableToDataCollection: true
@@ -426,9 +508,9 @@ parameter_types:
     units: N/A
     valueType: STRING
     values:
-      - muon
-      - neutron
-      - photon
+    - muon
+    - neutron
+    - photon
   reactor_power:
     applicableToDataset: true
     facility: example_facility
@@ -463,15 +545,15 @@ parameter_types:
     units: N/A
     valueType: STRING
     values:
-      - buono
-      - brutto
-      - cattivo
+    - buono
+    - brutto
+    - cattivo
 publications:
   pub1:
     investigation: 10100601-ST
     fullReference: >-
       A. Hau.  Properties of NiMnGa.  Adv. Mater. 2011, 1
-    doi: 0.1002/adma.201101001
+    doi: DOI:00.1002/adma.201101001
 related_datafiles:
   rdf1:
     dest:
@@ -484,8 +566,8 @@ related_datafiles:
       investigation: 12100409-ST
       name: e208341.nxs
       parameters:
-        - dateTimeValue: '2014-10-02T14:32:51+02:00'
-          type: lastaccess
+      - dateTimeValue: '2014-10-02T14:32:51+02:00'
+        type: lastaccess
     relation: copy
     source:
       dataset: e208341
@@ -508,13 +590,30 @@ studies:
   study1:
     endDate: '2012-09-30T20:00:00+02:00'
     investigations:
-      - 10100601-ST
-      - 12100409-ST
+    - 10100601-ST
+    - 12100409-ST
     name: 12-008
-    pid: 00.0815/m-00333
+    pid: DOI:00.0815/m-00333
     startDate: '2012-07-09T08:00:00+02:00'
     status: COMPLETE
     user: nbour
+techniques:
+  arpes:
+    name: Angle Resolved Photoemission Spectroscopy
+    description: Angle Resolved Photoemission Spectroscopy
+    pid: PaNET:PaNET01089
+  haxpes:
+    name: Hard X-ray Photoelectron Spectroscopy
+    description: Hard X-ray Photoelectron Spectroscopy
+    pid: PaNET:PaNET01103
+  ndiff:
+    name: Neutron Diffraction
+    description: Neutron Diffraction
+    pid: PaNET:PaNET01217
+  xtomo:
+    name: X-ray Tomography
+    description: X-ray Tomography
+    pid: PaNET:PaNET01207
 users:
   acord:
     affiliation: University of Ravenna, Institute of Modern History
