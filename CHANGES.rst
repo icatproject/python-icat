@@ -8,6 +8,8 @@ Changelog
 New features
 ------------
 
++ `#73`_, `#106`_: Add support for the ICAT schema 5.0 extensions.
+
 + `#102`_, `#104`_: Make the obj argument to client.new() case
   insensitive.
 
@@ -27,6 +29,11 @@ New features
 
 Incompatible changes and deprecations
 -------------------------------------
+
++ The order and arrangement of data objects in the dump file created
+  by :ref:`icatdump` has been changed.  In some cases, older versions
+  of :ref:`icatingest` will fail to read dump files written by new
+  versions of :ref:`icatdump`.
 
 + As a consequence of switching to pathlib for filesystem paths some
   return values and variables are now :class:`pathlib.Path` objects
@@ -74,6 +81,7 @@ Bug fixes and minor changes
 + Some (more) example scripts now require ICAT 4.4.0 or newer.
 
 .. _#66: https://github.com/icatproject/python-icat/issues/66
+.. _#73: https://github.com/icatproject/python-icat/issues/73
 .. _#74: https://github.com/icatproject/python-icat/issues/74
 .. _#75: https://github.com/icatproject/python-icat/pull/75
 .. _#77: https://github.com/icatproject/python-icat/issues/77
@@ -83,6 +91,7 @@ Bug fixes and minor changes
 .. _#103: https://github.com/icatproject/python-icat/pull/103
 .. _#104: https://github.com/icatproject/python-icat/pull/104
 .. _#105: https://github.com/icatproject/python-icat/pull/105
+.. _#106: https://github.com/icatproject/python-icat/pull/106
 
 
 0.21.0 (2022-01-28)
