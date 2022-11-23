@@ -65,11 +65,6 @@ are not required to install or use python-icat itself:
 
   Only needed to use the XML backend of icatdump.py and icatingest.py.
 
-+ `Requests`_
-
-  Only needed for the example scripts using the ICAT RESTful
-  interface, icatexport.py and icatimport.py.
-
 + `setuptools_scm`_
 
   The version number is managed using this package.  All source
@@ -99,15 +94,12 @@ Installation from PyPI
 
 You can install python-icat from PyPI using pip::
 
-  $ pip install suds-community python-icat
+  $ pip install python-icat
 
 Installation from the source distribution
 .........................................
 
-python-icat uses the distutils Python standard library package and
-follows its conventions of packaging source distributions.  See the
-documentation on `Installing Python Modules`_ for details or to
-customize the install process.
+Steps to manually build from the source distribution:
 
 1. Download the sources, unpack, and change into the source directory.
 
@@ -222,15 +214,6 @@ Bugs and limitations
   the implementation of the underlying Python library.
 
 
-Version numbering
------------------
-
-Version numbers of python-icat comply with Python standards as defined
-in `PEP 440`_.  They try to adhere to the principles of `Semantic
-Versioning`_, but may deviate from the formatting defined therein
-when it is incompatible with PEP 440.
-
-
 Copyright and License
 ---------------------
 
@@ -260,7 +243,6 @@ permissions and limitations under the License.
 .. _pytest: https://docs.pytest.org/en/latest/
 .. _pytest-dependency: https://pypi.org/project/pytest-dependency/
 .. _distutils-pytest: https://github.com/RKrahl/distutils-pytest
-.. _Installing Python Modules: https://docs.python.org/3/install/
 .. _Read the Docs site: https://python-icat.readthedocs.io/
 .. _GitHub repository: https://github.com/icatproject/python-icat
 .. _Issue #72: https://github.com/icatproject/python-icat/issues/72

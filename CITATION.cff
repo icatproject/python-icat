@@ -13,6 +13,8 @@ authors:
       Helmholtz-Zentrum Berlin für Materialien und
       Energie
     orcid: 'https://orcid.org/0000-0002-1266-3819'
+  - name: "The ICAT project"
+    website: https://icatproject.org/
 repository-code: 'https://github.com/icatproject/python-icat'
 repository-artifact: 'https://pypi.org/project/python-icat/'
 abstract: >-
