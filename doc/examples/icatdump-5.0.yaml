@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Wed, 23 Nov 2022 11:16:48 +0000
+# Date: Wed, 23 Nov 2022 15:30:08 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 5.0.0
-# Generator: icatdump (python-icat 0.21.1.dev137)
+# Generator: icatdump (python-icat 0.21.1.dev138)
 ---
 grouping:
   Grouping_name-ingest:
@@ -1713,25 +1713,38 @@ sample:
 dataCollection:
   DataCollection_00000001:
     dataCollectionDatafiles:
+    - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339)_name-e208339=2Enxs
+    dataCollectionDatasets:
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201216
+  DataCollection_00000002:
+    dataCollectionDatafiles:
+    - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs
+    dataCollectionDatasets:
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201216
+    dataCollectionInvestigations:
+    - investigation: Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP
+  DataCollection_00000003:
+    dataCollectionDatafiles:
     - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs
     dataCollectionDatasets:
     - dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341
     parameters:
     - stringValue: Make a synthesis of 10100601-ST and 12100409-ST
       type: ParameterType_facility-(name-ESNF)_name-Comment_units-N=2FA
-  DataCollection_00000002:
+  DataCollection_00000004:
     dataCollectionDatafiles:
     - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs
     dataCollectionDatasets:
     - dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947
     doi: DOI:00.0815/dat-004711
-  DataCollection_00000003:
+  DataCollection_00000005:
     dataCollectionDatasets:
     - dataset: Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-pub=2D00027
 ---
 dataPublication:
   DataPublication_facility-(name-ESNF)_pid-DOI=3A00=2E0815=2Fpub=2D00027:
-    content: DataCollection_00000003
+    content: DataCollection_00000005
     dates:
     - date: '2012-08-01'
       dateType: Created
@@ -1775,8 +1788,8 @@ dataPublicationUser:
 job:
   Job_00000001:
     application: Application_facility-(name-ESNF)_name-gnomoanalytics_version-69
-    inputDataCollection: DataCollection_00000001
-    outputDataCollection: DataCollection_00000002
+    inputDataCollection: DataCollection_00000003
+    outputDataCollection: DataCollection_00000004
 relatedDatafile:
   ? RelatedDatafile_sourceDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs)_destDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs)
   : destDatafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs

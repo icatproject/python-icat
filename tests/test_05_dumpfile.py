@@ -71,6 +71,10 @@ queries = [
      "JOIN dcdf.dataCollection AS dc JOIN dc.jobsAsInput AS j "
      "WHERE j.id IS NOT NULL",
      ["e208945.nxs"]),
+    ("SELECT COUNT(dc) FROM DataCollection dc "
+     "JOIN dc.dataCollectionDatasets AS dcds JOIN dcds.dataset AS ds "
+     "WHERE ds.name = 'e201215'",
+     [1]),
 ]
 
 # ======== function equivalents to icatdump and icatingest ===========

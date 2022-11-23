@@ -3,9 +3,9 @@ User: simple/root
 Entity                     count
 --------------------------------
 Application              : 1
-DataCollection           : 2
-DataCollectionDatafile   : 2
-DataCollectionDataset    : 2
+DataCollection           : 3
+DataCollectionDatafile   : 3
+DataCollectionDataset    : 4
 DataCollectionParameter  : 1
 Datafile                 : 10
 DatafileFormat           : 6

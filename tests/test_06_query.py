@@ -195,7 +195,7 @@ def test_query_datacollection(client):
     assert query.include_clause is None
     assert query.limit_clause is None
     res = client.search(query)
-    assert len(res) == 2 + have_icat_5
+    assert len(res) == 3 + 2*have_icat_5
 
 def test_query_datafiles_datafileformat(client, recwarn):
     """Datafiles ordered by format.

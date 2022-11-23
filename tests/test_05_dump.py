@@ -58,7 +58,7 @@ if icat_version < "4.7.0":
                            r"\1 : 0")
 else:
     summary_root_filter = None
-    summary_user_filter = (re.compile(r"^((?:DataCollection(?:Datafile|Dataset|Parameter)?|Job|RelatedDatafile)\s*) : \d+$"),
+    summary_user_filter = (re.compile(r"^((?:DataCollection(?:Datafile|Dataset|Investigation|Parameter)?|Job|RelatedDatafile)\s*) : \d+$"),
                            r"\1 : 0")
 
 # Test queries and results for test_check_queries().  This is mostly
@@ -82,6 +82,10 @@ queries = [
      "JOIN dcdf.dataCollection AS dc JOIN dc.jobsAsInput AS j "
      "WHERE j.id IS NOT NULL",
      ["e208945.nxs"]),
+    ("SELECT COUNT(dc) FROM DataCollection dc "
+     "JOIN dc.dataCollectionDatasets AS dcds JOIN dcds.dataset AS ds "
+     "WHERE ds.name = 'e201215'",
+     [1]),
 ]
 
 @pytest.fixture(scope="module")

@@ -36,14 +36,14 @@ if not skip_study:
     alldata = ["init", "sample_durol", "sample_nimnga", "sample_nio",
                "inv_081", "inv_101", "inv_121",
                "invdata_081", "invdata_101", "invdata_121",
-               "job1", "rdf1", "study1", "pub1"]
+               "job1", "rdf1", "study1", "pub1", "data_collect1"]
 else:
     alldata = ["init", "sample_durol", "sample_nimnga", "sample_nio",
                "inv_081", "inv_101", "inv_121",
                "invdata_081", "invdata_101", "invdata_121",
-               "job1", "rdf1", "pub1"]
+               "job1", "rdf1", "pub1", "data_collect1"]
 if have_data_publication:
-    alldata.append("data_pub1")
+    alldata.extend(["data_pub1", "data_collect2"])
 summary_study_filter = (re.compile(r"^((?:Study(?:Investigation)?)\s*) : \d+$"),
                         r"\1 : 0")
 
@@ -334,6 +334,53 @@ def test_add_data_publication(data, pubname):
         dp_fund = client.new('dataPublicationFunding', funding=funding_ref)
         data_publication.fundingReferences.append(dp_fund)
     data_publication.create()
+
+@pytest.mark.parametrize(("user", "objects"), [
+    pytest.param(
+        "jbotu",
+        [
+            'Dataset_investigation-(name-08100122=2DEF)_name-e201215',
+            'Dataset_investigation-(name-08100122=2DEF)_name-e201216',
+            'Datafile_dataset-(investigation-(name-10100601=2DST)'
+            '_name-e208339)_name-e208339=2Enxs',
+        ],
+        marks=pytest.mark.dependency(name="data_collect1",
+                                     depends=["invdata_081", "invdata_101"])
+    ),
+    pytest.param(
+        "rbeck",
+        [
+            'Investigation_name-12100409=2DST',
+            'Datafile_dataset-(investigation-(name-12100409=2DST)'
+            '_name-e208945)_name-e208945=2Enxs',
+            'Dataset_investigation-(name-08100122=2DEF)_name-e201216',
+        ],
+        marks=pytest.mark.dependency(name="data_collect2",
+                                      depends=["invdata_081", "invdata_121"])
+    ),
+])
+def test_add_datacollections(data, user, objects):
+    """Create some arbitrary DataCollections
+    """
+    client, conf = getConfig(confSection=user)
+    client.login(conf.auth, conf.credentials)
+    collection = client.new("dataCollection")
+    for key in objects:
+        obj = client.searchUniqueKey(key)
+        if obj.BeanName == 'Investigation':
+            if 'dataCollectionInvestigation' not in client.typemap:
+                pytest.skip("need DataCollectionInvestigation")
+            dcinv = client.new('dataCollectionInvestigation', investigation=obj)
+            collection.dataCollectionInvestigations.append(dcinv)
+        elif obj.BeanName == 'Dataset':
+            dcds = client.new('dataCollectionDataset', dataset=obj)
+            collection.dataCollectionDatasets.append(dcds)
+        elif obj.BeanName == 'Datafile':
+            dcdf = client.new('dataCollectionDatafile', datafile=obj)
+            collection.dataCollectionDatafiles.append(dcdf)
+        else:
+            raise AssertionError("invalid object type %s" % obj.BeanName)
+    collection.create()
 
 @pytest.mark.dependency(depends=alldata)
 def test_check_content(standardCmdArgs, tmpdirsec):

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2022-11-09T19:52:20+00:00</date>
+  <date>2022-11-23T16:39:42+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>4.4.0</apiversion>
-  <generator>icatdump (python-icat 0.21.1.dev130)</generator>
+  <generator>icatdump (python-icat 0.21.1.dev138)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
@@ -1527,6 +1527,17 @@
 <data>
   <dataCollection id="DataCollection_00000001">
     <dataCollectionDatafiles>
+      <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339)_name-e208339=2Enxs"/>
+    </dataCollectionDatafiles>
+    <dataCollectionDatasets>
+      <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215"/>
+    </dataCollectionDatasets>
+    <dataCollectionDatasets>
+      <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201216"/>
+    </dataCollectionDatasets>
+  </dataCollection>
+  <dataCollection id="DataCollection_00000002">
+    <dataCollectionDatafiles>
       <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs"/>
     </dataCollectionDatafiles>
     <dataCollectionDatasets>
@@ -1537,7 +1548,7 @@
       <type ref="ParameterType_facility-(name-ESNF)_name-Comment_units-N=2FA"/>
     </parameters>
   </dataCollection>
-  <dataCollection id="DataCollection_00000002">
+  <dataCollection id="DataCollection_00000003">
     <dataCollectionDatafiles>
       <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs"/>
     </dataCollectionDatafiles>
@@ -1554,8 +1565,8 @@
   </relatedDatafile>
   <job id="Job_00000001">
     <application ref="Application_facility-(name-ESNF)_name-gnomoanalytics_version-69"/>
-    <inputDataCollection ref="DataCollection_00000001"/>
-    <outputDataCollection ref="DataCollection_00000002"/>
+    <inputDataCollection ref="DataCollection_00000002"/>
+    <outputDataCollection ref="DataCollection_00000003"/>
   </job>
 </data>
 </icatdata>

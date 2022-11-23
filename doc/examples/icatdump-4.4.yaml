@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Wed, 09 Nov 2022 19:52:02 +0000
+# Date: Wed, 23 Nov 2022 16:39:39 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 4.4.0
-# Generator: icatdump (python-icat 0.21.1.dev130)
+# Generator: icatdump (python-icat 0.21.1.dev138)
 ---
 grouping:
   Grouping_name-ingest:
@@ -1312,13 +1312,19 @@ sample:
 dataCollection:
   DataCollection_00000001:
     dataCollectionDatafiles:
+    - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339)_name-e208339=2Enxs
+    dataCollectionDatasets:
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215
+    - dataset: Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201216
+  DataCollection_00000002:
+    dataCollectionDatafiles:
     - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs
     dataCollectionDatasets:
     - dataset: Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341
     parameters:
     - stringValue: Make a synthesis of 10100601-ST and 12100409-ST
       type: ParameterType_facility-(name-ESNF)_name-Comment_units-N=2FA
-  DataCollection_00000002:
+  DataCollection_00000003:
     dataCollectionDatafiles:
     - datafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs
     dataCollectionDatasets:
@@ -1327,8 +1333,8 @@ dataCollection:
 job:
   Job_00000001:
     application: Application_facility-(name-ESNF)_name-gnomoanalytics_version-69
-    inputDataCollection: DataCollection_00000001
-    outputDataCollection: DataCollection_00000002
+    inputDataCollection: DataCollection_00000002
+    outputDataCollection: DataCollection_00000003
 relatedDatafile:
   ? RelatedDatafile_sourceDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs)_destDatafile-(dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs)
   : destDatafile: Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs

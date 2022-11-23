@@ -4,10 +4,10 @@ Entity                     count
 --------------------------------
 Affiliation              : 0
 Application              : 1
-DataCollection           : 0
-DataCollectionDatafile   : 0
-DataCollectionDataset    : 0
-DataCollectionInvestigation : 0
+DataCollection           : 1
+DataCollectionDatafile   : 1
+DataCollectionDataset    : 1
+DataCollectionInvestigation : 1
 DataCollectionParameter  : 0
 DataPublication          : 1
 DataPublicationDate      : 0
