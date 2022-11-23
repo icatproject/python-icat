@@ -58,11 +58,11 @@ def test_icat_exception_many(client):
     """
     # Get an existing and a non-existing Dataset.
     dataset1 = client.assertedSearch("Dataset [name='e208341']")[0]
-    dataset2 = client.new("dataset", id=-11, name='e208342-invalid')
-    df1 = client.new("datafile", name="df_a.dat", dataset=dataset1)
-    df2 = client.new("datafile", name="df_b.dat", dataset=dataset2)
-    df3 = client.new("datafile", name="df_c.dat", dataset=dataset1)
-    df4 = client.new("datafile", name="df_d.dat", dataset=dataset2)
+    dataset2 = client.new("Dataset", id=-11, name='e208342-invalid')
+    df1 = client.new("Datafile", name="df_a.dat", dataset=dataset1)
+    df2 = client.new("Datafile", name="df_b.dat", dataset=dataset2)
+    df3 = client.new("Datafile", name="df_c.dat", dataset=dataset1)
+    df4 = client.new("Datafile", name="df_d.dat", dataset=dataset2)
     print("Provoke an ICATInternalError ...")
     with pytest.raises(icat.ICATError) as einfo:
         client.createMany([ df1, df2, df3, df4 ])

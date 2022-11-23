@@ -34,7 +34,7 @@ def dataset(client):
     """
     inv = client.assertedSearch("Investigation [name='10100601-ST']")[0]
     dstype = client.assertedSearch("DatasetType [name='raw']")[0]
-    dataset = client.new("dataset",
+    dataset = client.new("Dataset",
                          name="e208343", complete=False,
                          investigation=inv, type=dstype)
     yield dataset
@@ -103,7 +103,7 @@ def test_ingest_duplicate_throw(client, dataset, cmdargs):
     """
     dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("datasetParameter", numericValue=5.0, 
+    p = client.new("DatasetParameter", numericValue=5.0,
                    dataset=dataset, type=ptype)
     p.create()
     args = cmdargs + ["-i", ds_params]
@@ -127,7 +127,7 @@ def test_ingest_duplicate_ignore(client, dataset, cmdargs):
     """
     dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("datasetParameter", numericValue=5.0, 
+    p = client.new("DatasetParameter", numericValue=5.0,
                    dataset=dataset, type=ptype)
     p.create()
     args = cmdargs + ["-i", ds_params, "--duplicate", "IGNORE"]
@@ -146,7 +146,7 @@ def test_ingest_duplicate_check_err(client, dataset, cmdargs):
     """
     dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("datasetParameter", numericValue=5.0, 
+    p = client.new("DatasetParameter", numericValue=5.0,
                    dataset=dataset, type=ptype)
     p.create()
     args = cmdargs + ["-i", ds_params, "--duplicate", "CHECK"]
@@ -166,7 +166,7 @@ def test_ingest_duplicate_check_ok(client, dataset, cmdargs):
     """
     dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("datasetParameter", numericValue=10.0, 
+    p = client.new("DatasetParameter", numericValue=10.0,
                    dataset=dataset, type=ptype)
     p.create()
     args = cmdargs + ["-i", ds_params, "--duplicate", "CHECK"]
@@ -185,7 +185,7 @@ def test_ingest_duplicate_overwrite(client, dataset, cmdargs):
     """
     dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("datasetParameter", numericValue=5.0, 
+    p = client.new("DatasetParameter", numericValue=5.0,
                    dataset=dataset, type=ptype)
     p.create()
     args = cmdargs + ["-i", ds_params, "--duplicate", "OVERWRITE"]

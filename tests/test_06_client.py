@@ -408,13 +408,13 @@ def test_searchUniqueKey_objindex_preset(client):
 def test_searchMatching_simple(client):
     """Search a few objects with searchMatching()
     """
-    facility = client.new("facility", name="ESNF")
+    facility = client.new("Facility", name="ESNF")
     obj = client.searchMatching(facility)
     assert obj.BeanName == "Facility"
     assert obj.id
     assert obj.name == "ESNF"
     facility = obj
-    investigation = client.new("investigation", 
+    investigation = client.new("Investigation",
                                name="12100409-ST", visitId="1.1-P",
                                facility=facility)
     obj = client.searchMatching(investigation)
@@ -423,7 +423,7 @@ def test_searchMatching_simple(client):
     assert obj.name == "12100409-ST"
     assert obj.visitId == "1.1-P"
     investigation = obj
-    dataset = client.new("dataset", name="e208945", 
+    dataset = client.new("Dataset", name="e208945",
                          investigation=investigation)
     obj = client.searchMatching(dataset)
     assert obj.BeanName == "Dataset"
@@ -434,13 +434,13 @@ def test_searchMatching_simple(client):
 def test_searchMatching_include(client):
     """Set an include clause with searchMatching()
     """
-    facility = client.new("facility", name="ESNF")
+    facility = client.new("Facility", name="ESNF")
     obj = client.searchMatching(facility)
     assert obj.BeanName == "Facility"
     assert obj.id
     assert obj.name == "ESNF"
     facility = obj
-    investigation = client.new("investigation", 
+    investigation = client.new("Investigation",
                                name="12100409-ST", visitId="1.1-P",
                                facility=facility)
     obj = client.searchMatching(investigation, includes="1")
@@ -451,7 +451,7 @@ def test_searchMatching_include(client):
     assert obj.type.id
     assert obj.facility.id
     investigation = obj
-    dataset = client.new("dataset", name="e208945", 
+    dataset = client.new("Dataset", name="e208945",
                          investigation=investigation)
     obj = client.searchMatching(dataset, includes=["datafiles"])
     assert obj.BeanName == "Dataset"

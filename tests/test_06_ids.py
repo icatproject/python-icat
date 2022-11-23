@@ -163,7 +163,7 @@ def test_upload(tmpdirsec, client, case):
         username = tclient.getUserName()
         dataset = getDataset(tclient, case)
         datafileformat = getDatafileFormat(tclient, case)
-        datafile = tclient.new("datafile", name=f.fname.name,
+        datafile = tclient.new("Datafile", name=f.fname.name,
                                dataset=dataset, datafileFormat=datafileformat)
         tclient.putData(f.fname, datafile)
         df = getDatafile(tclient, case)
@@ -306,7 +306,7 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
     createTime = datetime.datetime(2008, 6, 18, 9, 31, 11, tzinfo=tzinfo)
     dfname = "test_datafileCreateTime_dt.dat"
     f = DummyDatafile(tmpdirsec, dfname, case['size'])
-    datafile = client.new("datafile", name=f.name, 
+    datafile = client.new("Datafile", name=f.name,
                           dataset=dataset, datafileFormat=datafileformat)
     datafile.datafileCreateTime = createTime
     client.putData(f.fname, datafile)
@@ -322,7 +322,7 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
     # Now try the same again with datafileCreateTime set to a string.
     dfname = "test_datafileCreateTime_str.dat"
     f = DummyDatafile(tmpdirsec, dfname, case['size'])
-    datafile = client.new("datafile", name=f.name, 
+    datafile = client.new("Datafile", name=f.name,
                           dataset=dataset, datafileFormat=datafileformat)
     datafile.datafileCreateTime = createTime.isoformat()
     client.putData(f.fname, datafile)

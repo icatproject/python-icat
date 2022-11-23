@@ -19,7 +19,7 @@ def dataset(client):
     """
     inv = client.assertedSearch("Investigation [name='08100122-EF']")[0]
     dstype = client.assertedSearch("DatasetType [name='raw']")[0]
-    dataset = client.new("dataset",
+    dataset = client.new("Dataset",
                          name="test_07_entity_validate", complete=False,
                          investigation=inv, type=dstype)
     dataset.create()
@@ -69,7 +69,7 @@ def test_invalid_numeric_with_string_value(client, dataset):
     client.typemap['parameter'].validate = validate_param
     ptype = client.assertedSearch("ParameterType [name='Magnetic field']")[0]
     assert ptype.valueType == "NUMERIC"
-    param = client.new("datasetParameter", dataset=dataset, type=ptype)
+    param = client.new("DatasetParameter", dataset=dataset, type=ptype)
     param.numericValue = 7
     param.stringValue = "seven"
     with pytest.raises(ValueError) as err:
@@ -83,7 +83,7 @@ def test_invalid_numeric_missing_value(client, dataset):
     client.typemap['parameter'].validate = validate_param
     ptype = client.assertedSearch("ParameterType [name='Magnetic field']")[0]
     assert ptype.valueType == "NUMERIC"
-    param = client.new("datasetParameter", dataset=dataset, type=ptype)
+    param = client.new("DatasetParameter", dataset=dataset, type=ptype)
     with pytest.raises(ValueError) as err:
         param.create()
     assert 'NUMERIC parameter must set numericValue' in str(err.value)
@@ -95,7 +95,7 @@ def test_valid_numeric_value(client, dataset):
     client.typemap['parameter'].validate = validate_param
     ptype = client.assertedSearch("ParameterType [name='Magnetic field']")[0]
     assert ptype.valueType == "NUMERIC"
-    param = client.new("datasetParameter", dataset=dataset, type=ptype)
+    param = client.new("DatasetParameter", dataset=dataset, type=ptype)
     param.numericValue = 7
     param.create()
     assert param.id is not None
@@ -106,7 +106,7 @@ def test_valid_string_permissible_value(client, dataset):
     client.typemap['parameter'].validate = validate_param
     ptype = client.assertedSearch("ParameterType [name='Comment']")[0]
     assert ptype.valueType == "STRING"
-    param = client.new("datasetParameter", dataset=dataset, type=ptype)
+    param = client.new("DatasetParameter", dataset=dataset, type=ptype)
     param.stringValue = "Beam me up Scotty!"
     param.create()
     assert param.id is not None
@@ -117,7 +117,7 @@ def test_invalid_string_permissible_value(client, dataset):
     client.typemap['parameter'].validate = validate_param
     ptype = client.assertedSearch("ParameterType [name='Probe']")[0]
     assert ptype.valueType == "STRING"
-    param = client.new("datasetParameter", dataset=dataset, type=ptype)
+    param = client.new("DatasetParameter", dataset=dataset, type=ptype)
     param.stringValue = "peanut"
     with pytest.raises(ValueError) as err:
         param.create()
@@ -130,7 +130,7 @@ def test_valid_string_permissible_value(client, dataset):
     client.typemap['parameter'].validate = validate_param
     ptype = client.assertedSearch("ParameterType [name='Probe']")[0]
     assert ptype.valueType == "STRING"
-    param = client.new("datasetParameter", dataset=dataset, type=ptype)
+    param = client.new("DatasetParameter", dataset=dataset, type=ptype)
     param.stringValue = "photon"
     param.create()
     assert param.id is not None

@@ -238,8 +238,8 @@ class Entity():
         copied by reference, i.e. the original and the copy refer to
         the same related object.
 
-        >>> inv = client.new("investigation", name="Investigation A")
-        >>> ds = client.new("dataset", investigation=inv, name="Dataset X")
+        >>> inv = client.new("Investigation", name="Investigation A")
+        >>> ds = client.new("Dataset", investigation=inv, name="Dataset X")
         >>> cds = ds.copy()
         >>> cds.name
         'Dataset X'

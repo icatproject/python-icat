@@ -80,13 +80,13 @@ def create_datafile(client, data, df):
         "version":"= '%s'" % dff['version'], 
     })
     datafile_format = client.assertedSearch(query)[0]
-    datafile = client.new("datafile")
+    datafile = client.new("Datafile")
     initobj(datafile, df)
     datafile.dataset = dataset
     datafile.datafileFormat = datafile_format
     if 'parameters' in df:
         for p in df['parameters']:
-            param = client.new('datafileParameter')
+            param = client.new("DatafileParameter")
             initobj(param, p)
             ptdata = data['parameter_types'][p['type']]
             query = ("ParameterType [name='%s' AND units='%s']"
@@ -204,7 +204,7 @@ def test_add_relateddatafile(data, user, rdfname):
     client, conf = getConfig(confSection=user)
     client.login(conf.auth, conf.credentials)
     rdfdata = data['related_datafiles'][rdfname]
-    rdf = client.new("relatedDatafile")
+    rdf = client.new("RelatedDatafile")
     initobj(rdf, rdfdata)
     rdf.sourceDatafile = get_datafile(client, rdfdata['source'])
     rdf.destDatafile = create_datafile(client, data, rdfdata['dest'])
@@ -221,13 +221,13 @@ def test_add_study(data, user, studyname):
     client, conf = getConfig(confSection=user)
     client.login(conf.auth, conf.credentials)
     studydata = data['studies'][studyname]
-    study = client.new("study")
+    study = client.new("Study")
     initobj(study, studydata)
     query = "User [name='%s']" % data['users'][studydata['user']]['name']
     study.user = client.assertedSearch(query)[0]
     for invname in studydata['investigations']:
         query = "Investigation [name='%s']" % invname
-        si = client.new("studyInvestigation")
+        si = client.new("StudyInvestigation")
         si.investigation = client.assertedSearch(query)[0]
         study.studyInvestigations.append(si)
     study.create()
@@ -241,7 +241,7 @@ def test_add_publication(data, user, pubname):
     client, conf = getConfig(confSection=user)
     client.login(conf.auth, conf.credentials)
     pubdata = data['publications'][pubname]
-    publication = client.new("publication")
+    publication = client.new("Publication")
     initobj(publication, pubdata)
     query = "Investigation [name='%s']" % pubdata['investigation']
     publication.investigation = client.assertedSearch(query)[0]
@@ -259,7 +259,7 @@ def test_add_data_publication(data, pubname):
     pubdata = data['data_publications'][pubname]
     client, conf = getConfig(confSection="ingest")
     client.login(conf.auth, conf.credentials)
-    content = client.new("dataCollection")
+    content = client.new("DataCollection")
     ds = pubdata['dataset']
     query = Query(client, "Investigation", conditions={
         "name":"= '%s'" % ds['investigation']
@@ -269,7 +269,7 @@ def test_add_data_publication(data, pubname):
         "name":"= '%s'" % data['dataset_types'][ds['type']]['name']
     })
     dataset_type = client.assertedSearch(query)[0]
-    dataset = client.new("dataset")
+    dataset = client.new("Dataset")
     initobj(dataset, ds)
     dataset.investigation = investigation
     dataset.type = dataset_type
@@ -280,7 +280,7 @@ def test_add_data_publication(data, pubname):
             "version":"= '%s'" % dff['version'],
         })
         datafile_format = client.assertedSearch(query)[0]
-        datafile = client.new("datafile")
+        datafile = client.new("Datafile")
         initobj(datafile, df)
         datafile.datafileFormat = datafile_format
         dataset.datafiles.append(datafile)
@@ -290,14 +290,14 @@ def test_add_data_publication(data, pubname):
         del dataset.datafiles
         dataset.complete = True
         dataset.update()
-    dcs = client.new("dataCollectionDataset", dataset=dataset)
+    dcs = client.new("DataCollectionDataset", dataset=dataset)
     content.dataCollectionDatasets.append(dcs)
     content.create()
     content.truncateRelations()
     fix_file_size(ds['investigation'])
     client, conf = getConfig(confSection="useroffice")
     client.login(conf.auth, conf.credentials)
-    data_publication = client.new("dataPublication")
+    data_publication = client.new("DataPublication")
     initobj(data_publication, pubdata)
     query = Query(client, "Facility", conditions={
         "name": "= '%s'" % data['facilities'][pubdata['facility']]['name']
@@ -311,27 +311,27 @@ def test_add_data_publication(data, pubname):
         })
         data_publication.type = client.assertedSearch(query)[0]
     for d in pubdata['dates']:
-        data_publication.dates.append(client.new("dataPublicationDate", **d))
+        data_publication.dates.append(client.new("DataPublicationDate", **d))
     for ri in pubdata['relatedItems']:
-        data_publication.relatedItems.append(client.new("relatedItem", **ri))
+        data_publication.relatedItems.append(client.new("RelatedItem", **ri))
     for u in pubdata['users']:
-        pub_user = client.new("dataPublicationUser")
+        pub_user = client.new("DataPublicationUser")
         initobj(pub_user, u)
         query = Query(client, "User", conditions={
             "name": "= '%s'" % data['users'][u['user']]['name']
         })
         pub_user.user = client.assertedSearch(query)[0]
         for a in u['affiliations']:
-            pub_user.affiliations.append(client.new("affiliation", **a))
+            pub_user.affiliations.append(client.new("Affiliation", **a))
         data_publication.users.append(pub_user)
     for fr in pubdata['fundingReferences']:
-        funding_ref = client.new('fundingReference')
+        funding_ref = client.new("FundingReference")
         initobj(funding_ref, data['fundings'][fr])
         try:
             funding_ref.create()
         except icat.ICATObjectExistsError:
             funding_ref = client.searchMatching(funding_ref)
-        dp_fund = client.new('dataPublicationFunding', funding=funding_ref)
+        dp_fund = client.new("DataPublicationFunding", funding=funding_ref)
         data_publication.fundingReferences.append(dp_fund)
     data_publication.create()
 
@@ -364,19 +364,19 @@ def test_add_datacollections(data, user, objects):
     """
     client, conf = getConfig(confSection=user)
     client.login(conf.auth, conf.credentials)
-    collection = client.new("dataCollection")
+    collection = client.new("DataCollection")
     for key in objects:
         obj = client.searchUniqueKey(key)
         if obj.BeanName == 'Investigation':
             if 'dataCollectionInvestigation' not in client.typemap:
                 pytest.skip("need DataCollectionInvestigation")
-            dcinv = client.new('dataCollectionInvestigation', investigation=obj)
+            dcinv = client.new("DataCollectionInvestigation", investigation=obj)
             collection.dataCollectionInvestigations.append(dcinv)
         elif obj.BeanName == 'Dataset':
-            dcds = client.new('dataCollectionDataset', dataset=obj)
+            dcds = client.new("DataCollectionDataset", dataset=obj)
             collection.dataCollectionDatasets.append(dcds)
         elif obj.BeanName == 'Datafile':
-            dcdf = client.new('dataCollectionDatafile', datafile=obj)
+            dcdf = client.new("DataCollectionDatafile", datafile=obj)
             collection.dataCollectionDatafiles.append(dcdf)
         else:
             raise AssertionError("invalid object type %s" % obj.BeanName)

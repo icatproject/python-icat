@@ -49,7 +49,7 @@ def getUser(client, attrs):
     try:
         return client.assertedSearch("User [name='%s']" % attrs['name'])[0]
     except icat.SearchResultError:
-        user = client.new("user")
+        user = client.new("User")
         initobj(user, attrs)
         user.create()
         return user
@@ -402,7 +402,7 @@ if "dataPublication" in client.typemap:
         ( "InvestigationFunding", "funding"),
     ])
     pubsteps.sort()
-objs = [ client.new("publicStep", origin=origin, field=field)
+objs = [ client.new("PublicStep", origin=origin, field=field)
          for (origin, field) in pubsteps ]
 client.createMany(objs)
 
@@ -413,7 +413,7 @@ client.createMany(objs)
 
 facilities = {}
 for k in data['facilities'].keys():
-    fac = client.new("facility")
+    fac = client.new("Facility")
     initobj(fac, data['facilities'][k])
     fac.create()
     facilities[k] = fac
@@ -426,7 +426,7 @@ for k in data['facilities'].keys():
 if "technique" in client.typemap:
     techniques = []
     for k in data['techniques'].keys():
-        t = client.new("technique")
+        t = client.new("Technique")
         initobj(t, data['techniques'][k])
         techniques.append(t)
     client.createMany(techniques)
@@ -438,7 +438,7 @@ if "technique" in client.typemap:
 
 instusers = []
 for k in data['instruments'].keys():
-    inst = client.new("instrument")
+    inst = client.new("Instrument")
     initobj(inst, data['instruments'][k])
     inst.facility = facilities[data['instruments'][k]['facility']]
     inst.create()
@@ -457,7 +457,7 @@ staff.addUsers(instusers)
 # investigationTypes
 investigation_types = []
 for k in data['investigation_types'].keys():
-    it = client.new("investigationType")
+    it = client.new("InvestigationType")
     initobj(it, data['investigation_types'][k])
     it.facility = facilities[data['investigation_types'][k]['facility']]
     investigation_types.append(it)
@@ -466,7 +466,7 @@ client.createMany(investigation_types)
 # datasetTypes
 dataset_types = []
 for k in data['dataset_types'].keys():
-    dt = client.new("datasetType")
+    dt = client.new("DatasetType")
     initobj(dt, data['dataset_types'][k])
     dt.facility = facilities[data['dataset_types'][k]['facility']]
     dataset_types.append(dt)
@@ -475,7 +475,7 @@ client.createMany(dataset_types)
 # datafileFormats
 fileformats = []
 for k in data['datafile_formats'].keys():
-    ff = client.new("datafileFormat")
+    ff = client.new("DatafileFormat")
     initobj(ff, data['datafile_formats'][k])
     ff.facility = facilities[data['datafile_formats'][k]['facility']]
     fileformats.append(ff)
@@ -485,7 +485,7 @@ client.createMany(fileformats)
 if "dataPublicationType" in client.typemap:
     data_publication_types = []
     for k in data['data_publication_types'].keys():
-        dpt = client.new("dataPublicationType")
+        dpt = client.new("DataPublicationType")
         initobj(dpt, data['data_publication_types'][k])
         dpt.facility = facilities[data['data_publication_types'][k]['facility']]
         data_publication_types.append(dpt)
@@ -494,12 +494,12 @@ if "dataPublicationType" in client.typemap:
 # parameterTypes
 param_types = []
 for k in data['parameter_types'].keys():
-    pt = client.new("parameterType")
+    pt = client.new("ParameterType")
     initobj(pt, data['parameter_types'][k])
     pt.facility = facilities[data['parameter_types'][k]['facility']]
     if 'values' in data['parameter_types'][k]:
         for v in data['parameter_types'][k]['values']:
-            psv = client.new('permissibleStringValue', value=v)
+            psv = client.new("PermissibleStringValue", value=v)
             pt.permissibleStringValues.append(psv)
     param_types.append(pt)
 client.createMany(param_types)
@@ -507,7 +507,7 @@ client.createMany(param_types)
 # applications
 applications = []
 for k in data['applications'].keys():
-    app = client.new("application")
+    app = client.new("Application")
     initobj(app, data['applications'][k])
     app.facility = facilities[data['applications'][k]['facility']]
     applications.append(app)
@@ -532,7 +532,7 @@ for fcdata in data['facility_cycles']:
         c = 0
         for p in fcdata['cycles']:
             c += 1
-            cycle = client.new("facilityCycle")
+            cycle = client.new("FacilityCycle")
             cycle.name = "%02d%d" % (y, c)
             cycle.startDate = datetime.datetime(year, p[0], p[1],
                                                 tzinfo=gettz(p[0]))

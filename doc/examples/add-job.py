@@ -74,7 +74,7 @@ except KeyError:
 # Create the input data collection
 # ------------------------------------------------------------
 
-inputcollection = client.new("dataCollection")
+inputcollection = client.new("DataCollection")
 initobj(inputcollection, jobdata['input'])
 
 for ds in jobdata['input']['datasets']:
@@ -83,7 +83,7 @@ for ds in jobdata['input']['datasets']:
         "investigation.name":"= '%s'" % ds['investigation']
     })
     dataset = client.assertedSearch(query)[0]
-    dcs = client.new("dataCollectionDataset", dataset=dataset)
+    dcs = client.new("DataCollectionDataset", dataset=dataset)
     inputcollection.dataCollectionDatasets.append(dcs)
 
 for df in jobdata['input']['datafiles']:
@@ -93,7 +93,7 @@ for df in jobdata['input']['datafiles']:
         "dataset.investigation.name":"= '%s'" % df['investigation']
     })
     datafile = client.assertedSearch(query)[0]
-    dcf = client.new("dataCollectionDatafile", datafile=datafile)
+    dcf = client.new("DataCollectionDatafile", datafile=datafile)
     inputcollection.dataCollectionDatafiles.append(dcf)
 
 if 'parameters' in jobdata['input']:
@@ -108,7 +108,7 @@ inputcollection.create()
 # Create the output data collection
 # ------------------------------------------------------------
 
-outputcollection = client.new("dataCollection")
+outputcollection = client.new("DataCollection")
 initobj(outputcollection, jobdata['output'])
 
 for ds in jobdata['output']['datasets']:
@@ -121,7 +121,7 @@ for ds in jobdata['output']['datasets']:
     })
     dataset_type = client.assertedSearch(query)[0]
     print("Dataset: creating '%s' ..." % ds['name'])
-    dataset = client.new("dataset")
+    dataset = client.new("Dataset")
     initobj(dataset, ds)
     dataset.investigation = investigation
     dataset.type = dataset_type
@@ -137,7 +137,7 @@ for ds in jobdata['output']['datasets']:
         })
         datafile_format = client.assertedSearch(query)[0]
         print("Datafile: creating '%s' ..." % df['name'])
-        datafile = client.new("datafile")
+        datafile = client.new("Datafile")
         initobj(datafile, df)
         datafile.datafileFormat = datafile_format
         if 'parameters' in df:
@@ -153,7 +153,7 @@ for ds in jobdata['output']['datasets']:
         del dataset.datafiles
         dataset.complete = True
         dataset.update()
-    dcs = client.new("dataCollectionDataset", dataset=dataset)
+    dcs = client.new("DataCollectionDataset", dataset=dataset)
     outputcollection.dataCollectionDatasets.append(dcs)
 
 for df in jobdata['output']['datafiles']:
@@ -169,7 +169,7 @@ for df in jobdata['output']['datafiles']:
     })
     datafile_format = client.assertedSearch(query)[0]
     print("Datafile: creating '%s' ..." % df['name'])
-    datafile = client.new("datafile")
+    datafile = client.new("Datafile")
     initobj(datafile, df)
     datafile.dataset = dataset
     datafile.datafileFormat = datafile_format
@@ -177,7 +177,7 @@ for df in jobdata['output']['datafiles']:
         for p in df['parameters']:
             datafile.parameters.append(makeparam('datafileParameter', p))
     datafile.create()
-    dcf = client.new("dataCollectionDatafile", datafile=datafile)
+    dcf = client.new("DataCollectionDatafile", datafile=datafile)
     outputcollection.dataCollectionDatafiles.append(dcf)
 
 if 'parameters' in jobdata['output']:
@@ -197,7 +197,7 @@ appsearch = ("Application [name='%s' AND version='%s']"
              % ( appdata['name'], appdata['version'] ))
 application = client.assertedSearch(appsearch)[0]
 
-job = client.new("job",
+job = client.new("Job",
                  application=application,
                  inputDataCollection=inputcollection,
                  outputDataCollection=outputcollection)

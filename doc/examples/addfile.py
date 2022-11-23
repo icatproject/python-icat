@@ -88,7 +88,7 @@ datafileformat = getdatafileformat(conf.datafileformat)
 # ------------------------------------------------------------
 
 for fname in conf.files:
-    datafile = client.new("datafile", name=fname.name,
+    datafile = client.new("Datafile", name=fname.name,
                           dataset=dataset, datafileFormat=datafileformat)
     client.putData(fname, datafile)
 

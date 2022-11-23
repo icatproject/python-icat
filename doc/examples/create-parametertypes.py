@@ -40,7 +40,7 @@ hzb = client.assertedSearch("Facility[name='HZB']")[0]
 parametertypes = []
 for pdata in parametertype_data:
     print("ParameterType: creating '%s' ..." % pdata['name'])
-    parametertype = client.new("parameterType")
+    parametertype = client.new("ParameterType")
     parametertype.name = pdata['name']
     parametertype.units = pdata['units']
     parametertype.unitsFullName = pdata['unitsFullName']

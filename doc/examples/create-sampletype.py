@@ -61,7 +61,7 @@ else:
                        % sampletypedata['name'])
 
 print("SampleType: creating '%s' ..." % sampletypedata['name'])
-sampletype = client.new("sampleType")
+sampletype = client.new("SampleType")
 sampletype.name = sampletypedata['name']
 sampletype.molecularFormula = sampletypedata['molecularFormula']
 sampletype.facility = facility

@@ -45,7 +45,7 @@ config = icat.config.Config(ids=False)
 subcmd = config.add_subcommands()
 
 def add_paramtype(client, conf):
-    pt = client.new("parameterType")
+    pt = client.new("ParameterType")
     pt.facility = client.assertedSearch("Facility")[0]
     pt.name = conf.name
     units, units_fullname = getUnits(conf.units)
@@ -75,7 +75,7 @@ def add_paramtype(client, conf):
             raise ValueError("permissible strings do not make sense "
                              "for %s value type" % conf.valueType)
         for s in conf.permstrings.split(','):
-            psv = client.new("permissibleStringValue", value=s)
+            psv = client.new("PermissibleStringValue", value=s)
             pt.permissibleStringValues.append(psv)
     pt.create()
     return pt

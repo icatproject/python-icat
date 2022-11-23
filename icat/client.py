@@ -650,7 +650,7 @@ class Client(suds.client.Client):
         Search the object from the ICAT server that matches the given
         object in the uniqueness constraint.
 
-        >>> dataset = client.new("dataset", investigation=inv, name=dsname)
+        >>> dataset = client.new("Dataset", investigation=inv, name=dsname)
         >>> dataset = client.searchMatching(dataset)
         >>> dataset.id
         172383
@@ -706,7 +706,7 @@ class Client(suds.client.Client):
                 return users[0]
 
         log.info("User: creating '%s'", name)
-        u = self.new("user", name=name, **kwargs)
+        u = self.new("User", name=name, **kwargs)
         u.create()
         return u
 
@@ -721,7 +721,7 @@ class Client(suds.client.Client):
         :rtype: :class:`icat.entity.Entity`
         """
         log.info("Group: creating '%s'", name)
-        g = self.new("grouping", name=name)
+        g = self.new("Grouping", name=name)
         g.create()
         g.addUsers(users)
         return g
@@ -749,7 +749,7 @@ class Client(suds.client.Client):
 
         rules = []
         for w in what:
-            r = self.new("rule", 
+            r = self.new("Rule",
                          crudFlags=crudFlags, what=str(w), grouping=group)
             rules.append(r)
         return self.createMany(rules)

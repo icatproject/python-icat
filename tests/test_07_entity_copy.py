@@ -25,7 +25,7 @@ def test_copy_instattr(client):
     """
     name1 = "Dataset X"
     name2 = "Dataset Y"
-    ds = client.new("dataset", id=541, name=name1)
+    ds = client.new("Dataset", id=541, name=name1)
     cds = ds.copy()
     assert cds == ds
     assert cds.id == ds.id
@@ -42,8 +42,8 @@ def test_copy_instrel(client):
     name2 = "Dataset Y"
     invname1 = "Investigation A"
     invname2 = "Investigation B"
-    inv = client.new("investigation", id=82, name=invname1)
-    ds = client.new("dataset", id=541, investigation=inv, name=name1)
+    inv = client.new("Investigation", id=82, name=invname1)
+    ds = client.new("Dataset", id=541, investigation=inv, name=name1)
     cds = ds.copy()
     assert cds.investigation == ds.investigation
     assert cds.investigation.id == ds.investigation.id
@@ -61,11 +61,11 @@ def test_copy_instmrel(client):
     One to many relationships are stored in lists of objects.  The
     copy method creates shallow copies of these lists.
     """
-    df1 = client.new("datafile", id=568, name="df_a.dat")
-    df2 = client.new("datafile", id=450, name="df_b.dat")
-    df3 = client.new("datafile", id=141, name="df_c.dat")
-    df4 = client.new("datafile", id=593, name="df_d.dat")
-    ds = client.new("dataset", id=684, name="Dataset X")
+    df1 = client.new("Datafile", id=568, name="df_a.dat")
+    df2 = client.new("Datafile", id=450, name="df_b.dat")
+    df3 = client.new("Datafile", id=141, name="df_c.dat")
+    df4 = client.new("Datafile", id=593, name="df_d.dat")
+    ds = client.new("Dataset", id=684, name="Dataset X")
     ds.datafiles = [ df1, df2, df3 ]
     cds = ds.copy()
     assert cds.datafiles == [ df1, df2, df3 ]

@@ -67,7 +67,7 @@ investigation = client.assertedSearch(query)[0]
 
 fstats = df_path.stat()
 modTime = datetime.datetime.utcfromtimestamp(fstats.st_mtime).isoformat() + "Z"
-datafile = client.new("datafile")
+datafile = client.new("Datafile")
 datafile.datafileFormat = dff
 datafile.name = conf.datafile.name
 datafile.location = str(conf.datafile)
@@ -75,7 +75,7 @@ datafile.datafileModTime = modTime
 datafile.datafileCreateTime = modTime
 datafile.fileSize = fstats.st_size
 
-dataset = client.new("dataset")
+dataset = client.new("Dataset")
 dataset.investigation=investigation
 dataset.type=dst
 dataset.complete=False

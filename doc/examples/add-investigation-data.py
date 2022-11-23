@@ -122,7 +122,7 @@ stsearch = ("SampleType[name='%s']"
 sample_type = client.assertedSearch(stsearch)[0]
 
 print("Sample: creating '%s' ..." % sampledata['name'])
-sample = client.new("sample")
+sample = client.new("Sample")
 initobj(sample, sampledata)
 sample.type = sample_type
 sample.investigation = investigation
@@ -134,7 +134,7 @@ sample.create()
 
 for datasetdata in investigationdata['datasets']:
     print("Dataset: creating '%s' ..." % datasetdata['name'])
-    dataset = client.new("dataset")
+    dataset = client.new("Dataset")
     initobj(dataset, datasetdata)
     # Need to override the complete flag from the example data as we
     # do not have create permissions on complete datasets.
@@ -149,7 +149,7 @@ for datasetdata in investigationdata['datasets']:
     if not conf.skipfiles:
         for datafiledata in datasetdata['datafiles']:
             print("Datafile: creating '%s' ..." % datafiledata['name'])
-            datafile = client.new("datafile")
+            datafile = client.new("Datafile")
             initobj(datafile, datafiledata)
             datafile.datafileFormat = datafile_formats[datafiledata['format']]
             if 'parameters' in datafiledata:
@@ -159,10 +159,10 @@ for datasetdata in investigationdata['datasets']:
             dataset.datafiles.append(datafile)
 
     if 'datasetInstruments' in dataset.InstMRel:
-        di = client.new("datasetInstrument", instrument=instrument)
+        di = client.new("DatasetInstrument", instrument=instrument)
         dataset.datasetInstruments.append(di)
     if 'datasetTechniques' in dataset.InstMRel and technique:
-        dt = client.new("datasetTechnique", technique=technique)
+        dt = client.new("DatasetTechnique", technique=technique)
         dataset.datasetTechniques.append(dt)
 
     dataset.create()

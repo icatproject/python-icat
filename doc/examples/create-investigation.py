@@ -45,7 +45,7 @@ def getUser(client, attrs):
     try:
         return client.assertedSearch("User [name='%s']" % attrs['name'])[0]
     except icat.SearchResultError:
-        user = client.new("user")
+        user = client.new("User")
         initobj(user, attrs)
         user.create()
         return user
@@ -98,13 +98,13 @@ else:
                        % investigationdata['name'])
 
 print("Investigation: creating '%s' ..." % investigationdata['name'])
-investigation = client.new("investigation")
+investigation = client.new("Investigation")
 initobj(investigation, investigationdata)
 investigation.facility = facility
 investigation.type = investigation_type
 if 'parameters' in investigationdata:
     for pdata in investigationdata['parameters']:
-        ip = client.new('investigationParameter')
+        ip = client.new("InvestigationParameter")
         initobj(ip, pdata)
         ptdata = data['parameter_types'][pdata['type']]
         query = ("ParameterType [name='%s' AND units='%s']"
@@ -113,7 +113,7 @@ if 'parameters' in investigationdata:
         investigation.parameters.append(ip)
 if 'shifts' in investigationdata:
     for sdata in investigationdata['shifts']:
-        s = client.new('shift')
+        s = client.new("Shift")
         initobj(s, sdata)
         if 'instrument' in s.InstRel:
             s.instrument = instrument
@@ -128,17 +128,17 @@ if 'investigationFacilityCycles' in investigation.InstMRel:
             "endDate": "> '%s'" % parse_attr_string(sd, "Date"),
         })
         for fc in client.search(query):
-            ifc = client.new("investigationFacilityCycle", facilityCycle=fc)
+            ifc = client.new("InvestigationFacilityCycle", facilityCycle=fc)
             investigation.investigationFacilityCycles.append(ifc)
 if 'fundingReferences' in investigation.InstMRel:
     for fr in investigationdata['fundingReferences']:
-        funding_ref = client.new('fundingReference')
+        funding_ref = client.new("FundingReference")
         initobj(funding_ref, data['fundings'][fr])
         try:
             funding_ref.create()
         except icat.ICATObjectExistsError:
             funding_ref = client.searchMatching(funding_ref)
-        inv_fund = client.new('investigationFunding', funding=funding_ref)
+        inv_fund = client.new("InvestigationFunding", funding=funding_ref)
         investigation.fundingReferences.append(inv_fund)
 investigation.create()
 investigation.addInstrument(instrument)
