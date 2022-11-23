@@ -177,7 +177,7 @@ def getDataPublicationQueries(client, pubid):
     return [
         Query(client, "DataPublication", order=True,
               conditions={"id": "= %d" % pubid},
-              includes={"facility", "content", "type", "dates",
+              includes={"facility", "content", "type.facility", "dates",
                         "fundingReferences.funding", "relatedItems"}),
         Query(client, "DataPublicationUser", order=True,
               conditions={"publication.id": "= %d" % pubid},
