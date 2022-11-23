@@ -28,6 +28,7 @@ entitytypes = [
     'instrumentScientist',
     'parameterType',
     'permissibleStringValue',
+    'dataPublicationType',
     'investigationType',
     'sampleType',
     'datasetType',
