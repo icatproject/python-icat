@@ -304,6 +304,12 @@ def test_add_data_publication(data, pubname):
     })
     data_publication.facility = client.assertedSearch(query)[0]
     data_publication.content = content
+    if pubdata['type']:
+        t = data['data_publication_types'][pubdata['type']]
+        query = Query(client, "DataPublicationType", conditions={
+            "name": "= '%s'" % t['name']
+        })
+        data_publication.type = client.assertedSearch(query)[0]
     for d in pubdata['dates']:
         data_publication.dates.append(client.new("dataPublicationDate", **d))
     for ri in pubdata['relatedItems']:

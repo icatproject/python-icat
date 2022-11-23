@@ -12,7 +12,7 @@ DataCollectionParameter  : 1
 DataPublication          : 1
 DataPublicationDate      : 0
 DataPublicationFunding   : 0
-DataPublicationType      : 0
+DataPublicationType      : 2
 DataPublicationUser      : 0
 Datafile                 : 11
 DatafileFormat           : 6

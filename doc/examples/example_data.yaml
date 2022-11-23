@@ -3,6 +3,15 @@ applications:
     facility: example_facility
     name: gnomoanalytics
     version: 69
+data_publication_types:
+  curated:
+    description: Curated data publication
+    facility: example_facility
+    name: curated
+  raw:
+    description: Open access raw data
+    facility: example_facility
+    name: raw
 data_publications:
   data_pub1:
     dataset:
@@ -43,7 +52,7 @@ data_publications:
       title: The positive integers
     subject: integer sequence; OEIS; On-Line Encyclopedia of Integer Sequences
     title: Data from OEIS sequence A000027
-    type: null
+    type: curated
     users:
     - affiliations:
       - fullReference: "Universit\xE9 de Nancy"

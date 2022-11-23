@@ -36,7 +36,7 @@ tzinfo = UtcTimezone() if UtcTimezone else None
 # ICAT version.
 have_icat_5 = 0 if icat_version < "5.0" else 1
 all_rules = 110 + 48*have_icat_5
-grp_rules = 50 + 31*have_icat_5
+grp_rules = 50 + 30*have_icat_5
 
 @pytest.mark.dependency(name='get_investigation')
 def test_query_simple(client):

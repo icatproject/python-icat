@@ -79,6 +79,8 @@ pubtables = { "Application", "DatafileFormat", "DatasetType",
               "Facility", "FacilityCycle", "Instrument",
               "InvestigationType", "ParameterType",
               "PermissibleStringValue", "SampleType", "User", }
+if "dataPublicationType" in client.typemap:
+    pubtables |= { "DataPublicationType" }
 if "technique" in client.typemap:
     pubtables |= { "Technique" }
 
@@ -478,6 +480,16 @@ for k in data['datafile_formats'].keys():
     ff.facility = facilities[data['datafile_formats'][k]['facility']]
     fileformats.append(ff)
 client.createMany(fileformats)
+
+# dataPublicationTypes
+if "dataPublicationType" in client.typemap:
+    data_publication_types = []
+    for k in data['data_publication_types'].keys():
+        dpt = client.new("dataPublicationType")
+        initobj(dpt, data['data_publication_types'][k])
+        dpt.facility = facilities[data['data_publication_types'][k]['facility']]
+        data_publication_types.append(dpt)
+    client.createMany(data_publication_types)
 
 # parameterTypes
 param_types = []
