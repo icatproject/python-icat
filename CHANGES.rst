@@ -10,8 +10,8 @@ New features
 
 + `#73`_, `#106`_: Add support for the ICAT schema 5.0 extensions.
 
-+ `#102`_, `#104`_: Make the obj argument to client.new() case
-  insensitive.
++ `#102`_, `#104`_: Make the obj argument to
+  :meth:`icat.client.Client.new` case insensitive.
 
 + `#77`_, `#103`_: Add a keyword argument `preset` to allow directly
   passing configuration values to the constructor of class
