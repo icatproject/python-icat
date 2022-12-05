@@ -61,9 +61,14 @@ are not required to install python-icat and use its core features:
 
   Only if you want to run the tests.
 
-+ `distutils-pytest`_
++ `distutils-pytest`_ >= 0.2
 
   Only if you want to run the tests.
+
+Note that the example scripts in doc/examples may have additional
+dependencies.  In particular, a few of them need the `Requests`_
+package.
+
 
 .. _suds:
 
@@ -153,8 +158,8 @@ useful to the maintainer of python-icat.
 Most tests require a test ICAT server to talk to.  These tests are
 disabled by default, unless you configure such a test server.  To do
 so, place an icat.cfg file into tests/data.  This file must have at
-least the configuration sections "root", "useroffice", "acord",
-"ahau", "jbotu", "jdoe", "nbour", and "rbeck" with the options and
+least the configuration sections `root`, `useroffice`, `acord`,
+`ahau`, `jbotu`, `jdoe`, `nbour`, and `rbeck` with the options and
 credentials to access the test server as the respective user.  See
 doc/examples for an example.  Obviously, this implies that your
 authentication plugin must also have these users configured.
