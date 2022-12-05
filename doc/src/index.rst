@@ -32,6 +32,7 @@ Parts of the documentation
 .. toctree::
    :maxdepth: 1
 
+   install
    tutorial
    moduleref
    scripts
