@@ -38,6 +38,7 @@ Parts of the documentation
    tutorial
    moduleref
    scripts
+   known-issues
    changelog
 
 
