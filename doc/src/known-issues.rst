@@ -18,10 +18,10 @@ Known issues, bugs and limitations
   configuration variables and thus command line arguments are
   effective then those shown by the generic help message.
 
-+ The return value of the formal string representation operator of
-  class Query can not be used to recreate another query object with
-  the same value as required by Python standards, see `Issue #94`_ for
-  details.
++ The return value of the `formal string representation operator`__ of
+  :class:`icat.query.Query` can not be used to recreate another query
+  object with the same value as required by Python standards, see
+  `Issue #94`_ for details.
 
 + The entries in the no_proxy configuration variable are matched
   against the host part of the URL by simple string comparison.  The
@@ -34,5 +34,6 @@ Known issues, bugs and limitations
   the implementation of the underlying Python library.
 
 
+.. __: https://docs.python.org/3/reference/datamodel.html#object.__repr__
 .. _Issue #72: https://github.com/icatproject/python-icat/issues/72
 .. _Issue #94: https://github.com/icatproject/python-icat/issues/94
