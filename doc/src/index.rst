@@ -25,6 +25,8 @@ The most important features include:
 
 .. _ICAT: http://www.icatproject.org/
 
+python-icat supports ICAT server 4.4 and newer.
+
 
 Parts of the documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
