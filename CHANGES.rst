@@ -10,7 +10,7 @@ New features
 
 + `#73`_, `#106`_: Add support for the ICAT schema 5.0 extensions.
 
-+ `#102`_, `#104`_: Make the obj argument to
++ `#102`_, `#104`_: Make the `obj` argument to
   :meth:`icat.client.Client.new` case insensitive.
 
 + `#77`_, `#103`_: Add a keyword argument `preset` to allow directly
@@ -18,8 +18,8 @@ New features
   :class:`icat.config.Config`.
 
 + `#66`_, `#75`_: Add pathlib support: methods that take a file name
-  argument also accept a :class:`pathlib.Path` object. Internal
-  representation of filesystem paths are changed to use
+  argument also accept a :class:`pathlib.Path` object.  Internal
+  representation of file system paths are changed to use
   :class:`pathlib.Path` where appropriate.  The predefined
   configuarion variable `configFile` now supports tilde expansion.
   Note incompatible changes below.
@@ -35,7 +35,7 @@ Incompatible changes and deprecations
   of :ref:`icatingest` will fail to read dump files written by new
   versions of :ref:`icatdump`.
 
-+ As a consequence of switching to pathlib for filesystem paths some
++ As a consequence of switching to pathlib for file system paths some
   return values and variables are now :class:`pathlib.Path` objects
   rather then :class:`str`.  This affects:
 
