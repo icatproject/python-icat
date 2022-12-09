@@ -22,7 +22,7 @@ except ImportError:
         pass
 import icat
 import icat.config
-from conftest import (getConfig, icat_version, require_icat_version, _skip,
+from conftest import (getConfig, icat_version, require_icat_version,
                       gettestdata, callscript,
                       filter_file, yaml_filter, xml_filter)
 
@@ -39,8 +39,16 @@ def get_dumpfiles(ext = "yaml"):
         legacy_fname = "legacy-icatdump-4.10.%s" % ext
         reference_fname = "icatdump-4.10.%s" % ext
     else:
-        _skip("legacy dumpfiles only available for ICAT server versions "
-              "older than 5.0")
+        # In the case of ICAT 5.0, it makes no sense to test a
+        # "legacy" dump file corresponding to the icatdump-5.0.*
+        # example files, because the legacy icatdump would not be able
+        # to deal with the new schema entity classes.  We use the 4.10
+        # legacy dump files instead.  But then, we need a reference
+        # file corresponding to the same content defined on the ICAT
+        # 5.0 schema, e.g. having the fileCount and fileSize attibutes
+        # in datasets and investigations.
+        legacy_fname = "legacy-icatdump-4.10.%s" % ext
+        reference_fname = "ref-icatdump-5.0.%s" % ext
     return (gettestdata(legacy_fname), gettestdata(reference_fname))
 
 backends = {

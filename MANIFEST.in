@@ -15,6 +15,8 @@ include doc/tutorial/*.py
 include tests/conftest.py
 include tests/data/legacy-icatdump-*.xml
 include tests/data/legacy-icatdump-*.yaml
+include tests/data/ref-icatdump-*.xml
+include tests/data/ref-icatdump-*.yaml
 include tests/data/summary*
 include tests/pytest.ini
 include tests/test_*.py
