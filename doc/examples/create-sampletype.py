@@ -5,21 +5,19 @@
 # This script should be run by a member of the samplewriter group
 #
 
-from __future__ import print_function
+import logging
+import sys
+import yaml
 import icat
 import icat.config
-import sys
-import logging
-import yaml
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config()
-config.add_variable('datafile', ("datafile",), 
-                    dict(metavar="inputdata.yaml", 
+config.add_variable('datafile', ("datafile",),
+                    dict(metavar="inputdata.yaml",
                          help="name of the input datafile"))
-config.add_variable('sampletypename', ("sampletypename",), 
+config.add_variable('sampletypename', ("sampletypename",),
                     dict(help="name of the sample type to add"))
 client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
@@ -33,7 +31,7 @@ if conf.datafile == "-":
     f = sys.stdin
 else:
     f = open(conf.datafile, 'r')
-data = yaml.load(f)
+data = yaml.safe_load(f)
 f.close()
 
 try:
@@ -59,11 +57,11 @@ try:
 except icat.exception.SearchResultError:
     pass
 else:
-    raise RuntimeError("SampleType: '%s' already exists." 
+    raise RuntimeError("SampleType: '%s' already exists."
                        % sampletypedata['name'])
 
 print("SampleType: creating '%s' ..." % sampletypedata['name'])
-sampletype = client.new("sampleType")
+sampletype = client.new("SampleType")
 sampletype.name = sampletypedata['name']
 sampletype.molecularFormula = sampletypedata['molecularFormula']
 sampletype.facility = facility

@@ -8,10 +8,10 @@
 # one from icatingest.py.
 #
 
-import sys
 import json
-import re
 import logging
+import re
+import sys
 import requests
 import icat
 import icat.config
@@ -21,30 +21,30 @@ logging.basicConfig(level=logging.INFO)
 logging.getLogger('requests.packages.urllib3').setLevel(logging.WARNING)
 
 config = icat.config.Config()
-config.add_variable('resturl', ("--resturl",), 
+config.add_variable('resturl', ("--resturl",),
                     dict(help="URL to the ICAT RESTful interface"),
                     default=True)
-config.add_variable('file', ("-i", "--inputfile"), 
+config.add_variable('file', ("-i", "--inputfile"),
                     dict(help="input file name or '-' for stdin"),
                     default='-')
 # The format argument makes in fact little sense, as there is no
 # choice.  It's here for compatiblity with the command line interface
 # of icatingest.py only.
-config.add_variable('format', ("-f", "--format"), 
+config.add_variable('format', ("-f", "--format"),
                     dict(help="input file format", choices=["ICAT"]),
                     default='ICAT')
-config.add_variable('duplicate', ("--duplicate",), 
+config.add_variable('duplicate', ("--duplicate",),
                     dict(help="behavior in case of duplicate objects",
-                         choices=["THROW", "IGNORE", "CHECK", "OVERWRITE"]), 
+                         choices=["THROW", "IGNORE", "CHECK", "OVERWRITE"]),
                     default='THROW')
 # Additional arguments that icatdump.py does not provide:
-config.add_variable('attributes', ("--attributes",), 
-                    dict(help="attributes to consider in the input", 
+config.add_variable('attributes', ("--attributes",),
+                    dict(help="attributes to consider in the input",
                          choices=["ALL", "USER"]),
                     default='USER')
 client, conf = config.getconfig()
 
-if client.apiversion < '4.4':
+if client.apiversion < '4.4.0':
     raise RuntimeError("Sorry, ICAT version %s is too old, need 4.4.0 or newer."
                        % client.apiversion)
 client.login(conf.auth, conf.credentials)
@@ -56,8 +56,8 @@ if not conf.resturl.endswith("/"):
     conf.resturl += "/"
 
 
-args = {"sessionId": client.sessionId, 
-        "duplicate": conf.duplicate, 
+args = {"sessionId": client.sessionId,
+        "duplicate": conf.duplicate,
         "attributes": conf.attributes}
 if conf.file == "-":
     f = sys.stdin

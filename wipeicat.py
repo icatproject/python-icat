@@ -5,12 +5,12 @@
 # This is surprisingly involved to do it reliably.  See the comments
 # below for the issues that need to be taken into account.
 
-import time
 import logging
+import time
 from warnings import warn
 import icat
-from icat.ids import DataSelection
 import icat.config
+from icat.ids import DataSelection
 from icat.query import Query
 
 logging.basicConfig(level=logging.INFO)
@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 config = icat.config.Config(ids="optional")
 client, conf = config.getconfig()
 
-if client.apiversion < '4.3':
+if client.apiversion < '4.3.0':
     raise RuntimeError("Sorry, icat.server version %s is too old, "
                        "need 4.3.0 or newer." % client.apiversion)
 if client.ids and client.ids.apiversion < '1.6.0':

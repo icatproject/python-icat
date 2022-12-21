@@ -1,12 +1,7 @@
 """Provide the AuthenticatorInfo class.
 """
 
-try:
-    # Python 3.3 and newer
-    from collections.abc import Sequence
-except ImportError:
-    # Python 2
-    from collections import Sequence
+from collections.abc import Sequence
 
 
 __all__ = ['AuthenticatorInfo', 'LegacyAuthenticatorInfo']
@@ -70,7 +65,7 @@ class AuthenticatorInfo(Sequence):
             raise KeyError("No such authenticator '%s'." % auth)
         return keys
 
-class LegacyAuthenticatorInfo(object):
+class LegacyAuthenticatorInfo():
     """AuthenticatorInfo for old ICAT server.
 
     This is a dummy implementation to emulate AuthenticatorInfo for

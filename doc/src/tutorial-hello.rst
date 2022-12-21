@@ -22,7 +22,7 @@ Obviously, you'll need to change the variable `url` in this example to
 point to your ICAT server.
 
 If your ICAT server does not have a trusted SSL certificate you may
-get (depending on your Python version) an error instead::
+get an error instead::
 
   $ python hello.py
   Traceback (most recent call last):
@@ -34,11 +34,6 @@ server now or modify your hello program and add a flag
 ``checkCert=False`` to the constructor call like this:
 
 .. literalinclude:: ../tutorial/hello-nocert.py
-
-The future statement at the beginning of the example is only needed to
-compile `print` as a built-in function rather than a statement.  We'll
-use it throughout the tutorial to ensure that the examples will work
-with Python 2 as well as with Python 3.
 
 The class :class:`icat.client.Client` plays the central role in
 python-icat programs.  Most of your code will deal with objects of

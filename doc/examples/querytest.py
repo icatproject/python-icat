@@ -2,19 +2,18 @@
 """Provide some examples on how to use the query module.
 """
 
-from __future__ import print_function
 import logging
+import sys
 import yaml
 import icat
 import icat.config
 from icat.query import Query
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config()
-config.add_variable('datafile', ("datafile",), 
-                    dict(metavar="inputdata.yaml", 
+config.add_variable('datafile', ("datafile",),
+                    dict(metavar="inputdata.yaml",
                          help="name of the input datafile"))
 client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
@@ -28,7 +27,7 @@ if conf.datafile == "-":
     f = sys.stdin
 else:
     f = open(conf.datafile, 'r')
-data = yaml.load(f)
+data = yaml.safe_load(f)
 f.close()
 
 
@@ -56,7 +55,7 @@ print("\nUse investigation id: %d" % invid)
 
 print("\nQuery a datafile by its name, dataset name, and investigation name:")
 df = inp['datafiles'][0]
-conditions = { 
+conditions = {
     "name":"= '%s'" % df['name'],
     "dataset.name":"= '%s'" % df['dataset'],
     "dataset.investigation.name":"= '%s'" % df['investigation'],
@@ -67,7 +66,7 @@ print("%d result(s)" % len(client.search(q)))
 
 print("\nSame example, but use placeholders in the query string now:")
 df = inp['datafiles'][0]
-conditions = { 
+conditions = {
     "name":"= '%(name)s'",
     "dataset.name":"= '%(dataset)s'",
     "dataset.investigation.name":"= '%(investigation)s'",
@@ -78,38 +77,38 @@ print(str(q) % df)
 print("%d result(s)" % len(client.search(str(q) % df)))
 
 print("\nQuery lots of information about one single investigation.")
-includes = { "facility", "type.facility", "investigationInstruments", 
-             "investigationInstruments.instrument.facility", "shifts", 
-             "keywords", "publications", "investigationUsers", 
-             "investigationUsers.user", "investigationGroups", 
-             "investigationGroups.grouping", "parameters", 
+includes = { "facility", "type.facility", "investigationInstruments",
+             "investigationInstruments.instrument.facility", "shifts",
+             "keywords", "publications", "investigationUsers",
+             "investigationUsers.user", "investigationGroups",
+             "investigationGroups.grouping", "parameters",
              "parameters.type.facility" }
-q = Query(client, "Investigation", 
+q = Query(client, "Investigation",
           conditions={"id":"= %d" % invid}, includes=includes)
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nQuery the instruments related to a given investigation.")
-q = Query(client, "Instrument", 
-          order=["name"], 
+q = Query(client, "Instrument",
+          order=["name"],
           conditions={ "investigationInstruments.investigation.id":
-                       "= %d" % invid }, 
+                       "= %d" % invid },
           includes={"facility", "instrumentScientists.user"})
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nThe datafiles related to a given investigation in natural order.")
-q = Query(client, "Datafile", order=True, 
-          conditions={ "dataset.investigation.id":"= %d" % invid }, 
-          includes={"dataset", "datafileFormat.facility", 
+q = Query(client, "Datafile", order=True,
+          conditions={ "dataset.investigation.id":"= %d" % invid },
+          includes={"dataset", "datafileFormat.facility",
                     "parameters.type.facility"})
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nSame example, but skip the investigation in the order.")
-q = Query(client, "Datafile", order=['dataset.name', 'name'], 
-          conditions={ "dataset.investigation.id":"= %d" % invid }, 
-          includes={"dataset", "datafileFormat.facility", 
+q = Query(client, "Datafile", order=['dataset.name', 'name'],
+          conditions={ "dataset.investigation.id":"= %d" % invid },
+          includes={"dataset", "datafileFormat.facility",
                     "parameters.type.facility"})
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
@@ -150,7 +149,7 @@ q.addConditions({"datafileCreateTime":"< '2013-01-01'"})
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
-print("\nUsing \"id in (i)\" rather then \"id = i\" also works.")
+print("\nUsing \"id in (i)\" rather than \"id = i\" also works.")
 print("(This may be needed to work around ICAT Issue 149.)")
 q = Query(client, "Investigation", conditions={"id":"in (%d)" % invid})
 print(str(q))
@@ -167,7 +166,7 @@ print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nThe warning can be suppressed by making the condition explicit.")
-q = Query(client, "Rule", order=['grouping', 'what', 'id'], 
+q = Query(client, "Rule", order=['grouping', 'what', 'id'],
           conditions={"grouping":"IS NOT NULL"})
 print(str(q))
 print("%d result(s)" % len(client.search(q)))

@@ -1,7 +1,6 @@
 """Test setting Suds Options in the client.
 """
 
-from __future__ import print_function
 import pytest
 import icat
 import icat.config

@@ -1,9 +1,9 @@
 """XML data file backend for icatdump.py and icatingest.py.
 """
 
-import sys
-import os
 import datetime
+import os
+import sys
 from lxml import etree
 import icat
 import icat.dumpfile
@@ -25,10 +25,15 @@ except AttributeError:
 class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
     """Backend for reading ICAT data from a XML file.
 
-    This backend accepts a file object, a filename, or a XML tree
-    object (:class:`lxml.etree._ElementTree`) as input.  Note that the
-    latter case requires by definition the complete input to be at
-    once in memory.  This is only useful if the input is small enough.
+    :param client: a client object configured to connect to the ICAT
+        server that the objects in the data file belong to.
+    :type client: :class:`icat.client.Client`
+    :param infile: the data source to read the objects from.  This
+        backend accepts a file object, a file name, or a XML tree
+        object (:class:`lxml.etree._ElementTree`) as input.  Note that
+        the latter case requires by definition the complete input to
+        be at once in memory.  This is only useful if the input is
+        small enough.
     """
 
     mode = "rb"
@@ -36,22 +41,22 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
     """
 
     def __init__(self, client, infile):
-        super(XMLDumpFileReader, self).__init__(client, infile)
+        super().__init__(client, infile)
         self.insttypemap = { c.BeanName:t 
-                             for t,c in self.client.typemap.iteritems() }
+                             for t,c in self.client.typemap.items() }
         if isinstance(self.infile, etree._ElementTree):
             self.getdata = self.getdata_etree
         else:
             self.getdata = self.getdata_file
 
-    def _file_open(self, filename):
-        if filename == "-":
+    def _file_open(self, infile):
+        if infile == "-":
             # lxml requires binary mode
             f = os.fdopen(os.dup(sys.stdin.fileno()), self.mode)
             sys.stdin.close()
             return f
         else:
-            return open(filename, self.mode)
+            return super()._file_open(infile)
 
     def _searchByReference(self, element, objtype, objindex):
         """Search for a referenced object.
@@ -132,24 +137,31 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
 # ------------------------------------------------------------
 
 class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
-    """Backend for writing ICAT data to a XML file."""
+    """Backend for writing ICAT data to a XML file.
+
+    :param client: a client object configured to connect to the ICAT
+        server to search the data objects from.
+    :type client: :class:`icat.client.Client`
+    :param outfile: the data file to write the objects to.  This
+        backend accepts a file object or a file name.
+    """
 
     mode = "wb"
     """File mode suitable for this backend.
     """
 
     def __init__(self, client, outfile):
-        super(XMLDumpFileWriter, self).__init__(client, outfile)
+        super().__init__(client, outfile)
         self.data = etree.Element("data")
 
-    def _file_open(self, filename):
-        if filename == "-":
+    def _file_open(self, outfile):
+        if outfile == "-":
             # lxml requires binary mode
             f = os.fdopen(os.dup(sys.stdout.fileno()), self.mode)
             sys.stdout.close()
             return f
         else:
-            return open(filename, self.mode)
+            return super()._file_open(outfile)
 
     def _entity2elem(self, obj, tag, keyindex):
         """Convert an entity object to an etree.Element."""
@@ -164,7 +176,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                 continue
             elif isinstance(v, bool):
                 v = str(v).lower()
-            elif isinstance(v, (int, long)):
+            elif isinstance(v, int):
                 v = str(v)
             elif isinstance(v, datetime.datetime):
                 if v.tzinfo is not None and v.tzinfo.utcoffset(v) is not None:
@@ -181,10 +193,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                     # the corresponding timezone suffix.
                     v = v.isoformat() + 'Z'
             else:
-                try:
-                    v = str(v)
-                except UnicodeError:
-                    v = unicode(v)
+                v = str(v)
             etree.SubElement(d, attr).text = v
         for attr in sorted(obj.InstRel):
             o = getattr(obj, attr, None)

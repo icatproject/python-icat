@@ -8,61 +8,50 @@ is based on Suds and extends it with ICAT specific features.
 .. _ICAT: https://icatproject.org/
 """
 
-from __future__ import print_function
-try:
-    from distutils.command.build_py import build_py_2to3 as du_build_py
-except ImportError:
-    # Python 2.x
-    from distutils.command.build_py import build_py as du_build_py
+import setuptools
+from setuptools import setup
+import setuptools.command.build_py
 import distutils.command.sdist
-import distutils.core
-from distutils.core import setup
-import distutils.log
+from distutils import log
 from glob import glob
 import os
 import os.path
+from pathlib import Path
 import string
 import sys
 try:
     import distutils_pytest
-except ImportError:
-    pass
+    cmdclass = distutils_pytest.cmdclass
+except (ImportError, AttributeError):
+    cmdclass = dict()
 try:
     import setuptools_scm
     version = setuptools_scm.get_version()
-    with open(".version", "wt") as f:
-        f.write(version)
 except (ImportError, LookupError):
     try:
-        with open(".version", "rt") as f:
-            version = f.read()
-    except (OSError, IOError):
-        distutils.log.warn("warning: cannot determine version number")
+        import _meta
+        version = _meta.__version__
+    except ImportError:
+        log.warn("warning: cannot determine version number")
         version = "UNKNOWN"
 
 
 if sys.version_info < (3, 4):
-    distutils.log.warn("warning: support for Python versions older then 3.4 "
-                       "is deprecated and will be removed in Version 1.0")
+    log.warn("warning: Python %d.%d is not supported! "
+             "This package requires Python 3.4 or newer."
+             % sys.version_info[:2])
 
 
-doclines = __doc__.strip().split("\n")
+docstring = __doc__
 
 
-class init_py(distutils.core.Command):
+class meta(setuptools.Command):
 
-    description = "generate the main __init__.py file"
+    description = "generate meta files"
     user_options = []
-    init_template = '''"""%s"""
+    init_template = '''"""%(doc)s"""
 
-import sys
-import warnings
-
-if sys.version_info < (3, 4):
-    warnings.warn("Support for Python versions older then 3.4 is deprecated  "
-                  "and will be removed in python-icat 1.0", DeprecationWarning)
-
-__version__ = "%s"
+__version__ = "%(version)s"
 
 #
 # Default import
@@ -70,6 +59,9 @@ __version__ = "%s"
 
 from icat.client import *
 from icat.exception import *
+'''
+    meta_template = '''
+__version__ = "%(version)s"
 '''
 
     def initialize_options(self):
@@ -82,20 +74,25 @@ from icat.exception import *
                 self.package_dir[name] = convert_path(path)
 
     def run(self):
+        values = {
+            'version': self.distribution.get_version(),
+            'doc': docstring
+        }
         try:
             pkgname = self.distribution.packages[0]
         except IndexError:
-            distutils.log.warn("warning: no package defined")
+            log.warn("warning: no package defined")
         else:
-            pkgdir = self.package_dir.get(pkgname, pkgname)
-            ver = self.distribution.get_version()
-            if not os.path.isdir(pkgdir):
-                os.mkdir(pkgdir)
-            with open(os.path.join(pkgdir, "__init__.py"), "wt") as f:
-                print(self.init_template % (__doc__, ver), file=f)
+            pkgdir = Path(self.package_dir.get(pkgname, pkgname))
+            if not pkgdir.is_dir():
+                pkgdir.mkdir()
+            with (pkgdir / "__init__.py").open("wt") as f:
+                print(self.init_template % values, file=f)
+        with Path("_meta.py").open("wt") as f:
+            print(self.meta_template % values, file=f)
 
 
-class build_test(distutils.core.Command):
+class build_test(setuptools.Command):
     """Copy all stuff needed for the tests (example scripts, test data)
     into the test directory.
     """
@@ -123,7 +120,7 @@ class build_test(distutils.core.Command):
         destdir = os.path.join("tests", "data")
         self.mkpath(destdir)
         refdumpfiles = ["icatdump-%s.%s" % (ver, ext)
-                        for ver in ("4.4", "4.7", "4.10")
+                        for ver in ("4.4", "4.7", "4.10", "5.0")
                         for ext in ("xml", "yaml")]
         files = ["example_data.yaml",
                  "ingest-datafiles.xml", "ingest-ds-params.xml"] + refdumpfiles
@@ -133,50 +130,62 @@ class build_test(distutils.core.Command):
             self.copy_file(src, dest, preserve_mode=False)
 
 
+# Note: Do not use setuptools for making the source distribution,
+# rather use the good old distutils instead.
+# Rationale: https://rhodesmill.org/brandon/2009/eby-magic/
 class sdist(distutils.command.sdist.sdist):
     def run(self):
-        self.run_command('init_py')
-        distutils.command.sdist.sdist.run(self)
+        self.run_command('meta')
+        super().run()
         subst = {
             "version": self.distribution.get_version(),
             "url": self.distribution.get_url(),
-            "description": self.distribution.get_description(),
-            "long_description": self.distribution.get_long_description(),
+            "description": docstring.split("\n")[0],
+            "long_description": docstring.split("\n", maxsplit=2)[2].strip(),
         }
         for spec in glob("*.spec"):
-            with open(spec, "rt") as inf:
-                with open(os.path.join(self.dist_dir, spec), "wt") as outf:
+            with Path(spec).open('rt') as inf:
+                with Path(self.dist_dir, spec).open('wt') as outf:
                     outf.write(string.Template(inf.read()).substitute(subst))
 
 
-class build_py(du_build_py):
+class build_py(setuptools.command.build_py.build_py):
     def run(self):
-        self.run_command('init_py')
-        du_build_py.run(self)
+        self.run_command('meta')
+        super().run()
 
+
+# There are several forks of the original suds package around, most of
+# them short-lived.  Two of them have been evaluated with python-icat
+# and found to work: suds-jurko and the more recent suds-community.
+# The latter has been renamed to suds.  We don't want to force to use
+# one particular suds clone.  Therefore, we first try if (any clone
+# of) suds is already installed and only add suds to install_requires
+# if not.
+requires = ["packaging"]
+try:
+    import suds
+except ImportError:
+    requires.append("suds")
+
+with Path("README.rst").open("rt", encoding="utf8") as f:
+    readme = f.read()
 
 setup(
     name = "python-icat",
     version = version,
-    description = doclines[0],
-    long_description = "\n".join(doclines[2:]),
+    description = docstring.split("\n")[0],
+    long_description = readme,
+    url = "https://github.com/icatproject/python-icat",
     author = "Rolf Krahl",
     author_email = "rolf.krahl@helmholtz-berlin.de",
-    url = "https://github.com/icatproject/python-icat",
     license = "Apache-2.0",
-    requires = ["suds"],
-    packages = ["icat"],
-    scripts = ["icatdump.py", "icatingest.py", "wipeicat.py"],
     classifiers = [
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
@@ -184,12 +193,16 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    cmdclass = {
-        'build_py': build_py,
-        'build_test': build_test,
-        'init_py': init_py,
-        'sdist': sdist,
-    },
+    packages = ["icat"],
+    python_requires = ">=3.4",
+    install_requires = requires,
+    scripts = ["icatdump.py", "icatingest.py", "wipeicat.py"],
+    cmdclass = dict(cmdclass,
+                    meta=meta,
+                    build_py=build_py,
+                    build_test=build_test,
+                    sdist=sdist),
 )

@@ -9,8 +9,6 @@ ICAT or IDS server, as well as exceptions raised in python-icat.
 Helper
 ------
 
-.. autofunction:: icat.exception.stripCause
-
 .. autoexception:: icat.exception._BaseException
     :members:
     :show-inheritance:
@@ -147,10 +145,6 @@ Exceptions raised by python-icat
     :members:
     :show-inheritance:
 
-.. autoexception:: icat.exception.GenealogyError
-    :members:
-    :show-inheritance:
-
 Exception hierarchy
 -------------------
 
@@ -184,7 +178,6 @@ The class hierarchy for the exceptions is::
    |    +-- SearchAssertionError
    +-- DataConsistencyError
    +-- IDSResponseError
-   +-- GenealogyError
    +-- Warning
         +-- QueryWarning
         |    +-- QueryNullableOrderWarning

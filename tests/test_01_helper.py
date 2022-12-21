@@ -2,18 +2,36 @@
 """
 
 import datetime
-try:
-    # timezone is new in Python 3.2.
-    from datetime import timezone as fo_tz
-except ImportError:
-    try:
-        # jurko Suds provides FixedOffsetTimezone
-        from suds.sax.date import FixedOffsetTimezone as fo_tz
-    except ImportError:
-        # This is original Suds on Python 3.1 or older.  Bad luck.
-        fo_tz = None
+import packaging.version
 import pytest
 from icat.helper import *
+
+@pytest.mark.parametrize(("vstr", "checks"), [
+    ("4.11.1", [
+        (lambda v: v == "4.11.1", True),
+        (lambda v: v < "4.11.1", False),
+        (lambda v: v > "4.11.1", False),
+        (lambda v: v < "5.0.0", True),
+        (lambda v: v > "4.11.0", True),
+        (lambda v: v > "4.9.3", True),
+        (lambda v: v == packaging.version.Version("4.11.1"), True),
+    ]),
+    ("5.0.0-SNAPSHOT", [
+        (lambda v: v == "5.0.0", False),
+        (lambda v: v < "5.0.0", True),
+        (lambda v: v > "4.11.1", True),
+        (lambda v: v == "5.0.0-SNAPSHOT", True),
+        (lambda v: v == "5.0.0a1", True),
+        (lambda v: v < "5.0.0a2", True),
+        (lambda v: v < "5.0.0b1", True),
+    ]),
+])
+def test_version(vstr, checks):
+    """Test class Version.
+    """
+    version = Version(vstr)
+    for check, res in checks:
+        assert check(version) == res
 
 def test_helper_quote():
     """Test simpleqp_quote() and simpleqp_unquote()
@@ -168,21 +186,21 @@ def test_helper_parse_attr_string_date():
     if d.tzinfo:
         assert d.isoformat() == "2008-06-18T07:31:11+00:00"
 
+cest = datetime.timezone(datetime.timedelta(hours=2))
+mdt = datetime.timezone(datetime.timedelta(hours=-6))
 @pytest.mark.parametrize(("dt", "ms"), [
     (datetime.datetime(2008, 6, 18, 7, 31, 11), 1213774271000), 
     ("2008-06-18T07:31:11", 1213774271000),
     pytest.param(datetime.datetime(2008, 6, 18, 7, 31, 11, 
-                                   tzinfo=fo_tz(datetime.timedelta(0))), 
-                 1213774271000, marks=pytest.mark.skipif("fo_tz is None")),
+                                   tzinfo=datetime.timezone.utc), 
+                 1213774271000),
     ("2008-06-18T07:31:11Z", 1213774271000), 
     ("2008-06-18T07:31:11+00:00", 1213774271000), 
-    pytest.param(datetime.datetime(2008, 6, 18, 9, 31, 11, 
-                                   tzinfo=fo_tz(datetime.timedelta(hours=2))), 
-                 1213774271000, marks=pytest.mark.skipif("fo_tz is None")),
+    pytest.param(datetime.datetime(2008, 6, 18, 9, 31, 11, tzinfo=cest), 
+                 1213774271000),
     ("2008-06-18T09:31:11+02:00", 1213774271000), 
-    pytest.param(datetime.datetime(2008, 6, 18, 1, 31, 11, 
-                                   tzinfo=fo_tz(datetime.timedelta(hours=-6))), 
-                 1213774271000, marks=pytest.mark.skipif("fo_tz is None")),
+    pytest.param(datetime.datetime(2008, 6, 18, 1, 31, 11, tzinfo=mdt), 
+                 1213774271000),
     ("2008-06-18T01:31:11-06:00", 1213774271000), 
 ])
 def test_ms_timestamp(dt, ms):

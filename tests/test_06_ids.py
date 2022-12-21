@@ -1,18 +1,15 @@
 """Test upload and download of files to and from IDS.
 """
 
-from __future__ import print_function
 import datetime
-from distutils.version import StrictVersion as Version
 import filecmp
-import os.path
 import time
 import zipfile
 import pytest
 import icat
 import icat.config
-from icat.query import Query
 from icat.ids import DataSelection
+from icat.query import Query
 from conftest import DummyDatafile, UtcTimezone
 from conftest import getConfig, tmpSessionId, tmpClient
 
@@ -166,7 +163,7 @@ def test_upload(tmpdirsec, client, case):
         username = tclient.getUserName()
         dataset = getDataset(tclient, case)
         datafileformat = getDatafileFormat(tclient, case)
-        datafile = tclient.new("datafile", name=os.path.basename(f.fname), 
+        datafile = tclient.new("Datafile", name=f.fname.name,
                                dataset=dataset, datafileFormat=datafileformat)
         tclient.putData(f.fname, datafile)
         df = getDatafile(tclient, case)
@@ -187,7 +184,7 @@ def method(request):
 def test_download(tmpdirsec, client, case, method):
     with tmpClient(confSection=case['dluser'], ids="mandatory") as tclient:
         if len(case['dfs']) > 1:
-            zfname = os.path.join(tmpdirsec, "%s.zip" % case['dsname'])
+            zfname = tmpdirsec / ("%s.zip" % case['dsname'])
             print("\nDownload %s to file %s" % (case['dsname'], zfname))
             dataset = getDataset(tclient, case)
             query = "Datafile <-> Dataset [id=%d]" % dataset.id
@@ -199,9 +196,9 @@ def test_download(tmpdirsec, client, case, method):
                 while not tclient.isDataPrepared(prepid):
                     time.sleep(5)
                 response = tclient.getData(prepid)
-            with open(zfname, 'wb') as f:
+            with zfname.open('wb') as f:
                 copyfile(response, f)
-            zf = zipfile.ZipFile(zfname, 'r')
+            zf = zipfile.ZipFile(str(zfname), 'r')
             zinfos = zf.infolist()
             assert len(zinfos) == len(case['dfs'])
             for df in case['dfs']:
@@ -215,7 +212,7 @@ def test_download(tmpdirsec, client, case, method):
                 assert zi.file_size == df['testfile'].size
         elif len(case['dfs']) == 1:
             df = case['dfs'][0]
-            dfname = os.path.join(tmpdirsec, "dl_%s" % df['dfname'])
+            dfname = tmpdirsec / ("dl_%s" % df['dfname'])
             print("\nDownload %s to file %s" % (case['dsname'], dfname))
             dataset = getDataset(tclient, case)
             query = "Datafile <-> Dataset [id=%d]" % dataset.id
@@ -227,9 +224,9 @@ def test_download(tmpdirsec, client, case, method):
                 while not tclient.isDataPrepared(prepid):
                     time.sleep(5)
                 response = tclient.getData(prepid)
-            with open(dfname, 'wb') as f:
+            with dfname.open('wb') as f:
                 copyfile(response, f)
-            assert filecmp.cmp(df['testfile'].fname, dfname)
+            assert filecmp.cmp(str(df['testfile'].fname), str(dfname))
         else:
             raise RuntimeError("No datafiles for dataset %s" % case['dsname'])
 
@@ -309,7 +306,7 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
     createTime = datetime.datetime(2008, 6, 18, 9, 31, 11, tzinfo=tzinfo)
     dfname = "test_datafileCreateTime_dt.dat"
     f = DummyDatafile(tmpdirsec, dfname, case['size'])
-    datafile = client.new("datafile", name=f.name, 
+    datafile = client.new("Datafile", name=f.name,
                           dataset=dataset, datafileFormat=datafileformat)
     datafile.datafileCreateTime = createTime
     client.putData(f.fname, datafile)
@@ -325,7 +322,7 @@ def test_putData_datafileCreateTime(tmpdirsec, client):
     # Now try the same again with datafileCreateTime set to a string.
     dfname = "test_datafileCreateTime_str.dat"
     f = DummyDatafile(tmpdirsec, dfname, case['size'])
-    datafile = client.new("datafile", name=f.name, 
+    datafile = client.new("Datafile", name=f.name,
                           dataset=dataset, datafileFormat=datafileformat)
     datafile.datafileCreateTime = createTime.isoformat()
     client.putData(f.fname, datafile)
@@ -414,49 +411,3 @@ def test_reset(client, case):
     client.ids.reset(selection)
     status = client.ids.getStatus(selection)
     print("Status of dataset %s is now %s" % (case['dsname'], status))
-
-# Actually, this does not need to be parametrized.  Use
-# pytest.mark.parametrize here just to inherit the implied
-# dependency marker.
-@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
-                    reason="pytest.deprecated_call() does not work properly")
-@pytest.mark.parametrize(("case"), markeddatasets[0:1])
-def test_deprecated_prepared_ids_calls(client, case):
-    """:meth:`icat.ids.IDSClient.resetPrepared`,
-    :meth:`icat.ids.IDSClient.getPreparedDatafileIds`,
-    :meth:`icat.ids.IDSClient.getPreparedData`, and
-    :meth:`icat.ids.IDSClient.getPreparedDataUrl` are 
-    deprecated since 0.17.0.
-    """
-    prepid = client.prepareData([getDataset(client, case)])
-    with pytest.deprecated_call():
-        try:
-            dfids = client.ids.getPreparedDatafileIds(prepid)
-        except icat.VersionMethodError:
-            pass
-    with pytest.deprecated_call():
-        url = client.ids.getPreparedDataUrl(prepid)
-    with pytest.deprecated_call():
-        response = client.ids.getPreparedData(prepid)
-    with pytest.deprecated_call():
-        try:
-            client.ids.resetPrepared(prepid)
-        except icat.VersionMethodError:
-            pass
-
-# Actually, this does not need to be parametrized.  Use
-# pytest.mark.parametrize here just to inherit the implied
-# dependency marker.
-@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
-                    reason="pytest.deprecated_call() does not work properly")
-@pytest.mark.parametrize(("case"), markeddatasets[0:1])
-def test_deprecated_prepared_client_calls(client, case):
-    """:meth:`icat.client.Client.getPreparedData` and
-    :meth:`icat.client.Client.getPreparedDataUrl` are 
-    deprecated since 0.17.0.
-    """
-    prepid = client.prepareData([getDataset(client, case)])
-    with pytest.deprecated_call():
-        url = client.getPreparedDataUrl(prepid)
-    with pytest.deprecated_call():
-        response = client.getPreparedData(prepid)

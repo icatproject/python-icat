@@ -8,7 +8,7 @@ DataCollectionDatafile   : 2
 DataCollectionDataset    : 2
 DataCollectionParameter  : 1
 Datafile                 : 10
-DatafileFormat           : 5
+DatafileFormat           : 6
 DatafileParameter        : 10
 Dataset                  : 8
 DatasetParameter         : 6
@@ -38,6 +38,6 @@ SampleType               : 3
 Shift                    : 4
 Study                    : 1
 StudyInvestigation       : 0
-User                     : 9
+User                     : 10
 UserGroup                : 2
 

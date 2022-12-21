@@ -1,6 +1,5 @@
 #! /usr/bin/python
 
-from __future__ import print_function
 import icat
 import icat.config
 
@@ -38,7 +37,7 @@ if conf.mode.name == "list":
     print(client.search(conf.entity))
 elif conf.mode.name == "create":
     print("creating a new %s object named %s..." % (conf.entity, conf.name))
-    obj = client.new(conf.entity.lower(), name=conf.name)
+    obj = client.new(conf.entity, name=conf.name)
     obj.create()
 elif conf.mode.name == "delete":
     print("deleting the %s object with ID %s..." % (conf.entity, conf.id))

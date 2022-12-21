@@ -1,0 +1,43 @@
+User: db/jbotu
+
+Entity                     count
+--------------------------------
+Application              : 1
+DataCollection           : 1
+DataCollectionDatafile   : 1
+DataCollectionDataset    : 2
+DataCollectionParameter  : 0
+Datafile                 : 5
+DatafileFormat           : 6
+DatafileParameter        : 5
+Dataset                  : 5
+DatasetParameter         : 4
+DatasetType              : 3
+Facility                 : 1
+FacilityCycle            : 20
+Grouping                 : 4
+Instrument               : 3
+InstrumentScientist      : 0
+Investigation            : 2
+InvestigationGroup       : 0
+InvestigationInstrument  : 0
+InvestigationParameter   : 2
+InvestigationType        : 5
+InvestigationUser        : 0
+Job                      : 0
+Keyword                  : 5
+ParameterType            : 9
+PermissibleStringValue   : 6
+PublicStep               : 0
+Publication              : 1
+RelatedDatafile          : 0
+Rule                     : 0
+Sample                   : 2
+SampleParameter          : 1
+SampleType               : 3
+Shift                    : 3
+Study                    : 0
+StudyInvestigation       : 0
+User                     : 10
+UserGroup                : 4
+

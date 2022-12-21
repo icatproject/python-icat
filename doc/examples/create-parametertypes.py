@@ -3,14 +3,11 @@
 # Create some parameter types, (actually just one for testing atm).
 #
 
-from __future__ import print_function
+import logging
 import icat
 import icat.config
-import sys
-import logging
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 client, conf = icat.config.Config().getconfig()
 client.login(conf.auth, conf.credentials)
@@ -43,7 +40,7 @@ hzb = client.assertedSearch("Facility[name='HZB']")[0]
 parametertypes = []
 for pdata in parametertype_data:
     print("ParameterType: creating '%s' ..." % pdata['name'])
-    parametertype = client.new("parameterType")
+    parametertype = client.new("ParameterType")
     parametertype.name = pdata['name']
     parametertype.units = pdata['units']
     parametertype.unitsFullName = pdata['unitsFullName']

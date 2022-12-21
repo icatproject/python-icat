@@ -47,18 +47,56 @@ only a reference to the related object will be included in the data
 file.  The related object must have its own list entry.
 """
 
-import sys
+from collections import ChainMap
 import os
+import sys
 import icat
 from icat.query import Query
+
+
+def _get_retain_entities(client):
+    """Get a list of object types to retain in the index.
+
+    Some objects can't be queried based on their attributes.  They
+    should thus not be discarded from the index.  A particular
+    relevant example is DataCollection.  The list of object types to
+    retain depends on the ICAT schema version and thus on the server
+    we talk to.  That is why we compile that list at runtime.
+
+    The criterion is: we need to retain all object types having any
+    one-to-many relationship and not having a uniqueness constraint.
+    """
+    retain_set = set()
+    for cls in client.typemap.values():
+        if not cls.BeanName:
+            continue
+        if cls.InstMRel and 'id' in cls.Constraint:
+            retain_set.add(cls.BeanName)
+    return frozenset(retain_set)
 
 
 # ------------------------------------------------------------
 # DumpFileReader
 # ------------------------------------------------------------
 
-class DumpFileReader(object):
-    """Base class for backends that read a data file."""
+class DumpFileReader():
+    """Base class for backends that read a data file.
+
+    :param client: a client object configured to connect to the ICAT
+        server that the objects in the data file belong to.  This
+        client will be used among others to instantiate the objects
+        read from the file and to search for related objects.
+    :type client: :class:`icat.client.Client`
+    :param infile: the data source to read the objects from.  It
+        depends on the backend which kind of data source they accept.
+        Most backends will at least accept a file object opened for
+        reading or a :class:`~pathlib.Path` or a :class:`str` with a
+        file name.
+
+    .. versionchanged:: 1.0.0
+        The `infile` parameter also accepts a :class:`~pathlib.Path`
+        object.
+    """
 
     mode = "r"
     """File mode suitable for the backend.
@@ -70,17 +108,21 @@ class DumpFileReader(object):
     def __init__(self, client, infile):
         self.client = client
         self._closefile = False
-        if isinstance(infile, basestring):
+        if hasattr(infile, 'open') or isinstance(infile, str):
             self.infile = self._file_open(infile)
             self._closefile = True
         else:
             self.infile = infile
+        self._retain_entities = _get_retain_entities(client)
+        self.objindex = {}
 
-    def _file_open(self, filename):
-        if filename == "-":
+    def _file_open(self, infile):
+        if hasattr(infile, 'open'):
+            return infile.open(mode=self.mode)
+        elif infile == "-":
             return sys.stdin
         else:
-            return open(filename, self.mode)
+            return open(infile, self.mode)
 
     def __enter__(self):
         return self
@@ -125,20 +167,36 @@ class DumpFileReader(object):
         for data in self.getdata():
             self.client.autoRefresh()
             if resetindex:
-                objindex = {}
+                objindex = ChainMap(dict(), self.objindex)
             for key, obj in self.getobjs_from_data(data, objindex):
                 yield obj
                 obj.truncateRelations()
                 if key:
-                    objindex[key] = obj
+                    if obj.BeanName in self._retain_entities:
+                        self.objindex[key] = obj
+                    else:
+                        objindex[key] = obj
 
 
 # ------------------------------------------------------------
 # DumpFileWriter
 # ------------------------------------------------------------
 
-class DumpFileWriter(object):
-    """Base class for backends that write a data file."""
+class DumpFileWriter():
+    """Base class for backends that write a data file.
+
+    :param client: a client object configured to connect to the ICAT
+        server to search the data objects from.
+    :type client: :class:`icat.client.Client`
+    :param outfile: the data file to write the objects to.  It depends
+        on the backend what they accept here.  Most backends will at
+        least accept a file object opened for writing or a
+        :class:`~pathlib.Path` or a :class:`str` with a file name.
+
+    .. versionchanged:: 1.0.0
+        The `outfile` parameter also accepts a :class:`~pathlib.Path`
+        object.
+    """
 
     mode = "w"
     """File mode suitable for the backend.
@@ -150,18 +208,22 @@ class DumpFileWriter(object):
     def __init__(self, client, outfile):
         self.client = client
         self._closefile = False
-        if isinstance(outfile, basestring):
+        if hasattr(outfile, 'open') or isinstance(outfile, str):
             self.outfile = self._file_open(outfile)
             self._closefile = True
         else:
             self.outfile = outfile
         self.idcounter = {}
+        self._retain_entities = _get_retain_entities(client)
+        self.keyindex = {}
 
-    def _file_open(self, filename):
-        if filename == "-":
+    def _file_open(self, outfile):
+        if hasattr(outfile, 'open'):
+            return outfile.open(mode=self.mode)
+        elif outfile == "-":
             return sys.stdout
         else:
-            return open(filename, self.mode)
+            return open(outfile, self.mode)
 
     def __enter__(self):
         self.head()
@@ -229,7 +291,7 @@ class DumpFileWriter(object):
             :meth:`icat.client.Client.searchChunked` for details.
         :type chunksize: :class:`int`
         """
-        if isinstance(objs, Query) or isinstance(objs, basestring):
+        if isinstance(objs, Query) or isinstance(objs, str):
             objs = self.client.searchChunked(objs, chunksize=chunksize)
         for obj in sorted(objs, key=icat.entity.Entity.__sortkey__):
             # Entities without a constraint will use their id to form
@@ -243,7 +305,10 @@ class DumpFileWriter(object):
                     self.idcounter[t] = 0
                 self.idcounter[t] += 1
                 k = "%s_%08d" % (t, self.idcounter[t])
-                keyindex[(obj.BeanName, obj.id)] = k
+                if obj.BeanName in self._retain_entities:
+                    self.keyindex[(obj.BeanName, obj.id)] = k
+                else:
+                    keyindex[(obj.BeanName, obj.id)] = k
             else:
                 k = obj.getUniqueKey(keyindex=keyindex)
             self.writeobj(k, obj, keyindex)
@@ -266,7 +331,7 @@ class DumpFileWriter(object):
         """
         self.client.autoRefresh()
         if keyindex is None:
-            keyindex = {}
+            keyindex = ChainMap(dict(), self.keyindex)
         self.startdata()
         for o in objs:
             self.writeobjs(o, keyindex, chunksize=chunksize)

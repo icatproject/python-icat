@@ -197,7 +197,7 @@ following query::
      id = 430
      modId = "simple/root"
      modTime = 2021-10-05 14:09:57+00:00
-     doi = "00.0815/inv-00601"
+     doi = "DOI:00.0815/inv-00601"
      endDate = 2010-10-12 15:00:00+00:00
      name = "10100601-ST"
      startDate = 2010-09-30 10:27:24+00:00
@@ -209,7 +209,7 @@ following query::
      id = 431
      modId = "simple/root"
      modTime = 2021-10-05 14:09:58+00:00
-     doi = "00.0815/inv-00409"
+     doi = "DOI:00.0815/inv-00409"
      endDate = 2012-08-06 01:10:08+00:00
      name = "12100409-ST"
      startDate = 2012-07-26 15:44:24+00:00
@@ -417,7 +417,7 @@ This requires an ICAT server version 4.11 or newer though::
   SELECT i.name, o.name, o.complete, t.name FROM Dataset o JOIN o.investigation AS i JOIN o.type AS t
   >>> client.search(query)
   [(08100122-EF, e201215, False, raw), (08100122-EF, e201216, False, raw), (10100601-ST, e208339, False, raw), (10100601-ST, e208341, False, raw), (10100601-ST, e208342, False, raw), (12100409-ST, e208945, False, raw), (12100409-ST, e208946, False, raw), (12100409-ST, e208947, True, analyzed)]
-  
+
 There are also some aggregate functions that may be applied to search
 results.  Let's count all datasets::
 
@@ -809,7 +809,7 @@ first glance, it has a particular use case::
       If it already exists, search and return it, create it, if not.
       """
       try:
-          dataset = client.new("dataset")
+          dataset = client.new("Dataset")
           query = Query(client, "Investigation", conditions={
               "name": "= '%s'" % inv_name
           })

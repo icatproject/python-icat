@@ -15,9 +15,10 @@ Description
 
 .. program:: icatdump
 
-This script queries the content from an ICAT server and serializes
-into a flat file.  The format of that file depends on the backend that
-can be selected with the :option:`--format` option.
+This script queries the content from an ICAT server and serializes it
+into a flat file.  The format of that file depends on the version of
+the ICAT server and the backend that can be selected with the
+:option:`--format` option.
 
 
 Options
@@ -119,7 +120,7 @@ Known Issues and Limitations
 * IDS is not supported: the script only dumps the meta data stored in
   the ICAT, not the content of the files stored in the IDS.
 
-* The script will only writes objects that the user connecting ICAT
+* The output will only contain objects that the user connecting ICAT
   has read permissions for.  The script may need to connect as the
   ICAT root user in order to get the full content.
 
@@ -134,7 +135,7 @@ Known Issues and Limitations
 
 * It is assumed that for each Dataset `ds` in the ICAT where
   `ds.sample` is not NULL, the condition `ds.investigation =
-  ds.sample.investigation` holds.  If this is not satisfied, this
+  ds.sample.investigation` holds.  If this is not satisfied, the
   script will fail with a :exc:`~icat.exception.DataConsistencyError`.
 
 * The partition of the data into chunks is static.  It should rather
@@ -145,8 +146,8 @@ Known Issues and Limitations
   script is retrieving it.  Otherwise the script may fail or the
   dumpfile be inconsistent.
 
-* The script fails if the data contains any `Study` if the ICAT server
-  version is older then 4.6.0.  This is a `bug in icat.server`__.
+* The script fails if the ICAT server is older then 4.6.0 and the data
+  contains any `Study`.  This is a `bug in icat.server`__.
 
 .. __: https://github.com/icatproject/icat.server/issues/155
 

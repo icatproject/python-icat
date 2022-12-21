@@ -1,10 +1,8 @@
 """Test icatdump and icatingest.
 """
 
-from __future__ import print_function
-import os.path
-import pytest
 from subprocess import CalledProcessError
+import pytest
 import icat
 import icat.config
 from icat.query import Query
@@ -12,8 +10,8 @@ from conftest import DummyDatafile, gettestdata, getConfig, callscript
 
 
 # Test input
-ds_params = gettestdata("ingest-ds-params.xml")
-datafiles = gettestdata("ingest-datafiles.xml")
+ds_params = str(gettestdata("ingest-ds-params.xml"))
+datafiles = str(gettestdata("ingest-datafiles.xml"))
 
 @pytest.fixture(scope="module")
 def client(setupicat):
@@ -36,7 +34,7 @@ def dataset(client):
     """
     inv = client.assertedSearch("Investigation [name='10100601-ST']")[0]
     dstype = client.assertedSearch("DatasetType [name='raw']")[0]
-    dataset = client.new("dataset",
+    dataset = client.new("Dataset",
                          name="e208343", complete=False,
                          investigation=inv, type=dstype)
     yield dataset
@@ -105,7 +103,7 @@ def test_ingest_duplicate_throw(client, dataset, cmdargs):
     """
     dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("datasetParameter", numericValue=5.0, 
+    p = client.new("DatasetParameter", numericValue=5.0,
                    dataset=dataset, type=ptype)
     p.create()
     args = cmdargs + ["-i", ds_params]
@@ -129,7 +127,7 @@ def test_ingest_duplicate_ignore(client, dataset, cmdargs):
     """
     dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("datasetParameter", numericValue=5.0, 
+    p = client.new("DatasetParameter", numericValue=5.0,
                    dataset=dataset, type=ptype)
     p.create()
     args = cmdargs + ["-i", ds_params, "--duplicate", "IGNORE"]
@@ -148,7 +146,7 @@ def test_ingest_duplicate_check_err(client, dataset, cmdargs):
     """
     dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("datasetParameter", numericValue=5.0, 
+    p = client.new("DatasetParameter", numericValue=5.0,
                    dataset=dataset, type=ptype)
     p.create()
     args = cmdargs + ["-i", ds_params, "--duplicate", "CHECK"]
@@ -168,7 +166,7 @@ def test_ingest_duplicate_check_ok(client, dataset, cmdargs):
     """
     dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("datasetParameter", numericValue=10.0, 
+    p = client.new("DatasetParameter", numericValue=10.0,
                    dataset=dataset, type=ptype)
     p.create()
     args = cmdargs + ["-i", ds_params, "--duplicate", "CHECK"]
@@ -187,7 +185,7 @@ def test_ingest_duplicate_overwrite(client, dataset, cmdargs):
     """
     dataset.create()
     ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("datasetParameter", numericValue=5.0, 
+    p = client.new("DatasetParameter", numericValue=5.0,
                    dataset=dataset, type=ptype)
     p.create()
     args = cmdargs + ["-i", ds_params, "--duplicate", "OVERWRITE"]
@@ -296,10 +294,10 @@ def test_ingest_duplicate_check_types(tmpdirsec, dataset, cmdargs, inputdata):
         dataset.create()
     # We simply ingest twice the same data, using duplicate=CHECK the
     # second time.  This obviously leads to matching duplicates.
-    inpfile = os.path.join(tmpdirsec, "ingest.xml")
-    with open(inpfile, "wt") as f:
+    inpfile = tmpdirsec / "ingest.xml"
+    with inpfile.open("wt") as f:
         f.write(inputdata)
-    args = cmdargs + ["-i", inpfile]
+    args = cmdargs + ["-i", str(inpfile)]
     callscript("icatingest.py", args)
     callscript("icatingest.py", args + ["--duplicate", "CHECK"])
 
@@ -331,7 +329,7 @@ def test_ingest_datafiles_upload(tmpdirsec, client, dataset, cmdargs):
     dummyfiles = [ DummyDatafile(tmpdirsec, f['dfname'], f['size'], f['mtime'])
                    for f in testdatafiles ]
     args = cmdargs + ["-i", datafiles, "--upload-datafiles", 
-                      "--datafile-dir", tmpdirsec]
+                      "--datafile-dir", str(tmpdirsec)]
     callscript("icatingest.py", args)
     # Verify that the datafiles have been uploaded.
     dataset = client.searchMatching(dataset)

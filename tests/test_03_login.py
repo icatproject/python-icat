@@ -1,13 +1,7 @@
 """Test login to an ICAT server.
 """
 
-from __future__ import print_function
-try:
-    # Python 3
-    from urllib.parse import urlparse
-except ImportError:
-    # Python 2
-    from urlparse import urlparse
+from urllib.parse import urlparse
 import pytest
 import icat
 import icat.config

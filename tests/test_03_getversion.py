@@ -1,7 +1,6 @@
 """Test connect to an ICAT and an IDS server and query the version.
 """
 
-from __future__ import print_function
 import pytest
 import icat
 import icat.config
@@ -19,7 +18,7 @@ def test_get_icat_version():
     # python-icat supports ICAT server 4.3 or newer.  But actually, we
     # just want to check that client.apiversion is set and supports
     # comparison with version strings.
-    assert client.apiversion > '1.0'
+    assert client.apiversion > '1.0.0'
     print("\nConnect to %s\nICAT version %s\n" % (conf.url, client.apiversion))
 
 

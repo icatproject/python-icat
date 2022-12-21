@@ -28,7 +28,7 @@ class GroupingMixin:
         for u in users:
             if u.id in uids:
                 continue
-            ugs.append(self.client.new('userGroup', user=u, grouping=self))
+            ugs.append(self.client.new("UserGroup", user=u, grouping=self))
             uids.add(u.id)
         if ugs:
             self.client.createMany(ugs)
@@ -56,7 +56,7 @@ class InstrumentMixin:
         """
         iss = []
         for u in users:
-            iss.append(self.client.new('instrumentScientist', 
+            iss.append(self.client.new("InstrumentScientist",
                                        instrument=self, user=u))
         if iss:
             self.client.createMany(iss)
@@ -82,7 +82,7 @@ class InvestigationMixin:
     def addInstrument(self, instrument):
         """Add an instrument to the investigation.
         """
-        ii = self.client.new('investigationInstrument', 
+        ii = self.client.new("InvestigationInstrument",
                              investigation=self, instrument=instrument)
         ii.create()
 
@@ -91,7 +91,7 @@ class InvestigationMixin:
         """
         kws = []
         for k in keywords:
-            kws.append(self.client.new('keyword', name=k, investigation=self))
+            kws.append(self.client.new("Keyword", name=k, investigation=self))
         if kws:
             self.client.createMany(kws)
 
@@ -100,7 +100,7 @@ class InvestigationMixin:
         """
         ius = []
         for u in users:
-            ius.append(self.client.new('investigationUser', 
+            ius.append(self.client.new("InvestigationUser",
                                        investigation=self, user=u, role=role))
         if ius:
             self.client.createMany(ius)
@@ -114,7 +114,7 @@ class Investigation44Mixin(InvestigationMixin):
     def addInvestigationGroup(self, group, role=None):
         """Add an investigation group.
         """
-        ig = self.client.new('investigationGroup', investigation=self)
+        ig = self.client.new("InvestigationGroup", investigation=self)
         ig.grouping = group
         ig.role = role
         ig.create()
@@ -151,6 +151,16 @@ _extra_attrs = {
     'DataCollectionDataset': [
         (None, {
             'SortAttrs': ('dataset',),
+        }),
+    ],
+    'DataPublicationDate': [
+        (None, {
+            'SortAttrs': ('publication', 'date', 'dateType'),
+        }),
+    ],
+    'DataPublicationUser': [
+        (None, {
+            'SortAttrs': ('publication', 'contributorType', 'orderKey', 'user'),
         }),
     ],
     'Grouping': [
@@ -228,7 +238,13 @@ def getTypeMap(client):
     :rtype: :class:`dict`
 
     """
-    typemap = { 'entityBaseBean': Entity, }
+    def addType(typemap, cls):
+        instanceName = cls.getInstanceName()
+        typemap[instanceName] = cls
+        typemap[instanceName.lower()] = cls
+
+    typemap = dict()
+    addType(typemap, Entity)
     for beanName in itertools.chain(('Parameter',), client.getEntityNames()):
         try:
             parent = typemap[_parent[beanName]]
@@ -281,6 +297,6 @@ def getTypeMap(client):
             bases = (parent, mixin)
         else:
             bases = (parent,)
-        instanceName = beanName[0].lower() + beanName[1:]
-        typemap[instanceName] = type(str(beanName), bases, attrs)
+        cls = type(str(beanName), bases, attrs)
+        addType(typemap, cls)
     return typemap

@@ -1,7 +1,6 @@
 """YAML data file backend for icatdump.py and icatingest.py.
 """
 
-import sys
 import datetime
 import yaml
 import icat
@@ -29,17 +28,21 @@ entitytypes = [
     'instrumentScientist',
     'parameterType',
     'permissibleStringValue',
+    'dataPublicationType',
     'investigationType',
     'sampleType',
     'datasetType',
     'datafileFormat',
+    'technique',
     'facilityCycle',
     'application',
+    'fundingReference',
     'investigation',
     'investigationParameter',
     'keyword',
     'publication',
     'shift',
+    'investigationFunding',
     'investigationGroup',
     'investigationInstrument',
     'investigationUser',
@@ -47,15 +50,23 @@ entitytypes = [
     'sampleParameter',
     'dataset',
     'datasetParameter',
+    'datasetInstrument',
+    'datasetTechnique',
     'datafile',
     'datafileParameter',
-    'study',
-    'studyInvestigation',
-    'relatedDatafile',
     'dataCollection',
     'dataCollectionParameter',
     'dataCollectionDataset',
     'dataCollectionDatafile',
+    'dataPublication',
+    'dataPublicationDate',
+    'dataPublicationFunding',
+    'dataPublicationUser',
+    'affiliation',
+    'relatedItem',
+    'study',
+    'studyInvestigation',
+    'relatedDatafile',
     'job',
 ]
 
@@ -65,16 +76,23 @@ entitytypes = [
 # ------------------------------------------------------------
 
 class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
-    """Backend for reading ICAT data from a YAML file."""
+    """Backend for reading ICAT data from a YAML file.
 
-    mode = "rt" if sys.version_info > (3, 0) else "rb"
+    :param client: a client object configured to connect to the ICAT
+        server that the objects in the data file belong to.
+    :type client: :class:`icat.client.Client`
+    :param infile: the data source to read the objects from.  This
+        backend accepts a file object or a file name.
+    """
+
+    mode = "rt"
     """File mode suitable for this backend.
     """
 
     def __init__(self, client, infile):
-        super(YAMLDumpFileReader, self).__init__(client, infile)
+        super().__init__(client, infile)
         self.insttypemap = { c.BeanName:t 
-                             for t,c in self.client.typemap.iteritems() }
+                             for t,c in self.client.typemap.items() }
 
     def _dict2entity(self, d, objtype, objindex):
         """Create an entity object from a dict of attributes."""
@@ -127,14 +145,21 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
 # ------------------------------------------------------------
 
 class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
-    """Backend for writing ICAT data to a YAML file."""
+    """Backend for writing ICAT data to a YAML file.
 
-    mode = "wt" if sys.version_info > (3, 0) else "wb"
+    :param client: a client object configured to connect to the ICAT
+        server to search the data objects from.
+    :type client: :class:`icat.client.Client`
+    :param outfile: the data file to write the objects to.  This
+        backend accepts a file object or a file name.
+    """
+
+    mode = "wt"
     """File mode suitable for this backend.
     """
 
     def __init__(self, client, outfile):
-        super(YAMLDumpFileWriter, self).__init__(client, outfile)
+        super().__init__(client, outfile)
         self.data = {}
 
     def _entity2dict(self, obj, keyindex):
@@ -148,7 +173,7 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                 continue
             elif isinstance(v, bool):
                 pass
-            elif isinstance(v, (int, long)):
+            elif isinstance(v, int):
                 v = int(v)
             elif isinstance(v, datetime.datetime):
                 if v.tzinfo is not None and v.tzinfo.utcoffset(v) is not None:
@@ -165,10 +190,7 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                     # the corresponding timezone suffix.
                     v = v.isoformat() + 'Z'
             else:
-                try:
-                    v = str(v)
-                except UnicodeError:
-                    v = unicode(v)
+                v = str(v)
             d[attr] = v
         for attr in obj.InstRel:
             o = getattr(obj, attr, None)

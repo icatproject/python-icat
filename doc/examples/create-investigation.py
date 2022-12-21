@@ -5,23 +5,27 @@
 # This script should be run by the ICAT user useroffice.
 #
 
-from __future__ import print_function
+import logging
+import sys
+import yaml
 import icat
 import icat.config
-import sys
-import logging
-import yaml
+from icat.helper import parse_attr_string
+from icat.query import Query
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config()
-config.add_variable('datafile', ("datafile",), 
-                    dict(metavar="inputdata.yaml", 
+config.add_variable('datafile', ("datafile",),
+                    dict(metavar="inputdata.yaml",
                          help="name of the input datafile"))
-config.add_variable('investigationname', ("investigationname",), 
+config.add_variable('investigationname', ("investigationname",),
                     dict(help="name of the investigation to add"))
 client, conf = config.getconfig()
+
+if client.apiversion < '4.4.0':
+    raise RuntimeError("Sorry, ICAT version %s is too old, need 4.4.0 or newer."
+                       % client.apiversion)
 client.login(conf.auth, conf.credentials)
 
 
@@ -41,7 +45,7 @@ def getUser(client, attrs):
     try:
         return client.assertedSearch("User [name='%s']" % attrs['name'])[0]
     except icat.SearchResultError:
-        user = client.new("user")
+        user = client.new("User")
         initobj(user, attrs)
         user.create()
         return user
@@ -54,7 +58,7 @@ if conf.datafile == "-":
     f = sys.stdin
 else:
     f = open(conf.datafile, 'r')
-data = yaml.load(f)
+data = yaml.safe_load(f)
 f.close()
 
 try:
@@ -90,17 +94,17 @@ try:
 except icat.exception.SearchResultError:
     pass
 else:
-    raise RuntimeError("Investigation: '%s' already exists ..." 
+    raise RuntimeError("Investigation: '%s' already exists ..."
                        % investigationdata['name'])
 
 print("Investigation: creating '%s' ..." % investigationdata['name'])
-investigation = client.new("investigation")
+investigation = client.new("Investigation")
 initobj(investigation, investigationdata)
 investigation.facility = facility
 investigation.type = investigation_type
 if 'parameters' in investigationdata:
     for pdata in investigationdata['parameters']:
-        ip = client.new('investigationParameter')
+        ip = client.new("InvestigationParameter")
         initobj(ip, pdata)
         ptdata = data['parameter_types'][pdata['type']]
         query = ("ParameterType [name='%s' AND units='%s']"
@@ -109,11 +113,33 @@ if 'parameters' in investigationdata:
         investigation.parameters.append(ip)
 if 'shifts' in investigationdata:
     for sdata in investigationdata['shifts']:
-        s = client.new('shift')
+        s = client.new("Shift")
         initobj(s, sdata)
         if 'instrument' in s.InstRel:
             s.instrument = instrument
         investigation.shifts.append(s)
+if 'investigationFacilityCycles' in investigation.InstMRel:
+    # ICAT 5.0 or newer
+    sd = investigation.startDate or investigation.endDate
+    ed = investigation.endDate or investigation.startDate
+    if sd and ed:
+        query = Query(client, "FacilityCycle", conditions={
+            "startDate": "<= '%s'" % parse_attr_string(ed, "Date"),
+            "endDate": "> '%s'" % parse_attr_string(sd, "Date"),
+        })
+        for fc in client.search(query):
+            ifc = client.new("InvestigationFacilityCycle", facilityCycle=fc)
+            investigation.investigationFacilityCycles.append(ifc)
+if 'fundingReferences' in investigation.InstMRel:
+    for fr in investigationdata['fundingReferences']:
+        funding_ref = client.new("FundingReference")
+        initobj(funding_ref, data['fundings'][fr])
+        try:
+            funding_ref.create()
+        except icat.ICATObjectExistsError:
+            funding_ref = client.searchMatching(funding_ref)
+        inv_fund = client.new("InvestigationFunding", funding=funding_ref)
+        investigation.fundingReferences.append(inv_fund)
 investigation.create()
 investigation.addInstrument(instrument)
 investigation.addKeywords(investigationdata['keywords'])
@@ -155,57 +181,6 @@ owngroup = client.createGroup(owngroupname, investigationowner)
 writegroup = client.createGroup(writegroupname, investigationwriter)
 readgroup = client.createGroup(readgroupname, investigationreader)
 
-# ------------------------------------------------------------
-# Setup InvestigationGroups or permissions
-# ------------------------------------------------------------
-
-# InvestigationGroup have been introduced with ICAT 4.4.  If
-# available, just create them.  Then we don't need to setup
-# permissions, as the static rules created in init-icat.py apply.  For
-# older versions of ICAT, we need to setup per investigation rules.
-
-if client.apiversion > '4.3.99':
-
-    investigation.addInvestigationGroup(owngroup, role="owner")
-    investigation.addInvestigationGroup(writegroup, role="writer")
-    investigation.addInvestigationGroup(readgroup, role="reader")
-
-else:
-
-    invcond = "Investigation[name='%s']" % investigation.name
-
-    # Items that are considered to belong to the content of an
-    # investigation, where %s represents the investigation itself.
-    # The writer group will get CRUD permissions and the reader group
-    # R permissions on these items.
-    invwitems = [ "Sample <-> %s",
-                  "Dataset <-> %s",
-                  "Datafile <-> Dataset <-> %s",
-                  "InvestigationParameter <-> %s",
-                  "SampleParameter <-> Sample <-> %s",
-                  "DatasetParameter <-> Dataset <-> %s",
-                  "DatafileParameter <-> Datafile <-> Dataset <-> %s", ]
-
-    # Items that we allow read only access for both readers and
-    # writers, in particular the investigation itself.
-    invritems = [ "%s",
-                  "Shift <-> %s",
-                  "Keyword <-> %s",
-                  "Publication <-> %s", ]
-
-    # set permissions for the writer group
-    client.createRules("R", [ s % invcond for s in invritems ], writegroup)
-    client.createRules("CRUD", [ s % invcond for s in invwitems ], writegroup)
-
-    # set permissions for the reader group
-    client.createRules("R", [ s % invcond for s in invritems ], readgroup)
-    client.createRules("R", [ s % invcond for s in invwitems ], readgroup)
-
-    # set owners permissions
-    items = [ "UserGroup <-> Grouping[name='%s']" % (s) 
-              for s in [ writegroupname, readgroupname ] ]
-    client.createRules("CRUD", items, owngroup)
-    items = [ "Grouping[name='%s']" % (s) 
-              for s in [ writegroupname, readgroupname ] ]
-    client.createRules("R", items, owngroup)
-
+investigation.addInvestigationGroup(owngroup, role="owner")
+investigation.addInvestigationGroup(writegroup, role="writer")
+investigation.addInvestigationGroup(readgroup, role="reader")

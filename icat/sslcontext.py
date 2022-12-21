@@ -6,41 +6,17 @@
 """
 
 import ssl
-from urllib2 import HTTPSHandler
+from urllib.request import HTTPSHandler
 import suds.transport.http
 
 
 def create_ssl_context(verify=True, cafile=None, capath=None):
     """Set up the SSL context.
     """
-    # This is somewhat tricky to do it right and still keep it
-    # compatible across various Python versions.
-
-    try:
-        # The easiest and most secure way.
-        # Requires either Python 2.7.9 or 3.4 or newer.
-        context = ssl.create_default_context(cafile=cafile, capath=capath)
-        if not verify:
-            context.check_hostname = False
-            context.verify_mode = ssl.CERT_NONE
-    except AttributeError:
-        # ssl.create_default_context() is not available.
-        try:
-            context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-        except AttributeError:
-            # We don't even have the SSLContext class.  This smells
-            # Python 2.7.8 or 3.1 or older.  Bad luck.
-            return None
-        context.options |= ssl.OP_NO_SSLv2
-        context.options |= ssl.OP_NO_SSLv3
-        if verify:
-            context.verify_mode = ssl.CERT_REQUIRED
-            if cafile or capath:
-                context.load_verify_locations(cafile, capath)
-            else:
-                context.set_default_verify_paths()
-        else:
-            context.verify_mode = ssl.CERT_NONE
+    context = ssl.create_default_context(cafile=cafile, capath=capath)
+    if not verify:
+        context.check_hostname = False
+        context.verify_mode = ssl.CERT_NONE
     return context
 
 

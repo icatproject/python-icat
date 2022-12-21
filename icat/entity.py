@@ -11,7 +11,7 @@ from icat.helper import simpleqp_quote
 __all__ = ['Entity']
 
 
-class Entity(object):
+class Entity():
     """The base of the classes representing the entities in the ICAT schema.
 
     Entity is the abstract base for a hierarchy of classes
@@ -55,6 +55,14 @@ class Entity(object):
     """
 
     @classmethod
+    def getInstanceName(cls):
+        """Get the name of this class in the ICAT WSDL"""
+        if cls is Entity:
+            return 'entityBaseBean'
+        else:
+            return cls.__name__[0].lower() + cls.__name__[1:]
+
+    @classmethod
     def getInstance(cls, obj):
         """Get the corresponding instance from an object."""
         if obj is None:
@@ -71,7 +79,7 @@ class Entity(object):
         """Translate a list of objects into the list of corresponding
         instances.
         """
-        return map(cls.getInstance, objs)
+        return list(map(cls.getInstance, objs))
 
     @classmethod
     def getAttrInfo(cls, client, attr):
@@ -152,7 +160,6 @@ class Entity(object):
 
 
     def __init__(self, client, instance, **kwargs):
-        super(Entity, self).__init__()
         self.client = client
         self.instance = instance
         for a in kwargs:
@@ -179,7 +186,7 @@ class Entity(object):
                 # the two cases, see ICAT Issue 130.
                 setattr(self.instance, attr, [])
             l = EntityList(self.client, getattr(self.instance, attr))
-            super(Entity, self).__setattr__(attr, l)
+            super().__setattr__(attr, l)
             return l
         elif attr == 'instancetype':
             return self.instance.__class__.__name__
@@ -191,7 +198,7 @@ class Entity(object):
 
     def __setattr__(self, attr, value):
         if attr in self.SelfAttr:
-            super(Entity, self).__setattr__(attr, value)
+            super().__setattr__(attr, value)
         elif attr in self.InstAttr:
             setattr(self.instance, attr, value)
         elif attr in self.InstRel:
@@ -199,7 +206,7 @@ class Entity(object):
         elif attr in self.InstMRel:
             setattr(self.instance, attr, [])
             l = EntityList(self.client, getattr(self.instance, attr))
-            super(Entity, self).__setattr__(attr, l)
+            super().__setattr__(attr, l)
             l.extend(value)
         elif attr in self.AttrAlias:
             setattr(self, self.AttrAlias[attr], value)
@@ -213,7 +220,7 @@ class Entity(object):
                 delattr(self.instance, attr)
         elif attr in self.InstMRel:
             if attr in self.__dict__:
-                super(Entity, self).__delattr__(attr)
+                super().__delattr__(attr)
             if hasattr(self.instance, attr):
                 delattr(self.instance, attr)
         elif attr in self.AttrAlias:
@@ -231,8 +238,8 @@ class Entity(object):
         copied by reference, i.e. the original and the copy refer to
         the same related object.
 
-        >>> inv = client.new("investigation", name="Investigation A")
-        >>> ds = client.new("dataset", investigation=inv, name="Dataset X")
+        >>> inv = client.new("Investigation", name="Investigation A")
+        >>> ds = client.new("Dataset", investigation=inv, name="Dataset X")
         >>> cds = ds.copy()
         >>> cds.name
         'Dataset X'
@@ -301,10 +308,7 @@ class Entity(object):
                 if v is None:
                     v = ''
                 else:
-                    try:
-                        v = str(v)
-                    except UnicodeError:
-                        v = unicode(v)
+                    v = str(v)
             elif attr in self.InstRel:
                 if v is None:
                     v = []
@@ -449,13 +453,13 @@ class EntityList(ListProxy):
     """
 
     def __init__(self, client, instancelist):
-        super(EntityList, self).__init__(instancelist)
+        super().__init__(instancelist)
         self.client = client
 
     def __getitem__(self, index):
-        item = super(EntityList, self).__getitem__(index)
+        item = super().__getitem__(index)
         if isinstance(index, slice):
-            return map(lambda i: self.client.getEntity(i), item)
+            return [self.client.getEntity(i) for i in item]
         else:
             return self.client.getEntity(item)
 
@@ -464,9 +468,9 @@ class EntityList(ListProxy):
             instance = Entity.getInstances(value)
         else:
             instance = Entity.getInstance(value)
-        super(EntityList, self).__setitem__(index, instance)
+        super().__setitem__(index, instance)
 
     def insert(self, index, value):
         instance = Entity.getInstance(value)
-        super(EntityList, self).insert(index, instance)
+        super().insert(index, instance)
 

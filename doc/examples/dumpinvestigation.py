@@ -16,17 +16,16 @@ import icat.dumpfile_xml
 import icat.dumpfile_yaml
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 formats = icat.dumpfile.Backends.keys()
 config = icat.config.Config()
-config.add_variable('file', ("-o", "--outputfile"), 
+config.add_variable('file', ("-o", "--outputfile"),
                     dict(help="output file name or '-' for stdout"),
                     default='-')
-config.add_variable('format', ("-f", "--format"), 
+config.add_variable('format', ("-f", "--format"),
                     dict(help="output file format", choices=formats),
                     default='YAML')
-config.add_variable('investigation', ("investigation",), 
+config.add_variable('investigation', ("investigation",),
                     dict(help="name and optionally visit id "
                          "(separated by a colon) of the investigation"))
 client, conf = config.getconfig()
@@ -82,21 +81,21 @@ usersearch = [("User <-> InvestigationUser <-> Investigation [id=%d]"),
               ("User <-> InstrumentScientist <-> Instrument "
                "<-> InvestigationInstrument <-> Investigation [id=%d]")]
 ptsearch = [("ParameterType INCLUDE Facility, PermissibleStringValue "
-             "<-> InvestigationParameter <-> Investigation [id=%d]"), 
+             "<-> InvestigationParameter <-> Investigation [id=%d]"),
             ("ParameterType INCLUDE Facility, PermissibleStringValue "
-             "<-> SampleParameter <-> Sample <-> Investigation [id=%d]"), 
+             "<-> SampleParameter <-> Sample <-> Investigation [id=%d]"),
             ("ParameterType INCLUDE Facility, PermissibleStringValue "
-             "<-> DatasetParameter <-> Dataset <-> Investigation [id=%d]"), 
+             "<-> DatasetParameter <-> Dataset <-> Investigation [id=%d]"),
             ("ParameterType INCLUDE Facility, PermissibleStringValue "
              "<-> DatafileParameter <-> Datafile <-> Dataset "
              "<-> Investigation [id=%d]"), ]
 
 # The set of objects to be included in the Investigation.
-inv_includes = { "facility", "type.facility", "investigationInstruments", 
-                 "investigationInstruments.instrument.facility", "shifts", 
-                 "keywords", "publications", "investigationUsers", 
-                 "investigationUsers.user", "investigationGroups", 
-                 "investigationGroups.grouping", "parameters", 
+inv_includes = { "facility", "type.facility", "investigationInstruments",
+                 "investigationInstruments.instrument.facility", "shifts",
+                 "keywords", "publications", "investigationUsers",
+                 "investigationUsers.user", "investigationGroups",
+                 "investigationGroups.grouping", "parameters",
                  "parameters.type.facility" }
 
 # The following lists control what ICAT objects are written in each of
@@ -114,7 +113,7 @@ authtypes =   [mergesearch([s % invid for s in usersearch]),
 statictypes = [("Facility ORDER BY name"),
                ("Instrument ORDER BY name "
                 "INCLUDE Facility, InstrumentScientist, User "
-                "<-> InvestigationInstrument <-> Investigation [id=%d]" 
+                "<-> InvestigationInstrument <-> Investigation [id=%d]"
                 % invid),
                (mergesearch([s % invid for s in ptsearch])),
                ("InvestigationType ORDER BY name INCLUDE Facility "
@@ -125,20 +124,20 @@ statictypes = [("Facility ORDER BY name"),
                 "<-> Dataset <-> Investigation [id=%d]" % invid),
                ("DatafileFormat ORDER BY name, version INCLUDE Facility "
                 "<-> Datafile <-> Dataset <-> Investigation [id=%d]" % invid)]
-investtypes = [Query(client, "Investigation", 
-                     conditions={"id":"in (%d)" % invid}, 
-                     includes=inv_includes), 
-               Query(client, "Sample", order=["name"], 
-                     conditions={"investigation.id":"= %d" % invid}, 
-                     includes={"investigation", "type.facility", 
-                               "parameters", "parameters.type.facility"}), 
-               Query(client, "Dataset", order=["name"], 
-                     conditions={"investigation.id":"= %d" % invid}, 
-                     includes={"investigation", "type.facility", "sample", 
-                               "parameters", "parameters.type.facility"}), 
-               Query(client, "Datafile", order=["dataset.name", "name"], 
-                     conditions={"dataset.investigation.id":"= %d" % invid}, 
-                     includes={"dataset", "datafileFormat.facility", 
+investtypes = [Query(client, "Investigation",
+                     conditions={"id":"in (%d)" % invid},
+                     includes=inv_includes),
+               Query(client, "Sample", order=["name"],
+                     conditions={"investigation.id":"= %d" % invid},
+                     includes={"investigation", "type.facility",
+                               "parameters", "parameters.type.facility"}),
+               Query(client, "Dataset", order=["name"],
+                     conditions={"investigation.id":"= %d" % invid},
+                     includes={"investigation", "type.facility", "sample",
+                               "parameters", "parameters.type.facility"}),
+               Query(client, "Datafile", order=["dataset.name", "name"],
+                     conditions={"dataset.investigation.id":"= %d" % invid},
+                     includes={"dataset", "datafileFormat.facility",
                                "parameters", "parameters.type.facility"})]
 
 with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:

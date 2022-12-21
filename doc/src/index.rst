@@ -25,6 +25,8 @@ The most important features include:
 
 .. _ICAT: http://www.icatproject.org/
 
+python-icat supports ICAT server 4.4 and newer.
+
 
 Parts of the documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -32,9 +34,11 @@ Parts of the documentation
 .. toctree::
    :maxdepth: 1
 
+   install
    tutorial
    moduleref
    scripts
+   known-issues
    changelog
 
 

@@ -1,13 +1,11 @@
 """pytest configuration.
 """
 
-from __future__ import print_function
 import datetime
-from distutils.version import StrictVersion as Version
 import locale
 import logging
 import os
-import os.path
+from pathlib import Path
 from random import getrandbits
 import re
 import shutil
@@ -18,6 +16,7 @@ import zlib
 import pytest
 import icat
 import icat.config
+from icat.helper import Version
 try:
     from suds.sax.date import UtcTimezone
 except ImportError:
@@ -39,40 +38,40 @@ logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.CRITICAL)
 logging.getLogger('suds').setLevel(logging.ERROR)
 
-testdir = os.path.dirname(__file__)
+testdir = Path(__file__).resolve().parent
+
+
+def _skip(reason):
+    if Version(pytest.__version__) >= '3.3.0':
+        pytest.skip(reason, allow_module_level=True)
+    else:
+        raise pytest.skip.Exception(reason, allow_module_level=True)
 
 
 # ============================= helper ===============================
 
-if sys.version_info < (3, 0):
-    def buf(seq):
-        return buffer(bytearray(seq))
-else:
-    def buf(seq):
-        return bytearray(seq)
-
-class DummyDatafile(object):
+class DummyDatafile():
     """A dummy file with random content to be used for test upload.
     """
     def __init__(self, directory, name, size, date=None):
         if date is not None:
             date = (date, date)
         self.name = name
-        self.fname = os.path.join(directory, name)
+        self.fname = directory / name
         chunksize = 8192
         crc32 = 0
-        with open(self.fname, 'wb') as f:
+        with self.fname.open('wb') as f:
             while size > 0:
                 if chunksize > size:
                     chunksize = size
-                chunk = buf(getrandbits(8) for _ in range(chunksize))
+                chunk = bytearray(getrandbits(8) for _ in range(chunksize))
                 size -= chunksize
                 crc32 = zlib.crc32(chunk, crc32)
                 f.write(chunk)
         if date:
-            os.utime(self.fname, date)
+            os.utime(str(self.fname), date)
         self.crc32 = "%x" % (crc32 & 0xffffffff)
-        self.stat = os.stat(self.fname)
+        self.stat = self.fname.stat()
         self.size = self.stat.st_size
         if UtcTimezone:
             mtime = int(self.stat.st_mtime)
@@ -84,16 +83,16 @@ class DummyDatafile(object):
 def getConfig(confSection="root", **confArgs):
     """Get the configuration, skip on ConfigError.
     """
-    confFile = os.path.join(testdir, "data", "icat.cfg")
-    if not os.path.isfile(confFile):
-        pytest.skip("no test ICAT server configured")
+    confFile = testdir / "data" / "icat.cfg"
+    if not confFile.is_file():
+        _skip("no test ICAT server configured")
     try:
-        confArgs['args'] = ["-c", confFile, "-s", confSection]
+        confArgs['args'] = ["-c", str(confFile), "-s", confSection]
         client, conf = icat.config.Config(**confArgs).getconfig()
-        conf.cmdargs = ["-c", conf.configFile[0], "-s", conf.configSection]
+        conf.cmdargs = ["-c", str(conf.configFile[0]), "-s", conf.configSection]
         return (client, conf)
     except icat.ConfigError as err:
-        pytest.skip(str(err))
+        _skip(str(err))
 
 
 class tmpSessionId:
@@ -123,8 +122,8 @@ class tmpClient:
 
 
 def gettestdata(fname):
-    fname = os.path.join(testdir, "data", fname)
-    assert os.path.isfile(fname)
+    fname = testdir / "data" / fname
+    assert fname.is_file()
     return fname
 
 
@@ -143,13 +142,7 @@ except:
 
 def require_icat_version(minversion, reason):
     if icat_version < minversion:
-        reason = ("need ICAT server version %s or newer: %s" 
-                  % (minversion, reason))
-        if pytest.__version__ > '3':
-            # see https://github.com/pytest-dev/pytest/issues/2338
-            raise pytest.skip.Exception(reason, allow_module_level=True)
-        else:
-            pytest.skip(reason)
+        _skip("need ICAT server version %s or newer: %s" % (minversion, reason))
 
 
 def get_reference_dumpfile(ext = "yaml"):
@@ -158,14 +151,28 @@ def get_reference_dumpfile(ext = "yaml"):
         fname = "icatdump-4.4.%s" % ext
     elif icat_version < "4.10":
         fname = "icatdump-4.7.%s" % ext
-    else:
+    elif icat_version < "5.0":
         fname = "icatdump-4.10.%s" % ext
+    else:
+        fname = "icatdump-5.0.%s" % ext
     return gettestdata(fname)
 
 
+def get_reference_summary():
+    if icat_version < "5.0":
+        version_suffix = "4"
+    else:
+        version_suffix = "5"
+    users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
+    refsummary = { "root": gettestdata("summary-%s" % version_suffix) }
+    for u in users:
+        refsummary[u] = gettestdata("summary-%s.%s" % (version_suffix, u))
+    return refsummary
+
+
 def callscript(scriptname, args, stdin=None, stdout=None, stderr=None):
-    script = os.path.join(testdir, "scripts", scriptname)
-    cmd = [sys.executable, script] + args
+    script = testdir / "scripts" / scriptname
+    cmd = [sys.executable, str(script)] + args
     print("\n>", *cmd)
     subprocess.check_call(cmd, stdin=stdin, stdout=stdout, stderr=stderr)
 
@@ -184,7 +191,7 @@ def filter_file(infile, outfile, pattern, repl):
     call.  Such as the header of a dump file that contains date and
     ICAT version.
     """
-    with open(infile, 'rt') as inf, open(outfile, 'wt') as outf:
+    with infile.open('rt') as inf, outfile.open('wt') as outf:
         while True:
             l = inf.readline()
             if not l:
@@ -202,7 +209,7 @@ def filter_file(infile, outfile, pattern, repl):
 @pytest.fixture(scope="session")
 def tmpdirsec(request):
     tmpdir = tempfile.mkdtemp(prefix="python-icat-test-")
-    yield tmpdir
+    yield Path(tmpdir)
     shutil.rmtree(tmpdir)
 
 
@@ -216,7 +223,7 @@ def standardCmdArgs():
 def setupicat(standardCmdArgs):
     testcontent = get_reference_dumpfile()
     callscript("wipeicat.py", standardCmdArgs)
-    args = standardCmdArgs + ["-f", "YAML", "-i", testcontent]
+    args = standardCmdArgs + ["-f", "YAML", "-i", str(testcontent)]
     callscript("icatingest.py", args)
 
 # ============================= hooks ================================
@@ -224,7 +231,7 @@ def setupicat(standardCmdArgs):
 def pytest_report_header(config):
     """Add information on the icat package used in the tests.
     """
-    modpath = os.path.dirname(os.path.abspath(icat.__file__))
+    modpath = Path(icat.__file__).resolve().parent
     if icat_version > "0.0":
         icatserver = icat_version
     else:

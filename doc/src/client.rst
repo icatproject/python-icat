@@ -9,7 +9,7 @@ that manages the interaction with an ICAT service as a client.
 .. autoclass:: icat.client.Client
     :show-inheritance:
 
-    **Class attributes**
+    .. rubric:: Class attributes
 
     .. attribute:: Register
 
@@ -20,7 +20,7 @@ that manages the interaction with an ICAT service as a client.
         Number of minutes to leave in the session before automatic
         refresh should be called.
 
-    **Instance attributes**
+    .. rubric:: Instance attributes
 
     .. attribute:: url
 
@@ -59,7 +59,7 @@ that manages the interaction with an ICAT service as a client.
         to the corresponding classes in the
         :class:`icat.entity.Entity` hierarchy.
 
-    **Class and instance methods**
+    .. rubric:: Class and instance methods
 
     .. automethod:: cleanupall
 
@@ -75,7 +75,7 @@ that manages the interaction with an ICAT service as a client.
 
     .. automethod:: getEntity
 
-    **ICAT API methods**
+    .. rubric:: ICAT API methods
 
     These methods implement the low level API calls of the ICAT
     server.  See the documentation in the `ICAT SOAP Manual`_.  (Note:
@@ -120,7 +120,7 @@ that manages the interaction with an ICAT service as a client.
 
     .. automethod:: update
 
-    **Custom API methods**
+    .. rubric:: Custom API methods
 
     These higher level methods build on top of the ICAT API methods.
 
@@ -140,7 +140,7 @@ that manages the interaction with an ICAT service as a client.
 
     .. automethod:: createRules
 
-    **Custom IDS methods**
+    .. rubric:: Custom IDS methods
 
     These methods provide the most commonly needed IDS functionality
     and build on top of the low level IDS API methods provided by
@@ -155,10 +155,6 @@ that manages the interaction with an ICAT service as a client.
     .. automethod:: prepareData
 
     .. automethod:: isDataPrepared
-
-    .. automethod:: getPreparedData
-
-    .. automethod:: getPreparedDataUrl
 
     .. automethod:: deleteData
 

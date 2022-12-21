@@ -1,17 +1,14 @@
 """Test the icat.query module.
 """
 
-from __future__ import print_function
 import datetime
-from distutils.version import StrictVersion as Version
 import re
-import sys
 import warnings
 import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import getConfig, require_icat_version, UtcTimezone
+from conftest import getConfig, icat_version, require_icat_version, UtcTimezone
 
 
 @pytest.fixture(scope="module")
@@ -24,7 +21,8 @@ def client(setupicat):
 # Note: the number of objects returned in the queries and their
 # attributes obviously depend on the content of the ICAT and need to
 # be kept in sync with the reference input used in the setupicat
-# fixture.
+# fixture.  This content also depends on the version of ICAT server we
+# are talking to and the ICAT schema this server provides.
 #
 # Note: the exact query string is considered an implementation detail
 # that is deliberately not tested here.  We limit the tests to check
@@ -33,6 +31,12 @@ def client(setupicat):
 
 investigation = None
 tzinfo = UtcTimezone() if UtcTimezone else None
+
+# The the actual number of rules in the test data differs with the
+# ICAT version.
+have_icat_5 = 0 if icat_version < "5.0" else 1
+all_rules = 110 + 48*have_icat_5
+grp_rules = 50 + 30*have_icat_5
 
 @pytest.mark.dependency(name='get_investigation')
 def test_query_simple(client):
@@ -191,7 +195,7 @@ def test_query_datacollection(client):
     assert query.include_clause is None
     assert query.limit_clause is None
     res = client.search(query)
-    assert len(res) == 2
+    assert len(res) == 3 + 2*have_icat_5
 
 def test_query_datafiles_datafileformat(client, recwarn):
     """Datafiles ordered by format.
@@ -211,7 +215,7 @@ def test_query_datafiles_datafileformat(client, recwarn):
     assert query.include_clause is None
     assert query.limit_clause is None
     res = client.search(query)
-    assert len(res) == 10
+    assert len(res) == 10 + have_icat_5
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_order_direction(client):
@@ -291,7 +295,7 @@ def test_query_condition_greaterthen(client):
     assert query.join_clause is None
     assert "datafileCreateTime" in query.where_clause
     res = client.search(query)
-    assert len(res) == 4
+    assert len(res) == 4 + have_icat_5
     condition = {"datafileCreateTime": "< '2012-01-01'"}
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
@@ -309,7 +313,7 @@ def test_query_condition_list(client):
     assert "datafileCreateTime" in query.where_clause
     qstr = str(query)
     res = client.search(query)
-    assert len(res) == 3
+    assert len(res) == 3 + have_icat_5
 
     # The last example also works by adding the conditions separately.
     query = Query(client, "Datafile")
@@ -318,11 +322,11 @@ def test_query_condition_list(client):
     print(str(query))
     assert str(query) == qstr
     res = client.search(query)
-    assert len(res) == 3
+    assert len(res) == 3 + have_icat_5
 
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_in_operator(client):
-    """Using "id in (i)" rather then "id = i" also works.
+    """Using "id in (i)" rather than "id = i" also works.
     (This may be needed to work around ICAT Issue 128.)
     """
     query = Query(client, "Investigation",
@@ -346,7 +350,7 @@ def test_query_condition_obj(client):
     print(str(query))
     assert "Rule" in query.select_clause
     res = client.search(query)
-    assert len(res) == 60
+    assert len(res) == all_rules - grp_rules
 
 def test_query_condition_jpql_function(client):
     """Functions may be applied to field names of conditions.
@@ -371,7 +375,8 @@ def test_query_condition_jpql_function_namelen(client):
     of the JPQL function in the condition is easier to verify in the
     result.
     """
-    conditions = { "LENGTH(fullName)": "> 11" }
+    conditions = { "name": "LIKE 'db/%'",
+                   "LENGTH(fullName)": "> 11" }
     query = Query(client, "User", conditions=conditions)
     print(str(query))
     assert "User" in query.select_clause
@@ -385,7 +390,8 @@ def test_query_condition_jpql_function_mixed(client):
     This test case failed for an early implementation of JPQL
     functions, see discussion in #89.
     """
-    conditions = { "LENGTH(fullName)": "> 11", "fullName": "> 'C'" }
+    conditions = { "name": "LIKE 'db/%'",
+                   "LENGTH(fullName)": "> 11", "fullName": "> 'C'" }
     query = Query(client, "User", conditions=conditions)
     print(str(query))
     assert "User" in query.select_clause
@@ -401,12 +407,11 @@ def test_query_order_jpql_function(client):
     fullName.  (In the example data, the longest and second longest
     fullName is somewhat ambiguous due to character encoding issues.)
     """
-    query = Query(client, "User",
+    query = Query(client, "User", conditions={ "name": "LIKE 'db/%'" },
                   order=[("LENGTH(fullName)", "DESC")], limit=(2,1))
     print(str(query))
     assert "User" in query.select_clause
     assert query.join_clause is None
-    assert query.where_clause is None
     assert "LENGTH" in query.order_clause
     assert query.limit_clause is not None
     res = client.search(query)
@@ -423,7 +428,7 @@ def test_query_rule_order(client):
     assert query.where_clause is None
     assert "id" in query.order_clause
     res = client.search(query)
-    assert len(res) == 104
+    assert len(res) == all_rules
 
 def test_query_rule_order_group(client, recwarn):
     """Ordering rule on grouping implicitely adds a "grouping IS NOT NULL"
@@ -442,7 +447,7 @@ def test_query_rule_order_group(client, recwarn):
     assert query.where_clause is None
     assert "what" in query.order_clause
     res = client.search(query)
-    assert len(res) == 44
+    assert len(res) == grp_rules
 
 def test_query_rule_order_group_suppress_warn_cond(client, recwarn):
     """The warning can be suppressed by making the condition explicit.
@@ -457,7 +462,7 @@ def test_query_rule_order_group_suppress_warn_cond(client, recwarn):
     assert "grouping" in query.where_clause
     assert "what" in query.order_clause
     res = client.search(query)
-    assert len(res) == 44
+    assert len(res) == grp_rules
 
 def test_query_rule_order_group_suppress_warn_join(client, recwarn):
     """Another option to suppress the warning is to override the JOIN spec.
@@ -474,7 +479,7 @@ def test_query_rule_order_group_suppress_warn_join(client, recwarn):
     assert query.where_clause is None
     assert "what" in query.order_clause
     res = client.search(query)
-    assert len(res) == 44
+    assert len(res) == grp_rules
 
 def test_query_rule_order_group_left_join(client, recwarn):
     """Another option to suppress the warning is to override the JOIN spec.
@@ -490,10 +495,10 @@ def test_query_rule_order_group_left_join(client, recwarn):
     assert query.where_clause is None
     assert "what" in query.order_clause
     res = client.search(query)
-    assert len(res) == 104
+    assert len(res) == all_rules
 
 def test_query_order_one_to_many(client, recwarn):
-    """Sort on a related object in a one yo many relation.
+    """Sort on a related object in a one to many relation.
     This has been enabled in #84, but a warning is still emitted.
     """
     recwarn.clear()
@@ -528,7 +533,7 @@ def test_query_order_one_to_many_warning_suppressed(client, recwarn):
     assert len(res) == 3
 
 def test_query_order_one_to_many_duplicate(client, recwarn):
-    """Note that sorting on a one yo many relation may have surprising
+    """Note that sorting on a one to many relation may have surprising
     effects on the result list.  That is why class Query emits a
     warning.
     You may get duplicates in the result.
@@ -554,7 +559,7 @@ def test_query_order_one_to_many_duplicate(client, recwarn):
     assert set(res) == set(reference)
 
 def test_query_order_one_to_many_missing(client, recwarn):
-    """Note that sorting on a one yo many relation may have surprising
+    """Note that sorting on a one to many relation may have surprising
     effects on the result list.  That is why class Query emits a
     warning.
     You may get misses in the result.
@@ -602,7 +607,7 @@ def test_query_order_suppress_warnings(client, recwarn):
     assert len(res) == 3
 
 def test_query_limit(client):
-    """Add a LIMIT clause to the last example.
+    """Add a LIMIT clause to an earlier example.
     """
     query = Query(client, "Rule", order=['grouping', 'what', 'id'],
                   conditions={"grouping":"IS NOT NULL"})
@@ -622,18 +627,19 @@ def test_query_limit_placeholder(client):
     query = Query(client, "Rule", order=['grouping', 'what', 'id'],
                   conditions={"grouping":"IS NOT NULL"})
     query.setLimit( ("%d","%d") )
+    chunksize = 45
     print(str(query))
-    print(str(query) % (0,30))
+    print(str(query) % (0,chunksize))
     assert "Rule" in query.select_clause
     assert "grouping" in query.join_clause
     assert "grouping" in query.where_clause
     assert "what" in query.order_clause
     assert query.limit_clause is not None
-    res = client.search(str(query) % (0,30))
-    assert len(res) == 30
-    print(str(query) % (30,30))
-    res = client.search(str(query) % (30,30))
-    assert len(res) == 14
+    res = client.search(str(query) % (0,chunksize))
+    assert len(res) == chunksize
+    print(str(query) % (chunksize,chunksize))
+    res = client.search(str(query) % (chunksize,chunksize))
+    assert len(res) == grp_rules - chunksize
 
 def test_query_non_ascii(client):
     """Test if query strings with non-ascii characters work.
@@ -646,10 +652,7 @@ def test_query_non_ascii(client):
     fullName = b'Rudolph Beck-D\xc3\xbclmen'.decode('utf8')
     query = Query(client, "User",
                   conditions={ "fullName": "= '%s'" % fullName })
-    if sys.version_info < (3, 0):
-        print(unicode(query))
-    else:
-        print(str(query))
+    print(str(query))
     assert "User" in query.select_clause
     assert query.join_clause is None
     assert fullName in query.where_clause
@@ -712,7 +715,7 @@ def test_query_include_1(client):
 def test_query_attribute_datafile_name(client):
     """The datafiles names related to a given investigation in natural order.
 
-    Querying attributes rather then entire objects is a new feature
+    Querying attributes rather than entire objects is a new feature
     added in Issue #28.
     """
     query = Query(client, "Datafile", attributes="name", order=True,
@@ -856,31 +859,6 @@ def test_query_mulitple_attributes_distinct(client):
     assert len(res) > len(res_dist)
     assert set(res) == set(res_dist)
 
-@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
-                    reason="pytest.deprecated_call() does not work properly")
-def test_query_deprecated_kwarg_attribute(client):
-    """the keyword argument `attribute` to :class:`icat.query.Query`
-    is deprecated since 0.18.0.
-    """
-    # create a reference using the new keyword argument
-    ref_query = Query(client, "Datafile", attributes="name")
-    with pytest.deprecated_call():
-        query = Query(client, "Datafile", attribute="name")
-    assert str(query) == str(ref_query)
-
-@pytest.mark.skipif(Version(pytest.__version__) < "3.9.0",
-                    reason="pytest.deprecated_call() does not work properly")
-def test_query_deprecated_method_setAttribute(client):
-    """:meth:`icat.query.Query.setAttribute` is deprecated since 0.18.0.
-    """
-    # create a reference using the new method
-    ref_query = Query(client, "Datafile")
-    ref_query.setAttributes("name")
-    with pytest.deprecated_call():
-        query = Query(client, "Datafile")
-        query.setAttribute("name")
-    assert str(query) == str(ref_query)
-
 @pytest.mark.dependency(depends=['get_investigation'])
 def test_query_aggregate_distinct_attribute(client):
     """Test DISTINCT on an attribute in the search result.
@@ -945,9 +923,9 @@ def test_query_aggregate_distinct_related_obj(client):
     ("fileSize", "MIN", 394),
     ("fileSize", "SUM", 127125),
     # Note that the number of datafiles is four which is a power of
-    # two.  Therefore we may assume the double representation of an
-    # average of integers is exact, so we may even dare to compare
-    # the double value for equality.
+    # two.  Therefore we may assume the float representation of an
+    # average of integers is exact, so we may even dare to compare the
+    # float value for equality.
     ("fileSize", "AVG", 31781.25),
     ("name", "MAX", "e208341.nxs"),
     ("name", "MIN", "e208339.dat"),

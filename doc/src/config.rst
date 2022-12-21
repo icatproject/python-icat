@@ -46,7 +46,7 @@ added.  The main class that client programs interact with is
 
     Class attributes (read only):
 
-    .. attribute:: ReservedVariables = ['configDir', 'credentials']
+    .. attribute:: ReservedVariables = ['credentials']
 
         Reserved names of configuration variables.
 
@@ -65,7 +65,7 @@ added.  The main class that client programs interact with is
 
         The :class:`icat.client.Client` object initialized according to
 	the configuration.  This is also the first element in the
-	return value if :meth:`getconfig`.
+	return value from :meth:`getconfig`.
 
     .. attribute:: client_kwargs
 
@@ -90,22 +90,25 @@ The constructor of :class:`icat.config.Config` sets up the following
 set of configuration variables that an ICAT client typically needs:
 
   `configFile`
-    Name of the configuration file to read.
+    Paths of the configuration files to read.  The default is a list
+    of standard paths that depends on the operating system.  If a
+    value is provided, it must be a single path.  The value that is
+    set in this variable after configuration is a list of
+    :class:`~pathlib.Path` objects of the files that have successfully
+    been read.
 
   `configSection`
     Name of the section in the configuration file to apply.  If
     not set, no values will be read from the configuration file.
 
   `url`
-    URL to the web service description of the ICAT server.
+    URL of the web service description of the ICAT server.
 
   `idsurl`
-    URL to the ICAT Data Service.
+    URL of the ICAT Data Service.
 
   `checkCert`
     Verify the server certificate for HTTPS connections.
-    Note that this requires either Python 2.7.9 or 3.2 or newer.
-    With older Python version, this option has no effect.
 
   `http_proxy`
     Proxy to use for HTTP requests.
@@ -132,17 +135,10 @@ set of configuration variables that an ICAT client typically needs:
 A few derived variables are also set in
 :meth:`icat.config.Config.getconfig`:
 
-  `configDir`
-    the directory where (the last) configFile has been found.
-
   `credentials`
     contains the credentials needed for the indicated authenticator
     (username and password if authenticator information is not
     available) suitable to be passed to :meth:`icat.client.Client.login`.
-
-.. deprecated:: 0.13
-   The derived variable `configDir` is deprecated and will be removed
-   in version 1.0.
 
 The command line arguments, environment variables, and default values
 for the configuration variables are as follows:
@@ -152,11 +148,11 @@ for the configuration variables are as follows:
 +=================+=============================+=======================+================+===========+==============+
 | `configFile`    | ``-c``, ``--configfile``    | ``ICAT_CFG``          | depends        | no        | \(1)         |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `configSection` | ``-s``, ``--configsection`` | ``ICAT_CFG_SECTION``  | :const:`None`  | no        | \(2)         |
+| `configSection` | ``-s``, ``--configsection`` | ``ICAT_CFG_SECTION``  | :const:`None`  | no        |              |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
 | `url`           | ``-w``, ``--url``           | ``ICAT_SERVICE``      |                | yes       |              |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `idsurl`        | ``--idsurl``                | ``ICAT_DATA_SERVICE`` | :const:`None`  | depends   | \(3)         |
+| `idsurl`        | ``--idsurl``                | ``ICAT_DATA_SERVICE`` | :const:`None`  | depends   | \(2)         |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
 | `checkCert`     | ``--check-certificate``,    |                       | :const:`True`  | no        |              |
 |                 | ``--no-check-certificate``  |                       |                |           |              |
@@ -167,13 +163,13 @@ for the configuration variables are as follows:
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
 | `no_proxy`      | ``--no-proxy``              | ``no_proxy``          | :const:`None`  | no        |              |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `auth`          | ``-a``, ``--auth``          | ``ICAT_AUTH``         |                | yes       | \(4)         |
+| `auth`          | ``-a``, ``--auth``          | ``ICAT_AUTH``         |                | yes       | \(3)         |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `username`      | ``-u``, ``--user``          | ``ICAT_USER``         |                | yes       | \(4),(5)     |
+| `username`      | ``-u``, ``--user``          | ``ICAT_USER``         |                | yes       | \(3),(4)     |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `password`      | ``-p``, ``--pass``          |                       | interactive    | yes       | \(4),(5),(6) |
+| `password`      | ``-p``, ``--pass``          |                       | interactive    | yes       | \(3),(4),(5) |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `promptPass`    | ``-P``, ``--prompt-pass``   |                       | :const:`False` | no        | \(4),(5),(6) |
+| `promptPass`    | ``-P``, ``--prompt-pass``   |                       | :const:`False` | no        | \(3),(4),(5) |
 +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
 
 Mandatory means that an error will be raised in
@@ -184,20 +180,17 @@ Notes:
 
 1. The default value for `configFile` depends on the operating system.
 
-2. The default value for `configSection` may be changed in
-   :data:`icat.config.defaultsection`.
-
-3. The configuration variable `idsurl` will not be set up at all, or
+2. The configuration variable `idsurl` will not be set up at all, or
    be set up as a mandatory, or as an optional variable, if the `ids`
    argument to the constructor of :class:`icat.config.Config` is set
    to :const:`False`, to "mandatory", or to "optional" respectively.
 
-4. If the argument `needlogin` to the constructor of
+3. If the argument `needlogin` to the constructor of
    :class:`icat.config.Config` is set to :const:`False`, the
    configuration variables `auth`, `username`, `password`,
    `promptPass`, and `credentials` will be left out.
 
-5. If the ICAT server supports the
+4. If the ICAT server supports the
    :meth:`icat.client.Client.getAuthenticatorInfo` API call
    (icat.server 4.9.0 and newer), the server will be queried about the
    credentials required for the authenticator indicated by the value
@@ -206,7 +199,7 @@ Notes:
    setup only if any of the credentials is marked as hidden in the
    authenticator information.
 
-6. The user will be prompted for the password if `promptPass` is
+5. The user will be prompted for the password if `promptPass` is
    :const:`True`, if no `password` is provided in the command line or
    the configuration file, or if the `username`, but not the
    `password` has been provided by command line arguments.  This

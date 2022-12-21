@@ -5,13 +5,7 @@ throughout all the tests and thus is implicitly tested, not only in
 this module.
 """
 
-from __future__ import print_function
-try:
-    # Python 3.3 and newer
-    from collections.abc import Iterable, Callable, Sequence
-except ImportError:
-    # Python 2
-    from collections import Iterable, Callable, Sequence
+from collections.abc import Iterable, Callable, Sequence
 import datetime
 import pytest
 import icat
@@ -42,27 +36,53 @@ def test_logout_no_session_error(client):
     with tmpSessionId(client, "-=- Invalid -=-"):
         client.logout()
 
+# ========================== test new() ============================
+
+def test_new_obj_instance(client):
+    """Pass an instance object to new.
+    """
+    entity = client.assertedSearch("Facility")[0]
+    obj = client.new(entity.instance)
+    assert obj == entity
+
+@pytest.mark.parametrize(("typename", "beanname"), [
+    ("investigation", "Investigation"),
+    ("Investigation", "Investigation"),
+    ("INVESTIGATION", "Investigation"),
+    ("investigationUser", "InvestigationUser"),
+    ("InvestigationUser", "InvestigationUser"),
+    ("INVESTIGATIONUSER", "InvestigationUser"),
+])
+def test_new_obj_name(client, typename, beanname):
+    """Pass the name of the object type to new.
+
+    In earlier versions, this name was case sensitive and needed to be
+    spelled as indicated in the WSDL downloaded from icat.server.  In
+    #104, this has been changed, so that the type name is case
+    insensitive now.  As result, the type can now be spelled as in the
+    ICAT schema.
+    """
+    obj = client.new(typename)
+    assert obj.BeanName == beanname
+
+def test_new_obj_none(client):
+    """Pass None to new.
+    """
+    assert client.new(None) is None
+
 # ======================== test search() ===========================
 
-try:
-    # datetime.timezone has been added in Python 3.2
-    cet = datetime.timezone(datetime.timedelta(hours=1))
-    cest = datetime.timezone(datetime.timedelta(hours=2))
-except AttributeError:
-    # Old Python
-    cet = None
-    cest = None
+cet = datetime.timezone(datetime.timedelta(hours=1))
+cest = datetime.timezone(datetime.timedelta(hours=2))
 
 @pytest.mark.parametrize(("query", "result"), [
-    pytest.param("SELECT o.name, o.title, o.startDate FROM Investigation o",
-                 [("08100122-EF", "Durol single crystal",
-                   datetime.datetime(2008, 3, 13, 11, 39, 42, tzinfo=cet)),
-                  ("10100601-ST", "Ni-Mn-Ga flat cone",
-                   datetime.datetime(2010, 9, 30, 12, 27, 24, tzinfo=cest)),
-                  ("12100409-ST", "NiO SC OF1 JUH HHL",
-                   datetime.datetime(2012, 7, 26, 17, 44, 24, tzinfo=cest))],
-                 marks=pytest.mark.skipif("cet is None",
-                                          reason="require datetime.timezone")),
+    ("SELECT o.name, o.title, o.startDate FROM Investigation o",
+     [("08100122-EF", "Durol single crystal",
+       datetime.datetime(2008, 3, 13, 11, 39, 42, tzinfo=cet)),
+      ("10100601-ST", "Ni-Mn-Ga flat cone",
+       datetime.datetime(2010, 9, 30, 12, 27, 24, tzinfo=cest)),
+      ("12100409-ST", "NiO SC OF1 JUH HHL",
+       datetime.datetime(2012, 7, 26, 17, 44, 24, tzinfo=cest))]),
     ("SELECT i.name, ds.name FROM Dataset ds JOIN ds.investigation AS i "
      "WHERE i.startDate < '2011-01-01'",
      [("08100122-EF", "e201215"),
@@ -140,7 +160,6 @@ def test_assertedSearch_range_exact_query(client):
     assert len(objs) == 3
     assert objs[0].BeanName == "User"
 
-@pytest.mark.skipif(cet is None, reason="require datetime.timezone")
 def test_assertedSearch_unique_mulitple_fields(client):
     """Search for some attributes of a unique object with assertedSearch().
     """
@@ -200,10 +219,9 @@ def test_searchChunked_chunksize(client):
     """
     # chunksize is an internal tuning parameter in searchChunked()
     # that should not have any visible impact on the result.  So we
-    # may test the same assumptions as above.  We choose the
-    # chunksize small enough such that that the result cannot be
-    # fetched at once and thus force searchChunked() to repeat the
-    # search internally.
+    # may test the same assumptions as above.  We choose the chunksize
+    # small enough such that the result cannot be fetched at once and
+    # thus force searchChunked() to repeat the search internally.
     query = "User"
     users = client.search(query)
     chunksize = int(len(users)/2)
@@ -390,13 +408,13 @@ def test_searchUniqueKey_objindex_preset(client):
 def test_searchMatching_simple(client):
     """Search a few objects with searchMatching()
     """
-    facility = client.new("facility", name="ESNF")
+    facility = client.new("Facility", name="ESNF")
     obj = client.searchMatching(facility)
     assert obj.BeanName == "Facility"
     assert obj.id
     assert obj.name == "ESNF"
     facility = obj
-    investigation = client.new("investigation", 
+    investigation = client.new("Investigation",
                                name="12100409-ST", visitId="1.1-P",
                                facility=facility)
     obj = client.searchMatching(investigation)
@@ -405,7 +423,7 @@ def test_searchMatching_simple(client):
     assert obj.name == "12100409-ST"
     assert obj.visitId == "1.1-P"
     investigation = obj
-    dataset = client.new("dataset", name="e208945", 
+    dataset = client.new("Dataset", name="e208945",
                          investigation=investigation)
     obj = client.searchMatching(dataset)
     assert obj.BeanName == "Dataset"
@@ -416,13 +434,13 @@ def test_searchMatching_simple(client):
 def test_searchMatching_include(client):
     """Set an include clause with searchMatching()
     """
-    facility = client.new("facility", name="ESNF")
+    facility = client.new("Facility", name="ESNF")
     obj = client.searchMatching(facility)
     assert obj.BeanName == "Facility"
     assert obj.id
     assert obj.name == "ESNF"
     facility = obj
-    investigation = client.new("investigation", 
+    investigation = client.new("Investigation",
                                name="12100409-ST", visitId="1.1-P",
                                facility=facility)
     obj = client.searchMatching(investigation, includes="1")
@@ -433,7 +451,7 @@ def test_searchMatching_include(client):
     assert obj.type.id
     assert obj.facility.id
     investigation = obj
-    dataset = client.new("dataset", name="e208945", 
+    dataset = client.new("Dataset", name="e208945",
                          investigation=investigation)
     obj = client.searchMatching(dataset, includes=["datafiles"])
     assert obj.BeanName == "Dataset"

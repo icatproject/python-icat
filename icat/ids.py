@@ -8,27 +8,21 @@ author.
 .. _IDS distribution: http://code.google.com/p/icat-data-service/
 """
 
-import sys
-try:
-    # Python 3.3 and newer
-    from collections.abc import Mapping, Iterable
-except ImportError:
-    # Python 2
-    from collections import Mapping, Iterable
-import ssl
-from urllib2 import Request, HTTPError
-from urllib2 import HTTPDefaultErrorHandler, ProxyHandler
-from urllib2 import build_opener
-from urllib import urlencode
-import json
-import zlib
-import re
-from distutils.version import StrictVersion as Version
+from collections.abc import Mapping, Iterable
 import getpass
-from warnings import warn
+import json
+import re
+import ssl
+import sys
+from urllib.error import HTTPError
+from urllib.parse import urlencode
+from urllib.request import HTTPDefaultErrorHandler, ProxyHandler, Request
+from urllib.request import build_opener
+import zlib
 
 from icat.entity import Entity
 from icat.exception import *
+from icat.helper import Version
 
 # For Python versions older then 3.6.0b1, the standard library does
 # not support sending the body using chunked transfer encoding.  Need
@@ -37,7 +31,7 @@ from icat.exception import *
 if sys.version_info < (3, 6, 0, 'beta'):
     from icat.chunkedhttp import HTTPHandler, HTTPSHandler
 else:
-    from urllib2 import HTTPHandler, HTTPSHandler
+    from urllib.request import HTTPHandler, HTTPSHandler
 
 __all__ = ['DataSelection', 'IDSClient']
 
@@ -84,7 +78,7 @@ class IDSHTTPErrorHandler(HTTPDefaultErrorHandler):
         raise err
 
 
-class ChunkedFileReader(object):
+class ChunkedFileReader():
     """An iterator that yields chunks of data read from a file.
     As a side effect, a checksum of the read data is calulated.
     """
@@ -96,7 +90,7 @@ class ChunkedFileReader(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         chunk = self.inputfile.read(self.chunksize)
         if chunk:
             self.crc32 = zlib.crc32(chunk, self.crc32)
@@ -105,7 +99,7 @@ class ChunkedFileReader(object):
             raise StopIteration
 
 
-class DataSelection(object):
+class DataSelection():
     """A set of data to be processed by the ICAT Data Service.
 
     This can be passed as the `selection` argument to
@@ -114,7 +108,6 @@ class DataSelection(object):
     """
 
     def __init__(self, objs=None):
-        super(DataSelection, self).__init__()
         self.invIds = set()
         self.dsIds = set()
         self.dfIds = set()
@@ -132,12 +125,17 @@ class DataSelection(object):
         """Add `objs` to the DataSelection.
 
         :param objs: either a dict having some of the keys
-            `investigationIds`, `datasetIds`, and `datafileIds`
-            with a list of object ids as value respectively, or a list
-            of entity objects, or another data selection.
+            `investigationIds`, `datasetIds`, and `datafileIds` with a
+            list of object ids as value respectively, or a list of
+            entity objects (`Investigation`, `Dataset`, `Datafile`, or
+            `DataCollection`), or another data selection.
         :type objs: :class:`dict`, :class:`list` of
             :class:`icat.entity.Entity`, or
             :class:`~icat.ids.DataSelection`
+
+        .. versionchanged:: 1.0.0
+            add support for `DataCollection` objects in the case that
+            `objs` is a list of entity objects.
         """
         if isinstance(objs, DataSelection):
             self.invIds.update(objs.invIds)
@@ -156,6 +154,18 @@ class DataSelection(object):
                         self.dsIds.add(o.id)
                     elif o.BeanName == 'Datafile':
                         self.dfIds.add(o.id)
+                    elif o.BeanName == "DataCollection":
+                        for dcds in o.dataCollectionDatasets:
+                            if dcds.dataset:
+                                self.dsIds.add(dcds.dataset.id)
+                        for dcdf in o.dataCollectionDatafiles:
+                            if dcdf.datafile:
+                                self.dfIds.add(dcdf.datafile.id)
+                        if 'dataCollectionInvestigations' in o.InstMRel:
+                            # icat.server >= 5.0
+                            for dcinv in o.dataCollectionInvestigations:
+                                if dcinv.investigation:
+                                    self.invIds.add(dcinv.investigation.id)
                     else:
                         raise ValueError("invalid object '%s'." % o.BeanName)
                 else:
@@ -173,7 +183,7 @@ class DataSelection(object):
             params["datafileIds"] = ",".join(str(i) for i in self.dfIds)
 
 
-class IDSClient(object):
+class IDSClient():
     
     """A client accessing an ICAT Data Service.
 
@@ -198,11 +208,7 @@ class IDSClient(object):
         else:
             self.opener = build_opener(HTTPHandler, httpsHandler, 
                                        IDSHTTPErrorHandler)
-        apiversion = self.version()["version"]
-        # Translate a version having a trailing '-SNAPSHOT' into
-        # something that StrictVersion would accept.
-        apiversion = re.sub(r'-SNAPSHOT$', 'a1', apiversion)
-        self.apiversion = Version(apiversion)
+        self.apiversion = Version(self.version()["version"])
 
     def ping(self):
         """Check that the server is alive and is an IDS server.
@@ -272,7 +278,7 @@ class IDSClient(object):
         try:
             return self.opener.open(req).read().decode('ascii')
         except (HTTPError, IDSError) as e:
-            raise self._versionMethodError("getIcatUrl", '1.4', e)
+            raise self._versionMethodError("getIcatUrl", '1.4.0', e)
 
     def isReadOnly(self):
         """See if the server is configured to be readonly.
@@ -308,7 +314,7 @@ class IDSClient(object):
             raise VersionMethodError("getSize(preparedId)",
                                      version=self.apiversion, service="IDS")
         req = IDSRequest(self.url + "getSize", parameters)
-        return long(self.opener.open(req).read().decode('ascii'))
+        return int(self.opener.open(req).read().decode('ascii'))
     
     def getStatus(self, selection):
         """Return the status of data.
@@ -345,7 +351,7 @@ class IDSClient(object):
         try:
             self.opener.open(req)
         except (HTTPError, IDSError) as e:
-            raise self._versionMethodError("write", '1.9', e)
+            raise self._versionMethodError("write", '1.9.0', e)
 
     def reset(self, selection):
         """Reset data so that they can be queried again.
@@ -355,17 +361,7 @@ class IDSClient(object):
         try:
             self.opener.open(req)
         except (HTTPError, IDSError) as e:
-            raise self._versionMethodError("reset", '1.6', e)
-
-    def resetPrepared(self, preparedId):
-        """Reset prepared data so that they can be queried again.
-
-        .. deprecated:: 0.17.0
-           Call :meth:`~icat.ids.IDSClient.reset` instead.
-        """
-        warn("resetPrepared() is deprecated "
-             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
-        self.reset(preparedId)
+            raise self._versionMethodError("reset", '1.6.0', e)
 
     def prepareData(self, selection, compressFlag=False, zipFlag=False):
         """Prepare data for a subsequent :meth:`~icat.ids.IDSClient.getData`
@@ -399,17 +395,7 @@ class IDSClient(object):
             result = self.opener.open(req).read().decode('ascii')
             return json.loads(result)['ids']
         except (HTTPError, IDSError) as e:
-            raise self._versionMethodError("getDatafileIds", '1.5', e)
-
-    def getPreparedDatafileIds(self, preparedId):
-        """Get the list of data file id corresponding to the prepared Id.
-
-        .. deprecated:: 0.17.0
-           Call :meth:`~icat.ids.IDSClient.getDatafileIds` instead.
-        """
-        warn("getPreparedDatafileIds() is deprecated "
-             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
-        return self.getDatafileIds(preparedId)
+            raise self._versionMethodError("getDatafileIds", '1.5.0', e)
 
     def getData(self, selection, 
                 compressFlag=False, zipFlag=False, outname=None, offset=0):
@@ -435,32 +421,6 @@ class IDSClient(object):
         if outname: parameters["outname"] = outname
         return self._getDataUrl(parameters)
     
-    def getPreparedData(self, preparedId, outname=None, offset=0):
-        """Get prepared data.
-
-        Get the data using the `preparedId` returned by a call to
-        :meth:`~icat.ids.IDSClient.prepareData`.
-
-        .. deprecated:: 0.17.0
-           Call :meth:`~icat.ids.IDSClient.getData` instead.
-        """
-        warn("getPreparedData() is deprecated "
-             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
-        return self.getData(preparedId, outname=outname, offset=offset)
-    
-    def getPreparedDataUrl(self, preparedId, outname=None):
-        """Get the URL to retrieve prepared data.
-
-        Get the URL to retrieve data using the `preparedId` returned
-        by a call to :meth:`~icat.ids.IDSClient.prepareData`.
-
-        .. deprecated:: 0.17.0
-           Call :meth:`~icat.ids.IDSClient.getDataUrl` instead.
-        """
-        warn("getPreparedDataUrl() is deprecated "
-             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
-        return self.getDataUrl(preparedId, outname=outname)
-      
     def getLink(self, datafileId, username=None):
         """Return a hard link to a data file.
 
@@ -508,7 +468,7 @@ class IDSClient(object):
         om = json.loads(result)
         if om["checksum"] != crc:
             raise IDSResponseError("checksum error")
-        return long(om["id"])
+        return int(om["id"])
 
     def delete(self, selection):
         """Delete data.
@@ -532,7 +492,7 @@ class IDSClient(object):
                 parameters = {}
             selection.fillParams(parameters)
             return parameters
-        elif isinstance(selection, basestring):
+        elif isinstance(selection, str):
             return {"preparedId": selection}
         else:
             raise TypeError("selection must either be a DataSelection "

@@ -2,6 +2,98 @@ Changelog
 =========
 
 
+1.0.0 (2022-12-21)
+~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#73`_, `#106`_: Add support for the ICAT schema 5.0 extensions.
+
++ `#102`_, `#104`_: Make the `obj` argument to
+  :meth:`icat.client.Client.new` case insensitive.
+
++ `#77`_, `#103`_: Add a keyword argument `preset` to allow directly
+  passing configuration values to the constructor of class
+  :class:`icat.config.Config`.
+
++ `#66`_, `#75`_: Add pathlib support: methods that take a file name
+  argument also accept a :class:`pathlib.Path` object.  Internal
+  representation of file system paths are changed to use
+  :class:`pathlib.Path` where appropriate.  The predefined
+  configuarion variable `configFile` now supports tilde expansion.
+  Note incompatible changes below.
+
++ `#74`_: :class:`icat.ids.DataSelection` also accepts
+  `DataCollection` as argument.
+
+Incompatible changes and deprecations
+-------------------------------------
+
++ The order and arrangement of data objects in the dump file created
+  by :ref:`icatdump` has been changed.  In some cases, older versions
+  of :ref:`icatingest` will fail to read dump files written by new
+  versions of :ref:`icatdump`.
+
++ As a consequence of switching to pathlib for file system paths some
+  return values and variables are now :class:`pathlib.Path` objects
+  rather then :class:`str`.  This affects:
+
+  - the return value of :func:`icat.config.cfgpath`,
+  - the predefined configuarion variable `configFile`,
+  - the module variable :data:`icat.config.cfgdirs`.
+
++ Drop support for Python 2 and Python 3.3.
+
++ Drop keyword argument `attribute` and method
+  :meth:`icat.query.Query.setAttribute` from class
+  :class:`icat.query.Query`, deprecated in 0.18.0.
+
++ Drop module :mod:`icat.cgi`, deprecated in 0.13.0.
+
++ Drop module :mod:`icat.icatcheck` and exception
+  :exc:`icat.exception.GenealogyError`, deprecated in 0.17.0.
+
++ Drop methods :meth:`icat.ids.IDSClient.resetPrepared`,
+  :meth:`icat.ids.IDSClient.getPreparedDatafileIds`,
+  :meth:`icat.ids.IDSClient.getPreparedData`,
+  :meth:`icat.ids.IDSClient.getPreparedDataUrl`,
+  :meth:`icat.client.Client.getPreparedData`, and
+  :meth:`icat.client.Client.getPreparedDataUrl`, deprecated in 0.17.0.
+
++ Drop the predefined configuration variable `configDir`, deprecated
+  in 0.13.0.
+
++ Drop helper function :func:`icat.exception.stripCause`, deprecated
+  in 0.14.0.
+
++ Deprecate :data:`icat.config.defaultsection`.  Use the new `preset`
+  keyword argument to :class:`icat.config.Config` instead.
+
+Bug fixes and minor changes
+---------------------------
+
++ `#98`_, `#105`_: Review build tool chain.  Add a helper class
+  :class:`icat.helper.Version`.
+
++ `#101`_: Fix tests failing with PyYAML 6.0.
+
++ Some (more) example scripts now require ICAT 4.4.0 or newer.
+
+.. _#66: https://github.com/icatproject/python-icat/issues/66
+.. _#73: https://github.com/icatproject/python-icat/issues/73
+.. _#74: https://github.com/icatproject/python-icat/issues/74
+.. _#75: https://github.com/icatproject/python-icat/pull/75
+.. _#77: https://github.com/icatproject/python-icat/issues/77
+.. _#98: https://github.com/icatproject/python-icat/issues/98
+.. _#101: https://github.com/icatproject/python-icat/pull/101
+.. _#102: https://github.com/icatproject/python-icat/issues/102
+.. _#103: https://github.com/icatproject/python-icat/pull/103
+.. _#104: https://github.com/icatproject/python-icat/pull/104
+.. _#105: https://github.com/icatproject/python-icat/pull/105
+.. _#106: https://github.com/icatproject/python-icat/pull/106
+
+
 0.21.0 (2022-01-28)
 ~~~~~~~~~~~~~~~~~~~
 
@@ -18,6 +110,7 @@ New features
   clauses of the query string.
 
 .. _#100: https://github.com/icatproject/python-icat/pull/100
+
 
 0.20.1 (2021-11-04)
 ~~~~~~~~~~~~~~~~~~~

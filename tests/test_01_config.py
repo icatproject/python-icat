@@ -1,9 +1,8 @@
 """Test module icat.config
 """
 
-import os
-import os.path
 import getpass
+from pathlib import Path
 import pytest
 import icat.config
 import icat.exception
@@ -15,10 +14,10 @@ import icat.exception
 # an ICAT client.  Prevent this, as we don't want to connect to a real
 # server in this test module.  Foist a fake client class on the
 # icat.config module.  Note that we must monkeypatch icat.config
-# rather then icat.client, as the former already imported the Client
+# rather than icat.client, as the former already imported the Client
 # class at this point.
 
-class Namespace(object):
+class Namespace():
     def __init__(self, **kwargs):
         for (k, v) in kwargs.items():
             setattr(self, k, v)
@@ -34,7 +33,7 @@ class ExpectedConf(Namespace):
         else:
             return True
 
-class FakeClient(object):
+class FakeClient():
     AuthInfo = None
     def __init__(self, url, **kwargs):
         self.url = url
@@ -93,6 +92,10 @@ username = nbour
 url = https://icat.example.com/ICATService/ICAT?wsdl
 auth = anon
 
+[example_quirks]
+url = https://icat.example.com/ICATService/ICAT?wsdl
+auth = quirks
+
 [test21]
 url = https://icat.example.com/ICATService/ICAT?wsdl
 auth = simple
@@ -101,30 +104,29 @@ password = secret
 promptPass = Yes
 """
 
-class ConfigFile(object):
+class ConfigFile():
     def __init__(self, confdir, content):
         self.home = confdir
-        self.dir = os.path.join(self.home, ".icat")
-        self.path = os.path.join(self.dir, "icat.cfg")
-        os.mkdir(self.dir)
-        with open(self.path, "w") as f:
+        self.dir = self.home / ".icat"
+        self.path = self.dir / "icat.cfg"
+        self.dir.mkdir()
+        with self.path.open("wt") as f:
             f.write(content)
 
-class TmpFiles(object):
+class TmpFiles():
     def __init__(self):
         self.files = []
     def cleanup(self):
         for p in self.files:
-            os.unlink(p)
+            p.unlink()
     def addfile(self, path, content):
-        path = os.path.abspath(path)
         try:
-            os.makedirs(os.path.dirname(path))
-        except OSError:
+            path.parent.mkdir(parents=True)
+        except FileExistsError:
             pass
-        with open(path, "wt") as f:
+        with path.open("wt") as f:
             f.write(content)
-        self.files.append(path)
+        self.files.append(path.resolve())
 
 @pytest.fixture(scope="module")
 def tmpconfigfile(tmpdirsec):
@@ -172,15 +174,67 @@ def test_config_minimal_file(fakeClient, tmpconfigfile, monkeypatch):
 
     # Let the config file be found in the default location, but
     # manipulate the search path such that only the cwd exists.
-    cfgdirs = [ os.path.join(tmpconfigfile.dir, "wobble"), "" ]
+    cfgdirs = [ tmpconfigfile.dir / "wobble", Path(".") ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
-    monkeypatch.chdir(tmpconfigfile.dir)
+    monkeypatch.chdir(str(tmpconfigfile.dir))
 
     args = ["-s", "example_root"]
     config = icat.config.Config(needlogin=False, ids=False, args=args)
     _, conf = config.getconfig()
 
-    ex = ExpectedConf(configFile=["icat.cfg"],
+    ex = ExpectedConf(configFile=[Path("icat.cfg")],
+                      configSection="example_root", 
+                      url=ex_icat)
+    assert ex <= conf
+
+
+def test_config_minimal_file_preset(fakeClient, tmpconfigfile, monkeypatch):
+    """Minimal example.
+
+    Almost the same as test_config_minimal_file(), but set the section
+    to be read from the config file as a preset variable rather than
+    faking the comandline arguments.
+
+    The `preset` keyword argument to `Config()` was added in response
+    to the feature request Issue #77.
+    """
+
+    # Let the config file be found in the default location, but
+    # manipulate the search path such that only the cwd exists.
+    cfgdirs = [ tmpconfigfile.dir / "wobble", Path(".") ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(str(tmpconfigfile.dir))
+
+    preset = {"configSection": "example_root"}
+    config = icat.config.Config(needlogin=False, ids=False,
+                                preset=preset, args=())
+    _, conf = config.getconfig()
+
+    ex = ExpectedConf(configFile=[Path("icat.cfg")],
+                      configSection="example_root",
+                      url=ex_icat)
+    assert ex <= conf
+
+
+def test_config_file_expanduser(fakeClient, tmpconfigfile, monkeypatch):
+    """Explicitely point to the config file.
+
+    Indicate the path of the config file in the command line
+    arguments.  Use tilde expansion in this path.
+    """
+
+    # Manipulate the search path such that the config file is not
+    # found in the default path.
+    monkeypatch.setenv("HOME", str(tmpconfigfile.home))
+    cfgdirs = [ tmpconfigfile.dir / "wobble", Path(".") ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(str(tmpconfigfile.home))
+
+    args = ["-c", "~/.icat/icat.cfg", "-s", "example_root"]
+    config = icat.config.Config(needlogin=False, ids=False, args=args)
+    _, conf = config.getconfig()
+
+    ex = ExpectedConf(configFile=[tmpconfigfile.path], 
                       configSection="example_root", 
                       url=ex_icat)
     assert ex <= conf
@@ -190,17 +244,17 @@ def test_config_minimal_defaultfile(fakeClient, tmpconfigfile, monkeypatch):
     """Minimal example.
 
     Almost the same as test_config_minimal_file(), but let the
-    configuration file be found in the default search path rather then
+    configuration file be found in the default search path rather than
     pointing to the full path.
     """
 
     # Manipulate the default search path.
-    monkeypatch.setenv("HOME", tmpconfigfile.home)
-    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    monkeypatch.setenv("HOME", str(tmpconfigfile.home))
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
-    monkeypatch.chdir(tmpconfigfile.home)
+    monkeypatch.chdir(str(tmpconfigfile.home))
 
     args = ["-s", "example_root"]
     config = icat.config.Config(needlogin=False, ids=False, args=args)
@@ -223,12 +277,12 @@ def test_config_no_defaultvars(tmpconfigfile, monkeypatch):
     """
 
     # Manipulate the default search path.
-    monkeypatch.setenv("HOME", tmpconfigfile.home)
-    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    monkeypatch.setenv("HOME", str(tmpconfigfile.home))
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
-    monkeypatch.chdir(tmpconfigfile.home)
+    monkeypatch.chdir(str(tmpconfigfile.home))
 
     args = ["-s", "example_root"]
     config = icat.config.Config(defaultvars=False, args=args)
@@ -252,7 +306,7 @@ def test_config_simple_login(fakeClient, tmpconfigfile):
     Standard usage, read everything from a config file.
     """
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_root"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_root"]
     _, conf = icat.config.Config(args=args).getconfig()
 
     ex = ExpectedConf(configFile=[tmpconfigfile.path],
@@ -273,7 +327,7 @@ def test_config_override(fakeClient, tmpconfigfile):
     with command line arguments.
     """
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_root", 
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_root",
             "-a", "db", "-u", "rbeck", "-p", "geheim"]
     _, conf = icat.config.Config(args=args).getconfig()
 
@@ -300,7 +354,7 @@ def test_config_askpass(fakeClient, tmpconfigfile, monkeypatch):
         return "mockpass"
     monkeypatch.setattr(getpass, "getpass", mockgetpass)
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_root", 
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_root",
             "-a", "db", "-u", "rbeck"]
     _, conf = icat.config.Config(args=args).getconfig()
 
@@ -329,7 +383,7 @@ def test_config_nopass_askpass(fakeClient, tmpconfigfile, monkeypatch):
         return "mockpass"
     monkeypatch.setattr(getpass, "getpass", mockgetpass)
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_nbour", "-P"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_nbour", "-P"]
     _, conf = icat.config.Config(args=args).getconfig()
 
     ex = ExpectedConf(configFile=[tmpconfigfile.path],
@@ -353,7 +407,7 @@ def test_config_askpass_file(fakeClient, tmpconfigfile, monkeypatch):
         return "mockpass"
     monkeypatch.setattr(getpass, "getpass", mockgetpass)
 
-    args = ["-c", tmpconfigfile.path, "-s", "test21"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "test21"]
     _, conf = icat.config.Config(args=args).getconfig()
 
     ex = ExpectedConf(configFile=[tmpconfigfile.path],
@@ -371,7 +425,7 @@ def test_config_environment(fakeClient, tmpconfigfile, monkeypatch):
     """Set some config variables from the environment.
     """
 
-    monkeypatch.setenv("ICAT_CFG", tmpconfigfile.path)
+    monkeypatch.setenv("ICAT_CFG", str(tmpconfigfile.path))
     monkeypatch.setenv("ICAT_AUTH", "db")
     monkeypatch.setenv("http_proxy", "http://www-cache.example.org:3128/")
     monkeypatch.setenv("https_proxy", "http://www-cache.example.org:3128/")
@@ -423,7 +477,7 @@ def test_config_ids(fakeClient, tmpconfigfile, section, ex):
     # We set ids="optional", the idsurl is present in section
     # example_root, but not in example_jdoe.  In the latter case, the
     # configuration variable is present, but set to None..
-    args = ["-c", tmpconfigfile.path, "-s", section]
+    args = ["-c", str(tmpconfigfile.path), "-s", section]
     _, conf = icat.config.Config(ids="optional", args=args).getconfig()
     assert ex <= conf
 
@@ -434,7 +488,7 @@ def test_config_custom_var(fakeClient, tmpconfigfile):
 
     # Note that ldap_filter is not defined in the configuration file,
     # but we have a default value defined here, so this is ok.
-    args = ["-c", tmpconfigfile.path, "-s", "example_root"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_root"]
     config = icat.config.Config(args=args)
     config.add_variable('ldap_uri', ("-l", "--ldap-uri"), 
                         dict(help="URL of the LDAP server"),
@@ -468,7 +522,7 @@ def test_config_subst_nosubst(fakeClient, tmpconfigfile):
     But disable the substitution.
     """
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe"]
     config = icat.config.Config(args=args)
     config.add_variable('greeting', ("--greeting",), 
                         dict(help="Greeting message"),
@@ -493,7 +547,7 @@ def test_config_subst(fakeClient, tmpconfigfile):
     Same as above, but enable the substitution this time.
     """
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe"]
     config = icat.config.Config(args=args)
     config.add_variable('greeting', ("--greeting",), 
                         dict(help="Greeting message"),
@@ -519,7 +573,7 @@ def test_config_subst_cmdline(fakeClient, tmpconfigfile):
     line.
     """
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", 
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe",
             "-u", "jonny", "-p", "pass"]
     config = icat.config.Config(args=args)
     config.add_variable('greeting', ("--greeting",), 
@@ -543,7 +597,7 @@ def test_config_type_int(fakeClient, tmpconfigfile):
     """Read an integer variable from the configuration file.
     """
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe"]
     config = icat.config.Config(needlogin=False, args=args)
     config.add_variable('num', ("--num",), 
                         dict(help="Integer variable"), type=int)
@@ -562,7 +616,7 @@ def test_config_type_int_err(fakeClient, tmpconfigfile):
     Same as last one, but have an invalid value this time.
     """
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe"]
     config = icat.config.Config(needlogin=False, args=args)
     config.add_variable('invnum', ("--invnum",), 
                         dict(help="Integer variable"), type=int)
@@ -586,7 +640,7 @@ def test_config_type_int_err(fakeClient, tmpconfigfile):
 def test_config_type_boolean(fakeClient, tmpconfigfile, flags, ex):
     """Test a boolean configuration variable.
     """
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"] + flags
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe"] + flags
     config = icat.config.Config(needlogin=False, args=args)
     config.add_variable('flag1', ("--flag1",), 
                         dict(help="Flag 1", action='store_const', const=True), 
@@ -613,7 +667,7 @@ def test_config_type_boolean(fakeClient, tmpconfigfile, flags, ex):
 def test_config_type_flag(fakeClient, tmpconfigfile, flags, ex):
     """Test the special configuration variable type flag.
     """
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"] + flags
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe"] + flags
     config = icat.config.Config(needlogin=False, args=args)
     config.add_variable('flag1', ("--flag1",), 
                         dict(help="Flag 1"), type=icat.config.flag)
@@ -630,7 +684,7 @@ def test_config_positional(fakeClient, tmpconfigfile):
     7d10764.)
     """
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", "test.dat"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe", "test.dat"]
     config = icat.config.Config(args=args)
     config.add_variable('datafile', ("datafile",), 
                         dict(metavar="input.dat", 
@@ -656,7 +710,7 @@ def test_config_disable(fakeClient, tmpconfigfile):
     intended to be used in client code.
     """
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_root"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_root"]
     config = icat.config.Config(args=args)
     config.confvariable['promptPass'].disabled = True
     _, conf = config.getconfig()
@@ -689,7 +743,7 @@ def test_config_authinfo_simple(fakeClient, monkeypatch, tmpconfigfile):
     ]
     monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_root"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_root"]
     config = icat.config.Config(args=args)
     assert list(config.authenticatorInfo) == authInfo
     _, conf = config.getconfig()
@@ -722,7 +776,7 @@ def test_config_authinfo_anon(fakeClient, monkeypatch, tmpconfigfile):
     ]
     monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_root", "-a", "anon"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_root", "-a", "anon"]
     config = icat.config.Config(args=args)
     assert list(config.authenticatorInfo) == authInfo
     _, conf = config.getconfig()
@@ -748,7 +802,7 @@ def test_config_authinfo_anon_only(fakeClient, monkeypatch, tmpconfigfile):
     ]
     monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_anon"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_anon"]
     config = icat.config.Config(args=args)
     assert list(config.authenticatorInfo) == authInfo
     _, conf = config.getconfig()
@@ -777,14 +831,51 @@ def test_config_authinfo_strange(fakeClient, monkeypatch, tmpconfigfile):
     ]
     monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_root", 
-            "-a", "quirks", "--cred_secret", "geheim"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_quirks",
+            "--cred_secret", "geheim"]
     config = icat.config.Config(args=args)
     assert list(config.authenticatorInfo) == authInfo
     _, conf = config.getconfig()
 
     ex = ExpectedConf(configFile=[tmpconfigfile.path],
-                      configSection="example_root",
+                      configSection="example_quirks",
+                      url=ex_icat,
+                      auth="quirks",
+                      promptPass=False,
+                      cred_secret="geheim",
+                      credentials={'secret': 'geheim'})
+    assert ex <= conf
+    assert not hasattr(conf, 'username')
+
+
+def test_config_authinfo_strange_preset(fakeClient, monkeypatch, tmpconfigfile):
+    """Talk to a server that requests strange credential keys.
+
+    Almost the same as test_config_authinfo_strange(), but set the
+    configuration as preset variables rather than faking the
+    comandline arguments.
+
+    The `preset` keyword argument to `Config()` was added in response
+    to the feature request Issue #77.  One major use case for
+    requesting that feature was related to custom authenticators.
+    """
+
+    secretkey = Namespace(name='secret', hide=True)
+    authInfo = [
+        Namespace(mnemonic="quirks",
+                  keys=[secretkey]),
+    ]
+    monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
+
+    preset = {"configFile": str(tmpconfigfile.path),
+              "configSection": "example_quirks",
+              "cred_secret": "geheim",}
+    config = icat.config.Config(preset=preset, args=())
+    assert list(config.authenticatorInfo) == authInfo
+    _, conf = config.getconfig()
+
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_quirks",
                       url=ex_icat,
                       auth="quirks",
                       promptPass=False,
@@ -799,7 +890,7 @@ def test_config_authinfo_no_authinfo(fakeClient, monkeypatch, tmpconfigfile):
     Talk to an old server that does not support getAuthenticatorInfo.
     """
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_root"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_root"]
     config = icat.config.Config(args=args)
     client, conf = config.getconfig()
 
@@ -835,7 +926,7 @@ def test_config_authinfo_invalid_auth(fakeClient, monkeypatch, tmpconfigfile):
     ]
     monkeypatch.setattr(FakeClient, "AuthInfo", authInfo)
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe"]
     config = icat.config.Config(args=args)
     with pytest.raises(icat.exception.ConfigError) as err:
         _, conf = config.getconfig()
@@ -851,16 +942,16 @@ def test_config_cfgpath_default(fakeClient, tmpconfigfile, monkeypatch,
     """
 
     # Manipulate the default search path.
-    monkeypatch.setenv("HOME", tmpconfigfile.home)
-    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    monkeypatch.setenv("HOME", str(tmpconfigfile.home))
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
-    monkeypatch.chdir(tmpconfigfile.home)
-    cpath = os.path.expanduser("~/.config/icat/control.dat")
+    monkeypatch.chdir(str(tmpconfigfile.home))
+    cpath = Path("~/.config/icat/control.dat").expanduser()
     tmpfiles.addfile(cpath, "control\n")
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe"]
     config = icat.config.Config(args=args)
     config.add_variable('controlfile', ("--control",), 
                     dict(metavar="control.dat", help="control file"), 
@@ -877,7 +968,7 @@ def test_config_cfgpath_default(fakeClient, tmpconfigfile, monkeypatch,
                       credentials={'username': 'jdoe', 'password': 'pass'},
                       controlfile=cpath)
     assert ex <= conf
-    assert os.path.isfile(conf.controlfile)
+    assert conf.controlfile.is_file()
 
 
 def test_config_cfgpath_cwd(fakeClient, tmpconfigfile, monkeypatch, tmpfiles):
@@ -889,18 +980,18 @@ def test_config_cfgpath_cwd(fakeClient, tmpconfigfile, monkeypatch, tmpfiles):
     """
 
     # Manipulate the default search path.
-    monkeypatch.setenv("HOME", tmpconfigfile.home)
-    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    monkeypatch.setenv("HOME", str(tmpconfigfile.home))
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
-    monkeypatch.chdir(tmpconfigfile.home)
-    cpath = os.path.expanduser("~/.config/icat/control.dat")
+    monkeypatch.chdir(str(tmpconfigfile.home))
+    cpath = Path("~/.config/icat/control.dat").expanduser()
     tmpfiles.addfile(cpath, "control config dir\n")
-    hpath = os.path.join(tmpconfigfile.home, "control.dat")
+    hpath = tmpconfigfile.home / "control.dat"
     tmpfiles.addfile(hpath, "control home\n")
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe"]
     config = icat.config.Config(args=args)
     config.add_variable('controlfile', ("--control",), 
                     dict(metavar="control.dat", help="control file"), 
@@ -917,7 +1008,7 @@ def test_config_cfgpath_cwd(fakeClient, tmpconfigfile, monkeypatch, tmpfiles):
                       credentials={'username': 'jdoe', 'password': 'pass'},
                       controlfile=hpath)
     assert ex <= conf
-    assert os.path.isfile(conf.controlfile)
+    assert conf.controlfile.is_file()
 
 
 @pytest.mark.parametrize('abspath', [True, False])
@@ -930,25 +1021,25 @@ def test_config_cfgpath_cmdline(fakeClient, tmpconfigfile, monkeypatch,
     """
 
     # Manipulate the default search path.
-    monkeypatch.setenv("HOME", tmpconfigfile.home)
-    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    monkeypatch.setenv("HOME", str(tmpconfigfile.home))
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
-    monkeypatch.chdir(tmpconfigfile.home)
-    cpath = os.path.expanduser("~/.config/icat/control.dat")
+    monkeypatch.chdir(str(tmpconfigfile.home))
+    cpath = Path("~/.config/icat/control.dat").expanduser()
     tmpfiles.addfile(cpath, "control config dir\n")
-    hpath = os.path.join(tmpconfigfile.home, "control.dat")
+    hpath = tmpconfigfile.home / "control.dat"
     tmpfiles.addfile(hpath, "control home\n")
     if abspath:
-        apath = os.path.expanduser("~/custom/cl.dat")
-        cfarg = apath
+        apath = Path("~/custom/cl.dat").expanduser()
+        cfarg = str(apath)
     else:
-        apath = os.path.expanduser("~/.config/icat/cl.dat")
+        apath = Path("~/.config/icat/cl.dat").expanduser()
         cfarg = "cl.dat"
     tmpfiles.addfile(apath, "control cmdline\n")
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", 
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe",
             "--control", cfarg]
     config = icat.config.Config(args=args)
     config.add_variable('controlfile', ("--control",), 
@@ -966,7 +1057,7 @@ def test_config_cfgpath_cmdline(fakeClient, tmpconfigfile, monkeypatch,
                       credentials={'username': 'jdoe', 'password': 'pass'},
                       controlfile=apath)
     assert ex <= conf
-    assert os.path.isfile(conf.controlfile)
+    assert conf.controlfile.is_file()
 
 
 def test_config_client_kwargs(fakeClient, tmpconfigfile, monkeypatch):
@@ -978,19 +1069,19 @@ def test_config_client_kwargs(fakeClient, tmpconfigfile, monkeypatch):
     """
 
     # Manipulate the default search path.
-    monkeypatch.setenv("HOME", tmpconfigfile.home)
-    cfgdirs = [ os.path.expanduser("~/.config/icat"), 
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    monkeypatch.setenv("HOME", str(tmpconfigfile.home))
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
     monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
-    monkeypatch.chdir(tmpconfigfile.home)
+    monkeypatch.chdir(str(tmpconfigfile.home))
 
     # Add proxy settings just to have non-trivial content in client_kwargs.
     monkeypatch.setenv("http_proxy", "http://www-cache.example.org:3128/")
     monkeypatch.setenv("https_proxy", "http://www-cache.example.org:3128/")
     monkeypatch.setenv("no_proxy", "localhost, .example.org")
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_root"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_root"]
     config = icat.config.Config(args=args)
     client, conf = config.getconfig()
 
@@ -1063,7 +1154,7 @@ def test_config_subcmd(fakeClient, tmpconfigfile, subcmd):
         "ls": ["ls", "--format", "long"],
         "info": ["info", "--name", "brightness", ],
     }
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"] + sub_args[subcmd]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe"] + sub_args[subcmd]
     config = icat.config.Config(args=args)
     subcmds = config.add_subcommands()
 
@@ -1102,7 +1193,7 @@ def test_config_subcmd_err_var_nonunique(fakeClient, tmpconfigfile):
     configurations define the same variables, see for instance "name"
     which is defined in both "create" and "info" in the last test.)
     """
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe",
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe",
             "sub", "--url", "http://example.org/"]
     config = icat.config.Config(args=args)
     subcmds = config.add_subcommands()
@@ -1120,7 +1211,7 @@ def test_config_subcmd_err_subcmd_nonunique(fakeClient, tmpconfigfile):
     Similar situation as last test: sub-command names may not collide
     with already defined variables as well.
     """
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe", "url"]
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe", "url"]
     config = icat.config.Config(args=args)
     with pytest.raises(ValueError) as err:
         subcmds = config.add_subcommands('url')
@@ -1135,7 +1226,7 @@ def test_config_subcmd_err_add_more_vars(fakeClient, tmpconfigfile):
     No more variables may be added to a config after a subcommand has
     been added.
     """
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe",
+    args = ["-c", str(tmpconfigfile.path), "-s", "example_jdoe",
             "sub", "--name", "foo"]
     config = icat.config.Config(args=args)
     subcmds = config.add_subcommands()
@@ -1145,29 +1236,29 @@ def test_config_subcmd_err_add_more_vars(fakeClient, tmpconfigfile):
     assert "config already has subcommands" in str(err.value)
 
 
-def test_deprecated_config_confdir(fakeClient, tmpconfigfile):
-    """The configuration variable configDir is deprecated since 0.13.0.
-    Accessing it should raise a DeprecationWarning.
+def test_deprecated_config_defaultsection(fakeClient, tmpconfigfile,
+                                          monkeypatch):
+    """The module variable icat.config.defaultsection is deprecated since
+    1.0.0.
+
+    Setting it should raise a DeprecationWarning.
     """
 
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
-    config = icat.config.Config(needlogin=False, args=args)
+    # Use the same setting as test_config_minimal_file(), but don't
+    # set the configSection via a command line argument, but by
+    # setting defaultsection.  Note that setting the variable cannot
+    # easily be detected, the DeprecationWarning is raised during
+    # icat.config.Config() later on.
+    cfgdirs = [ tmpconfigfile.dir / "wobble", Path(".") ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(str(tmpconfigfile.dir))
+
+    monkeypatch.setattr(icat.config, "defaultsection", "example_root")
+    with pytest.deprecated_call():
+        config = icat.config.Config(needlogin=False, ids=False, args=())
     _, conf = config.getconfig()
-    with pytest.deprecated_call():
-        assert conf.configDir == tmpconfigfile.dir
 
-
-def test_deprecated_config_subst_confdir(fakeClient, tmpconfigfile):
-    """The configuration variable configDir is deprecated since 0.13.0.
-    Substituting its value in another variable should raise a
-    DeprecationWarning.
-    """
-
-    args = ["-c", tmpconfigfile.path, "-s", "example_jdoe"]
-    config = icat.config.Config(needlogin=False, args=args)
-    config.add_variable('extracfg', ("--extracfg",), 
-                        dict(help="Extra config file"),
-                        default="%(configDir)s/extra.xml", subst=True)
-    # The substitution happens internally in getconfig().
-    with pytest.deprecated_call():
-        _, conf = config.getconfig()
+    ex = ExpectedConf(configFile=[Path("icat.cfg")],
+                      configSection="example_root",
+                      url=ex_icat)
+    assert ex <= conf

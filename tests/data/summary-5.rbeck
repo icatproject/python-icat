@@ -1,0 +1,57 @@
+User: db/rbeck
+
+Entity                     count
+--------------------------------
+Affiliation              : 0
+Application              : 1
+DataCollection           : 1
+DataCollectionDatafile   : 1
+DataCollectionDataset    : 1
+DataCollectionInvestigation : 1
+DataCollectionParameter  : 0
+DataPublication          : 1
+DataPublicationDate      : 0
+DataPublicationFunding   : 0
+DataPublicationType      : 2
+DataPublicationUser      : 0
+Datafile                 : 7
+DatafileFormat           : 6
+DatafileParameter        : 6
+Dataset                  : 6
+DatasetInstrument        : 4
+DatasetParameter         : 2
+DatasetTechnique         : 2
+DatasetType              : 3
+Facility                 : 1
+FacilityCycle            : 20
+FundingReference         : 0
+Grouping                 : 2
+Instrument               : 3
+InstrumentScientist      : 0
+Investigation            : 2
+InvestigationFacilityCycle : 0
+InvestigationFunding     : 0
+InvestigationGroup       : 0
+InvestigationInstrument  : 0
+InvestigationParameter   : 2
+InvestigationType        : 5
+InvestigationUser        : 0
+Job                      : 0
+Keyword                  : 5
+ParameterType            : 9
+PermissibleStringValue   : 6
+PublicStep               : 0
+Publication              : 0
+RelatedDatafile          : 0
+RelatedItem              : 0
+Rule                     : 0
+Sample                   : 2
+SampleParameter          : 1
+SampleType               : 3
+Shift                    : 2
+Study                    : 0
+StudyInvestigation       : 0
+Technique                : 4
+User                     : 11
+UserGroup                : 0
+

@@ -8,11 +8,11 @@
 # as possible to the one from icatdump.py.
 #
 
-import sys
-import os
 import json
-import re
 import logging
+import os
+import re
+import sys
 import requests
 import icat
 import icat.config
@@ -22,29 +22,29 @@ logging.basicConfig(level=logging.INFO)
 logging.getLogger('requests.packages.urllib3').setLevel(logging.WARNING)
 
 config = icat.config.Config()
-config.add_variable('resturl', ("--resturl",), 
+config.add_variable('resturl', ("--resturl",),
                     dict(help="URL to the ICAT RESTful interface"),
                     default=True)
-config.add_variable('file', ("-o", "--outputfile"), 
+config.add_variable('file', ("-o", "--outputfile"),
                     dict(help="output file name or '-' for stdout"),
                     default='-')
 # The format argument makes in fact little sense, as there is no
 # choice.  It's here for compatiblity with the command line interface
 # of icatdump.py only.
-config.add_variable('format', ("-f", "--format"), 
+config.add_variable('format', ("-f", "--format"),
                     dict(help="output file format", choices=["ICAT"]),
                     default='ICAT')
 # Additional arguments that icatdump.py does not provide:
-config.add_variable('query', ("--query",), 
-                    dict(help="query string to select the content"), 
+config.add_variable('query', ("--query",),
+                    dict(help="query string to select the content"),
                     optional=True)
-config.add_variable('attributes', ("--attributes",), 
-                    dict(help="attributes to include in the output", 
+config.add_variable('attributes', ("--attributes",),
+                    dict(help="attributes to include in the output",
                          choices=["ALL", "USER"]),
                     default='USER')
 client, conf = config.getconfig()
 
-if client.apiversion < '4.4':
+if client.apiversion < '4.4.0':
     raise RuntimeError("Sorry, ICAT version %s is too old, need 4.4.0 or newer."
                        % client.apiversion)
 client.login(conf.auth, conf.credentials)
@@ -60,7 +60,7 @@ args = {"sessionId": client.sessionId, "attributes":conf.attributes}
 if conf.query:
     args['query'] = conf.query
 parameters = {"json":json.dumps(args)}
-request = requests.get(conf.resturl + "port", params=parameters, 
+request = requests.get(conf.resturl + "port", params=parameters,
                        stream=True, verify=conf.checkCert)
 if request.status_code == requests.codes.ok:
     if conf.file == "-":

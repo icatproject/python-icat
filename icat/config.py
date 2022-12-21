@@ -1,12 +1,12 @@
 """Provide the Config class.
 """
 
-import sys
-import os
-import os.path
-import getpass
 import argparse
-import ConfigParser
+import configparser
+import getpass
+import os
+from pathlib import Path
+import sys
 import warnings
 from icat.client import Client
 from icat.authinfo import AuthenticatorInfo, LegacyAuthenticatorInfo
@@ -14,22 +14,34 @@ from icat.exception import ConfigError, VersionMethodError
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
 
+# Evil hack: Path.expanduser() has been added in Python 3.5.
+# Monkeypatch the class for older Python versions.
+if not hasattr(Path, "expanduser"):
+    import os.path
+    def _expanduser(p):
+        return Path(os.path.expanduser(str(p)))
+    Path.expanduser = _expanduser
+
 
 if sys.platform.startswith("win"):
-    cfgdirs = [ os.path.join(os.environ['ProgramData'], "ICAT"),
-                os.path.join(os.environ['AppData'], "ICAT"),
-                os.path.join(os.environ['LocalAppData'], "ICAT"), 
-                "", ]
+    cfgdirs = [ Path(os.environ['ProgramData'], "ICAT"),
+                Path(os.environ['AppData'], "ICAT"),
+                Path(os.environ['LocalAppData'], "ICAT"),
+                Path("."), ]
 else:
-    cfgdirs = [ "/etc/icat", 
-                os.path.expanduser("~/.config/icat"),
-                os.path.expanduser("~/.icat"), 
-                "", ]
+    cfgdirs = [ Path("/etc/icat"),
+                Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
 """Search path for the configuration file"""
 cfgfile = "icat.cfg"
 """Configuration file name"""
 defaultsection = None
-"""Default value for `configSection`"""
+"""Default value for `configSection`
+
+.. deprecated:: 1.0.0
+   Use the `preset` keyword argument to :class:`icat.config.Config` instead.
+"""
 
 # Internal hack, intentionally not documented.
 _argparse_divert_syserr = True
@@ -43,7 +55,7 @@ def boolean(value):
     function is suitable to be passed as type to
     :meth:`icat.config.BaseConfig.add_variable`.
     """
-    if isinstance(value, basestring):
+    if isinstance(value, str):
         if value.lower() in ["0", "no", "n", "false", "f", "off"]:
             return False
         elif value.lower() in ["1", "yes", "y", "true", "t", "on"]:
@@ -61,22 +73,32 @@ flag = object()
 def cfgpath(p):
     """Search for a file in some default directories.
 
-    The argument `p` should be a file path name.  If `p` is absolute,
-    it will be returned unchanged.  Otherwise, `p` will be resolved
-    against the directories in :data:`icat.config.cfgdirs` in reversed
-    order.  If a file with the resulting path is found to exist, this
-    path will be returned, first match wins.  If no file exists in any
-    of the directories, `p` will be returned unchanged.
+    The argument `p` should be a file path name.  It will be converted
+    to a :class:`~pathlib.Path` object.  If `p` is absolute, it will
+    be returned unchanged.  Otherwise, `p` will be resolved against
+    the directories in :data:`icat.config.cfgdirs` in reversed order.
+    If a file with the resulting path is found to exist, this path
+    will be returned, first match wins.  If no file exists in any of
+    the directories, `p` will be returned unchanged.
+
+    In any case, the return value is a :class:`~pathlib.Path` object.
 
     This function is suitable to be passed as `type` argument to
     :meth:`icat.config.BaseConfig.add_variable`.
+
+    .. versionchanged:: 1.0.0
+        return a :class:`~pathlib.Path` object.
     """
-    if os.path.isabs(p):
+    p = Path(p)
+    if p.is_absolute():
         return p
     else:
         for d in reversed(cfgdirs):
-            fp = os.path.abspath(os.path.join(d, p))
-            if os.path.isfile(fp):
+            try:
+                fp = (d / p).resolve()
+            except FileNotFoundError:
+                continue
+            if fp.is_file():
                 return fp
         else:
             return p
@@ -153,7 +175,7 @@ def _post_promptPass(config, configuration):
             config.sources.insert(1, config.interactive)
 
 
-class ConfigVariable(object):
+class ConfigVariable():
     """Describe a configuration variable.  Configuration variables are
     created in :meth:`icat.config.BaseConfig.add_variable` and control
     the behavior of :meth:`icat.config.Config.getconfig`.
@@ -191,8 +213,7 @@ class ConfigSubCmds(ConfigVariable):
     :meth:`~icat.config.ConfigSubCmds.add_subconfig` method.
     """
     def __init__(self, name, optional, config, subparsers):
-        super(ConfigSubCmds, self).__init__(name, None, optional,
-                                            None, None, False)
+        super().__init__(name, None, optional, None, None, False)
         self.config = config
         self.subparsers = subparsers
         self.subconfig = {}
@@ -238,7 +259,7 @@ class ConfigSubCmds(ConfigVariable):
             return value
 
 
-class ConfigSource(object):
+class ConfigSource():
     """A configuration source.
 
     This is the base class for all configuration sources, such as
@@ -253,7 +274,7 @@ class ConfigSourceCmdArgs(ConfigSource):
     """Get configuration from command line arguments.
     """
     def __init__(self, argparser):
-        super(ConfigSourceCmdArgs, self).__init__()
+        super().__init__()
         self.argparser = argparser
         self.args = None
 
@@ -282,21 +303,21 @@ class ConfigSourceFile(ConfigSource):
     """Get configuration from a configuration file.
     """
     def __init__(self, defaultFiles):
-        super(ConfigSourceFile, self).__init__()
-        self.confparser = ConfigParser.RawConfigParser()
+        super().__init__()
+        self.confparser = configparser.RawConfigParser()
         self.defaultFiles = defaultFiles
         self.section = None
 
     def read(self, filename):
         if filename:
-            readfile = self.confparser.read(filename)
+            readfile = self.confparser.read(str(filename))
             if not readfile:
                 raise ConfigError("Could not read config file '%s'." % filename)
         elif filename is None:
             readfile = self.confparser.read(self.defaultFiles)
         else:
-            readfile = filename
-        return readfile
+            readfile = []
+        return [Path(p) for p in readfile]
 
     def setsection(self, section):
         if section and not self.confparser.has_section(section):
@@ -309,7 +330,7 @@ class ConfigSourceFile(ConfigSource):
         if self.section:
             try:
                 value = self.confparser.get(self.section, variable.name)
-            except ConfigParser.NoOptionError:
+            except configparser.NoOptionError:
                 pass
         return variable.get(value)
 
@@ -325,6 +346,18 @@ class ConfigSourceInteractive(ConfigSource):
             return variable.get(getpass.getpass(prompt))
 
 
+class ConfigSourcePreset(ConfigSource):
+    """Apply presets of configuration values from the calling script.
+    """
+
+    def __init__(self, values):
+        super().__init__()
+        self.preset_values = values
+
+    def get(self, variable):
+        return variable.get(self.preset_values.get(variable.name))
+
+
 class ConfigSourceDefault(ConfigSource):
     """Handle the case that some variable is not set from any other source.
     """
@@ -335,18 +368,7 @@ class ConfigSourceDefault(ConfigSource):
         return variable.get(value)
 
 
-class _DeprecatedKeyDict(dict):
-    """A dict that raises DeprecationWarning if accessing a particular
-    deprecated key.
-    """
-    def __getitem__(self, key):
-        if key == "configDir":
-            warnings.warn("The 'configDir' configuration variable is "
-                          "deprecated and will be removed in python-icat 1.0.", 
-                          DeprecationWarning, stacklevel=2)
-        return super(_DeprecatedKeyDict, self).__getitem__(key)
-
-class Configuration(object):
+class Configuration():
     """Provide a name space to store the configuration.
 
     :meth:`icat.config.Config.getconfig` returns a Configuration
@@ -354,22 +376,7 @@ class Configuration(object):
     attributes.
     """
     def __init__(self, config):
-        super(Configuration, self).__init__()
         self._config = config
-
-    def __getattr__(self, attr):
-        if attr == "configDir":
-            warnings.warn("The 'configDir' configuration variable is "
-                          "deprecated and will be removed in python-icat 1.0.", 
-                          DeprecationWarning, stacklevel=2)
-            if getattr(self, "configFile", None):
-                f = self.configFile[-1]
-                return os.path.dirname(os.path.abspath(f))
-            else:
-                return None
-        else:
-            raise AttributeError("%s object has no attribute %s" % 
-                                 (type(self).__name__, attr))
 
     def __str__(self):
         typename = type(self).__name__
@@ -390,16 +397,16 @@ class Configuration(object):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             d = { f:getattr(self, f) for f in vars if hasattr(self, f) }
-        return _DeprecatedKeyDict(d)
+        return d
 
 
-class BaseConfig(object):
+class BaseConfig():
     """Abstract base class for :class:`icat.config.Config` and
     :class:`icat.config.SubConfig`.  This class defines the common
     API.  It is not intended to be instantiated directly.
     """
 
-    ReservedVariables = ['configDir', 'credentials']
+    ReservedVariables = ['credentials']
     """Reserved names of configuration variables."""
 
     def __init__(self, argparser):
@@ -637,6 +644,12 @@ class Config(BaseConfig):
         variable, if this is set to :const:`False`, to 'mandatory', or
         to 'optional' respectively.
     :type ids: :class:`bool` or :class:`str`
+    :param preset: mapping of configuration variable names to preset
+        values.  These preset values override the default value for
+        the corresponding variable.  Note that command line arguments,
+        environment variables, and settings in the configuration files
+        still take precedence over the preset values.
+    :type preset: :class:`dict`
     :param args: list of command line arguments or :const:`None`.  If
         not set, the command line arguments will be taken from
         :data:`sys.argv`.
@@ -644,19 +657,29 @@ class Config(BaseConfig):
     """
 
     def __init__(self, defaultvars=True, needlogin=True, ids="optional", 
-                 args=None):
+                 preset=None, args=None):
         """Initialize the object.
         """
-        super(Config, self).__init__(argparse.ArgumentParser())
+        super().__init__(argparse.ArgumentParser())
         self.cmdargs = ConfigSourceCmdArgs(self.argparser)
         self.environ = ConfigSourceEnvironment()
-        defaultFiles = [os.path.join(d, cfgfile) for d in cfgdirs]
+        defaultFiles = [str(d / cfgfile) for d in cfgdirs]
         self.conffile = ConfigSourceFile(defaultFiles)
         self.interactive = ConfigSourceInteractive()
         self.defaults = ConfigSourceDefault()
-        self.sources = [ self.cmdargs, self.environ, self.conffile, 
-                         self.interactive, self.defaults ]
+        if preset:
+            self.preset = ConfigSourcePreset(preset)
+            self.sources = [ self.cmdargs, self.environ, self.conffile,
+                             self.preset, self.interactive, self.defaults ]
+        else:
+            self.sources = [ self.cmdargs, self.environ, self.conffile,
+                             self.interactive, self.defaults ]
         self.args = args
+        if defaultsection is not None:
+            warnings.warn("Deprecated setting of 'defaultsection' detected. "
+                          "Use the 'preset' keyword argument "
+                          "to class 'Config' instead.",
+                          DeprecationWarning, stacklevel=2)
         self._add_fundamental_variables()
         if defaultvars:
             self.needlogin = needlogin
@@ -709,7 +732,8 @@ class Config(BaseConfig):
         """
         var = self.add_variable('configFile', ("-c", "--configfile"), 
                                 dict(help="config file"),
-                                envvar='ICAT_CFG', optional=True)
+                                envvar='ICAT_CFG', optional=True,
+                                type=lambda f: Path(f).expanduser())
         var.postprocess = _post_configFile
         var = self.add_variable('configSection', ("-s", "--configsection"), 
                                 dict(help="section in the config file", 
@@ -834,7 +858,7 @@ class SubConfig(BaseConfig):
     inherited from :class:`icat.config.BaseConfig`.
     """
     def __init__(self, argparser, parent, name=None, func=None):
-        super(SubConfig, self).__init__(argparser)
+        super().__init__(argparser)
         self.parent = parent
         self.confvariable = dict(self.parent.confvariable)
         self.name = name

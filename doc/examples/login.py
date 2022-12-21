@@ -1,12 +1,10 @@
 #! /usr/bin/python
 
-from __future__ import print_function
+import logging
 import icat
 import icat.config
-import logging
 
 logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
 
 config = icat.config.Config(ids="optional")
 client, conf = config.getconfig()

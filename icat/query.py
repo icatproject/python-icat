@@ -4,12 +4,7 @@
 from collections import OrderedDict
 import re
 from warnings import warn
-try:
-    # Python 3.3 and newer
-    from collections.abc import Mapping
-except ImportError:
-    # Python 2
-    from collections import Mapping
+from collections.abc import Mapping
 import icat.entity
 from icat.exception import *
 
@@ -65,7 +60,7 @@ jpql_join_specs = frozenset([
 
 # ========================== class Query =============================
 
-class Query(object):
+class Query():
     """Build a query to search an ICAT server.
 
     The query uses the JPQL inspired syntax introduced with ICAT
@@ -96,37 +91,33 @@ class Query(object):
     :param join_specs: a mapping to override the join specification
         for selected related objects.  See the
         :meth:`~icat.query.Query.setJoinSpecs` method for details.
-    :param attribute: alias for `attributes`, retained for
-        compatibility.  Deprecated, use `attributes` instead.
-    :raise TypeError: if `entity` is not a valid entity type, if both
-        `attributes` and `attribute` are provided, or if any of the
-        keyword arguments have an invalid type, see the corresponding
-        method for details.
+    :raise TypeError: if `entity` is not a valid entity type or if any
+        of the keyword arguments have an invalid type, see the
+        corresponding method for details.
     :raise ValueError: if any of the keyword arguments is not valid,
         see the corresponding method for details.
 
     .. versionchanged:: 0.18.0
         add support for queries requesting a list of attributes rather
-        then a single one.  Consequently, the keyword argument
+        than a single one.  Consequently, the keyword argument
         `attribute` has been renamed to `attributes` (in the plural).
     .. versionchanged:: 0.19.0
         add the `join_specs` argument.
     """
 
-    _db_func_re = re.compile(r"^(?:([A-Za-z_]+)\()?([A-Za-z.]+)(?(1)\))$")
+    _db_func_re = re.compile(r"(?:([A-Za-z_]+)\()?([A-Za-z.]+)(?(1)\))")
 
     def __init__(self, client, entity,
                  attributes=None, aggregate=None, order=None,
                  conditions=None, includes=None, limit=None,
-                 join_specs=None, attribute=None):
+                 join_specs=None):
         """Initialize the query.
         """
 
-        super(Query, self).__init__()
         self._init = True
         self.client = client
 
-        if isinstance(entity, basestring):
+        if isinstance(entity, str):
             self.entity = self.client.getEntityClass(entity)
         elif issubclass(entity, icat.entity.Entity):
             if (entity in self.client.typemap.values() and
@@ -137,13 +128,6 @@ class Query(object):
                                       % entity.__name__)
         else:
             raise EntityTypeError("Invalid entity type '%s'." % type(entity))
-
-        if attribute is not None:
-            if attributes:
-                raise TypeError("cannot use both, attribute and attributes")
-            warn("The attribute keyword argument is deprecated and will be "
-                 "removed in python-icat 1.0.", DeprecationWarning, 2)
-            attributes = attribute
 
         self.setAttributes(attributes)
         self.setAggregate(aggregate)
@@ -221,7 +205,7 @@ class Query(object):
         return n
 
     def _split_db_functs(self, attr):
-        m = self._db_func_re.match(attr)
+        m = self._db_func_re.fullmatch(attr)
         if not m:
             raise ValueError("Invalid attribute '%s'" % attr)
         return m.group(2,1)
@@ -337,7 +321,7 @@ class Query(object):
             natural order of the entity type.  Any false value means
             no ORDER BY clause.  The attribute name can be wrapped
             with a JPQL function (such as "LENGTH(title)").  Rather
-            then only an attribute name, any item in the list may also
+            than only an attribute name, any item in the list may also
             be a tuple of an attribute name and an order direction,
             the latter being either "ASC" or "DESC" for ascending or
             descending order respectively.
@@ -349,13 +333,13 @@ class Query(object):
         .. versionchanged:: 0.19.0
             allow one to many relationships in `order`.  Emit a
             :exc:`~icat.exception.QueryOneToManyOrderWarning` rather
-            then raising a :exc:`ValueError` in this case.
+            than raising a :exc:`ValueError` in this case.
         .. versionchanged:: 0.20.0
             allow a JPQL function in the attribute.
         """
         self._subst = None
         # Note: with Python 3.7 and newer we could simplify this using
-        # a standard dict() rather then an OrderedDict().
+        # a standard dict() rather than an OrderedDict().
         self.order = OrderedDict()
 
         if order is True:
@@ -446,7 +430,7 @@ class Query(object):
         if conditions:
             self._subst = None
             for k in conditions.keys():
-                if isinstance(conditions[k], basestring):
+                if isinstance(conditions[k], str):
                     conds = [conditions[k]]
                 else:
                     conds = conditions[k]
@@ -609,15 +593,6 @@ class Query(object):
 
     def __str__(self):
         """Return a string representation of the query.
-
-        Note for Python 2: the result will be an unicode object if any
-        of the conditions in the query contains unicode.  This
-        violates the specification of the string representation
-        operator that requires the return value to be a string object.
-        But it is the *right thing* to do to get queries with
-        non-ascii characters working.  So this operator favours
-        usefulness over formal correctness.  For Python 3, there is no
-        distinction between Unicode and string objects anyway.
         """
         clauses = filter(None, (
             self.select_clause,
@@ -638,18 +613,8 @@ class Query(object):
         q.order = self.order.copy()
         q.conditions = dict()
         for k, v in self.conditions.items():
-            q.conditions[k] = list(self.conditions[k])
+            q.conditions[k] = self.conditions[k].copy()
         q.includes = self.includes.copy()
         q.limit = self.limit
         q.join_specs = self.join_specs.copy()
         return q
-
-    def setAttribute(self, attribute):
-        """Alias for :meth:`setAttributes`.
-
-        .. deprecated:: 0.18.0
-            use :meth:`setAttributes` instead.
-        """
-        warn("setAttribute() is deprecated "
-             "and will be removed in python-icat 1.0.", DeprecationWarning, 2)
-        self.setAttributes(attribute)

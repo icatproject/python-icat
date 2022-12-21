@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2020-04-17T18:30:30+00:00</date>
+  <date>2022-12-21T15:02:37+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
-  <apiversion>4.7</apiversion>
-  <generator>icatdump (python-icat 0.16.0)</generator>
+  <apiversion>4.7.0</apiversion>
+  <generator>icatdump (python-icat 1.0.0)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
@@ -42,6 +42,10 @@
     <name>db/rbeck</name>
     <orcidId>0000-0002-3267</orcidId>
   </user>
+  <user id="User_name-simple=2Fdataingest">
+    <fullName>Data Ingester</fullName>
+    <name>simple/dataingest</name>
+  </user>
   <user id="User_name-simple=2Fidsreader">
     <fullName>IDS reader</fullName>
     <name>simple/idsreader</name>
@@ -54,6 +58,12 @@
     <fullName>User Office</fullName>
     <name>simple/useroffice</name>
   </user>
+  <grouping id="Grouping_name-ingest">
+    <name>ingest</name>
+    <userGroups>
+      <user ref="User_name-simple=2Fdataingest"/>
+    </userGroups>
+  </grouping>
   <grouping id="Grouping_name-investigation=5F08100122=2DEF=5Fowner">
     <name>investigation_08100122-EF_owner</name>
     <userGroups>
@@ -143,184 +153,184 @@
     <what>Application</what>
   </rule>
   <rule id="Rule_00000002">
-    <crudFlags>CRUD</crudFlags>
-    <what>DataCollection [createId=:user]</what>
-  </rule>
-  <rule id="Rule_00000003">
-    <crudFlags>CRUD</crudFlags>
-    <what>DataCollectionDatafile &lt;-&gt; DataCollection [createId=:user]</what>
-  </rule>
-  <rule id="Rule_00000004">
-    <crudFlags>CRUD</crudFlags>
-    <what>DataCollectionDataset &lt;-&gt; DataCollection [createId=:user]</what>
-  </rule>
-  <rule id="Rule_00000005">
-    <crudFlags>CRUD</crudFlags>
-    <what>DataCollectionParameter &lt;-&gt; DataCollection [createId=:user]</what>
-  </rule>
-  <rule id="Rule_00000006">
     <crudFlags>R</crudFlags>
     <what>DatafileFormat</what>
   </rule>
-  <rule id="Rule_00000007">
+  <rule id="Rule_00000003">
     <crudFlags>R</crudFlags>
     <what>DatasetType</what>
   </rule>
-  <rule id="Rule_00000008">
+  <rule id="Rule_00000004">
     <crudFlags>R</crudFlags>
     <what>Facility</what>
   </rule>
-  <rule id="Rule_00000009">
+  <rule id="Rule_00000005">
     <crudFlags>R</crudFlags>
     <what>FacilityCycle</what>
   </rule>
-  <rule id="Rule_00000010">
+  <rule id="Rule_00000006">
     <crudFlags>R</crudFlags>
     <what>Grouping &lt;-&gt; UserGroup &lt;-&gt; User [name=:user]</what>
   </rule>
-  <rule id="Rule_00000011">
+  <rule id="Rule_00000007">
     <crudFlags>R</crudFlags>
     <what>Instrument</what>
   </rule>
-  <rule id="Rule_00000012">
+  <rule id="Rule_00000008">
     <crudFlags>R</crudFlags>
     <what>InvestigationType</what>
   </rule>
-  <rule id="Rule_00000013">
-    <crudFlags>CRUD</crudFlags>
-    <what>Job [createId=:user]</what>
-  </rule>
-  <rule id="Rule_00000014">
+  <rule id="Rule_00000009">
     <crudFlags>R</crudFlags>
     <what>ParameterType</what>
   </rule>
-  <rule id="Rule_00000015">
+  <rule id="Rule_00000010">
     <crudFlags>R</crudFlags>
     <what>PermissibleStringValue</what>
   </rule>
-  <rule id="Rule_00000016">
+  <rule id="Rule_00000011">
     <crudFlags>CRUD</crudFlags>
-    <what>RelatedDatafile [createId=:user]</what>
+    <what>SELECT o FROM DataCollection o WHERE o.createId = :user</what>
   </rule>
-  <rule id="Rule_00000017">
+  <rule id="Rule_00000012">
+    <crudFlags>CRUD</crudFlags>
+    <what>SELECT o FROM DataCollectionDatafile o JOIN o.dataCollection AS s1 WHERE s1.createId = :user</what>
+  </rule>
+  <rule id="Rule_00000013">
+    <crudFlags>CRUD</crudFlags>
+    <what>SELECT o FROM DataCollectionDataset o JOIN o.dataCollection AS s1 WHERE s1.createId = :user</what>
+  </rule>
+  <rule id="Rule_00000014">
+    <crudFlags>CRUD</crudFlags>
+    <what>SELECT o FROM DataCollectionParameter o JOIN o.dataCollection AS s1 WHERE s1.createId = :user</what>
+  </rule>
+  <rule id="Rule_00000015">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN ds.type AS s1 WHERE i.releaseDate &lt; CURRENT_TIMESTAMP AND s1.name = 'raw'</what>
   </rule>
-  <rule id="Rule_00000018">
+  <rule id="Rule_00000016">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE ds.complete = False AND s4.name = :user AND s1.role = 'writer'</what>
   </rule>
-  <rule id="Rule_00000019">
+  <rule id="Rule_00000017">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000020">
+  <rule id="Rule_00000018">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE ds.complete = False AND s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000021">
+  <rule id="Rule_00000019">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000022">
+  <rule id="Rule_00000020">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationGroups AS s4 JOIN s4.grouping AS s5 JOIN s5.userGroups AS s6 JOIN s6.user AS s7 WHERE s7.name = :user</what>
   </rule>
-  <rule id="Rule_00000023">
+  <rule id="Rule_00000021">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationGroups AS s4 JOIN s4.grouping AS s5 JOIN s5.userGroups AS s6 JOIN s6.user AS s7 WHERE s7.name = :user AND s4.role = 'writer'</what>
   </rule>
-  <rule id="Rule_00000024">
+  <rule id="Rule_00000022">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationInstruments AS s4 JOIN s4.instrument AS s5 JOIN s5.instrumentScientists AS s6 JOIN s6.user AS s7 WHERE s7.name = :user</what>
   </rule>
-  <rule id="Rule_00000025">
+  <rule id="Rule_00000023">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM DatafileParameter o JOIN o.datafile AS s1 JOIN s1.dataset AS s2 JOIN s2.investigation AS s3 JOIN s3.investigationInstruments AS s4 JOIN s4.instrument AS s5 JOIN s5.instrumentScientists AS s6 JOIN s6.user AS s7 WHERE s7.name = :user</what>
   </rule>
-  <rule id="Rule_00000026">
+  <rule id="Rule_00000024">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE o.complete = False AND s4.name = :user AND s1.role = 'writer'</what>
   </rule>
-  <rule id="Rule_00000027">
+  <rule id="Rule_00000025">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000028">
+  <rule id="Rule_00000026">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE o.complete = False AND s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000029">
+  <rule id="Rule_00000027">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000030">
+  <rule id="Rule_00000028">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Dataset o JOIN o.investigation AS i JOIN o.type AS t WHERE i.releaseDate &lt; CURRENT_TIMESTAMP AND t.name = 'raw'</what>
   </rule>
-  <rule id="Rule_00000031">
+  <rule id="Rule_00000029">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000032">
+  <rule id="Rule_00000030">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user AND s1.role = 'writer'</what>
   </rule>
-  <rule id="Rule_00000033">
+  <rule id="Rule_00000031">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000034">
+  <rule id="Rule_00000032">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000035">
+  <rule id="Rule_00000033">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Grouping o JOIN o.investigationGroups AS ig JOIN ig.investigation AS s1 JOIN s1.investigationGroups AS s2 JOIN s2.grouping AS s3 JOIN s3.userGroups AS s4 JOIN s4.user AS s5 WHERE s5.name = :user AND s2.role = 'owner'</what>
   </rule>
-  <rule id="Rule_00000036">
+  <rule id="Rule_00000034">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Investigation o JOIN o.investigationGroups AS ig JOIN ig.grouping AS s1 JOIN s1.userGroups AS s2 JOIN s2.user AS s3 WHERE s3.name = :user</what>
   </rule>
-  <rule id="Rule_00000037">
+  <rule id="Rule_00000035">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Investigation o JOIN o.investigationInstruments AS ii JOIN ii.instrument AS s1 JOIN s1.instrumentScientists AS s2 JOIN s2.user AS s3 WHERE s3.name = :user</what>
   </rule>
-  <rule id="Rule_00000038">
+  <rule id="Rule_00000036">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Investigation o WHERE o.releaseDate &lt; CURRENT_TIMESTAMP</what>
   </rule>
-  <rule id="Rule_00000039">
+  <rule id="Rule_00000037">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000040">
+  <rule id="Rule_00000038">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user AND s1.role = 'writer'</what>
   </rule>
-  <rule id="Rule_00000041">
+  <rule id="Rule_00000039">
     <crudFlags>CUD</crudFlags>
     <what>SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000042">
+  <rule id="Rule_00000040">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM InvestigationParameter o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000043">
+  <rule id="Rule_00000041">
+    <crudFlags>CRUD</crudFlags>
+    <what>SELECT o FROM Job o WHERE o.createId = :user</what>
+  </rule>
+  <rule id="Rule_00000042">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000044">
+  <rule id="Rule_00000043">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Keyword o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000045">
+  <rule id="Rule_00000044">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationGroups AS s1 JOIN s1.grouping AS s2 JOIN s2.userGroups AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
   </rule>
-  <rule id="Rule_00000046">
+  <rule id="Rule_00000045">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Publication o JOIN o.investigation AS i JOIN i.investigationInstruments AS s1 JOIN s1.instrument AS s2 JOIN s2.instrumentScientists AS s3 JOIN s3.user AS s4 WHERE s4.name = :user</what>
+  </rule>
+  <rule id="Rule_00000046">
+    <crudFlags>CRUD</crudFlags>
+    <what>SELECT o FROM RelatedDatafile o WHERE o.createId = :user</what>
   </rule>
   <rule id="Rule_00000047">
     <crudFlags>R</crudFlags>
@@ -379,221 +389,251 @@
     <what>User</what>
   </rule>
   <rule id="Rule_00000061">
+    <crudFlags>CRU</crudFlags>
+    <what>Datafile</what>
+    <grouping ref="Grouping_name-ingest"/>
+  </rule>
+  <rule id="Rule_00000062">
+    <crudFlags>CRU</crudFlags>
+    <what>DatafileParameter</what>
+    <grouping ref="Grouping_name-ingest"/>
+  </rule>
+  <rule id="Rule_00000063">
+    <crudFlags>CRU</crudFlags>
+    <what>Dataset</what>
+    <grouping ref="Grouping_name-ingest"/>
+  </rule>
+  <rule id="Rule_00000064">
+    <crudFlags>CRU</crudFlags>
+    <what>DatasetParameter</what>
+    <grouping ref="Grouping_name-ingest"/>
+  </rule>
+  <rule id="Rule_00000065">
+    <crudFlags>R</crudFlags>
+    <what>Investigation</what>
+    <grouping ref="Grouping_name-ingest"/>
+  </rule>
+  <rule id="Rule_00000066">
+    <crudFlags>R</crudFlags>
+    <what>Shift</what>
+    <grouping ref="Grouping_name-ingest"/>
+  </rule>
+  <rule id="Rule_00000067">
     <crudFlags>R</crudFlags>
     <what>DataCollection</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000062">
+  <rule id="Rule_00000068">
     <crudFlags>R</crudFlags>
     <what>DataCollectionDatafile</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000063">
+  <rule id="Rule_00000069">
     <crudFlags>R</crudFlags>
     <what>DataCollectionDataset</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000064">
+  <rule id="Rule_00000070">
     <crudFlags>R</crudFlags>
     <what>DataCollectionParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000065">
+  <rule id="Rule_00000071">
     <crudFlags>R</crudFlags>
     <what>Datafile</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000066">
+  <rule id="Rule_00000072">
     <crudFlags>R</crudFlags>
     <what>DatafileParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000067">
+  <rule id="Rule_00000073">
     <crudFlags>R</crudFlags>
     <what>Dataset</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000068">
+  <rule id="Rule_00000074">
     <crudFlags>R</crudFlags>
     <what>DatasetParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000069">
-    <crudFlags>R</crudFlags>
-    <what>Grouping</what>
-    <grouping ref="Grouping_name-rall"/>
-  </rule>
-  <rule id="Rule_00000070">
-    <crudFlags>R</crudFlags>
-    <what>InstrumentScientist</what>
-    <grouping ref="Grouping_name-rall"/>
-  </rule>
-  <rule id="Rule_00000071">
-    <crudFlags>R</crudFlags>
-    <what>Investigation</what>
-    <grouping ref="Grouping_name-rall"/>
-  </rule>
-  <rule id="Rule_00000072">
-    <crudFlags>R</crudFlags>
-    <what>InvestigationGroup</what>
-    <grouping ref="Grouping_name-rall"/>
-  </rule>
-  <rule id="Rule_00000073">
-    <crudFlags>R</crudFlags>
-    <what>InvestigationInstrument</what>
-    <grouping ref="Grouping_name-rall"/>
-  </rule>
-  <rule id="Rule_00000074">
-    <crudFlags>R</crudFlags>
-    <what>InvestigationParameter</what>
-    <grouping ref="Grouping_name-rall"/>
-  </rule>
   <rule id="Rule_00000075">
     <crudFlags>R</crudFlags>
-    <what>InvestigationUser</what>
+    <what>Grouping</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000076">
     <crudFlags>R</crudFlags>
-    <what>Job</what>
+    <what>InstrumentScientist</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000077">
     <crudFlags>R</crudFlags>
-    <what>Keyword</what>
+    <what>Investigation</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000078">
     <crudFlags>R</crudFlags>
-    <what>PublicStep</what>
+    <what>InvestigationGroup</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000079">
     <crudFlags>R</crudFlags>
-    <what>Publication</what>
+    <what>InvestigationInstrument</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000080">
     <crudFlags>R</crudFlags>
-    <what>RelatedDatafile</what>
+    <what>InvestigationParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000081">
     <crudFlags>R</crudFlags>
-    <what>Rule</what>
+    <what>InvestigationUser</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000082">
     <crudFlags>R</crudFlags>
-    <what>Sample</what>
+    <what>Job</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000083">
     <crudFlags>R</crudFlags>
-    <what>SampleParameter</what>
+    <what>Keyword</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000084">
     <crudFlags>R</crudFlags>
-    <what>Shift</what>
+    <what>PublicStep</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000085">
     <crudFlags>R</crudFlags>
-    <what>Study</what>
+    <what>Publication</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000086">
     <crudFlags>R</crudFlags>
-    <what>StudyInvestigation</what>
+    <what>RelatedDatafile</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000087">
     <crudFlags>R</crudFlags>
-    <what>UserGroup</what>
+    <what>Rule</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000088">
+    <crudFlags>R</crudFlags>
+    <what>Sample</what>
+    <grouping ref="Grouping_name-rall"/>
+  </rule>
+  <rule id="Rule_00000089">
+    <crudFlags>R</crudFlags>
+    <what>SampleParameter</what>
+    <grouping ref="Grouping_name-rall"/>
+  </rule>
+  <rule id="Rule_00000090">
+    <crudFlags>R</crudFlags>
+    <what>Shift</what>
+    <grouping ref="Grouping_name-rall"/>
+  </rule>
+  <rule id="Rule_00000091">
+    <crudFlags>R</crudFlags>
+    <what>Study</what>
+    <grouping ref="Grouping_name-rall"/>
+  </rule>
+  <rule id="Rule_00000092">
+    <crudFlags>R</crudFlags>
+    <what>StudyInvestigation</what>
+    <grouping ref="Grouping_name-rall"/>
+  </rule>
+  <rule id="Rule_00000093">
+    <crudFlags>R</crudFlags>
+    <what>UserGroup</what>
+    <grouping ref="Grouping_name-rall"/>
+  </rule>
+  <rule id="Rule_00000094">
     <crudFlags>RU</crudFlags>
     <what>Sample</what>
     <grouping ref="Grouping_name-scientific=5Fstaff"/>
   </rule>
-  <rule id="Rule_00000089">
+  <rule id="Rule_00000095">
     <crudFlags>UD</crudFlags>
     <what>SampleType</what>
     <grouping ref="Grouping_name-scientific=5Fstaff"/>
   </rule>
-  <rule id="Rule_00000090">
+  <rule id="Rule_00000096">
     <crudFlags>CRUD</crudFlags>
     <what>FacilityCycle</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000091">
+  <rule id="Rule_00000097">
     <crudFlags>CRUD</crudFlags>
     <what>Grouping</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000092">
+  <rule id="Rule_00000098">
     <crudFlags>CRUD</crudFlags>
     <what>InstrumentScientist</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000093">
+  <rule id="Rule_00000099">
     <crudFlags>CRUD</crudFlags>
     <what>Investigation</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000094">
+  <rule id="Rule_00000100">
     <crudFlags>CRUD</crudFlags>
     <what>InvestigationGroup</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000095">
+  <rule id="Rule_00000101">
     <crudFlags>CRUD</crudFlags>
     <what>InvestigationInstrument</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000096">
+  <rule id="Rule_00000102">
     <crudFlags>CRUD</crudFlags>
     <what>InvestigationParameter</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000097">
+  <rule id="Rule_00000103">
     <crudFlags>CRUD</crudFlags>
     <what>InvestigationUser</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000098">
+  <rule id="Rule_00000104">
     <crudFlags>CRUD</crudFlags>
     <what>Keyword</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000099">
+  <rule id="Rule_00000105">
     <crudFlags>CRUD</crudFlags>
     <what>Publication</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000100">
+  <rule id="Rule_00000106">
     <crudFlags>CRUD</crudFlags>
     <what>Shift</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000101">
+  <rule id="Rule_00000107">
     <crudFlags>CRUD</crudFlags>
     <what>Study</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000102">
+  <rule id="Rule_00000108">
     <crudFlags>CRUD</crudFlags>
     <what>StudyInvestigation</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000103">
+  <rule id="Rule_00000109">
     <crudFlags>CRUD</crudFlags>
     <what>User</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000104">
+  <rule id="Rule_00000110">
     <crudFlags>CRUD</crudFlags>
     <what>UserGroup</what>
     <grouping ref="Grouping_name-useroffice"/>
@@ -928,10 +968,17 @@
     <version>N/A</version>
     <facility ref="Facility_name-ESNF"/>
   </datafileFormat>
+  <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-HDF5_version-N=2FA">
+    <description>Hierarchical Data Format version 5</description>
+    <name>HDF5</name>
+    <type>application/x-hdf5</type>
+    <version>N/A</version>
+    <facility ref="Facility_name-ESNF"/>
+  </datafileFormat>
   <datafileFormat id="DatafileFormat_facility-(name-ESNF)_name-NeXus_version-N=2FA">
     <description>A common data format for neutron, x-ray and muon science</description>
     <name>NeXus</name>
-    <type>application/x-hdf</type>
+    <type>application/x-hdf5</type>
     <version>N/A</version>
     <facility ref="Facility_name-ESNF"/>
   </datafileFormat>
@@ -1083,7 +1130,7 @@
 </data>
 <data>
   <investigation id="Investigation_facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP">
-    <doi>00.0815/inv-00122</doi>
+    <doi>DOI:00.0815/inv-00122</doi>
     <name>08100122-EF</name>
     <startDate>2008-03-13T10:39:42+00:00</startDate>
     <title>Durol single crystal</title>
@@ -1167,7 +1214,7 @@
 </data>
 <data>
   <investigation id="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN">
-    <doi>00.0815/inv-00601</doi>
+    <doi>DOI:00.0815/inv-00601</doi>
     <endDate>2010-10-12T15:00:00+00:00</endDate>
     <name>10100601-ST</name>
     <startDate>2010-09-30T10:27:24+00:00</startDate>
@@ -1211,7 +1258,7 @@
       <type ref="ParameterType_facility-(name-ESNF)_name-Probe_units-N=2FA"/>
     </parameters>
     <publications>
-      <doi>0.1002/adma.201101001</doi>
+      <doi>DOI:00.1002/adma.201101001</doi>
       <fullReference>A. Hau.  Properties of NiMnGa.  Adv. Mater. 2011, 1</fullReference>
     </publications>
     <shifts>
@@ -1332,7 +1379,7 @@
 </data>
 <data>
   <investigation id="Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP">
-    <doi>00.0815/inv-00409</doi>
+    <doi>DOI:00.0815/inv-00409</doi>
     <endDate>2012-08-06T01:10:08+00:00</endDate>
     <name>12100409-ST</name>
     <startDate>2012-07-26T15:44:24+00:00</startDate>
@@ -1489,6 +1536,40 @@
   </datafile>
 </data>
 <data>
+  <dataCollection id="DataCollection_00000001">
+    <dataCollectionDatafiles>
+      <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208339)_name-e208339=2Enxs"/>
+    </dataCollectionDatafiles>
+    <dataCollectionDatasets>
+      <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201215"/>
+    </dataCollectionDatasets>
+    <dataCollectionDatasets>
+      <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-08100122=2DEF_visitId-1=2E1=2DP)_name-e201216"/>
+    </dataCollectionDatasets>
+  </dataCollection>
+  <dataCollection id="DataCollection_00000002">
+    <dataCollectionDatafiles>
+      <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs"/>
+    </dataCollectionDatafiles>
+    <dataCollectionDatasets>
+      <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341"/>
+    </dataCollectionDatasets>
+    <parameters>
+      <stringValue>Make a synthesis of 10100601-ST and 12100409-ST</stringValue>
+      <type ref="ParameterType_facility-(name-ESNF)_name-Comment_units-N=2FA"/>
+    </parameters>
+  </dataCollection>
+  <dataCollection id="DataCollection_00000003">
+    <doi>DOI:00.0815/dat-004711</doi>
+    <dataCollectionDatafiles>
+      <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs"/>
+    </dataCollectionDatafiles>
+    <dataCollectionDatasets>
+      <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947"/>
+    </dataCollectionDatasets>
+  </dataCollection>
+</data>
+<data>
   <study id="Study_00000001">
     <name>12-008</name>
     <startDate>2012-07-09T06:00:00+00:00</startDate>
@@ -1506,31 +1587,10 @@
     <destDatafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208341=2Enxs"/>
     <sourceDatafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341)_name-e208341=2Enxs"/>
   </relatedDatafile>
-  <dataCollection id="DataCollection_00000001">
-    <dataCollectionDatafiles>
-      <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2Enxs"/>
-    </dataCollectionDatafiles>
-    <dataCollectionDatasets>
-      <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN)_name-e208341"/>
-    </dataCollectionDatasets>
-    <parameters>
-      <stringValue>Make a synthesis of 10100601-ST and 12100409-ST</stringValue>
-      <type ref="ParameterType_facility-(name-ESNF)_name-Comment_units-N=2FA"/>
-    </parameters>
-  </dataCollection>
-  <dataCollection id="DataCollection_00000002">
-    <doi>00.0815/dat-004711</doi>
-    <dataCollectionDatafiles>
-      <datafile ref="Datafile_dataset-(investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945)_name-e208945=2D2=2Enxs"/>
-    </dataCollectionDatafiles>
-    <dataCollectionDatasets>
-      <dataset ref="Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208947"/>
-    </dataCollectionDatasets>
-  </dataCollection>
   <job id="Job_00000001">
     <application ref="Application_facility-(name-ESNF)_name-gnomoanalytics_version-69"/>
-    <inputDataCollection ref="DataCollection_00000001"/>
-    <outputDataCollection ref="DataCollection_00000002"/>
+    <inputDataCollection ref="DataCollection_00000002"/>
+    <outputDataCollection ref="DataCollection_00000003"/>
   </job>
 </data>
 </icatdata>
