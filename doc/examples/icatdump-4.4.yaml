@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Wed, 23 Nov 2022 16:39:39 +0000
+# Date: Wed, 21 Dec 2022 14:57:08 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 4.4.0
-# Generator: icatdump (python-icat 0.21.1.dev138)
+# Generator: icatdump (python-icat 1.0.0)
 ---
 grouping:
   Grouping_name-ingest:
