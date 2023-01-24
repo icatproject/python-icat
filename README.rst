@@ -1,4 +1,7 @@
-|rtd| |pypi|
+|doi| |rtd| |pypi|
+
+.. |doi| image:: https://zenodo.org/badge/37250056.svg
+   :target: https://zenodo.org/badge/latestdoi/37250056
 
 .. |rtd| image:: https://img.shields.io/readthedocs/python-icat/latest
    :target: https://python-icat.readthedocs.io/en/latest/
