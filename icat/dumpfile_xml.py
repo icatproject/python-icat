@@ -7,6 +7,7 @@ import sys
 from lxml import etree
 import icat
 import icat.dumpfile
+from icat.exception import SearchResultError
 from icat.query import Query
 try:
     utc = datetime.timezone.utc
@@ -64,7 +65,10 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
         ref = element.get('ref')
         if ref:
             # object is referenced by key.
-            return self.client.searchUniqueKey(ref, objindex)
+            try:
+                return self.client.searchUniqueKey(ref, objindex)
+            except ValueError:
+                raise SearchResultError("invalid reference %s" % ref)
         else:
             # object is referenced by attributes.
             attrs = set(element.keys()) - {'id'}

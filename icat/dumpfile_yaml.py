@@ -5,6 +5,7 @@ import datetime
 import yaml
 import icat
 import icat.dumpfile
+from icat.exception import SearchResultError
 try:
     utc = datetime.timezone.utc
 except AttributeError:
@@ -104,7 +105,10 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
             if attr in obj.InstAttr:
                 setattr(obj, attr, d[k])
             elif attr in obj.InstRel:
-                robj = self.client.searchUniqueKey(d[k], objindex)
+                try:
+                    robj = self.client.searchUniqueKey(d[k], objindex)
+                except ValueError:
+                    raise SearchResultError("invalid reference %s" % d[k])
                 setattr(obj, attr, robj)
             elif attr in obj.InstMRel:
                 rtype = self.insttypemap[obj.getAttrType(attr)]
