@@ -3,8 +3,8 @@
 
 .. py:module:: icat.client
 
-The :mod:`icat.client` defines the :class:`~icat.client.Client` class
-that manages the interaction with an ICAT service as a client.
+This module defines the :class:`~icat.client.Client` class that
+manages the interaction with an ICAT service as a client.
 
 .. autoclass:: icat.client.Client
     :show-inheritance:
