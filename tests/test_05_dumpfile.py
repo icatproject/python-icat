@@ -7,7 +7,10 @@ uses the internal API icat.dumpfile.
 
 import filecmp
 import io
-from lxml import etree
+try:
+    from lxml import etree
+except ImportError:
+    etree = None
 import pytest
 try:
     from pytest_dependency import depends
@@ -139,6 +142,8 @@ def test_ingest(ingestcase, client):
         icatingest(client, stream, backend)
         stream.close()
     elif filetype == 'ETREE':
+        if etree is None:
+            pytest.skip("Need lxml")
         with refdump.open("rb") as f:
             icatdata = etree.parse(f)
         icatingest(client, icatdata, backend)

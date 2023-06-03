@@ -9,7 +9,10 @@ dump file.
 
 import filecmp
 import re
-import yaml
+try:
+    import yaml
+except ImportError:
+    yaml = None
 import pytest
 import icat
 import icat.config
@@ -50,6 +53,8 @@ summary_study_filter = (re.compile(r"^((?:Study(?:Investigation)?)\s*) : \d+$"),
 
 @pytest.fixture(scope="module")
 def data():
+    if yaml is None:
+        pytest.skip("Need yaml")
     with testinput.open('r') as f:
         return yaml.safe_load(f)
 
@@ -132,6 +137,8 @@ def fix_file_size(inv_name):
 
 @pytest.mark.dependency(name="init")
 def test_init(standardCmdArgs):
+    if yaml is None:
+        pytest.skip("Need yaml")
     callscript("wipeicat.py", standardCmdArgs)
     callscript("init-icat.py", standardCmdArgs + [str(testinput)])
 
