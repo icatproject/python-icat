@@ -2,6 +2,19 @@ Changelog
 =========
 
 
+1.1.0 (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bug fixes and minor changes
+---------------------------
+
++ `#115`_, `#116`_: Fix the test suite to work if either PyYAML or
+  lxml is not available.
+
+.. _#115: https://github.com/icatproject/python-icat/issues/115
+.. _#116: https://github.com/icatproject/python-icat/pull/116
+
+
 1.0.0 (2022-12-21)
 ~~~~~~~~~~~~~~~~~~
 
