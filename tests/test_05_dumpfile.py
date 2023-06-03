@@ -18,8 +18,6 @@ import icat
 import icat.config
 from icat.dump_queries import *
 from icat.dumpfile import open_dumpfile
-import icat.dumpfile_xml
-import icat.dumpfile_yaml
 from icat.query import Query
 from conftest import (getConfig, get_reference_dumpfile, callscript,
                       filter_file, yaml_filter, xml_filter)
