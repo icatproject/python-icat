@@ -16,6 +16,15 @@ import zlib
 import pytest
 import icat
 import icat.config
+import icat.dumpfile
+try:
+    import icat.dumpfile_xml
+except ImportError:
+    pass
+try:
+    import icat.dumpfile_yaml
+except ImportError:
+    pass
 from icat.helper import Version
 try:
     from suds.sax.date import UtcTimezone
@@ -144,6 +153,10 @@ def require_icat_version(minversion, reason):
     if icat_version < minversion:
         _skip("need ICAT server version %s or newer: %s" % (minversion, reason))
 
+def require_dumpfile_backend(backend):
+    if backend not in icat.dumpfile.Backends.keys():
+        _skip("need %s backend for icat.dumpfile" % (backend))
+
 
 def get_reference_dumpfile(ext = "yaml"):
     require_icat_version("4.4.0", "oldest available set of test data")
@@ -221,6 +234,7 @@ def standardCmdArgs():
 
 @pytest.fixture(scope="session")
 def setupicat(standardCmdArgs):
+    require_dumpfile_backend("YAML")
     testcontent = get_reference_dumpfile()
     callscript("wipeicat.py", standardCmdArgs)
     args = standardCmdArgs + ["-f", "YAML", "-i", str(testcontent)]

@@ -7,7 +7,10 @@ uses the internal API icat.dumpfile.
 
 import filecmp
 import io
-from lxml import etree
+try:
+    from lxml import etree
+except ImportError:
+    etree = None
 import pytest
 try:
     from pytest_dependency import depends
@@ -18,10 +21,9 @@ import icat
 import icat.config
 from icat.dump_queries import *
 from icat.dumpfile import open_dumpfile
-import icat.dumpfile_xml
-import icat.dumpfile_yaml
 from icat.query import Query
-from conftest import (getConfig, get_reference_dumpfile, callscript,
+from conftest import (getConfig, require_dumpfile_backend,
+                      get_reference_dumpfile, callscript,
                       filter_file, yaml_filter, xml_filter)
 
 
@@ -37,7 +39,6 @@ backends = {
         'filter': yaml_filter,
     },
 }
-assert backends.keys() == icat.dumpfile.Backends.keys()
 
 # The following cases are tuples of a backend and a file type (regular
 # file, stdin/stdout, in-memory stream).  They are used for both,
@@ -128,6 +129,7 @@ def test_ingest(ingestcase, client):
     """Restore the ICAT content from a dumpfile.
     """
     backend, filetype = ingestcase
+    require_dumpfile_backend(backend)
     refdump = backends[backend]['refdump']
     if filetype == 'FILE':
         icatingest(client, refdump, backend)
@@ -141,6 +143,8 @@ def test_ingest(ingestcase, client):
         icatingest(client, stream, backend)
         stream.close()
     elif filetype == 'ETREE':
+        if etree is None:
+            pytest.skip("Need lxml")
         with refdump.open("rb") as f:
             icatdata = etree.parse(f)
         icatingest(client, icatdata, backend)
@@ -152,6 +156,7 @@ def test_check_content(ingestcheck, client, tmpdirsec, case):
     """Dump the content and check that we get the reference dump file back.
     """
     backend, filetype = case
+    require_dumpfile_backend(backend)
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']
     dump = tmpdirsec / ("dump" + fileext)

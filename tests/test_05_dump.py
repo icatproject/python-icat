@@ -12,6 +12,7 @@ except ImportError:
 import icat
 import icat.config
 from conftest import (getConfig, icat_version, gettestdata,
+                      require_dumpfile_backend,
                       get_reference_dumpfile, get_reference_summary,
                       callscript, filter_file, yaml_filter, xml_filter)
 
@@ -112,6 +113,7 @@ def test_ingest(ingestcase, standardCmdArgs):
     """Restore the ICAT content from a dumpfile.
     """
     backend, filetype = ingestcase
+    require_dumpfile_backend(backend)
     refdump = backends[backend]['refdump']
     if filetype == 'FILE':
         args = standardCmdArgs + ["-f", backend, "-i", str(refdump)]
@@ -128,6 +130,7 @@ def test_check_content(ingestcheck, standardCmdArgs, tmpdirsec, case):
     """Dump the content and check that we get the reference dump file back.
     """
     backend, filetype = case
+    require_dumpfile_backend(backend)
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']
     dump = tmpdirsec / ("dump" + fileext)
