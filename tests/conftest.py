@@ -234,6 +234,7 @@ def standardCmdArgs():
 
 @pytest.fixture(scope="session")
 def setupicat(standardCmdArgs):
+    require_dumpfile_backend("YAML")
     testcontent = get_reference_dumpfile()
     callscript("wipeicat.py", standardCmdArgs)
     args = standardCmdArgs + ["-f", "YAML", "-i", str(testcontent)]

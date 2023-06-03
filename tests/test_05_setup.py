@@ -18,6 +18,7 @@ import icat
 import icat.config
 from icat.query import Query
 from conftest import (getConfig, icat_version, gettestdata,
+                      require_dumpfile_backend,
                       get_reference_dumpfile, get_reference_summary,
                       callscript, filter_file, yaml_filter)
 
@@ -393,6 +394,7 @@ def test_add_datacollections(data, user, objects):
 def test_check_content(standardCmdArgs, tmpdirsec):
     """Dump the resulting content and compare with a reference dump.
     """
+    require_dumpfile_backend("YAML")
     dump = tmpdirsec / "dump.yaml"
     fdump = tmpdirsec / "dump-filter.yaml"
     reffdump = tmpdirsec / "dump-filter-ref.yaml"

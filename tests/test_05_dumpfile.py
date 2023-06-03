@@ -22,7 +22,8 @@ import icat.config
 from icat.dump_queries import *
 from icat.dumpfile import open_dumpfile
 from icat.query import Query
-from conftest import (getConfig, get_reference_dumpfile, callscript,
+from conftest import (getConfig, require_dumpfile_backend,
+                      get_reference_dumpfile, callscript,
                       filter_file, yaml_filter, xml_filter)
 
 
@@ -38,7 +39,6 @@ backends = {
         'filter': yaml_filter,
     },
 }
-assert backends.keys() == icat.dumpfile.Backends.keys()
 
 # The following cases are tuples of a backend and a file type (regular
 # file, stdin/stdout, in-memory stream).  They are used for both,
@@ -129,6 +129,7 @@ def test_ingest(ingestcase, client):
     """Restore the ICAT content from a dumpfile.
     """
     backend, filetype = ingestcase
+    require_dumpfile_backend(backend)
     refdump = backends[backend]['refdump']
     if filetype == 'FILE':
         icatingest(client, refdump, backend)
@@ -155,6 +156,7 @@ def test_check_content(ingestcheck, client, tmpdirsec, case):
     """Dump the content and check that we get the reference dump file back.
     """
     backend, filetype = case
+    require_dumpfile_backend(backend)
     refdump = backends[backend]['refdump']
     fileext = backends[backend]['fileext']
     dump = tmpdirsec / ("dump" + fileext)

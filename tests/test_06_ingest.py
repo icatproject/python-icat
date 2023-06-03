@@ -6,7 +6,8 @@ import pytest
 import icat
 import icat.config
 from icat.query import Query
-from conftest import DummyDatafile, gettestdata, getConfig, callscript
+from conftest import (DummyDatafile, require_dumpfile_backend,
+                      gettestdata, getConfig, callscript)
 
 
 # Test input
@@ -21,6 +22,7 @@ def client(setupicat):
 
 @pytest.fixture(scope="module")
 def cmdargs(setupicat):
+    require_dumpfile_backend("XML")
     _, conf = getConfig(confSection="acord", ids="mandatory")
     return conf.cmdargs + ["-f", "XML"]
 
