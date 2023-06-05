@@ -36,6 +36,8 @@
     <!-- entity object references -->
     <xsd:element name="applicationRef" type="applicationRef" 
 		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="dataCollectionRef" type="dataCollectionRef"
+		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="datafileRef" type="datafileRef" 
 		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="datafileFormatRef" type="datafileFormatRef" 
@@ -59,6 +61,8 @@
     <xsd:element name="sampleRef" type="sampleRef" 
 		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="sampleTypeRef" type="sampleTypeRef" 
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="studyRef" type="studyRef"
 		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="userRef" type="userRef" 
 		 minOccurs="0" maxOccurs="unbounded"/>
@@ -203,6 +207,14 @@
   </xsd:complexContent>
 </xsd:complexType>
 
+<xsd:complexType name="dataCollectionRef">
+  <xsd:complexContent>
+    <xsd:extension base="entityReference">
+      <xsd:attribute name="doi" type="xsd:string"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
 <xsd:complexType name="datafileRef">
   <xsd:complexContent>
     <xsd:extension base="entityReference">
@@ -327,6 +339,14 @@
   </xsd:complexContent>
 </xsd:complexType>
 
+<xsd:complexType name="studyRef">
+  <xsd:complexContent>
+    <xsd:extension base="entityReference">
+      <xsd:attribute name="pid" type="xsd:string"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
 <xsd:complexType name="userRef">
   <xsd:complexContent>
     <xsd:extension base="entityReference">
@@ -401,7 +421,7 @@
   <xsd:complexContent>
     <xsd:extension base="entityBase">
       <xsd:sequence>
-	<xsd:element name="dataCollection" type="entityReference" 
+	<xsd:element name="dataCollection" type="dataCollectionRef"
 		     minOccurs="0"/>
 	<xsd:element name="datafile" type="datafileRef" minOccurs="0"/>
       </xsd:sequence>
@@ -413,7 +433,7 @@
   <xsd:complexContent>
     <xsd:extension base="entityBase">
       <xsd:sequence>
-	<xsd:element name="dataCollection" type="entityReference" 
+	<xsd:element name="dataCollection" type="dataCollectionRef"
 		     minOccurs="0"/>
 	<xsd:element name="dataset" type="datasetRef" minOccurs="0"/>
       </xsd:sequence>
@@ -431,7 +451,7 @@
 	<xsd:element name="rangeBottom" type="xsd:double" minOccurs="0"/>
 	<xsd:element name="rangeTop" type="xsd:double" minOccurs="0"/>
 	<xsd:element name="stringValue" type="xsd:string" minOccurs="0"/>
-	<xsd:element name="dataCollection" type="entityReference" 
+	<xsd:element name="dataCollection" type="dataCollectionRef"
 		     minOccurs="0"/>
 	<xsd:element name="type" type="parameterTypeRef" minOccurs="0"/>
       </xsd:sequence>
@@ -771,9 +791,9 @@
       <xsd:sequence>
 	<xsd:element name="arguments" type="xsd:string" minOccurs="0"/>
 	<xsd:element name="application" type="applicationRef" minOccurs="0"/>
-	<xsd:element name="inputDataCollection" type="entityReference" 
+	<xsd:element name="inputDataCollection" type="dataCollectionRef"
 		     minOccurs="0"/>
-	<xsd:element name="outputDataCollection" type="entityReference" 
+	<xsd:element name="outputDataCollection" type="dataCollectionRef"
 		     minOccurs="0"/>
       </xsd:sequence>
     </xsd:extension>
@@ -991,7 +1011,7 @@
       <xsd:sequence>
 	<xsd:element name="investigation" type="investigationRef" 
 		     minOccurs="0"/>
-	<xsd:element name="study" type="entityReference" minOccurs="0"/>
+	<xsd:element name="study" type="studyRef" minOccurs="0"/>
       </xsd:sequence>
     </xsd:extension>
   </xsd:complexContent>
