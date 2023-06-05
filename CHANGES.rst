@@ -8,11 +8,16 @@ Changelog
 Bug fixes and minor changes
 ---------------------------
 
++ `#112`_, `#118`_: Extend icatdata XSD adding extra attributes to
+  reference objects.
+
 + `#115`_, `#116`_: Fix the test suite to work if either PyYAML or
   lxml is not available.
 
+.. _#112: https://github.com/icatproject/python-icat/issues/112
 .. _#115: https://github.com/icatproject/python-icat/issues/115
 .. _#116: https://github.com/icatproject/python-icat/pull/116
+.. _#118: https://github.com/icatproject/python-icat/pull/118
 
 
 1.0.0 (2022-12-21)
