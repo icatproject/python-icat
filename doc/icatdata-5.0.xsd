@@ -285,6 +285,7 @@
       <xsd:attribute name="dataset.investigation.visitId" type="xsd:string"/>
       <xsd:attribute name="dataset.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
+      <xsd:attribute name="doi" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
@@ -306,6 +307,7 @@
       <xsd:attribute name="investigation.name" type="xsd:string"/>
       <xsd:attribute name="investigation.visitId" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
+      <xsd:attribute name="doi" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
@@ -341,6 +343,7 @@
     <xsd:extension base="entityReference">
       <xsd:attribute name="funderName" type="xsd:string"/>
       <xsd:attribute name="awardNumber" type="xsd:string"/>
+      <xsd:attribute name="funderIdentifier" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
@@ -358,6 +361,7 @@
     <xsd:extension base="entityReference">
       <xsd:attribute name="facility.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
+      <xsd:attribute name="pid" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
@@ -368,6 +372,7 @@
       <xsd:attribute name="facility.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
       <xsd:attribute name="visitId" type="xsd:string"/>
+      <xsd:attribute name="doi" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
@@ -387,6 +392,7 @@
       <xsd:attribute name="facility.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
       <xsd:attribute name="units" type="xsd:string"/>
+      <xsd:attribute name="pid" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
@@ -398,6 +404,7 @@
       <xsd:attribute name="investigation.name" type="xsd:string"/>
       <xsd:attribute name="investigation.visitId" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
+      <xsd:attribute name="pid" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
@@ -416,6 +423,7 @@
   <xsd:complexContent>
     <xsd:extension base="entityReference">
       <xsd:attribute name="name" type="xsd:string"/>
+      <xsd:attribute name="pid" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
@@ -424,6 +432,8 @@
   <xsd:complexContent>
     <xsd:extension base="entityReference">
       <xsd:attribute name="name" type="xsd:string"/>
+      <xsd:attribute name="email" type="xsd:string"/>
+      <xsd:attribute name="orcidId" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
