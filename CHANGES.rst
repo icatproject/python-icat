@@ -11,8 +11,11 @@ Bug fixes and minor changes
 + `#115`_, `#116`_: Fix the test suite to work if either PyYAML or
   lxml is not available.
 
++ `#117`_: Fixed deprecation warnings from upcoming Python 3.12.
+
 .. _#115: https://github.com/icatproject/python-icat/issues/115
 .. _#116: https://github.com/icatproject/python-icat/pull/116
+.. _#117: https://github.com/icatproject/python-icat/pull/117
 
 
 1.0.0 (2022-12-21)
