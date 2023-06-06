@@ -11,6 +11,7 @@ import re
 import time
 import urllib.parse
 from warnings import warn
+import weakref
 
 import suds
 import suds.client
@@ -76,7 +77,7 @@ class Client(suds.client.Client):
         for details.
     """
 
-    Register = {}
+    Register = weakref.WeakValueDictionary()
     """The register of all active clients."""
 
     AutoRefreshRemain = 30
@@ -92,9 +93,10 @@ class Client(suds.client.Client):
         class instances, e.g. on all clients that have not yet been
         cleaned up.
         """
-        cl = list(cls.Register.values())
-        for c in cl:
-            c.cleanup()
+        for r in list(cls.Register.valuerefs()):
+            c = r()
+            if c:
+                c.cleanup()
 
     def _schedule_auto_refresh(self, t=None):
         now = time.time()
