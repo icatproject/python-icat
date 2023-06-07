@@ -377,19 +377,19 @@ class Configuration():
     """
     def __init__(self, config):
         self._config = config
-        self._varnames = None
+        self._var_nl = None
 
     @property
-    def varnames(self):
-        if self._varnames:
-            return self._varnames
+    def _varnames(self):
+        if self._var_nl:
+            return self._var_nl
         else:
             return ([var.name for var in self._config.confvariables] +
                     self._config.ReservedVariables)
 
     def _freeze_varnames(self):
-        self._varnames = ([var.name for var in self._config.confvariables] +
-                          self._config.ReservedVariables)
+        self._var_nl = ([var.name for var in self._config.confvariables] +
+                        self._config.ReservedVariables)
         del self._config
 
     def __str__(self):
@@ -397,7 +397,7 @@ class Configuration():
         arg_strings = []
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            for f in self.varnames:
+            for f in self._varnames:
                 if hasattr(self, f):
                     arg_strings.append('%s=%r' % (f, getattr(self, f)))
         return '%s(%s)' % (typename, ', '.join(arg_strings))
@@ -407,7 +407,7 @@ class Configuration():
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             d = { f:getattr(self, f)
-                  for f in self.varnames if hasattr(self, f) }
+                  for f in self._varnames if hasattr(self, f) }
         return d
 
 
