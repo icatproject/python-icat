@@ -11,6 +11,9 @@ Bug fixes and minor changes
 + `#112`_, `#118`_: Extend icatdata XSD adding extra attributes to
   reference objects.
 
++ `#119`_, `#120`_: Remove `_config` attribute from
+  :class:`icat.config.Configuration`.
+
 + `#115`_, `#116`_: Fix the test suite to work if either PyYAML or
   lxml is not available.
 
@@ -18,6 +21,8 @@ Bug fixes and minor changes
 .. _#115: https://github.com/icatproject/python-icat/issues/115
 .. _#116: https://github.com/icatproject/python-icat/pull/116
 .. _#118: https://github.com/icatproject/python-icat/pull/118
+.. _#119: https://github.com/icatproject/python-icat/issues/119
+.. _#120: https://github.com/icatproject/python-icat/pull/120
 
 
 1.0.0 (2022-12-21)
