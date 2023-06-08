@@ -70,7 +70,6 @@ def test_no_autologout_cleanup_call(registerClient):
     client.cleanup()
     assert len(SessionRegisterClient.Sessions) == 1
 
-@pytest.mark.xfail(reason="Issue #111")
 def test_client_delete(registerClient):
     """client logs in, client does not log out, but is explicitely
     deleted, which invokes cleanup(), which automatically logs the
@@ -88,7 +87,6 @@ def test_client_delete(registerClient):
     assert r() is None
     assert len(SessionRegisterClient.Sessions) == 0
 
-@pytest.mark.xfail(reason="Issue #111")
 def test_client_garbage_collect(registerClient):
     """client logs in, client does not log out, but the last reference to
     it vanisches.  The client is eventually garbage collected (forced

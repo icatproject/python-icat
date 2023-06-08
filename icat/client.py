@@ -169,9 +169,9 @@ class Client(suds.client.Client):
         :const:`True`).  The client should not be used any more after
         calling this method.
         """
+        if self.autoLogout:
+            self.logout()
         if id(self) in self.Register:
-            if self.autoLogout:
-                self.logout()
             del self.Register[id(self)]
 
     def add_ids(self, url, proxy=None):
