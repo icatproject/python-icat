@@ -78,7 +78,11 @@ class Client(suds.client.Client):
     """
 
     Register = weakref.WeakValueDictionary()
-    """The register of all active clients."""
+    """The register of all active clients.
+
+    .. versionchanged:: 1.1.0
+        changed type to :class:`weakref.WeakValueDictionary`.
+    """
 
     AutoRefreshRemain = 30
     """Number of minutes to leave in the session before automatic refresh
