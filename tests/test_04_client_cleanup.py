@@ -36,8 +36,8 @@ def registerClient(monkeypatch):
     SessionRegisterClient.Sessions.clear()
     monkeypatch.setattr(icat.config, "Client", SessionRegisterClient)
     yield
-    logger.info("%d sessions still active during tear down",
-                len(SessionRegisterClient.Sessions))
+    logger.debug("%d sessions still active during tear down",
+                 len(SessionRegisterClient.Sessions))
 
 def test_explicit_logout(registerClient):
     """client logs in and client logs out, as simple as that.
