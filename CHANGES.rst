@@ -11,6 +11,10 @@ Bug fixes and minor changes
 + `#112`_, `#118`_: Extend icatdata XSD adding extra attributes to
   reference objects.
 
++ `#111`_, `#121`_: Change the type of
+  :attr:`icat.client.Client.Register` to
+  :class:`weakref.WeakValueDictionary`, fixing a memory leak.
+
 + `#119`_, `#120`_: Remove `_config` attribute from
   :class:`icat.config.Configuration`.
 
