@@ -3,6 +3,7 @@
 
 import gc
 import logging
+import weakref
 import pytest
 import icat
 import icat.config
@@ -78,7 +79,13 @@ def test_client_delete(registerClient):
     client, conf = getConfig(confSection="acord")
     client.login(conf.auth, conf.credentials)
     assert len(SessionRegisterClient.Sessions) == 1
+    # Keep a wek reference to the client to be able to observe when it
+    # has been garbage collected.
+    r = weakref.ref(client)
+    assert r() is client
     del client
+    gc.collect()
+    assert r() is None
     assert len(SessionRegisterClient.Sessions) == 0
 
 @pytest.mark.xfail(reason="Issue #111")
@@ -91,8 +98,13 @@ def test_client_garbage_collect(registerClient):
     client, conf = getConfig(confSection="acord")
     client.login(conf.auth, conf.credentials)
     assert len(SessionRegisterClient.Sessions) == 1
+    # Keep a wek reference to the client to be able to observe when it
+    # has been garbage collected.
+    r = weakref.ref(client)
+    assert r() is client
     client = None
     gc.collect()
+    assert r() is None
     assert len(SessionRegisterClient.Sessions) == 0
 
 def test_cleanupall(registerClient):
