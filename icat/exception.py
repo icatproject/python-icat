@@ -26,7 +26,9 @@ __all__ = [
     'EntityTypeError', 'VersionMethodError', 'SearchResultError', 
     'SearchAssertionError', 'DataConsistencyError', 
     # icat.ids
-    'IDSResponseError', 
+    'IDSResponseError',
+    # icat.ingest
+    'InvalidIngestFileError',
     ]
 
 
@@ -399,3 +401,18 @@ class IDSResponseError(_BaseException):
     """The response from the IDS was not what should have been expected.
     """
     pass
+
+
+# ================ Exceptions raised in icat.ingest ================
+
+class InvalidIngestFileError(_BaseException, ValueError):
+    """The content of the file is not valid ingest format.
+
+    .. versionadded:: 1.1.0
+    """
+    def __init__(self, detail=None):
+        if detail:
+            msg = "Invalid ingest file: %s" % detail
+        else:
+            msg = "Invalid ingest file"
+        super().__init__(msg)
