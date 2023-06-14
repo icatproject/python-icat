@@ -53,7 +53,7 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
         return super().getobjs(objindex=objindex)
 
 
-def ingest(reader, datasets, dry_run=False, update_ds=False):
+def ingest_metadata(reader, datasets, dry_run=False, update_ds=False):
     """Ingest metadata from an ingest file.
 
     The acceptable set of objects in the ingest file is somewhat
