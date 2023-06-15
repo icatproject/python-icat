@@ -52,35 +52,33 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
         objindex = {"Investigation": self.investigation}
         return super().getobjs(objindex=objindex)
 
+    def ingest(self, datasets, dry_run=False, update_ds=False):
+        """Ingest metadata from an ingest file.
 
-def ingest_metadata(reader, datasets, dry_run=False, update_ds=False):
-    """Ingest metadata from an ingest file.
+        The acceptable set of objects in the ingest file is somewhat
+        reduced compared to the file format definition: only Datasets and
+        related DatasetInstruments, DatasetParameter, and
+        DatasetTechniques may be present in the file.  Each dataset must
+        already exist in ICAT and be in the list of datasets given as
+        argument to the function.
 
-    The acceptable set of objects in the ingest file is somewhat
-    reduced compared to the file format definition: only Datasets and
-    related DatasetInstruments, DatasetParameter, and
-    DatasetTechniques may be present in the file.  Each dataset must
-    already exist in ICAT and be in the list of datasets given as
-    argument to the function.
+        If the optional keyword argument `dry_run` is True, no objects
+        will be updated or created in ICAT.  In that case, the datasets
+        don't need to exist beforehand.  This is useful to check the
+        ingest file for validity without acutally committing anything.
 
-    If the optional keyword argument `dry_run` is True, no objects
-    will be updated or created in ICAT.  In that case, the datasets
-    don't need to exist beforehand.  This is useful to check the
-    ingest file for validity without acutally committing anything.
-
-    if the optional keyword argument `update_ds` is True, each
-    dataset's attributes and relations will be updated from the data
-    found in the file.
-    """
-    dataset_map = { ds.name: ds for ds in datasets }
-    allowed_ds_related = {
-        "DatasetInstrument", "DatasetTechnique", "DatasetParameter"
-    }
-    with reader as dumpfile:
-        for obj in dumpfile.getobjs():
+        if the optional keyword argument `update_ds` is True, each
+        dataset's attributes and relations will be updated from the data
+        found in the file.
+        """
+        dataset_map = { ds.name: ds for ds in datasets }
+        allowed_ds_related = {
+            "DatasetInstrument", "DatasetTechnique", "DatasetParameter"
+        }
+        for obj in self.getobjs():
             if (obj.BeanName == "Dataset" and obj.name in dataset_map):
                 dataset = dataset_map[obj.name]
-                assert dataset.investigation == reader.investigation
+                assert dataset.investigation == self.investigation
                 if update_ds:
                     for a in obj.InstAttr | obj.InstRel:
                         v = getattr(obj, a)
