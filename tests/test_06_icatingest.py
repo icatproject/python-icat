@@ -1,4 +1,4 @@
-"""Test icatdump and icatingest.
+"""Test ingest metadata using the icatingest script.
 """
 
 from subprocess import CalledProcessError
