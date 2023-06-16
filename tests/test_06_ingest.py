@@ -40,11 +40,7 @@ def schemadir(monkeypatch):
 cet = datetime.timezone(datetime.timedelta(hours=1))
 cest = datetime.timezone(datetime.timedelta(hours=2))
 
-Case = namedtuple(
-    'Case',
-    ['name', 'data', 'metadata', 'checks', 'schema'],
-    defaults=(None,)
-)
+Case = namedtuple('Case', ['name', 'data', 'metadata', 'checks', 'schema'])
 # Try out different variants for the metadata input file
 cases = [
     Case(
@@ -154,6 +150,7 @@ cases = [
                  5.1239),
             ],
         },
+        schema = None,
     ),
     Case(
         name = "inl5",
@@ -409,6 +406,7 @@ cases = [
                  5.1239),
             ],
         },
+        schema = None,
     ),
     Case(
         name = "sep5",
