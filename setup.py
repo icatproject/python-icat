@@ -119,15 +119,19 @@ class build_test(setuptools.Command):
     def copy_test_data(self):
         destdir = os.path.join("tests", "data")
         self.mkpath(destdir)
-        refdumpfiles = ["icatdump-%s.%s" % (ver, ext)
-                        for ver in ("4.4", "4.7", "4.10", "5.0")
-                        for ext in ("xml", "yaml")]
-        files = ["example_data.yaml",
-                 "ingest-datafiles.xml", "ingest-ds-params.xml"] + refdumpfiles
+        files = []
+        files += [ os.path.join("doc", "examples", f)
+                   for f in ["example_data.yaml",
+                             "ingest-datafiles.xml", "ingest-ds-params.xml"] ]
+        files += [ os.path.join("doc", "examples",
+                                "icatdump-%s.%s" % (ver, ext))
+                   for ver in ("4.4", "4.7", "4.10", "5.0")
+                   for ext in ("xml", "yaml") ]
+        files += [ os.path.join("etc", f)
+                   for f in ["ingest.xsd", "ingest.xslt"] ]
         for f in files:
-            src = os.path.join("doc", "examples", f)
             dest = os.path.join(destdir, os.path.basename(f))
-            self.copy_file(src, dest, preserve_mode=False)
+            self.copy_file(f, dest, preserve_mode=False)
 
 
 # Note: Do not use setuptools for making the source distribution,

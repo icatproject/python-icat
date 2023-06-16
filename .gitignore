@@ -9,4 +9,6 @@ __pycache__/
 /tests/data/icatdump-*.xml
 /tests/data/icatdump-*.yaml
 /tests/data/ingest-*.xml
+/tests/data/ingest.xsd
+/tests/data/ingest.xslt
 /tests/scripts/

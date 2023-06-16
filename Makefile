@@ -21,6 +21,7 @@ clean:
 	rm -rf __pycache__
 	rm -rf tests/data/example_data.yaml
 	rm -rf tests/data/icatdump-* tests/data/ingest-*.xml
+	rm -rf tests/data/ingest.xsd tests/data/ingest.xslt
 	rm -rf tests/scripts
 
 distclean: clean
