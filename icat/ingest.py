@@ -24,14 +24,16 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
 
     SchemaDir = Path("/usr/share/icat")
 
-    def __init__(self, client, path, investigation):
-        self.path = path
+    def __init__(self, client, metadata, investigation):
         self.investigation = investigation
-        with self.path.open("rb") as f:
-            try:
-                ingest_data = etree.parse(f)
-            except etree.XMLSyntaxError as e:
-                raise InvalidIngestFileError(e)
+        try:
+            if hasattr(metadata, "open"):
+                with metadata.open("rb") as f:
+                    ingest_data = etree.parse(f)
+            else:
+                ingest_data = etree.parse(metadata)
+        except etree.XMLSyntaxError as e:
+            raise InvalidIngestFileError(e)
         with self.get_xsd(ingest_data).open("rb") as f:
             schema = etree.XMLSchema(etree.parse(f))
         if not schema.validate(ingest_data):
