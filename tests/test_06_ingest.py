@@ -5,6 +5,7 @@ from collections import namedtuple
 import datetime
 import io
 import pytest
+pytest.importorskip("lxml")
 import icat
 import icat.config
 from icat.ingest import IngestReader
