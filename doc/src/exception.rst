@@ -151,40 +151,40 @@ Exception hierarchy
 The class hierarchy for the exceptions is::
 
   Exception
-   +-- ServerError
-   |    +-- ICATError
-   |    |    +-- ICATParameterError
-   |    |    +-- ICATInternalError
-   |    |    +-- ICATPrivilegesError
-   |    |    +-- ICATNoObjectError
-   |    |    +-- ICATObjectExistsError
-   |    |    +-- ICATSessionError
-   |    |    +-- ICATValidationError
-   |    |    +-- ICATNotImplementedError
-   |    +-- IDSError
-   |         +-- IDSBadRequestError
-   |         +-- IDSDataNotOnlineError
-   |         +-- IDSInsufficientPrivilegesError
-   |         +-- IDSInsufficientStorageError
-   |         +-- IDSInternalError
-   |         +-- IDSNotFoundError
-   |         +-- IDSNotImplementedError
-   +-- InternalError
-   +-- ConfigError
-   +-- TypeError
-   |    +-- EntityTypeError
-   +-- VersionMethodError
-   +-- SearchResultError
-   |    +-- SearchAssertionError
-   +-- DataConsistencyError
-   +-- IDSResponseError
-   +-- Warning
-        +-- QueryWarning
-        |    +-- QueryNullableOrderWarning
-        |    +-- QueryOneToManyOrderWarning
-        +-- ClientVersionWarning
-        +-- DeprecationWarning
-             +-- ICATDeprecationWarning
+   ├── ServerError
+   │    ├── ICATError
+   │    │    ├── ICATParameterError
+   │    │    ├── ICATInternalError
+   │    │    ├── ICATPrivilegesError
+   │    │    ├── ICATNoObjectError
+   │    │    ├── ICATObjectExistsError
+   │    │    ├── ICATSessionError
+   │    │    ├── ICATValidationError
+   │    │    └── ICATNotImplementedError
+   │    └── IDSError
+   │         ├── IDSBadRequestError
+   │         ├── IDSDataNotOnlineError
+   │         ├── IDSInsufficientPrivilegesError
+   │         ├── IDSInsufficientStorageError
+   │         ├── IDSInternalError
+   │         ├── IDSNotFoundError
+   │         └── IDSNotImplementedError
+   ├── InternalError
+   ├── ConfigError
+   ├── TypeError
+   │    └── EntityTypeError
+   ├── VersionMethodError
+   ├── SearchResultError
+   │    └── SearchAssertionError
+   ├── DataConsistencyError
+   ├── IDSResponseError
+   └── Warning
+        ├── QueryWarning
+        │    ├── QueryNullableOrderWarning
+        │    └── QueryOneToManyOrderWarning
+        ├── ClientVersionWarning
+        └── DeprecationWarning
+             └── ICATDeprecationWarning
 
 Here, :exc:`Exception`, :exc:`TypeError`, :exc:`Warning`, and
 :exc:`DeprecationWarning` are build-in exceptions from the Python
