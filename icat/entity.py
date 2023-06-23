@@ -351,7 +351,7 @@ class Entity():
         return self.getAttrInfo(self.client, attr).type
 
 
-    def truncateRelations(self):
+    def truncateRelations(self, keepInstRel=False):
         """Delete all relationships.
 
         Delete all attributes having relationships to other objects
@@ -360,8 +360,23 @@ class Entity():
         corresponding object at the ICAT server.  This is useful if
         you only need to keep the object's attributes but not the
         (possibly large) tree of related objects in local memory.
+
+        :param keepInstRel: if :const:`True`, delete only the one to
+            many, but keep the many to one relationships.  This is
+            particularly useful if you want to call
+            :meth:`~icat.entity.Entity.update` for this object later
+            on, because in this case, you'd definitely need to keep
+            the many to one relationships, but you may want to avoid
+            transmitting a large tree of objects in one to many
+            relationships to the ICAT server in the call, as they'd be
+            essentially useless then.
+        :type keepInstRel: :class:`bool`
+
+        .. versionchanged:: 1.1.0
+            add the `keepInstRel` argument.
         """
-        for r in (self.InstRel | self.InstMRel):
+        rels = self.InstMRel if keepInstRel else (self.InstRel | self.InstMRel)
+        for r in rels:
             delattr(self, r)
         
 
