@@ -66,6 +66,9 @@ do
     mv %{buildroot}%{_bindir}/$$f %{buildroot}%{_bindir}/$${f%%.py}
 done
 
+%__install -d -m 755 %{buildroot}%{_datadir}/icat
+%__cp -p etc/ingest.xsd etc/ingest.xslt %{buildroot}%{_datadir}/icat
+
 %__install -d -m 755 %{buildroot}%{_mandir}/man1
 %__cp -p doc/man/*.1 %{buildroot}%{_mandir}/man1
 
@@ -77,6 +80,7 @@ done
 %files
 %defattr(-,root,root)
 %license LICENSE.txt
+%{_datadir}/icat
 %doc %{_docdir}/%{name}
 %exclude %{_docdir}/%{name}/examples
 %exclude %{_docdir}/%{name}/man
