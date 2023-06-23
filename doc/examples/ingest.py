@@ -144,6 +144,7 @@ datasets, reader = check(client, conf.inputdir, investigation)
 logger.debug("input directory checked, found %d datasets", len(datasets))
 for ds in datasets:
     ds.create()
+    ds.truncateRelations(keepInstRel=True)
     logger.debug("created dataset %s", ds.name)
 reader.ingest(datasets)
 for ds in datasets:
