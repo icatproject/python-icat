@@ -588,3 +588,53 @@ def test_ingest(client, investigation, schemadir, case):
         ds = client.assertedSearch(query)[0]
         for query, res in case.checks[name]:
             assert client.assertedSearch(query % ds.id)[0] == res
+
+
+badcases = [
+    Case(
+        name = "sep5",
+        data = ["e208339"],
+        metadata = b"""<?xml version='1.0' encoding='UTF-8'?>
+        <icatingest version="1.0">
+          <head>
+            <date>2023-06-16T11:01:15+02:00</date>
+            <generator>python-icat 1.1.0</generator>
+          </head>
+          <data>
+            <dataset id="Dataset_1">
+              <name>e208339</name>
+            </dataset>
+            <datasetInstrument>
+              <dataset ref="Dataset_investigation-(name-10100601=2DST)_name-e208339"/>
+              <instrument pid="DOI:00.0815/inst-00048"/>
+            </datasetInstrument>
+            <datasetTechnique>
+              <dataset ref="Dataset_investigation-(name-10100601=2DST)_name-e208339"/>
+              <technique pid="PaNET:PaNET01089"/>
+            </datasetTechnique>
+            <datasetParameter>
+              <stringValue>very evil</stringValue>
+              <dataset ref="Dataset_investigation-(name-10100601=2DST)_name-e208339"/>
+              <type name="Probe"/>
+            </datasetParameter>
+          </data>
+        </icatingest>
+        """,
+        checks = {},
+        marks = (
+            pytest.mark.skipif(icat_version < "5.0",
+                               reason="Need ICAT schema 5.0 or newer"),
+            pytest.mark.xfail(reason="insufficient reference checks"),
+        ),
+    ),
+]
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.name, marks=c.marks) for c in badcases
+])
+def test_badref_ingest(client, investigation, schemadir, case):
+    datasets = []
+    for name in case.data:
+        datasets.append(client.new("Dataset", name=name))
+    reader = IngestReader(client, io.BytesIO(case.metadata), investigation)
+    with pytest.raises(icat.InvalidIngestFileError):
+        reader.ingest(datasets, dry_run=True, update_ds=True)
