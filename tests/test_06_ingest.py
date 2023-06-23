@@ -10,7 +10,7 @@ import icat
 import icat.config
 from icat.ingest import IngestReader
 from icat.query import Query
-from conftest import getConfig, require_icat_version, testdatadir
+from conftest import getConfig, icat_version, testdatadir
 
 
 @pytest.fixture(scope="module")
@@ -41,7 +41,8 @@ def schemadir(monkeypatch):
 cet = datetime.timezone(datetime.timedelta(hours=1))
 cest = datetime.timezone(datetime.timedelta(hours=2))
 
-Case = namedtuple('Case', ['name', 'data', 'metadata', 'checks', 'schema'])
+Case = namedtuple('Case', ['name', 'data', 'metadata', 'checks', 'marks'])
+
 # Try out different variants for the metadata input file
 cases = [
     Case(
@@ -151,7 +152,7 @@ cases = [
                  5.1239),
             ],
         },
-        schema = None,
+        marks = (),
     ),
     Case(
         name = "inl5",
@@ -288,7 +289,10 @@ cases = [
                  5.1239),
             ],
         },
-        schema = "5.0",
+        marks = (
+            pytest.mark.skipif(icat_version < "5.0",
+                               reason="Need ICAT schema 5.0 or newer"),
+        ),
     ),
     Case(
         name = "sep",
@@ -407,7 +411,7 @@ cases = [
                  5.1239),
             ],
         },
-        schema = None,
+        marks = (),
     ),
     Case(
         name = "sep5",
@@ -558,20 +562,19 @@ cases = [
                  5.1239),
             ],
         },
-        schema = "5.0",
+        marks = (
+            pytest.mark.skipif(icat_version < "5.0",
+                               reason="Need ICAT schema 5.0 or newer"),
+        ),
     ),
 ]
-@pytest.mark.parametrize("case", [ pytest.param(c, id=c.name) for c in cases ])
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.name, marks=c.marks) for c in cases
+])
 def test_ingest(client, investigation, schemadir, case):
-    if case.schema:
-        require_icat_version(case.schema, "ICAT schema")
     datasets = []
     for name in case.data:
-        ds = client.new("Dataset")
-        ds.investigation = investigation
-        ds.name = name
-        ds.complete = False
-        datasets.append(ds)
+        datasets.append(client.new("Dataset", name=name))
     reader = IngestReader(client, io.BytesIO(case.metadata), investigation)
     reader.ingest(datasets, dry_run=True, update_ds=True)
     for ds in datasets:
