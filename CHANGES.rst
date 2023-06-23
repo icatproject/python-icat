@@ -5,6 +5,12 @@ Changelog
 1.1.0 (not yet released)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+New features
+------------
+
++ `#124`_: Add an optional keyword argument `keepInstRel` to
+  :meth:`icat.entity.Entity.truncateRelations`.
+
 Bug fixes and minor changes
 ---------------------------
 
@@ -23,6 +29,7 @@ Bug fixes and minor changes
 .. _#118: https://github.com/icatproject/python-icat/pull/118
 .. _#119: https://github.com/icatproject/python-icat/issues/119
 .. _#120: https://github.com/icatproject/python-icat/pull/120
+.. _#124: https://github.com/icatproject/python-icat/pull/124
 
 
 1.0.0 (2022-12-21)
