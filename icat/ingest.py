@@ -80,7 +80,7 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
         for obj in self.getobjs():
             if (obj.BeanName == "Dataset" and obj.name in dataset_map):
                 dataset = dataset_map[obj.name]
-                assert dataset.investigation == self.investigation
+                assert obj.investigation == self.investigation
                 if update_ds:
                     for a in obj.InstAttr | obj.InstRel:
                         v = getattr(obj, a)
