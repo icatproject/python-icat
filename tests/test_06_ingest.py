@@ -624,7 +624,6 @@ badcases = [
         marks = (
             pytest.mark.skipif(icat_version < "5.0",
                                reason="Need ICAT schema 5.0 or newer"),
-            pytest.mark.xfail(reason="insufficient reference checks"),
         ),
     ),
 ]

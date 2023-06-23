@@ -93,7 +93,8 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
                 if not dry_run:
                     obj.id = dataset.id
             elif (obj.BeanName in allowed_ds_related and
-                  obj.dataset.name in dataset_map):
+                  obj.dataset.name in dataset_map and
+                  obj.dataset.investigation == self.investigation):
                 if not dry_run:
                     obj.create()
             else:
