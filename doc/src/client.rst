@@ -15,6 +15,9 @@ manages the interaction with an ICAT service as a client.
 
         The register of all active clients.
 
+        .. versionchanged:: 1.1.0
+            changed type to :class:`weakref.WeakValueDictionary`.
+
     .. attribute:: AutoRefreshRemain
 
         Number of minutes to leave in the session before automatic
