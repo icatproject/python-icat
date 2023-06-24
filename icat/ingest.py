@@ -59,7 +59,7 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
     def getobjs(self):
         """Iterate over the objects in the ingest file.
         """
-        objindex = {"Investigation": self.investigation}
+        objindex = {"_Investigation": self.investigation}
         return super().getobjs(objindex=objindex)
 
     def ingest(self, datasets, dry_run=False, update_ds=False):

@@ -279,6 +279,6 @@ def test_badref_ingest(client, investigation, schemadir, case):
     datasets = []
     for name in case.data:
         datasets.append(client.new("Dataset", name=name))
-    reader = IngestReader(client, case.metadata, investigation)
     with pytest.raises(icat.InvalidIngestFileError):
+        reader = IngestReader(client, case.metadata, investigation)
         reader.ingest(datasets, dry_run=True, update_ds=True)

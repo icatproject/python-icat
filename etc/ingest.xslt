@@ -26,7 +26,7 @@
 	    <xsl:copy-of select="endDate"/>
 	    <xsl:copy-of select="name"/>
 	    <xsl:copy-of select="startDate"/>
-	    <investigation ref="Investigation"/>
+	    <investigation ref="_Investigation"/>
 	    <xsl:for-each select="datasetInstruments">
 		<xsl:copy-of select="."/>
 	    </xsl:for-each>

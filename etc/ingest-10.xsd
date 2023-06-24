@@ -41,11 +41,11 @@
 
 
 <xsd:complexType name="entityBase">
-  <xsd:attribute name="id" type="xsd:string"/>
+  <xsd:attribute name="id" type="identifier"/>
 </xsd:complexType>
 
 <xsd:complexType name="entityReference">
-  <xsd:attribute name="ref" type="xsd:string" use="required"/>
+  <xsd:attribute name="ref" type="identifier" use="required"/>
 </xsd:complexType>
 
 
@@ -124,6 +124,12 @@
   <xsd:attribute name="pid" type="xsd:string"/>
 </xsd:complexType>
 
+
+<xsd:simpleType name="identifier">
+  <xsd:restriction base="xsd:string">
+    <xsd:pattern value="[A-Za-z][A-Za-z0-9_]*"/>
+  </xsd:restriction>
+</xsd:simpleType>
 
 <xsd:simpleType name="version_10">
   <xsd:restriction base="xsd:string">
