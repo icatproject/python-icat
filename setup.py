@@ -128,7 +128,7 @@ class build_test(setuptools.Command):
                    for ver in ("4.4", "4.7", "4.10", "5.0")
                    for ext in ("xml", "yaml") ]
         files += [ os.path.join("etc", f)
-                   for f in ["ingest.xsd", "ingest.xslt"] ]
+                   for f in ["ingest-10.xsd", "ingest.xslt"] ]
         for f in files:
             dest = os.path.join(destdir, os.path.basename(f))
             self.copy_file(f, dest, preserve_mode=False)

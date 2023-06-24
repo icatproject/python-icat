@@ -23,6 +23,9 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
     """
 
     SchemaDir = Path("/usr/share/icat")
+    XSD_Map = {
+        ('icatingest', '1.0'): "ingest-10.xsd",
+    }
 
     def __init__(self, client, metadata, investigation):
         self.investigation = investigation
@@ -43,7 +46,12 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
         super().__init__(client, xslt(ingest_data))
 
     def get_xsd(self, ingest_data):
-        return self.SchemaDir / "ingest.xsd"
+        root = ingest_data.getroot()
+        try:
+            xsd = self.XSD_Map[root.tag, root.get("version")]
+        except KeyError:
+            raise InvalidIngestFileError("unknown format")
+        return self.SchemaDir / xsd
 
     def get_xslt(self, ingest_data):
         return self.SchemaDir / "ingest.xslt"

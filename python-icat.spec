@@ -67,7 +67,7 @@ do
 done
 
 %__install -d -m 755 %{buildroot}%{_datadir}/icat
-%__cp -p etc/ingest.xsd etc/ingest.xslt %{buildroot}%{_datadir}/icat
+%__cp -p etc/ingest-10.xsd etc/ingest.xslt %{buildroot}%{_datadir}/icat
 
 %__install -d -m 755 %{buildroot}%{_mandir}/man1
 %__cp -p doc/man/*.1 %{buildroot}%{_mandir}/man1
