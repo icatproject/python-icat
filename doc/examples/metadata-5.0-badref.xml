@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.0">
+  <!-- NOTE:
+       this is an example for an *invalid* icatingest file,
+       using bad dataset references.
+    -->
+  <head>
+    <date>2023-06-16T11:01:15+02:00</date>
+    <generator>metadata-writer 0.27a</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>e208339</name>
+    </dataset>
+    <datasetInstrument>
+      <dataset ref="Dataset_investigation-(name-10100601=2DST)_name-e208339"/>
+      <instrument pid="DOI:00.0815/inst-00048"/>
+    </datasetInstrument>
+    <datasetTechnique>
+      <dataset ref="Dataset_investigation-(name-10100601=2DST)_name-e208339"/>
+      <technique pid="PaNET:PaNET01089"/>
+    </datasetTechnique>
+    <datasetParameter>
+      <stringValue>very evil</stringValue>
+      <dataset ref="Dataset_investigation-(name-10100601=2DST)_name-e208339"/>
+      <type name="Probe"/>
+    </datasetParameter>
+  </data>
+</icatingest>
