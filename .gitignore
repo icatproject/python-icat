@@ -11,5 +11,6 @@ __pycache__/
 /tests/data/ingest-*.xml
 /tests/data/ingest-*.xsd
 /tests/data/ingest.xslt
-/tests/data/metadata-*.xml
+/tests/data/metadata-*-inl.xml
+/tests/data/metadata-*-sep.xml
 /tests/scripts/

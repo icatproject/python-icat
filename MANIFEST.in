@@ -18,6 +18,7 @@ include etc/ingest.xslt
 include tests/conftest.py
 include tests/data/legacy-icatdump-*.xml
 include tests/data/legacy-icatdump-*.yaml
+include tests/data/metadata-5.0-badref.xml
 include tests/data/ref-icatdump-*.xml
 include tests/data/ref-icatdump-*.yaml
 include tests/data/summary*
