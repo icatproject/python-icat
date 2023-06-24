@@ -11,6 +11,7 @@ import re
 import time
 import urllib.parse
 from warnings import warn
+import weakref
 
 import suds
 import suds.client
@@ -76,8 +77,12 @@ class Client(suds.client.Client):
         for details.
     """
 
-    Register = {}
-    """The register of all active clients."""
+    Register = weakref.WeakValueDictionary()
+    """The register of all active clients.
+
+    .. versionchanged:: 1.1.0
+        changed type to :class:`weakref.WeakValueDictionary`.
+    """
 
     AutoRefreshRemain = 30
     """Number of minutes to leave in the session before automatic refresh
@@ -92,9 +97,10 @@ class Client(suds.client.Client):
         class instances, e.g. on all clients that have not yet been
         cleaned up.
         """
-        cl = list(cls.Register.values())
-        for c in cl:
-            c.cleanup()
+        for r in list(cls.Register.valuerefs()):
+            c = r()
+            if c:
+                c.cleanup()
 
     def _schedule_auto_refresh(self, t=None):
         now = time.time()
@@ -167,9 +173,9 @@ class Client(suds.client.Client):
         :const:`True`).  The client should not be used any more after
         calling this method.
         """
+        if self.autoLogout:
+            self.logout()
         if id(self) in self.Register:
-            if self.autoLogout:
-                self.logout()
             del self.Register[id(self)]
 
     def add_ids(self, url, proxy=None):
