@@ -3,11 +3,13 @@ Module reference
 
 This section provides a reference for the python-icat modules.
 
-Modules defining the python-icat API
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _modref-core:
 
-These modules define classes or functions that common python-icat
-programs interact with.
+Modules defining the python-icat core API
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These modules define the core of python-icat, e.g. the classes or
+functions that common python-icat programs interact with.
 
 .. toctree::
    :maxdepth: 1
