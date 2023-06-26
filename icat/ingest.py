@@ -26,6 +26,7 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
     XSD_Map = {
         ('icatingest', '1.0'): "ingest-10.xsd",
     }
+    XSLT_name = "ingest.xslt"
 
     def __init__(self, client, metadata, investigation):
         self.investigation = investigation
@@ -54,7 +55,7 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
         return self.SchemaDir / xsd
 
     def get_xslt(self, ingest_data):
-        return self.SchemaDir / "ingest.xslt"
+        return self.SchemaDir / self.XSLT_name
 
     def getobjs(self):
         """Iterate over the objects in the ingest file.
