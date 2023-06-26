@@ -30,6 +30,7 @@ These modules will generally be used in particular cases only.
 
    eval
    dumpfile
+   ingest
 
 Internal modules
 ~~~~~~~~~~~~~~~~
