@@ -166,7 +166,7 @@ def getDataCollectionQueries(client):
     # Compatibility between ICAT versions:
     # - ICAT 4.3.0 vs. ICAT 4.3.1 and later: name of the parameters
     #   relation in DataCollection.
-    # - ICAT 5.0.0 added DatasetInstrument and DatasetTechnique.
+    # - ICAT 5.0.0 added DataCollectionInvestigation.
     dc_includes = {
         "dataCollectionDatasets.dataset.investigation.facility",
         "dataCollectionDatafiles.datafile.dataset.investigation.facility",
