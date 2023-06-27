@@ -189,20 +189,26 @@ def getDataPublicationQueries(client, pubid):
     """Return the queries to fetch all objects related to a data publication.
 
     .. versionadded:: 1.0.0
+
+    .. versionchanged:: 1.1.0
+        return an empty list if the ICAT server is older than 5.0
+        rather than raising :exc:`~icat.exception.EntityTypeError`.
     """
     # Compatibility between ICAT versions:
     # - ICAT 5.0.0 added DataPublication and related classes.
-    # This is not tested here, we assume the caller to check this.
-    # Otherwise the pubid argument would make no sense.
-    return [
-        Query(client, "DataPublication", order=True,
-              conditions={"id": "= %d" % pubid},
-              includes={"facility", "content", "type.facility", "dates",
-                        "fundingReferences.funding", "relatedItems"}),
-        Query(client, "DataPublicationUser", order=True,
-              conditions={"publication.id": "= %d" % pubid},
-              includes={"publication", "user", "affiliations"}),
-    ]
+    if 'dataPublication' in client.typemap:
+        # ICAT >= 5.0.0
+        return [
+            Query(client, "DataPublication", order=True,
+                  conditions={"id": "= %d" % pubid},
+                  includes={"facility", "content", "type.facility", "dates",
+                            "fundingReferences.funding", "relatedItems"}),
+            Query(client, "DataPublicationUser", order=True,
+                  conditions={"publication.id": "= %d" % pubid},
+                  includes={"publication", "user", "affiliations"}),
+        ]
+    else:
+        return []
 
 def getOtherQueries(client):
     """Return the queries to fetch all other objects,
