@@ -14,6 +14,8 @@ New features
 Bug fixes and minor changes
 ---------------------------
 
++ `#126`_, `#127`_: Update outdated documentation.
+
 + `#112`_, `#118`_: Extend icatdata XSD adding extra attributes to
   reference objects.
 
@@ -36,6 +38,8 @@ Bug fixes and minor changes
 .. _#120: https://github.com/icatproject/python-icat/pull/120
 .. _#121: https://github.com/icatproject/python-icat/pull/121
 .. _#124: https://github.com/icatproject/python-icat/pull/124
+.. _#126: https://github.com/icatproject/python-icat/issues/126
+.. _#127: https://github.com/icatproject/python-icat/pull/127
 
 
 1.0.0 (2022-12-21)
