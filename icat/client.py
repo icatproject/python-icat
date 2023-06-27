@@ -799,7 +799,7 @@ class Client(suds.client.Client):
         :rtype: :class:`icat.entity.Entity`
 
         .. versionchanged:: 1.0.0
-            The `infile` parameter also accepts a
+            the `infile` parameter also accepts a
             :class:`~pathlib.Path` object.
         """
 

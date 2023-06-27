@@ -21,7 +21,7 @@ Furthermore, custom methods are added to a few selected entity
 classes.
 
 .. versionchanged:: 0.17.0
-    Create the entity classes dynamically.
+    create the entity classes dynamically.
 
 .. autoclass:: icat.entities.GroupingMixin
     :members:

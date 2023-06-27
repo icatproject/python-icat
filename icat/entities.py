@@ -13,7 +13,7 @@ ICAT server.  The classes are derived from the abstract base class
 :attr:`icat.entity.Entity.SortAttrs` as appropriate.
 
 .. versionchanged:: 0.17.0
-    Create the entity classes dynamically.
+    create the entity classes dynamically.
 """
 
 import itertools

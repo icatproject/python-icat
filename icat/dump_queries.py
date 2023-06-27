@@ -28,7 +28,7 @@ The queries are adapted to the ICAT server version the client is
 connected to.
 
 .. versionchanged:: 1.0.0
-    Review the partition to take the schema extensions in ICAT 5.0
+    review the partition to take the schema extensions in ICAT 5.0
     into account and include the new entity types.
 """
 
@@ -56,7 +56,7 @@ def getStaticQueries(client):
     """Return the queries to fetch all static objects.
 
     .. versionchanged:: 1.0.0
-        Include queries for ``Technique`` and ``DataPublicationType``.
+        include queries for ``Technique`` and ``DataPublicationType``.
     """
     # Compatibility between ICAT versions:
     # - ICAT 5.0.0 added DataPublicationType and Technique.
@@ -104,7 +104,7 @@ def getInvestigationQueries(client, invid):
     """Return the queries to fetch all objects related to an investigation.
 
     .. versionchanged:: 1.0.0
-        Add include clauses for ``investigationFacilityCycles`` and
+        add include clauses for ``investigationFacilityCycles`` and
         ``fundingReferences`` into query for ``Investigation``, add
         include clauses for ``datasetInstruments`` and
         ``datasetTechniques`` into query for ``Dataset``.
@@ -209,7 +209,7 @@ def getOtherQueries(client):
     e.g. not static and not directly related to an investigation.
 
     .. versionchanged:: 1.0.0
-        Drop query for ``DataCollection``, now in a separate function
+        drop query for ``DataCollection``, now in a separate function
         :func:`getDataCollectionQueries`.
     """
     return [

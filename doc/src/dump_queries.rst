@@ -32,7 +32,7 @@ The queries are adapted to the ICAT server version the client is
 connected to.
 
 .. versionchanged:: 1.0.0
-    Review the partition to take the schema extensions in ICAT 5.0
+    review the partition to take the schema extensions in ICAT 5.0
     into account and include the new entity types.
 
 .. autofunction:: icat.dump_queries.getAuthQueries
