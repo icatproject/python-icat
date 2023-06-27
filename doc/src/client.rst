@@ -29,6 +29,9 @@ manages the interaction with an ICAT service as a client.
 
         Version of the ICAT server this client connects to.
 
+	.. versionchanged:: 1.0.0
+            changed type to :class:`icat.helper.Version`
+
     .. attribute:: autoLogout
 
         Flag whether the client should logout automatically on exit.

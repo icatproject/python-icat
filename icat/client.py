@@ -238,6 +238,10 @@ class Client(suds.client.Client):
         :rtype: :class:`icat.entity.Entity`
         :raise EntityTypeError: if obj is neither a valid instance
             object, nor a valid name of an entity type, nor None.
+
+        .. versionchanged:: 1.0.0
+            if the `obj` argument is a string, it is taken case
+            insensitive.
         """
 
         if isinstance(obj, suds.sudsobject.Object):
@@ -876,6 +880,9 @@ class Client(suds.client.Client):
         :type offset: :class:`int`
         :return: a file-like object as returned by
             :meth:`urllib.request.OpenerDirector.open`.
+
+        .. versionchanged:: 0.17.0
+            accept a prepared id in `objs`.
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
@@ -913,6 +920,9 @@ class Client(suds.client.Client):
         :type outname: :class:`str`
         :return: the URL for the data at the IDS.
         :rtype: :class:`str`
+
+        .. versionchanged:: 0.17.0
+            accept a prepared id in `objs`.
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
