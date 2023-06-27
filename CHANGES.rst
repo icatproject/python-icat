@@ -27,6 +27,10 @@ Bug fixes and minor changes
 + `#115`_, `#116`_: Fix the test suite to work if either PyYAML or
   lxml is not available.
 
++ `#128`_: Return an empty list from
+  :func:`icat.dump_queries.getDataPublicationQueries` when talking to
+  an ICAT server older than 5.0.
+
 .. _#111: https://github.com/icatproject/python-icat/issues/111
 .. _#112: https://github.com/icatproject/python-icat/issues/112
 .. _#115: https://github.com/icatproject/python-icat/issues/115
@@ -36,6 +40,7 @@ Bug fixes and minor changes
 .. _#120: https://github.com/icatproject/python-icat/pull/120
 .. _#121: https://github.com/icatproject/python-icat/pull/121
 .. _#124: https://github.com/icatproject/python-icat/pull/124
+.. _#128: https://github.com/icatproject/python-icat/pull/128
 
 
 1.0.0 (2022-12-21)
