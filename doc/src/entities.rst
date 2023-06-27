@@ -5,9 +5,11 @@
 
 Provide the classes corresponding to the entities in the ICAT schema.
 
-Entity classes defined in this module are derived from the abstract
-base class :class:`icat.entity.Entity`.  They override the class
-attributes :attr:`icat.entity.Entity.BeanName`,
+The classes representing the entities in the ICAT schema are
+dynamically created based on the entity information queried from the
+ICAT server.  The classes are derived from the abstract base class
+:class:`icat.entity.Entity`.  They override the class attributes
+:attr:`icat.entity.Entity.BeanName`,
 :attr:`icat.entity.Entity.Constraint`,
 :attr:`icat.entity.Entity.InstAttr`,
 :attr:`icat.entity.Entity.InstRel`,
@@ -17,6 +19,9 @@ attributes :attr:`icat.entity.Entity.BeanName`,
 
 Furthermore, custom methods are added to a few selected entity
 classes.
+
+.. versionchanged:: 0.17.0
+    Create the entity classes dynamically.
 
 .. autoclass:: icat.entities.GroupingMixin
     :members:
