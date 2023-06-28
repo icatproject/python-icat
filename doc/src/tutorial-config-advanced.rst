@@ -194,74 +194,118 @@ config file (``-s SECTION``) as well as the `entity` variable (``-e
   listing existing User objects...
   [(user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 1
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     affiliation = "University of Ravenna, Institute of Modern History"
+     email = "acord@example.org"
+     familyName = "Cordus"
      fullName = "Aelius Cordus"
+     givenName = "Aelius"
      name = "db/acord"
+     orcidId = "0000-0002-3262"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 2
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     affiliation = "Goethe University Frankfurt, Faculty of Philosophy and History"
+     email = "ahau@example.org"
+     familyName = "Hau"
      fullName = "Arnold Hau"
+     givenName = "Arnold"
      name = "db/ahau"
+     orcidId = "0000-0002-3263"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 3
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     affiliation = "Université Paul-Valéry Montpellier 3"
+     email = "jbotu@example.org"
+     familyName = "Botul"
      fullName = "Jean-Baptiste Botul"
+     givenName = "Jean-Baptiste"
      name = "db/jbotu"
+     orcidId = "0000-0002-3264"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 4
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     email = "jdoe@example.org"
+     familyName = "Doe"
      fullName = "John Doe"
+     givenName = "John"
      name = "db/jdoe"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 5
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     affiliation = "University of Nancago"
+     email = "nbour@example.org"
+     familyName = "Bourbaki"
      fullName = "Nicolas Bourbaki"
+     givenName = "Nicolas"
      name = "db/nbour"
+     orcidId = "0000-0002-3266"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 6
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     affiliation = "Kaiser-Wilhelms-Akademie für das militärärztliche Bildungswesen"
+     email = "rbeck@example.org"
+     familyName = "Beck-Dülmen"
      fullName = "Rudolph Beck-Dülmen"
+     givenName = "Rudolph"
      name = "db/rbeck"
+     orcidId = "0000-0002-3267"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 7
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     fullName = "Data Ingester"
+     name = "simple/dataingest"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2023-06-28 12:22:34+02:00
+     id = 8
+     modId = "simple/root"
+     modTime = 2023-06-28 12:22:34+02:00
      fullName = "IDS reader"
      name = "simple/idsreader"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
-     id = 8
+     createTime = 2023-06-28 12:22:34+02:00
+     id = 9
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     fullName = "Pub reader"
+     name = "simple/pubreader"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2023-06-28 12:22:34+02:00
+     id = 10
+     modId = "simple/root"
+     modTime = 2023-06-28 12:22:34+02:00
      fullName = "Root"
      name = "simple/root"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
-     id = 9
+     createTime = 2023-06-28 12:22:34+02:00
+     id = 11
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
      fullName = "User Office"
      name = "simple/useroffice"
    }]
@@ -296,82 +340,126 @@ with name "db/alice"::
   listing existing User objects...
   [(user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 1
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     affiliation = "University of Ravenna, Institute of Modern History"
+     email = "acord@example.org"
+     familyName = "Cordus"
      fullName = "Aelius Cordus"
+     givenName = "Aelius"
      name = "db/acord"
+     orcidId = "0000-0002-3262"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 2
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     affiliation = "Goethe University Frankfurt, Faculty of Philosophy and History"
+     email = "ahau@example.org"
+     familyName = "Hau"
      fullName = "Arnold Hau"
+     givenName = "Arnold"
      name = "db/ahau"
+     orcidId = "0000-0002-3263"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 3
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     affiliation = "Université Paul-Valéry Montpellier 3"
+     email = "jbotu@example.org"
+     familyName = "Botul"
      fullName = "Jean-Baptiste Botul"
+     givenName = "Jean-Baptiste"
      name = "db/jbotu"
+     orcidId = "0000-0002-3264"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 4
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     email = "jdoe@example.org"
+     familyName = "Doe"
      fullName = "John Doe"
+     givenName = "John"
      name = "db/jdoe"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 5
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     affiliation = "University of Nancago"
+     email = "nbour@example.org"
+     familyName = "Bourbaki"
      fullName = "Nicolas Bourbaki"
+     givenName = "Nicolas"
      name = "db/nbour"
+     orcidId = "0000-0002-3266"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 6
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     affiliation = "Kaiser-Wilhelms-Akademie für das militärärztliche Bildungswesen"
+     email = "rbeck@example.org"
+     familyName = "Beck-Dülmen"
      fullName = "Rudolph Beck-Dülmen"
+     givenName = "Rudolph"
      name = "db/rbeck"
+     orcidId = "0000-0002-3267"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
+     createTime = 2023-06-28 12:22:34+02:00
      id = 7
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     fullName = "Data Ingester"
+     name = "simple/dataingest"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2023-06-28 12:22:34+02:00
+     id = 8
+     modId = "simple/root"
+     modTime = 2023-06-28 12:22:34+02:00
      fullName = "IDS reader"
      name = "simple/idsreader"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
-     id = 8
+     createTime = 2023-06-28 12:22:34+02:00
+     id = 9
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
+     fullName = "Pub reader"
+     name = "simple/pubreader"
+   }, (user){
+     createId = "simple/root"
+     createTime = 2023-06-28 12:22:34+02:00
+     id = 10
+     modId = "simple/root"
+     modTime = 2023-06-28 12:22:34+02:00
      fullName = "Root"
      name = "simple/root"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-20 15:55:39+01:00
-     id = 9
+     createTime = 2023-06-28 12:22:34+02:00
+     id = 11
      modId = "simple/root"
-     modTime = 2020-02-20 15:55:39+01:00
+     modTime = 2023-06-28 12:22:34+02:00
      fullName = "User Office"
      name = "simple/useroffice"
    }, (user){
      createId = "simple/root"
-     createTime = 2020-02-21 18:34:29+01:00
-     id = 10
+     createTime = 2023-06-28 15:06:06+02:00
+     id = 12
      modId = "simple/root"
-     modTime = 2020-02-21 18:34:29+01:00
+     modTime = 2023-06-28 15:06:06+02:00
      name = "db/alice"
    }]
   done
@@ -379,10 +467,10 @@ with name "db/alice"::
 Finally, let's delete this new object using the `delete` sub-command.
 To do this, we must specify the sub-command-specific configuration
 variable `id` (``-i ID``).  In the above output, we can see that the
-object's ID is 10, so we write::
+object's ID is 12, so we write::
 
-  $ python config-sub-commands.py -s myicat_root -e User delete -i 10
-  deleting the User object with ID 10...
+  $ python config-sub-commands.py -s myicat_root -e User delete -i 12
+  deleting the User object with ID 12...
   done
 
 Preset configuration values in the program

@@ -17,7 +17,7 @@ new empty folder for that purpose and change into that::
   $ cd python-icat-tutorial
 
 Some of the more advanced tutorial sections will require some example
-content in the ICAT server.  You'll need the file `icatdump-4.10.yaml`
+content in the ICAT server.  You'll need the file `icatdump-5.0.yaml`
 to set it up.  This file can be found in the `doc/examples` directory
 in the python-icat source distribution.
 
