@@ -37,3 +37,12 @@ the following sections:
    tutorial-ids
    tutorial-config-advanced
 
+.. note::
+   Throughout this tutorial, we assume the name of the Python
+   executable to be just ``python`` and the full path used in the
+   interpreter line of scripts to be ``/usr/bin/python``.  It is
+   likely that this assumption does not hold in your environment.
+   Quite often, a version number is appended to the executable name as
+   in ``python3`` or ``python3.11`` and the Python executable might
+   reside in another directory in your system.  You may need to adapt
+   accordingly.

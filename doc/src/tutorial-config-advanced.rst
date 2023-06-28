@@ -495,3 +495,10 @@ the `preset` keyword argument has a similar effect as setting a
 default for the respective configuration variable.  But it also allows
 to override the default for configuration variables that are
 predefined by :mod:`icat.config`.
+
+We can still override the preset configuration variable in the command
+line::
+
+  $ python config-preset.py -s myicat_nbour
+  Login to https://icat.example.com:8181 was successful.
+  User: db/nbour
