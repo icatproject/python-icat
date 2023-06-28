@@ -5,14 +5,8 @@ import datetime
 import yaml
 import icat
 import icat.dumpfile
-try:
-    utc = datetime.timezone.utc
-except AttributeError:
-    try:
-        from suds.sax.date import UtcTimezone
-        utc = UtcTimezone()
-    except ImportError:
-        utc = None
+
+utc = datetime.timezone.utc
 
 
 # List of entity types.  This defines in particular the order in which
@@ -182,13 +176,10 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                     # dependency of server settings in the dumpfile.
                     # Assume v.isoformat() to have a valid timezone
                     # suffix.
-                    if utc:
-                        v = v.astimezone(utc)
-                    v = v.isoformat()
+                    v = v.astimezone(tz=utc).isoformat()
                 else:
-                    # v has no timezone info, assume it to be UTC, append
-                    # the corresponding timezone suffix.
-                    v = v.isoformat() + 'Z'
+                    # v has no timezone info, assume it to be UTC.
+                    v = v.replace(tzinfo=utc).isoformat()
             else:
                 v = str(v)
             d[attr] = v
@@ -206,8 +197,8 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
 
     def head(self):
         """Write a header with some meta information to the data file."""
-        dateformat = "%a, %d %b %Y %H:%M:%S +0000"
-        date = datetime.datetime.utcnow().strftime(dateformat)
+        dateformat = "%a, %d %b %Y %H:%M:%S %z"
+        date = datetime.datetime.now(tz=utc).strftime(dateformat)
         head = """%%YAML 1.1
 # Date: %s
 # Service: %s

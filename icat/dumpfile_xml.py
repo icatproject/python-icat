@@ -8,14 +8,8 @@ from lxml import etree
 import icat
 import icat.dumpfile
 from icat.query import Query
-try:
-    utc = datetime.timezone.utc
-except AttributeError:
-    try:
-        from suds.sax.date import UtcTimezone
-        utc = UtcTimezone()
-    except ImportError:
-        utc = None
+
+utc = datetime.timezone.utc
 
 
 # ------------------------------------------------------------
@@ -185,13 +179,10 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                     # dependency of server settings in the dumpfile.
                     # Assume v.isoformat() to have a valid timezone
                     # suffix.
-                    if utc:
-                        v = v.astimezone(utc)
-                    v = v.isoformat()
+                    v = v.astimezone(tz=utc).isoformat()
                 else:
-                    # v has no timezone info, assume it to be UTC, append
-                    # the corresponding timezone suffix.
-                    v = v.isoformat() + 'Z'
+                    # v has no timezone info, assume it to be UTC.
+                    v = v.replace(tzinfo=utc).isoformat()
             else:
                 v = str(v)
             etree.SubElement(d, attr).text = v
@@ -208,7 +199,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
 
     def head(self):
         """Write a header with some meta information to the data file."""
-        date = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S+00:00")
+        date = datetime.datetime.now(tz=utc).isoformat()
         head = etree.Element("head")
         etree.SubElement(head, "date").text = date
         etree.SubElement(head, "service").text = self.client.url

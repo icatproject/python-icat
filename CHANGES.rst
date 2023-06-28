@@ -35,11 +35,14 @@ Bug fixes and minor changes
   :func:`icat.dump_queries.getDataPublicationQueries` when talking to
   an ICAT server older than 5.0.
 
++ `#117`_: Fixed deprecation warnings from upcoming Python 3.12.
+
 .. _#111: https://github.com/icatproject/python-icat/issues/111
 .. _#112: https://github.com/icatproject/python-icat/issues/112
 .. _#113: https://github.com/icatproject/python-icat/issues/113
 .. _#115: https://github.com/icatproject/python-icat/issues/115
 .. _#116: https://github.com/icatproject/python-icat/pull/116
+.. _#117: https://github.com/icatproject/python-icat/pull/117
 .. _#118: https://github.com/icatproject/python-icat/pull/118
 .. _#119: https://github.com/icatproject/python-icat/issues/119
 .. _#120: https://github.com/icatproject/python-icat/pull/120
