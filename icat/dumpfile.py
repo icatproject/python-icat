@@ -94,7 +94,7 @@ class DumpFileReader():
         file name.
 
     .. versionchanged:: 1.0.0
-        The `infile` parameter also accepts a :class:`~pathlib.Path`
+        the `infile` parameter also accepts a :class:`~pathlib.Path`
         object.
     """
 
@@ -170,7 +170,7 @@ class DumpFileReader():
                 objindex = ChainMap(dict(), self.objindex)
             for key, obj in self.getobjs_from_data(data, objindex):
                 yield obj
-                obj.truncateRelations()
+                obj.truncateRelations(keepInstRel=True)
                 if key:
                     if obj.BeanName in self._retain_entities:
                         self.objindex[key] = obj
@@ -194,7 +194,7 @@ class DumpFileWriter():
         :class:`~pathlib.Path` or a :class:`str` with a file name.
 
     .. versionchanged:: 1.0.0
-        The `outfile` parameter also accepts a :class:`~pathlib.Path`
+        the `outfile` parameter also accepts a :class:`~pathlib.Path`
         object.
     """
 

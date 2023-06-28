@@ -48,7 +48,7 @@ logging.getLogger('suds.client').setLevel(logging.CRITICAL)
 logging.getLogger('suds').setLevel(logging.ERROR)
 
 testdir = Path(__file__).resolve().parent
-
+testdatadir = testdir / "data"
 
 def _skip(reason):
     if Version(pytest.__version__) >= '3.3.0':
@@ -92,7 +92,7 @@ class DummyDatafile():
 def getConfig(confSection="root", **confArgs):
     """Get the configuration, skip on ConfigError.
     """
-    confFile = testdir / "data" / "icat.cfg"
+    confFile = testdatadir / "icat.cfg"
     if not confFile.is_file():
         _skip("no test ICAT server configured")
     try:
@@ -131,7 +131,7 @@ class tmpClient:
 
 
 def gettestdata(fname):
-    fname = testdir / "data" / fname
+    fname = testdatadir / fname
     assert fname.is_file()
     return fname
 

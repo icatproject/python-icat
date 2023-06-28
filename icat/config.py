@@ -665,6 +665,9 @@ class Config(BaseConfig):
         not set, the command line arguments will be taken from
         :data:`sys.argv`.
     :type args: :class:`list` of :class:`str`
+
+    .. versionchanged:: 1.0.0
+        add the `preset` argument.
     """
 
     def __init__(self, defaultvars=True, needlogin=True, ids="optional", 

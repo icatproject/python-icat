@@ -56,7 +56,10 @@ class Entity():
 
     @classmethod
     def getInstanceName(cls):
-        """Get the name of this class in the ICAT WSDL"""
+        """Get the name of this class in the ICAT WSDL.
+
+        .. versionadded:: 1.0.0
+        """
         if cls is Entity:
             return 'entityBaseBean'
         else:

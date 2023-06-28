@@ -11,17 +11,9 @@ manages the interaction with an ICAT service as a client.
 
     .. rubric:: Class attributes
 
-    .. attribute:: Register
+    .. autoattribute:: Register
 
-        The register of all active clients.
-
-        .. versionchanged:: 1.1.0
-            changed type to :class:`weakref.WeakValueDictionary`.
-
-    .. attribute:: AutoRefreshRemain
-
-        Number of minutes to leave in the session before automatic
-        refresh should be called.
+    .. autoattribute:: AutoRefreshRemain
 
     .. rubric:: Instance attributes
 
@@ -36,6 +28,9 @@ manages the interaction with an ICAT service as a client.
     .. attribute:: apiversion
 
         Version of the ICAT server this client connects to.
+
+	.. versionchanged:: 1.0.0
+            changed type to :class:`icat.helper.Version`
 
     .. attribute:: autoLogout
 
