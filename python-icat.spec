@@ -41,11 +41,11 @@ This package contains the manual pages for the command line scripts.
 %package -n python3-icat
 Summary:	Python interface to ICAT and IDS
 Requires:	%{name} = %{version}
+Requires:	python3-lxml
 Requires:	python3-packaging
 Requires:	python3-suds
 Recommends:	%{name}-man
 Recommends:	python3-PyYAML
-Recommends:	python3-lxml
 
 %description -n python3-icat
 $long_description

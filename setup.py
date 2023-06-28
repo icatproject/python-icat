@@ -167,7 +167,7 @@ class build_py(setuptools.command.build_py.build_py):
 # one particular suds clone.  Therefore, we first try if (any clone
 # of) suds is already installed and only add suds to install_requires
 # if not.
-requires = ["packaging"]
+requires = ["lxml", "packaging"]
 try:
     import suds
 except ImportError:
