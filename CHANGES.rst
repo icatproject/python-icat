@@ -8,6 +8,8 @@ Changelog
 New features
 ------------
 
++ `#113`_, `#123`_: Add module :mod:`icat.ingest`.
+
 + `#124`_: Add an optional keyword argument `keepInstRel` to
   :meth:`icat.entity.Entity.truncateRelations`.
 
@@ -33,12 +35,14 @@ Bug fixes and minor changes
 
 .. _#111: https://github.com/icatproject/python-icat/issues/111
 .. _#112: https://github.com/icatproject/python-icat/issues/112
+.. _#113: https://github.com/icatproject/python-icat/issues/113
 .. _#115: https://github.com/icatproject/python-icat/issues/115
 .. _#116: https://github.com/icatproject/python-icat/pull/116
 .. _#118: https://github.com/icatproject/python-icat/pull/118
 .. _#119: https://github.com/icatproject/python-icat/issues/119
 .. _#120: https://github.com/icatproject/python-icat/pull/120
 .. _#121: https://github.com/icatproject/python-icat/pull/121
+.. _#123: https://github.com/icatproject/python-icat/pull/123
 .. _#124: https://github.com/icatproject/python-icat/pull/124
 .. _#128: https://github.com/icatproject/python-icat/pull/128
 

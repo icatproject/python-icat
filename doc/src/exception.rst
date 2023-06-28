@@ -145,6 +145,10 @@ Exceptions raised by python-icat
     :members:
     :show-inheritance:
 
+.. autoexception:: icat.exception.InvalidIngestFileError
+    :members:
+    :show-inheritance:
+
 Exception hierarchy
 -------------------
 
@@ -178,6 +182,8 @@ The class hierarchy for the exceptions is::
    │    └── SearchAssertionError
    ├── DataConsistencyError
    ├── IDSResponseError
+   ├── ValueError
+   │    └── InvalidIngestFileError
    └── Warning
         ├── QueryWarning
         │    ├── QueryNullableOrderWarning

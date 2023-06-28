@@ -170,7 +170,7 @@ class DumpFileReader():
                 objindex = ChainMap(dict(), self.objindex)
             for key, obj in self.getobjs_from_data(data, objindex):
                 yield obj
-                obj.truncateRelations()
+                obj.truncateRelations(keepInstRel=True)
                 if key:
                     if obj.BeanName in self._retain_entities:
                         self.objindex[key] = obj
