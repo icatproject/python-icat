@@ -1,14 +1,19 @@
 """Provide the classes corresponding to the entities in the ICAT schema.
 
-Entity classes defined in this module are derived from the abstract
-base class :class:`icat.entity.Entity`.  They override the class
-attributes :attr:`icat.entity.Entity.BeanName`,
+The classes representing the entities in the ICAT schema are
+dynamically created based on the entity information queried from the
+ICAT server.  The classes are derived from the abstract base class
+:class:`icat.entity.Entity`.  They override the class attributes
+:attr:`icat.entity.Entity.BeanName`,
 :attr:`icat.entity.Entity.Constraint`,
 :attr:`icat.entity.Entity.InstAttr`,
 :attr:`icat.entity.Entity.InstRel`,
 :attr:`icat.entity.Entity.InstMRel`,
 :attr:`icat.entity.Entity.AttrAlias`, and
 :attr:`icat.entity.Entity.SortAttrs` as appropriate.
+
+.. versionchanged:: 0.17.0
+    create the entity classes dynamically.
 """
 
 import itertools
