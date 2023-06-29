@@ -80,7 +80,7 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
         :attr:`~icat.ingest.IngestReader.SchemaDir` and this path is
         returned.
 
-        Subclasses my override this method to customize the XSD file
+        Subclasses may override this method to customize the XSD file
         to use.  These derived versions may inspect the input data to
         select the appropriate file.  Derived versions should raise
         :exc:`~icat.exception.InvalidIngestFileError` if they decide
@@ -108,7 +108,7 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
         name relative to :attr:`~icat.ingest.IngestReader.SchemaDir`
         and return this path.
 
-        Subclasses my override this method to customize the XSLT file
+        Subclasses may override this method to customize the XSLT file
         to use.  These derived versions may inspect the input data to
         select the appropriate file.  Derived versions should raise
         :exc:`~icat.exception.InvalidIngestFileError` if they decide
