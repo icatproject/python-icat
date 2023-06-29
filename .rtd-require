@@ -1,5 +1,8 @@
-docutils<0.18
-setuptools_scm
-suds-community
 PyYAML
 lxml
+packaging
+setuptools
+setuptools_scm
+suds
+sphinx>=2,<3
+sphinx-rtd-theme>=0.5,<1
