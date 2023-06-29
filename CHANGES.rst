@@ -37,6 +37,8 @@ Bug fixes and minor changes
 
 + `#117`_: Fixed deprecation warnings from upcoming Python 3.12.
 
++ `#129`_: Review the build of the documentation at Read the Docs.
+
 .. _#111: https://github.com/icatproject/python-icat/issues/111
 .. _#112: https://github.com/icatproject/python-icat/issues/112
 .. _#113: https://github.com/icatproject/python-icat/issues/113
@@ -52,6 +54,7 @@ Bug fixes and minor changes
 .. _#126: https://github.com/icatproject/python-icat/issues/126
 .. _#127: https://github.com/icatproject/python-icat/pull/127
 .. _#128: https://github.com/icatproject/python-icat/pull/128
+.. _#129: https://github.com/icatproject/python-icat/pull/129
 
 
 1.0.0 (2022-12-21)
