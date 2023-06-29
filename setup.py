@@ -183,6 +183,7 @@ setup(
     version = version,
     description = docstring.split("\n")[0],
     long_description = readme,
+    long_description_content_type = "text/x-rst",
     url = "https://github.com/icatproject/python-icat",
     author = "Rolf Krahl",
     author_email = "rolf.krahl@helmholtz-berlin.de",
