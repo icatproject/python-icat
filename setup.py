@@ -205,6 +205,11 @@ setup(
         "Programming Language :: Python :: 3.12",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
+    project_urls = dict(
+        Documentation="https://python-icat.readthedocs.io/",
+        Source="https://github.com/icatproject/python-icat/",
+        Changes="https://python-icat.readthedocs.io/en/latest/changelog.html",
+    ),
     packages = ["icat"],
     python_requires = ">=3.4",
     install_requires = requires,
