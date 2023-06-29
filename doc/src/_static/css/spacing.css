@@ -1,0 +1,22 @@
+.rst-content .section ol li > *, .rst-content .section ul li > * {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.rst-content .section ol li > p, .rst-content .section ul li > p {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.rst-content .section ol li > ol, .rst-content .section ol li > ul, .rst-content .section ul li > ol, .rst-content .section ul li > ul {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.rst-content .section ol li > p:last-child, .rst-content .section ul li > p:last-child {
+    margin-bottom: 3px
+}
+
+.rst-content .section ol li > p:only-child:last-child, .rst-content .section ul li > p:only-child:last-child {
+    margin-bottom: 3px
+}
