@@ -74,9 +74,11 @@ __version__ = "%(version)s"
                 self.package_dir[name] = convert_path(path)
 
     def run(self):
+        version = self.distribution.get_version()
+        log.info("version: %s", version)
         values = {
-            'version': self.distribution.get_version(),
-            'doc': docstring
+            'version': version,
+            'doc': docstring,
         }
         try:
             pkgname = self.distribution.packages[0]
