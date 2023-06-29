@@ -1,4 +1,6 @@
-setuptools_scm
-suds-community
 PyYAML
 lxml
+packaging
+setuptools
+setuptools_scm
+suds
