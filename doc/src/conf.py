@@ -106,6 +106,8 @@ html_static_path = ['_static']
 # If true, links to the reST sources are added to the pages.
 html_show_sourcelink = False
 
+html_favicon = "images/favicon-32x32.png"
+
 html_css_files = [
     'css/spacing.css',
 ]
