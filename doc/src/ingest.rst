@@ -88,7 +88,7 @@ might then look like::
       raise RuntimeError("invalid ingest file") from e
 
   # Create the datasets.  In a real production script, you'd copy the
-  # content of the datafile to IDS storage at the same time:
+  # content of the datafiles to IDS storage at the same time:
   for ds in datasets:
       ds.create()
 
