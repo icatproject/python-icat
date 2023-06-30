@@ -39,10 +39,10 @@ The result can be verified by repeating the search from above::
   >>> client.search("SELECT f FROM Facility f")
   [(facility){
      createId = "simple/root"
-     createTime = 2019-11-26 12:39:18+01:00
+     createTime = 2023-06-28 10:39:26+02:00
      id = 1
      modId = "simple/root"
-     modTime = 2019-11-26 12:39:18+01:00
+     modTime = 2023-06-28 10:39:26+02:00
      fullName = "Facility 1"
      name = "Fac1"
    }]
@@ -62,18 +62,18 @@ To verify the result, we check again::
   >>> client.search("SELECT f FROM Facility f")
   [(facility){
      createId = "simple/root"
-     createTime = 2019-11-26 12:39:18+01:00
+     createTime = 2023-06-28 10:39:26+02:00
      id = 1
      modId = "simple/root"
-     modTime = 2019-11-26 12:39:18+01:00
+     modTime = 2023-06-28 10:39:26+02:00
      fullName = "Facility 1"
      name = "Fac1"
    }, (facility){
      createId = "simple/root"
-     createTime = 2019-11-26 12:40:02+01:00
+     createTime = 2023-06-28 10:41:08+02:00
      id = 2
      modId = "simple/root"
-     modTime = 2019-11-26 12:40:02+01:00
+     modTime = 2023-06-28 10:41:08+02:00
      fullName = "Facility 2"
      name = "Fac2"
    }]
@@ -136,10 +136,10 @@ We can verify this by searching for the newly created objects::
   >>> client.search(query)
   [(parameterType){
      createId = "simple/root"
-     createTime = 2019-11-26 12:40:54+01:00
+     createTime = 2023-06-28 10:43:06+02:00
      id = 1
      modId = "simple/root"
-     modTime = 2019-11-26 12:40:54+01:00
+     modTime = 2023-06-28 10:43:06+02:00
      applicableToDataCollection = False
      applicableToDatafile = False
      applicableToDataset = True
@@ -149,10 +149,10 @@ We can verify this by searching for the newly created objects::
      facility =
         (facility){
            createId = "simple/root"
-           createTime = 2019-11-26 12:39:18+01:00
+           createTime = 2023-06-28 10:39:26+02:00
            id = 1
            modId = "simple/root"
-           modTime = 2019-11-26 12:39:18+01:00
+           modTime = 2023-06-28 10:39:26+02:00
            fullName = "Facility 1"
            name = "Fac1"
         }
@@ -162,10 +162,10 @@ We can verify this by searching for the newly created objects::
      verified = False
    }, (parameterType){
      createId = "simple/root"
-     createTime = 2019-11-26 12:41:30+01:00
+     createTime = 2023-06-28 10:44:28+02:00
      id = 2
      modId = "simple/root"
-     modTime = 2019-11-26 12:41:30+01:00
+     modTime = 2023-06-28 10:44:28+02:00
      applicableToDataCollection = False
      applicableToDatafile = False
      applicableToDataset = True
@@ -175,10 +175,10 @@ We can verify this by searching for the newly created objects::
      facility =
         (facility){
            createId = "simple/root"
-           createTime = 2019-11-26 12:39:18+01:00
+           createTime = 2023-06-28 10:39:26+02:00
            id = 1
            modId = "simple/root"
-           modTime = 2019-11-26 12:39:18+01:00
+           modTime = 2023-06-28 10:39:26+02:00
            fullName = "Facility 1"
            name = "Fac1"
         }
@@ -186,27 +186,27 @@ We can verify this by searching for the newly created objects::
      permissibleStringValues[] =
         (permissibleStringValue){
            createId = "simple/root"
-           createTime = 2019-11-26 12:41:30+01:00
+           createTime = 2023-06-28 10:44:28+02:00
            id = 1
            modId = "simple/root"
-           modTime = 2019-11-26 12:41:30+01:00
+           modTime = 2023-06-28 10:44:28+02:00
+           value = "cattivo"
+        },
+        (permissibleStringValue){
+           createId = "simple/root"
+           createTime = 2023-06-28 10:44:28+02:00
+           id = 2
+           modId = "simple/root"
+           modTime = 2023-06-28 10:44:28+02:00
            value = "buono"
         },
         (permissibleStringValue){
            createId = "simple/root"
-           createTime = 2019-11-26 12:41:30+01:00
-           id = 2
-           modId = "simple/root"
-           modTime = 2019-11-26 12:41:30+01:00
-           value = "brutto"
-        },
-        (permissibleStringValue){
-           createId = "simple/root"
-           createTime = 2019-11-26 12:41:30+01:00
+           createTime = 2023-06-28 10:44:28+02:00
            id = 3
            modId = "simple/root"
-           modTime = 2019-11-26 12:41:30+01:00
-           value = "cattivo"
+           modTime = 2023-06-28 10:44:28+02:00
+           value = "brutto"
         },
      units = "N/A"
      valueType = "STRING"
@@ -272,10 +272,10 @@ If we now try again to search for the objects as normal user, we get::
   >>> client.search("SELECT pt FROM ParameterType pt INCLUDE pt.facility")
   [(parameterType){
      createId = "simple/root"
-     createTime = 2019-11-26 12:40:54+01:00
+     createTime = 2023-06-28 10:43:06+02:00
      id = 1
      modId = "simple/root"
-     modTime = 2019-11-26 12:40:54+01:00
+     modTime = 2023-06-28 10:43:06+02:00
      applicableToDataCollection = False
      applicableToDatafile = False
      applicableToDataset = True
@@ -285,10 +285,10 @@ If we now try again to search for the objects as normal user, we get::
      facility =
         (facility){
            createId = "simple/root"
-           createTime = 2019-11-26 12:39:18+01:00
+           createTime = 2023-06-28 10:39:26+02:00
            id = 1
            modId = "simple/root"
-           modTime = 2019-11-26 12:39:18+01:00
+           modTime = 2023-06-28 10:39:26+02:00
            fullName = "Facility 1"
            name = "Fac1"
         }
@@ -298,10 +298,10 @@ If we now try again to search for the objects as normal user, we get::
      verified = False
    }, (parameterType){
      createId = "simple/root"
-     createTime = 2019-11-26 12:41:30+01:00
+     createTime = 2023-06-28 10:44:28+02:00
      id = 2
      modId = "simple/root"
-     modTime = 2019-11-26 12:41:30+01:00
+     modTime = 2023-06-28 10:44:28+02:00
      applicableToDataCollection = False
      applicableToDatafile = False
      applicableToDataset = True
@@ -311,10 +311,10 @@ If we now try again to search for the objects as normal user, we get::
      facility =
         (facility){
            createId = "simple/root"
-           createTime = 2019-11-26 12:39:18+01:00
+           createTime = 2023-06-28 10:39:26+02:00
            id = 1
            modId = "simple/root"
-           modTime = 2019-11-26 12:39:18+01:00
+           modTime = 2023-06-28 10:39:26+02:00
            fullName = "Facility 1"
            name = "Fac1"
         }
@@ -323,4 +323,3 @@ If we now try again to search for the objects as normal user, we get::
      valueType = "STRING"
      verified = False
    }]
-

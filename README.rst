@@ -1,4 +1,7 @@
-|rtd| |pypi|
+|doi| |rtd| |pypi|
+
+.. |doi| image:: https://zenodo.org/badge/37250056.svg
+   :target: https://zenodo.org/badge/latestdoi/37250056
 
 .. |rtd| image:: https://img.shields.io/readthedocs/python-icat/latest
    :target: https://python-icat.readthedocs.io/en/latest/
@@ -47,7 +50,7 @@ the reason why the example scripts require PyYAML.
 Copyright and License
 ---------------------
 
-Copyright 2013–2022
+Copyright 2013–2023
 Helmholtz-Zentrum Berlin für Materialien und Energie GmbH
 
 Licensed under the `Apache License`_, Version 2.0 (the "License"); you

@@ -26,7 +26,9 @@ __all__ = [
     'EntityTypeError', 'VersionMethodError', 'SearchResultError', 
     'SearchAssertionError', 'DataConsistencyError', 
     # icat.ids
-    'IDSResponseError', 
+    'IDSResponseError',
+    # icat.ingest
+    'InvalidIngestFileError',
     ]
 
 
@@ -283,7 +285,7 @@ class QueryNullableOrderWarning(QueryWarning):
     """Warn about using a nullable many to one relation for ordering.
 
     .. versionchanged:: 0.19.0
-        Inherit from :exc:`QueryWarning`.
+        inherit from :exc:`QueryWarning`.
     """
     def __init__(self, attr):
         msg = ("ordering on a nullable many to one relation implicitly "
@@ -337,7 +339,7 @@ class EntityTypeError(_BaseException, TypeError):
     """An invalid entity type has been used.
 
     .. versionchanged:: 0.18.0
-        Inherit from :exc:`TypeError`.
+        inherit from :exc:`TypeError`.
     """
     pass
 
@@ -399,3 +401,18 @@ class IDSResponseError(_BaseException):
     """The response from the IDS was not what should have been expected.
     """
     pass
+
+
+# ================ Exceptions raised in icat.ingest ================
+
+class InvalidIngestFileError(_BaseException, ValueError):
+    """The content of the file is not valid ingest format.
+
+    .. versionadded:: 1.1.0
+    """
+    def __init__(self, detail=None):
+        if detail:
+            msg = "Invalid ingest file: %s" % detail
+        else:
+            msg = "Invalid ingest file"
+        super().__init__(msg)

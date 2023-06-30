@@ -4,9 +4,8 @@
    This module is mostly intended as a helper for the icatdump script.
    Most users will not need to use it directly or even care about it.
 
-The data icatdump is written in chunks, see the documentation of
-icat.dumpfile for details why this is needed.  The partition used
-here is the following:
+ICAT data files are written in chunks.  The partition used here is the
+following:
 
 1. One chunk with all objects that define authorization (User, Group,
    Rule, PublicStep).
@@ -24,7 +23,13 @@ here is the following:
    Job).
 
 The functions defined in this module each return a list of queries
-needed to fetch all objects to be included in one of these chunks.
+needed to fetch the objects to be included in one of these chunks.
+The queries are adapted to the ICAT server version the client is
+connected to.
+
+.. versionchanged:: 1.0.0
+    review the partition to take the schema extensions in ICAT 5.0
+    into account and include the new entity types.
 """
 
 import icat
@@ -49,9 +54,12 @@ def getAuthQueries(client):
 
 def getStaticQueries(client):
     """Return the queries to fetch all static objects.
+
+    .. versionchanged:: 1.0.0
+        include queries for ``Technique`` and ``DataPublicationType``.
     """
     # Compatibility between ICAT versions:
-    # - ICAT 5.0.0 added Technique.
+    # - ICAT 5.0.0 added DataPublicationType and Technique.
     queries = [
         Query(client, "Facility", order=True),
         Query(client, "Instrument", order=True,
@@ -82,6 +90,8 @@ def getStaticQueries(client):
 
 def getFundingQueries(client):
     """Return the queries to fetch all FundingReferences.
+
+    .. versionadded:: 1.0.0
     """
     # Compatibility between ICAT versions:
     # - ICAT 5.0.0 added FundingReference.
@@ -92,6 +102,12 @@ def getFundingQueries(client):
 
 def getInvestigationQueries(client, invid):
     """Return the queries to fetch all objects related to an investigation.
+
+    .. versionchanged:: 1.0.0
+        add include clauses for ``investigationFacilityCycles`` and
+        ``fundingReferences`` into query for ``Investigation``, add
+        include clauses for ``datasetInstruments`` and
+        ``datasetTechniques`` into query for ``Dataset``.
     """
     # Compatibility between ICAT versions:
     # - ICAT 4.4.0 added InvestigationGroups.
@@ -144,11 +160,13 @@ def getInvestigationQueries(client, invid):
 
 def getDataCollectionQueries(client):
     """Return the queries to fetch all DataCollections.
+
+    .. versionadded:: 1.0.0
     """
     # Compatibility between ICAT versions:
     # - ICAT 4.3.0 vs. ICAT 4.3.1 and later: name of the parameters
     #   relation in DataCollection.
-    # - ICAT 5.0.0 added DatasetInstrument and DatasetTechnique.
+    # - ICAT 5.0.0 added DataCollectionInvestigation.
     dc_includes = {
         "dataCollectionDatasets.dataset.investigation.facility",
         "dataCollectionDatafiles.datafile.dataset.investigation.facility",
@@ -169,24 +187,36 @@ def getDataCollectionQueries(client):
 
 def getDataPublicationQueries(client, pubid):
     """Return the queries to fetch all objects related to a data publication.
+
+    .. versionadded:: 1.0.0
+
+    .. versionchanged:: 1.1.0
+        return an empty list if the ICAT server is older than 5.0
+        rather than raising :exc:`~icat.exception.EntityTypeError`.
     """
     # Compatibility between ICAT versions:
     # - ICAT 5.0.0 added DataPublication and related classes.
-    # This is not tested here, we assume the caller to check this.
-    # Otherwise the pubid argument would make no sense.
-    return [
-        Query(client, "DataPublication", order=True,
-              conditions={"id": "= %d" % pubid},
-              includes={"facility", "content", "type.facility", "dates",
-                        "fundingReferences.funding", "relatedItems"}),
-        Query(client, "DataPublicationUser", order=True,
-              conditions={"publication.id": "= %d" % pubid},
-              includes={"publication", "user", "affiliations"}),
-    ]
+    if 'dataPublication' in client.typemap:
+        # ICAT >= 5.0.0
+        return [
+            Query(client, "DataPublication", order=True,
+                  conditions={"id": "= %d" % pubid},
+                  includes={"facility", "content", "type.facility", "dates",
+                            "fundingReferences.funding", "relatedItems"}),
+            Query(client, "DataPublicationUser", order=True,
+                  conditions={"publication.id": "= %d" % pubid},
+                  includes={"publication", "user", "affiliations"}),
+        ]
+    else:
+        return []
 
 def getOtherQueries(client):
     """Return the queries to fetch all other objects,
     e.g. not static and not directly related to an investigation.
+
+    .. versionchanged:: 1.0.0
+        drop query for ``DataCollection``, now in a separate function
+        :func:`getDataCollectionQueries`.
     """
     return [
         Query(client, "Study", order=True,

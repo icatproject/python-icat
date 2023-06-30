@@ -18,7 +18,7 @@ import _meta
 # -- Project information -----------------------------------------------------
 
 project = 'python-icat'
-copyright = ('2013–2022, '
+copyright = ('2013–2023, '
              'Helmholtz-Zentrum Berlin für Materialien und Energie GmbH')
 author = 'Rolf Krahl'
 
@@ -32,7 +32,7 @@ version = ".".join(release.split(".")[0:2])
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #
-# needs_sphinx = '1.0'
+needs_sphinx = '1.8'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
@@ -105,6 +105,12 @@ html_static_path = ['_static']
 
 # If true, links to the reST sources are added to the pages.
 html_show_sourcelink = False
+
+html_favicon = "images/favicon-32x32.png"
+
+html_css_files = [
+    'css/spacing.css',
+]
 
 
 # -- Options for HTMLHelp output ---------------------------------------------

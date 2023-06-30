@@ -9,12 +9,16 @@ dump file.
 
 import filecmp
 import re
-import yaml
+try:
+    import yaml
+except ImportError:
+    yaml = None
 import pytest
 import icat
 import icat.config
 from icat.query import Query
 from conftest import (getConfig, icat_version, gettestdata,
+                      require_dumpfile_backend,
                       get_reference_dumpfile, get_reference_summary,
                       callscript, filter_file, yaml_filter)
 
@@ -50,6 +54,8 @@ summary_study_filter = (re.compile(r"^((?:Study(?:Investigation)?)\s*) : \d+$"),
 
 @pytest.fixture(scope="module")
 def data():
+    if yaml is None:
+        pytest.skip("Need yaml")
     with testinput.open('r') as f:
         return yaml.safe_load(f)
 
@@ -132,6 +138,8 @@ def fix_file_size(inv_name):
 
 @pytest.mark.dependency(name="init")
 def test_init(standardCmdArgs):
+    if yaml is None:
+        pytest.skip("Need yaml")
     callscript("wipeicat.py", standardCmdArgs)
     callscript("init-icat.py", standardCmdArgs + [str(testinput)])
 
@@ -386,6 +394,7 @@ def test_add_datacollections(data, user, objects):
 def test_check_content(standardCmdArgs, tmpdirsec):
     """Dump the resulting content and compare with a reference dump.
     """
+    require_dumpfile_backend("YAML")
     dump = tmpdirsec / "dump.yaml"
     fdump = tmpdirsec / "dump-filter.yaml"
     reffdump = tmpdirsec / "dump-filter-ref.yaml"

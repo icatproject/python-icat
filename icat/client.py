@@ -11,6 +11,7 @@ import re
 import time
 import urllib.parse
 from warnings import warn
+import weakref
 
 import suds
 import suds.client
@@ -76,8 +77,12 @@ class Client(suds.client.Client):
         for details.
     """
 
-    Register = {}
-    """The register of all active clients."""
+    Register = weakref.WeakValueDictionary()
+    """The register of all active clients.
+
+    .. versionchanged:: 1.1.0
+        changed type to :class:`weakref.WeakValueDictionary`.
+    """
 
     AutoRefreshRemain = 30
     """Number of minutes to leave in the session before automatic refresh
@@ -92,9 +97,10 @@ class Client(suds.client.Client):
         class instances, e.g. on all clients that have not yet been
         cleaned up.
         """
-        cl = list(cls.Register.values())
-        for c in cl:
-            c.cleanup()
+        for r in list(cls.Register.valuerefs()):
+            c = r()
+            if c:
+                c.cleanup()
 
     def _schedule_auto_refresh(self, t=None):
         now = time.time()
@@ -167,9 +173,9 @@ class Client(suds.client.Client):
         :const:`True`).  The client should not be used any more after
         calling this method.
         """
+        if self.autoLogout:
+            self.logout()
         if id(self) in self.Register:
-            if self.autoLogout:
-                self.logout()
             del self.Register[id(self)]
 
     def add_ids(self, url, proxy=None):
@@ -232,6 +238,10 @@ class Client(suds.client.Client):
         :rtype: :class:`icat.entity.Entity`
         :raise EntityTypeError: if obj is neither a valid instance
             object, nor a valid name of an entity type, nor None.
+
+        .. versionchanged:: 1.0.0
+            if the `obj` argument is a string, it is taken case
+            insensitive.
         """
 
         if isinstance(obj, suds.sudsobject.Object):
@@ -789,7 +799,7 @@ class Client(suds.client.Client):
         :rtype: :class:`icat.entity.Entity`
 
         .. versionchanged:: 1.0.0
-            The `infile` parameter also accepts a
+            the `infile` parameter also accepts a
             :class:`~pathlib.Path` object.
         """
 
@@ -870,6 +880,9 @@ class Client(suds.client.Client):
         :type offset: :class:`int`
         :return: a file-like object as returned by
             :meth:`urllib.request.OpenerDirector.open`.
+
+        .. versionchanged:: 0.17.0
+            accept a prepared id in `objs`.
         """
         if not self.ids:
             raise RuntimeError("no IDS.")
@@ -907,6 +920,9 @@ class Client(suds.client.Client):
         :type outname: :class:`str`
         :return: the URL for the data at the IDS.
         :rtype: :class:`str`
+
+        .. versionchanged:: 0.17.0
+            accept a prepared id in `objs`.
         """
         if not self.ids:
             raise RuntimeError("no IDS.")

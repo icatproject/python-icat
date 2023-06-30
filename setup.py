@@ -74,9 +74,11 @@ __version__ = "%(version)s"
                 self.package_dir[name] = convert_path(path)
 
     def run(self):
+        version = self.distribution.get_version()
+        log.info("version: %s", version)
         values = {
-            'version': self.distribution.get_version(),
-            'doc': docstring
+            'version': version,
+            'doc': docstring,
         }
         try:
             pkgname = self.distribution.packages[0]
@@ -119,15 +121,20 @@ class build_test(setuptools.Command):
     def copy_test_data(self):
         destdir = os.path.join("tests", "data")
         self.mkpath(destdir)
-        refdumpfiles = ["icatdump-%s.%s" % (ver, ext)
-                        for ver in ("4.4", "4.7", "4.10", "5.0")
-                        for ext in ("xml", "yaml")]
-        files = ["example_data.yaml",
-                 "ingest-datafiles.xml", "ingest-ds-params.xml"] + refdumpfiles
+        files = []
+        files += [ os.path.join("doc", "examples", f)
+                   for f in ["example_data.yaml",
+                             "ingest-datafiles.xml", "ingest-ds-params.xml"] ]
+        files += [ os.path.join("doc", "examples",
+                                "icatdump-%s.%s" % (ver, ext))
+                   for ver in ("4.4", "4.7", "4.10", "5.0")
+                   for ext in ("xml", "yaml") ]
+        files += glob(os.path.join("doc", "examples", "metadata-*.xml"))
+        files += [ os.path.join("etc", f)
+                   for f in ["ingest-10.xsd", "ingest.xslt"] ]
         for f in files:
-            src = os.path.join("doc", "examples", f)
             dest = os.path.join(destdir, os.path.basename(f))
-            self.copy_file(src, dest, preserve_mode=False)
+            self.copy_file(f, dest, preserve_mode=False)
 
 
 # Note: Do not use setuptools for making the source distribution,
@@ -162,7 +169,7 @@ class build_py(setuptools.command.build_py.build_py):
 # one particular suds clone.  Therefore, we first try if (any clone
 # of) suds is already installed and only add suds to install_requires
 # if not.
-requires = ["packaging"]
+requires = ["lxml", "packaging"]
 try:
     import suds
 except ImportError:
@@ -176,6 +183,7 @@ setup(
     version = version,
     description = docstring.split("\n")[0],
     long_description = readme,
+    long_description_content_type = "text/x-rst",
     url = "https://github.com/icatproject/python-icat",
     author = "Rolf Krahl",
     author_email = "rolf.krahl@helmholtz-berlin.de",
@@ -194,8 +202,14 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
+    project_urls = dict(
+        Documentation="https://python-icat.readthedocs.io/",
+        Source="https://github.com/icatproject/python-icat/",
+        Changes="https://python-icat.readthedocs.io/en/latest/changelog.html",
+    ),
     packages = ["icat"],
     python_requires = ">=3.4",
     install_requires = requires,

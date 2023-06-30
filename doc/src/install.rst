@@ -29,6 +29,12 @@ using pip.
 
 + :ref:`suds`, see below.
 
++ `lxml`_
+
+  Needed for the :mod:`icat.ingest` module and to use the XML backend
+  of :ref:`icatdump` and :ref:`icatingest`.  Not needed for the
+  :ref:`python-icat core API <modref-core>`.
+
 Optional library packages
 .........................
 
@@ -40,10 +46,11 @@ are not required to install python-icat and use its core features:
   Only needed to use the YAML backend of :ref:`icatdump` and
   :ref:`icatingest` and to run the example scripts.
 
-+ `lxml`_
-
-  Only needed to use the XML backend of :ref:`icatdump` and
-  :ref:`icatingest`.
+  The test suite uses :ref:`icatingest` with the YAML backend to
+  create reference content in the test ICAT server.  While it is
+  technically possible to run the tests without PyYAML, most of the
+  tests will be skipped in that case, so the results will not be very
+  meaningful.
 
 + `setuptools_scm`_
 

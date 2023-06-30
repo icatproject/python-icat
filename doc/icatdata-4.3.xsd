@@ -212,6 +212,7 @@
       <xsd:attribute name="dataset.investigation.visitId" type="xsd:string"/>
       <xsd:attribute name="dataset.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
+      <xsd:attribute name="doi" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
@@ -233,6 +234,7 @@
       <xsd:attribute name="investigation.name" type="xsd:string"/>
       <xsd:attribute name="investigation.visitId" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
+      <xsd:attribute name="doi" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>
@@ -277,6 +279,7 @@
       <xsd:attribute name="facility.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
       <xsd:attribute name="visitId" type="xsd:string"/>
+      <xsd:attribute name="doi" type="xsd:string"/>
     </xsd:extension>
   </xsd:complexContent>
 </xsd:complexType>

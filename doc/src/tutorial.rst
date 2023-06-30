@@ -17,7 +17,7 @@ new empty folder for that purpose and change into that::
   $ cd python-icat-tutorial
 
 Some of the more advanced tutorial sections will require some example
-content in the ICAT server.  You'll need the file `icatdump-4.10.yaml`
+content in the ICAT server.  You'll need the file `icatdump-5.0.yaml`
 to set it up.  This file can be found in the `doc/examples` directory
 in the python-icat source distribution.
 
@@ -37,3 +37,12 @@ the following sections:
    tutorial-ids
    tutorial-config-advanced
 
+.. note::
+   Throughout this tutorial, we assume the name of the Python
+   executable to be just ``python`` and the full path used in the
+   interpreter line of scripts to be ``/usr/bin/python``.  It is
+   likely that this assumption does not hold in your environment.
+   Quite often, a version number is appended to the executable name as
+   in ``python3`` or ``python3.11`` and the Python executable might
+   reside in another directory in your system.  You may need to adapt
+   accordingly.

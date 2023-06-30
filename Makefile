@@ -18,9 +18,11 @@ doc-man: meta
 
 clean:
 	rm -rf build
-	rm -rf __pycache__
+	rm -rf __pycache__ icat/__pycache__
 	rm -rf tests/data/example_data.yaml
 	rm -rf tests/data/icatdump-* tests/data/ingest-*.xml
+	rm -rf tests/data/ingest-*.xsd tests/data/ingest.xslt
+	rm -rf tests/data/metadata-*-inl.xml tests/data/metadata-*-sep.xml
 	rm -rf tests/scripts
 
 distclean: clean
