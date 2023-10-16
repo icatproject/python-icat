@@ -1,5 +1,5 @@
 %YAML 1.1
-# Date: Wed, 21 Dec 2022 15:08:23 +0000
+# Date: Mon, 16 Oct 2023 14:48:11 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 4.10.0
 # Generator: icatdump (python-icat 1.0.0)
@@ -421,182 +421,186 @@ rule:
     grouping: Grouping_name-ingest
     what: Investigation
   Rule_00000066:
+    crudFlags: CRU
+    grouping: Grouping_name-ingest
+    what: Sample
+  Rule_00000067:
     crudFlags: R
     grouping: Grouping_name-ingest
     what: Shift
-  Rule_00000067:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: DataCollection
   Rule_00000068:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataCollectionDatafile
+    what: DataCollection
   Rule_00000069:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataCollectionDataset
+    what: DataCollectionDatafile
   Rule_00000070:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataCollectionParameter
+    what: DataCollectionDataset
   Rule_00000071:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Datafile
+    what: DataCollectionParameter
   Rule_00000072:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DatafileParameter
+    what: Datafile
   Rule_00000073:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Dataset
+    what: DatafileParameter
   Rule_00000074:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DatasetParameter
+    what: Dataset
   Rule_00000075:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Grouping
+    what: DatasetParameter
   Rule_00000076:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InstrumentScientist
+    what: Grouping
   Rule_00000077:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Investigation
+    what: InstrumentScientist
   Rule_00000078:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationGroup
+    what: Investigation
   Rule_00000079:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationInstrument
+    what: InvestigationGroup
   Rule_00000080:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationParameter
+    what: InvestigationInstrument
   Rule_00000081:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationUser
+    what: InvestigationParameter
   Rule_00000082:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Job
+    what: InvestigationUser
   Rule_00000083:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Keyword
+    what: Job
   Rule_00000084:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: PublicStep
+    what: Keyword
   Rule_00000085:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Publication
+    what: PublicStep
   Rule_00000086:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: RelatedDatafile
+    what: Publication
   Rule_00000087:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Rule
+    what: RelatedDatafile
   Rule_00000088:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Sample
+    what: Rule
   Rule_00000089:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: SampleParameter
+    what: Sample
   Rule_00000090:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Shift
+    what: SampleParameter
   Rule_00000091:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Study
+    what: Shift
   Rule_00000092:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: StudyInvestigation
+    what: Study
   Rule_00000093:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: UserGroup
+    what: StudyInvestigation
   Rule_00000094:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: UserGroup
+  Rule_00000095:
     crudFlags: RU
     grouping: Grouping_name-scientific=5Fstaff
     what: Sample
-  Rule_00000095:
+  Rule_00000096:
     crudFlags: UD
     grouping: Grouping_name-scientific=5Fstaff
     what: SampleType
-  Rule_00000096:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: FacilityCycle
   Rule_00000097:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Grouping
+    what: FacilityCycle
   Rule_00000098:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InstrumentScientist
+    what: Grouping
   Rule_00000099:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Investigation
+    what: InstrumentScientist
   Rule_00000100:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationGroup
+    what: Investigation
   Rule_00000101:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationInstrument
+    what: InvestigationGroup
   Rule_00000102:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationParameter
+    what: InvestigationInstrument
   Rule_00000103:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationUser
+    what: InvestigationParameter
   Rule_00000104:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Keyword
+    what: InvestigationUser
   Rule_00000105:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Publication
+    what: Keyword
   Rule_00000106:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Shift
+    what: Publication
   Rule_00000107:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Study
+    what: Shift
   Rule_00000108:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: StudyInvestigation
+    what: Study
   Rule_00000109:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: User
+    what: StudyInvestigation
   Rule_00000110:
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: User
+  Rule_00000111:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: UserGroup
