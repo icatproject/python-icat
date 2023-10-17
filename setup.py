@@ -124,7 +124,8 @@ class build_test(setuptools.Command):
         files = []
         files += [ os.path.join("doc", "examples", f)
                    for f in ["example_data.yaml",
-                             "ingest-datafiles.xml", "ingest-ds-params.xml"] ]
+                             "ingest-datafiles.xml", "ingest-ds-params.xml",
+                             "ingest-sample-ds.xml"] ]
         files += [ os.path.join("doc", "examples",
                                 "icatdump-%s.%s" % (ver, ext))
                    for ver in ("4.4", "4.7", "4.10", "5.0")

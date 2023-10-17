@@ -13,6 +13,7 @@ from conftest import (DummyDatafile, require_dumpfile_backend,
 # Test input
 ds_params = str(gettestdata("ingest-ds-params.xml"))
 datafiles = str(gettestdata("ingest-datafiles.xml"))
+sample_ds = str(gettestdata("ingest-sample-ds.xml"))
 
 @pytest.fixture(scope="module")
 def client(setupicat):
@@ -357,3 +358,44 @@ def test_ingest_datafiles_upload(tmpdirsec, client, dataset, cmdargs):
         assert df.checksum == f.crc32
         if f.mtime:
             assert df.datafileModTime == f.mtime
+
+
+def test_ingest_dataset_samples(client, cleanup_list, cmdargs):
+    """Ingest some datasets that are releated to samples.
+    """
+    ds_sample_map = {
+        "e209001": "ab3465",
+        "e209002": "ab3465",
+        "e209003": "ab3466",
+        "e209004": None,
+    }
+    inv = client.assertedSearch("Investigation [name='10100601-ST']")[0]
+    query = Query(client, "SampleType", conditions={"name": "= 'NiMnGa'"})
+    sample_type = client.assertedSearch(query)[0]
+    ds_type = client.assertedSearch("DatasetType [name='raw']")[0]
+    for name in ds_sample_map.keys():
+        # the datasets are supposed to be created by the imgest file
+        dataset = client.new("Dataset",
+                             name=name, complete=False,
+                             investigation=inv, type=ds_type)
+        cleanup_list.append(dataset)
+    for name in {v for v in ds_sample_map.values() if v}:
+        # the samples are referenced from the ingest file, but are are
+        # assumed to already exist, so we need to create them here.
+        sample = client.new("Sample",
+                            name=name, investigation=inv, type=sample_type)
+        sample.create()
+        cleanup_list.append(sample)
+    args = cmdargs + ["-i", sample_ds]
+    callscript("icatingest.py", args)
+    for ds_name, sample_name in ds_sample_map.items():
+        query = Query(client, "Dataset", conditions={
+            "investigation.id": "= %d" % inv.id,
+            "name": "= '%s'" % ds_name,
+        }, includes=["sample"])
+        ds = client.assertedSearch(query)[0]
+        if sample_name:
+            assert ds.sample
+            assert ds.sample.name == sample_name
+        else:
+            assert not ds.sample
