@@ -31,7 +31,7 @@ PermissibleStringValue   : 6
 PublicStep               : 24
 Publication              : 1
 RelatedDatafile          : 1
-Rule                     : 110
+Rule                     : 111
 Sample                   : 3
 SampleParameter          : 2
 SampleType               : 3

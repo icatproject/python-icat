@@ -62,7 +62,15 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
         else:
             # object is referenced by attributes.
             attrs = set(element.keys()) - {'id'}
-            conditions = { a: "= '%s'" % element.get(a) for a in attrs }
+            conditions = dict()
+            for attr in attrs:
+                if attr.endswith(".ref"):
+                    ref = element.get(attr)
+                    robj = self.client.searchUniqueKey(ref, objindex)
+                    attr = "%s.id" % attr[:-4]
+                    conditions[attr] = "= %d" % robj.id
+                else:
+                    conditions[attr] = "= '%s'" % element.get(attr)
             query = Query(self.client, objtype, conditions=conditions)
             return self.client.assertedSearch(query)[0]
 

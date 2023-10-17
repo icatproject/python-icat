@@ -131,7 +131,7 @@ client.createRules("CRUD", uotables, uogroup)
 ingest = client.createUser("simple/dataingest", fullName="Data Ingester")
 ingestgroup = client.createGroup("ingest", [ ingest ])
 client.createRules("R", [ "Investigation", "Shift" ], ingestgroup)
-ingest_cru_classes = [ "Dataset", "Datafile",
+ingest_cru_classes = [ "Sample", "Dataset", "Datafile",
                        "DatasetParameter", "DatafileParameter" ]
 if "datasetInstrument" in client.typemap:
     ingest_cru_classes.append("DatasetInstrument")

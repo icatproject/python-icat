@@ -13,6 +13,7 @@ from conftest import (DummyDatafile, require_dumpfile_backend,
 # Test input
 ds_params = str(gettestdata("ingest-ds-params.xml"))
 datafiles = str(gettestdata("ingest-datafiles.xml"))
+sample_ds = str(gettestdata("ingest-sample-ds.xml"))
 
 @pytest.fixture(scope="module")
 def client(setupicat):
@@ -27,7 +28,35 @@ def cmdargs(setupicat):
     return conf.cmdargs + ["-f", "XML"]
 
 @pytest.fixture(scope="function")
-def dataset(client):
+def cleanup_list(client):
+    """Delete some objects (that may or may not have been) created during
+    a test
+    """
+    obj_list = []
+    yield obj_list
+    for obj in obj_list:
+        try:
+            obj = client.searchMatching(obj)
+        except icat.SearchResultError:
+            # obj not found, maybe the test failed, nothing to do on
+            # this object then.
+            pass
+        else:
+            if obj.BeanName == "Dataset":
+                # obj is a dataset.  If any related datafile has been
+                # uploaded (i.e. the location is not NULL), need to
+                # delete it from IDS first.  Any other related
+                # datafile or dataset parameter will be deleted
+                # automatically with the dataset by cascading in the
+                # ICAT server.
+                query = Query(client, "Datafile",
+                              conditions={"dataset.id": "= %d" % obj.id,
+                                          "location": "IS NOT NULL"})
+                client.deleteData(client.search(query))
+            client.delete(obj)
+
+@pytest.fixture(scope="function")
+def dataset(client, cleanup_list):
     """A dataset to be used in the test.
 
     The dataset is not created by the fixture, it is assumed that the
@@ -39,25 +68,8 @@ def dataset(client):
     dataset = client.new("Dataset",
                          name="e208343", complete=False,
                          investigation=inv, type=dstype)
-    yield dataset
-    try:
-        ds = client.searchMatching(dataset)
-        dataset.id = ds.id
-    except icat.SearchResultError:
-        # Dataset not found, maybe the test failed, nothing to
-        # clean up then.
-        pass
-    else:
-        # If any datafile has been uploaded (i.e. the location is
-        # not NULL), need to delete it from IDS first.  Any other
-        # datafile or dataset parameter will be deleted
-        # automatically with the dataset by cascading in the ICAT
-        # server.
-        query = Query(client, "Datafile", 
-                      conditions={"dataset.id": "= %d" % dataset.id,
-                                  "location": "IS NOT NULL"})
-        client.deleteData(client.search(query))
-        client.delete(dataset)
+    cleanup_list.append(dataset)
+    return dataset
 
 
 # Test datafiles to be created by test_ingest_datafiles:
@@ -346,3 +358,44 @@ def test_ingest_datafiles_upload(tmpdirsec, client, dataset, cmdargs):
         assert df.checksum == f.crc32
         if f.mtime:
             assert df.datafileModTime == f.mtime
+
+
+def test_ingest_dataset_samples(client, cleanup_list, cmdargs):
+    """Ingest some datasets that are releated to samples.
+    """
+    ds_sample_map = {
+        "e209001": "ab3465",
+        "e209002": "ab3465",
+        "e209003": "ab3466",
+        "e209004": None,
+    }
+    inv = client.assertedSearch("Investigation [name='10100601-ST']")[0]
+    query = Query(client, "SampleType", conditions={"name": "= 'NiMnGa'"})
+    sample_type = client.assertedSearch(query)[0]
+    ds_type = client.assertedSearch("DatasetType [name='raw']")[0]
+    for name in ds_sample_map.keys():
+        # the datasets are supposed to be created by the imgest file
+        dataset = client.new("Dataset",
+                             name=name, complete=False,
+                             investigation=inv, type=ds_type)
+        cleanup_list.append(dataset)
+    for name in {v for v in ds_sample_map.values() if v}:
+        # the samples are referenced from the ingest file, but are are
+        # assumed to already exist, so we need to create them here.
+        sample = client.new("Sample",
+                            name=name, investigation=inv, type=sample_type)
+        sample.create()
+        cleanup_list.append(sample)
+    args = cmdargs + ["-i", sample_ds]
+    callscript("icatingest.py", args)
+    for ds_name, sample_name in ds_sample_map.items():
+        query = Query(client, "Dataset", conditions={
+            "investigation.id": "= %d" % inv.id,
+            "name": "= '%s'" % ds_name,
+        }, includes=["sample"])
+        ds = client.assertedSearch(query)[0]
+        if sample_name:
+            assert ds.sample
+            assert ds.sample.name == sample_name
+        else:
+            assert not ds.sample
