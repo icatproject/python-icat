@@ -289,11 +289,11 @@ ingest_data_date = """<?xml version="1.0" encoding="utf-8"?>
 """
 
 @pytest.mark.parametrize("inputdata", [
-    ingest_data_string,
-    ingest_data_int,
-    ingest_data_boolean,
-    ingest_data_float,
-    ingest_data_date,
+    pytest.param(ingest_data_string, id="ingest_data_string"),
+    pytest.param(ingest_data_int, id="ingest_data_int"),
+    pytest.param(ingest_data_boolean, id="ingest_data_boolean"),
+    pytest.param(ingest_data_float, id="ingest_data_float"),
+    pytest.param(ingest_data_date, id="ingest_data_date"),
 ])
 def test_ingest_duplicate_check_types(tmpdirsec, dataset, cmdargs, inputdata):
     """Ingest with a collision of a duplicate object.
