@@ -27,7 +27,35 @@ def cmdargs(setupicat):
     return conf.cmdargs + ["-f", "XML"]
 
 @pytest.fixture(scope="function")
-def dataset(client):
+def cleanup_list(client):
+    """Delete some objects (that may or may not have been) created during
+    a test
+    """
+    obj_list = []
+    yield obj_list
+    for obj in obj_list:
+        try:
+            obj = client.searchMatching(obj)
+        except icat.SearchResultError:
+            # obj not found, maybe the test failed, nothing to do on
+            # this object then.
+            pass
+        else:
+            if obj.BeanName == "Dataset":
+                # obj is a dataset.  If any related datafile has been
+                # uploaded (i.e. the location is not NULL), need to
+                # delete it from IDS first.  Any other related
+                # datafile or dataset parameter will be deleted
+                # automatically with the dataset by cascading in the
+                # ICAT server.
+                query = Query(client, "Datafile",
+                              conditions={"dataset.id": "= %d" % obj.id,
+                                          "location": "IS NOT NULL"})
+                client.deleteData(client.search(query))
+            client.delete(obj)
+
+@pytest.fixture(scope="function")
+def dataset(client, cleanup_list):
     """A dataset to be used in the test.
 
     The dataset is not created by the fixture, it is assumed that the
@@ -39,25 +67,8 @@ def dataset(client):
     dataset = client.new("Dataset",
                          name="e208343", complete=False,
                          investigation=inv, type=dstype)
-    yield dataset
-    try:
-        ds = client.searchMatching(dataset)
-        dataset.id = ds.id
-    except icat.SearchResultError:
-        # Dataset not found, maybe the test failed, nothing to
-        # clean up then.
-        pass
-    else:
-        # If any datafile has been uploaded (i.e. the location is
-        # not NULL), need to delete it from IDS first.  Any other
-        # datafile or dataset parameter will be deleted
-        # automatically with the dataset by cascading in the ICAT
-        # server.
-        query = Query(client, "Datafile", 
-                      conditions={"dataset.id": "= %d" % dataset.id,
-                                  "location": "IS NOT NULL"})
-        client.deleteData(client.search(query))
-        client.delete(dataset)
+    cleanup_list.append(dataset)
+    return dataset
 
 
 # Test datafiles to be created by test_ingest_datafiles:
