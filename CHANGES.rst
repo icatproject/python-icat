@@ -2,6 +2,19 @@ Changelog
 =========
 
 
+1.2.0 (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#122`_, `#133`_: Allow referencing related objects by reference key
+  in object references in XML ICAT data file format.
+
+.. _#122: https://github.com/icatproject/python-icat/issues/122
+.. _#133: https://github.com/icatproject/python-icat/pull/133
+
+
 1.1.0 (2023-06-30)
 ~~~~~~~~~~~~~~~~~~
 
