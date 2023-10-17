@@ -165,13 +165,16 @@
      reference the target object in other reference objects.
 
      The target object may either be referenced by reference key or by
-     object attributes.  In the former case, the key is given in the
-     ref attribute and other attributes SHOULD NOT be present.  The
-     reference key may either have been defined earlier in the id
-     attribute of an other entity object or reference in the same data
-     element or it must the unique key as returned by the
-     getUniqueKey() method of the target object.  In the latter case,
-     the attribute values must uniquely define the target object.
+     object attributes.  The former case is implemeted by adding a
+     special attribute "ref" to hold the key.  In this case, other
+     attributes SHOULD NOT be present.  The reference key may either
+     have been defined earlier in the id attribute of another entity
+     object or reference in the same data element or it must the
+     unique key as returned by the getUniqueKey() method of the target
+     object.  When referencing the target object by attributes, the
+     attribute values must uniquely define the target object.  In this
+     case, related objects may in turn be referenced either by
+     reference or by attributes accordingly.
 
      Note that in the case of referencing the target object by
      attribute values, this schema is somewhat too restricted: in
@@ -196,6 +199,7 @@
 <xsd:complexType name="applicationRef">
   <xsd:complexContent>
     <xsd:extension base="entityReference">
+      <xsd:attribute name="facility.ref" type="xsd:string"/>
       <xsd:attribute name="facility.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
       <xsd:attribute name="version" type="xsd:string"/>
@@ -206,6 +210,7 @@
 <xsd:complexType name="datafileRef">
   <xsd:complexContent>
     <xsd:extension base="entityReference">
+      <xsd:attribute name="dataset.ref" type="xsd:string"/>
       <xsd:attribute name="dataset.investigation.facility.name" 
 		     type="xsd:string"/>
       <xsd:attribute name="dataset.investigation.name" type="xsd:string"/>
@@ -220,6 +225,7 @@
 <xsd:complexType name="datafileFormatRef">
   <xsd:complexContent>
     <xsd:extension base="entityReference">
+      <xsd:attribute name="facility.ref" type="xsd:string"/>
       <xsd:attribute name="facility.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
       <xsd:attribute name="version" type="xsd:string"/>
@@ -230,6 +236,7 @@
 <xsd:complexType name="datasetRef">
   <xsd:complexContent>
     <xsd:extension base="entityReference">
+      <xsd:attribute name="investigation.ref" type="xsd:string"/>
       <xsd:attribute name="investigation.facility.name" type="xsd:string"/>
       <xsd:attribute name="investigation.name" type="xsd:string"/>
       <xsd:attribute name="investigation.visitId" type="xsd:string"/>
@@ -242,6 +249,7 @@
 <xsd:complexType name="datasetTypeRef">
   <xsd:complexContent>
     <xsd:extension base="entityReference">
+      <xsd:attribute name="facility.ref" type="xsd:string"/>
       <xsd:attribute name="facility.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
     </xsd:extension>
@@ -267,6 +275,7 @@
 <xsd:complexType name="instrumentRef">
   <xsd:complexContent>
     <xsd:extension base="entityReference">
+      <xsd:attribute name="facility.ref" type="xsd:string"/>
       <xsd:attribute name="facility.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
     </xsd:extension>
@@ -276,6 +285,7 @@
 <xsd:complexType name="investigationRef">
   <xsd:complexContent>
     <xsd:extension base="entityReference">
+      <xsd:attribute name="facility.ref" type="xsd:string"/>
       <xsd:attribute name="facility.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
       <xsd:attribute name="visitId" type="xsd:string"/>
@@ -287,6 +297,7 @@
 <xsd:complexType name="investigationTypeRef">
   <xsd:complexContent>
     <xsd:extension base="entityReference">
+      <xsd:attribute name="facility.ref" type="xsd:string"/>
       <xsd:attribute name="facility.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
     </xsd:extension>
@@ -296,6 +307,7 @@
 <xsd:complexType name="parameterTypeRef">
   <xsd:complexContent>
     <xsd:extension base="entityReference">
+      <xsd:attribute name="facility.ref" type="xsd:string"/>
       <xsd:attribute name="facility.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
       <xsd:attribute name="units" type="xsd:string"/>
@@ -306,6 +318,7 @@
 <xsd:complexType name="sampleRef">
   <xsd:complexContent>
     <xsd:extension base="entityReference">
+      <xsd:attribute name="investigation.ref" type="xsd:string"/>
       <xsd:attribute name="investigation.facility.name" type="xsd:string"/>
       <xsd:attribute name="investigation.name" type="xsd:string"/>
       <xsd:attribute name="investigation.visitId" type="xsd:string"/>
@@ -317,6 +330,7 @@
 <xsd:complexType name="sampleTypeRef">
   <xsd:complexContent>
     <xsd:extension base="entityReference">
+      <xsd:attribute name="facility.ref" type="xsd:string"/>
       <xsd:attribute name="facility.name" type="xsd:string"/>
       <xsd:attribute name="name" type="xsd:string"/>
       <xsd:attribute name="molecularFormula" type="xsd:string"/>
