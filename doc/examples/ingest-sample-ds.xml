@@ -8,10 +8,8 @@
   </head>
   <data>
     <investigationRef id="inv_1" name="10100601-ST" visitId="1.1-N"/>
-    <sampleRef id="sample_1" name="ab3465"
-	       investigation.name="10100601-ST" investigation.visitId="1.1-N"/>
-    <sampleRef id="sample_2" name="ab3466"
-	       investigation.name="10100601-ST" investigation.visitId="1.1-N"/>
+    <sampleRef id="sample_1" name="ab3465" investigation.ref="inv_1"/>
+    <sampleRef id="sample_2" name="ab3466" investigation.ref="inv_1"/>
     <dataset>
       <complete>false</complete>
       <endDate>2012-07-30T01:10:08+00:00</endDate>

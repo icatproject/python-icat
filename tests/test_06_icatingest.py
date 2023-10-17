@@ -360,6 +360,7 @@ def test_ingest_datafiles_upload(tmpdirsec, client, dataset, cmdargs):
             assert df.datafileModTime == f.mtime
 
 
+@pytest.mark.xfail(raises=CalledProcessError, reason="Issue #122")
 def test_ingest_dataset_samples(client, cleanup_list, cmdargs):
     """Ingest some datasets that are releated to samples.
     """
