@@ -23,7 +23,6 @@ def test_get_icat_version():
     print("\nConnect to %s\nICAT version %s\n" % (conf.url, client.apiversion))
 
 
-@pytest.mark.xfail(conftest.ids_version > '1.99', reason="Issue #131")
 def test_ids_version_calls():
     """Test that client.ids.getApiVersion() and client.ids.version() yield
     coherent results.  Ref. #131.
