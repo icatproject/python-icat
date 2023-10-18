@@ -134,8 +134,15 @@ class Client(suds.client.Client):
         self.kwargs['caPath'] = caPath
         self.kwargs['sslContext'] = sslContext
         self.kwargs['proxy'] = proxy
-
         idsurl = _complete_url(idsurl, default_path="/ids")
+
+        self.apiversion = None
+        self.entityInfoCache = {}
+        self.typemap = None
+        self.ids = None
+        self.sessionId = None
+        self.autoLogout = True
+        self._schedule_auto_refresh("never")
 
         if sslContext:
             self.sslContext = sslContext
@@ -151,15 +158,10 @@ class Client(suds.client.Client):
 
         if self.apiversion < '4.3.0':
             warn(ClientVersionWarning(self.apiversion, "too old"))
-        self.entityInfoCache = {}
         self.typemap = getTypeMap(self)
-        self.ids = None
-        self.sessionId = None
-        self.autoLogout = True
 
         if idsurl:
             self.add_ids(idsurl)
-        self._schedule_auto_refresh("never")
         self.Register[id(self)] = self
 
     def __del__(self):
