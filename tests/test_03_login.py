@@ -64,7 +64,7 @@ def test_login_ids_shorturl():
     # clients.
     client, conf = getConfig()
     if not client.ids:
-        pytest.skip("no IDS")
+        pytest.skip("no IDS configured")
     try:
         icatURL = client.ids.getIcatUrl()
     except icat.VersionMethodError:
