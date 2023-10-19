@@ -20,12 +20,16 @@ Bug fixes and minor changes
 + `#132`_, `#136`_: Fix a spurious :exc:`AttributeError` on cleanup
   after connecting to an invalid url.
 
++ `#130`_, `#137`_: Review test suite.
+
 .. _#122: https://github.com/icatproject/python-icat/issues/122
+.. _#130: https://github.com/icatproject/python-icat/issues/130
 .. _#131: https://github.com/icatproject/python-icat/issues/131
 .. _#132: https://github.com/icatproject/python-icat/issues/132
 .. _#133: https://github.com/icatproject/python-icat/pull/133
 .. _#135: https://github.com/icatproject/python-icat/pull/135
 .. _#136: https://github.com/icatproject/python-icat/pull/136
+.. _#137: https://github.com/icatproject/python-icat/pull/137
 
 
 1.1.0 (2023-06-30)
