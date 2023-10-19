@@ -19,19 +19,17 @@ def client(setupicat):
     return client
 
 @pytest.fixture(scope="function")
-def investigation(client):
+def investigation(client, cleanup_objs):
     query = Query(client, "Investigation", conditions={
         "name": "= '12100409-ST'",
     })
     inv = client.assertedSearch(query)[0]
     yield inv
-    rootclient, rootconf = getConfig(confSection="root", ids=False)
-    rootclient.login(rootconf.auth, rootconf.credentials)
-    query = Query(rootclient, "Dataset", conditions={
+    query = Query(client, "Dataset", conditions={
         "investigation.id": "= %d" % inv.id,
         "name": "LIKE 'testingest_%'",
     })
-    rootclient.deleteMany(client.search(query))
+    cleanup_objs.extend(client.search(query))
 
 @pytest.fixture(scope="function")
 def schemadir(monkeypatch):

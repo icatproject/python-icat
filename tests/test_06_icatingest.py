@@ -28,35 +28,7 @@ def cmdargs(setupicat):
     return conf.cmdargs + ["-f", "XML"]
 
 @pytest.fixture(scope="function")
-def cleanup_list(client):
-    """Delete some objects (that may or may not have been) created during
-    a test
-    """
-    obj_list = []
-    yield obj_list
-    for obj in obj_list:
-        try:
-            obj = client.searchMatching(obj)
-        except icat.SearchResultError:
-            # obj not found, maybe the test failed, nothing to do on
-            # this object then.
-            pass
-        else:
-            if client.ids and obj.BeanName == "Dataset":
-                # obj is a dataset.  If any related datafile has been
-                # uploaded (i.e. the location is not NULL), need to
-                # delete it from IDS first.  Any other related
-                # datafile or dataset parameter will be deleted
-                # automatically with the dataset by cascading in the
-                # ICAT server.
-                query = Query(client, "Datafile",
-                              conditions={"dataset.id": "= %d" % obj.id,
-                                          "location": "IS NOT NULL"})
-                client.deleteData(client.search(query))
-            client.delete(obj)
-
-@pytest.fixture(scope="function")
-def dataset(client, cleanup_list):
+def dataset(client, cleanup_objs):
     """A dataset to be used in the test.
 
     The dataset is not created by the fixture, it is assumed that the
@@ -68,7 +40,7 @@ def dataset(client, cleanup_list):
     dataset = client.new("Dataset",
                          name="e208343", complete=False,
                          investigation=inv, type=dstype)
-    cleanup_list.append(dataset)
+    cleanup_objs.append(dataset)
     return dataset
 
 
@@ -362,7 +334,7 @@ def test_ingest_datafiles_upload(tmpdirsec, client, dataset, cmdargs):
             assert df.datafileModTime == f.mtime
 
 
-def test_ingest_dataset_samples(client, cleanup_list, cmdargs):
+def test_ingest_dataset_samples(client, cleanup_objs, cmdargs):
     """Ingest some datasets that are releated to samples.
     """
     ds_sample_map = {
@@ -380,14 +352,14 @@ def test_ingest_dataset_samples(client, cleanup_list, cmdargs):
         dataset = client.new("Dataset",
                              name=name, complete=False,
                              investigation=inv, type=ds_type)
-        cleanup_list.append(dataset)
+        cleanup_objs.append(dataset)
     for name in {v for v in ds_sample_map.values() if v}:
         # the samples are referenced from the ingest file, but are are
         # assumed to already exist, so we need to create them here.
         sample = client.new("Sample",
                             name=name, investigation=inv, type=sample_type)
         sample.create()
-        cleanup_list.append(sample)
+        cleanup_objs.append(sample)
     args = cmdargs + ["-i", sample_ds]
     callscript("icatingest.py", args)
     for ds_name, sample_name in ds_sample_map.items():
