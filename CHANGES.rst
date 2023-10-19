@@ -11,8 +11,21 @@ New features
 + `#122`_, `#133`_: Allow referencing related objects by reference key
   in object references in XML ICAT data file format.
 
+Bug fixes and minor changes
+---------------------------
+
++ `#131`_, `#135`_: Fix :meth:`icat.ids.IDSClient.getApiVersion` to
+  yield correct results for ids.server 2.0.0 and newer.
+
++ `#132`_, `#136`_: Fix a spurious :exc:`AttributeError` on cleanup
+  after connecting to an invalid url.
+
 .. _#122: https://github.com/icatproject/python-icat/issues/122
+.. _#131: https://github.com/icatproject/python-icat/issues/131
+.. _#132: https://github.com/icatproject/python-icat/issues/132
 .. _#133: https://github.com/icatproject/python-icat/pull/133
+.. _#135: https://github.com/icatproject/python-icat/pull/135
+.. _#136: https://github.com/icatproject/python-icat/pull/136
 
 
 1.1.0 (2023-06-30)
