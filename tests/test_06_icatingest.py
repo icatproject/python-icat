@@ -17,14 +17,14 @@ sample_ds = str(gettestdata("ingest-sample-ds.xml"))
 
 @pytest.fixture(scope="module")
 def client(setupicat):
-    client, conf = getConfig(confSection="acord", ids="mandatory")
+    client, conf = getConfig(confSection="acord", ids="optional")
     client.login(conf.auth, conf.credentials)
     return client
 
 @pytest.fixture(scope="module")
 def cmdargs(setupicat):
     require_dumpfile_backend("XML")
-    _, conf = getConfig(confSection="acord", ids="mandatory")
+    _, conf = getConfig(confSection="acord", ids="optional")
     return conf.cmdargs + ["-f", "XML"]
 
 @pytest.fixture(scope="function")
@@ -42,7 +42,7 @@ def cleanup_list(client):
             # this object then.
             pass
         else:
-            if obj.BeanName == "Dataset":
+            if client.ids and obj.BeanName == "Dataset":
                 # obj is a dataset.  If any related datafile has been
                 # uploaded (i.e. the location is not NULL), need to
                 # delete it from IDS first.  Any other related
@@ -322,7 +322,7 @@ def test_ingest_datafiles(tmpdirsec, client, dataset, cmdargs):
     dummyfiles = [ f['dfname'] for f in testdatafiles ]
     args = cmdargs + ["-i", datafiles]
     callscript("icatingest.py", args)
-    # Verify that the datafiles have been uploaded.
+    # Verify that the datafiles have been created but not uploaded.
     dataset = client.searchMatching(dataset)
     for fname in dummyfiles:
         query = Query(client, "Datafile", conditions={
@@ -340,6 +340,8 @@ def test_ingest_datafiles_upload(tmpdirsec, client, dataset, cmdargs):
     icatingest will not create the datafiles as objects in the ICAT,
     but upload the files to IDS instead.
     """
+    if not client.ids:
+        pytest.skip("no IDS configured")
     dummyfiles = [ DummyDatafile(tmpdirsec, f['dfname'], f['size'], f['mtime'])
                    for f in testdatafiles ]
     args = cmdargs + ["-i", datafiles, "--upload-datafiles", 
