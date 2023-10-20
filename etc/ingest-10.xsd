@@ -73,7 +73,7 @@
     <xsd:extension base="entityBase">
       <xsd:sequence>
 	<xsd:element name="dataset" type="entityReference" minOccurs="0"/>
-	<xsd:element name="instrument" type="instrumentRef"/>
+	<xsd:element name="instrument" type="nameRef"/>
       </xsd:sequence>
     </xsd:extension>
   </xsd:complexContent>
@@ -84,7 +84,7 @@
     <xsd:extension base="entityBase">
       <xsd:sequence>
 	<xsd:element name="dataset" type="entityReference" minOccurs="0"/>
-	<xsd:element name="technique" type="techniqueRef"/>
+	<xsd:element name="technique" type="nameRef"/>
       </xsd:sequence>
     </xsd:extension>
   </xsd:complexContent>
@@ -108,12 +108,7 @@
 </xsd:complexType>
 
 
-<xsd:complexType name="instrumentRef">
-  <xsd:attribute name="name" type="xsd:string"/>
-  <xsd:attribute name="pid" type="xsd:string"/>
-</xsd:complexType>
-
-<xsd:complexType name="techniqueRef">
+<xsd:complexType name="nameRef">
   <xsd:attribute name="name" type="xsd:string"/>
   <xsd:attribute name="pid" type="xsd:string"/>
 </xsd:complexType>
