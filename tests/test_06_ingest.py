@@ -256,6 +256,69 @@ cases = [
                                reason="Need ICAT schema 5.0 or newer"),
         ),
     ),
+    Case(
+        data = [ "testingest_sample_1", "testingest_sample_2",
+                 "testingest_sample_3", "testingest_sample_4" ],
+        metadata = gettestdata("metadata-sample.xml"),
+        checks = {
+            "testingest_sample_1": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "ab3465 at 2.7 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 18, 2, 17, tzinfo=cest)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 20, 18, 36, tzinfo=cest)),
+                (("SELECT COUNT(s) FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 1),
+                (("SELECT s.name FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 "ab3465"),
+            ],
+            "testingest_sample_2": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "ab3465 at 5.1 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 20, 29, 19, tzinfo=cest)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 21, 23, 49, tzinfo=cest)),
+                (("SELECT COUNT(s) FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 1),
+                (("SELECT s.name FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 "ab3465"),
+            ],
+            "testingest_sample_3": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "ab3466 at 2.7 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 21, 35, 16, tzinfo=cest)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 23, 4, 27, tzinfo=cest)),
+                (("SELECT COUNT(s) FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 1),
+                (("SELECT s.name FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 "ab3466"),
+            ],
+            "testingest_sample_4": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "reference"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 23, 4, 31, tzinfo=cest)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 10, 1, 1, 26, 7, tzinfo=cest)),
+                (("SELECT COUNT(s) FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 0),
+            ],
+        },
+        marks = (
+            pytest.mark.xfail(reason="Issue #125"),
+        ),
+    ),
 ]
 @pytest.mark.parametrize("case", [
     pytest.param(c, id=c.metadata.name, marks=c.marks) for c in cases
