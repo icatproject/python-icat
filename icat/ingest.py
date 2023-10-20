@@ -43,6 +43,7 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
     """
     XSD_Map = {
         ('icatingest', '1.0'): "ingest-10.xsd",
+        ('icatingest', '1.1'): "ingest-11.xsd",
     }
     """A mapping to select the XSD file to use.  Keys are pairs of root
     element name and version attribute, the values are the
