@@ -12,18 +12,38 @@ from icat.query import Query
 from conftest import getConfig, gettestdata, icat_version, testdatadir
 
 
+def get_test_investigation(client):
+    query = Query(client, "Investigation", conditions={
+        "name": "= '12100409-ST'",
+    })
+    return client.assertedSearch(query)[0]
+
 @pytest.fixture(scope="module")
 def client(setupicat):
     client, conf = getConfig(confSection="ingest", ids=False)
     client.login(conf.auth, conf.credentials)
     return client
 
+@pytest.fixture(scope="module")
+def samples(rootclient):
+    """Create some samples that are referenced in some of the ingest files.
+    """
+    query = Query(rootclient, "SampleType", conditions={
+        "name": "= 'Nickel(II) oxide SC'"
+    })
+    st = rootclient.assertedSearch(query)[0]
+    inv = get_test_investigation(rootclient)
+    samples = []
+    for n in ("ab3465", "ab3466"):
+        s = rootclient.new("Sample", name=n, type=st, investigation=inv)
+        s.create()
+        samples.append(s)
+    yield samples
+    rootclient.deleteMany(samples)
+
 @pytest.fixture(scope="function")
 def investigation(client, cleanup_objs):
-    query = Query(client, "Investigation", conditions={
-        "name": "= '12100409-ST'",
-    })
-    inv = client.assertedSearch(query)[0]
+    inv = get_test_investigation(client)
     yield inv
     query = Query(client, "Dataset", conditions={
         "investigation.id": "= %d" % inv.id,
@@ -240,7 +260,7 @@ cases = [
 @pytest.mark.parametrize("case", [
     pytest.param(c, id=c.metadata.name, marks=c.marks) for c in cases
 ])
-def test_ingest(client, investigation, schemadir, case):
+def test_ingest(client, investigation, samples, schemadir, case):
     datasets = []
     for name in case.data:
         datasets.append(client.new("Dataset", name=name))
