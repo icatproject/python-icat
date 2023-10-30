@@ -130,6 +130,7 @@ class build_test(setuptools.Command):
                                 "icatdump-%s.%s" % (ver, ext))
                    for ver in ("4.4", "4.7", "4.10", "5.0")
                    for ext in ("xml", "yaml") ]
+        files += glob(os.path.join("doc", "icatdata-*.xsd"))
         files += glob(os.path.join("doc", "examples", "metadata-*.xml"))
         files += [ os.path.join("etc", f)
                    for f in ["ingest-10.xsd", "ingest-11.xsd", "ingest.xslt"] ]

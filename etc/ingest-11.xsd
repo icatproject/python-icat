@@ -30,9 +30,9 @@
   <xsd:sequence>
     <xsd:element name="dataset" type="dataset"
 		 minOccurs="0" maxOccurs="unbounded"/>
-    <xsd:element name="datasetInstrument" type="datasetInstrument"
-		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="datasetTechnique" type="datasetTechnique"
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datasetInstrument" type="datasetInstrument"
 		 minOccurs="0" maxOccurs="unbounded"/>
     <xsd:element name="datasetParameter" type="datasetParameter"
 		 minOccurs="0" maxOccurs="unbounded"/>
@@ -69,23 +69,23 @@
   </xsd:complexContent>
 </xsd:complexType>
 
-<xsd:complexType name="datasetInstrument">
-  <xsd:complexContent>
-    <xsd:extension base="entityBase">
-      <xsd:sequence>
-	<xsd:element name="dataset" type="entityReference" minOccurs="0"/>
-	<xsd:element name="instrument" type="nameRef"/>
-      </xsd:sequence>
-    </xsd:extension>
-  </xsd:complexContent>
-</xsd:complexType>
-
 <xsd:complexType name="datasetTechnique">
   <xsd:complexContent>
     <xsd:extension base="entityBase">
       <xsd:sequence>
 	<xsd:element name="dataset" type="entityReference" minOccurs="0"/>
 	<xsd:element name="technique" type="nameRef"/>
+      </xsd:sequence>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="datasetInstrument">
+  <xsd:complexContent>
+    <xsd:extension base="entityBase">
+      <xsd:sequence>
+	<xsd:element name="dataset" type="entityReference" minOccurs="0"/>
+	<xsd:element name="instrument" type="nameRef"/>
       </xsd:sequence>
     </xsd:extension>
   </xsd:complexContent>
