@@ -30,8 +30,8 @@ below.
 
 The input accepted by :class:`~icat.ingest.IngestReader` consists of
 one or more ``Dataset`` objects that all need to relate to the same
-``Investigation`` and any number of related ``DatasetInstrument``,
-``DatasetTechnique``, and ``DatasetParameter`` objects.  The
+``Investigation`` and any number of related ``DatasetTechnique``,
+``DatasetInstrument``, and ``DatasetParameter`` objects.  The
 ``Investigation`` must exist beforehand in ICAT.  The relation from
 the ``Dataset`` objects to the ``Investigation`` will be set by
 :class:`~icat.ingest.IngestReader` accordingly.  (Actually, the XSLT
@@ -44,7 +44,7 @@ and ``Datafile`` objects in ICAT at the same time.  But the attributes
 of the datasets will be read from the input file and set in the
 ``Dataset`` objects by :class:`~icat.ingest.IngestReader`.
 :class:`~icat.ingest.IngestReader` will also create the related
-``DatasetInstrument``, ``DatasetTechnique`` and ``DatasetParameter``
+``DatasetTechnique``, ``DatasetInstrument`` and ``DatasetParameter``
 objects read from the input file in ICAT.
 
 .. autoclass:: icat.ingest.IngestReader
