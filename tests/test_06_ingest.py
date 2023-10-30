@@ -243,7 +243,6 @@ cases = [
     ),
 ]
 
-@pytest.mark.xfail(reason="Issue #138")
 @pytest.mark.parametrize("case", [
     pytest.param(c, id=c.metadata.name, marks=c.marks) for c in cases
 ])
