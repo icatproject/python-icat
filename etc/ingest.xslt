@@ -21,12 +21,13 @@
     <xsl:template match="/icatingest/data/dataset">
 	<dataset>
 	    <xsl:copy-of select="@id"/>
-            <complete>false</complete>
+	    <complete>false</complete>
 	    <xsl:copy-of select="description"/>
 	    <xsl:copy-of select="endDate"/>
 	    <xsl:copy-of select="name"/>
 	    <xsl:copy-of select="startDate"/>
 	    <investigation ref="_Investigation"/>
+	    <type name="raw"/>
 	    <xsl:for-each select="datasetInstruments">
 		<xsl:copy-of select="."/>
 	    </xsl:for-each>
@@ -36,7 +37,6 @@
 	    <xsl:for-each select="parameters">
 		<xsl:copy-of select="."/>
 	    </xsl:for-each>
-            <type name="raw"/>
 	</dataset>
     </xsl:template>
 
