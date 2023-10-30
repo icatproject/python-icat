@@ -28,15 +28,9 @@
 	    <xsl:copy-of select="startDate"/>
 	    <investigation ref="_Investigation"/>
 	    <type name="raw"/>
-	    <xsl:for-each select="datasetInstruments">
-		<xsl:copy-of select="."/>
-	    </xsl:for-each>
-	    <xsl:for-each select="datasetTechniques">
-		<xsl:copy-of select="."/>
-	    </xsl:for-each>
-	    <xsl:for-each select="parameters">
-		<xsl:copy-of select="."/>
-	    </xsl:for-each>
+	    <xsl:copy-of select="datasetInstruments"/>
+	    <xsl:copy-of select="datasetTechniques"/>
+	    <xsl:copy-of select="parameters"/>
 	</dataset>
     </xsl:template>
 
