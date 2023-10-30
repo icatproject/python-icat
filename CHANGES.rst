@@ -8,6 +8,9 @@ Changelog
 New features
 ------------
 
++ `#125`_, `#140`_: Add support to link datasets with samples in
+  :mod:`icat.ingest`.
+
 + `#122`_, `#133`_: Allow referencing related objects by reference key
   in object references in XML ICAT data file format.
 
@@ -34,6 +37,7 @@ Bug fixes and minor changes
 + `#130`_, `#137`_: Review test suite.
 
 .. _#122: https://github.com/icatproject/python-icat/issues/122
+.. _#125: https://github.com/icatproject/python-icat/issues/125
 .. _#130: https://github.com/icatproject/python-icat/issues/130
 .. _#131: https://github.com/icatproject/python-icat/issues/131
 .. _#132: https://github.com/icatproject/python-icat/issues/132
@@ -43,6 +47,7 @@ Bug fixes and minor changes
 .. _#137: https://github.com/icatproject/python-icat/pull/137
 .. _#138: https://github.com/icatproject/python-icat/issues/138
 .. _#139: https://github.com/icatproject/python-icat/pull/139
+.. _#140: https://github.com/icatproject/python-icat/pull/140
 
 
 1.1.0 (2023-06-30)
