@@ -321,9 +321,7 @@ cases = [
                  0),
             ],
         },
-        marks = (
-            pytest.mark.xfail(reason="Issue #125"),
-        ),
+        marks = (),
     ),
 ]
 
