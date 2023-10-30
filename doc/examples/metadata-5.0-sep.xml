@@ -17,14 +17,6 @@
       <startDate>2022-02-03T17:13:10+01:00</startDate>
       <endDate>2022-02-03T18:45:27+01:00</endDate>
     </dataset>
-    <datasetInstrument>
-      <dataset ref="Dataset_1"/>
-      <instrument pid="DOI:00.0815/inst-00001"/>
-    </datasetInstrument>
-    <datasetInstrument>
-      <dataset ref="Dataset_2"/>
-      <instrument pid="DOI:00.0815/inst-00001"/>
-    </datasetInstrument>
     <datasetTechnique>
       <dataset ref="Dataset_1"/>
       <technique pid="PaNET:PaNET01217"/>
@@ -33,6 +25,14 @@
       <dataset ref="Dataset_2"/>
       <technique pid="PaNET:PaNET01217"/>
     </datasetTechnique>
+    <datasetInstrument>
+      <dataset ref="Dataset_1"/>
+      <instrument pid="DOI:00.0815/inst-00001"/>
+    </datasetInstrument>
+    <datasetInstrument>
+      <dataset ref="Dataset_2"/>
+      <instrument pid="DOI:00.0815/inst-00001"/>
+    </datasetInstrument>
     <datasetParameter>
       <stringValue>neutron</stringValue>
       <dataset ref="Dataset_1"/>

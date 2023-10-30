@@ -5,6 +5,7 @@ from collections import namedtuple
 import datetime
 import pytest
 pytest.importorskip("lxml")
+from lxml import etree
 import icat
 import icat.config
 from icat.ingest import IngestReader
@@ -38,13 +39,14 @@ def schemadir(monkeypatch):
 cet = datetime.timezone(datetime.timedelta(hours=1))
 cest = datetime.timezone(datetime.timedelta(hours=2))
 
-Case = namedtuple('Case', ['data', 'metadata', 'checks', 'marks'])
+Case = namedtuple('Case', ['data', 'metadata', 'schema', 'checks', 'marks'])
 
 # Try out different variants for the metadata input file
 cases = [
     Case(
         data = ["testingest_inl_1", "testingest_inl_2"],
         metadata = gettestdata("metadata-4.4-inl.xml"),
+        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {
             "testingest_inl_1": [
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
@@ -84,6 +86,7 @@ cases = [
     Case(
         data = ["testingest_inl5_1", "testingest_inl5_2"],
         metadata = gettestdata("metadata-5.0-inl.xml"),
+        schema = gettestdata("icatdata-5.0.xsd"),
         checks = {
             "testingest_inl5_1": [
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
@@ -142,6 +145,7 @@ cases = [
     Case(
         data = ["testingest_sep_1", "testingest_sep_2"],
         metadata = gettestdata("metadata-4.4-sep.xml"),
+        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {
             "testingest_sep_1": [
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
@@ -181,6 +185,7 @@ cases = [
     Case(
         data = ["testingest_sep5_1", "testingest_sep5_2"],
         metadata = gettestdata("metadata-5.0-sep.xml"),
+        schema = gettestdata("icatdata-5.0.xsd"),
         checks = {
             "testingest_sep5_1": [
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
@@ -237,6 +242,22 @@ cases = [
         ),
     ),
 ]
+
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in cases
+])
+def test_ingest_schema(client, investigation, schemadir, case):
+    """Check that the ingest data after transformation is valid according
+    to icatdata schema.
+    """
+    datasets = []
+    for name in case.data:
+        datasets.append(client.new("Dataset", name=name))
+    reader = IngestReader(client, case.metadata, investigation)
+    with case.schema.open("rb") as f:
+        schema = etree.XMLSchema(etree.parse(f))
+    assert schema.validate(reader.infile)
+
 @pytest.mark.parametrize("case", [
     pytest.param(c, id=c.metadata.name, marks=c.marks) for c in cases
 ])
@@ -263,6 +284,7 @@ badcases = [
     Case(
         data = ["e208339"],
         metadata = gettestdata("metadata-5.0-badref.xml"),
+        schema = gettestdata("icatdata-5.0.xsd"),
         checks = {},
         marks = (
             pytest.mark.skipif(icat_version < "5.0",
