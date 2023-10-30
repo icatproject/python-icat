@@ -27,17 +27,19 @@
 	    <xsl:copy-of select="name"/>
 	    <xsl:copy-of select="startDate"/>
 	    <investigation ref="_Investigation"/>
+	    <xsl:apply-templates select="sample"/>
 	    <type name="raw"/>
-	    <xsl:for-each select="datasetInstruments">
-		<xsl:copy-of select="."/>
-	    </xsl:for-each>
-	    <xsl:for-each select="datasetTechniques">
-		<xsl:copy-of select="."/>
-	    </xsl:for-each>
-	    <xsl:for-each select="parameters">
-		<xsl:copy-of select="."/>
-	    </xsl:for-each>
+	    <xsl:copy-of select="datasetInstruments"/>
+	    <xsl:copy-of select="datasetTechniques"/>
+	    <xsl:copy-of select="parameters"/>
 	</dataset>
+    </xsl:template>
+
+    <xsl:template match="/icatingest/data/dataset/sample">
+	<xsl:copy>
+	    <xsl:attribute name="investigation.ref">_Investigation</xsl:attribute>
+	    <xsl:copy-of select="@*"/>
+	</xsl:copy>
     </xsl:template>
 
     <xsl:template match="*">

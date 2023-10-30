@@ -133,7 +133,7 @@ class build_test(setuptools.Command):
         files += glob(os.path.join("doc", "icatdata-*.xsd"))
         files += glob(os.path.join("doc", "examples", "metadata-*.xml"))
         files += [ os.path.join("etc", f)
-                   for f in ["ingest-10.xsd", "ingest.xslt"] ]
+                   for f in ["ingest-10.xsd", "ingest-11.xsd", "ingest.xslt"] ]
         for f in files:
             dest = os.path.join(destdir, os.path.basename(f))
             self.copy_file(f, dest, preserve_mode=False)
