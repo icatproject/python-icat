@@ -210,6 +210,7 @@ setup(
     project_urls = dict(
         Documentation="https://python-icat.readthedocs.io/",
         Source="https://github.com/icatproject/python-icat/",
+        Download="https://github.com/icatproject/python-icat/releases/latest",
         Changes="https://python-icat.readthedocs.io/en/latest/changelog.html",
     ),
     packages = ["icat"],
