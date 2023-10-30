@@ -11,6 +11,17 @@ New features
 + `#122`_, `#133`_: Allow referencing related objects by reference key
   in object references in XML ICAT data file format.
 
+Incompatible changes
+--------------------
+
++ `#138`_, `#139`_: Fix the input that :mod:`icat.ingest` generates on
+  the fly to be valid according to the ICAT data file schema.  This
+  also affects the input that the module accepts: the order of
+  subelements of `data` need to be changed such that
+  `datasetTechnique` comes before `datasetInstrument`.
+
+  Note that :mod:`icat.ingest` has been declared experimental for now.
+
 Bug fixes and minor changes
 ---------------------------
 
@@ -30,6 +41,8 @@ Bug fixes and minor changes
 .. _#135: https://github.com/icatproject/python-icat/pull/135
 .. _#136: https://github.com/icatproject/python-icat/pull/136
 .. _#137: https://github.com/icatproject/python-icat/pull/137
+.. _#138: https://github.com/icatproject/python-icat/issues/138
+.. _#139: https://github.com/icatproject/python-icat/pull/139
 
 
 1.1.0 (2023-06-30)
