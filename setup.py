@@ -211,7 +211,7 @@ setup(
         Documentation="https://python-icat.readthedocs.io/",
         Source="https://github.com/icatproject/python-icat/",
         Download="https://github.com/icatproject/python-icat/releases/latest",
-        Changes="https://python-icat.readthedocs.io/en/latest/changelog.html",
+        Changes="https://python-icat.readthedocs.io/en/stable/changelog.html",
     ),
     packages = ["icat"],
     python_requires = ">=3.4",
