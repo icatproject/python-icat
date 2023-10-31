@@ -22,12 +22,24 @@ param_ids = [
     ([42], [47,11], [6,666,66]),
 ]
 param_queries = [
-    ("Investigation [name = '10100601-ST']"),
-    ("Dataset <-> Investigation [name = '10100601-ST']"),
-    ("Datafile <-> Dataset <-> Investigation [name = '10100601-ST']"),
-    ("SELECT dc FROM DataCollection dc "
-     "INCLUDE dc.dataCollectionDatafiles AS dcdf, dcdf.datafile, "
-     "dc.dataCollectionDatasets AS dcds, dcds.dataset"),
+    pytest.param(
+        "Investigation [name = '10100601-ST']",
+        id="investigations"
+    ),
+    pytest.param(
+        "Dataset <-> Investigation [name = '10100601-ST']",
+        id="datasets"
+    ),
+    pytest.param(
+        "Datafile <-> Dataset <-> Investigation [name = '10100601-ST']",
+        id="datafiles"
+    ),
+    pytest.param(
+        "SELECT dc FROM DataCollection dc "
+        "INCLUDE dc.dataCollectionDatafiles AS dcdf, dcdf.datafile, "
+        "dc.dataCollectionDatasets AS dcds, dcds.dataset",
+        id="dataCollections"
+    ),
 ]
 
 def get_obj_ids(objs):

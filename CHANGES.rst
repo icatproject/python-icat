@@ -2,6 +2,54 @@ Changelog
 =========
 
 
+1.2.0 (2023-10-31)
+~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#125`_, `#140`_: Add support to link datasets with samples in
+  :mod:`icat.ingest`.
+
++ `#122`_, `#133`_: Allow referencing related objects by reference key
+  in object references in XML ICAT data file format.
+
+Incompatible changes
+--------------------
+
++ `#138`_, `#139`_: Fix the input that :mod:`icat.ingest` generates on
+  the fly to be valid according to the ICAT data file schema.  This
+  also affects the input that the module accepts: the order of
+  subelements of `data` need to be changed such that
+  `datasetTechnique` comes before `datasetInstrument`.
+
+  Note that :mod:`icat.ingest` has been declared experimental for now.
+
+Bug fixes and minor changes
+---------------------------
+
++ `#131`_, `#135`_: Fix :meth:`icat.ids.IDSClient.getApiVersion` to
+  yield correct results for ids.server 2.0.0 and newer.
+
++ `#132`_, `#136`_: Fix a spurious :exc:`AttributeError` on cleanup
+  after connecting to an invalid url.
+
++ `#130`_, `#137`_: Review test suite.
+
+.. _#122: https://github.com/icatproject/python-icat/issues/122
+.. _#125: https://github.com/icatproject/python-icat/issues/125
+.. _#130: https://github.com/icatproject/python-icat/issues/130
+.. _#131: https://github.com/icatproject/python-icat/issues/131
+.. _#132: https://github.com/icatproject/python-icat/issues/132
+.. _#133: https://github.com/icatproject/python-icat/pull/133
+.. _#135: https://github.com/icatproject/python-icat/pull/135
+.. _#136: https://github.com/icatproject/python-icat/pull/136
+.. _#137: https://github.com/icatproject/python-icat/pull/137
+.. _#138: https://github.com/icatproject/python-icat/issues/138
+.. _#139: https://github.com/icatproject/python-icat/pull/139
+.. _#140: https://github.com/icatproject/python-icat/pull/140
+
+
 1.1.0 (2023-06-30)
 ~~~~~~~~~~~~~~~~~~
 

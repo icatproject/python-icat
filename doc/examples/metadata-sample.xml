@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.1">
+  <head>
+    <date>2023-10-20T12:15:26+02:00</date>
+    <generator>metadata-writer 0.28</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>testingest_sample_1</name>
+      <description>ab3465 at 2.7 K</description>
+      <startDate>2020-09-30T18:02:17+02:00</startDate>
+      <endDate>2020-09-30T20:18:36+02:00</endDate>
+      <sample name="ab3465"/>
+    </dataset>
+    <dataset id="Dataset_2">
+      <name>testingest_sample_2</name>
+      <description>ab3465 at 5.1 K</description>
+      <startDate>2020-09-30T20:29:19+02:00</startDate>
+      <endDate>2020-09-30T21:23:49+02:00</endDate>
+      <sample name="ab3465"/>
+    </dataset>
+    <dataset id="Dataset_3">
+      <name>testingest_sample_3</name>
+      <description>ab3466 at 2.7 K</description>
+      <startDate>2020-09-30T21:35:16+02:00</startDate>
+      <endDate>2020-09-30T23:04:27+02:00</endDate>
+      <sample name="ab3466"/>
+    </dataset>
+    <dataset id="Dataset_4">
+      <name>testingest_sample_4</name>
+      <description>reference</description>
+      <startDate>2020-09-30T23:04:31+02:00</startDate>
+      <endDate>2020-10-01T01:26:07+02:00</endDate>
+    </dataset>
+  </data>
+</icatingest>

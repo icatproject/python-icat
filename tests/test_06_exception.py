@@ -119,7 +119,7 @@ def test_ids_exception(client, errcond):
     """
     # Same comment as in test_icat_exception() applies.
     if not client.ids:
-        pytest.skip("No IDS configured.")
+        pytest.skip("no IDS configured")
     with pytest.raises(icat.IDSError) as einfo:
         errcond(client)
     err = einfo.value

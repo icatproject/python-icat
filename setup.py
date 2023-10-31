@@ -124,14 +124,16 @@ class build_test(setuptools.Command):
         files = []
         files += [ os.path.join("doc", "examples", f)
                    for f in ["example_data.yaml",
-                             "ingest-datafiles.xml", "ingest-ds-params.xml"] ]
+                             "ingest-datafiles.xml", "ingest-ds-params.xml",
+                             "ingest-sample-ds.xml"] ]
         files += [ os.path.join("doc", "examples",
                                 "icatdump-%s.%s" % (ver, ext))
                    for ver in ("4.4", "4.7", "4.10", "5.0")
                    for ext in ("xml", "yaml") ]
+        files += glob(os.path.join("doc", "icatdata-*.xsd"))
         files += glob(os.path.join("doc", "examples", "metadata-*.xml"))
         files += [ os.path.join("etc", f)
-                   for f in ["ingest-10.xsd", "ingest.xslt"] ]
+                   for f in ["ingest-10.xsd", "ingest-11.xsd", "ingest.xslt"] ]
         for f in files:
             dest = os.path.join(destdir, os.path.basename(f))
             self.copy_file(f, dest, preserve_mode=False)
@@ -208,6 +210,7 @@ setup(
     project_urls = dict(
         Documentation="https://python-icat.readthedocs.io/",
         Source="https://github.com/icatproject/python-icat/",
+        Download="https://github.com/icatproject/python-icat/releases/latest",
         Changes="https://python-icat.readthedocs.io/en/latest/changelog.html",
     ),
     packages = ["icat"],

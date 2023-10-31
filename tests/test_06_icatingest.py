@@ -13,21 +13,22 @@ from conftest import (DummyDatafile, require_dumpfile_backend,
 # Test input
 ds_params = str(gettestdata("ingest-ds-params.xml"))
 datafiles = str(gettestdata("ingest-datafiles.xml"))
+sample_ds = str(gettestdata("ingest-sample-ds.xml"))
 
 @pytest.fixture(scope="module")
 def client(setupicat):
-    client, conf = getConfig(confSection="acord", ids="mandatory")
+    client, conf = getConfig(confSection="acord", ids="optional")
     client.login(conf.auth, conf.credentials)
     return client
 
 @pytest.fixture(scope="module")
 def cmdargs(setupicat):
     require_dumpfile_backend("XML")
-    _, conf = getConfig(confSection="acord", ids="mandatory")
+    _, conf = getConfig(confSection="acord", ids="optional")
     return conf.cmdargs + ["-f", "XML"]
 
 @pytest.fixture(scope="function")
-def dataset(client):
+def dataset(client, cleanup_objs):
     """A dataset to be used in the test.
 
     The dataset is not created by the fixture, it is assumed that the
@@ -39,25 +40,8 @@ def dataset(client):
     dataset = client.new("Dataset",
                          name="e208343", complete=False,
                          investigation=inv, type=dstype)
-    yield dataset
-    try:
-        ds = client.searchMatching(dataset)
-        dataset.id = ds.id
-    except icat.SearchResultError:
-        # Dataset not found, maybe the test failed, nothing to
-        # clean up then.
-        pass
-    else:
-        # If any datafile has been uploaded (i.e. the location is
-        # not NULL), need to delete it from IDS first.  Any other
-        # datafile or dataset parameter will be deleted
-        # automatically with the dataset by cascading in the ICAT
-        # server.
-        query = Query(client, "Datafile", 
-                      conditions={"dataset.id": "= %d" % dataset.id,
-                                  "location": "IS NOT NULL"})
-        client.deleteData(client.search(query))
-        client.delete(dataset)
+    cleanup_objs.append(dataset)
+    return dataset
 
 
 # Test datafiles to be created by test_ingest_datafiles:
@@ -277,11 +261,11 @@ ingest_data_date = """<?xml version="1.0" encoding="utf-8"?>
 """
 
 @pytest.mark.parametrize("inputdata", [
-    ingest_data_string,
-    ingest_data_int,
-    ingest_data_boolean,
-    ingest_data_float,
-    ingest_data_date,
+    pytest.param(ingest_data_string, id="ingest_data_string"),
+    pytest.param(ingest_data_int, id="ingest_data_int"),
+    pytest.param(ingest_data_boolean, id="ingest_data_boolean"),
+    pytest.param(ingest_data_float, id="ingest_data_float"),
+    pytest.param(ingest_data_date, id="ingest_data_date"),
 ])
 def test_ingest_duplicate_check_types(tmpdirsec, dataset, cmdargs, inputdata):
     """Ingest with a collision of a duplicate object.
@@ -310,7 +294,7 @@ def test_ingest_datafiles(tmpdirsec, client, dataset, cmdargs):
     dummyfiles = [ f['dfname'] for f in testdatafiles ]
     args = cmdargs + ["-i", datafiles]
     callscript("icatingest.py", args)
-    # Verify that the datafiles have been uploaded.
+    # Verify that the datafiles have been created but not uploaded.
     dataset = client.searchMatching(dataset)
     for fname in dummyfiles:
         query = Query(client, "Datafile", conditions={
@@ -328,6 +312,8 @@ def test_ingest_datafiles_upload(tmpdirsec, client, dataset, cmdargs):
     icatingest will not create the datafiles as objects in the ICAT,
     but upload the files to IDS instead.
     """
+    if not client.ids:
+        pytest.skip("no IDS configured")
     dummyfiles = [ DummyDatafile(tmpdirsec, f['dfname'], f['size'], f['mtime'])
                    for f in testdatafiles ]
     args = cmdargs + ["-i", datafiles, "--upload-datafiles", 
@@ -346,3 +332,44 @@ def test_ingest_datafiles_upload(tmpdirsec, client, dataset, cmdargs):
         assert df.checksum == f.crc32
         if f.mtime:
             assert df.datafileModTime == f.mtime
+
+
+def test_ingest_dataset_samples(client, cleanup_objs, cmdargs):
+    """Ingest some datasets that are releated to samples.
+    """
+    ds_sample_map = {
+        "e209001": "ab3465",
+        "e209002": "ab3465",
+        "e209003": "ab3466",
+        "e209004": None,
+    }
+    inv = client.assertedSearch("Investigation [name='10100601-ST']")[0]
+    query = Query(client, "SampleType", conditions={"name": "= 'NiMnGa'"})
+    sample_type = client.assertedSearch(query)[0]
+    ds_type = client.assertedSearch("DatasetType [name='raw']")[0]
+    for name in ds_sample_map.keys():
+        # the datasets are supposed to be created by the imgest file
+        dataset = client.new("Dataset",
+                             name=name, complete=False,
+                             investigation=inv, type=ds_type)
+        cleanup_objs.append(dataset)
+    for name in {v for v in ds_sample_map.values() if v}:
+        # the samples are referenced from the ingest file, but are are
+        # assumed to already exist, so we need to create them here.
+        sample = client.new("Sample",
+                            name=name, investigation=inv, type=sample_type)
+        sample.create()
+        cleanup_objs.append(sample)
+    args = cmdargs + ["-i", sample_ds]
+    callscript("icatingest.py", args)
+    for ds_name, sample_name in ds_sample_map.items():
+        query = Query(client, "Dataset", conditions={
+            "investigation.id": "= %d" % inv.id,
+            "name": "= '%s'" % ds_name,
+        }, includes=["sample"])
+        ds = client.assertedSearch(query)[0]
+        if sample_name:
+            assert ds.sample
+            assert ds.sample.name == sample_name
+        else:
+            assert not ds.sample

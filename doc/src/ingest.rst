@@ -30,8 +30,8 @@ below.
 
 The input accepted by :class:`~icat.ingest.IngestReader` consists of
 one or more ``Dataset`` objects that all need to relate to the same
-``Investigation`` and any number of related ``DatasetInstrument``,
-``DatasetTechnique``, and ``DatasetParameter`` objects.  The
+``Investigation`` and any number of related ``DatasetTechnique``,
+``DatasetInstrument``, and ``DatasetParameter`` objects.  The
 ``Investigation`` must exist beforehand in ICAT.  The relation from
 the ``Dataset`` objects to the ``Investigation`` will be set by
 :class:`~icat.ingest.IngestReader` accordingly.  (Actually, the XSLT
@@ -44,8 +44,16 @@ and ``Datafile`` objects in ICAT at the same time.  But the attributes
 of the datasets will be read from the input file and set in the
 ``Dataset`` objects by :class:`~icat.ingest.IngestReader`.
 :class:`~icat.ingest.IngestReader` will also create the related
-``DatasetInstrument``, ``DatasetTechnique`` and ``DatasetParameter``
+``DatasetTechnique``, ``DatasetInstrument`` and ``DatasetParameter``
 objects read from the input file in ICAT.
+
+Using ingest file format 1.1, ``Dataset`` objects may also include a
+reference to a ``Sample``.  That ``Sample`` objects needs to exist
+beforehand and needs to be related to the same ``Investigation`` as
+the ``Dataset``.
+
+.. versionchanged:: 1.2.0
+   add version 1.1 of the ingest file format, including references to samples
 
 .. autoclass:: icat.ingest.IngestReader
     :members:
@@ -88,7 +96,7 @@ might then look like::
       raise RuntimeError("invalid ingest file") from e
 
   # Create the datasets.  In a real production script, you'd copy the
-  # content of the datafile to IDS storage at the same time:
+  # content of the datafiles to IDS storage at the same time:
   for ds in datasets:
       ds.create()
 

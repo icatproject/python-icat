@@ -78,7 +78,7 @@ def test_client_delete(registerClient):
     client, conf = getConfig(confSection="acord")
     client.login(conf.auth, conf.credentials)
     assert len(SessionRegisterClient.Sessions) == 1
-    # Keep a wek reference to the client to be able to observe when it
+    # Keep a weak reference to the client to be able to observe when it
     # has been garbage collected.
     r = weakref.ref(client)
     assert r() is client
@@ -96,7 +96,7 @@ def test_client_garbage_collect(registerClient):
     client, conf = getConfig(confSection="acord")
     client.login(conf.auth, conf.credentials)
     assert len(SessionRegisterClient.Sessions) == 1
-    # Keep a wek reference to the client to be able to observe when it
+    # Keep a weak reference to the client to be able to observe when it
     # has been garbage collected.
     r = weakref.ref(client)
     assert r() is client

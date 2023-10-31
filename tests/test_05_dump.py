@@ -66,27 +66,42 @@ else:
 # to verify that object relations are kept intact after an icatdump /
 # icatingest cycle.
 queries = [
-    ("Datafile.name <-> Dataset <-> Investigation [name='10100601-ST']",
-     ['e208339.dat', 'e208339.nxs', 'e208341.dat', 'e208341.nxs']),
-    ("SELECT p.numericValue FROM DatasetParameter p "
-     "JOIN p.dataset AS ds JOIN ds.investigation AS i JOIN p.type AS t "
-     "WHERE i.name = '10100601-ST' AND ds.name = 'e208339' "
-     "AND t.name = 'Magnetic field'",
-     [7.3]),
-    ("SELECT ds.name FROM Dataset ds "
-     "JOIN ds.dataCollectionDatasets AS dcds "
-     "JOIN dcds.dataCollection AS dc JOIN dc.jobsAsOutput AS j "
-     "WHERE j.id IS NOT NULL",
-     ["e208947"]),
-    ("SELECT df.name FROM Datafile df "
-     "JOIN df.dataCollectionDatafiles AS dcdf "
-     "JOIN dcdf.dataCollection AS dc JOIN dc.jobsAsInput AS j "
-     "WHERE j.id IS NOT NULL",
-     ["e208945.nxs"]),
-    ("SELECT COUNT(dc) FROM DataCollection dc "
-     "JOIN dc.dataCollectionDatasets AS dcds JOIN dcds.dataset AS ds "
-     "WHERE ds.name = 'e201215'",
-     [1]),
+    pytest.param(
+        "Datafile.name <-> Dataset <-> Investigation [name='10100601-ST']",
+        ['e208339.dat', 'e208339.nxs', 'e208341.dat', 'e208341.nxs'],
+        id="df.name"
+    ),
+    pytest.param(
+        "SELECT p.numericValue FROM DatasetParameter p "
+        "JOIN p.dataset AS ds JOIN ds.investigation AS i JOIN p.type AS t "
+        "WHERE i.name = '10100601-ST' AND ds.name = 'e208339' "
+        "AND t.name = 'Magnetic field'",
+        [7.3],
+        id="param.name"
+    ),
+    pytest.param(
+        "SELECT ds.name FROM Dataset ds "
+        "JOIN ds.dataCollectionDatasets AS dcds "
+        "JOIN dcds.dataCollection AS dc JOIN dc.jobsAsOutput AS j "
+        "WHERE j.id IS NOT NULL",
+        ["e208947"],
+        id="jobout_ds.name"
+    ),
+    pytest.param(
+        "SELECT df.name FROM Datafile df "
+        "JOIN df.dataCollectionDatafiles AS dcdf "
+        "JOIN dcdf.dataCollection AS dc JOIN dc.jobsAsInput AS j "
+        "WHERE j.id IS NOT NULL",
+        ["e208945.nxs"],
+        id="jobin_df.name"
+    ),
+    pytest.param(
+        "SELECT COUNT(dc) FROM DataCollection dc "
+        "JOIN dc.dataCollectionDatasets AS dcds JOIN dcds.dataset AS ds "
+        "WHERE ds.name = 'e201215'",
+        [1],
+        id="dc.count"
+    ),
 ]
 
 @pytest.fixture(scope="module")

@@ -17,6 +17,7 @@ import pytest
 import icat
 import icat.config
 import icat.dumpfile
+from icat.query import Query
 try:
     import icat.dumpfile_xml
 except ImportError:
@@ -239,6 +240,38 @@ def setupicat(standardCmdArgs):
     callscript("wipeicat.py", standardCmdArgs)
     args = standardCmdArgs + ["-f", "YAML", "-i", str(testcontent)]
     callscript("icatingest.py", args)
+
+@pytest.fixture(scope="session")
+def rootclient(setupicat):
+    client, conf = getConfig(confSection="root", ids="optional")
+    client.login(conf.auth, conf.credentials)
+    return client
+
+@pytest.fixture(scope="function")
+def cleanup_objs(rootclient):
+    """Delete some objects (that may or may not have been) created during
+    a test
+    """
+    obj_list = []
+    yield obj_list
+    for obj in obj_list:
+        try:
+            if not obj.id:
+                obj = rootclient.searchMatching(obj)
+        except icat.SearchResultError:
+            # obj not found, maybe the test failed, nothing to do on
+            # this object then.
+            pass
+        else:
+            if rootclient.ids and obj.BeanName == "Dataset":
+                # obj is a dataset.  If any related datafile has been
+                # uploaded (i.e. the location is not NULL), need to
+                # delete it from IDS first.
+                query = Query(rootclient, "Datafile",
+                              conditions={"dataset.id": "= %d" % obj.id,
+                                          "location": "IS NOT NULL"})
+                rootclient.deleteData(rootclient.search(query))
+            rootclient.delete(obj)
 
 # ============================= hooks ================================
 

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icatdata>
+  <!-- Example input to add some datasets that relate to existing
+       samples with icatingest.py. -->
+  <head>
+    <date>2023-10-17T07:33:36Z</date>
+    <generator>manual edit</generator>
+  </head>
+  <data>
+    <investigationRef id="inv_1" name="10100601-ST" visitId="1.1-N"/>
+    <sampleRef id="sample_1" name="ab3465" investigation.ref="inv_1"/>
+    <sampleRef id="sample_2" name="ab3466" investigation.ref="inv_1"/>
+    <dataset>
+      <complete>false</complete>
+      <endDate>2012-07-30T01:10:08+00:00</endDate>
+      <name>e209001</name>
+      <startDate>2012-07-26T15:44:24+00:00</startDate>
+      <investigation ref="inv_1"/>
+      <sample ref="sample_1"/>
+      <type name="raw"/>
+    </dataset>
+    <dataset>
+      <complete>false</complete>
+      <endDate>2012-08-06T01:10:08+00:00</endDate>
+      <name>e209002</name>
+      <startDate>2012-08-02T05:30:00+00:00</startDate>
+      <investigation ref="inv_1"/>
+      <sample ref="sample_1"/>
+      <type name="raw"/>
+    </dataset>
+    <dataset>
+      <complete>false</complete>
+      <endDate>2012-07-16T14:30:17+00:00</endDate>
+      <name>e209003</name>
+      <startDate>2012-07-16T11:42:05+00:00</startDate>
+      <investigation ref="inv_1"/>
+      <sample ref="sample_2"/>
+      <type name="raw"/>
+    </dataset>
+    <dataset>
+      <complete>false</complete>
+      <endDate>2012-07-31T22:52:23+00:00</endDate>
+      <name>e209004</name>
+      <startDate>2012-07-31T20:20:37+00:00</startDate>
+      <investigation ref="inv_1"/>
+      <type name="raw"/>
+    </dataset>
+  </data>
+</icatdata>

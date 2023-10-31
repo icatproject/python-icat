@@ -5,7 +5,7 @@
 <xsd:annotation>
   <xsd:documentation>
     Schema definition for ingest files to ICAT.
-    Version 1.0.
+    Version 1.1.
   </xsd:documentation>
 </xsd:annotation>
 
@@ -16,7 +16,7 @@
     <xsd:element name="head" type="head" minOccurs="0"/>
     <xsd:element name="data" type="data"/>
   </xsd:sequence>
-  <xsd:attribute name="version" type="version_10" use="required"/>
+  <xsd:attribute name="version" type="version_11" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="head">
@@ -57,6 +57,7 @@
 	<xsd:element name="description" type="xsd:string" minOccurs="0"/>
 	<xsd:element name="startDate" type="xsd:dateTime" minOccurs="0"/>
 	<xsd:element name="endDate" type="xsd:dateTime" minOccurs="0"/>
+	<xsd:element name="sample" type="nameRef" minOccurs="0"/>
 	<xsd:element name="datasetInstruments" type="datasetInstrument"
 		     minOccurs="0" maxOccurs="unbounded"/>
 	<xsd:element name="datasetTechniques" type="datasetTechnique"
@@ -126,9 +127,9 @@
   </xsd:restriction>
 </xsd:simpleType>
 
-<xsd:simpleType name="version_10">
+<xsd:simpleType name="version_11">
   <xsd:restriction base="xsd:string">
-    <xsd:enumeration value="1.0"/>
+    <xsd:enumeration value="1.1"/>
   </xsd:restriction>
 </xsd:simpleType>
 
