@@ -1,3 +1,13 @@
+%if 0%{?sle_version} >= 150500
+%global pyversfx 311
+%global python %__python311
+%global python_sitelib %python311_sitelib
+%else
+%global pyversfx 3
+%global python %__python3
+%global python_sitelib %python3_sitelib
+%endif
+
 Name:		python-icat
 Version:	$version
 Release:	0
@@ -6,17 +16,18 @@ Summary:	$description
 License:	Apache-2.0
 Group:		Development/Libraries/Python
 Source:		%{name}-%{version}.tar.gz
-BuildRequires:	python3-base >= 3.4
-BuildRequires:	python3-setuptools
+BuildRequires:	python%{pyversfx}-base >= 3.4
+BuildRequires:	python%{pyversfx}-setuptools
+BuildRequires:	fdupes
+BuildRequires:	python-rpm-macros
 BuildArch:	noarch
-BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 %description
 $long_description
 
 
 %package examples
-Summary:	Python interface to ICAT and IDS
+Summary:	$description
 Group:		Documentation/Other
 Requires:	%{name} = %{version}
 
@@ -27,7 +38,7 @@ This package contains example scripts.
 
 
 %package man
-Summary:	Python interface to ICAT and IDS
+Summary:	$description
 Group:		Documentation/Other
 Requires:	%{name} = %{version}
 Requires:	man
@@ -38,16 +49,16 @@ $long_description
 This package contains the manual pages for the command line scripts.
 
 
-%package -n python3-icat
-Summary:	Python interface to ICAT and IDS
+%package -n python%{pyversfx}-icat
+Summary:	$description
 Requires:	%{name} = %{version}
-Requires:	python3-lxml
-Requires:	python3-packaging
-Requires:	python3-suds
+Requires:	python%{pyversfx}-lxml
+Requires:	python%{pyversfx}-packaging
+Requires:	python%{pyversfx}-suds
 Recommends:	%{name}-man
-Recommends:	python3-PyYAML
+Recommends:	python%{pyversfx}-PyYAML
 
-%description -n python3-icat
+%description -n python%{pyversfx}-icat
 $long_description
 
 
@@ -56,25 +67,23 @@ $long_description
 
 
 %build
-python3 setup.py build
+%{python} setup.py build
 
 
 %install
-python3 setup.py install --optimize=1 --prefix=%{_prefix} --root=%{buildroot}
+%{python} setup.py install --optimize=1 --prefix=%{_prefix} --root=%{buildroot}
 for f in `ls %{buildroot}%{_bindir}`
 do
     mv %{buildroot}%{_bindir}/$$f %{buildroot}%{_bindir}/$${f%%.py}
 done
-
 %__install -d -m 755 %{buildroot}%{_datadir}/icat
 %__cp -p etc/ingest-10.xsd etc/ingest.xslt %{buildroot}%{_datadir}/icat
-
 %__install -d -m 755 %{buildroot}%{_mandir}/man1
 %__cp -p doc/man/*.1 %{buildroot}%{_mandir}/man1
-
 %__install -d -m 755 %{buildroot}%{_docdir}/%{name}
 %__cp -pr README.rst CHANGES.rst doc/* %{buildroot}%{_docdir}/%{name}
 %__chmod -f a-x %{buildroot}%{_docdir}/%{name}/examples/*.py
+%fdupes %{buildroot}%{python_sitelib}
 
 
 %files
@@ -96,9 +105,9 @@ done
 %defattr(-,root,root)
 %{_mandir}/man1/*
 
-%files -n python3-icat
+%files -n python%{pyversfx}-icat
 %defattr(-,root,root)
-%{python3_sitelib}/*
+%{python_sitelib}/*
 %{_bindir}/*
 
 
