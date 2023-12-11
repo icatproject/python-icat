@@ -49,8 +49,14 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
     element name and version attribute, the values are the
     corresponding name of the XSD file.
     """
-    XSLT_name = "ingest.xslt"
-    """The name of the XSLT file to use.
+    XSLT_Map = {
+        'icatingest': "ingest.xslt",
+    }
+    """A mapping to select the XSLT file to use.  Keys are the root
+    element name, the values are the corresponding name of the XSLT
+    file.
+
+    .. versionadded:: 1.3.0
     """
 
     def __init__(self, client, metadata, investigation):
@@ -105,9 +111,11 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
     def get_xslt(self, ingest_data):
         """Get the XSLT file.
 
-        Take :attr:`~icat.ingest.IngestReader.XSLT_name` as a file
-        name relative to :attr:`~icat.ingest.IngestReader.SchemaDir`
-        and return this path.
+        Inspect the root element in the input data and lookup the
+        element name in :attr:`~icat.ingest.IngestReader.XSLT_Map`.
+        The value is taken as a file name relative to
+        :attr:`~icat.ingest.IngestReader.SchemaDir` and this path is
+        returned.
 
         Subclasses may override this method to customize the XSLT file
         to use.  These derived versions may inspect the input data to
@@ -119,8 +127,21 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
         :type ingest_data: :class:`lxml.etree._ElementTree`
         :return: path to the XSLT file.
         :rtype: :class:`~pathlib.Path`
+        :raise icat.exception.InvalidIngestFileError: if the root
+            element name could not be found in
+            :attr:`~icat.ingest.IngestReader.XSLT_Map`.
+
+        .. versionchanged:: 1.3.0
+            lookup the root element name in
+            :attr:`~icat.ingest.IngestReader.XSLT_Map` rather than
+            using a static file name.
         """
-        return self.SchemaDir / self.XSLT_name
+        root = ingest_data.getroot()
+        try:
+            xslt = self.XSLT_Map[root.tag]
+        except KeyError:
+            raise InvalidIngestFileError("unknown format")
+        return self.SchemaDir / xslt
 
     def getobjs(self):
         """Iterate over the objects in the ingest file.
