@@ -127,9 +127,12 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
         :type ingest_data: :class:`lxml.etree._ElementTree`
         :return: path to the XSLT file.
         :rtype: :class:`~pathlib.Path`
+        :raise icat.exception.InvalidIngestFileError: if the root
+            element name could not be found in
+            :attr:`~icat.ingest.IngestReader.XSLT_Map`.
 
         .. versionchanged:: 1.3.0
-            Lookup the root element name in
+            lookup the root element name in
             :attr:`~icat.ingest.IngestReader.XSLT_Map` rather than
             using a static file name.
         """
