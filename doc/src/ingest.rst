@@ -55,6 +55,10 @@ the ``Dataset``.
 .. versionchanged:: 1.2.0
    add version 1.1 of the ingest file format, including references to samples
 
+.. versionchanged:: 1.3.0
+   drop class attribute :attr:`~icat.ingest.IngestReader.XSLT_name` in
+   favour of :attr:`~icat.ingest.IngestReader.XSLT_Map`.
+
 .. autoclass:: icat.ingest.IngestReader
     :members:
     :show-inheritance:
@@ -114,8 +118,8 @@ Customizing the input format
 
 The ingest input file format may be customized by providing custom XSD
 and XSLT files.  The easiest way to do that is to subclass
-:class:`~icat.ingest.IngestReader`, you'd only need to override some
-class attributes as follows::
+:class:`~icat.ingest.IngestReader`.  In most cases, you'd only need to
+override some class attributes as follows::
 
   from pathlib import Path
   import icat.ingest
@@ -132,18 +136,27 @@ class attributes as follows::
       }
 
       # Override the XSLT file to use:
-      XSLT_name = "myingest.xslt"
+      XSLT_Map = {
+          'legacyingest': "legacy-ingest.xslt",
+          'myingest': "my-ingest.xslt",
+      }
 
-:attr:`~icat.ingest.IngestReader.XSD_Map` is a mapping with pairs of
-root element name and version attribute as keys and XSD file names as
-values.  The method :meth:`~icat.ingest.IngestReader.get_xsd` inspects
-the input file and selects the file name from
-:attr:`~icat.ingest.IngestReader.XSD_Map` accordingly.  (Note that
-there is no such mapping for the XSLT file, because its is assumed
-that it is fairly easy to formulate adaptations to the input version
-directly in XSLT, so one single XSLT file would be sufficient to cover
-all versions.)  In the above example, `MyFacilityIngestReader` would
-recognize input files like
+:attr:`~icat.ingest.IngestReader.XSD_Map` and
+:attr:`~icat.ingest.IngestReader.XSLT_Map` are mappings with
+properties of the root element of the input data as keys and file
+names as values.  The methods
+:meth:`~icat.ingest.IngestReader.get_xsd` and
+:meth:`~icat.ingest.IngestReader.get_xslt` respectively inspect the
+input file and use these mappings to select the XSD and XSLT file
+accordingly.  Note that :attr:`~icat.ingest.IngestReader.XSD_Map`
+takes tuples of root element name and version attribute as keys, while
+:attr:`~icat.ingest.IngestReader.XSLT_Map` uses the name of the root
+element name alone.  It is is assumed that it is fairly easy to
+formulate adaptations to the input version directly in XSLT, so one
+single XSLT file would be sufficient to cover all versions.
+
+In the above example, `MyFacilityIngestReader` would recognize input
+files like
 
 .. code-block:: xml
 
