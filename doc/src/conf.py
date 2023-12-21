@@ -109,6 +109,7 @@ html_show_sourcelink = False
 html_favicon = "images/favicon-32x32.png"
 
 html_css_files = [
+    'css/captions.css',
     'css/spacing.css',
 ]
 
