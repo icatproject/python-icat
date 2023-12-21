@@ -121,7 +121,7 @@ class attributes as follows::
   import icat.ingest
 
   class MyFacilityIngestReader(icat.ingest.IngestReader):
-  
+
       # Override the directory to search for XSD and XSLT files:
       SchemaDir = Path("/usr/share/icat/my-facility")
 

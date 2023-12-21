@@ -62,8 +62,8 @@ added.  The main class that client programs interact with is
     .. attribute:: client
 
         The :class:`icat.client.Client` object initialized according to
-	the configuration.  This is also the first element in the
-	return value from :meth:`getconfig`.
+        the configuration.  This is also the first element in the
+        return value from :meth:`getconfig`.
 
     .. attribute:: client_kwargs
 
@@ -139,7 +139,7 @@ A few derived variables are also set in
     available) suitable to be passed to :meth:`icat.client.Client.login`.
 
 .. table:: Command line arguments, environment variables, and default values
-	   for the configuration variables.
+           for the configuration variables.
     :name: tab-config-vars
 
     +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
