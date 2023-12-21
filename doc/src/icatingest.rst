@@ -7,7 +7,8 @@ icatingest
 Synopsis
 ~~~~~~~~
 
-**icatingest** [*standard options*] [-i FILE] [-f FORMAT] [--upload-datafiles] [--datafile-dir DATADIR] [--duplicate OPTION]
+| **icatingest** [*standard options*] [-i FILE] [-f FORMAT]
+|     [--upload-datafiles] [--datafile-dir DATADIR] [--duplicate OPTION]
 
 
 Description

@@ -7,7 +7,7 @@ icatdump
 Synopsis
 ~~~~~~~~
 
-**icatdump** [*standard options*] [-o FILE] [-f FORMAT]
+| **icatdump** [*standard options*] [-o FILE] [-f FORMAT]
 
 
 Description

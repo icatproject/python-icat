@@ -7,7 +7,7 @@ wipeicat
 Synopsis
 ~~~~~~~~
 
-**wipeicat** [*options*]
+| **wipeicat** [*options*]
 
 
 Description
