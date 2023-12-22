@@ -45,7 +45,8 @@ pt2.create()
 
 # --------------------
 
-query = "SELECT pt FROM ParameterType pt INCLUDE pt.facility, pt.permissibleStringValues"
+query = ("SELECT pt FROM ParameterType pt "
+         "INCLUDE pt.facility, pt.permissibleStringValues")
 client.search(query)
 
 # Access rules

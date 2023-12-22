@@ -15,19 +15,23 @@ client.search(query)
 
 # --------------------
 
-query = Query(client, "Investigation", conditions={"name": "= '10100601-ST'"})
+query = Query(client, "Investigation",
+              conditions={"name": "= '10100601-ST'"})
 print(query)
 client.search(query)
 
 # --------------------
 
-query = Query(client, "Investigation", conditions={"name": "= '10100601-ST'"}, includes=["datasets"])
+query = Query(client, "Investigation",
+              conditions={"name": "= '10100601-ST'"},
+              includes=["datasets"])
 print(query)
 client.search(query)
 
 # --------------------
 
-query = Query(client, "Investigation", conditions={"LENGTH(title)": "= 18"})
+query = Query(client, "Investigation",
+              conditions={"LENGTH(title)": "= 18"})
 print(query)
 client.search(query)
 
@@ -39,7 +43,8 @@ conditions = {
     "parameters.type.units": "= 'T'",
     "parameters.numericValue": "> 5.0",
 }
-query = Query(client, "Dataset", conditions=conditions, includes=["parameters.type"])
+query = Query(client, "Dataset",
+              conditions=conditions, includes=["parameters.type"])
 print(query)
 client.search(query)
 
@@ -80,7 +85,9 @@ client.search(query)
 
 # --------------------
 
-query = Query(client, "Dataset", attributes=["investigation.name", "name", "complete", "type.name"])
+query = Query(client, "Dataset", attributes=[
+    "investigation.name", "name", "complete", "type.name"
+])
 print(query)
 client.search(query)
 
@@ -97,7 +104,8 @@ conditions = {
     "type.name": "= 'Magnetic field'",
     "type.units": "= 'T'",
 }
-query = Query(client, "DatasetParameter", conditions=conditions, attributes="numericValue")
+query = Query(client, "DatasetParameter",
+              conditions=conditions, attributes="numericValue")
 print(query)
 client.search(query)
 query.setAggregate("MIN")
@@ -132,7 +140,8 @@ conditions = {
     "datasets.parameters.type.name": "= 'Magnetic field'",
     "datasets.parameters.type.units": "= 'T'",
 }
-query = Query(client, "Investigation", conditions=conditions, aggregate="COUNT")
+query = Query(client, "Investigation",
+              conditions=conditions, aggregate="COUNT")
 print(query)
 client.search(query)
 query.setAggregate("COUNT:DISTINCT")
@@ -148,14 +157,17 @@ client.search(query)
 
 # --------------------
 
-query = Query(client, "User", conditions={"fullName": "IS NOT NULL"}, order=[("LENGTH(fullName)", "DESC")])
+query = Query(client, "User", conditions={
+    "fullName": "IS NOT NULL"
+}, order=[("LENGTH(fullName)", "DESC")])
 print(query)
 for user in client.search(query):
     print("%d: %s" % (len(user.fullName), user.fullName))
 
 # --------------------
 
-query = Query(client, "Dataset", order=[("endDate", "DESC")], limit=(2, 1))
+query = Query(client, "Dataset",
+              order=[("endDate", "DESC")], limit=(2, 1))
 print(query)
 client.search(query)
 
