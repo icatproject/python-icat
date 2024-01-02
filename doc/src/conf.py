@@ -10,9 +10,10 @@ from pathlib import Path
 import sys
 
 maindir = Path(__file__).resolve().parent.parent.parent
-sys.path[0] = str(maindir)
+buildlib = maindir / "build" / "lib"
+sys.path[0] = str(buildlib)
 
-import _meta
+import icat._meta
 
 
 # -- Project information -----------------------------------------------------
@@ -23,7 +24,7 @@ copyright = ('2013–2023, '
 author = 'Rolf Krahl'
 
 # The full version, including alpha/beta/rc tags
-release = _meta.version
+release = icat._meta.version
 # The short X.Y version
 version = ".".join(release.split(".")[0:2])
 

@@ -49,30 +49,16 @@ class meta(setuptools.Command):
 
     description = "generate meta files"
     user_options = []
-    init_template = '''"""%(doc)s"""
-
-__version__ = "%(version)s"
-
-#
-# Default import
-#
-
-from icat.client import *
-from icat.exception import *
-'''
     meta_template = '''
 release = "%(release)s"
 version = "%(version)s"
 '''
 
     def initialize_options(self):
-        self.package_dir = None
+        pass
 
     def finalize_options(self):
-        self.package_dir = {}
-        if self.distribution.package_dir:
-            for name, path in self.distribution.package_dir.items():
-                self.package_dir[name] = convert_path(path)
+        pass
 
     def run(self):
         version = self.distribution.get_version()
@@ -80,18 +66,7 @@ version = "%(version)s"
         values = {
             'release': release,
             'version': version,
-            'doc': docstring,
         }
-        try:
-            pkgname = self.distribution.packages[0]
-        except IndexError:
-            log.warn("warning: no package defined")
-        else:
-            pkgdir = Path(self.package_dir.get(pkgname, pkgname))
-            if not pkgdir.is_dir():
-                pkgdir.mkdir()
-            with (pkgdir / "__init__.py").open("wt") as f:
-                print(self.init_template % values, file=f)
         with Path("_meta.py").open("wt") as f:
             print(self.meta_template % values, file=f)
 
@@ -164,6 +139,9 @@ class build_py(setuptools.command.build_py.build_py):
     def run(self):
         self.run_command('meta')
         super().run()
+        package = self.distribution.packages[0].split('.')
+        outfile = self.get_module_outfile(self.build_lib, package, "_meta")
+        self.copy_file("_meta.py", outfile, preserve_mode=0)
 
 
 # There are several forks of the original suds package around, most of
@@ -218,9 +196,14 @@ setup(
                  % release),
     ),
     packages = ["icat"],
+    package_dir = {"": "src"},
     python_requires = ">=3.4",
     install_requires = requires,
-    scripts = ["icatdump.py", "icatingest.py", "wipeicat.py"],
+    scripts = [
+        "src/scripts/icatdump.py",
+        "src/scripts/icatingest.py",
+        "src/scripts/wipeicat.py"
+    ],
     cmdclass = dict(cmdclass,
                     meta=meta,
                     build_py=build_py,
