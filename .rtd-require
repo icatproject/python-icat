@@ -1,8 +1,8 @@
 PyYAML
+git-props
 lxml
 packaging
 setuptools
-setuptools_scm
 suds
 sphinx-copybutton
 sphinx_rtd_theme
