@@ -11,7 +11,7 @@ build:
     post_checkout:
       - git fetch --unshallow
     post_install:
-      - python setup.py meta
+      - python setup.py build
 
 sphinx:
   configuration: doc/src/conf.py
