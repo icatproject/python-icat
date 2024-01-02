@@ -21,8 +21,14 @@ Incompatible changes
 
   Note that :mod:`icat.ingest` has been declared experimental for now.
 
+Bug fixes and minor changes
+---------------------------
+
++ `#145`_: Review build tool chain
+
 .. _#143: https://github.com/icatproject/python-icat/issues/143
 .. _#144: https://github.com/icatproject/python-icat/pull/144
+.. _#145: https://github.com/icatproject/python-icat/pull/145
 
 
 1.2.0 (2023-10-31)
