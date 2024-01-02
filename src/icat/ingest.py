@@ -10,11 +10,12 @@
 
 from pathlib import Path
 from lxml import etree
-import icat.dumpfile_xml
-from icat.exception import InvalidIngestFileError
+
+from .dumpfile_xml import XMLDumpFileReader
+from .exception import InvalidIngestFileError
 
 
-class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
+class IngestReader(XMLDumpFileReader):
     """Read metadata from XML ingest files into ICAT.
 
     The input file may contain one or more datasets and related

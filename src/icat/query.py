@@ -5,8 +5,9 @@ from collections import OrderedDict
 import re
 from warnings import warn
 from collections.abc import Mapping
-import icat.entity
-from icat.exception import *
+
+from .entity import Entity
+from .exception import *
 
 __all__ = ['Query']
 
@@ -119,7 +120,7 @@ class Query():
 
         if isinstance(entity, str):
             self.entity = self.client.getEntityClass(entity)
-        elif issubclass(entity, icat.entity.Entity):
+        elif issubclass(entity, Entity):
             if (entity in self.client.typemap.values() and
                 entity.BeanName is not None):
                 self.entity = entity

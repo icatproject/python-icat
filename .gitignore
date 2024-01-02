@@ -3,7 +3,6 @@ __pycache__/
 /_meta.py
 /build/
 /dist/
-/icat/__init__.py
 /tests/data/example_data.yaml
 /tests/data/icat.cfg
 /tests/data/icatdata-*.xsd
