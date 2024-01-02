@@ -17,14 +17,14 @@ import suds
 import suds.client
 import suds.sudsobject
 
-from icat.entities import getTypeMap
-from icat.entity import Entity
-from icat.exception import *
-from icat.helper import (Version, simpleqp_unquote, parse_attr_val,
-                         ms_timestamp, disable_logger)
-from icat.ids import *
-from icat.query import Query
-from icat.sslcontext import create_ssl_context, HTTPSTransport
+from .entities import getTypeMap
+from .entity import Entity
+from .exception import *
+from .helper import (Version, simpleqp_unquote, parse_attr_val,
+                     ms_timestamp, disable_logger)
+from .ids import *
+from .query import Query
+from .sslcontext import create_ssl_context, HTTPSTransport
 
 __all__ = ['Client']
 

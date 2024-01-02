@@ -12,14 +12,13 @@ directly from the command line, as in::
 """
 
 import logging
-import icat
-import icat.config
+from .config import Config
 
 if __name__ == "__main__":
 
     logging.basicConfig(level=logging.INFO)
 
-    config = icat.config.Config(ids="optional")
+    config = Config(ids="optional")
     config.add_variable('expression', ("-e", "--eval"), 
                         dict(help="Python expression to evaluate"))
     client, conf = config.getconfig()
