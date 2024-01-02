@@ -23,7 +23,7 @@ copyright = ('2013–2023, '
 author = 'Rolf Krahl'
 
 # The full version, including alpha/beta/rc tags
-release = _meta.__version__
+release = _meta.version
 # The short X.Y version
 version = ".".join(release.split(".")[0:2])
 
