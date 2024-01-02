@@ -55,10 +55,6 @@ the ``Dataset``.
 .. versionchanged:: 1.2.0
    add version 1.1 of the ingest file format, including references to samples
 
-.. versionchanged:: 1.3.0
-   drop class attribute :attr:`~icat.ingest.IngestReader.XSLT_name` in
-   favour of :attr:`~icat.ingest.IngestReader.XSLT_Map`.
-
 .. autoclass:: icat.ingest.IngestReader
     :members:
     :show-inheritance:
