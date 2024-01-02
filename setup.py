@@ -1,4 +1,3 @@
-#! /usr/bin/python
 """Python interface to ICAT and IDS
 
 This package provides a collection of modules for writing Python
@@ -13,12 +12,8 @@ from setuptools import setup
 import setuptools.command.build_py
 import distutils.command.sdist
 from distutils import log
-from glob import glob
-import os
-import os.path
 from pathlib import Path
 import string
-import sys
 try:
     import distutils_pytest
     cmdclass = distutils_pytest.cmdclass
@@ -34,13 +29,6 @@ except (ImportError, LookupError):
     except ImportError:
         log.warn("warning: cannot determine version number")
         release = version = "UNKNOWN"
-
-
-if sys.version_info < (3, 4):
-    log.warn("warning: Python %d.%d is not supported! "
-             "This package requires Python 3.4 or newer."
-             % sys.version_info[:2])
-
 
 docstring = __doc__
 
@@ -86,34 +74,36 @@ class build_test(setuptools.Command):
         self.copy_test_data()
 
     def copy_test_scripts(self):
-        destdir = os.path.join("tests", "scripts")
-        self.mkpath(destdir)
+        destdir = Path("tests", "scripts")
+        self.mkpath(str(destdir))
         scripts = []
-        scripts += glob(os.path.join("doc", "examples", "*.py"))
-        scripts += self.distribution.scripts
+        scripts += Path("doc", "examples").glob("*.py")
+        scripts += (Path(s) for s in self.distribution.scripts)
         for script in scripts:
-            dest = os.path.join(destdir, os.path.basename(script))
-            self.copy_file(script, dest, preserve_mode=False)
+            dest = destdir / script.name
+            self.copy_file(str(script), str(dest), preserve_mode=False)
 
     def copy_test_data(self):
-        destdir = os.path.join("tests", "data")
-        self.mkpath(destdir)
+        destdir = Path("tests", "data")
+        self.mkpath(str(destdir))
+        etc = Path("etc")
+        doc = Path("doc")
+        examples = doc / "examples"
         files = []
-        files += [ os.path.join("doc", "examples", f)
-                   for f in ["example_data.yaml",
+        files += ( examples / f
+                   for f in ("example_data.yaml",
                              "ingest-datafiles.xml", "ingest-ds-params.xml",
-                             "ingest-sample-ds.xml"] ]
-        files += [ os.path.join("doc", "examples",
-                                "icatdump-%s.%s" % (ver, ext))
+                             "ingest-sample-ds.xml") )
+        files += ( examples / ("icatdump-%s.%s" % (ver, ext))
                    for ver in ("4.4", "4.7", "4.10", "5.0")
-                   for ext in ("xml", "yaml") ]
-        files += glob(os.path.join("doc", "icatdata-*.xsd"))
-        files += glob(os.path.join("doc", "examples", "metadata-*.xml"))
-        files += [ os.path.join("etc", f)
-                   for f in ["ingest-10.xsd", "ingest-11.xsd", "ingest.xslt"] ]
+                   for ext in ("xml", "yaml") )
+        files += doc.glob("icatdata-*.xsd")
+        files += examples.glob("metadata-*.xml")
+        files += ( etc / f
+                   for f in ("ingest-10.xsd", "ingest-11.xsd", "ingest.xslt") )
         for f in files:
-            dest = os.path.join(destdir, os.path.basename(f))
-            self.copy_file(f, dest, preserve_mode=False)
+            dest = destdir / f.name
+            self.copy_file(str(f), str(dest), preserve_mode=False)
 
 
 # Note: Do not use setuptools for making the source distribution,
@@ -129,8 +119,8 @@ class sdist(distutils.command.sdist.sdist):
             "description": docstring.split("\n")[0],
             "long_description": docstring.split("\n", maxsplit=2)[2].strip(),
         }
-        for spec in glob("*.spec"):
-            with Path(spec).open('rt') as inf:
+        for spec in Path().glob("*.spec"):
+            with spec.open('rt') as inf:
                 with Path(self.dist_dir, spec).open('wt') as outf:
                     outf.write(string.Template(inf.read()).substitute(subst))
 
