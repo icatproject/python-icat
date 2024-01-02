@@ -1,8 +1,8 @@
 PyYAML
+git-props
 lxml
 packaging
 setuptools
-setuptools_scm
 suds
 jinja2<3.1
 sphinx>=2,<3
