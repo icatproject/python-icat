@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.0">
+  <head>
+    <date>2023-06-16T11:01:15+02:00</date>
+    <generator>metadata-writer 0.29</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>testingest_custom_icatingest_1</name>
+      <description>Dy01Cp02 at 2.7 K</description>
+      <startDate>2022-02-03T15:40:12+01:00</startDate>
+      <endDate>2022-02-03T17:04:22+01:00</endDate>
+    </dataset>
+  </data>
+</icatingest>

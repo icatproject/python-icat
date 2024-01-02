@@ -56,6 +56,21 @@ def investigation(client, cleanup_objs):
 def schemadir(monkeypatch):
     monkeypatch.setattr(IngestReader, "SchemaDir", testdatadir)
 
+
+class MyIngestReader(IngestReader):
+    """Testting a customized IngestReader
+    """
+    XSD_Map = {
+        ('icatingest', '1.0'): "ingest-10.xsd",
+        ('icatingest', '1.1'): "ingest-11.xsd",
+        ('myingest', '1.0'): "myingest.xsd",
+    }
+    XSLT_Map = {
+        'icatingest': "ingest.xslt",
+        'myingest': "myingest.xslt",
+    }
+
+
 cet = datetime.timezone(datetime.timedelta(hours=1))
 cest = datetime.timezone(datetime.timedelta(hours=2))
 
@@ -384,3 +399,81 @@ def test_badref_ingest(client, investigation, schemadir, case):
     with pytest.raises(icat.InvalidIngestFileError):
         reader = IngestReader(client, case.metadata, investigation)
         reader.ingest(datasets, dry_run=True, update_ds=True)
+
+
+customcases = [
+    Case(
+        data = ["testingest_custom_icatingest_1"],
+        metadata = gettestdata("metadata-custom-icatingest.xml"),
+        schema = gettestdata("icatdata-4.4.xsd"),
+        checks = {
+            "testingest_custom_icatingest_1": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "Dy01Cp02 at 2.7 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 15, 40, 12, tzinfo=cet)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 17, 4, 22, tzinfo=cet)),
+                (("SELECT COUNT(p) FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds "
+                  "WHERE ds.id = %d"),
+                 0),
+            ],
+        },
+        marks = (),
+    ),
+    Case(
+        data = ["testingest_custom_myingest_1"],
+        metadata = gettestdata("metadata-custom-myingest.xml"),
+        schema = gettestdata("icatdata-4.4.xsd"),
+        checks = {
+            "testingest_custom_myingest_1": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "My Ingest: Dy01Cp02 at 2.7 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 15, 40, 12, tzinfo=cet)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 17, 4, 22, tzinfo=cet)),
+                (("SELECT COUNT(p) FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds "
+                  "WHERE ds.id = %d"),
+                 1),
+                (("SELECT p.stringValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Probe'"),
+                 "x-ray"),
+            ],
+        },
+        marks = (),
+    ),
+]
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in customcases
+])
+def test_custom_ingest(client, investigation, samples, schemadir, case):
+    """Test a custom ingest reader MyIngestReader, defined above.
+
+    MyIngestReader defines a custom ingest format by defining it's own
+    set of XSD and XSLT file.  But it still supports the vanilla
+    icatingest format.  In the test, we define two cases, having
+    identical input data: the first one using icatdata format, the
+    second one the customized myingest format.  Otherwise the input is
+    identical.  But note that the transformation for the myingest case
+    alters the input on the fly, so we get different results.
+    """
+    datasets = []
+    for name in case.data:
+        datasets.append(client.new("Dataset", name=name))
+    reader = MyIngestReader(client, case.metadata, investigation)
+    reader.ingest(datasets, dry_run=True, update_ds=True)
+    for ds in datasets:
+        ds.create()
+    reader.ingest(datasets)
+    for name in case.checks.keys():
+        query = Query(client, "Dataset", conditions={
+            "name": "= '%s'" % name,
+            "investigation.id": "= %d" % investigation.id,
+        })
+        ds = client.assertedSearch(query)[0]
+        for query, res in case.checks[name]:
+            assert client.assertedSearch(query % ds.id)[0] == res

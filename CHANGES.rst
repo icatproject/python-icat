@@ -2,6 +2,35 @@ Changelog
 =========
 
 
+1.3.0 (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#143`_, `#144`_: Make it easier to configure XSLT files to use for
+  processing the input in custom versions of
+  :class:`icat.ingest.IngestReader`.
+
+Incompatible changes
+--------------------
+
++ `#144`_: Drop class attribute
+  :attr:`icat.ingest.IngestReader.XSLT_name` in favour of
+  :attr:`icat.ingest.IngestReader.XSLT_Map`.
+
+  Note that :mod:`icat.ingest` has been declared experimental for now.
+
+Bug fixes and minor changes
+---------------------------
+
++ `#145`_: Review build tool chain
+
+.. _#143: https://github.com/icatproject/python-icat/issues/143
+.. _#144: https://github.com/icatproject/python-icat/pull/144
+.. _#145: https://github.com/icatproject/python-icat/pull/145
+
+
 1.2.0 (2023-10-31)
 ~~~~~~~~~~~~~~~~~~
 

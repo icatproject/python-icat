@@ -8,9 +8,10 @@ import os
 from pathlib import Path
 import sys
 import warnings
-from icat.client import Client
-from icat.authinfo import AuthenticatorInfo, LegacyAuthenticatorInfo
-from icat.exception import ConfigError, VersionMethodError
+
+from .client import Client
+from .authinfo import AuthenticatorInfo, LegacyAuthenticatorInfo
+from .exception import ConfigError, VersionMethodError
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
 

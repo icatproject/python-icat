@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+<xsd:annotation>
+  <xsd:documentation>
+    Schema definition for ingest files to ICAT.
+    Test schema for testing the use of a custom schema.
+    Version 1.0.
+  </xsd:documentation>
+</xsd:annotation>
+
+<xsd:element name="myingest" type="myingest"/>
+
+<xsd:complexType name="myingest">
+  <xsd:sequence>
+    <xsd:element name="head" type="head" minOccurs="0"/>
+    <xsd:element name="data" type="data"/>
+  </xsd:sequence>
+  <xsd:attribute name="version" type="version_10" use="required"/>
+</xsd:complexType>
+
+<xsd:complexType name="head">
+  <xsd:sequence>
+    <xsd:element name="date" type="xsd:dateTime"/>
+    <xsd:element name="generator" type="xsd:string"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="data">
+  <xsd:sequence>
+    <xsd:element name="dataset" type="dataset"
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datasetTechnique" type="datasetTechnique"
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datasetInstrument" type="datasetInstrument"
+		 minOccurs="0" maxOccurs="unbounded"/>
+    <xsd:element name="datasetParameter" type="datasetParameter"
+		 minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:sequence>
+</xsd:complexType>
+
+
+<xsd:complexType name="entityBase">
+  <xsd:attribute name="id" type="identifier"/>
+</xsd:complexType>
+
+<xsd:complexType name="entityReference">
+  <xsd:attribute name="ref" type="identifier" use="required"/>
+</xsd:complexType>
+
+
+<xsd:complexType name="dataset">
+  <xsd:complexContent>
+    <xsd:extension base="entityBase">
+      <xsd:sequence>
+	<xsd:element name="name" type="xsd:string"/>
+	<xsd:element name="description" type="xsd:string" minOccurs="0"/>
+	<xsd:element name="startDate" type="xsd:dateTime" minOccurs="0"/>
+	<xsd:element name="endDate" type="xsd:dateTime" minOccurs="0"/>
+	<xsd:element name="sample" type="nameRef" minOccurs="0"/>
+	<xsd:element name="datasetInstruments" type="datasetInstrument"
+		     minOccurs="0" maxOccurs="unbounded"/>
+	<xsd:element name="datasetTechniques" type="datasetTechnique"
+		     minOccurs="0" maxOccurs="unbounded"/>
+	<xsd:element name="parameters" type="datasetParameter"
+		     minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="datasetTechnique">
+  <xsd:complexContent>
+    <xsd:extension base="entityBase">
+      <xsd:sequence>
+	<xsd:element name="dataset" type="entityReference" minOccurs="0"/>
+	<xsd:element name="technique" type="nameRef"/>
+      </xsd:sequence>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="datasetInstrument">
+  <xsd:complexContent>
+    <xsd:extension base="entityBase">
+      <xsd:sequence>
+	<xsd:element name="dataset" type="entityReference" minOccurs="0"/>
+	<xsd:element name="instrument" type="nameRef"/>
+      </xsd:sequence>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+<xsd:complexType name="datasetParameter">
+  <xsd:complexContent>
+    <xsd:extension base="entityBase">
+      <xsd:sequence>
+	<xsd:element name="dateTimeValue" type="xsd:dateTime" minOccurs="0"/>
+	<xsd:element name="error" type="xsd:double" minOccurs="0"/>
+	<xsd:element name="numericValue" type="xsd:double" minOccurs="0"/>
+	<xsd:element name="rangeBottom" type="xsd:double" minOccurs="0"/>
+	<xsd:element name="rangeTop" type="xsd:double" minOccurs="0"/>
+	<xsd:element name="stringValue" type="xsd:string" minOccurs="0"/>
+	<xsd:element name="dataset" type="entityReference" minOccurs="0"/>
+	<xsd:element name="type" type="parameterTypeRef"/>
+      </xsd:sequence>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+
+
+<xsd:complexType name="nameRef">
+  <xsd:attribute name="name" type="xsd:string"/>
+  <xsd:attribute name="pid" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="parameterTypeRef">
+  <xsd:attribute name="name" type="xsd:string"/>
+  <xsd:attribute name="units" type="xsd:string"/>
+  <xsd:attribute name="pid" type="xsd:string"/>
+</xsd:complexType>
+
+
+<xsd:simpleType name="identifier">
+  <xsd:restriction base="xsd:string">
+    <xsd:pattern value="[A-Za-z][A-Za-z0-9_]*"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="version_10">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="1.0"/>
+  </xsd:restriction>
+</xsd:simpleType>
+
+
+</xsd:schema>

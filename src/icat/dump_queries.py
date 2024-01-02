@@ -32,8 +32,7 @@ connected to.
     into account and include the new entity types.
 """
 
-import icat
-from icat.query import Query
+from .query import Query
 
 __all__ = [ 'getAuthQueries', 'getStaticQueries', 'getFundingQueries',
             'getInvestigationQueries', 'getDataCollectionQueries',
