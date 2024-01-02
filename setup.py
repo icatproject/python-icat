@@ -25,15 +25,15 @@ try:
 except (ImportError, AttributeError):
     cmdclass = dict()
 try:
-    import setuptools_scm
-    version = setuptools_scm.get_version()
+    import gitprops
+    release = str(gitprops.get_last_release())
+    version = str(gitprops.get_version())
 except (ImportError, LookupError):
     try:
-        import _meta
-        version = _meta.version
+        from _meta import release, version
     except ImportError:
         log.warn("warning: cannot determine version number")
-        version = "UNKNOWN"
+        release = version = "UNKNOWN"
 
 
 if sys.version_info < (3, 4):
@@ -61,6 +61,7 @@ from icat.client import *
 from icat.exception import *
 '''
     meta_template = '''
+release = "%(release)s"
 version = "%(version)s"
 '''
 
@@ -77,6 +78,7 @@ version = "%(version)s"
         version = self.distribution.get_version()
         log.info("version: %s", version)
         values = {
+            'release': release,
             'version': version,
             'doc': docstring,
         }
@@ -171,7 +173,7 @@ class build_py(setuptools.command.build_py.build_py):
 # one particular suds clone.  Therefore, we first try if (any clone
 # of) suds is already installed and only add suds to install_requires
 # if not.
-requires = ["lxml", "packaging"]
+requires = ["setuptools", "lxml", "packaging"]
 try:
     import suds
 except ImportError:
@@ -210,8 +212,10 @@ setup(
     project_urls = dict(
         Documentation="https://python-icat.readthedocs.io/",
         Source="https://github.com/icatproject/python-icat/",
-        Download="https://github.com/icatproject/python-icat/releases/latest",
-        Changes="https://python-icat.readthedocs.io/en/stable/changelog.html",
+        Download=("https://github.com/icatproject/python-icat/releases/%s/"
+                  % release),
+        Changes=("https://python-icat.readthedocs.io/en/%s/changelog.html"
+                 % release),
     ),
     packages = ["icat"],
     python_requires = ">=3.4",
