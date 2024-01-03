@@ -4,9 +4,16 @@ ICAT data files
 ===============
 
 ICAT data files provide a way to serialize ICAT content to a flat
-file.  This section describes the logical structure of ICAT data
-files.  The actual file format depends on the backend, python-icat
-provides backends using XML and YAML.
+file.  These files are read by the :ref:`icatingest` and written by
+the :ref:`icatdump` command line scripts respectively.  The program
+logic for reading and writing the files is provided by the
+:mod:`icat.dumpfile` module.
+
+The actual file format depends on the version of the ICAT schema and
+on the backend: python-icat provides backends using XML and YAML.
+
+Logical structure of ICAT data files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There is a one-to-one correspondence of the objects in the data
 file and the corresponding object in ICAT according to the ICAT
