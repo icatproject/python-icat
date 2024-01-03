@@ -66,6 +66,30 @@ indirectly related to one of the included objects.  In this case,
 only a reference to the related object will be included in the data
 file.  The related object must have its own entry.
 
+ICAT data XML files
+~~~~~~~~~~~~~~~~~~~
+
+In this section we describe the ICAT data file format using the XML
+backend.
+
+.. literalinclude:: ../examples/icatdump-simple-1.xml
+   :language: xml
+
+.. literalinclude:: ../examples/icatdump-simple-2.xml
+   :language: xml
+
+ICAT data YAML files
+~~~~~~~~~~~~~~~~~~~~
+
+In this section we describe the ICAT data file format using the YAML
+backend.
+
+.. literalinclude:: ../examples/icatdump-simple-1.yaml
+   :language: yaml
+
+.. literalinclude:: ../examples/icatdump-simple-2.yaml
+   :language: yaml
+
 
 .. [#dc] There is one exception: DataCollections don't have a
          uniqueness constraint and can't reliably be searched by
