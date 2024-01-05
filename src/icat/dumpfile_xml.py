@@ -9,6 +9,7 @@ from lxml import etree
 from . import __version__
 from .dumpfile import DumpFileReader, DumpFileWriter, register_backend
 from .entity import Entity
+from .exception import SearchResultError
 from .query import Query
 
 utc = datetime.timezone.utc
@@ -60,7 +61,10 @@ class XMLDumpFileReader(DumpFileReader):
         ref = element.get('ref')
         if ref:
             # object is referenced by key.
-            return self.client.searchUniqueKey(ref, objindex)
+            try:
+                return self.client.searchUniqueKey(ref, objindex)
+            except ValueError:
+                raise SearchResultError("invalid reference %s" % ref)
         else:
             # object is referenced by attributes.
             attrs = set(element.keys()) - {'id'}

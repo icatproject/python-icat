@@ -8,12 +8,44 @@
 .. versionadded:: 1.1.0
 """
 
+from collections import namedtuple
 from pathlib import Path
 from lxml import etree
 
 from .dumpfile_xml import XMLDumpFileReader
 from .exception import InvalidIngestFileError
 
+
+_ObjIdTuple = namedtuple('_ObjIdTuple', ['t', 'dsname', 'relid'])
+class _ObjId(_ObjIdTuple):
+    _MsgTemplate = {
+        'Dataset':
+            "Dataset, name:%(dsname)s",
+        'DatasetInstrument':
+            "DatasetInstrument, Dataset:%(dsname)s, Instrument:%(relid)d",
+        'DatasetTechnique':
+            "DatasetTechnique, Dataset:%(dsname)s, Technique:%(relid)d",
+        'DatasetParameter':
+            "DatasetParameter, Dataset:%(dsname)s, ParameterType:%(relid)d",
+    }
+    def __new__(cls, obj):
+        kwargs = dict(t=obj.BeanName, relid=None)
+        if obj.BeanName == "Dataset":
+            kwargs['dsname'] = obj.name
+        else:
+            kwargs['dsname'] = obj.dataset.name
+            if obj.BeanName == "DatasetInstrument":
+                kwargs['relid'] = obj.instrument.id
+            elif obj.BeanName == "DatasetTechnique":
+                kwargs['relid'] = obj.technique.id
+            elif obj.BeanName == "DatasetParameter":
+                kwargs['relid'] = obj.type.id
+            else:
+                raise InvalidIngestFileError("Invalid %s object"
+                                             % (obj.BeanName))
+        return super().__new__(cls, **kwargs)
+    def __str__(self):
+        return self._MsgTemplate[self.t] % self._asdict()
 
 class IngestReader(XMLDumpFileReader):
     """Read metadata from XML ingest files into ICAT.
@@ -148,6 +180,17 @@ class IngestReader(XMLDumpFileReader):
             raise InvalidIngestFileError("unknown format")
         return self.SchemaDir / xslt
 
+    def getobjs_from_data(self, data, objindex):
+        typed_objindex = set()
+        for key, obj in super().getobjs_from_data(data, objindex):
+            if key in objindex:
+                raise InvalidIngestFileError("Duplicate id %s" % key)
+            objid = _ObjId(obj)
+            if objid in typed_objindex:
+                raise InvalidIngestFileError("Duplicate %s" % str(objid))
+            typed_objindex.add(objid)
+            yield key, obj
+
     def getobjs(self):
         """Iterate over the objects in the ingest file.
         """
@@ -181,8 +224,11 @@ class IngestReader(XMLDumpFileReader):
         :param update_ds: flag whether to update the `datasets` in the
             argument.
         :type update_ds: :class:`bool`
-        :raise icat.exception.InvalidIngestFileError: if any unallowed
-            object is read from the input.
+        :raise icat.exception.InvalidIngestFileError: if the input is
+            not valid, for instance if there is any unallowed object
+            or duplicate objects.
+        :raise icat.exception.SearchResultError: if any object
+            references in the input could not be resolved.
         """
         dataset_map = { ds.name: ds for ds in datasets }
         allowed_ds_related = {
