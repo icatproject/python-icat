@@ -12,6 +12,9 @@ New features
   processing the input in custom versions of
   :class:`icat.ingest.IngestReader`.
 
++ `#146`_, `#147`_: Better error handling in
+  :class:`icat.ingest.IngestReader`.
+
 Incompatible changes
 --------------------
 
@@ -29,6 +32,8 @@ Bug fixes and minor changes
 .. _#143: https://github.com/icatproject/python-icat/issues/143
 .. _#144: https://github.com/icatproject/python-icat/pull/144
 .. _#145: https://github.com/icatproject/python-icat/pull/145
+.. _#146: https://github.com/icatproject/python-icat/issues/146
+.. _#147: https://github.com/icatproject/python-icat/pull/147
 
 
 1.2.0 (2023-10-31)

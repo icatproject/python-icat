@@ -7,6 +7,7 @@ import yaml
 from . import __version__
 from .dumpfile import DumpFileReader, DumpFileWriter, register_backend
 from .entity import Entity
+from .exception import SearchResultError
 
 utc = datetime.timezone.utc
 
@@ -100,7 +101,10 @@ class YAMLDumpFileReader(DumpFileReader):
             if attr in obj.InstAttr:
                 setattr(obj, attr, d[k])
             elif attr in obj.InstRel:
-                robj = self.client.searchUniqueKey(d[k], objindex)
+                try:
+                    robj = self.client.searchUniqueKey(d[k], objindex)
+                except ValueError:
+                    raise SearchResultError("invalid reference %s" % d[k])
                 setattr(obj, attr, robj)
             elif attr in obj.InstMRel:
                 rtype = self.insttypemap[obj.getAttrType(attr)]
