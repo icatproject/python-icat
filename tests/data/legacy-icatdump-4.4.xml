@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2022-12-04T19:02:46+00:00</date>
+  <date>2023-10-16T14:20:21+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>4.4</apiversion>
   <generator>icatdump (python-icat 0.21.0)</generator>
@@ -403,226 +403,231 @@
     <grouping ref="Grouping_name-ingest"/>
   </rule>
   <rule id="Rule_00000066">
-    <crudFlags>R</crudFlags>
-    <what>Shift</what>
+    <crudFlags>CRU</crudFlags>
+    <what>Sample</what>
     <grouping ref="Grouping_name-ingest"/>
   </rule>
   <rule id="Rule_00000067">
     <crudFlags>R</crudFlags>
-    <what>DataCollection</what>
-    <grouping ref="Grouping_name-rall"/>
+    <what>Shift</what>
+    <grouping ref="Grouping_name-ingest"/>
   </rule>
   <rule id="Rule_00000068">
     <crudFlags>R</crudFlags>
-    <what>DataCollectionDatafile</what>
+    <what>DataCollection</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000069">
     <crudFlags>R</crudFlags>
-    <what>DataCollectionDataset</what>
+    <what>DataCollectionDatafile</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000070">
     <crudFlags>R</crudFlags>
-    <what>DataCollectionParameter</what>
+    <what>DataCollectionDataset</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000071">
     <crudFlags>R</crudFlags>
-    <what>Datafile</what>
+    <what>DataCollectionParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000072">
     <crudFlags>R</crudFlags>
-    <what>DatafileParameter</what>
+    <what>Datafile</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000073">
     <crudFlags>R</crudFlags>
-    <what>Dataset</what>
+    <what>DatafileParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000074">
     <crudFlags>R</crudFlags>
-    <what>DatasetParameter</what>
+    <what>Dataset</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000075">
     <crudFlags>R</crudFlags>
-    <what>Grouping</what>
+    <what>DatasetParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000076">
     <crudFlags>R</crudFlags>
-    <what>InstrumentScientist</what>
+    <what>Grouping</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000077">
     <crudFlags>R</crudFlags>
-    <what>Investigation</what>
+    <what>InstrumentScientist</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000078">
     <crudFlags>R</crudFlags>
-    <what>InvestigationGroup</what>
+    <what>Investigation</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000079">
     <crudFlags>R</crudFlags>
-    <what>InvestigationInstrument</what>
+    <what>InvestigationGroup</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000080">
     <crudFlags>R</crudFlags>
-    <what>InvestigationParameter</what>
+    <what>InvestigationInstrument</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000081">
     <crudFlags>R</crudFlags>
-    <what>InvestigationUser</what>
+    <what>InvestigationParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000082">
     <crudFlags>R</crudFlags>
-    <what>Job</what>
+    <what>InvestigationUser</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000083">
     <crudFlags>R</crudFlags>
-    <what>Keyword</what>
+    <what>Job</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000084">
     <crudFlags>R</crudFlags>
-    <what>PublicStep</what>
+    <what>Keyword</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000085">
     <crudFlags>R</crudFlags>
-    <what>Publication</what>
+    <what>PublicStep</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000086">
     <crudFlags>R</crudFlags>
-    <what>RelatedDatafile</what>
+    <what>Publication</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000087">
     <crudFlags>R</crudFlags>
-    <what>Rule</what>
+    <what>RelatedDatafile</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000088">
     <crudFlags>R</crudFlags>
-    <what>Sample</what>
+    <what>Rule</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000089">
     <crudFlags>R</crudFlags>
-    <what>SampleParameter</what>
+    <what>Sample</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000090">
     <crudFlags>R</crudFlags>
-    <what>Shift</what>
+    <what>SampleParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000091">
     <crudFlags>R</crudFlags>
-    <what>Study</what>
+    <what>Shift</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000092">
     <crudFlags>R</crudFlags>
-    <what>StudyInvestigation</what>
+    <what>Study</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000093">
     <crudFlags>R</crudFlags>
-    <what>UserGroup</what>
+    <what>StudyInvestigation</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000094">
+    <crudFlags>R</crudFlags>
+    <what>UserGroup</what>
+    <grouping ref="Grouping_name-rall"/>
+  </rule>
+  <rule id="Rule_00000095">
     <crudFlags>RU</crudFlags>
     <what>Sample</what>
     <grouping ref="Grouping_name-scientific=5Fstaff"/>
   </rule>
-  <rule id="Rule_00000095">
+  <rule id="Rule_00000096">
     <crudFlags>UD</crudFlags>
     <what>SampleType</what>
     <grouping ref="Grouping_name-scientific=5Fstaff"/>
   </rule>
-  <rule id="Rule_00000096">
+  <rule id="Rule_00000097">
     <crudFlags>CRUD</crudFlags>
     <what>FacilityCycle</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000097">
+  <rule id="Rule_00000098">
     <crudFlags>CRUD</crudFlags>
     <what>Grouping</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000098">
+  <rule id="Rule_00000099">
     <crudFlags>CRUD</crudFlags>
     <what>InstrumentScientist</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000099">
+  <rule id="Rule_00000100">
     <crudFlags>CRUD</crudFlags>
     <what>Investigation</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000100">
+  <rule id="Rule_00000101">
     <crudFlags>CRUD</crudFlags>
     <what>InvestigationGroup</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000101">
+  <rule id="Rule_00000102">
     <crudFlags>CRUD</crudFlags>
     <what>InvestigationInstrument</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000102">
+  <rule id="Rule_00000103">
     <crudFlags>CRUD</crudFlags>
     <what>InvestigationParameter</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000103">
+  <rule id="Rule_00000104">
     <crudFlags>CRUD</crudFlags>
     <what>InvestigationUser</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000104">
+  <rule id="Rule_00000105">
     <crudFlags>CRUD</crudFlags>
     <what>Keyword</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000105">
+  <rule id="Rule_00000106">
     <crudFlags>CRUD</crudFlags>
     <what>Publication</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000106">
+  <rule id="Rule_00000107">
     <crudFlags>CRUD</crudFlags>
     <what>Shift</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000107">
+  <rule id="Rule_00000108">
     <crudFlags>CRUD</crudFlags>
     <what>Study</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000108">
+  <rule id="Rule_00000109">
     <crudFlags>CRUD</crudFlags>
     <what>StudyInvestigation</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000109">
+  <rule id="Rule_00000110">
     <crudFlags>CRUD</crudFlags>
     <what>User</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000110">
+  <rule id="Rule_00000111">
     <crudFlags>CRUD</crudFlags>
     <what>UserGroup</what>
     <grouping ref="Grouping_name-useroffice"/>

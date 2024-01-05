@@ -3,10 +3,15 @@ __pycache__/
 /_meta.py
 /build/
 /dist/
-/icat/__init__.py
 /tests/data/example_data.yaml
 /tests/data/icat.cfg
+/tests/data/icatdata-*.xsd
 /tests/data/icatdump-*.xml
 /tests/data/icatdump-*.yaml
 /tests/data/ingest-*.xml
+/tests/data/ingest-*.xsd
+/tests/data/ingest.xslt
+/tests/data/metadata-*-inl.xml
+/tests/data/metadata-*-sep.xml
+/tests/data/metadata-sample.xml
 /tests/scripts/

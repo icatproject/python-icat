@@ -29,6 +29,12 @@ using pip.
 
 + :ref:`suds`, see below.
 
++ `lxml`_
+
+  Needed for the :mod:`icat.ingest` module and to use the XML backend
+  of :ref:`icatdump` and :ref:`icatingest`.  Not needed for the
+  :ref:`python-icat core API <modref-core>`.
+
 Optional library packages
 .........................
 
@@ -40,18 +46,19 @@ are not required to install python-icat and use its core features:
   Only needed to use the YAML backend of :ref:`icatdump` and
   :ref:`icatingest` and to run the example scripts.
 
-+ `lxml`_
+  The test suite uses :ref:`icatingest` with the YAML backend to
+  create reference content in the test ICAT server.  While it is
+  technically possible to run the tests without PyYAML, most of the
+  tests will be skipped in that case, so the results will not be very
+  meaningful.
 
-  Only needed to use the XML backend of :ref:`icatdump` and
-  :ref:`icatingest`.
++ `git-props`_
 
-+ `setuptools_scm`_
-
-  The version number is managed using this package.  All source
-  distributions add a static text file with the version number and
-  fall back using that if setuptools_scm is not available.  So this
-  package is only needed to build out of the plain development source
-  tree as cloned from GitHub.
+  This package is used to extract some metadata such as the version
+  number out of git, the version control system.  All releases embed
+  that metadata in the distribution.  So this package is only needed
+  to build out of the plain development source tree as cloned from
+  GitHub, but not to build a release distribution.
 
 + `pytest`_ >= 3.1.0
 
@@ -180,7 +187,7 @@ will just get many skipped tests then.
 .. _PyYAML: https://github.com/yaml/pyyaml/
 .. _lxml: https://lxml.de/
 .. _Requests: https://requests.readthedocs.io/
-.. _setuptools_scm: https://github.com/pypa/setuptools_scm/
+.. _git-props: https://github.com/RKrahl/git-props/
 .. _pytest: https://docs.pytest.org/en/latest/
 .. _pytest-dependency: https://pypi.org/project/pytest-dependency/
 .. _distutils-pytest: https://github.com/RKrahl/distutils-pytest/

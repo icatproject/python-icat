@@ -3,7 +3,6 @@
 
 cff-version: 1.2.0
 title: python-icat – Python interface to ICAT and IDS
-message: Please cite this software using these metadata.
 type: software
 authors:
   - given-names: Rolf
@@ -13,22 +12,21 @@ authors:
       Helmholtz-Zentrum Berlin für Materialien und
       Energie
     orcid: 'https://orcid.org/0000-0002-1266-3819'
-  - name: "The ICAT project"
-    website: https://icatproject.org/
+  - name: The ICAT project
+    website: 'https://icatproject.org/'
 repository-code: 'https://github.com/icatproject/python-icat'
-repository-artifact: 'https://pypi.org/project/python-icat/'
+repository-artifact: 'https://github.com/icatproject/python-icat/releases/latest'
 abstract: >-
-  The ICAT server is a metadata catalogue to support
-  Large Facility experimental data, linking all
-  aspects of the research chain from proposal through
-  to publication. It provides SOAP and RESTful web
-  service interfaces to an underlying database.
+  The ICAT server is a metadata catalogue to support Large
+  Facility experimental data, linking all aspects of the
+  research chain from proposal through to publication. It
+  provides SOAP and RESTful web service interfaces to an
+  underlying database.
 
-  python-icat is a Python package that provides a
-  collection of modules for writing programs that
-  access an ICAT service using the SOAP interface. It
-  is based on Suds and extends it with ICAT specific
-  features.
+  python-icat is a Python package that provides a collection
+  of modules for writing programs that access an ICAT
+  service using the SOAP interface. It is based on Suds and
+  extends it with ICAT specific features.
 keywords:
   - python
   - metadata

@@ -50,8 +50,9 @@ file.  The related object must have its own list entry.
 from collections import ChainMap
 import os
 import sys
-import icat
-from icat.query import Query
+
+from .entity import Entity
+from .query import Query
 
 
 def _get_retain_entities(client):
@@ -94,7 +95,7 @@ class DumpFileReader():
         file name.
 
     .. versionchanged:: 1.0.0
-        The `infile` parameter also accepts a :class:`~pathlib.Path`
+        the `infile` parameter also accepts a :class:`~pathlib.Path`
         object.
     """
 
@@ -170,7 +171,7 @@ class DumpFileReader():
                 objindex = ChainMap(dict(), self.objindex)
             for key, obj in self.getobjs_from_data(data, objindex):
                 yield obj
-                obj.truncateRelations()
+                obj.truncateRelations(keepInstRel=True)
                 if key:
                     if obj.BeanName in self._retain_entities:
                         self.objindex[key] = obj
@@ -194,7 +195,7 @@ class DumpFileWriter():
         :class:`~pathlib.Path` or a :class:`str` with a file name.
 
     .. versionchanged:: 1.0.0
-        The `outfile` parameter also accepts a :class:`~pathlib.Path`
+        the `outfile` parameter also accepts a :class:`~pathlib.Path`
         object.
     """
 
@@ -293,7 +294,7 @@ class DumpFileWriter():
         """
         if isinstance(objs, Query) or isinstance(objs, str):
             objs = self.client.searchChunked(objs, chunksize=chunksize)
-        for obj in sorted(objs, key=icat.entity.Entity.__sortkey__):
+        for obj in sorted(objs, key=Entity.__sortkey__):
             # Entities without a constraint will use their id to form
             # the unique key as a last resort.  But we want the keys
             # not to depend on volatile attributes such as the id.

@@ -14,7 +14,7 @@ def client(setupicat):
     return client
 
 @pytest.fixture(scope="function")
-def dataset(client):
+def dataset(client, cleanup_objs):
     """Create a temporary Dataset for the tests.
     """
     inv = client.assertedSearch("Investigation [name='08100122-EF']")[0]
@@ -23,8 +23,8 @@ def dataset(client):
                          name="test_07_entity_validate", complete=False,
                          investigation=inv, type=dstype)
     dataset.create()
-    yield dataset
-    client.delete(dataset)
+    cleanup_objs.append(dataset)
+    return dataset
 
 
 def validate_param(self):

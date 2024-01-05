@@ -46,9 +46,7 @@ added.  The main class that client programs interact with is
 
     Class attributes (read only):
 
-    .. attribute:: ReservedVariables = ['credentials']
-
-        Reserved names of configuration variables.
+    .. autoattribute:: ReservedVariables
 
     Instance methods:
 

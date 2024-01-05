@@ -4,6 +4,7 @@
 import pytest
 import icat
 import icat.config
+import conftest
 from conftest import getConfig
 
 
@@ -20,6 +21,17 @@ def test_get_icat_version():
     # comparison with version strings.
     assert client.apiversion > '1.0.0'
     print("\nConnect to %s\nICAT version %s\n" % (conf.url, client.apiversion))
+
+
+def test_ids_version_calls():
+    """Test that client.ids.getApiVersion() and client.ids.version() yield
+    coherent results.  Ref. #131.
+    """
+
+    client, conf = getConfig(needlogin=False, ids="mandatory")
+    ids_apiversion = client.ids.getApiVersion()
+    ids_verion = client.ids.version()
+    assert ids_apiversion == ids_verion["version"]
 
 
 def test_get_ids_version():

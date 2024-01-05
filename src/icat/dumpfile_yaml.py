@@ -3,17 +3,13 @@
 
 import datetime
 import yaml
-import icat
-import icat.dumpfile
-from icat.exception import SearchResultError
-try:
-    utc = datetime.timezone.utc
-except AttributeError:
-    try:
-        from suds.sax.date import UtcTimezone
-        utc = UtcTimezone()
-    except ImportError:
-        utc = None
+
+from . import __version__
+from .dumpfile import DumpFileReader, DumpFileWriter, register_backend
+from .entity import Entity
+from .exception import SearchResultError
+
+utc = datetime.timezone.utc
 
 
 # List of entity types.  This defines in particular the order in which
@@ -76,7 +72,7 @@ entitytypes = [
 # YAMLDumpFileReader
 # ------------------------------------------------------------
 
-class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
+class YAMLDumpFileReader(DumpFileReader):
     """Backend for reading ICAT data from a YAML file.
 
     :param client: a client object configured to connect to the ICAT
@@ -148,7 +144,7 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
 # YAMLDumpFileWriter
 # ------------------------------------------------------------
 
-class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
+class YAMLDumpFileWriter(DumpFileWriter):
     """Backend for writing ICAT data to a YAML file.
 
     :param client: a client object configured to connect to the ICAT
@@ -186,13 +182,10 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                     # dependency of server settings in the dumpfile.
                     # Assume v.isoformat() to have a valid timezone
                     # suffix.
-                    if utc:
-                        v = v.astimezone(utc)
-                    v = v.isoformat()
+                    v = v.astimezone(tz=utc).isoformat()
                 else:
-                    # v has no timezone info, assume it to be UTC, append
-                    # the corresponding timezone suffix.
-                    v = v.isoformat() + 'Z'
+                    # v has no timezone info, assume it to be UTC.
+                    v = v.replace(tzinfo=utc).isoformat()
             else:
                 v = str(v)
             d[attr] = v
@@ -203,21 +196,20 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         for attr in obj.InstMRel:
             if len(getattr(obj, attr)) > 0:
                 d[attr] = []
-                for o in sorted(getattr(obj, attr), 
-                                key=icat.entity.Entity.__sortkey__):
+                for o in sorted(getattr(obj, attr), key=Entity.__sortkey__):
                     d[attr].append(self._entity2dict(o, keyindex=keyindex))
         return d
 
     def head(self):
         """Write a header with some meta information to the data file."""
-        dateformat = "%a, %d %b %Y %H:%M:%S +0000"
-        date = datetime.datetime.utcnow().strftime(dateformat)
+        dateformat = "%a, %d %b %Y %H:%M:%S %z"
+        date = datetime.datetime.now(tz=utc).strftime(dateformat)
         head = """%%YAML 1.1
 # Date: %s
 # Service: %s
 # ICAT-API: %s
 # Generator: icatdump (python-icat %s)
-""" % (date, self.client.url, self.client.apiversion, icat.__version__)
+""" % (date, self.client.url, self.client.apiversion, __version__)
         self.outfile.write(head)
 
     def startdata(self):
@@ -245,4 +237,4 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         self.startdata()
 
 
-icat.dumpfile.register_backend("YAML", YAMLDumpFileReader, YAMLDumpFileWriter)
+register_backend("YAML", YAMLDumpFileReader, YAMLDumpFileWriter)

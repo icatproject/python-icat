@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.0">
+  <head>
+    <date>2023-06-16T11:01:15+02:00</date>
+    <generator>metadata-writer 0.27a</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>testingest_sep5_1</name>
+      <description>Dy01Cp02 at 2.7 K</description>
+      <startDate>2022-02-03T15:40:12+01:00</startDate>
+      <endDate>2022-02-03T17:04:22+01:00</endDate>
+    </dataset>
+    <dataset id="Dataset_2">
+      <name>testingest_sep5_2</name>
+      <description>Dy01Cp02 at 5.1 K</description>
+      <startDate>2022-02-03T17:13:10+01:00</startDate>
+      <endDate>2022-02-03T18:45:27+01:00</endDate>
+    </dataset>
+    <datasetTechnique>
+      <dataset ref="Dataset_1"/>
+      <technique pid="PaNET:PaNET01217"/>
+    </datasetTechnique>
+    <datasetTechnique>
+      <dataset ref="Dataset_2"/>
+      <technique pid="PaNET:PaNET01217"/>
+    </datasetTechnique>
+    <datasetInstrument>
+      <dataset ref="Dataset_1"/>
+      <instrument pid="DOI:00.0815/inst-00001"/>
+    </datasetInstrument>
+    <datasetInstrument>
+      <dataset ref="Dataset_2"/>
+      <instrument pid="DOI:00.0815/inst-00001"/>
+    </datasetInstrument>
+    <datasetParameter>
+      <stringValue>neutron</stringValue>
+      <dataset ref="Dataset_1"/>
+      <type name="Probe"/>
+    </datasetParameter>
+    <datasetParameter>
+      <numericValue>5.3</numericValue>
+      <dataset ref="Dataset_1"/>
+      <type name="Reactor power" units="MW"/>
+    </datasetParameter>
+    <datasetParameter>
+      <numericValue>2.74103</numericValue>
+      <rangeBottom>2.7408</rangeBottom>
+      <rangeTop>2.7414</rangeTop>
+      <dataset ref="Dataset_1"/>
+      <type name="Sample temperature" units="K"/>
+    </datasetParameter>
+    <datasetParameter>
+      <numericValue>4.1357</numericValue>
+      <rangeBottom>4.0573</rangeBottom>
+      <rangeTop>4.1567</rangeTop>
+      <dataset ref="Dataset_1"/>
+      <type name="Magnetic field" units="T"/>
+    </datasetParameter>
+    <datasetParameter>
+      <stringValue>Dy01Cp02</stringValue>
+      <dataset ref="Dataset_1"/>
+      <type name="Comment"/>
+    </datasetParameter>
+    <datasetParameter>
+      <stringValue>neutron</stringValue>
+      <dataset ref="Dataset_2"/>
+      <type name="Probe"/>
+    </datasetParameter>
+    <datasetParameter>
+      <numericValue>5.3</numericValue>
+      <dataset ref="Dataset_2"/>
+      <type name="Reactor power" units="MW"/>
+    </datasetParameter>
+    <datasetParameter>
+      <numericValue>5.1239</numericValue>
+      <rangeBottom>5.1045</rangeBottom>
+      <rangeTop>5.1823</rangeTop>
+      <dataset ref="Dataset_2"/>
+      <type name="Sample temperature" units="K"/>
+    </datasetParameter>
+    <datasetParameter>
+      <numericValue>3.9345</numericValue>
+      <rangeBottom>3.7253</rangeBottom>
+      <rangeTop>4.0365</rangeTop>
+      <dataset ref="Dataset_2"/>
+      <type name="Magnetic field" units="T"/>
+    </datasetParameter>
+    <datasetParameter>
+      <stringValue>Dy01Cp02</stringValue>
+      <dataset ref="Dataset_2"/>
+      <type name="Comment"/>
+    </datasetParameter>
+  </data>
+</icatingest>

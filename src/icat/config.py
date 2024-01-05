@@ -8,9 +8,10 @@ import os
 from pathlib import Path
 import sys
 import warnings
-from icat.client import Client
-from icat.authinfo import AuthenticatorInfo, LegacyAuthenticatorInfo
-from icat.exception import ConfigError, VersionMethodError
+
+from .client import Client
+from .authinfo import AuthenticatorInfo, LegacyAuthenticatorInfo
+from .exception import ConfigError, VersionMethodError
 
 __all__ = ['boolean', 'flag', 'Configuration', 'Config']
 
@@ -377,26 +378,37 @@ class Configuration():
     """
     def __init__(self, config):
         self._config = config
+        self._var_nl = None
+
+    @property
+    def _varnames(self):
+        if self._var_nl:
+            return self._var_nl
+        else:
+            return ([var.name for var in self._config.confvariables] +
+                    self._config.ReservedVariables)
+
+    def _freeze_varnames(self):
+        self._var_nl = ([var.name for var in self._config.confvariables] +
+                        self._config.ReservedVariables)
+        del self._config
 
     def __str__(self):
         typename = type(self).__name__
         arg_strings = []
-        vars = [var.name for var in self._config.confvariables] \
-            + self._config.ReservedVariables
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            for f in vars:
+            for f in self._varnames:
                 if hasattr(self, f):
                     arg_strings.append('%s=%r' % (f, getattr(self, f)))
         return '%s(%s)' % (typename, ', '.join(arg_strings))
 
     def as_dict(self):
         """Return the configuration as a :class:`dict`."""
-        vars = [var.name for var in self._config.confvariables] \
-            + self._config.ReservedVariables
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            d = { f:getattr(self, f) for f in vars if hasattr(self, f) }
+            d = { f:getattr(self, f)
+                  for f in self._varnames if hasattr(self, f) }
         return d
 
 
@@ -654,6 +666,9 @@ class Config(BaseConfig):
         not set, the command line arguments will be taken from
         :data:`sys.argv`.
     :type args: :class:`list` of :class:`str`
+
+    .. versionchanged:: 1.0.0
+        add the `preset` argument.
     """
 
     def __init__(self, defaultvars=True, needlogin=True, ids="optional", 
@@ -725,6 +740,7 @@ class Config(BaseConfig):
                 for k in self.authenticatorInfo.getCredentialKeys(config.auth)
             }
 
+        config._freeze_varnames()
         return (self.client, config)
 
     def _add_fundamental_variables(self):

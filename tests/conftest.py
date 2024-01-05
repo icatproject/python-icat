@@ -16,6 +16,16 @@ import zlib
 import pytest
 import icat
 import icat.config
+import icat.dumpfile
+from icat.query import Query
+try:
+    import icat.dumpfile_xml
+except ImportError:
+    pass
+try:
+    import icat.dumpfile_yaml
+except ImportError:
+    pass
 from icat.helper import Version
 try:
     from suds.sax.date import UtcTimezone
@@ -39,7 +49,7 @@ logging.getLogger('suds.client').setLevel(logging.CRITICAL)
 logging.getLogger('suds').setLevel(logging.ERROR)
 
 testdir = Path(__file__).resolve().parent
-
+testdatadir = testdir / "data"
 
 def _skip(reason):
     if Version(pytest.__version__) >= '3.3.0':
@@ -83,7 +93,7 @@ class DummyDatafile():
 def getConfig(confSection="root", **confArgs):
     """Get the configuration, skip on ConfigError.
     """
-    confFile = testdir / "data" / "icat.cfg"
+    confFile = testdatadir / "icat.cfg"
     if not confFile.is_file():
         _skip("no test ICAT server configured")
     try:
@@ -122,7 +132,7 @@ class tmpClient:
 
 
 def gettestdata(fname):
-    fname = testdir / "data" / fname
+    fname = testdatadir / fname
     assert fname.is_file()
     return fname
 
@@ -143,6 +153,10 @@ except:
 def require_icat_version(minversion, reason):
     if icat_version < minversion:
         _skip("need ICAT server version %s or newer: %s" % (minversion, reason))
+
+def require_dumpfile_backend(backend):
+    if backend not in icat.dumpfile.Backends.keys():
+        _skip("need %s backend for icat.dumpfile" % (backend))
 
 
 def get_reference_dumpfile(ext = "yaml"):
@@ -221,10 +235,43 @@ def standardCmdArgs():
 
 @pytest.fixture(scope="session")
 def setupicat(standardCmdArgs):
+    require_dumpfile_backend("YAML")
     testcontent = get_reference_dumpfile()
     callscript("wipeicat.py", standardCmdArgs)
     args = standardCmdArgs + ["-f", "YAML", "-i", str(testcontent)]
     callscript("icatingest.py", args)
+
+@pytest.fixture(scope="session")
+def rootclient(setupicat):
+    client, conf = getConfig(confSection="root", ids="optional")
+    client.login(conf.auth, conf.credentials)
+    return client
+
+@pytest.fixture(scope="function")
+def cleanup_objs(rootclient):
+    """Delete some objects (that may or may not have been) created during
+    a test
+    """
+    obj_list = []
+    yield obj_list
+    for obj in obj_list:
+        try:
+            if not obj.id:
+                obj = rootclient.searchMatching(obj)
+        except icat.SearchResultError:
+            # obj not found, maybe the test failed, nothing to do on
+            # this object then.
+            pass
+        else:
+            if rootclient.ids and obj.BeanName == "Dataset":
+                # obj is a dataset.  If any related datafile has been
+                # uploaded (i.e. the location is not NULL), need to
+                # delete it from IDS first.
+                query = Query(rootclient, "Datafile",
+                              conditions={"dataset.id": "= %d" % obj.id,
+                                          "location": "IS NOT NULL"})
+                rootclient.deleteData(rootclient.search(query))
+            rootclient.delete(obj)
 
 # ============================= hooks ================================
 

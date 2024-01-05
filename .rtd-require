@@ -1,5 +1,9 @@
-docutils<0.18
-setuptools_scm
-suds-community
 PyYAML
+git-props
 lxml
+packaging
+setuptools
+suds
+jinja2<3.1
+sphinx>=2,<3
+sphinx-rtd-theme>=0.5,<1

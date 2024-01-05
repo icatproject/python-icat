@@ -20,16 +20,16 @@ from urllib.request import HTTPDefaultErrorHandler, ProxyHandler, Request
 from urllib.request import build_opener
 import zlib
 
-from icat.entity import Entity
-from icat.exception import *
-from icat.helper import Version
+from .entity import Entity
+from .exception import *
+from .helper import Version
 
 # For Python versions older then 3.6.0b1, the standard library does
 # not support sending the body using chunked transfer encoding.  Need
 # to replace the HTTPHandler with our modified versions from
 # icat.chunkedhttp in this case.
 if sys.version_info < (3, 6, 0, 'beta'):
-    from icat.chunkedhttp import HTTPHandler, HTTPSHandler
+    from .chunkedhttp import HTTPHandler, HTTPSHandler
 else:
     from urllib.request import HTTPHandler, HTTPSHandler
 
@@ -218,17 +218,19 @@ class IDSClient():
         if result != "IdsOK": 
             raise IDSResponseError("unexpected response to ping: %s" % result)
 
-    def getApiVersion(self):
-        """Get the version of the IDS server.
+    def _get_legacy_version(self):
+        """Try to figure out the ids.server version in legacy cases.
 
-        Note: the `getApiVersion` call has been added in IDS server
-        version 1.3.0.  For older servers, try to guess the server
-        version from features visible in the API.  Obviously this
-        cannot always be accurate as we cannot distinguish server
-        version with no visible API changes.  In particular, versions
-        older then 1.2.0 will always reported as 1.0.0.  Nevertheless,
-        the result of the guess should be fair enough for most use
-        cases.
+        .. note::
+           This method will yield a **wrong** result for ids.server
+           2.0 and newer.  It should only be called when the ^version^
+           call is not available.
+
+
+        The `getApiVersion` call has been added in ids.server version
+        1.3.0.  In version 1.8.0 the newer `version` call has been
+        added, deprecating `getApiVersion` at the same time.  In
+        version 2.0.0 `getApiVersion` has definitely been removed.
         """
         try:
             req = IDSRequest(self.url + "getApiVersion")
@@ -252,14 +254,17 @@ class IDSClient():
         # No way to distinguish 1.1.0, 1.0.1, and 1.0.0, report as 1.0.0.
         return "1.0.0"
 
-    def version(self):
+    def getApiVersion(self):
         """Get the version of the IDS server.
 
-        Note: the `version` call has been added in IDS server version
-        1.8.0, deprecating `getApiVersion` at the same time.  For
-        older servers, we fall back to `getApiVersion` to emulate this
-        call.  Note furthermore that `version` returns a dict, while
-        `getApiVersion` returns the plain version number as a string.
+        The `getApiVersion` call used to be present ids.version from
+        version 1.3.0 to 1.12.*.  Emulate it using the newer
+        `version` call.
+        """
+        return self.version()["version"]
+
+    def version(self):
+        """Get the version of the IDS server.
         """
         try:
             req = IDSRequest(self.url + "version")
@@ -267,7 +272,7 @@ class IDSClient():
             return json.loads(result)
         except (HTTPError, IDSError) as err:
             try:
-                return {"version": self.getApiVersion()}
+                return {"version": self._get_legacy_version()}
             except:
                 raise err
 

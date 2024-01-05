@@ -1,346 +1,479 @@
-"""Test icatdump and icatingest.
+"""Test ingest metadata using the icat.ingest module.
 """
 
-from subprocess import CalledProcessError
+from collections import namedtuple
+import datetime
 import pytest
+pytest.importorskip("lxml")
+from lxml import etree
 import icat
 import icat.config
+from icat.ingest import IngestReader
 from icat.query import Query
-from conftest import DummyDatafile, gettestdata, getConfig, callscript
+from conftest import getConfig, gettestdata, icat_version, testdatadir
 
 
-# Test input
-ds_params = str(gettestdata("ingest-ds-params.xml"))
-datafiles = str(gettestdata("ingest-datafiles.xml"))
+def get_test_investigation(client):
+    query = Query(client, "Investigation", conditions={
+        "name": "= '12100409-ST'",
+    })
+    return client.assertedSearch(query)[0]
 
 @pytest.fixture(scope="module")
 def client(setupicat):
-    client, conf = getConfig(confSection="acord", ids="mandatory")
+    client, conf = getConfig(confSection="ingest", ids=False)
     client.login(conf.auth, conf.credentials)
     return client
 
 @pytest.fixture(scope="module")
-def cmdargs(setupicat):
-    _, conf = getConfig(confSection="acord", ids="mandatory")
-    return conf.cmdargs + ["-f", "XML"]
+def samples(rootclient):
+    """Create some samples that are referenced in some of the ingest files.
+    """
+    query = Query(rootclient, "SampleType", conditions={
+        "name": "= 'Nickel(II) oxide SC'"
+    })
+    st = rootclient.assertedSearch(query)[0]
+    inv = get_test_investigation(rootclient)
+    samples = []
+    for n in ("ab3465", "ab3466"):
+        s = rootclient.new("Sample", name=n, type=st, investigation=inv)
+        s.create()
+        samples.append(s)
+    yield samples
+    rootclient.deleteMany(samples)
 
 @pytest.fixture(scope="function")
-def dataset(client):
-    """A dataset to be used in the test.
+def investigation(client, cleanup_objs):
+    inv = get_test_investigation(client)
+    yield inv
+    query = Query(client, "Dataset", conditions={
+        "investigation.id": "= %d" % inv.id,
+        "name": "LIKE 'testingest_%'",
+    })
+    cleanup_objs.extend(client.search(query))
 
-    The dataset is not created by the fixture, it is assumed that the
-    test does it.  The dataset will be eventually be deleted after the
-    test.
+@pytest.fixture(scope="function")
+def schemadir(monkeypatch):
+    monkeypatch.setattr(IngestReader, "SchemaDir", testdatadir)
+
+
+class MyIngestReader(IngestReader):
+    """Testting a customized IngestReader
     """
-    inv = client.assertedSearch("Investigation [name='10100601-ST']")[0]
-    dstype = client.assertedSearch("DatasetType [name='raw']")[0]
-    dataset = client.new("Dataset",
-                         name="e208343", complete=False,
-                         investigation=inv, type=dstype)
-    yield dataset
-    try:
-        ds = client.searchMatching(dataset)
-        dataset.id = ds.id
-    except icat.SearchResultError:
-        # Dataset not found, maybe the test failed, nothing to
-        # clean up then.
-        pass
-    else:
-        # If any datafile has been uploaded (i.e. the location is
-        # not NULL), need to delete it from IDS first.  Any other
-        # datafile or dataset parameter will be deleted
-        # automatically with the dataset by cascading in the ICAT
-        # server.
-        query = Query(client, "Datafile", 
-                      conditions={"dataset.id": "= %d" % dataset.id,
-                                  "location": "IS NOT NULL"})
-        client.deleteData(client.search(query))
-        client.delete(dataset)
+    XSD_Map = {
+        ('icatingest', '1.0'): "ingest-10.xsd",
+        ('icatingest', '1.1'): "ingest-11.xsd",
+        ('myingest', '1.0'): "myingest.xsd",
+    }
+    XSLT_Map = {
+        'icatingest': "ingest.xslt",
+        'myingest': "myingest.xslt",
+    }
 
 
-# Test datafiles to be created by test_ingest_datafiles:
-testdatafiles = [
-    {
-        'dfname': "e208343.dat",
-        'size': 394,
-        'mtime': 1286600400,
-    },
-    {
-        'dfname': "e208343.nxs",
-        'size': 52857,
-        'mtime': 1286600400,
-    },
+cet = datetime.timezone(datetime.timedelta(hours=1))
+cest = datetime.timezone(datetime.timedelta(hours=2))
+
+Case = namedtuple('Case', ['data', 'metadata', 'schema', 'checks', 'marks'])
+
+# Try out different variants for the metadata input file
+cases = [
+    Case(
+        data = ["testingest_inl_1", "testingest_inl_2"],
+        metadata = gettestdata("metadata-4.4-inl.xml"),
+        schema = gettestdata("icatdata-4.4.xsd"),
+        checks = {
+            "testingest_inl_1": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "Dy01Cp02 at 2.7 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 15, 40, 12, tzinfo=cet)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 17, 4, 22, tzinfo=cet)),
+                (("SELECT p.stringValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Probe'"),
+                 "neutron"),
+                (("SELECT p.numericValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Sample temperature'"),
+                 2.74103),
+            ],
+            "testingest_inl_2": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "Dy01Cp02 at 5.1 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 17, 13, 10, tzinfo=cet)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 18, 45, 27, tzinfo=cet)),
+                (("SELECT p.stringValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Probe'"),
+                 "neutron"),
+                (("SELECT p.numericValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Sample temperature'"),
+                 5.1239),
+            ],
+        },
+        marks = (),
+    ),
+    Case(
+        data = ["testingest_inl5_1", "testingest_inl5_2"],
+        metadata = gettestdata("metadata-5.0-inl.xml"),
+        schema = gettestdata("icatdata-5.0.xsd"),
+        checks = {
+            "testingest_inl5_1": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "Dy01Cp02 at 2.7 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 15, 40, 12, tzinfo=cet)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 17, 4, 22, tzinfo=cet)),
+                (("SELECT inst.name FROM Instrument inst "
+                  "JOIN inst.datasetInstruments AS dsi JOIN dsi.dataset AS ds "
+                  "WHERE ds.id = %d"),
+                 "E2"),
+                (("SELECT t.name FROM Technique t "
+                  "JOIN t.datasetTechniques AS dst JOIN dst.dataset AS ds "
+                  "WHERE ds.id = %d"),
+                 "Neutron Diffraction"),
+                (("SELECT p.stringValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Probe'"),
+                 "neutron"),
+                (("SELECT p.numericValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Sample temperature'"),
+                 2.74103),
+            ],
+            "testingest_inl5_2": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "Dy01Cp02 at 5.1 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 17, 13, 10, tzinfo=cet)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 18, 45, 27, tzinfo=cet)),
+                (("SELECT inst.name FROM Instrument inst "
+                  "JOIN inst.datasetInstruments AS dsi JOIN dsi.dataset AS ds "
+                  "WHERE ds.id = %d"),
+                 "E2"),
+                (("SELECT t.name FROM Technique t "
+                  "JOIN t.datasetTechniques AS dst JOIN dst.dataset AS ds "
+                  "WHERE ds.id = %d"),
+                 "Neutron Diffraction"),
+                (("SELECT p.stringValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Probe'"),
+                 "neutron"),
+                (("SELECT p.numericValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Sample temperature'"),
+                 5.1239),
+            ],
+        },
+        marks = (
+            pytest.mark.skipif(icat_version < "5.0",
+                               reason="Need ICAT schema 5.0 or newer"),
+        ),
+    ),
+    Case(
+        data = ["testingest_sep_1", "testingest_sep_2"],
+        metadata = gettestdata("metadata-4.4-sep.xml"),
+        schema = gettestdata("icatdata-4.4.xsd"),
+        checks = {
+            "testingest_sep_1": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "Dy01Cp02 at 2.7 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 15, 40, 12, tzinfo=cet)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 17, 4, 22, tzinfo=cet)),
+                (("SELECT p.stringValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Probe'"),
+                 "neutron"),
+                (("SELECT p.numericValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Sample temperature'"),
+                 2.74103),
+            ],
+            "testingest_sep_2": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "Dy01Cp02 at 5.1 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 17, 13, 10, tzinfo=cet)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 18, 45, 27, tzinfo=cet)),
+                (("SELECT p.stringValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Probe'"),
+                 "neutron"),
+                (("SELECT p.numericValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Sample temperature'"),
+                 5.1239),
+            ],
+        },
+        marks = (),
+    ),
+    Case(
+        data = ["testingest_sep5_1", "testingest_sep5_2"],
+        metadata = gettestdata("metadata-5.0-sep.xml"),
+        schema = gettestdata("icatdata-5.0.xsd"),
+        checks = {
+            "testingest_sep5_1": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "Dy01Cp02 at 2.7 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 15, 40, 12, tzinfo=cet)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 17, 4, 22, tzinfo=cet)),
+                (("SELECT inst.name FROM Instrument inst "
+                  "JOIN inst.datasetInstruments AS dsi JOIN dsi.dataset AS ds "
+                  "WHERE ds.id = %d"),
+                 "E2"),
+                (("SELECT t.name FROM Technique t "
+                  "JOIN t.datasetTechniques AS dst JOIN dst.dataset AS ds "
+                  "WHERE ds.id = %d"),
+                 "Neutron Diffraction"),
+                (("SELECT p.stringValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Probe'"),
+                 "neutron"),
+                (("SELECT p.numericValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Sample temperature'"),
+                 2.74103),
+            ],
+            "testingest_sep5_2": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "Dy01Cp02 at 5.1 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 17, 13, 10, tzinfo=cet)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 18, 45, 27, tzinfo=cet)),
+                (("SELECT inst.name FROM Instrument inst "
+                  "JOIN inst.datasetInstruments AS dsi JOIN dsi.dataset AS ds "
+                  "WHERE ds.id = %d"),
+                 "E2"),
+                (("SELECT t.name FROM Technique t "
+                  "JOIN t.datasetTechniques AS dst JOIN dst.dataset AS ds "
+                  "WHERE ds.id = %d"),
+                 "Neutron Diffraction"),
+                (("SELECT p.stringValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Probe'"),
+                 "neutron"),
+                (("SELECT p.numericValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Sample temperature'"),
+                 5.1239),
+            ],
+        },
+        marks = (
+            pytest.mark.skipif(icat_version < "5.0",
+                               reason="Need ICAT schema 5.0 or newer"),
+        ),
+    ),
+    Case(
+        data = [ "testingest_sample_1", "testingest_sample_2",
+                 "testingest_sample_3", "testingest_sample_4" ],
+        metadata = gettestdata("metadata-sample.xml"),
+        schema = gettestdata("icatdata-4.4.xsd"),
+        checks = {
+            "testingest_sample_1": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "ab3465 at 2.7 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 18, 2, 17, tzinfo=cest)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 20, 18, 36, tzinfo=cest)),
+                (("SELECT COUNT(s) FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 1),
+                (("SELECT s.name FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 "ab3465"),
+            ],
+            "testingest_sample_2": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "ab3465 at 5.1 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 20, 29, 19, tzinfo=cest)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 21, 23, 49, tzinfo=cest)),
+                (("SELECT COUNT(s) FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 1),
+                (("SELECT s.name FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 "ab3465"),
+            ],
+            "testingest_sample_3": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "ab3466 at 2.7 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 21, 35, 16, tzinfo=cest)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 23, 4, 27, tzinfo=cest)),
+                (("SELECT COUNT(s) FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 1),
+                (("SELECT s.name FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 "ab3466"),
+            ],
+            "testingest_sample_4": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "reference"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 9, 30, 23, 4, 31, tzinfo=cest)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2020, 10, 1, 1, 26, 7, tzinfo=cest)),
+                (("SELECT COUNT(s) FROM Sample s JOIN s.datasets AS ds "
+                  "WHERE ds.id = %d"),
+                 0),
+            ],
+        },
+        marks = (),
+    ),
 ]
 
-
-def verify_dataset_params(client, dataset, params):
-    query = Query(client, "DatasetParameter", 
-                  conditions={"dataset.id": "= %d" % dataset.id}, 
-                  includes={"type"})
-    ps = client.search(query)
-    assert len(ps) == len(params)
-    values = { (p.type.name, p.numericValue, p.type.units) for p in ps }
-    assert values == params
-
-
-def test_ingest_dataset_params(client, dataset, cmdargs):
-    """Ingest a file setting some dataset parameters.
-    """
-    dataset.create()
-    args = cmdargs + ["-i", ds_params]
-    callscript("icatingest.py", args)
-    verify_dataset_params(client, dataset, { 
-        ("Magnetic field", 5.3, "T"), 
-        ("Reactor power", 10.0, "MW"), 
-        ("Sample temperature", 293.15, "K") 
-    })
-
-
-def test_ingest_duplicate_throw(client, dataset, cmdargs):
-    """Ingest with a collision of a duplicate object.
-
-    Same test as above, but now place a duplicate object in the way.
-    """
-    dataset.create()
-    ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("DatasetParameter", numericValue=5.0,
-                   dataset=dataset, type=ptype)
-    p.create()
-    args = cmdargs + ["-i", ds_params]
-    # FIXME: should inspect stderr and verify ICATObjectExistsError.
-    with pytest.raises(CalledProcessError) as err:
-        callscript("icatingest.py", args)
-    # Verify that the params have been set.  The exceptions should
-    # have been raised while trying to ingest the second parameter.
-    # The first one (Magnetic field) should have been created and
-    # Reactor power should still have the value set above.
-    verify_dataset_params(client, dataset, { 
-        ("Magnetic field", 5.3, "T"), 
-        ("Reactor power", 5.0, "MW") 
-    })
-
-
-def test_ingest_duplicate_ignore(client, dataset, cmdargs):
-    """Ingest with a collision of a duplicate object.
-
-    Same test as above, but now ignore the duplicate.
-    """
-    dataset.create()
-    ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("DatasetParameter", numericValue=5.0,
-                   dataset=dataset, type=ptype)
-    p.create()
-    args = cmdargs + ["-i", ds_params, "--duplicate", "IGNORE"]
-    callscript("icatingest.py", args)
-    verify_dataset_params(client, dataset, { 
-        ("Magnetic field", 5.3, "T"), 
-        ("Reactor power", 5.0, "MW"), 
-        ("Sample temperature", 293.15, "K") 
-    })
-
-
-def test_ingest_duplicate_check_err(client, dataset, cmdargs):
-    """Ingest with a collision of a duplicate object.
-
-    Same test as above, but use CHECK which fails due to mismatch.
-    """
-    dataset.create()
-    ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("DatasetParameter", numericValue=5.0,
-                   dataset=dataset, type=ptype)
-    p.create()
-    args = cmdargs + ["-i", ds_params, "--duplicate", "CHECK"]
-    # FIXME: should inspect stderr and verify ICATObjectExistsError.
-    with pytest.raises(CalledProcessError) as err:
-        callscript("icatingest.py", args)
-    verify_dataset_params(client, dataset, { 
-        ("Magnetic field", 5.3, "T"), 
-        ("Reactor power", 5.0, "MW") 
-    })
-
-
-def test_ingest_duplicate_check_ok(client, dataset, cmdargs):
-    """Ingest with a collision of a duplicate object.
-
-    Same test as above, but now it matches, so CHECK should return ok.
-    """
-    dataset.create()
-    ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("DatasetParameter", numericValue=10.0,
-                   dataset=dataset, type=ptype)
-    p.create()
-    args = cmdargs + ["-i", ds_params, "--duplicate", "CHECK"]
-    callscript("icatingest.py", args)
-    verify_dataset_params(client, dataset, { 
-        ("Magnetic field", 5.3, "T"), 
-        ("Reactor power", 10.0, "MW"), 
-        ("Sample temperature", 293.15, "K") 
-    })
-
-
-def test_ingest_duplicate_overwrite(client, dataset, cmdargs):
-    """Ingest with a collision of a duplicate object.
-
-    Same test as above, but now overwrite the old value.
-    """
-    dataset.create()
-    ptype = client.assertedSearch("ParameterType [name='Reactor power']")[0]
-    p = client.new("DatasetParameter", numericValue=5.0,
-                   dataset=dataset, type=ptype)
-    p.create()
-    args = cmdargs + ["-i", ds_params, "--duplicate", "OVERWRITE"]
-    callscript("icatingest.py", args)
-    verify_dataset_params(client, dataset, { 
-        ("Magnetic field", 5.3, "T"), 
-        ("Reactor power", 10.0, "MW"), 
-        ("Sample temperature", 293.15, "K") 
-    })
-
-
-# Minimal example, a Datafile featuring a string.
-ingest_data_string = """<?xml version="1.0" encoding="utf-8"?>
-<icatdata>
-  <data>
-    <datasetRef id="Dataset_001" 
-		name="e208343" 
-		investigation.name="10100601-ST" 
-		investigation.visitId="1.1-N"/>
-    <datafile>
-      <name>dup_test_str.dat</name>
-      <dataset ref="Dataset_001"/>
-    </datafile>
-  </data>
-</icatdata>
-"""
-# A Datafile featuring an int.
-ingest_data_int = """<?xml version="1.0" encoding="utf-8"?>
-<icatdata>
-  <data>
-    <datasetRef id="Dataset_001" 
-		name="e208343" 
-		investigation.name="10100601-ST" 
-		investigation.visitId="1.1-N"/>
-    <datafile>
-      <fileSize>42</fileSize>
-      <name>dup_test_int.dat</name>
-      <dataset ref="Dataset_001"/>
-    </datafile>
-  </data>
-</icatdata>
-"""
-# A Dataset featuring a boolean.
-ingest_data_boolean = """<?xml version="1.0" encoding="utf-8"?>
-<icatdata>
-  <data>
-    <dataset id="Dataset_001">
-      <complete>false</complete>
-      <name>e208343</name>
-      <investigation name="10100601-ST" visitId="1.1-N"/>
-      <type name="raw"/>
-    </dataset>
-  </data>
-</icatdata>
-"""
-# A DatasetParameter featuring a float.
-ingest_data_float = """<?xml version="1.0" encoding="utf-8"?>
-<icatdata>
-  <data>
-    <datasetRef id="Dataset_001" 
-		name="e208343" 
-		investigation.name="10100601-ST" 
-		investigation.visitId="1.1-N"/>
-    <datasetParameter>
-      <numericValue>5.3</numericValue>
-      <dataset ref="Dataset_001"/>
-      <type name="Magnetic field" units="T"/>
-    </datasetParameter>
-  </data>
-</icatdata>
-"""
-# A Datafile featuring a date.
-ingest_data_date = """<?xml version="1.0" encoding="utf-8"?>
-<icatdata>
-  <data>
-    <datasetRef id="Dataset_001" 
-		name="e208343" 
-		investigation.name="10100601-ST" 
-		investigation.visitId="1.1-N"/>
-    <datafile>
-      <datafileCreateTime>2008-06-18T09:31:11+02:00</datafileCreateTime>
-      <name>dup_test_date.dat</name>
-      <dataset ref="Dataset_001"/>
-    </datafile>
-  </data>
-</icatdata>
-"""
-
-@pytest.mark.parametrize("inputdata", [
-    ingest_data_string,
-    ingest_data_int,
-    ingest_data_boolean,
-    ingest_data_float,
-    ingest_data_date,
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in cases
 ])
-def test_ingest_duplicate_check_types(tmpdirsec, dataset, cmdargs, inputdata):
-    """Ingest with a collision of a duplicate object.
-
-    Similar to test_ingest_duplicate_check_ok(), but trying several
-    input datasets that test different data types.  Issue #9.
+def test_ingest_schema(client, investigation, schemadir, case):
+    """Check that the ingest data after transformation is valid according
+    to icatdata schema.
     """
-    # Most input data create a datafile or a dataset parameter related
-    # to dataset and thus assume the dataset to already exist.  Only
-    # ingest_data_boolean creates the dataset itself.
-    if inputdata is not ingest_data_boolean:
-        dataset.create()
-    # We simply ingest twice the same data, using duplicate=CHECK the
-    # second time.  This obviously leads to matching duplicates.
-    inpfile = tmpdirsec / "ingest.xml"
-    with inpfile.open("wt") as f:
-        f.write(inputdata)
-    args = cmdargs + ["-i", str(inpfile)]
-    callscript("icatingest.py", args)
-    callscript("icatingest.py", args + ["--duplicate", "CHECK"])
+    datasets = []
+    for name in case.data:
+        datasets.append(client.new("Dataset", name=name))
+    reader = IngestReader(client, case.metadata, investigation)
+    with case.schema.open("rb") as f:
+        schema = etree.XMLSchema(etree.parse(f))
+    assert schema.validate(reader.infile)
 
-
-def test_ingest_datafiles(tmpdirsec, client, dataset, cmdargs):
-    """Ingest a dataset with some datafiles.
-    """
-    dummyfiles = [ f['dfname'] for f in testdatafiles ]
-    args = cmdargs + ["-i", datafiles]
-    callscript("icatingest.py", args)
-    # Verify that the datafiles have been uploaded.
-    dataset = client.searchMatching(dataset)
-    for fname in dummyfiles:
-        query = Query(client, "Datafile", conditions={
-            "name": "= '%s'" % fname,
-            "dataset.id": "= %d" % dataset.id,
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in cases
+])
+def test_ingest(client, investigation, samples, schemadir, case):
+    datasets = []
+    for name in case.data:
+        datasets.append(client.new("Dataset", name=name))
+    reader = IngestReader(client, case.metadata, investigation)
+    reader.ingest(datasets, dry_run=True, update_ds=True)
+    for ds in datasets:
+        ds.create()
+    reader.ingest(datasets)
+    for name in case.checks.keys():
+        query = Query(client, "Dataset", conditions={
+            "name": "= '%s'" % name,
+            "investigation.id": "= %d" % investigation.id,
         })
-        df = client.assertedSearch(query)[0]
-        assert df.location is None
+        ds = client.assertedSearch(query)[0]
+        for query, res in case.checks[name]:
+            assert client.assertedSearch(query % ds.id)[0] == res
 
 
-def test_ingest_datafiles_upload(tmpdirsec, client, dataset, cmdargs):
-    """Upload datafiles to IDS from icatingest.
+badcases = [
+    Case(
+        data = ["e208339"],
+        metadata = gettestdata("metadata-5.0-badref.xml"),
+        schema = gettestdata("icatdata-5.0.xsd"),
+        checks = {},
+        marks = (
+            pytest.mark.skipif(icat_version < "5.0",
+                               reason="Need ICAT schema 5.0 or newer"),
+        ),
+    ),
+]
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in badcases
+])
+def test_badref_ingest(client, investigation, schemadir, case):
+    datasets = []
+    for name in case.data:
+        datasets.append(client.new("Dataset", name=name))
+    with pytest.raises(icat.InvalidIngestFileError):
+        reader = IngestReader(client, case.metadata, investigation)
+        reader.ingest(datasets, dry_run=True, update_ds=True)
 
-    Same as last test, but set the --upload-datafiles flag so that
-    icatingest will not create the datafiles as objects in the ICAT,
-    but upload the files to IDS instead.
+
+customcases = [
+    Case(
+        data = ["testingest_custom_icatingest_1"],
+        metadata = gettestdata("metadata-custom-icatingest.xml"),
+        schema = gettestdata("icatdata-4.4.xsd"),
+        checks = {
+            "testingest_custom_icatingest_1": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "Dy01Cp02 at 2.7 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 15, 40, 12, tzinfo=cet)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 17, 4, 22, tzinfo=cet)),
+                (("SELECT COUNT(p) FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds "
+                  "WHERE ds.id = %d"),
+                 0),
+            ],
+        },
+        marks = (),
+    ),
+    Case(
+        data = ["testingest_custom_myingest_1"],
+        metadata = gettestdata("metadata-custom-myingest.xml"),
+        schema = gettestdata("icatdata-4.4.xsd"),
+        checks = {
+            "testingest_custom_myingest_1": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "My Ingest: Dy01Cp02 at 2.7 K"),
+                ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 15, 40, 12, tzinfo=cet)),
+                ("SELECT ds.endDate FROM Dataset ds WHERE ds.id = %d",
+                 datetime.datetime(2022, 2, 3, 17, 4, 22, tzinfo=cet)),
+                (("SELECT COUNT(p) FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds "
+                  "WHERE ds.id = %d"),
+                 1),
+                (("SELECT p.stringValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Probe'"),
+                 "x-ray"),
+            ],
+        },
+        marks = (),
+    ),
+]
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in customcases
+])
+def test_custom_ingest(client, investigation, samples, schemadir, case):
+    """Test a custom ingest reader MyIngestReader, defined above.
+
+    MyIngestReader defines a custom ingest format by defining it's own
+    set of XSD and XSLT file.  But it still supports the vanilla
+    icatingest format.  In the test, we define two cases, having
+    identical input data: the first one using icatdata format, the
+    second one the customized myingest format.  Otherwise the input is
+    identical.  But note that the transformation for the myingest case
+    alters the input on the fly, so we get different results.
     """
-    dummyfiles = [ DummyDatafile(tmpdirsec, f['dfname'], f['size'], f['mtime'])
-                   for f in testdatafiles ]
-    args = cmdargs + ["-i", datafiles, "--upload-datafiles", 
-                      "--datafile-dir", str(tmpdirsec)]
-    callscript("icatingest.py", args)
-    # Verify that the datafiles have been uploaded.
-    dataset = client.searchMatching(dataset)
-    for f in dummyfiles:
-        query = Query(client, "Datafile", conditions={
-            "name": "= '%s'" % f.name,
-            "dataset.id": "= %d" % dataset.id,
+    datasets = []
+    for name in case.data:
+        datasets.append(client.new("Dataset", name=name))
+    reader = MyIngestReader(client, case.metadata, investigation)
+    reader.ingest(datasets, dry_run=True, update_ds=True)
+    for ds in datasets:
+        ds.create()
+    reader.ingest(datasets)
+    for name in case.checks.keys():
+        query = Query(client, "Dataset", conditions={
+            "name": "= '%s'" % name,
+            "investigation.id": "= %d" % investigation.id,
         })
-        df = client.assertedSearch(query)[0]
-        assert df.location is not None
-        assert df.fileSize == f.size
-        assert df.checksum == f.crc32
-        if f.mtime:
-            assert df.datafileModTime == f.mtime
+        ds = client.assertedSearch(query)[0]
+        for query, res in case.checks[name]:
+            assert client.assertedSearch(query % ds.id)[0] == res

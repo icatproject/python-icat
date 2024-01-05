@@ -62,6 +62,8 @@ class Version(packaging.version.Version):
     True
     >>> version == '5.0.0a1'
     True
+
+    .. versionadded:: 1.0.0
     """
     def __init__(self, version):
         super().__init__(re.sub(r'-SNAPSHOT$', 'a1', version))

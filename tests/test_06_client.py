@@ -76,20 +76,26 @@ cet = datetime.timezone(datetime.timedelta(hours=1))
 cest = datetime.timezone(datetime.timedelta(hours=2))
 
 @pytest.mark.parametrize(("query", "result"), [
-    ("SELECT o.name, o.title, o.startDate FROM Investigation o",
-     [("08100122-EF", "Durol single crystal",
-       datetime.datetime(2008, 3, 13, 11, 39, 42, tzinfo=cet)),
-      ("10100601-ST", "Ni-Mn-Ga flat cone",
-       datetime.datetime(2010, 9, 30, 12, 27, 24, tzinfo=cest)),
-      ("12100409-ST", "NiO SC OF1 JUH HHL",
-       datetime.datetime(2012, 7, 26, 17, 44, 24, tzinfo=cest))]),
-    ("SELECT i.name, ds.name FROM Dataset ds JOIN ds.investigation AS i "
-     "WHERE i.startDate < '2011-01-01'",
-     [("08100122-EF", "e201215"),
-      ("08100122-EF", "e201216"),
-      ("10100601-ST", "e208339"),
-      ("10100601-ST", "e208341"),
-      ("10100601-ST", "e208342")]),
+    pytest.param(
+        "SELECT o.name, o.title, o.startDate FROM Investigation o",
+        [("08100122-EF", "Durol single crystal",
+          datetime.datetime(2008, 3, 13, 11, 39, 42, tzinfo=cet)),
+         ("10100601-ST", "Ni-Mn-Ga flat cone",
+          datetime.datetime(2010, 9, 30, 12, 27, 24, tzinfo=cest)),
+         ("12100409-ST", "NiO SC OF1 JUH HHL",
+          datetime.datetime(2012, 7, 26, 17, 44, 24, tzinfo=cest))],
+        id="inv_attrs"
+    ),
+    pytest.param(
+        "SELECT i.name, ds.name FROM Dataset ds JOIN ds.investigation AS i "
+        "WHERE i.startDate < '2011-01-01'",
+        [("08100122-EF", "e201215"),
+         ("08100122-EF", "e201216"),
+         ("10100601-ST", "e208339"),
+         ("10100601-ST", "e208341"),
+         ("10100601-ST", "e208342")],
+        id="inv_ds_name"
+    ),
 ])
 def test_search_mulitple_fields(client, query, result):
     """Search for mutliple fields.
@@ -179,21 +185,31 @@ def test_assertedSearch_unique_mulitple_fields(client):
 # query strings using JPQL style syntax, Query objects.  For each
 # type, try both, simple and complex queries.
 @pytest.mark.parametrize(("query",), [
-    ("User",),
-    ("User <-> UserGroup <-> Grouping <-> "
-     "InvestigationGroup [role='writer'] <-> "
-     "Investigation [name='08100122-EF']",),
-    ("SELECT u FROM User u",),
-    ("SELECT u FROM User u "
-     "JOIN u.userGroups AS ug JOIN ug.grouping AS g "
-     "JOIN g.investigationGroups AS ig JOIN ig.investigation AS i "
-     "WHERE i.name ='08100122-EF' AND ig.role = 'writer' "
-     "ORDER BY u.name",),
-    (lambda client: Query(client, "User"),),
-    (lambda client: Query(client, "User", order=True, conditions={
-        "userGroups.grouping.investigationGroups.role": "= 'writer'", 
-        "userGroups.grouping.investigationGroups.investigation.name": "= '08100122-EF'"
-    }),),
+    pytest.param("User", id="legacy_user"),
+    pytest.param(
+        "User <-> UserGroup <-> Grouping <-> "
+        "InvestigationGroup [role='writer'] <-> "
+        "Investigation [name='08100122-EF']",
+        id="legacy_writer"
+    ),
+    pytest.param("SELECT u FROM User u", id="jpql_user"),
+    pytest.param(
+        "SELECT u FROM User u "
+        "JOIN u.userGroups AS ug JOIN ug.grouping AS g "
+        "JOIN g.investigationGroups AS ig JOIN ig.investigation AS i "
+        "WHERE i.name ='08100122-EF' AND ig.role = 'writer' "
+        "ORDER BY u.name",
+        id="jpql_writer"
+    ),
+    pytest.param(lambda client: Query(client, "User"), id="query_user"),
+    pytest.param(
+        lambda client: Query(client, "User", order=True, conditions={
+            "userGroups.grouping.investigationGroups.role": "= 'writer'",
+            "userGroups.grouping.investigationGroups.investigation.name":
+                "= '08100122-EF'"
+        }),
+        id="query_writer"
+    ),
 ])
 def test_searchChunked_simple(client, query):
     """A simple search with searchChunked().
@@ -250,11 +266,17 @@ def test_searchChunked_limit(client, skip, count, chunksize):
     assert objs == users[skip:skip+count]
 
 @pytest.mark.parametrize(("query",), [
-    ("User [name LIKE 'j%']",),
-    ("SELECT u FROM User u WHERE u.name LIKE 'j%' ORDER BY u.name",),
-    (lambda client: Query(client, "User", order=True, conditions={
-        "name": "LIKE 'j%'", 
-    }),),
+    pytest.param("User [name LIKE 'j%']", id="legacy"),
+    pytest.param(
+        "SELECT u FROM User u WHERE u.name LIKE 'j%' ORDER BY u.name",
+        id="jpql"
+    ),
+    pytest.param(
+        lambda client: Query(client, "User", order=True, conditions={
+            "name": "LIKE 'j%'",
+        }),
+        id="query"
+    ),
 ])
 def test_searchChunked_percent(client, query):
     """Search with searchChunked() with a percent character in the query.
@@ -269,8 +291,14 @@ def test_searchChunked_percent(client, query):
     assert objs == users
 
 @pytest.mark.parametrize(("query",), [
-    ("SELECT o FROM Investigation o WHERE o.id = %d",),
-    ("SELECT o FROM Investigation o WHERE o.id in (%d)",),
+    pytest.param(
+        "SELECT o FROM Investigation o WHERE o.id = %d",
+        id="id_equal"
+    ),
+    pytest.param(
+        "SELECT o FROM Investigation o WHERE o.id in (%d)",
+        id="id_in"
+    ),
 ])
 def test_searchChunked_id(client, query):
     """Search by id with searchChunked().
@@ -350,9 +378,13 @@ def test_searchChunked_mulitple_fields(client):
 # ==================== test searchUniqueKey() ======================
 
 @pytest.mark.parametrize(("key", "attrs"), [
-    ("Facility_name-ESNF", {"name": "ESNF"}),
-    ("Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP", 
-     {"name": "12100409-ST", "visitId": "1.1-P"}),
+    pytest.param("Facility_name-ESNF", {"name": "ESNF"}, id="facility"),
+    pytest.param(
+        "Investigation_facility-(name-ESNF)"
+        "_name-12100409=2DST_visitId-1=2E1=2DP",
+        {"name": "12100409-ST", "visitId": "1.1-P"},
+        id="investigation"
+    ),
 ])
 def test_searchUniqueKey_simple(client, key, attrs):
     """Search a few objects by their unique key.
@@ -364,10 +396,17 @@ def test_searchUniqueKey_simple(client, key, attrs):
         assert getattr(obj, k) == attrs[k]
 
 @pytest.mark.parametrize(("key", "relobjs"), [
-    ("Dataset_investigation-(facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945", [
-        ("investigation", "Investigation_facility-(name-ESNF)_name-12100409=2DST_visitId-1=2E1=2DP"),
-        ("investigation.facility", "Facility_name-ESNF"),
-    ]),
+    pytest.param(
+        "Dataset_investigation-(facility-(name-ESNF)"
+        "_name-12100409=2DST_visitId-1=2E1=2DP)_name-e208945",
+        [
+            ("investigation",
+             "Investigation_facility-(name-ESNF)"
+             "_name-12100409=2DST_visitId-1=2E1=2DP"),
+            ("investigation.facility", "Facility_name-ESNF"),
+        ],
+        id="dataset"
+    ),
 ])
 def test_searchUniqueKey_objindex(client, key, relobjs):
     """Test caching of objects in the objindex.

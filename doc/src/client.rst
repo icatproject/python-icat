@@ -3,22 +3,17 @@
 
 .. py:module:: icat.client
 
-The :mod:`icat.client` defines the :class:`~icat.client.Client` class
-that manages the interaction with an ICAT service as a client.
+This module defines the :class:`~icat.client.Client` class that
+manages the interaction with an ICAT service as a client.
 
 .. autoclass:: icat.client.Client
     :show-inheritance:
 
     .. rubric:: Class attributes
 
-    .. attribute:: Register
+    .. autoattribute:: Register
 
-        The register of all active clients.
-
-    .. attribute:: AutoRefreshRemain
-
-        Number of minutes to leave in the session before automatic
-        refresh should be called.
+    .. autoattribute:: AutoRefreshRemain
 
     .. rubric:: Instance attributes
 
@@ -33,6 +28,9 @@ that manages the interaction with an ICAT service as a client.
     .. attribute:: apiversion
 
         Version of the ICAT server this client connects to.
+
+	.. versionchanged:: 1.0.0
+            changed type to :class:`icat.helper.Version`
 
     .. attribute:: autoLogout
 

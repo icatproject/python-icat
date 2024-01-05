@@ -5,25 +5,21 @@ import datetime
 import os
 import sys
 from lxml import etree
-import icat
-import icat.dumpfile
-from icat.exception import SearchResultError
-from icat.query import Query
-try:
-    utc = datetime.timezone.utc
-except AttributeError:
-    try:
-        from suds.sax.date import UtcTimezone
-        utc = UtcTimezone()
-    except ImportError:
-        utc = None
+
+from . import __version__
+from .dumpfile import DumpFileReader, DumpFileWriter, register_backend
+from .entity import Entity
+from .exception import SearchResultError
+from .query import Query
+
+utc = datetime.timezone.utc
 
 
 # ------------------------------------------------------------
 # XMLDumpFileReader
 # ------------------------------------------------------------
 
-class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
+class XMLDumpFileReader(DumpFileReader):
     """Backend for reading ICAT data from a XML file.
 
     :param client: a client object configured to connect to the ICAT
@@ -72,7 +68,15 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
         else:
             # object is referenced by attributes.
             attrs = set(element.keys()) - {'id'}
-            conditions = { a: "= '%s'" % element.get(a) for a in attrs }
+            conditions = dict()
+            for attr in attrs:
+                if attr.endswith(".ref"):
+                    ref = element.get(attr)
+                    robj = self.client.searchUniqueKey(ref, objindex)
+                    attr = "%s.id" % attr[:-4]
+                    conditions[attr] = "= %d" % robj.id
+                else:
+                    conditions[attr] = "= '%s'" % element.get(attr)
             query = Query(self.client, objtype, conditions=conditions)
             return self.client.assertedSearch(query)[0]
 
@@ -140,7 +144,7 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
 # XMLDumpFileWriter
 # ------------------------------------------------------------
 
-class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
+class XMLDumpFileWriter(DumpFileWriter):
     """Backend for writing ICAT data to a XML file.
 
     :param client: a client object configured to connect to the ICAT
@@ -189,13 +193,10 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                     # dependency of server settings in the dumpfile.
                     # Assume v.isoformat() to have a valid timezone
                     # suffix.
-                    if utc:
-                        v = v.astimezone(utc)
-                    v = v.isoformat()
+                    v = v.astimezone(tz=utc).isoformat()
                 else:
-                    # v has no timezone info, assume it to be UTC, append
-                    # the corresponding timezone suffix.
-                    v = v.isoformat() + 'Z'
+                    # v has no timezone info, assume it to be UTC.
+                    v = v.replace(tzinfo=utc).isoformat()
             else:
                 v = str(v)
             etree.SubElement(d, attr).text = v
@@ -205,20 +206,19 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                 k = o.getUniqueKey(keyindex=keyindex)
                 etree.SubElement(d, attr, ref=k)
         for attr in sorted(obj.InstMRel):
-            for o in sorted(getattr(obj, attr), 
-                            key=icat.entity.Entity.__sortkey__):
+            for o in sorted(getattr(obj, attr), key=Entity.__sortkey__):
                 d.append(self._entity2elem(o, tag=attr, keyindex=keyindex))
         return d
 
     def head(self):
         """Write a header with some meta information to the data file."""
-        date = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S+00:00")
+        date = datetime.datetime.now(tz=utc).isoformat()
         head = etree.Element("head")
         etree.SubElement(head, "date").text = date
         etree.SubElement(head, "service").text = self.client.url
         etree.SubElement(head, "apiversion").text = str(self.client.apiversion)
         etree.SubElement(head, "generator").text = ("icatdump (python-icat %s)" 
-                                                    % icat.__version__)
+                                                    % __version__)
         self.outfile.write(b"""<?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 """)
@@ -246,4 +246,4 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         self.outfile.write(b"</icatdata>\n")
 
 
-icat.dumpfile.register_backend("XML", XMLDumpFileReader, XMLDumpFileWriter)
+register_backend("XML", XMLDumpFileReader, XMLDumpFileWriter)

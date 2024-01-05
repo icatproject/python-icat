@@ -66,7 +66,8 @@ query = Query(client, "Investigation",
 investigation = client.assertedSearch(query)[0]
 
 fstats = df_path.stat()
-modTime = datetime.datetime.utcfromtimestamp(fstats.st_mtime).isoformat() + "Z"
+utc = datetime.timezone.utc
+modTime = datetime.datetime.fromtimestamp(fstats.st_mtime, tz=utc)
 datafile = client.new("Datafile")
 datafile.datafileFormat = dff
 datafile.name = conf.datafile.name

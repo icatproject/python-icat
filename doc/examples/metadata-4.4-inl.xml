@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.0">
+  <head>
+    <date>2023-06-16T11:01:15+02:00</date>
+    <generator>metadata-writer 0.27a</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>testingest_inl_1</name>
+      <description>Dy01Cp02 at 2.7 K</description>
+      <startDate>2022-02-03T15:40:12+01:00</startDate>
+      <endDate>2022-02-03T17:04:22+01:00</endDate>
+      <parameters>
+        <stringValue>neutron</stringValue>
+        <type name="Probe"/>
+      </parameters>
+      <parameters>
+        <numericValue>5.3</numericValue>
+        <type name="Reactor power" units="MW"/>
+      </parameters>
+      <parameters>
+        <numericValue>2.74103</numericValue>
+        <rangeBottom>2.7408</rangeBottom>
+        <rangeTop>2.7414</rangeTop>
+        <type name="Sample temperature" units="K"/>
+      </parameters>
+      <parameters>
+        <numericValue>4.1357</numericValue>
+        <rangeBottom>4.0573</rangeBottom>
+        <rangeTop>4.1567</rangeTop>
+        <type name="Magnetic field" units="T"/>
+      </parameters>
+      <parameters>
+        <stringValue>Dy01Cp02</stringValue>
+        <type name="Comment"/>
+      </parameters>
+    </dataset>
+    <dataset id="Dataset_2">
+      <name>testingest_inl_2</name>
+      <description>Dy01Cp02 at 5.1 K</description>
+      <startDate>2022-02-03T17:13:10+01:00</startDate>
+      <endDate>2022-02-03T18:45:27+01:00</endDate>
+      <parameters>
+        <stringValue>neutron</stringValue>
+        <type name="Probe"/>
+      </parameters>
+      <parameters>
+        <numericValue>5.3</numericValue>
+        <type name="Reactor power" units="MW"/>
+      </parameters>
+      <parameters>
+        <numericValue>5.1239</numericValue>
+        <rangeBottom>5.1045</rangeBottom>
+        <rangeTop>5.1823</rangeTop>
+        <type name="Sample temperature" units="K"/>
+      </parameters>
+      <parameters>
+        <numericValue>3.9345</numericValue>
+        <rangeBottom>3.7253</rangeBottom>
+        <rangeTop>4.0365</rangeTop>
+        <type name="Magnetic field" units="T"/>
+      </parameters>
+      <parameters>
+        <stringValue>Dy01Cp02</stringValue>
+        <type name="Comment"/>
+      </parameters>
+    </dataset>
+  </data>
+</icatingest>
