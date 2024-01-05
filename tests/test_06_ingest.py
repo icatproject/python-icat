@@ -3,6 +3,7 @@
 
 from collections import namedtuple
 import datetime
+import io
 import pytest
 pytest.importorskip("lxml")
 from lxml import etree
@@ -18,6 +19,11 @@ def get_test_investigation(client):
         "name": "= '12100409-ST'",
     })
     return client.assertedSearch(query)[0]
+
+class NamedBytesIO(io.BytesIO):
+    def __init__(self, initial_bytes, name):
+        super().__init__(initial_bytes)
+        self.name = name
 
 @pytest.fixture(scope="module")
 def client(setupicat):
@@ -359,6 +365,68 @@ def test_ingest_schema(client, investigation, schemadir, case):
     pytest.param(c, id=c.metadata.name, marks=c.marks) for c in cases
 ])
 def test_ingest(client, investigation, samples, schemadir, case):
+    datasets = []
+    for name in case.data:
+        datasets.append(client.new("Dataset", name=name))
+    reader = IngestReader(client, case.metadata, investigation)
+    reader.ingest(datasets, dry_run=True, update_ds=True)
+    for ds in datasets:
+        ds.create()
+    reader.ingest(datasets)
+    for name in case.checks.keys():
+        query = Query(client, "Dataset", conditions={
+            "name": "= '%s'" % name,
+            "investigation.id": "= %d" % investigation.id,
+        })
+        ds = client.assertedSearch(query)[0]
+        for query, res in case.checks[name]:
+            assert client.assertedSearch(query % ds.id)[0] == res
+
+io_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.1">
+  <head>
+    <date>2023-06-16T11:01:15+02:00</date>
+    <generator>metadata-writer 0.27a</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>testingest_io_1</name>
+      <description>Dy01Cp02 at 10.2 K</description>
+      <startDate>2022-02-03T15:40:12+01:00</startDate>
+      <endDate>2022-02-03T17:04:22+01:00</endDate>
+      <parameters>
+        <stringValue>neutron</stringValue>
+        <type name="Probe"/>
+      </parameters>
+    </dataset>
+  </data>
+</icatingest>
+""".encode("utf8"), "io_metadata")
+io_cases = [
+    Case(
+        data = ["testingest_io_1"],
+        metadata = io_metadata,
+        schema = gettestdata("icatdata-4.4.xsd"),
+        checks = {
+            "testingest_io_1": [
+                ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
+                 "Dy01Cp02 at 10.2 K"),
+                (("SELECT p.stringValue FROM DatasetParameter p "
+                  "JOIN p.dataset AS ds JOIN p.type AS t "
+                  "WHERE ds.id = %d AND t.name = 'Probe'"),
+                 "neutron"),
+            ],
+        },
+        marks = (),
+    ),
+]
+
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in io_cases
+])
+def test_ingest_fileobj(client, investigation, samples, schemadir, case):
+    """Test ingest reading from a file object rather than a Path
+    """
     datasets = []
     for name in case.data:
         datasets.append(client.new("Dataset", name=name))
