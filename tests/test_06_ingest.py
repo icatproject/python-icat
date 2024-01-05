@@ -520,9 +520,7 @@ invalid_cases = [
         metadata = invalid_dup_metadata,
         schema = gettestdata("icatdata-4.4.xsd"),
         checks = {},
-        marks = (
-            pytest.mark.xfail(reason="Issue #146"),
-        ),
+        marks = (),
     ),
     Case(
         data = ["testingest_err_invalid_dup_id_1",
