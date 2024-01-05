@@ -144,6 +144,12 @@ class IngestReader(XMLDumpFileReader):
             raise InvalidIngestFileError("unknown format")
         return self.SchemaDir / xslt
 
+    def getobjs_from_data(self, data, objindex):
+        for key, obj in super().getobjs_from_data(data, objindex):
+            if key in objindex:
+                raise InvalidIngestFileError("Duplicate id %s" % key)
+            yield key, obj
+
     def getobjs(self):
         """Iterate over the objects in the ingest file.
         """
