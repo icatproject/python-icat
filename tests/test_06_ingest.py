@@ -486,6 +486,27 @@ invalid_dup_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
   </data>
 </icatingest>
 """.encode("utf8"), "invalid_dup")
+invalid_dup_id_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.0">
+  <head>
+    <date>2023-06-16T11:01:15+02:00</date>
+    <generator>metadata-writer 0.27a</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>testingest_err_invalid_dup_id_1</name>
+    </dataset>
+    <dataset id="Dataset_1">
+      <name>testingest_err_invalid_dup_id_2</name>
+    </dataset>
+    <datasetParameter>
+      <numericValue>10.0</numericValue>
+      <dataset ref="Dataset_1"/>
+      <type name="Reactor power" units="MW"/>
+    </datasetParameter>
+  </data>
+</icatingest>
+""".encode("utf8"), "invalid_dup_id")
 invalid_cases = [
     Case(
         data = ["testingest_err_invalid_ref"],
@@ -497,6 +518,16 @@ invalid_cases = [
     Case(
         data = ["testingest_err_invalid_dup"],
         metadata = invalid_dup_metadata,
+        schema = gettestdata("icatdata-4.4.xsd"),
+        checks = {},
+        marks = (
+            pytest.mark.xfail(reason="Issue #146"),
+        ),
+    ),
+    Case(
+        data = ["testingest_err_invalid_dup_id_1",
+                "testingest_err_invalid_dup_id_2"],
+        metadata = invalid_dup_id_metadata,
         schema = gettestdata("icatdata-4.4.xsd"),
         checks = {},
         marks = (
