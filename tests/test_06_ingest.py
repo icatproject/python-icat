@@ -455,14 +455,6 @@ invalid_ref_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
     <dataset id="Dataset_1">
       <name>testingest_err_invalid_ref</name>
     </dataset>
-    <datasetInstrument>
-      <dataset ref="Dataset_investigation-(name-12100409=2DST)_name-testingest=5Ferr=5Finvalid=5Fref"/>
-      <instrument pid="DOI:00.0815/inst-00048"/>
-    </datasetInstrument>
-    <datasetTechnique>
-      <dataset ref="Dataset_investigation-(name-12100409=2DST)_name-testingest=5Ferr=5Finvalid=5Fref"/>
-      <technique pid="PaNET:PaNET01089"/>
-    </datasetTechnique>
     <datasetParameter>
       <stringValue>very evil</stringValue>
       <dataset ref="Dataset_investigation-(name-12100409=2DST)_name-testingest=5Ferr=5Finvalid=5Fref"/>
@@ -471,15 +463,44 @@ invalid_ref_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
   </data>
 </icatingest>
 """.encode("utf8"), "invalid_ref")
+invalid_dup_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.0">
+  <head>
+    <date>2023-06-16T11:01:15+02:00</date>
+    <generator>metadata-writer 0.27a</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>testingest_err_invalid_dup</name>
+    </dataset>
+    <datasetParameter>
+      <numericValue>10.0</numericValue>
+      <dataset ref="Dataset_1"/>
+      <type name="Reactor power" units="MW"/>
+    </datasetParameter>
+    <datasetParameter>
+      <numericValue>17.0</numericValue>
+      <dataset ref="Dataset_1"/>
+      <type name="Reactor power" units="MW"/>
+    </datasetParameter>
+  </data>
+</icatingest>
+""".encode("utf8"), "invalid_dup")
 invalid_cases = [
     Case(
         data = ["testingest_err_invalid_ref"],
         metadata = invalid_ref_metadata,
         schema = gettestdata("icatdata-5.0.xsd"),
         checks = {},
+        marks = (),
+    ),
+    Case(
+        data = ["testingest_err_invalid_dup"],
+        metadata = invalid_dup_metadata,
+        schema = gettestdata("icatdata-4.4.xsd"),
+        checks = {},
         marks = (
-            pytest.mark.skipif(icat_version < "5.0",
-                               reason="Need ICAT schema 5.0 or newer"),
+            pytest.mark.xfail(reason="Issue #146"),
         ),
     ),
 ]
@@ -491,6 +512,71 @@ def test_ingest_error_invalid(client, investigation, schemadir, case):
     for name in case.data:
         datasets.append(client.new("Dataset", name=name))
     with pytest.raises(icat.InvalidIngestFileError):
+        reader = IngestReader(client, case.metadata, investigation)
+        reader.ingest(datasets, dry_run=True, update_ds=True)
+
+searcherr_attr_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.0">
+  <head>
+    <date>2023-06-16T11:01:15+02:00</date>
+    <generator>metadata-writer 0.27a</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>testingest_err_search_attr</name>
+    </dataset>
+    <datasetParameter>
+      <numericValue>10.0</numericValue>
+      <dataset ref="Dataset_1"/>
+      <type name="not found"/>
+    </datasetParameter>
+  </data>
+</icatingest>
+""".encode("utf8"), "search_attr")
+searcherr_ref_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.0">
+  <head>
+    <date>2023-06-16T11:01:15+02:00</date>
+    <generator>metadata-writer 0.27a</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>testingest_err_search_ref</name>
+    </dataset>
+    <datasetParameter>
+      <numericValue>10.0</numericValue>
+      <dataset ref="Dataset_notfound"/>
+      <type name="Reactor power" units="MW"/>
+    </datasetParameter>
+  </data>
+</icatingest>
+""".encode("utf8"), "search_ref")
+searcherr_cases = [
+    Case(
+        data = ["testingest_err_search_attr"],
+        metadata = searcherr_attr_metadata,
+        schema = gettestdata("icatdata-5.0.xsd"),
+        checks = {},
+        marks = (),
+    ),
+    Case(
+        data = ["testingest_err_search_ref"],
+        metadata = searcherr_ref_metadata,
+        schema = gettestdata("icatdata-4.4.xsd"),
+        checks = {},
+        marks = (
+            pytest.mark.xfail(raises=ValueError, reason="Issue #146"),
+        ),
+    ),
+]
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in searcherr_cases
+])
+def test_ingest_error_searcherr(client, investigation, schemadir, case):
+    datasets = []
+    for name in case.data:
+        datasets.append(client.new("Dataset", name=name))
+    with pytest.raises(icat.SearchResultError):
         reader = IngestReader(client, case.metadata, investigation)
         reader.ingest(datasets, dry_run=True, update_ds=True)
 
