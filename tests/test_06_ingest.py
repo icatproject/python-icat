@@ -445,6 +445,24 @@ def test_ingest_fileobj(client, investigation, samples, schemadir, case):
             assert client.assertedSearch(query % ds.id)[0] == res
 
 
+invalid_root_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
+<icatinvalid version="1.0">
+  <head>
+    <date>2023-06-16T11:01:15+02:00</date>
+    <generator>metadata-writer 0.27a</generator>
+  </head>
+  <data/>
+</icatinvalid>
+""".encode("utf8"), "invalid_root")
+invalid_ver_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="0.7">
+  <head>
+    <date>2023-06-16T11:01:15+02:00</date>
+    <generator>metadata-writer 0.27a</generator>
+  </head>
+  <data/>
+</icatingest>
+""".encode("utf8"), "invalid_version")
 invalid_ref_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
 <icatingest version="1.0">
   <head>
@@ -508,6 +526,20 @@ invalid_dup_id_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
 </icatingest>
 """.encode("utf8"), "invalid_dup_id")
 invalid_cases = [
+    Case(
+        data = [],
+        metadata = invalid_root_metadata,
+        schema = None,
+        checks = {},
+        marks = (),
+    ),
+    Case(
+        data = [],
+        metadata = invalid_ver_metadata,
+        schema = None,
+        checks = {},
+        marks = (),
+    ),
     Case(
         data = ["testingest_err_invalid_ref"],
         metadata = invalid_ref_metadata,
