@@ -490,7 +490,7 @@ invalid_cases = [
     Case(
         data = ["testingest_err_invalid_ref"],
         metadata = invalid_ref_metadata,
-        schema = gettestdata("icatdata-5.0.xsd"),
+        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {},
         marks = (),
     ),
@@ -555,7 +555,7 @@ searcherr_cases = [
     Case(
         data = ["testingest_err_search_attr"],
         metadata = searcherr_attr_metadata,
-        schema = gettestdata("icatdata-5.0.xsd"),
+        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {},
         marks = (),
     ),
