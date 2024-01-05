@@ -445,10 +445,36 @@ def test_ingest_fileobj(client, investigation, samples, schemadir, case):
             assert client.assertedSearch(query % ds.id)[0] == res
 
 
-badcases = [
+invalid_ref_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.0">
+  <head>
+    <date>2023-06-16T11:01:15+02:00</date>
+    <generator>metadata-writer 0.27a</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>testingest_err_invalid_ref</name>
+    </dataset>
+    <datasetInstrument>
+      <dataset ref="Dataset_investigation-(name-12100409=2DST)_name-testingest=5Ferr=5Finvalid=5Fref"/>
+      <instrument pid="DOI:00.0815/inst-00048"/>
+    </datasetInstrument>
+    <datasetTechnique>
+      <dataset ref="Dataset_investigation-(name-12100409=2DST)_name-testingest=5Ferr=5Finvalid=5Fref"/>
+      <technique pid="PaNET:PaNET01089"/>
+    </datasetTechnique>
+    <datasetParameter>
+      <stringValue>very evil</stringValue>
+      <dataset ref="Dataset_investigation-(name-12100409=2DST)_name-testingest=5Ferr=5Finvalid=5Fref"/>
+      <type name="Probe"/>
+    </datasetParameter>
+  </data>
+</icatingest>
+""".encode("utf8"), "invalid_ref")
+invalid_cases = [
     Case(
-        data = ["e208339"],
-        metadata = gettestdata("metadata-5.0-badref.xml"),
+        data = ["testingest_err_invalid_ref"],
+        metadata = invalid_ref_metadata,
         schema = gettestdata("icatdata-5.0.xsd"),
         checks = {},
         marks = (
@@ -458,9 +484,9 @@ badcases = [
     ),
 ]
 @pytest.mark.parametrize("case", [
-    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in badcases
+    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in invalid_cases
 ])
-def test_badref_ingest(client, investigation, schemadir, case):
+def test_ingest_error_invalid(client, investigation, schemadir, case):
     datasets = []
     for name in case.data:
         datasets.append(client.new("Dataset", name=name))
