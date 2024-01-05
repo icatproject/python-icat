@@ -498,3 +498,38 @@ def test_searchMatching_include(client):
     assert obj.name == "e208945"
     assert len(obj.datafiles) > 0
 
+def test_searchMatching_error_attribute_missing(client):
+    """Test error handling with searchMatching():
+    leaving out a required attribute
+    """
+    facility = client.assertedSearch("Facility")[0]
+    # Neglect to set visitId
+    investigation = client.new("Investigation",
+                               name="12100409-ST",
+                               facility=facility)
+    with pytest.raises(ValueError):
+        obj = client.searchMatching(investigation)
+
+def test_searchMatching_error_relation_missing(client):
+    """Test error handling with searchMatching():
+    leaving out a required many-to-one relation
+    """
+    facility = client.assertedSearch("Facility")[0]
+    # Neglect to set facility
+    investigation = client.new("Investigation",
+                               name="12100409-ST", visitId="1.1-P")
+    with pytest.raises(ValueError):
+        obj = client.searchMatching(investigation)
+
+@pytest.mark.xfail(raises=TypeError)
+def test_searchMatching_error_relation_id_missing(client):
+    """Test error handling with searchMatching():
+    a required many-to-one relation has no id
+    """
+    facility = client.assertedSearch("Facility")[0]
+    fac = client.new("Facility", name=str(facility.name))
+    investigation = client.new("Investigation",
+                               name="12100409-ST", visitId="1.1-P",
+                               facility=fac)
+    with pytest.raises(ValueError):
+        obj = client.searchMatching(investigation)
