@@ -521,7 +521,6 @@ def test_searchMatching_error_relation_missing(client):
     with pytest.raises(ValueError):
         obj = client.searchMatching(investigation)
 
-@pytest.mark.xfail(raises=TypeError)
 def test_searchMatching_error_relation_id_missing(client):
     """Test error handling with searchMatching():
     a required many-to-one relation has no id

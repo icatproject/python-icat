@@ -691,6 +691,8 @@ class Client(suds.client.Client):
             if a in obj.InstAttr:
                 query.addConditions({a: "= '%s'" % v})
             elif a in obj.InstRel:
+                if v.id is None:
+                    raise ValueError("%s.id is not set" % a)
                 query.addConditions({"%s.id" % a: "= %d" % v.id})
             else:
                 raise InternalError("Invalid constraint '%s' in %s."

@@ -564,9 +564,7 @@ searcherr_cases = [
         metadata = searcherr_ref_metadata,
         schema = gettestdata("icatdata-4.4.xsd"),
         checks = {},
-        marks = (
-            pytest.mark.xfail(raises=ValueError, reason="Issue #146"),
-        ),
+        marks = (),
     ),
 ]
 @pytest.mark.parametrize("case", [
