@@ -220,8 +220,11 @@ class IngestReader(XMLDumpFileReader):
         :param update_ds: flag whether to update the `datasets` in the
             argument.
         :type update_ds: :class:`bool`
-        :raise icat.exception.InvalidIngestFileError: if any unallowed
-            object is read from the input.
+        :raise icat.exception.InvalidIngestFileError: if the input is
+            not valid, for instance if there is any unallowed object
+            or duplicate objects.
+        :raise icat.exception.SearchResultError: if any object
+            references in the input could not be resolved.
         """
         dataset_map = { ds.name: ds for ds in datasets }
         allowed_ds_related = {
