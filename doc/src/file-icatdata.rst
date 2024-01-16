@@ -143,7 +143,6 @@ been referenced by attribute as in:
     <!--  ... -->
   </investigation>
 
-
 The object elements may include one-to-many relations.  In this case,
 the related objects will be created along with the parent in one
 single cascading call.  In the present example, the Grouping objects
@@ -204,14 +203,76 @@ ICAT data YAML files
 ~~~~~~~~~~~~~~~~~~~~
 
 In this section we describe the ICAT data file format using the YAML
-backend.
+backend.  Consider the following example, it corresponds to the same
+ICAT content as the XML example above:
 
-.. literalinclude:: ../examples/icatdump-simple-1.yaml
+.. literalinclude:: ../examples/icatdump-simple.yaml
    :language: yaml
 
-.. literalinclude:: ../examples/icatdump-simple-2.yaml
-   :language: yaml
-   :lines: 1-7,10-11,14,23-45,52-60
+ICAT data YAML files start with a head consisting of a few comment
+lines, followed by one or more YAML documents.  YAML documents are
+separated by a line containing only ``---``.  The comments in the head
+provide some information on the context of the creation of the data
+file, which may be useful for debugging in case of issues.
+
+Each YAML document defines one chunk of data according to the logical
+structure explained above.  It consists of a mapping having the name
+of entity types in the ICAT schema as keys.  The values are in turn
+mappings that map object ids as key to ICAT object definitions as
+value.  The object id may be used to reference that object in
+relations later on.  It has no meaning other than this file internal
+referencing between objects.  In the present example, the first chunk
+contains four User objects and three Grouping objects.  The Groupings
+include related UserGroups.  The second chunk only contains one
+Investigation, including related investigationGroups.
+
+Each of the ICAT object definitions corresponds to an object in the
+ICAT schema.  It is again a mapping with the object's attribute and
+relation names as keys and corresponding values.  All many-to-one
+relations must be provided and reference existing objects, e.g. they
+must either already have existed before starting the ingestion or
+appear in the same or an earlier YAML document in the ICAT data file.
+The values of many-to-one relations are the related object's id,
+either as defined in the same YAML document or the unique key as
+returned by :meth:`icat.entity.Entity.getUniqueKey`.
+
+The object definitions may include one-to-many relations.  In this
+case, the value for the relation name is a list of object definitions
+for the related objects.  These related objects will be created along
+with the parent in one single cascading call.  In the present example,
+the Grouping objects include their related UserGroup objects.  Note
+that these UserGroups include their relation to the User, but not
+their relation with Grouping.  The latter relationship is implied by
+the parent relation of the object in the file.
+
+As an alternative, in the present example, the Usergroups could have
+been added to the file as separate objects as in:
+
+.. code-block:: YAML
+
+  ---
+  grouping:
+    Grouping_name-investigation=5F10100601=2DST=5Fowner:
+      name: investigation_10100601-ST_owner
+  user:
+    User_name-db=2Fahau:
+      affiliation: Goethe University Frankfurt, Faculty of Philosophy and History
+      email: ahau@example.org
+      familyName: Hau
+      fullName: Arnold Hau
+      givenName: Arnold
+      name: db/ahau
+      orcidId: 0000-0002-3263
+  userGroup:
+    UserGroup_user-(name-db=2Fahau)_grouping-(name-investigation=5F10100601=2DST=5Fowner):
+      grouping: Grouping_name-investigation=5F10100601=2DST=5Fowner
+      user: User_name-db=2Fahau
+  ---
+
+Note that the entries in the mappings have no inherent order.  The
+:ref:`icatingest` script uses a predefined order to read the ICAT
+entity types in order to make sure that referenced objects are created
+before any object that may reference them.
 
 
 .. [#dc] There is one exception: DataCollections don't have a
