@@ -18,27 +18,19 @@ Logical structure of ICAT data files
 There is a one-to-one correspondence of the objects in the data
 file and the corresponding object in ICAT according to the ICAT
 schema, including all attributes and relations to other objects.
-Special unique keys are used to encode the relations.
-:meth:`icat.entity.Entity.getUniqueKey` may be used to get such a
-unique key for an entity object and
-:meth:`icat.client.Client.searchUniqueKey` may be used to search an
-object by its key.  Otherwise these keys should be considered as
-opaque ids.
 
 Data files are partitioned in chunks.  This is done to avoid having
 the whole file, e.g. the complete inventory of the ICAT, at once in
 memory.  The problem is that objects contain references to other
-objects (e.g. Datafiles refer to Datasets, the latter refer to
-Investigations, and so forth).  We keep an index of the objects as
+objects, e.g. Datafiles refer to Datasets, the latter refer to
+Investigations, and so forth.  We keep an index of the objects as
 cache in order to resolve these references.  But there is a memory
-versus time tradeoff: we cannot keep all the objects in the index,
-that would again mean the complete inventory of the ICAT.  And we
-can't know beforehand which object is going to be referenced later on,
-so we don't know which one to keep and which one to discard from the
-index.  Fortunately we can query objects that we discarded once back
-from the ICAT server.  But this is expensive.  So the strategy is as
-follows: keep all objects from the current chunk in the index and
-discard the complete index each time a chunk has been
+versus time tradeoff: in order to avoid the index to grow beyond
+bounds, objects need to be discarded from the index from time to time.
+References to objects that can not be resolved from the index need to
+be searched from the ICAT server, which of course is expensive.  So
+the strategy is as follows: keep all objects from the current chunk in
+the index and discard the complete index each time a chunk has been
 processed. [#dc]_ This will work fine if objects are mostly
 referencing other objects from the same chunk and only a few
 references go across chunk boundaries.
@@ -66,6 +58,26 @@ indirectly related to one of the included objects.  In this case,
 only a reference to the related object will be included in the data
 file.  The related object must have its own entry.
 
+References to ICAT objects and unique keys
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+References to related objects are encoded in ICAT data files by
+reference keys.  There are two kinds of those keys: local keys and
+unique keys.
+
+When an ICAT object is defined in the file, it generally defines a
+local key at the same time.  Local keys are stored in the object index
+and may be used to reference this object from other obejcts in the
+same data chunk.  Unique keys can be obtained from an object by
+calling :meth:`icat.entity.Entity.getUniqueKey`.  An object can be
+searched by its unique key from the ICAT server by calling
+:meth:`icat.client.Client.searchUniqueKey`.  As a result, it is
+possible to reference an object by its unique key even if the
+reference is not in the object index.  All references that go across
+chunk boundaries must use unique keys. [#dc]_
+
+Reference keys should be considered as opaque ids.
+
 ICAT data XML files
 ~~~~~~~~~~~~~~~~~~~
 
@@ -91,19 +103,17 @@ first chunk contains four User objects and three Grouping objects.
 The Groupings include related UserGroups.  The second chunk only
 contains one Investigation, including related investigationGroups.
 
-These object elements should have an ``id`` attribute that may be used
-to reference the object in relations later on.  The ``id`` value has
-no meaning other than this file internal referencing between objects.
-The subelements of the object elements correspond to the object's
-attributes and relations in the ICAT schema.  All many-to-one
-relations must be provided and reference already existing objects,
-e.g. they must either already have existed before starting the
-ingestion or appear earlier in the ICAT data file than the referencing
-object, so that they will be created earlier.  The related object may
-either be referenced by id using the special attribute ``ref`` or by
-the related object's attribute values, using XML attributes of the
-same name.  In the latter case, the attribute values must uniquely
-define the related object.
+These object elements may have an ``id`` attribute that defines a
+local key to reference the object later on.  The subelements of the
+object elements correspond to the object's attributes and relations in
+the ICAT schema.  All many-to-one relations must be provided and
+reference already existing objects, e.g. they must either already have
+existed before starting the ingestion or appear earlier in the ICAT
+data file than the referencing object, so that they will be created
+earlier.  The related object may either be referenced by reference key
+using the ``ref`` attribute or by the related object's attribute
+values, using XML attributes of the same name.  In the latter case,
+the attribute values must uniquely define the related object.
 
 In the present example, consider the first grouping:
 
@@ -118,8 +128,9 @@ In the present example, consider the first grouping:
 
 It includes a related userGroup object that in turn references a
 related User.  This User is referenced in the ``ref`` attribute using
-a key defined in the User's ``id`` attribute earlier in the file.
-Another example is how the Investigation references its Facility:
+a local key defined in the User's ``id`` attribute earlier in the
+file.  Another example is how the Investigation references its
+Facility:
 
 .. code-block:: XML
 
@@ -131,8 +142,7 @@ Another example is how the Investigation references its Facility:
 
 The Facility is not defined in the data file.  It is assumed to exist
 in ICAT before ingesting the file.  In this case, it must be
-referenced by the unique key that could have been obtained by calling
-``facility.getUniqueKey()``.  Alternatively, the Facility could have
+referenced by its unique key.  Alternatively, the Facility could have
 been referenced by attribute as in:
 
 .. code-block:: XML
@@ -179,14 +189,10 @@ The Investigation in the second chunk in the present example includes
 related InvestigationGroups that will be created along with the
 Investigation.  The InvestigationGroup objects include a reference to
 the corresponding Grouping.  Note that these references go across
-chunk boundaries.  The index that caches the object ids to resolve
-object relations from the first chunk that did contain the ids of the
-Groupings will already have been discarded from memory when the second
-chunk is read.  But the references use the key that can be passed to
-:meth:`icat.client.Client.searchUniqueKey` to search these Groupings
-from ICAT.
+chunk boundaries.  Thus, unique keys for the Groupings need to be used
+here.
 
-Finally note the the file format also depends on the ICAT schema
+Finally note that the file format also depends on the ICAT schema
 version: the present example can only be ingested into ICAT server 5.0
 or newer, because the attributes fileCount and fileSize have been
 added to Investigation in this version.  With older ICAT versions, it
@@ -219,12 +225,11 @@ Each YAML document defines one chunk of data according to the logical
 structure explained above.  It consists of a mapping having the name
 of entity types in the ICAT schema as keys.  The values are in turn
 mappings that map object ids as key to ICAT object definitions as
-value.  The object id may be used to reference that object in
-relations later on.  It has no meaning other than this file internal
-referencing between objects.  In the present example, the first chunk
-contains four User objects and three Grouping objects.  The Groupings
-include related UserGroups.  The second chunk only contains one
-Investigation, including related investigationGroups.
+value.  These object ids define local keys that may be used to
+reference the respective object later on.  In the present example, the
+first chunk contains four User objects and three Grouping objects.
+The Groupings include related UserGroups.  The second chunk only
+contains one Investigation, including related investigationGroups.
 
 Each of the ICAT object definitions corresponds to an object in the
 ICAT schema.  It is again a mapping with the object's attribute and
@@ -232,9 +237,8 @@ relation names as keys and corresponding values.  All many-to-one
 relations must be provided and reference existing objects, e.g. they
 must either already have existed before starting the ingestion or
 appear in the same or an earlier YAML document in the ICAT data file.
-The values of many-to-one relations are the related object's id,
-either as defined in the same YAML document or the unique key as
-returned by :meth:`icat.entity.Entity.getUniqueKey`.
+The values of many-to-one relations are reference keys, either local
+keys defined in the same YAML document or unique keys.
 
 The object definitions may include one-to-many relations.  In this
 case, the value for the relation name is a list of object definitions
@@ -277,4 +281,6 @@ before any object that may reference them.
 
 .. [#dc] There is one exception: DataCollections don't have a
          uniqueness constraint and can't reliably be searched by
-         attributes.  They are always kept in the index.
+         attributes.  Therefore local keys for DataCollections are
+         always kept in the object index and may be used to reference
+         them across chunk boundaries.
