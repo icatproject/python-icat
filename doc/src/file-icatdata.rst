@@ -87,7 +87,7 @@ The content of each ``data`` element is one chunk according to the
 logical structure explained above.  The present example contains two
 chunks.  Each element within the ``data`` element corresponds to an
 ICAT object according to the ICAT schema.  In the present example, the
-first chunk contains five User objects and three Grouping objects.
+first chunk contains four User objects and three Grouping objects.
 The Groupings include related UserGroups.  The second chunk only
 contains one Investigation, including related investigationGroups.
 

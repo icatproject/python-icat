@@ -16,15 +16,6 @@
     <name>db/ahau</name>
     <orcidId>0000-0002-3263</orcidId>
   </user>
-  <user id="User_name-db=2Fahau">
-    <affiliation>Goethe University Frankfurt, Faculty of Philosophy and History</affiliation>
-    <email>ahau@example.org</email>
-    <familyName>Hau</familyName>
-    <fullName>Arnold Hau</fullName>
-    <givenName>Arnold</givenName>
-    <name>db/ahau</name>
-    <orcidId>0000-0002-3263</orcidId>
-  </user>
   <user id="User_name-db=2Fjbotu">
     <affiliation>Universit&#233; Paul-Val&#233;ry Montpellier 3</affiliation>
     <email>jbotu@example.org</email>
