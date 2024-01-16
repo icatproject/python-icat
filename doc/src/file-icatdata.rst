@@ -72,7 +72,7 @@ ICAT data XML files
 In this section we describe the ICAT data file format using the XML
 backend.  Consider the following example:
 
-.. literalinclude:: ../examples/icatdump-simple-1.xml
+.. literalinclude:: ../examples/icatdump-simple.xml
    :language: xml
 
 The root element of ICAT data XML files is ``icatdata``.  It may
@@ -88,7 +88,8 @@ logical structure explained above.  The present example contains two
 chunks.  Each element within the ``data`` element corresponds to an
 ICAT object according to the ICAT schema.  In the present example, the
 first chunk contains five User objects and three Grouping objects.
-The second chunk only contains one Investigation.
+The Groupings include related UserGroups.  The second chunk only
+contains one Investigation, including related investigationGroups.
 
 These object elements should have an ``id`` attribute that may be used
 to reference the object in relations later on.  The ``id`` value has
@@ -104,27 +105,87 @@ the related object's attribute values, using XML attributes of the
 same name.  In the latter case, the attribute values must uniquely
 define the related object.
 
+In the present example, consider the first grouping:
+
+.. code-block:: XML
+
+  <grouping id="Grouping_name-investigation=5F10100601=2DST=5Fowner">
+    <name>investigation_10100601-ST_owner</name>
+    <userGroups>
+      <user ref="User_name-db=2Fahau"/>
+    </userGroups>
+  </grouping>
+
+It includes a related userGroup object that in turn references a
+related User.  This User is referenced in the ``ref`` attribute using
+a key defined in the User's ``id`` attribute earlier in the file.
+Another example is how the Investigation references its Facility:
+
+.. code-block:: XML
+
+  <investigation>
+    <!--  ... -->
+    <facility ref="Facility_name-ESNF"/>
+    <!--  ... -->
+  </investigation>
+
+The Facility is not defined in the data file.  It is assumed to exist
+in ICAT before ingesting the file.  In this case, it must be
+referenced by the unique key that could have been obtained by calling
+``facility.getUniqueKey()``.  Alternatively, the Facility could have
+been referenced by attribute as in:
+
+.. code-block:: XML
+
+  <investigation>
+    <!--  ... -->
+    <facility name="ESNF"/>
+    <!--  ... -->
+  </investigation>
+
+
 The object elements may include one-to-many relations.  In this case,
 the related objects will be created along with the parent in one
-single cascading call.  Alternatively, these related objects may be
-added separately as subelements of the ``data`` element later in the
-file.  In the present example, the Grouping object include their
-related UserGroup objects.  Note that these UserGroups include their
-relation to the User.  The User object is referenced by their
-respective id in the ``ref`` attribute.  But the UserGroups do not
-include their relation with Grouping.  That relationship is implied by
-the parent relation of the object in the file.
+single cascading call.  In the present example, the Grouping objects
+include their related UserGroup objects.  Note that these UserGroups
+include their relation to the User, but not their relation with
+Grouping.  The latter relationship is implied by the parent relation
+of the object in the file.
 
-In a similar way, the Investigation in the second chunk includes
+As an alternative, the Usergroups could have been added to the file as
+separate objects as direct subelements of ``data`` as in:
+
+.. code-block:: XML
+
+  <data>
+    <user id="User_name-db=2Fahau">
+      <affiliation>Goethe University Frankfurt, Faculty of Philosophy and History</affiliation>
+      <email>ahau@example.org</email>
+      <familyName>Hau</familyName>
+      <fullName>Arnold Hau</fullName>
+      <givenName>Arnold</givenName>
+      <name>db/ahau</name>
+      <orcidId>0000-0002-3263</orcidId>
+    </user>
+    <grouping id="Grouping_name-investigation=5F10100601=2DST=5Fowner">
+      <name>investigation_10100601-ST_owner</name>
+    </grouping>
+    <userGroup id="UserGroup_user-(name-db=2Fahau)_grouping-(name-investigation=5F10100601=2DST=5Fowner)">
+      <grouping ref="Grouping_name-investigation=5F10100601=2DST=5Fowner"/>
+      <user ref="User_name-db=2Fahau"/>
+    </userGroup>
+  </data>
+
+The Investigation in the second chunk in the present example includes
 related InvestigationGroups that will be created along with the
 Investigation.  The InvestigationGroup objects include a reference to
 the corresponding Grouping.  Note that these references go across
 chunk boundaries.  The index that caches the object ids to resolve
 object relations from the first chunk that did contain the ids of the
-Groupings will already have been discarded from memeory when the
-second chunk is read.  But the references use the key that can be
-passed to :meth:`icat.client.Client.searchUniqueKey` to search these
-Groupings from ICAT.
+Groupings will already have been discarded from memory when the second
+chunk is read.  But the references use the key that can be passed to
+:meth:`icat.client.Client.searchUniqueKey` to search these Groupings
+from ICAT.
 
 Finally note the the file format also depends on the ICAT schema
 version: the present example can only be ingested into ICAT server 5.0
@@ -132,21 +193,12 @@ or newer, because the attributes fileCount and fileSize have been
 added to Investigation in this version.  With older ICAT versions, it
 will fail because the attributes are not defined.
 
-Consider a second example, it defines a subset of the same content
-as the previous example:
-
-.. literalinclude:: ../examples/icatdump-simple-2.xml
-   :language: xml
-   :lines: 1-9,28-52,56-58,70-82,108
-
-The difference is that we now add the Usergroup objects separately in
-direct subelements of ``data`` instead of including them in the
-related Grouping objects.
-
 You will find more extensive examples in the source distribution of
 python-icat.  The distribution also provides XML Schema Definition
 files for the ICAT data XML file format corresponding to various ICAT
-schema versions.
+schema versions.  Note the these  XML Schema Definition
+files are provided for reference only.  The :ref:`icatingest` script
+does not validate its input.
 
 ICAT data YAML files
 ~~~~~~~~~~~~~~~~~~~~
