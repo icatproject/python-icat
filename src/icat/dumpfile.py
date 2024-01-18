@@ -99,6 +99,9 @@ class DumpFileReader():
         specific to the implementing backend and should be passed as
         the `data` argument to
         :meth:`~icat.dumpfile.DumpFileReader.getobjs_from_data`.
+
+        This abstract method must be implemented in the file format
+        specific backend.
         """
         raise NotImplementedError
 
@@ -107,6 +110,9 @@ class DumpFileReader():
 
         Yield a new entity object in each iteration.  The object is
         initialized from the data, but not yet created at the client.
+
+        This abstract method must be implemented in the file format
+        specific backend.
         """
         raise NotImplementedError
 
@@ -197,7 +203,11 @@ class DumpFileWriter():
             self.outfile.close()
 
     def head(self):
-        """Write a header with some meta information to the data file."""
+        """Write a header with some meta information to the data file.
+
+        This abstract method must be implemented in the file format
+        specific backend.
+        """
         raise NotImplementedError
 
     def startdata(self):
@@ -205,15 +215,26 @@ class DumpFileWriter():
 
         If the current chunk contains any data, write it to the data
         file.
+
+        This abstract method must be implemented in the file format
+        specific backend.
         """
         raise NotImplementedError
 
     def writeobj(self, key, obj, keyindex):
-        """Add an entity object to the current data chunk."""
+        """Add an entity object to the current data chunk.
+
+        This abstract method must be implemented in the file format
+        specific backend.
+        """
         raise NotImplementedError
 
     def finalize(self):
-        """Finalize the data file."""
+        """Finalize the data file.
+
+        This abstract method must be implemented in the file format
+        specific backend.
+        """
         raise NotImplementedError
 
     def writeobjs(self, objs, keyindex, chunksize=100):
