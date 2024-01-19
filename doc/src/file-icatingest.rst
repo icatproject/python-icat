@@ -26,7 +26,7 @@ ingest file format restricts ICAT data XML files in the following
 ways:
 
 * ingest files must contain one and only one  ``data`` element,
-  e.g. chunks according to the :ref:`ICAT-data-files-structure`.
+  e.g. one chunk according to the :ref:`ICAT-data-files-structure`.
 
 * the allowed object types are restricted to Dataset,
   DatasetInstrument, DatasetTechnique, and DatasetParameter.
@@ -44,8 +44,8 @@ ways:
 
 * references to the related Dataset in DatasetInstrument,
   DatasetTechnique, and DatasetParameter definitions are restricted to
-  :ref:`local keys <ICAT-data-files-references>`.  These objects can
-  thus only relate to Datasets defined in the same ingest file.
+  :ref:`local keys <ICAT-data-files-references>`.  As a result, these
+  objects can only relate to Datasets defined in the same ingest file.
 
 * other object references are restricted to reference by attributes.
 
