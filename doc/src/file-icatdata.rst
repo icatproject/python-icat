@@ -103,15 +103,15 @@ one Investigation, including related InvestigationGroups.
 
 The object elements may have an ``id`` attribute that define a local
 key to reference the object later on.  The subelements of the object
-elements correspond to the object's attributes and relations in the
-ICAT schema.  All many-to-one relations must be provided and reference
-already existing objects, e.g. they must either already have existed
-before starting the ingestion or appear earlier in the ICAT data file
-than the referencing object, so that they will be created earlier.
-The related object may either be referenced by reference key using the
-``ref`` attribute or by the related object's attribute values, using
-XML attributes of the same name.  In the latter case, the attribute
-values must uniquely define the related object.
+elements correspond to the object's attributes and relations according
+to the ICAT schema.  All many-to-one relations must be provided and
+reference already existing objects, e.g. they must either already have
+existed before starting the ingestion or appear earlier in the ICAT
+data file than the referencing object, so that they will be created
+earlier.  The related object may either be referenced by reference key
+using the ``ref`` attribute or by the related object's attribute
+values, using XML attributes of the same name.  In the latter case,
+the attribute values must uniquely define the related object.
 
 Consider a simplified version of the first chunk from the present
 example, defining only one User, Grouping and UserGroup respectively:
@@ -201,7 +201,7 @@ Finally note that the file format also depends on the ICAT schema
 version: the present example can only be ingested into ICAT server 5.0
 or newer, because the attributes fileCount and fileSize have been
 added to Investigation in this version.  With older ICAT versions, it
-will fail because the attributes are not defined.
+will fail because these attributes are not defined.
 
 You will find more extensive examples in the source distribution of
 python-icat.  The distribution also provides XML Schema Definition
