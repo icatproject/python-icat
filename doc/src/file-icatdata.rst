@@ -12,6 +12,8 @@ logic for reading and writing the files is provided by the
 The actual file format depends on the version of the ICAT schema and
 on the backend: python-icat provides backends using XML and YAML.
 
+.. _ICAT-data-files-structure:
+
 Logical structure of ICAT data files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -55,6 +57,8 @@ Alternatively the file may only contain User and Grouping objects,
 with the UserGroups being included into the object definition of the
 corresponding Grouping objects.
 
+.. _ICAT-data-files-references:
+
 References to ICAT objects and unique keys
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -76,6 +80,8 @@ reference is not in the object index.  All references that go across
 chunk boundaries must use unique keys. [#dc]_
 
 Reference keys should be considered as opaque ids.
+
+.. _ICAT-data-xml-files:
 
 ICAT data XML files
 ~~~~~~~~~~~~~~~~~~~
@@ -209,6 +215,8 @@ files for the ICAT data XML file format corresponding to various ICAT
 schema versions.  Note the these  XML Schema Definition
 files are provided for reference only.  The :ref:`icatingest` script
 does not validate its input.
+
+.. _ICAT-data-yaml-files:
 
 ICAT data YAML files
 ~~~~~~~~~~~~~~~~~~~~
