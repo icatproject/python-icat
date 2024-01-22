@@ -714,3 +714,38 @@ def test_custom_ingest(client, investigation, samples, schemadir, case):
         ds = client.assertedSearch(query)[0]
         for query, res in case.checks[name]:
             assert client.assertedSearch(query % ds.id)[0] == res
+
+
+env_cases = [
+    Case(
+        data = ["testingest_inl_1", "testingest_inl_2"],
+        metadata = gettestdata("metadata-4.4-inl.xml"),
+        schema = gettestdata("icatdata-4.4.xsd"),
+        checks = {},
+        marks = (),
+    ),
+]
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in env_cases
+])
+def test_ingest_env(monkeypatch, client, investigation, schemadir, case):
+    """Test using the _environment element.
+
+    Applying a custom XSLT that extracts an attribute from the
+    _environment element that is injected by IngestReader into the
+    input data and puts that values into the head element of the
+    transformed input.  This is to test that adding the _environment
+    element works and it is in principle possible to make use of the
+    values in the XSLT.
+    """
+    monkeypatch.setattr(IngestReader,
+                        "XSLT_Map", dict(icatingest="ingest-env.xslt"))
+    datasets = []
+    for name in case.data:
+        datasets.append(client.new("Dataset", name=name))
+    reader = IngestReader(client, case.metadata, investigation)
+    with case.schema.open("rb") as f:
+        schema = etree.XMLSchema(etree.parse(f))
+    assert schema.validate(reader.infile)
+    ver = reader.infile.xpath("/icatdata/head/apiversion")[0].text
+    assert ver == str(client.apiversion)
