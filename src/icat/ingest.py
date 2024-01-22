@@ -106,6 +106,9 @@ class IngestReader(XMLDumpFileReader):
             schema = etree.XMLSchema(etree.parse(f))
         if not schema.validate(ingest_data):
             raise InvalidIngestFileError("validation failed")
+        env = self.get_environment(client)
+        env_elem = etree.Element("_environment", **env)
+        ingest_data.getroot().insert(1, env_elem)
         with self.get_xslt(ingest_data).open("rb") as f:
             xslt = etree.XSLT(etree.parse(f))
         super().__init__(client, xslt(ingest_data))
@@ -175,6 +178,17 @@ class IngestReader(XMLDumpFileReader):
         except KeyError:
             raise InvalidIngestFileError("unknown format")
         return self.SchemaDir / xslt
+
+    def get_environment(self, client):
+        """Get the environment to be injected as an element into the input.
+
+        :param client: the client object being used by this
+            IngestReader.
+        :type client: :class:`icat.client.Client`
+        :return: the environment.
+        :rtype: :class:`dict`
+        """
+        return dict(icat_version=str(client.apiversion))
 
     def getobjs_from_data(self, data, objindex):
         typed_objindex = set()
