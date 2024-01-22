@@ -69,6 +69,14 @@ class IngestReader(XMLDumpFileReader):
     :type investigation: :class:`icat.entity.Entity`
     :raise icat.exception.InvalidIngestFileError: if the input in
         metadata is not valid.
+
+    .. versionchanged:: 1.3.0
+       drop class attribute :attr:`~icat.ingest.IngestReader.XSLT_name`
+       in favour of :attr:`~icat.ingest.IngestReader.XSLT_Map`.
+
+    .. versionchanged:: 1.3.0
+        inject an element `_environment` as first child of the root
+        element into the input data.
     """
 
     SchemaDir = Path("/usr/share/icat")
@@ -187,6 +195,8 @@ class IngestReader(XMLDumpFileReader):
         :type client: :class:`icat.client.Client`
         :return: the environment.
         :rtype: :class:`dict`
+
+        .. versionadded:: 1.3.0
         """
         return dict(icat_version=str(client.apiversion))
 
