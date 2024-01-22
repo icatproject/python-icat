@@ -108,7 +108,7 @@ class IngestReader(XMLDumpFileReader):
             raise InvalidIngestFileError("validation failed")
         env = self.get_environment(client)
         env_elem = etree.Element("_environment", **env)
-        ingest_data.getroot().insert(1, env_elem)
+        ingest_data.getroot().insert(0, env_elem)
         with self.get_xslt(ingest_data).open("rb") as f:
             xslt = etree.XSLT(etree.parse(f))
         super().__init__(client, xslt(ingest_data))
