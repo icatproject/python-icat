@@ -10,6 +10,8 @@
 	</icatdata>
     </xsl:template>
 
+    <xsl:template match="/icatingest/_environment"/>
+
     <xsl:template match="/icatingest/head">
 	<head>
 	    <date>2024-01-22T14:30:51+01:00</date>
@@ -19,8 +21,6 @@
 	    <generator>ingest-env.xslt</generator>
 	</head>
     </xsl:template>
-
-    <xsl:template match="/icatingest/_environment"/>
 
     <xsl:template match="/icatingest/data">
 	<data>

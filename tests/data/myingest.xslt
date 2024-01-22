@@ -10,6 +10,8 @@
 	</icatdata>
     </xsl:template>
 
+    <xsl:template match="/myingest/_environment"/>
+
     <xsl:template match="/myingest/head"/>
 
     <xsl:template match="/myingest/data">
