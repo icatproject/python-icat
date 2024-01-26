@@ -125,7 +125,11 @@ print("Sample: creating '%s' ..." % sampledata['name'])
 sample = client.new("Sample")
 initobj(sample, sampledata)
 sample.type = sample_type
-sample.investigation = investigation
+if "investigationSample" in client.typemap:
+    inv_samp = client.new("InvestigationSample", investigation=investigation)
+    sample.investigationSamples.append(inv_samp)
+else:
+    sample.investigation = investigation
 if 'parameters' in sampledata:
     for pdata in sampledata['parameters']:
         sample.parameters.append(makeparam('sampleParameter', pdata))

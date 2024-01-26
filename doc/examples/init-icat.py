@@ -137,6 +137,8 @@ if "datasetInstrument" in client.typemap:
     ingest_cru_classes.append("DatasetInstrument")
 if "datasetTechnique" in client.typemap:
     ingest_cru_classes.append("DatasetTechnique")
+if "investigationSample" in client.typemap:
+    ingest_cru_classes.append("InvestigationSample")
 client.createRules("CRU", ingest_cru_classes, ingestgroup)
 
 
@@ -259,14 +261,20 @@ client.createRules("CRUD", items)
 # extra condition is added so that CRUD permission is only given
 # if complete is False.
 invitems = [
-    ( "Sample", "investigation.", "" ),
     ( "Dataset", "investigation.", "complete" ),
     ( "Datafile", "dataset.investigation.", "dataset.complete" ),
     ( "InvestigationParameter", "investigation.", "" ),
-    ( "SampleParameter", "sample.investigation.", "" ),
     ( "DatasetParameter", "dataset.investigation.", "" ),
     ( "DatafileParameter", "datafile.dataset.investigation.", "" ),
 ]
+if "investigationSample" in client.typemap:
+    invitems.append(( "InvestigationSample", "investigation.", "" ))
+    invitems.append(( "Sample", "investigationSamples.investigation.", "" ))
+    invitems.append(( "SampleParameter",
+                      "sample.investigationSamples.investigation.", "" ))
+else:
+    invitems.append(( "Sample", "investigation.", "" ))
+    invitems.append(( "SampleParameter", "sample.investigation.", "" ))
 if "datasetInstrument" in client.typemap:
     invitems.append(( "DatasetInstrument", "dataset.investigation.", "" ))
 if "datasetTechnique" in client.typemap:
@@ -400,6 +408,11 @@ if "dataPublication" in client.typemap:
         ( "Dataset", "datasetTechniques"),
         ( "Investigation", "fundingReferences"),
         ( "InvestigationFunding", "funding"),
+    ])
+    pubsteps.sort()
+if "investigationSample" in client.typemap:
+    pubsteps.extend([
+        ( "InvestigationSample", "sample"),
     ])
     pubsteps.sort()
 objs = [ client.new("PublicStep", origin=origin, field=field)
