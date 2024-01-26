@@ -167,16 +167,20 @@ def get_reference_dumpfile(ext = "yaml"):
         fname = "icatdump-4.7.%s" % ext
     elif icat_version < "5.0":
         fname = "icatdump-4.10.%s" % ext
-    else:
+    elif icat_version < "6.99":
         fname = "icatdump-5.0.%s" % ext
+    else:
+        fname = "icatdump-7.0.%s" % ext
     return gettestdata(fname)
 
 
 def get_reference_summary():
     if icat_version < "5.0":
         version_suffix = "4"
-    else:
+    elif icat_version < "6.99":
         version_suffix = "5"
+    else:
+        version_suffix = "7"
     users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
     refsummary = { "root": gettestdata("summary-%s" % version_suffix) }
     for u in users:
