@@ -10,6 +10,10 @@ In the other direction, compatibility should be retained: current
 versions of icatingest should be able to read legacy dump files
 created by older versions of icatdump.  This is verified by the test
 in this module.
+
+Note that ICAT 7.0.0 changed the schema in an incompatible so that
+legacy ICAT data files can not be read regardless of the python-icat
+version.
 """
 
 import filecmp
@@ -24,7 +28,7 @@ import icat
 import icat.config
 from conftest import (getConfig, icat_version, require_icat_version,
                       require_dumpfile_backend, gettestdata, callscript,
-                      filter_file, yaml_filter, xml_filter)
+                      filter_file, yaml_filter, xml_filter, _skip)
 
 
 def get_dumpfiles(ext = "yaml"):
@@ -38,7 +42,7 @@ def get_dumpfiles(ext = "yaml"):
     elif icat_version < "5.0":
         legacy_fname = "legacy-icatdump-4.10.%s" % ext
         reference_fname = "icatdump-4.10.%s" % ext
-    else:
+    elif icat_version < "6.99":
         # In the case of ICAT 5.0, it makes no sense to test a
         # "legacy" dump file corresponding to the icatdump-5.0.*
         # example files, because the legacy icatdump would not be able
@@ -49,6 +53,8 @@ def get_dumpfiles(ext = "yaml"):
         # in datasets and investigations.
         legacy_fname = "legacy-icatdump-4.10.%s" % ext
         reference_fname = "ref-icatdump-5.0.%s" % ext
+    else:
+        _skip("ICAT server version is too new to read legacy ICAT data files")
     return (gettestdata(legacy_fname), gettestdata(reference_fname))
 
 backends = {
