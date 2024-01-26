@@ -12,14 +12,17 @@ following:
 2. All static content in one chunk, e.g. all objects not related to
    individual investigations and that need to be present, before we
    can add investigations.
-3. FundingReferences.
-4. The investigation data.  All content related to individual
+3. Only if the relation between Sample and Investigation is
+   many-to-many: all Samples.  If the relation is many-to-one, the
+   samples will be included in the imvestigation data.
+4. FundingReferences.
+5. The investigation data.  All content related to individual
    investigations.  Each investigation with all its data in one single
    chunk on its own.
-5. DataCollections.
-6. DataPublications.  All content related to individual data
+6. DataCollections.
+7. DataPublications.  All content related to individual data
    publications, each one in one chunk on its own respectively.
-7. One last chunk with all remaining stuff (Study, RelatedDatafile,
+8. One last chunk with all remaining stuff (Study, RelatedDatafile,
    Job).
 
 The functions defined in this module each return a list of queries
@@ -34,9 +37,10 @@ connected to.
 
 from .query import Query
 
-__all__ = [ 'getAuthQueries', 'getStaticQueries', 'getFundingQueries',
-            'getInvestigationQueries', 'getDataCollectionQueries',
-            'getDataPublicationQueries', 'getOtherQueries' ]
+__all__ = [ 'getAuthQueries', 'getStaticQueries', 'getSampleQueries',
+            'getFundingQueries', 'getInvestigationQueries',
+            'getDataCollectionQueries', 'getDataPublicationQueries',
+            'getOtherQueries' ]
 
 
 def getAuthQueries(client):
@@ -87,6 +91,24 @@ def getStaticQueries(client):
         queries.insert(0, Query(client, "Technique", order=True) )
     return queries
 
+def getSampleQueries(client):
+    """Return the queries to fetch all Samples.
+
+    Only if the relation between Sample and Investigation is
+    many-to-many, otherwise return an empty list.
+    """
+    # Compatibility between ICAT versions:
+    # - ICAT 7.0.0 added InvestigationSample and thus changed the
+    #   relation from Sample to Investigation to be many-to-many.
+    if 'investigationSample' in client.typemap:
+        return [
+            Query(client, "Sample", order=True,
+              includes={"type.facility",
+                        "parameters", "parameters.type.facility"}),
+        ]
+    else:
+        return []
+
 def getFundingQueries(client):
     """Return the queries to fetch all FundingReferences.
 
@@ -113,6 +135,9 @@ def getInvestigationQueries(client, invid):
     # - ICAT 4.10.0 added relation between Shift and Instrument.
     # - ICAT 5.0.0 added InvestigationFunding and InvestigationFacilityCycle.
     # - ICAT 5.0.0 added DatasetInstrument and DatasetTechnique.
+    # - ICAT 7.0.0 changed the relation between Sample and
+    #   Investigation to be many-to-many.  In this case the Samples
+    #   will not be included here.
     inv_includes = {
         "facility", "type.facility", "investigationInstruments",
         "investigationInstruments.instrument.facility", "shifts", "keywords",
@@ -132,6 +157,9 @@ def getInvestigationQueries(client, invid):
     if 'investigationFunding' in client.typemap:
         # ICAT >= 5.0.0
         inv_includes |= { "fundingReferences.funding" }
+    if 'investigationSample' in client.typemap:
+        # ICAT >= 7.0.0
+        inv_includes |= { "samples.sample" }
     ds_includes = { "investigation", "type.facility", "sample",
                     "parameters.type.facility" }
     if 'datasetInstruments' in client.typemap['dataset'].InstMRel:
@@ -141,13 +169,9 @@ def getInvestigationQueries(client, invid):
         # ICAT >= 5.0.0
         ds_includes |= { "datasetTechniques.technique" }
 
-    return [
+    queries = [
         Query(client, "Investigation",
               conditions={"id": "= %d" % invid}, includes=inv_includes),
-        Query(client, "Sample", order=["name"],
-              conditions={"investigation.id": "= %d" % invid},
-              includes={"investigation", "type.facility",
-                        "parameters", "parameters.type.facility"}),
         Query(client, "Dataset", order=["name"],
               conditions={"investigation.id": "= %d" % invid},
               includes=ds_includes),
@@ -156,6 +180,13 @@ def getInvestigationQueries(client, invid):
               includes={"dataset", "datafileFormat.facility",
                         "parameters.type.facility"})
     ]
+    if 'investigationSample' not in client.typemap:
+        q = Query(client, "Sample", order=["name"],
+                  conditions={"investigation.id": "= %d" % invid},
+                  includes={"investigation", "type.facility",
+                            "parameters", "parameters.type.facility"})
+        queries.insert(1, q)
+    return queries
 
 def getDataCollectionQueries(client):
     """Return the queries to fetch all DataCollections.

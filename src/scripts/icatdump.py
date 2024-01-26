@@ -49,6 +49,7 @@ client.login(conf.auth, conf.credentials)
 with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     dumpfile.writedata(getAuthQueries(client))
     dumpfile.writedata(getStaticQueries(client))
+    dumpfile.writedata(getSampleQueries(client))
     dumpfile.writedata(getFundingQueries(client))
     # Dump the investigations each in their own chunk
     investsearch = Query(client, "Investigation", attributes="id",

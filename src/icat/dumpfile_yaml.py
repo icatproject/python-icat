@@ -45,6 +45,7 @@ entitytypes = [
     'investigationUser',
     'sample',
     'sampleParameter',
+    'investigationSample',
     'dataset',
     'datasetParameter',
     'datasetInstrument',
