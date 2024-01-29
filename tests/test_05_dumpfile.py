@@ -104,6 +104,7 @@ def icatdump(client, f, backend):
     with open_dumpfile(client, f, backend, 'w') as dumpfile:
         dumpfile.writedata(getAuthQueries(client))
         dumpfile.writedata(getStaticQueries(client))
+        dumpfile.writedata(getSampleQueries(client))
         dumpfile.writedata(getFundingQueries(client))
         investsearch = Query(client, "Investigation", attributes="id",
                              order=["facility.name", "name", "visitId"])
