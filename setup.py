@@ -92,8 +92,10 @@ class build_test(setuptools.Command):
         files = []
         files += ( examples / f
                    for f in ("example_data.yaml",
-                             "ingest-datafiles.xml", "ingest-ds-params.xml",
-                             "ingest-sample-ds.xml") )
+                             "ingest-datafiles.xml",
+                             "ingest-ds-params.xml",
+                             "ingest-sample-ds.xml",
+                             "ingest-sample-ds-7.0.xml") )
         files += ( examples / ("icatdump-%s.%s" % (ver, ext))
                    for ver in ("4.4", "4.7", "4.10", "5.0", "7.0")
                    for ext in ("xml", "yaml") )

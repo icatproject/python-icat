@@ -7,13 +7,16 @@ import icat
 import icat.config
 from icat.query import Query
 from conftest import (DummyDatafile, require_dumpfile_backend,
-                      gettestdata, getConfig, callscript)
+                      gettestdata, getConfig, icat_version, callscript)
 
 
 # Test input
 ds_params = str(gettestdata("ingest-ds-params.xml"))
 datafiles = str(gettestdata("ingest-datafiles.xml"))
-sample_ds = str(gettestdata("ingest-sample-ds.xml"))
+if icat_version < "6.99":
+    sample_ds = str(gettestdata("ingest-sample-ds.xml"))
+else:
+    sample_ds = str(gettestdata("ingest-sample-ds-7.0.xml"))
 
 @pytest.fixture(scope="module")
 def client(setupicat):
@@ -356,8 +359,14 @@ def test_ingest_dataset_samples(client, cleanup_objs, cmdargs):
     for name in {v for v in ds_sample_map.values() if v}:
         # the samples are referenced from the ingest file, but are are
         # assumed to already exist, so we need to create them here.
-        sample = client.new("Sample",
-                            name=name, investigation=inv, type=sample_type)
+        if "investigationSample" in client.typemap:
+            sample = client.new("Sample", name=name, pid=name,
+                                type=sample_type)
+            invsamp = client.new("InvestigationSample", investigation=inv)
+            sample.investigationSamples.append(invsamp)
+        else:
+            sample = client.new("Sample", name=name, pid=name,
+                                investigation=inv, type=sample_type)
         sample.create()
         cleanup_objs.append(sample)
     args = cmdargs + ["-i", sample_ds]
