@@ -168,8 +168,10 @@ def get_icatdata_schema():
         fname = "icatdata-4.7.xsd"
     elif icat_version < "5.0":
         fname = "icatdata-4.10.xsd"
-    else:
+    elif icat_version < "6.99":
         fname = "icatdata-5.0.xsd"
+    else:
+        fname = "icatdata-7.0.xsd"
     return gettestdata(fname)
 
 
