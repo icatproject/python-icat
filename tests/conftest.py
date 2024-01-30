@@ -159,6 +159,20 @@ def require_dumpfile_backend(backend):
         _skip("need %s backend for icat.dumpfile" % (backend))
 
 
+def get_icatdata_schema():
+    if icat_version < "4.4":
+        fname = "icatdata-4.3.xsd"
+    elif icat_version < "4.7":
+        fname = "icatdata-4.4.xsd"
+    elif icat_version < "4.10":
+        fname = "icatdata-4.7.xsd"
+    elif icat_version < "5.0":
+        fname = "icatdata-4.10.xsd"
+    else:
+        fname = "icatdata-5.0.xsd"
+    return gettestdata(fname)
+
+
 def get_reference_dumpfile(ext = "yaml"):
     require_icat_version("4.4.0", "oldest available set of test data")
     if icat_version < "4.7":
