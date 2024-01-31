@@ -196,7 +196,15 @@ class IngestReader(XMLDumpFileReader):
 
         .. versionadded:: 1.3.0
         """
-        return dict(icat_version=str(client.apiversion))
+        if "investigationSample" in client.typemap:
+            sample_inv_rel = "many"
+        else:
+            sample_inv_rel = "one"
+        env = dict(
+            icat_version=str(client.apiversion),
+            sample_investigation_relation=sample_inv_rel,
+        )
+        return env
 
     def add_environment(self, client, ingest_data):
         """Inject environment information into input data.

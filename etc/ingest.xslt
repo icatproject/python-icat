@@ -39,7 +39,17 @@
 
     <xsl:template match="/icatingest/data/dataset/sample">
 	<xsl:copy>
-	    <xsl:attribute name="investigation.ref">_Investigation</xsl:attribute>
+	    <xsl:choose>
+		<xsl:when test="/icatingest/_environment/@sample_investigation_relation = 'one'">
+		    <xsl:attribute name="investigation.ref">_Investigation</xsl:attribute>
+		</xsl:when>
+		<xsl:when test="/icatingest/_environment/@sample_investigation_relation = 'many'">
+		    <xsl:attribute name="investigationSamples.investigation.ref">_Investigation</xsl:attribute>
+		</xsl:when>
+		<xsl:otherwise>
+		    <xsl:message terminate="yes">ERROR: invalid environment</xsl:message>
+		</xsl:otherwise>
+	    </xsl:choose>
 	    <xsl:copy-of select="@*"/>
 	</xsl:copy>
     </xsl:template>
