@@ -360,13 +360,15 @@ def test_ingest_dataset_samples(client, cleanup_objs, cmdargs):
         # the samples are referenced from the ingest file, but are are
         # assumed to already exist, so we need to create them here.
         if "investigationSample" in client.typemap:
-            sample = client.new("Sample", name=name, pid=name,
+            sample = client.new("Sample", name=name,
                                 type=sample_type)
             invsamp = client.new("InvestigationSample", investigation=inv)
             sample.investigationSamples.append(invsamp)
         else:
-            sample = client.new("Sample", name=name, pid=name,
+            sample = client.new("Sample", name=name,
                                 investigation=inv, type=sample_type)
+        if 'pid' in client.typemap['sample'].Constraint:
+            sample.pid = name
         sample.create()
         cleanup_objs.append(sample)
     args = cmdargs + ["-i", sample_ds]

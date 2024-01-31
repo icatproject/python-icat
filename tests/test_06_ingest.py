@@ -44,12 +44,13 @@ def samples(rootclient):
     samples = []
     for n in ("ab3465", "ab3466"):
         if "investigationSample" in rootclient.typemap:
-            s = rootclient.new("Sample", name=n, pid=n, type=st)
+            s = rootclient.new("Sample", name=n, type=st)
             invsamp = rootclient.new("InvestigationSample", investigation=inv)
             s.investigationSamples.append(invsamp)
         else:
-            s = rootclient.new("Sample", name=n, pid=n,
-                               type=st, investigation=inv)
+            s = rootclient.new("Sample", name=n, type=st, investigation=inv)
+        if 'pid' in rootclient.typemap['sample'].Constraint:
+            s.pid = n
         s.create()
         samples.append(s)
     yield samples
