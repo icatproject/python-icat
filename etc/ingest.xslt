@@ -4,6 +4,22 @@
 
     <xsl:output method="xml"/>
 
+    <xsl:variable name="samp_inv_ref">
+	<xsl:choose>
+	    <xsl:when test="/icatingest/_environment/@sample_investigation_relation = 'one'">
+		<xsl:text>investigation.ref</xsl:text>
+	    </xsl:when>
+	    <xsl:when test="/icatingest/_environment/@sample_investigation_relation = 'many'">
+		<xsl:text>investigationSamples.investigation.ref</xsl:text>
+	    </xsl:when>
+	    <xsl:otherwise>
+		<xsl:message terminate="yes">
+		    ERROR: invalid environment
+		</xsl:message>
+	    </xsl:otherwise>
+	</xsl:choose>
+    </xsl:variable>
+
     <xsl:template match="/icatingest">
 	<icatdata>
 	    <xsl:apply-templates/>
@@ -39,17 +55,7 @@
 
     <xsl:template match="/icatingest/data/dataset/sample">
 	<xsl:copy>
-	    <xsl:choose>
-		<xsl:when test="/icatingest/_environment/@sample_investigation_relation = 'one'">
-		    <xsl:attribute name="investigation.ref">_Investigation</xsl:attribute>
-		</xsl:when>
-		<xsl:when test="/icatingest/_environment/@sample_investigation_relation = 'many'">
-		    <xsl:attribute name="investigationSamples.investigation.ref">_Investigation</xsl:attribute>
-		</xsl:when>
-		<xsl:otherwise>
-		    <xsl:message terminate="yes">ERROR: invalid environment</xsl:message>
-		</xsl:otherwise>
-	    </xsl:choose>
+	    <xsl:attribute name="{$samp_inv_ref}">_Investigation</xsl:attribute>
 	    <xsl:copy-of select="@*"/>
 	</xsl:copy>
     </xsl:template>
