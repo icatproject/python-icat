@@ -19,6 +19,9 @@ control the Investigation that newly created Datasets will be added
 to.  It would be rather difficult to control the power of the input
 format if we would use plain ICAT data files for this purpose.
 
+Differences compared to ICAT data XML files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Class :class:`icat.ingest.IngestReader` takes an ``investigation``
 argument.  We will refer to the Investigation given in this argument
 as the *prescribed Investigation* in the following.  The metadata
@@ -55,3 +58,34 @@ Schema Definition (XSD).
 Another change with respect to ICAT data XML files is that the name of
 the root element is ``icatingest`` and that it must have a ``version``
 attrbute.
+
+Example
+~~~~~~~
+
+Consider the following example:
+
+.. literalinclude:: ../examples/metadata.xml
+   :language: xml
+
+This file defines four Datasets with related objects.  All datasets
+have a ``name``, ``description``, ``startDate``, and ``endDate``
+attribute and include a relation with an Instrument and a Technique,
+respectively.
+
+Note that the Datasets have no ``complete`` attribute and no relation
+with Investigation or DatasetType respectively.  All of these are
+added with prescribed values by class
+:class:`icat.ingest.IngestReader`.
+
+Some Datasets relate to Samples: the first two Datasets relate to the
+same Sample, the third Dataset to another Sample, while the last
+Dataset has no relation with any Sample.  All Samples a referenced by
+their name.  Class :class:`icat.ingest.IngestReader` will add a
+reference to the Investigation to this, so that only Samples that are
+related to prescribed Investigation can actually be referenced.
+
+Some DatasetParameter are added as separate objects in the file.  They
+respectively reference their related Datasets using local keys that
+are defined in the ``id`` attribute of the corresponding Dataset
+earlier in the file.  Alternatively, the DatasetParameter could have
+been included into into the respective Datasets.

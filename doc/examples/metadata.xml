@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.1">
+  <head>
+    <date>2024-02-02T12:52:00+01:00</date>
+    <generator>metadata-writer 0.28</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>e202553</name>
+      <description>Dy01Cp02 at 2.7 K</description>
+      <startDate>2020-09-30T18:02:17+02:00</startDate>
+      <endDate>2020-09-30T20:18:36+02:00</endDate>
+      <sample name="ab3465"/>
+      <datasetInstruments>
+        <instrument pid="DOI:00.0815/inst-00001"/>
+      </datasetInstruments>
+      <datasetTechniques>
+        <technique pid="PaNET:PaNET01217"/>
+      </datasetTechniques>
+    </dataset>
+    <dataset id="Dataset_2">
+      <name>e202554</name>
+      <description>Dy01Cp02 at 5.1 K</description>
+      <startDate>2020-09-30T20:29:19+02:00</startDate>
+      <endDate>2020-09-30T21:23:49+02:00</endDate>
+      <sample name="ab3465"/>
+      <datasetInstruments>
+        <instrument pid="DOI:00.0815/inst-00001"/>
+      </datasetInstruments>
+      <datasetTechniques>
+        <technique pid="PaNET:PaNET01217"/>
+      </datasetTechniques>
+    </dataset>
+    <dataset id="Dataset_3">
+      <name>e202555</name>
+      <description>Dy01Cp02 at 2.7 K</description>
+      <startDate>2020-09-30T21:35:16+02:00</startDate>
+      <endDate>2020-09-30T23:04:27+02:00</endDate>
+      <sample name="ab3466"/>
+      <datasetInstruments>
+        <instrument pid="DOI:00.0815/inst-00001"/>
+      </datasetInstruments>
+      <datasetTechniques>
+        <technique pid="PaNET:PaNET01217"/>
+      </datasetTechniques>
+    </dataset>
+    <dataset id="Dataset_4">
+      <name>e202556</name>
+      <description>reference</description>
+      <startDate>2020-09-30T23:04:31+02:00</startDate>
+      <endDate>2020-10-01T01:26:07+02:00</endDate>
+      <datasetInstruments>
+        <instrument pid="DOI:00.0815/inst-00001"/>
+      </datasetInstruments>
+      <datasetTechniques>
+        <technique pid="PaNET:PaNET01217"/>
+      </datasetTechniques>
+    </dataset>
+    <datasetParameter>
+      <stringValue>neutron</stringValue>
+      <dataset ref="Dataset_1"/>
+      <type name="Probe"/>
+    </datasetParameter>
+    <datasetParameter>
+      <numericValue>5.3</numericValue>
+      <dataset ref="Dataset_1"/>
+      <type name="Reactor power" units="MW"/>
+    </datasetParameter>
+    <datasetParameter>
+      <numericValue>2.74103</numericValue>
+      <rangeBottom>2.7408</rangeBottom>
+      <rangeTop>2.7414</rangeTop>
+      <dataset ref="Dataset_1"/>
+      <type name="Sample temperature" units="K"/>
+    </datasetParameter>
+    <datasetParameter>
+      <stringValue>neutron</stringValue>
+      <dataset ref="Dataset_2"/>
+      <type name="Probe"/>
+    </datasetParameter>
+    <datasetParameter>
+      <numericValue>5.3</numericValue>
+      <dataset ref="Dataset_2"/>
+      <type name="Reactor power" units="MW"/>
+    </datasetParameter>
+    <datasetParameter>
+      <numericValue>5.1239</numericValue>
+      <rangeBottom>5.1045</rangeBottom>
+      <rangeTop>5.1823</rangeTop>
+      <dataset ref="Dataset_2"/>
+      <type name="Sample temperature" units="K"/>
+    </datasetParameter>
+  </data>
+</icatingest>
