@@ -1,4 +1,5 @@
 __pycache__/
+/.local/
 /MANIFEST
 /_meta.py
 /build/
