@@ -6,7 +6,7 @@ ICAT data files
 ICAT data files provide a way to serialize ICAT content to a flat
 file.  These files are read by the :ref:`icatingest` and written by
 the :ref:`icatdump` command line scripts respectively.  The program
-logic for reading and writing the files is provided by the
+logic for reading and writing the files is provided in the
 :mod:`icat.dumpfile` module.
 
 The actual file format depends on the version of the ICAT schema and
@@ -62,13 +62,13 @@ corresponding Grouping objects.
 References to ICAT objects and unique keys
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-References to related objects are encoded in ICAT data files by
+References to related objects are encoded in ICAT data files with
 reference keys.  There are two kinds of those keys, local keys and
 unique keys:
 
 When an ICAT object is defined in the file, it generally defines a
 local key at the same time.  Local keys are stored in the object index
-and may be used to reference this object from other obejcts in the
+and may be used to reference this object from other objects in the
 same data chunk.
 
 Unique keys can be obtained from an object by calling
@@ -149,7 +149,7 @@ Note that the UserGroup does not include its relation with Grouping.
 The latter relationship is implied by the parent relation of the
 object in the file.
 
-As an alternative, the Usergroup could have been added to the file as
+As an alternative, the UserGroup could have been added to the file as
 separate object as direct subelement of ``data``:
 
 .. code-block:: XML
@@ -262,7 +262,7 @@ that these UserGroups include their relation to the User, but not
 their relation with Grouping.  The latter relationship is implied by
 the parent relation of the object in the file.
 
-As an alternative, in the present example, the Usergroups could have
+As an alternative, in the present example, the UserGroups could have
 been added to the file as separate objects as in:
 
 .. code-block:: YAML
@@ -292,7 +292,7 @@ entity types in order to make sure that referenced objects are created
 before any object that may reference them.
 
 
-.. [#dc] There is one exception: DataCollections don't have a
+.. [#dc] There is one exception: DataCollections doesn't have a
          uniqueness constraint and can't reliably be searched by
          attributes.  Therefore local keys for DataCollections are
          always kept in the object index and may be used to reference

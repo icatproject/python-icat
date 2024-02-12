@@ -4,8 +4,8 @@ Metadata ingest files
 =====================
 
 Metadata ingest files are the input format for class
-:class:`icat.ingest.IngestReader`.  This class is intended to be uesd
-in scripts that read the metadata created by experimments into ICAT.
+:class:`icat.ingest.IngestReader`.  This class is intended to be used
+in scripts that read the metadata created by experiments into ICAT.
 The file format is basically a restricted version of
 :ref:`ICAT-data-xml-files`.
 
@@ -57,7 +57,7 @@ Schema Definition (XSD).
 
 Another change with respect to ICAT data XML files is that the name of
 the root element is ``icatingest`` and that it must have a ``version``
-attrbute.
+attribute.
 
 Example
 ~~~~~~~
@@ -79,8 +79,8 @@ added with prescribed values by class
 
 Some Datasets relate to Samples: the first two Datasets relate to the
 same Sample, the third Dataset to another Sample, while the last
-Dataset has no relation with any Sample.  All Samples a referenced by
-their name.  Class :class:`icat.ingest.IngestReader` will add a
+Dataset has no relation with any Sample.  All Samples are referenced
+by their name.  Class :class:`icat.ingest.IngestReader` will add a
 reference to the Investigation to this, so that only Samples that are
 related to prescribed Investigation can actually be referenced.
 
