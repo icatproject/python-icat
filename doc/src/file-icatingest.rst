@@ -37,9 +37,10 @@ ways:
 * the attributes in the object definitions for Datasets are restricted
   to name, description, startDate, and endDate.
 
-* object definitions for Datasets can not include a reference to the
-  related Investigation.  The relation with the prescribed
-  Investigation will be implied.
+* object definitions for Datasets can not include references to the
+  related Investigation or DatasetType.  These relation will be added
+  by :class:`icat.ingest.IngestReader`.  The relation to the
+  Investigation will be set to the prescribed Investigation.
 
 * object definitions for Datasets can reference a related Sample only
   by name or by pid.  A relation of the related Sample with the
