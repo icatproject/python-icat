@@ -15,8 +15,8 @@ problem is that this file format is too powerful: it can encode any
 ICAT content.  We want the ingest files from the experiment to create
 new Datasets and DatasetParameters, we certainly don't want these
 files to create new Instruments or Users in ICAT.  And we also want to
-control the Investigation that newly created Datasets will be added
-to.  It would be rather difficult to control the power of the input
+control to which Investigation newly created Datasets are going to be
+added.  It would be rather difficult to control the power of the input
 format if we would use plain ICAT data files for this purpose.
 
 .. note::
