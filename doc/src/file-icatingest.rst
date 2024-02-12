@@ -19,6 +19,16 @@ control the Investigation that newly created Datasets will be added
 to.  It would be rather difficult to control the power of the input
 format if we would use plain ICAT data files for this purpose.
 
+.. note::
+   The metadata ingest file format is versioned.  This version number
+   is independent from the python-icat version.  It is incremented
+   only when the format changes.  The latest version of the metadata
+   ingest file format is 1.1.
+
+.. versionchanged:: 1.2.0
+   add metadata ingest file format version 1.1: add support for
+   relating Datasets with Samples.
+
 Differences compared to ICAT data XML files
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

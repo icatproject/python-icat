@@ -52,9 +52,6 @@ reference to a ``Sample``.  That ``Sample`` objects needs to exist
 beforehand and needs to be related to the same ``Investigation`` as
 the ``Dataset``.
 
-.. versionchanged:: 1.2.0
-   add version 1.1 of the ingest file format, including references to samples
-
 .. autoclass:: icat.ingest.IngestReader
     :members:
     :show-inheritance:
