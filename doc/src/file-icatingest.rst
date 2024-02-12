@@ -93,7 +93,7 @@ same Sample, the third Dataset to another Sample, while the last
 Dataset has no relation with any Sample.  All Samples are referenced
 by their name.  Class :class:`icat.ingest.IngestReader` will add a
 reference to the Investigation to this, so that only Samples that are
-related to prescribed Investigation can actually be referenced.
+related to the prescribed Investigation can actually be referenced.
 
 Some DatasetParameter are added as separate objects in the file.  They
 respectively reference their related Datasets using local keys that
