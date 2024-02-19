@@ -9,12 +9,13 @@
 from pathlib import Path
 import sys
 
-maindir = Path(__file__).resolve().parent.parent.parent
+docsrcdir = Path(__file__).resolve().parent
+maindir = docsrcdir.parent.parent
 buildlib = maindir / "build" / "lib"
 sys.path[0] = str(buildlib)
+sys.dont_write_bytecode = True
 
 import icat._meta
-
 
 # -- Project information -----------------------------------------------------
 
@@ -28,6 +29,32 @@ release = icat._meta.version
 # The short X.Y version
 version = ".".join(release.split(".")[0:2])
 
+# Write a _meta.rst that defines some custom substitutions
+def make_meta_rst(last_release):
+    template = """:orphan:
+
+.. |distribution_source| replace:: %(dist_src_name)s
+.. |distribution_signature| replace:: %(dist_sig_name)s
+.. _distribution_source: %(dist_src_url)s
+.. _distribution_signature: %(dist_sig_url)s
+"""
+    github_repo = "https://github.com/icatproject/python-icat"
+    dist_src_name = "python-icat-%s.tar.gz" % last_release
+    dist_src_url = ("%s/releases/download/%s/%s"
+                    % (github_repo, last_release, dist_src_name))
+    dist_sig_name = "python-icat-%s.tar.gz.asc" % last_release
+    dist_sig_url = ("%s/releases/download/%s/%s"
+                    % (github_repo, last_release, dist_sig_name))
+    subst = {
+        'dist_src_name': dist_src_name,
+        'dist_src_url': dist_src_url,
+        'dist_sig_name': dist_sig_name,
+        'dist_sig_url': dist_sig_url,
+    }
+    with (docsrcdir / '_meta.rst').open('wt') as f:
+        print(template % subst, file=f)
+
+make_meta_rst(icat._meta.release)
 
 # -- General configuration ---------------------------------------------------
 
@@ -41,6 +68,7 @@ needs_sphinx = '1.8'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
+    'sphinx_copybutton',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -57,7 +85,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -110,6 +138,7 @@ html_show_sourcelink = False
 html_favicon = "images/favicon-32x32.png"
 
 html_css_files = [
+    'css/captions.css',
     'css/spacing.css',
 ]
 

@@ -21,10 +21,10 @@ is based on Suds and extends it with ICAT specific features.
 Download
 --------
 
-The latest release version can be found in the
-`Python Package Index (PyPI)`__.
+The latest release version can be found at the
+`release page on GitHub`__.
 
-.. __: `PyPI site`_
+.. __: `GitHub release`_
 
 
 Documentation
@@ -64,6 +64,6 @@ permissions and limitations under the License.
 
 
 .. _ICAT: https://icatproject.org/
-.. _PyPI site: https://pypi.org/project/python-icat/
+.. _GitHub release: https://github.com/icatproject/python-icat/releases/latest
 .. _Read the Docs site: https://python-icat.readthedocs.io/
 .. _Apache License: https://www.apache.org/licenses/LICENSE-2.0

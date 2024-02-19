@@ -1,0 +1,71 @@
+%YAML 1.1
+# Date: Wed, 03 Jan 2024 13:24:51 +0000
+# Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
+# ICAT-API: 6.0.0
+# Generator: icatdump (python-icat 1.2.0)
+---
+grouping:
+  Grouping_name-investigation=5F10100601=2DST=5Fowner:
+    name: investigation_10100601-ST_owner
+    userGroups:
+    - user: User_name-db=2Fahau
+  Grouping_name-investigation=5F10100601=2DST=5Freader:
+    name: investigation_10100601-ST_reader
+    userGroups:
+    - user: User_name-db=2Fjbotu
+    - user: User_name-db=2Fjdoe
+    - user: User_name-db=2Fnbour
+  Grouping_name-investigation=5F10100601=2DST=5Fwriter:
+    name: investigation_10100601-ST_writer
+    userGroups:
+    - user: User_name-db=2Fahau
+user:
+  User_name-db=2Fahau:
+    affiliation: Goethe University Frankfurt, Faculty of Philosophy and History
+    email: ahau@example.org
+    familyName: Hau
+    fullName: Arnold Hau
+    givenName: Arnold
+    name: db/ahau
+    orcidId: 0000-0002-3263
+  User_name-db=2Fjbotu:
+    affiliation: "Universit\xE9 Paul-Val\xE9ry Montpellier 3"
+    email: jbotu@example.org
+    familyName: Botul
+    fullName: Jean-Baptiste Botul
+    givenName: Jean-Baptiste
+    name: db/jbotu
+    orcidId: 0000-0002-3264
+  User_name-db=2Fjdoe:
+    email: jdoe@example.org
+    familyName: Doe
+    fullName: John Doe
+    givenName: John
+    name: db/jdoe
+  User_name-db=2Fnbour:
+    affiliation: University of Nancago
+    email: nbour@example.org
+    familyName: Bourbaki
+    fullName: Nicolas Bourbaki
+    givenName: Nicolas
+    name: db/nbour
+    orcidId: 0000-0002-3266
+---
+investigation:
+  Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN:
+    doi: DOI:00.0815/inv-00601
+    endDate: '2010-10-12T15:00:00+00:00'
+    facility: Facility_name-ESNF
+    fileCount: 4
+    fileSize: 127125
+    investigationGroups:
+    - grouping: Grouping_name-investigation=5F10100601=2DST=5Fowner
+      role: owner
+    - grouping: Grouping_name-investigation=5F10100601=2DST=5Freader
+      role: reader
+    - grouping: Grouping_name-investigation=5F10100601=2DST=5Fwriter
+      role: writer
+    name: 10100601-ST
+    startDate: '2010-09-30T10:27:24+00:00'
+    title: Ni-Mn-Ga flat cone
+    visitId: 1.1-N

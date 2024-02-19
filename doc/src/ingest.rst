@@ -11,7 +11,7 @@
    even in minor releases of python-icat.
 
 This module provides class :class:`icat.ingest.IngestReader` that
-reads metadata from an XML file to add them to ICAT.  It is designed
+reads :ref:`ICAT-ingest-files` to add them to ICAT.  It is designed
 for the use case of ingesting metadata for datasets created during
 experiments.
 
@@ -21,22 +21,14 @@ that base class in restricting the vocabular of the input file: only
 objects that need to be created during ingestion from the experiment
 may appear in the input.  This restriction is enforced by first
 validating the input against an XML Schema Definition (XSD).  In a
-second step, the input is transformed into generic XML :ref:`ICAT data
-file <ICAT-data-files>` format using an XSL Transformation (XSLT) and
-then fed into :class:`~icat.dumpfile_xml.XMLDumpFileReader`.  The
-format of the input files may be customized to some extent by providing
-custom versions of XSD and XSLT files, see :ref:`ingest-customize`
-below.
+second step, the input is transformed into generic :ref:`ICAT data XML
+file format <ICAT-data-xml-files>` using an XSL Transformation (XSLT)
+and then fed into :class:`~icat.dumpfile_xml.XMLDumpFileReader`.  The
+format of the input files may be customized to some extent by
+providing custom versions of XSD and XSLT files, see
+:ref:`ingest-customize` below.
 
-The input accepted by :class:`~icat.ingest.IngestReader` consists of
-one or more ``Dataset`` objects that all need to relate to the same
-``Investigation`` and any number of related ``DatasetTechnique``,
-``DatasetInstrument``, and ``DatasetParameter`` objects.  The
-``Investigation`` must exist beforehand in ICAT.  The relation from
-the ``Dataset`` objects to the ``Investigation`` will be set by
-:class:`~icat.ingest.IngestReader` accordingly.  (Actually, the XSLT
-will add that attribute to the datasets in the input.)  The
-``Dataset`` objects will not be created by
+The ``Dataset`` objects in the input will not be created by
 :class:`~icat.ingest.IngestReader`, because it is assumed that a
 separate workflow in the caller will copy the content of datafiles to
 the storage managed by IDS and create the corresponding ``Dataset``
@@ -46,18 +38,6 @@ of the datasets will be read from the input file and set in the
 :class:`~icat.ingest.IngestReader` will also create the related
 ``DatasetTechnique``, ``DatasetInstrument`` and ``DatasetParameter``
 objects read from the input file in ICAT.
-
-Using ingest file format 1.1, ``Dataset`` objects may also include a
-reference to a ``Sample``.  That ``Sample`` objects needs to exist
-beforehand and needs to be related to the same ``Investigation`` as
-the ``Dataset``.
-
-.. versionchanged:: 1.2.0
-   add version 1.1 of the ingest file format, including references to samples
-
-.. versionchanged:: 1.3.0
-   drop class attribute :attr:`~icat.ingest.IngestReader.XSLT_name` in
-   favour of :attr:`~icat.ingest.IngestReader.XSLT_Map`.
 
 .. autoclass:: icat.ingest.IngestReader
     :members:
@@ -125,7 +105,7 @@ override some class attributes as follows::
   import icat.ingest
 
   class MyFacilityIngestReader(icat.ingest.IngestReader):
-  
+
       # Override the directory to search for XSD and XSLT files:
       SchemaDir = Path("/usr/share/icat/my-facility")
 
