@@ -126,7 +126,9 @@ considered a security risk.
 Installation from the source distribution
 .........................................
 
-Steps to manually build from the source distribution:
+Note that the manual build does not automatically check the
+dependencies.  So we assume that you have all the systems requirements
+installed.  Steps to manually build from the source distribution:
 
 1. Download the sources.
 
@@ -172,9 +174,9 @@ Building from development sources
 .................................
 
 For production use, it is always recommended to use the latest release
-version from PyPI, see above.  If you need some not yet released
-bleeding edge feature or if you want to participate in the
-development, you may also clone the `source repository from GitHub`__.
+version, see above.  If you need some not yet released bleeding edge
+feature or if you want to participate in the development, you may also
+clone the `source repository from GitHub`__.
 
 Note that some source files are dynamically created and thus missing
 in the development sources.  If you want to build from the development
@@ -203,8 +205,8 @@ authentication plugin must also have these users configured.
 from the test server and replace it with example content.  Do not
 configure the tests to access a production server!
 
-You can safely run the tests without configuring any test server.  You
-will just get many skipped tests then.
+You can safely run the tests without configuring any test server.  But
+most of the test will be skipped then.
 
 
 .. _setuptools: https://github.com/pypa/setuptools/
