@@ -20,6 +20,7 @@ $(BUILDERS): $(STATIC_SOURCEDIRS)
 
 distclean:
 	rm -rf doctrees $(BUILDERS)
+	rm -f src/_meta.rst
 
 $(STATIC_SOURCEDIRS):
 	mkdir $@

@@ -1,0 +1,14 @@
+.rst-content div.figure p.caption, .rst-content table.docutils caption, .rst-content div.code-block-caption{
+    color: #404040;
+    font-style: italic;
+    font-size: 90%;
+    line-height: normal;
+    text-align: left;
+}
+.rst-content div.figure p.caption span.caption-number, .rst-content table.docutils caption span.caption-number, .rst-content div.code-block-caption span.caption-number{
+    font-weight: bold;
+}
+.rst-content div.code-block-caption a.headerlink, .rst-content table.docutils caption a.headerlink{
+    display: none;
+    visibility: hidden;
+}

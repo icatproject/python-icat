@@ -4,6 +4,5 @@ lxml
 packaging
 setuptools
 suds
-jinja2<3.1
-sphinx>=2,<3
-sphinx-rtd-theme>=0.5,<1
+sphinx-copybutton
+sphinx_rtd_theme

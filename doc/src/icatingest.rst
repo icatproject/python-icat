@@ -7,7 +7,8 @@ icatingest
 Synopsis
 ~~~~~~~~
 
-**icatingest** [*standard options*] [-i FILE] [-f FORMAT] [--upload-datafiles] [--datafile-dir DATADIR] [--duplicate OPTION]
+| **icatingest** [*standard options*] [-i FILE] [-f FORMAT]
+|     [--upload-datafiles] [--datafile-dir DATADIR] [--duplicate OPTION]
 
 
 Description
@@ -71,12 +72,12 @@ The following options are specific to icatingest:
 
     **CHECK**
         Compare all attributes from the input object with the already
-	existing object in ICAT.  Throw an error of any attribute
-	differs.
+        existing object in ICAT.  Throw an error of any attribute
+        differs.
 
     **OVERWRITE**
         Overwrite the existing object in ICAT, e.g. update it with all
-	attributes set to the values found in the input object.
+        attributes set to the values found in the input object.
 
     If :option:`--upload-datafiles` is set, this option will be
     ignored for Datafile objects which will then always raise an error
