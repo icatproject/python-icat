@@ -29,8 +29,12 @@ Incompatible changes
 Bug fixes and minor changes
 ---------------------------
 
-+ `#145`_: Review build tool chain
++ `#141`_, `#142`_: Review documentation.
 
++ `#145`_: Review build tool chain.
+
+.. _#141: https://github.com/icatproject/python-icat/issues/141
+.. _#142: https://github.com/icatproject/python-icat/pull/142
 .. _#143: https://github.com/icatproject/python-icat/issues/143
 .. _#144: https://github.com/icatproject/python-icat/pull/144
 .. _#145: https://github.com/icatproject/python-icat/pull/145
