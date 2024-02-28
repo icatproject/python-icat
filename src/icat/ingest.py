@@ -73,6 +73,10 @@ class IngestReader(XMLDumpFileReader):
     .. versionchanged:: 1.3.0
        drop class attribute :attr:`~icat.ingest.IngestReader.XSLT_name`
        in favour of :attr:`~icat.ingest.IngestReader.XSLT_Map`.
+
+    .. versionchanged:: 1.3.0
+        inject an element `_environment` as first child of the root
+        element into the input data.
     """
 
     SchemaDir = Path("/usr/share/icat")
@@ -110,6 +114,7 @@ class IngestReader(XMLDumpFileReader):
             schema = etree.XMLSchema(etree.parse(f))
         if not schema.validate(ingest_data):
             raise InvalidIngestFileError("validation failed")
+        self.add_environment(client, ingest_data)
         with self.get_xslt(ingest_data).open("rb") as f:
             xslt = etree.XSLT(etree.parse(f))
         super().__init__(client, xslt(ingest_data))
@@ -179,6 +184,34 @@ class IngestReader(XMLDumpFileReader):
         except KeyError:
             raise InvalidIngestFileError("unknown format")
         return self.SchemaDir / xslt
+
+    def get_environment(self, client):
+        """Get the environment to be injected as an element into the input.
+
+        :param client: the client object being used by this
+            IngestReader.
+        :type client: :class:`icat.client.Client`
+        :return: the environment.
+        :rtype: :class:`dict`
+
+        .. versionadded:: 1.3.0
+        """
+        return dict(icat_version=str(client.apiversion))
+
+    def add_environment(self, client, ingest_data):
+        """Inject environment information into input data.
+
+        :param client: the client object being used by this
+            IngestReader.
+        :type client: :class:`icat.client.Client`
+        :param ingest_data: input data
+        :type ingest_data: :class:`lxml.etree._ElementTree`
+
+        .. versionadded:: 1.3.0
+        """
+        env = self.get_environment(client)
+        env_elem = etree.Element("_environment", **env)
+        ingest_data.getroot().insert(0, env_elem)
 
     def getobjs_from_data(self, data, objindex):
         typed_objindex = set()

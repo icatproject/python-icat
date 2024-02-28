@@ -11,7 +11,8 @@ import icat
 import icat.config
 from icat.ingest import IngestReader
 from icat.query import Query
-from conftest import getConfig, gettestdata, icat_version, testdatadir
+from conftest import (getConfig, gettestdata, icat_version,
+                      get_icatdata_schema, testdatadir)
 
 
 def get_test_investigation(client):
@@ -80,14 +81,13 @@ class MyIngestReader(IngestReader):
 cet = datetime.timezone(datetime.timedelta(hours=1))
 cest = datetime.timezone(datetime.timedelta(hours=2))
 
-Case = namedtuple('Case', ['data', 'metadata', 'schema', 'checks', 'marks'])
+Case = namedtuple('Case', ['data', 'metadata', 'checks', 'marks'])
 
 # Try out different variants for the metadata input file
 cases = [
     Case(
         data = ["testingest_inl_1", "testingest_inl_2"],
         metadata = gettestdata("metadata-4.4-inl.xml"),
-        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {
             "testingest_inl_1": [
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
@@ -127,7 +127,6 @@ cases = [
     Case(
         data = ["testingest_inl5_1", "testingest_inl5_2"],
         metadata = gettestdata("metadata-5.0-inl.xml"),
-        schema = gettestdata("icatdata-5.0.xsd"),
         checks = {
             "testingest_inl5_1": [
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
@@ -186,7 +185,6 @@ cases = [
     Case(
         data = ["testingest_sep_1", "testingest_sep_2"],
         metadata = gettestdata("metadata-4.4-sep.xml"),
-        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {
             "testingest_sep_1": [
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
@@ -226,7 +224,6 @@ cases = [
     Case(
         data = ["testingest_sep5_1", "testingest_sep5_2"],
         metadata = gettestdata("metadata-5.0-sep.xml"),
-        schema = gettestdata("icatdata-5.0.xsd"),
         checks = {
             "testingest_sep5_1": [
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
@@ -286,7 +283,6 @@ cases = [
         data = [ "testingest_sample_1", "testingest_sample_2",
                  "testingest_sample_3", "testingest_sample_4" ],
         metadata = gettestdata("metadata-sample.xml"),
-        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {
             "testingest_sample_1": [
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
@@ -357,7 +353,7 @@ def test_ingest_schema(client, investigation, schemadir, case):
     for name in case.data:
         datasets.append(client.new("Dataset", name=name))
     reader = IngestReader(client, case.metadata, investigation)
-    with case.schema.open("rb") as f:
+    with get_icatdata_schema().open("rb") as f:
         schema = etree.XMLSchema(etree.parse(f))
     assert schema.validate(reader.infile)
 
@@ -406,7 +402,6 @@ io_cases = [
     Case(
         data = ["testingest_io_1"],
         metadata = io_metadata,
-        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {
             "testingest_io_1": [
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
@@ -529,28 +524,24 @@ invalid_cases = [
     Case(
         data = [],
         metadata = invalid_root_metadata,
-        schema = None,
         checks = {},
         marks = (),
     ),
     Case(
         data = [],
         metadata = invalid_ver_metadata,
-        schema = None,
         checks = {},
         marks = (),
     ),
     Case(
         data = ["testingest_err_invalid_ref"],
         metadata = invalid_ref_metadata,
-        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {},
         marks = (),
     ),
     Case(
         data = ["testingest_err_invalid_dup"],
         metadata = invalid_dup_metadata,
-        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {},
         marks = (),
     ),
@@ -558,7 +549,6 @@ invalid_cases = [
         data = ["testingest_err_invalid_dup_id_1",
                 "testingest_err_invalid_dup_id_2"],
         metadata = invalid_dup_id_metadata,
-        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {},
         marks = (),
     ),
@@ -614,14 +604,12 @@ searcherr_cases = [
     Case(
         data = ["testingest_err_search_attr"],
         metadata = searcherr_attr_metadata,
-        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {},
         marks = (),
     ),
     Case(
         data = ["testingest_err_search_ref"],
         metadata = searcherr_ref_metadata,
-        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {},
         marks = (),
     ),
@@ -642,7 +630,6 @@ customcases = [
     Case(
         data = ["testingest_custom_icatingest_1"],
         metadata = gettestdata("metadata-custom-icatingest.xml"),
-        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {
             "testingest_custom_icatingest_1": [
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
@@ -662,7 +649,6 @@ customcases = [
     Case(
         data = ["testingest_custom_myingest_1"],
         metadata = gettestdata("metadata-custom-myingest.xml"),
-        schema = gettestdata("icatdata-4.4.xsd"),
         checks = {
             "testingest_custom_myingest_1": [
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
@@ -714,3 +700,38 @@ def test_custom_ingest(client, investigation, samples, schemadir, case):
         ds = client.assertedSearch(query)[0]
         for query, res in case.checks[name]:
             assert client.assertedSearch(query % ds.id)[0] == res
+
+
+env_cases = [
+    Case(
+        data = ["testingest_inl_1", "testingest_inl_2"],
+        metadata = gettestdata("metadata-4.4-inl.xml"),
+        checks = {},
+        marks = (),
+    ),
+]
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in env_cases
+])
+def test_ingest_env(monkeypatch, client, investigation, schemadir, case):
+    """Test using the _environment element.
+
+    Applying a custom XSLT that extracts an attribute from the
+    _environment element that is injected by IngestReader into the
+    input data and puts that values into the head element of the
+    transformed input.  This is to test that adding the _environment
+    element works and it is in principle possible to make use of the
+    values in the XSLT.
+    """
+    monkeypatch.setattr(IngestReader,
+                        "XSLT_Map", dict(icatingest="ingest-env.xslt"))
+    datasets = []
+    for name in case.data:
+        datasets.append(client.new("Dataset", name=name))
+    reader = IngestReader(client, case.metadata, investigation)
+    with get_icatdata_schema().open("rb") as f:
+        schema = etree.XMLSchema(etree.parse(f))
+    assert schema.validate(reader.infile)
+    version_elem = reader.infile.xpath("/icatdata/head/apiversion")
+    assert version_elem
+    assert version_elem[0].text == str(client.apiversion)

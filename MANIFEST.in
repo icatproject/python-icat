@@ -17,6 +17,7 @@ include doc/tutorial/*.py
 include etc/ingest-*.xsd
 include etc/ingest.xslt
 include tests/conftest.py
+include tests/data/ingest-env.xslt
 include tests/data/legacy-icatdump-*.xml
 include tests/data/legacy-icatdump-*.yaml
 include tests/data/metadata-*.xml

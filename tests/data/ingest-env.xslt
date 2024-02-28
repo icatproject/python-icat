@@ -4,27 +4,35 @@
 
     <xsl:output method="xml"/>
 
-    <xsl:template match="/myingest">
+    <xsl:template match="/icatingest">
 	<icatdata>
 	    <xsl:apply-templates/>
 	</icatdata>
     </xsl:template>
 
-    <xsl:template match="/myingest/_environment"/>
+    <xsl:template match="/icatingest/_environment"/>
 
-    <xsl:template match="/myingest/head"/>
+    <xsl:template match="/icatingest/head">
+	<head>
+	    <date>2024-01-22T14:30:51+01:00</date>
+	    <apiversion>
+		<xsl:copy-of select="string(/icatingest/_environment/@icat_version)"/>
+	    </apiversion>
+	    <generator>ingest-env.xslt</generator>
+	</head>
+    </xsl:template>
 
-    <xsl:template match="/myingest/data">
+    <xsl:template match="/icatingest/data">
 	<data>
 	    <xsl:apply-templates/>
 	</data>
     </xsl:template>
 
-    <xsl:template match="/myingest/data/dataset">
+    <xsl:template match="/icatingest/data/dataset">
 	<dataset>
 	    <xsl:copy-of select="@id"/>
 	    <complete>false</complete>
-	    <xsl:apply-templates select="description"/>
+	    <xsl:copy-of select="description"/>
 	    <xsl:copy-of select="endDate"/>
 	    <xsl:copy-of select="name"/>
 	    <xsl:copy-of select="startDate"/>
@@ -33,21 +41,11 @@
 	    <type name="raw"/>
 	    <xsl:copy-of select="datasetInstruments"/>
 	    <xsl:copy-of select="datasetTechniques"/>
-	    <parameters>
-		<stringValue>x-ray</stringValue>
-		<type name="Probe"/>
-	    </parameters>
 	    <xsl:copy-of select="parameters"/>
 	</dataset>
     </xsl:template>
 
-    <xsl:template match="/myingest/data/dataset/description">
-	<xsl:copy>
-	    <xsl:value-of select="concat('My Ingest: ', .)"/>
-	</xsl:copy>
-    </xsl:template>
-
-    <xsl:template match="/myingest/data/dataset/sample">
+    <xsl:template match="/icatingest/data/dataset/sample">
 	<xsl:copy>
 	    <xsl:attribute name="investigation.ref">_Investigation</xsl:attribute>
 	    <xsl:copy-of select="@*"/>
