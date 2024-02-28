@@ -14,6 +14,9 @@ New features
   processing the input in custom versions of
   :class:`icat.ingest.IngestReader`.
 
++ `#148`_, `#149`_: Inject an additional element with environment
+  information into the input data in :class:`icat.ingest.IngestReader`.
+
 + `#146`_, `#147`_: Better error handling in
   :class:`icat.ingest.IngestReader`.
 
@@ -40,6 +43,8 @@ Bug fixes and minor changes
 .. _#145: https://github.com/icatproject/python-icat/pull/145
 .. _#146: https://github.com/icatproject/python-icat/issues/146
 .. _#147: https://github.com/icatproject/python-icat/pull/147
+.. _#148: https://github.com/icatproject/python-icat/issues/148
+.. _#149: https://github.com/icatproject/python-icat/pull/149
 
 
 .. _changes-1_2_0:
