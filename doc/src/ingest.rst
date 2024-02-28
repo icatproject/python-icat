@@ -44,6 +44,57 @@ objects read from the input file in ICAT.
     :show-inheritance:
 
 
+.. _ingest-process:
+
+Ingest process
+--------------
+
+The processing of ingest files during the instantiation of an
+:class:`~icat.ingest.IngestReader` object may be summarized with the
+following steps:
+
+1. Read the metadata and parse the :class:`lxml.etree._ElementTree`.
+
+2. Call :meth:`~icat.ingest.IngestReader.get_xsd` to get the
+   appropriate XSD file and validate the metadata against that schema.
+
+3. Inject an ``_environment`` element as first child of the ``data``
+   element, see below.
+
+4. Call :meth:`~icat.ingest.IngestReader.get_xslt` to get the
+   appropriate XSLT file and transform the metadata into generic ICAT
+   data XML file format.
+
+5. Feed the result of the transformation into the parent class
+   :class:`~icat.dumpfile_xml.XMLDumpFileReader`.
+
+Once this initialization is done,
+:meth:`~icat.ingest.IngestReader.ingest` may be called to read the
+individual objects defined in the metadata.
+
+
+.. _ingest-environment:
+
+The environment element
+-----------------------
+
+During the processing of ingest files, an ``_environment`` element
+will be injected as the first child of the ``data`` element.  In the
+current version of python-icat, this ``_environment`` element has the
+following attributes:
+
+  `icat_version`
+    Version of the ICAT server this client connects to, e.g. the
+    :attr:`icat.client.Client.apiversion` attribute of the `client`
+    object being used by this :class:`~icat.ingest.IngestReader`.
+
+More attributes may be added in future versions.  This
+``_environment`` element may be used by the XSLT in order to adapt the
+result of the transformation to the environment, in particular to
+adapt the output to the ICAT schema version it is supposed to conform
+to.
+
+
 .. _ingest-example:
 
 Ingest example
