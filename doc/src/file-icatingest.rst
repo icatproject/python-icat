@@ -26,7 +26,7 @@ format if we would use plain ICAT data files for this purpose.
    ingest file format is 1.1.
 
 .. versionchanged:: 1.2.0
-   add metadata ingest file format version 1.1: add support for
+   add metadata ingest file format version 1.1, adding support for
    relating Datasets with Samples.
 
 Differences compared to ICAT data XML files
