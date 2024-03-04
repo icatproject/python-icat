@@ -68,8 +68,12 @@ needs_sphinx = '1.8'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
-    'sphinx_copybutton',
 ]
+try:
+    import sphinx_copybutton
+    extensions.append('sphinx_copybutton')
+except ImportError:
+    pass
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
