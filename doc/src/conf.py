@@ -106,7 +106,10 @@ autodoc_member_order = 'bysource'
 
 # -- Options for intersphinx extension ---------------------------------------
 
-intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'lxml': ('https://lxml.de/apidoc/', None),
+}
 
 # -- Options for HTML output -------------------------------------------------
 
