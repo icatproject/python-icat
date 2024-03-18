@@ -101,11 +101,12 @@ to provide some information on the context of the creation of the data
 file, which may be useful for debugging in case of issues.
 
 The content of each ``data`` element is one chunk, its subelements are
-the ICAT object definitions according to the logical structure
-explained above.  The present example contains two chunks: the first
-chunk contains four User objects and three Grouping objects.  The
-Groupings include related UserGroups.  The second chunk only contains
-one Investigation, including related InvestigationGroups.
+either the ICAT object definitions according to the logical structure
+explained above or ICAT object references, see below.  The present
+example contains two chunks: the first chunk contains four User
+objects and three Grouping objects.  The Groupings include related
+UserGroups.  The second chunk only contains one Investigation,
+including related InvestigationGroups.
 
 The object elements may have an ``id`` attribute that define a local
 key to reference the object later on.  The subelements of the object
@@ -208,6 +209,71 @@ version: the present example can only be ingested into ICAT server 5.0
 or newer, because the attributes fileCount and fileSize have been
 added to Investigation in this version.  With older ICAT versions, it
 will fail because these attributes are not defined.
+
+For some further features of the ICAT data XML file format consider
+the following example:
+
+.. code-block:: XML
+
+  <?xml version="1.0" encoding="utf-8"?>
+  <icatdata>
+    <head>
+      <date>2023-10-17T07:33:36Z</date>
+      <generator>manual edit</generator>
+    </head>
+    <data>
+      <investigationRef id="inv_1" name="10100601-ST" visitId="1.1-N"/>
+      <dataset id="dataset_1">
+        <complete>false</complete>
+        <endDate>2012-07-30T01:10:08+00:00</endDate>
+        <name>e209001</name>
+        <startDate>2012-07-26T15:44:24+00:00</startDate>
+        <investigation ref="inv_1"/>
+        <sample name="ab3465" investigation.ref="inv_1"/>
+        <type name="raw"/>
+      </dataset>
+      <dataset id="dataset_2">
+        <complete>false</complete>
+        <endDate>2012-08-06T01:10:08+00:00</endDate>
+        <name>e209002</name>
+        <startDate>2012-08-02T05:30:00+00:00</startDate>
+        <investigation ref="inv_1"/>
+        <sample name="ab3465" investigation.ref="inv_1"/>
+        <type name="raw"/>
+      </dataset>
+      <dataset id="dataset_3">
+        <complete>false</complete>
+        <endDate>2012-07-16T14:30:17+00:00</endDate>
+        <name>e209003</name>
+        <startDate>2012-07-16T11:42:05+00:00</startDate>
+        <investigation ref="inv_1"/>
+        <sample name="ab3466" investigation.ref="inv_1"/>
+        <type name="raw"/>
+      </dataset>
+      <dataset id="dataset_4">
+        <complete>false</complete>
+        <endDate>2012-07-31T22:52:23+00:00</endDate>
+        <name>e209004</name>
+        <startDate>2012-07-31T20:20:37+00:00</startDate>
+        <investigation ref="inv_1"/>
+        <type name="raw"/>
+      </dataset>
+    </data>
+  </icatdata>
+
+In this case, the first subelelement of the ``data`` element is an
+ICAT object reference ``investigationRef``.  It does not define an
+ICAT object to be created when reading the ICAT data file but
+references an already existing Investigation object by attributes.  It
+defines a local key in the ``id`` attribute that can be used in
+subsequent ICAT object definitions to reference this investigation
+more easily.  In this example, the same chunk contains four Dataset
+objects that use that key to set their relation with the
+investigation.  Furthermore some of the Dataset have a relation with a
+Sample that is respectively referenced by its name and relation to the
+same investigation.  Again, the reference from the sample to the
+investigation reuse the same key for the investigation.
+
 
 You will find more extensive examples in the source distribution of
 python-icat.  The distribution also provides XML Schema Definition
