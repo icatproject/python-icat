@@ -171,9 +171,9 @@ A few derived variables are also set in
     | `promptPass`    | ``-P``, ``--prompt-pass``   |                       | :const:`False` | no        | \(3),(4),(5) |
     +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
 
-See the table for an overview of predefined configuration variables.
-Mandatory means that an error will be raised in
-:meth:`icat.config.Config.getconfig` if no value is found for the
+See :numref:`tab-config-vars` for an overview of predefined
+configuration variables.  Mandatory means that an error will be raised
+in :meth:`icat.config.Config.getconfig` if no value is found for the
 configuration variable in question.
 
 Notes:
