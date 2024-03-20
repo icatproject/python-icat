@@ -112,8 +112,10 @@ class IngestReader(XMLDumpFileReader):
             raise InvalidIngestFileError(e)
         with self.get_xsd(ingest_data).open("rb") as f:
             schema = etree.XMLSchema(etree.parse(f))
-        if not schema.validate(ingest_data):
-            raise InvalidIngestFileError("validation failed")
+        try:
+            schema.assertValid(ingest_data)
+        except etree.DocumentInvalid as exc:
+            raise InvalidIngestFileError("DocumentInvalid: %s" % exc)
         self.add_environment(client, ingest_data)
         with self.get_xslt(ingest_data).open("rb") as f:
             xslt = etree.XSLT(etree.parse(f))

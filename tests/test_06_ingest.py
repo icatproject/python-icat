@@ -357,7 +357,7 @@ def test_ingest_schema(client, investigation, schemadir, case):
     reader = IngestReader(client, case.metadata, investigation)
     with get_icatdata_schema().open("rb") as f:
         schema = etree.XMLSchema(etree.parse(f))
-    assert schema.validate(reader.infile)
+    schema.assertValid(reader.infile)
 
 @pytest.mark.parametrize("case", [
     pytest.param(c, id=c.metadata.name, marks=c.marks) for c in cases
@@ -735,7 +735,7 @@ def test_ingest_env(monkeypatch, client, investigation, schemadir, case):
     reader = IngestReader(client, case.metadata, investigation)
     with get_icatdata_schema().open("rb") as f:
         schema = etree.XMLSchema(etree.parse(f))
-    assert schema.validate(reader.infile)
+    schema.assertValid(reader.infile)
     version_elem = reader.infile.xpath("/icatdata/head/apiversion")
     assert version_elem
     assert version_elem[0].text == str(client.apiversion)
