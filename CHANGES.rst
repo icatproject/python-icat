@@ -17,7 +17,7 @@ New features
 + `#148`_, `#149`_: Inject an additional element with environment
   information into the input data in :class:`icat.ingest.IngestReader`.
 
-+ `#146`_, `#147`_: Better error handling in
++ `#146`_, `#147`_, `#151`_: Better error handling in
   :class:`icat.ingest.IngestReader`.
 
 Incompatible changes
@@ -31,10 +31,6 @@ Incompatible changes
 
 Bug fixes and minor changes
 ---------------------------
-
-+ `#151`_: Provide a more meaningful error message if the input to
-  :class:`icat.ingest.IngestReader` fails validation against the XML
-  Schema Definition.
 
 + `#141`_, `#142`_, `#150`_: Review documentation.
 

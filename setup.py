@@ -182,8 +182,8 @@ setup(
         Source="https://github.com/icatproject/python-icat/",
         Download=("https://github.com/icatproject/python-icat/releases/%s/"
                   % release),
-        Changes=("https://python-icat.readthedocs.io/en/%s/changelog.html"
-                 % release),
+        Changes=("https://python-icat.readthedocs.io/en/stable"
+                 "/changelog.html#changes-%s" % release.replace('.', '-')),
     ),
     packages = ["icat"],
     package_dir = {"": "src"},
