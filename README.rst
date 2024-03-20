@@ -50,7 +50,7 @@ the reason why the example scripts require PyYAML.
 Copyright and License
 ---------------------
 
-Copyright 2013–2023
+Copyright 2013–2024
 Helmholtz-Zentrum Berlin für Materialien und Energie GmbH
 
 Licensed under the `Apache License`_, Version 2.0 (the "License"); you
