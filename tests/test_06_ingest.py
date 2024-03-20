@@ -4,6 +4,7 @@
 from collections import namedtuple
 import datetime
 import io
+import logging
 import pytest
 pytest.importorskip("lxml")
 from lxml import etree
@@ -14,6 +15,7 @@ from icat.query import Query
 from conftest import (getConfig, gettestdata, icat_version,
                       get_icatdata_schema, testdatadir)
 
+logger = logging.getLogger(__name__)
 
 def get_test_investigation(client):
     query = Query(client, "Investigation", conditions={
@@ -355,7 +357,7 @@ def test_ingest_schema(client, investigation, schemadir, case):
     reader = IngestReader(client, case.metadata, investigation)
     with get_icatdata_schema().open("rb") as f:
         schema = etree.XMLSchema(etree.parse(f))
-    assert schema.validate(reader.infile)
+    schema.assertValid(reader.infile)
 
 @pytest.mark.parametrize("case", [
     pytest.param(c, id=c.metadata.name, marks=c.marks) for c in cases
@@ -560,9 +562,10 @@ def test_ingest_error_invalid(client, investigation, schemadir, case):
     datasets = []
     for name in case.data:
         datasets.append(client.new("Dataset", name=name))
-    with pytest.raises(icat.InvalidIngestFileError):
+    with pytest.raises(icat.InvalidIngestFileError) as exc:
         reader = IngestReader(client, case.metadata, investigation)
         reader.ingest(datasets, dry_run=True, update_ds=True)
+    logger.info("Raised %s: %s", exc.type.__name__, exc.value)
 
 searcherr_attr_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
 <icatingest version="1.0">
@@ -621,9 +624,10 @@ def test_ingest_error_searcherr(client, investigation, schemadir, case):
     datasets = []
     for name in case.data:
         datasets.append(client.new("Dataset", name=name))
-    with pytest.raises(icat.SearchResultError):
+    with pytest.raises(icat.SearchResultError) as exc:
         reader = IngestReader(client, case.metadata, investigation)
         reader.ingest(datasets, dry_run=True, update_ds=True)
+    logger.info("Raised %s: %s", exc.type.__name__, exc.value)
 
 
 customcases = [
@@ -731,7 +735,7 @@ def test_ingest_env(monkeypatch, client, investigation, schemadir, case):
     reader = IngestReader(client, case.metadata, investigation)
     with get_icatdata_schema().open("rb") as f:
         schema = etree.XMLSchema(etree.parse(f))
-    assert schema.validate(reader.infile)
+    schema.assertValid(reader.infile)
     version_elem = reader.infile.xpath("/icatdata/head/apiversion")
     assert version_elem
     assert version_elem[0].text == str(client.apiversion)

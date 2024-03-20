@@ -32,6 +32,10 @@ Incompatible changes
 Bug fixes and minor changes
 ---------------------------
 
++ `#151`_: Provide a more meaningful error message if the input to
+  :class:`icat.ingest.IngestReader` fails validation against the XML
+  Schema Definition.
+
 + `#141`_, `#142`_, `#150`_: Review documentation.
 
 + `#145`_: Review build tool chain.
@@ -46,6 +50,7 @@ Bug fixes and minor changes
 .. _#148: https://github.com/icatproject/python-icat/issues/148
 .. _#149: https://github.com/icatproject/python-icat/pull/149
 .. _#150: https://github.com/icatproject/python-icat/pull/150
+.. _#151: https://github.com/icatproject/python-icat/pull/151
 
 
 .. _changes-1_2_0:
