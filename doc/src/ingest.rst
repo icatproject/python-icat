@@ -49,8 +49,8 @@ objects read from the input file in ICAT.
 Ingest process
 --------------
 
-The processing of ingest files during the instantiation of an
-:class:`~icat.ingest.IngestReader` object may be summarized with the
+The processing of the metadata during the instantiation of an
+:class:`~icat.ingest.IngestReader` object may be summarized by the
 following steps:
 
 1. Read the metadata and parse the :class:`lxml.etree._ElementTree`.
@@ -58,7 +58,7 @@ following steps:
 2. Call :meth:`~icat.ingest.IngestReader.get_xsd` to get the
    appropriate XSD file and validate the metadata against that schema.
 
-3. Inject an ``_environment`` element as first child of the ``data``
+3. Inject an ``_environment`` element as first child of the root
    element, see below.
 
 4. Call :meth:`~icat.ingest.IngestReader.get_xslt` to get the
@@ -78,8 +78,8 @@ individual objects defined in the metadata.
 The environment element
 -----------------------
 
-During the processing of ingest files, an ``_environment`` element
-will be injected as the first child of the ``data`` element.  In the
+During the processing of the metadata, an ``_environment`` element
+will be injected as the first child of the root element.  In the
 current version of python-icat, this ``_environment`` element has the
 following attributes:
 

@@ -75,7 +75,7 @@ class IngestReader(XMLDumpFileReader):
        in favour of :attr:`~icat.ingest.IngestReader.XSLT_Map`.
 
     .. versionchanged:: 1.3.0
-        inject an element `_environment` as first child of the root
+        inject an element ``_environment`` as first child of the root
         element into the input data.
     """
 
@@ -188,6 +188,9 @@ class IngestReader(XMLDumpFileReader):
     def get_environment(self, client):
         """Get the environment to be injected as an element into the input.
 
+        Subclasses may override this method to control the attributes
+        set in the environment.
+
         :param client: the client object being used by this
             IngestReader.
         :type client: :class:`icat.client.Client`
@@ -200,6 +203,11 @@ class IngestReader(XMLDumpFileReader):
 
     def add_environment(self, client, ingest_data):
         """Inject environment information into input data.
+
+        The attributes set in the environment are determined by
+        calling :meth:`~icat.ingest.IngestReader.get_environment`.
+        Subclasses may override this method to fully control the
+        process of adding the environment element.
 
         :param client: the client object being used by this
             IngestReader.
@@ -244,11 +252,16 @@ class IngestReader(XMLDumpFileReader):
         created in ICAT.  In this case, the `datasets` in the argument
         must already have been created in ICAT beforehand (e.g. the
         `id` attribute must be set).  If `dry_run` is :const:`True`,
-        the `datasets` don't need to be created beforehand.
+        the objects in the metadata will be checked for conformance,
+        but nothing will be committed to ICAT.  In this case, the
+        `datasets` don't need to be created beforehand.
 
         if `update_ds` is :const:`True`, the objects in the `datasets`
         argument will be updated: the attributes and the relations to
         other objects will be set to the values read from the input.
+        This is particularly useful in conjunction with `dry_run` in
+        order to update the `datasets` from the metadata prior to
+        creating them in ICAT.
 
         :param datasets: list of allowed datasets in the input.
         :type datasets: iterable of :class:`icat.entity.Entity`

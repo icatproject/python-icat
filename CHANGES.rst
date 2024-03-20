@@ -32,7 +32,7 @@ Incompatible changes
 Bug fixes and minor changes
 ---------------------------
 
-+ `#141`_, `#142`_: Review documentation.
++ `#141`_, `#142`_, `#150`_: Review documentation.
 
 + `#145`_: Review build tool chain.
 
@@ -45,6 +45,7 @@ Bug fixes and minor changes
 .. _#147: https://github.com/icatproject/python-icat/pull/147
 .. _#148: https://github.com/icatproject/python-icat/issues/148
 .. _#149: https://github.com/icatproject/python-icat/pull/149
+.. _#150: https://github.com/icatproject/python-icat/pull/150
 
 
 .. _changes-1_2_0:
