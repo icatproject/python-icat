@@ -62,9 +62,8 @@ corresponding Grouping objects.
 References to ICAT objects and unique keys
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-References to related objects are encoded in ICAT data files with
-reference keys.  There are two kinds of those keys, local keys and
-unique keys:
+References to ICAT objects may be encoded using reference keys.  There
+are two kinds of those keys, local keys and unique keys:
 
 When an ICAT object is defined in the file, it generally defines a
 local key at the same time.  Local keys are stored in the object index
@@ -86,12 +85,6 @@ Reference keys should be considered as opaque ids.
 ICAT data XML files
 ~~~~~~~~~~~~~~~~~~~
 
-In this section we describe the ICAT data file format using the XML
-backend.  Consider the following example:
-
-.. literalinclude:: ../examples/icatdump-simple.xml
-   :language: xml
-
 The root element of ICAT data XML files is ``icatdata``.  It may
 optionally have one ``head`` subelement and one or more ``data``
 subelements.
@@ -100,180 +93,164 @@ The ``head`` element will be ignored by :ref:`icatingest`.  It serves
 to provide some information on the context of the creation of the data
 file, which may be useful for debugging in case of issues.
 
-The content of each ``data`` element is one chunk, its subelements are
-either the ICAT object definitions according to the logical structure
-explained above or ICAT object references, see below.  The present
-example contains two chunks: the first chunk contains four User
-objects and three Grouping objects.  The Groupings include related
-UserGroups.  The second chunk only contains one Investigation,
-including related InvestigationGroups.
+The actual payload of an ICAT data XML file is in the ``data``
+elements.  There can be any number of them and each is one chunk
+according to the logical structure explained above.  The subelements
+of ``data`` may either be ICAT object references or ICAT object
+definitions, both explained in detail below.  Either of them may have
+an ``id`` attribute that defines a local key that allows to reference
+the corresponding object later on.
 
-The object elements may have an ``id`` attribute that define a local
-key to reference the object later on.  The subelements of the object
-elements correspond to the object's attributes and relations according
-to the ICAT schema.  All many-to-one relations must be provided and
-reference already existing objects, e.g. they must either already have
-existed before starting the ingestion or appear earlier in the ICAT
-data file than the referencing object, so that they will be created
-earlier.  The related object may either be referenced by reference key
-using the ``ref`` attribute or by the related object's attribute
-values, using XML attributes of the same name.  In the latter case,
-the attribute values must uniquely define the related object.
-
-Consider a simplified version of the first chunk from the present
-example, defining only one User, Grouping and UserGroup respectively:
+:numref:`snip-file-icatdata-xml-1` shows a simple example for an ICAT
+data XML file having one single ``data`` element that defines four
+Datasets.
 
 .. code-block:: XML
+    :name: snip-file-icatdata-xml-1
+    :caption: A simple example for an ICAT data XML file
+    :dedent: 2
 
-  <data>
-    <user id="User_name-db=2Fahau">
-      <affiliation>Goethe University Frankfurt, Faculty of Philosophy and History</affiliation>
-      <email>ahau@example.org</email>
-      <familyName>Hau</familyName>
-      <fullName>Arnold Hau</fullName>
-      <givenName>Arnold</givenName>
-      <name>db/ahau</name>
-      <orcidId>0000-0002-3263</orcidId>
-    </user>
-    <grouping id="Grouping_name-investigation=5F10100601=2DST=5Fowner">
-      <name>investigation_10100601-ST_owner</name>
-      <userGroups>
-        <user ref="User_name-db=2Fahau"/>
-      </userGroups>
-    </grouping>
-  </data>
+      <?xml version="1.0" encoding="utf-8"?>
+      <icatdata>
+        <head>
+          <date>2023-10-17T07:33:36Z</date>
+          <generator>manual edit</generator>
+        </head>
+        <data>
+          <investigationRef id="inv_1" name="10100601-ST" visitId="1.1-N"/>
+          <dataset id="dataset_1">
+            <complete>false</complete>
+            <endDate>2012-07-30T01:10:08+00:00</endDate>
+            <name>e209001</name>
+            <startDate>2012-07-26T15:44:24+00:00</startDate>
+            <investigation ref="inv_1"/>
+            <sample name="ab3465" investigation.ref="inv_1"/>
+            <type name="raw"/>
+          </dataset>
+          <dataset id="dataset_2">
+            <complete>false</complete>
+            <endDate>2012-08-06T01:10:08+00:00</endDate>
+            <name>e209002</name>
+            <startDate>2012-08-02T05:30:00+00:00</startDate>
+            <investigation ref="inv_1"/>
+            <sample name="ab3465" investigation.ref="inv_1"/>
+            <type name="raw"/>
+          </dataset>
+          <dataset id="dataset_3">
+            <complete>false</complete>
+            <endDate>2012-07-16T14:30:17+00:00</endDate>
+            <name>e209003</name>
+            <startDate>2012-07-16T11:42:05+00:00</startDate>
+            <investigation ref="inv_1"/>
+            <sample name="ab3466" investigation.ref="inv_1"/>
+            <type name="raw"/>
+          </dataset>
+          <dataset id="dataset_4">
+            <complete>false</complete>
+            <endDate>2012-07-31T22:52:23+00:00</endDate>
+            <name>e209004</name>
+            <startDate>2012-07-31T20:20:37+00:00</startDate>
+            <investigation ref="inv_1"/>
+            <type name="raw"/>
+          </dataset>
+        </data>
+      </icatdata>
 
-The Grouping includes the related UserGroup object that in turn
-references the related User.  This User is referenced in the ``ref``
-attribute using a local key defined in the User's ``id`` attribute.
-Note that the UserGroup does not include its relation with Grouping.
-The latter relationship is implied by the parent relation of the
-object in the file.
+ICAT object references
+......................
 
-As an alternative, the UserGroup could have been added to the file as
-separate object as direct subelement of ``data``:
+ICAT object references do not define an ICAT object to be created when
+reading the ICAT data file but reference an already existing one.  It
+is either assumed to exist in ICAT before ingesting the file or it
+must appear earlier in the ICAT data file, so that it will be created
+before the referencing object is read.
 
-.. code-block:: XML
+ICAT objects may either be referenced by reference key or by
+attributes.  A reference key should be included as a ``ref``
+attribute.
 
-  <data>
-    <user id="User_name-db=2Fahau">
-      <affiliation>Goethe University Frankfurt, Faculty of Philosophy and History</affiliation>
-      <email>ahau@example.org</email>
-      <familyName>Hau</familyName>
-      <fullName>Arnold Hau</fullName>
-      <givenName>Arnold</givenName>
-      <name>db/ahau</name>
-      <orcidId>0000-0002-3263</orcidId>
-    </user>
-    <grouping id="Grouping_name-investigation=5F10100601=2DST=5Fowner">
-      <name>investigation_10100601-ST_owner</name>
-    </grouping>
-    <userGroup id="UserGroup_user-(name-db=2Fahau)_grouping-(name-investigation=5F10100601=2DST=5Fowner)">
-      <grouping ref="Grouping_name-investigation=5F10100601=2DST=5Fowner"/>
-      <user ref="User_name-db=2Fahau"/>
-    </userGroup>
-  </data>
+When referencing the object by attributes, these attributes should be
+included using the same name in the reference element.  This may also
+include attributes of related objects using the same dot notation as
+for ICAT JPQL search expressions.  Referencing by attributes may be
+combined with referencing related objects by reference key, using
+``ref`` in place of the related object's attribute names.  In any
+case, referenced objects must be uniquely defined by the attribute
+values.
 
-Another example is how the Investigation references its Facility:
+ICAT object references may be used in two locations in ICAT data XML
+files: as direct subelements of ``data`` or to reference related
+objects in many-to-one relations in ICAT object definitions, see
+below.  In the former case, the name of the object reference element
+is the name of the corresponding ICAT entity type (the first letter in
+lowercase) with a ``Ref`` suffix appended.  In that case, the element
+should have an ``id`` attribute that will define a local key that can
+be used to reference that object in subsequent object references.
+This is convenient to define a shortcut when the same object needs to
+be referenced often, to avoid having to repeat the same set of
+attributes each time.
 
-.. code-block:: XML
+In any case, object reference elements only have attributes, but no
+content or subelements.
 
-  <investigation>
-    <!--  ... -->
-    <facility ref="Facility_name-ESNF"/>
-    <!--  ... -->
-  </investigation>
+See :numref:`snip-file-icatdata-xml-1` for a few examples: the first
+subelement of the ``data`` element in this case is
+``investigationRef``.  It references a (supposed to be existing)
+Investigation by its attributes ``name`` and ``visitId``.  It defines
+a local key for that Investigation object in the ``id`` attribute.
+The Dataset object definitions in that example each use that local key
+to set their relation with the Investigation respectively.  The
+Dataset object definitions each also include a relation with their
+``type``, referencing the related DatasetType by the ``name``
+attribute.  Some of the Dataset object definitions also include a
+relation with a Sample.  The respective Sample object is referenced by
+``name`` and the related Investigation.  The latter is referenced by
+the local key defined earlier in the ``investigation.ref`` attribute.
 
-The Facility is not defined in the data file.  It is assumed to exist
-in ICAT before ingesting the file.  In this case, it must be
-referenced by its unique key.  Alternatively, the Facility could have
-been referenced by attribute as in:
+ICAT object definitions
+.......................
 
-.. code-block:: XML
+ICAT object definitions define objects that will be created in ICAT
+when ingesting the ICAT data file.  As direct subelements of ``data``,
+the name of the element must be the name of the corresponding entity
+type in the ICAT schema (the first letter in lowercase).
 
-  <investigation>
-    <!--  ... -->
-    <facility name="ESNF"/>
-    <!--  ... -->
-  </investigation>
+The subelements of ICAT object definitions are the attributes and
+object relations as defined in the ICAT schema using the same names.
+Attributes must include the corresponding value as text content of the
+element.  All many-to-one relations must be provided as ICAT object
+references, see above.
 
-The Investigation in the second chunk in the present example includes
-related InvestigationGroups that will be created along with the
-Investigation.  The InvestigationGroup objects include a reference to
-the corresponding Grouping respectively.  Note that these references
-go across chunk boundaries.  Thus, unique keys for the Groupings need
-to be used here.
+The ICAT object definitions may include one-to-many relations as
+subelements.  In this case, these subelements must in turn be ICAT
+object definitions for the related objects.  These related objects
+will be created along with the parent in one single cascading call.
+The object definition for the related object must not include its
+relation with the parent object as this is already implied by the
+parent and child relationship.
+
+When appearing as direct subelements of ``data``, ICAT object
+definitions may have an ``id`` attribute that will define a local key
+that can be used to reference the defined object later on.
+
+.. literalinclude:: ../examples/icatdump-simple.xml
+   :language: xml
+   :name: snip-file-icatdata-xml-2
+   :caption: An example for an ICAT data XML file
+
+Consider the example in :numref:`snip-file-icatdata-xml-2`.  It
+contains two chunks: the first chunk contains four User objects and
+three Grouping objects.  The Groupings include related UserGroups.
+Note that these UserGroups include their relation to the User, but not
+their relation with Grouping.  The latter is implied by the parent
+relation of the object in the file.  The second chunk only contains
+one Investigation, including related InvestigationGroups.
 
 Finally note that the file format also depends on the ICAT schema
 version: the present example can only be ingested into ICAT server 5.0
 or newer, because the attributes fileCount and fileSize have been
 added to Investigation in this version.  With older ICAT versions, it
 will fail because these attributes are not defined.
-
-For some further features of the ICAT data XML file format consider
-the following example:
-
-.. code-block:: XML
-
-  <?xml version="1.0" encoding="utf-8"?>
-  <icatdata>
-    <head>
-      <date>2023-10-17T07:33:36Z</date>
-      <generator>manual edit</generator>
-    </head>
-    <data>
-      <investigationRef id="inv_1" name="10100601-ST" visitId="1.1-N"/>
-      <dataset id="dataset_1">
-        <complete>false</complete>
-        <endDate>2012-07-30T01:10:08+00:00</endDate>
-        <name>e209001</name>
-        <startDate>2012-07-26T15:44:24+00:00</startDate>
-        <investigation ref="inv_1"/>
-        <sample name="ab3465" investigation.ref="inv_1"/>
-        <type name="raw"/>
-      </dataset>
-      <dataset id="dataset_2">
-        <complete>false</complete>
-        <endDate>2012-08-06T01:10:08+00:00</endDate>
-        <name>e209002</name>
-        <startDate>2012-08-02T05:30:00+00:00</startDate>
-        <investigation ref="inv_1"/>
-        <sample name="ab3465" investigation.ref="inv_1"/>
-        <type name="raw"/>
-      </dataset>
-      <dataset id="dataset_3">
-        <complete>false</complete>
-        <endDate>2012-07-16T14:30:17+00:00</endDate>
-        <name>e209003</name>
-        <startDate>2012-07-16T11:42:05+00:00</startDate>
-        <investigation ref="inv_1"/>
-        <sample name="ab3466" investigation.ref="inv_1"/>
-        <type name="raw"/>
-      </dataset>
-      <dataset id="dataset_4">
-        <complete>false</complete>
-        <endDate>2012-07-31T22:52:23+00:00</endDate>
-        <name>e209004</name>
-        <startDate>2012-07-31T20:20:37+00:00</startDate>
-        <investigation ref="inv_1"/>
-        <type name="raw"/>
-      </dataset>
-    </data>
-  </icatdata>
-
-In this case, the first subelelement of the ``data`` element is an
-ICAT object reference ``investigationRef``.  It does not define an
-ICAT object to be created when reading the ICAT data file but
-references an already existing Investigation object by attributes.  It
-defines a local key in the ``id`` attribute that can be used in
-subsequent ICAT object definitions to reference this investigation
-more easily.  In this example, the same chunk contains four Dataset
-objects that use that key to set their relation with the
-investigation.  Furthermore some of the Dataset have a relation with a
-Sample that is respectively referenced by its name and relation to the
-same investigation.  Again, the reference from the sample to the
-investigation reuse the same key for the investigation.
-
 
 You will find more extensive examples in the source distribution of
 python-icat.  The distribution also provides XML Schema Definition
@@ -288,11 +265,14 @@ ICAT data YAML files
 ~~~~~~~~~~~~~~~~~~~~
 
 In this section we describe the ICAT data file format using the YAML
-backend.  Consider the following example, it corresponds to the same
-ICAT content as the XML example above:
+backend.  Consider the example in :numref:`snip-file-icatdata-yaml`,
+it corresponds to the same ICAT content as the XML in
+:numref:`snip-file-icatdata-xml-2`:
 
 .. literalinclude:: ../examples/icatdump-simple.yaml
    :language: yaml
+   :name: snip-file-icatdata-yaml
+   :caption: An example for an ICAT data YAML file
 
 ICAT data YAML files start with a head consisting of a few comment
 lines, followed by one or more YAML documents.  YAML documents are
@@ -302,13 +282,14 @@ file, which may be useful for debugging in case of issues.
 
 Each YAML document defines one chunk of data according to the logical
 structure explained above.  It consists of a mapping having the name
-of entity types in the ICAT schema as keys.  The values are in turn
-mappings that map object ids as key to ICAT object definitions as
-value.  These object ids define local keys that may be used to
-reference the respective object later on.  In the present example, the
-first chunk contains four User objects and three Grouping objects.
-The Groupings include related UserGroups.  The second chunk only
-contains one Investigation, including related investigationGroups.
+of entity types in the ICAT schema (the first letter in lowercase) as
+keys.  The values are in turn mappings that map object ids as key to
+ICAT object definitions as value.  These object ids define local keys
+that may be used to reference the respective object later on.  In the
+present example, the first chunk contains four User objects and three
+Grouping objects.  The Groupings include related UserGroups.  The
+second chunk only contains one Investigation, including related
+investigationGroups.
 
 Each of the ICAT object definitions corresponds to an object in the
 ICAT schema.  It is again a mapping with the object's attribute and
@@ -317,43 +298,21 @@ relations must be provided and reference existing objects, e.g. they
 must either already have existed before starting the ingestion or
 appear in the same or an earlier YAML document in the ICAT data file.
 The values of many-to-one relations are reference keys, either local
-keys defined in the same YAML document or unique keys.
+keys defined in the same YAML document or unique keys.  Unlike the XML
+backend, the YAML backend does not support referencing objects by
+attributes.
 
 The object definitions may include one-to-many relations.  In this
 case, the value for the relation name is a list of object definitions
 for the related objects.  These related objects will be created along
 with the parent in one single cascading call.  In the present example,
 the Grouping objects include their related UserGroup objects.  Note
-that these UserGroups include their relation to the User, but not
-their relation with Grouping.  The latter relationship is implied by
-the parent relation of the object in the file.
+that these UserGroups include their relation to the User, but not with
+Grouping.  The latter relationship is implied by the parent relation
+of the object in the file.
 
-As an alternative, in the present example, the UserGroups could have
-been added to the file as separate objects as in:
-
-.. code-block:: YAML
-
-  ---
-  grouping:
-    Grouping_name-investigation=5F10100601=2DST=5Fowner:
-      name: investigation_10100601-ST_owner
-  user:
-    User_name-db=2Fahau:
-      affiliation: Goethe University Frankfurt, Faculty of Philosophy and History
-      email: ahau@example.org
-      familyName: Hau
-      fullName: Arnold Hau
-      givenName: Arnold
-      name: db/ahau
-      orcidId: 0000-0002-3263
-  userGroup:
-    UserGroup_user-(name-db=2Fahau)_grouping-(name-investigation=5F10100601=2DST=5Fowner):
-      grouping: Grouping_name-investigation=5F10100601=2DST=5Fowner
-      user: User_name-db=2Fahau
-  ---
-
-Note that the entries in the mappings have no inherent order.  The
-:ref:`icatingest` script uses a predefined order to read the ICAT
+Note that the entries in the mappings in YAML have no inherent order.
+The :ref:`icatingest` script uses a predefined order to read the ICAT
 entity types in order to make sure that referenced objects are created
 before any object that may reference them.
 
