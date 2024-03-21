@@ -3,8 +3,11 @@
 
 import datetime
 import yaml
-import icat
-import icat.dumpfile
+
+from . import __version__
+from .dumpfile import DumpFileReader, DumpFileWriter, register_backend
+from .entity import Entity
+from .exception import SearchResultError
 
 utc = datetime.timezone.utc
 
@@ -69,7 +72,7 @@ entitytypes = [
 # YAMLDumpFileReader
 # ------------------------------------------------------------
 
-class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
+class YAMLDumpFileReader(DumpFileReader):
     """Backend for reading ICAT data from a YAML file.
 
     :param client: a client object configured to connect to the ICAT
@@ -98,7 +101,10 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
             if attr in obj.InstAttr:
                 setattr(obj, attr, d[k])
             elif attr in obj.InstRel:
-                robj = self.client.searchUniqueKey(d[k], objindex)
+                try:
+                    robj = self.client.searchUniqueKey(d[k], objindex)
+                except ValueError:
+                    raise SearchResultError("invalid reference %s" % d[k])
                 setattr(obj, attr, robj)
             elif attr in obj.InstMRel:
                 rtype = self.insttypemap[obj.getAttrType(attr)]
@@ -138,7 +144,7 @@ class YAMLDumpFileReader(icat.dumpfile.DumpFileReader):
 # YAMLDumpFileWriter
 # ------------------------------------------------------------
 
-class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
+class YAMLDumpFileWriter(DumpFileWriter):
     """Backend for writing ICAT data to a YAML file.
 
     :param client: a client object configured to connect to the ICAT
@@ -190,8 +196,7 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         for attr in obj.InstMRel:
             if len(getattr(obj, attr)) > 0:
                 d[attr] = []
-                for o in sorted(getattr(obj, attr), 
-                                key=icat.entity.Entity.__sortkey__):
+                for o in sorted(getattr(obj, attr), key=Entity.__sortkey__):
                     d[attr].append(self._entity2dict(o, keyindex=keyindex))
         return d
 
@@ -204,7 +209,7 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
 # Service: %s
 # ICAT-API: %s
 # Generator: icatdump (python-icat %s)
-""" % (date, self.client.url, self.client.apiversion, icat.__version__)
+""" % (date, self.client.url, self.client.apiversion, __version__)
         self.outfile.write(head)
 
     def startdata(self):
@@ -232,4 +237,4 @@ class YAMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         self.startdata()
 
 
-icat.dumpfile.register_backend("YAML", YAMLDumpFileReader, YAMLDumpFileWriter)
+register_backend("YAML", YAMLDumpFileReader, YAMLDumpFileWriter)

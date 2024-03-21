@@ -20,16 +20,16 @@ from urllib.request import HTTPDefaultErrorHandler, ProxyHandler, Request
 from urllib.request import build_opener
 import zlib
 
-from icat.entity import Entity
-from icat.exception import *
-from icat.helper import Version
+from .entity import Entity
+from .exception import *
+from .helper import Version
 
 # For Python versions older then 3.6.0b1, the standard library does
 # not support sending the body using chunked transfer encoding.  Need
 # to replace the HTTPHandler with our modified versions from
 # icat.chunkedhttp in this case.
 if sys.version_info < (3, 6, 0, 'beta'):
-    from icat.chunkedhttp import HTTPHandler, HTTPSHandler
+    from .chunkedhttp import HTTPHandler, HTTPSHandler
 else:
     from urllib.request import HTTPHandler, HTTPSHandler
 

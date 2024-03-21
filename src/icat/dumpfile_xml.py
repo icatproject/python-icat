@@ -5,9 +5,12 @@ import datetime
 import os
 import sys
 from lxml import etree
-import icat
-import icat.dumpfile
-from icat.query import Query
+
+from . import __version__
+from .dumpfile import DumpFileReader, DumpFileWriter, register_backend
+from .entity import Entity
+from .exception import SearchResultError
+from .query import Query
 
 utc = datetime.timezone.utc
 
@@ -16,7 +19,7 @@ utc = datetime.timezone.utc
 # XMLDumpFileReader
 # ------------------------------------------------------------
 
-class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
+class XMLDumpFileReader(DumpFileReader):
     """Backend for reading ICAT data from a XML file.
 
     :param client: a client object configured to connect to the ICAT
@@ -58,7 +61,10 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
         ref = element.get('ref')
         if ref:
             # object is referenced by key.
-            return self.client.searchUniqueKey(ref, objindex)
+            try:
+                return self.client.searchUniqueKey(ref, objindex)
+            except ValueError:
+                raise SearchResultError("invalid reference %s" % ref)
         else:
             # object is referenced by attributes.
             attrs = set(element.keys()) - {'id'}
@@ -138,7 +144,7 @@ class XMLDumpFileReader(icat.dumpfile.DumpFileReader):
 # XMLDumpFileWriter
 # ------------------------------------------------------------
 
-class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
+class XMLDumpFileWriter(DumpFileWriter):
     """Backend for writing ICAT data to a XML file.
 
     :param client: a client object configured to connect to the ICAT
@@ -200,8 +206,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
                 k = o.getUniqueKey(keyindex=keyindex)
                 etree.SubElement(d, attr, ref=k)
         for attr in sorted(obj.InstMRel):
-            for o in sorted(getattr(obj, attr), 
-                            key=icat.entity.Entity.__sortkey__):
+            for o in sorted(getattr(obj, attr), key=Entity.__sortkey__):
                 d.append(self._entity2elem(o, tag=attr, keyindex=keyindex))
         return d
 
@@ -213,7 +218,7 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         etree.SubElement(head, "service").text = self.client.url
         etree.SubElement(head, "apiversion").text = str(self.client.apiversion)
         etree.SubElement(head, "generator").text = ("icatdump (python-icat %s)" 
-                                                    % icat.__version__)
+                                                    % __version__)
         self.outfile.write(b"""<?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 """)
@@ -241,4 +246,4 @@ class XMLDumpFileWriter(icat.dumpfile.DumpFileWriter):
         self.outfile.write(b"</icatdata>\n")
 
 
-icat.dumpfile.register_backend("XML", XMLDumpFileReader, XMLDumpFileWriter)
+register_backend("XML", XMLDumpFileReader, XMLDumpFileWriter)

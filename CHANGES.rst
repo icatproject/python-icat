@@ -2,6 +2,55 @@ Changelog
 =========
 
 
+.. _changes-1_3_0:
+
+1.3.0 (2024-03-21)
+~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#143`_, `#144`_: Make it easier to configure XSLT files to use for
+  processing the input in custom versions of
+  :class:`icat.ingest.IngestReader`.
+
++ `#148`_, `#149`_: Inject an additional element with environment
+  information into the input data in :class:`icat.ingest.IngestReader`.
+
++ `#146`_, `#147`_, `#151`_: Better error handling in
+  :class:`icat.ingest.IngestReader`.
+
+Incompatible changes
+--------------------
+
++ `#144`_: Drop class attribute
+  :attr:`icat.ingest.IngestReader.XSLT_name` in favour of
+  :attr:`icat.ingest.IngestReader.XSLT_Map`.
+
+  Note that :mod:`icat.ingest` has been declared experimental for now.
+
+Bug fixes and minor changes
+---------------------------
+
++ `#141`_, `#142`_, `#150`_: Review documentation.
+
++ `#145`_: Review build tool chain.
+
+.. _#141: https://github.com/icatproject/python-icat/issues/141
+.. _#142: https://github.com/icatproject/python-icat/pull/142
+.. _#143: https://github.com/icatproject/python-icat/issues/143
+.. _#144: https://github.com/icatproject/python-icat/pull/144
+.. _#145: https://github.com/icatproject/python-icat/pull/145
+.. _#146: https://github.com/icatproject/python-icat/issues/146
+.. _#147: https://github.com/icatproject/python-icat/pull/147
+.. _#148: https://github.com/icatproject/python-icat/issues/148
+.. _#149: https://github.com/icatproject/python-icat/pull/149
+.. _#150: https://github.com/icatproject/python-icat/pull/150
+.. _#151: https://github.com/icatproject/python-icat/pull/151
+
+
+.. _changes-1_2_0:
+
 1.2.0 (2023-10-31)
 ~~~~~~~~~~~~~~~~~~
 
@@ -49,6 +98,8 @@ Bug fixes and minor changes
 .. _#139: https://github.com/icatproject/python-icat/pull/139
 .. _#140: https://github.com/icatproject/python-icat/pull/140
 
+
+.. _changes-1_1_0:
 
 1.1.0 (2023-06-30)
 ~~~~~~~~~~~~~~~~~~
@@ -104,6 +155,8 @@ Bug fixes and minor changes
 .. _#128: https://github.com/icatproject/python-icat/pull/128
 .. _#129: https://github.com/icatproject/python-icat/pull/129
 
+
+.. _changes-1_0_0:
 
 1.0.0 (2022-12-21)
 ~~~~~~~~~~~~~~~~~~
@@ -197,6 +250,8 @@ Bug fixes and minor changes
 .. _#106: https://github.com/icatproject/python-icat/pull/106
 
 
+.. _changes-0_21_0:
+
 0.21.0 (2022-01-28)
 ~~~~~~~~~~~~~~~~~~~
 
@@ -215,6 +270,8 @@ New features
 .. _#100: https://github.com/icatproject/python-icat/pull/100
 
 
+.. _changes-0_20_1:
+
 0.20.1 (2021-11-04)
 ~~~~~~~~~~~~~~~~~~~
 
@@ -225,6 +282,8 @@ Bug fixes and minor changes
 
 .. _#96: https://github.com/icatproject/python-icat/pull/96
 
+
+.. _changes-0_20_0:
 
 0.20.0 (2021-10-29)
 ~~~~~~~~~~~~~~~~~~~
@@ -262,6 +321,8 @@ Bug fixes and minor changes
 .. _#95: https://github.com/icatproject/python-icat/pull/95
 
 
+.. _changes-0_19_0:
+
 0.19.0 (2021-07-20)
 ~~~~~~~~~~~~~~~~~~~
 
@@ -290,6 +351,8 @@ Bug fixes and minor changes
 .. _#85: https://github.com/icatproject/python-icat/pull/85
 
 
+.. _changes-0_18_1:
+
 0.18.1 (2021-04-13)
 ~~~~~~~~~~~~~~~~~~~
 
@@ -306,6 +369,8 @@ Bug fixes and minor changes
 .. _#81: https://github.com/icatproject/python-icat/pull/81
 .. _#82: https://github.com/icatproject/python-icat/pull/82
 
+
+.. _changes-0_18_0:
 
 0.18.0 (2021-03-29)
 ~~~~~~~~~~~~~~~~~~~
@@ -342,6 +407,8 @@ Bug fixes and minor changes
 .. _#79: https://github.com/icatproject/python-icat/pull/79
 .. _#80: https://github.com/icatproject/python-icat/pull/80
 
+
+.. _changes-0_17_0:
 
 0.17.0 (2020-04-30)
 ~~~~~~~~~~~~~~~~~~~
@@ -434,6 +501,8 @@ Misc
 .. _#72: https://github.com/icatproject/python-icat/issues/72
 
 
+.. _changes-0_16_0:
+
 0.16.0 (2019-09-26)
 ~~~~~~~~~~~~~~~~~~~
 
@@ -458,6 +527,8 @@ Bug fixes and minor changes
 .. _#60: https://github.com/icatproject/python-icat/pull/60
 
 
+.. _changes-0_15_1:
+
 0.15.1 (2019-07-12)
 ~~~~~~~~~~~~~~~~~~~
 
@@ -478,6 +549,8 @@ Bug fixes and minor changes
 .. _#56: https://github.com/icatproject/python-icat/issues/56
 .. _#57: https://github.com/icatproject/python-icat/issues/57
 
+
+.. _changes-0_15_0:
 
 0.15.0 (2019-03-27)
 ~~~~~~~~~~~~~~~~~~~
@@ -517,6 +590,8 @@ Bug fixes and minor changes
 .. _#54: https://github.com/icatproject/python-icat/issues/54
 
 
+.. _changes-0_14_2:
+
 0.14.2 (2018-10-25)
 ~~~~~~~~~~~~~~~~~~~
 
@@ -529,6 +604,8 @@ Bug fixes and minor changes
   probably not need it.
 
 
+.. _changes-0_14_1:
+
 0.14.1 (2018-06-05)
 ~~~~~~~~~~~~~~~~~~~
 
@@ -538,6 +615,8 @@ Bug fixes and minor changes
 + Fix a misleading error message if the IDS server returns an error
   for the Write API call.
 
+
+.. _changes-0_14_0:
 
 0.14.0 (2018-06-01)
 ~~~~~~~~~~~~~~~~~~~
@@ -594,6 +673,8 @@ Bug fixes and minor changes
 .. _#48: https://github.com/icatproject/python-icat/issues/48
 
 
+.. _changes-0_13_1:
+
 0.13.1 (2017-07-12)
 ~~~~~~~~~~~~~~~~~~~
 
@@ -605,6 +686,8 @@ Bug fixes and minor changes
 
 .. _#38: https://github.com/icatproject/python-icat/issues/38
 
+
+.. _changes-0_13_0:
 
 0.13.0 (2017-06-09)
 ~~~~~~~~~~~~~~~~~~~
@@ -764,6 +847,8 @@ Bug fixes and minor changes
 .. _pytest-dependency: https://pypi.python.org/pypi/pytest_dependency/
 
 
+.. _changes-0_12_0:
+
 0.12.0 (2016-10-10)
 ~~~~~~~~~~~~~~~~~~~
 
@@ -802,6 +887,8 @@ Bug fixes and minor changes
 .. _#2: https://github.com/icatproject/python-icat/issues/2
 .. _#28: https://github.com/icatproject/python-icat/issues/28
 
+
+.. _changes-0_11_0:
 
 0.11.0 (2016-06-01)
 ~~~~~~~~~~~~~~~~~~~
@@ -861,6 +948,8 @@ Misc
 .. _#25: https://github.com/icatproject/python-icat/issues/25
 .. _distutils_pytest: https://github.com/RKrahl/distutils-pytest
 
+
+.. _changes-0_10_0:
 
 0.10.0 (2015-12-06)
 ~~~~~~~~~~~~~~~~~~~
@@ -929,6 +1018,8 @@ Bug fixes and minor changes
 .. _#14: https://github.com/icatproject/python-icat/issues/14
 .. _#15: https://github.com/icatproject/python-icat/issues/15
 
+
+.. _changes-0_9_0:
 
 0.9.0 (2015-08-13)
 ~~~~~~~~~~~~~~~~~~
@@ -1033,6 +1124,8 @@ Bug fixes and minor changes
 .. _#10: https://github.com/icatproject/python-icat/issues/10
 
 
+.. _changes-0_8_0:
+
 0.8.0 (2015-05-08)
 ~~~~~~~~~~~~~~~~~~
 
@@ -1122,6 +1215,8 @@ Bug fixes and minor changes
   :meth:`icat.query.Query.__repr__`.
 
 
+.. _changes-0_7_0:
+
 0.7.0 (2015-02-11)
 ~~~~~~~~~~~~~~~~~~
 
@@ -1152,6 +1247,8 @@ New features
 + Add an optional argument `username` to the
   :meth:`icat.ids.IDSClient.getLink` method.
 
+
+.. _changes-0_6_0:
 
 0.6.0 (2014-12-15)
 ~~~~~~~~~~~~~~~~~~
@@ -1280,6 +1377,8 @@ Minor changes and fixes
 + Add comparison operators to class :class:`icat.listproxy.ListProxy`.
 
 
+.. _changes-0_5_1:
+
 0.5.1 (2014-07-07)
 ~~~~~~~~~~~~~~~~~~
 
@@ -1323,6 +1422,8 @@ Minor changes and fixes
   modifications, such as running 2to3 on them.
 
 
+.. _changes-0_5_0:
+
 0.5.0 (2014-06-24)
 ~~~~~~~~~~~~~~~~~~
 
@@ -1364,6 +1465,8 @@ Minor changes and fixes
 
 .. __: https://github.com/icatproject/icat.server/issues/112
 
+
+.. _changes-0_4_0:
 
 0.4.0 (2014-02-11)
 ~~~~~~~~~~~~~~~~~~
@@ -1412,6 +1515,8 @@ Minor changes and fixes
   :ref:`icatrestore <icatingest>`.
 
 
+.. _changes-0_3_0:
+
 0.3.0 (2014-01-10)
 ~~~~~~~~~~~~~~~~~~
 
@@ -1458,6 +1563,8 @@ Minor changes and fixes
 + Add example scripts :ref:`icatdump` and :ref:`icatrestore <icatingest>`.
 
 
+.. _changes-0_2_0:
+
 0.2.0 (2013-11-18)
 ~~~~~~~~~~~~~~~~~~
 
@@ -1497,6 +1604,8 @@ Minor changes and fixes
 + Review export of symbols.  Most client programs should only need to
   import :mod:`icat` and :mod:`icat.config`.
 
+
+.. _changes-0_1_0:
 
 0.1.0 (2013-11-01)
 ~~~~~~~~~~~~~~~~~~

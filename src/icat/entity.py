@@ -4,9 +4,10 @@
 import re
 from warnings import warn
 import suds.sudsobject
-from icat.listproxy import ListProxy
-from icat.exception import InternalError, EntityTypeError, DataConsistencyError
-from icat.helper import simpleqp_quote
+
+from .listproxy import ListProxy
+from .exception import InternalError, EntityTypeError, DataConsistencyError
+from .helper import simpleqp_quote
 
 __all__ = ['Entity']
 

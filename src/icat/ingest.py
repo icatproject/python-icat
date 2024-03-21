@@ -8,13 +8,46 @@
 .. versionadded:: 1.1.0
 """
 
+from collections import namedtuple
 from pathlib import Path
 from lxml import etree
-import icat.dumpfile_xml
-from icat.exception import InvalidIngestFileError
+
+from .dumpfile_xml import XMLDumpFileReader
+from .exception import InvalidIngestFileError
 
 
-class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
+_ObjIdTuple = namedtuple('_ObjIdTuple', ['t', 'dsname', 'relid'])
+class _ObjId(_ObjIdTuple):
+    _MsgTemplate = {
+        'Dataset':
+            "Dataset, name:%(dsname)s",
+        'DatasetInstrument':
+            "DatasetInstrument, Dataset:%(dsname)s, Instrument:%(relid)d",
+        'DatasetTechnique':
+            "DatasetTechnique, Dataset:%(dsname)s, Technique:%(relid)d",
+        'DatasetParameter':
+            "DatasetParameter, Dataset:%(dsname)s, ParameterType:%(relid)d",
+    }
+    def __new__(cls, obj):
+        kwargs = dict(t=obj.BeanName, relid=None)
+        if obj.BeanName == "Dataset":
+            kwargs['dsname'] = obj.name
+        else:
+            kwargs['dsname'] = obj.dataset.name
+            if obj.BeanName == "DatasetInstrument":
+                kwargs['relid'] = obj.instrument.id
+            elif obj.BeanName == "DatasetTechnique":
+                kwargs['relid'] = obj.technique.id
+            elif obj.BeanName == "DatasetParameter":
+                kwargs['relid'] = obj.type.id
+            else:
+                raise InvalidIngestFileError("Invalid %s object"
+                                             % (obj.BeanName))
+        return super().__new__(cls, **kwargs)
+    def __str__(self):
+        return self._MsgTemplate[self.t] % self._asdict()
+
+class IngestReader(XMLDumpFileReader):
     """Read metadata from XML ingest files into ICAT.
 
     The input file may contain one or more datasets and related
@@ -36,6 +69,14 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
     :type investigation: :class:`icat.entity.Entity`
     :raise icat.exception.InvalidIngestFileError: if the input in
         metadata is not valid.
+
+    .. versionchanged:: 1.3.0
+       drop class attribute :attr:`~icat.ingest.IngestReader.XSLT_name`
+       in favour of :attr:`~icat.ingest.IngestReader.XSLT_Map`.
+
+    .. versionchanged:: 1.3.0
+        inject an element ``_environment`` as first child of the root
+        element into the input data.
     """
 
     SchemaDir = Path("/usr/share/icat")
@@ -49,8 +90,14 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
     element name and version attribute, the values are the
     corresponding name of the XSD file.
     """
-    XSLT_name = "ingest.xslt"
-    """The name of the XSLT file to use.
+    XSLT_Map = {
+        'icatingest': "ingest.xslt",
+    }
+    """A mapping to select the XSLT file to use.  Keys are the root
+    element name, the values are the corresponding name of the XSLT
+    file.
+
+    .. versionadded:: 1.3.0
     """
 
     def __init__(self, client, metadata, investigation):
@@ -65,8 +112,11 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
             raise InvalidIngestFileError(e)
         with self.get_xsd(ingest_data).open("rb") as f:
             schema = etree.XMLSchema(etree.parse(f))
-        if not schema.validate(ingest_data):
-            raise InvalidIngestFileError("validation failed")
+        try:
+            schema.assertValid(ingest_data)
+        except etree.DocumentInvalid as exc:
+            raise InvalidIngestFileError("DocumentInvalid: %s" % exc)
+        self.add_environment(client, ingest_data)
         with self.get_xslt(ingest_data).open("rb") as f:
             xslt = etree.XSLT(etree.parse(f))
         super().__init__(client, xslt(ingest_data))
@@ -105,9 +155,11 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
     def get_xslt(self, ingest_data):
         """Get the XSLT file.
 
-        Take :attr:`~icat.ingest.IngestReader.XSLT_name` as a file
-        name relative to :attr:`~icat.ingest.IngestReader.SchemaDir`
-        and return this path.
+        Inspect the root element in the input data and lookup the
+        element name in :attr:`~icat.ingest.IngestReader.XSLT_Map`.
+        The value is taken as a file name relative to
+        :attr:`~icat.ingest.IngestReader.SchemaDir` and this path is
+        returned.
 
         Subclasses may override this method to customize the XSLT file
         to use.  These derived versions may inspect the input data to
@@ -119,8 +171,68 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
         :type ingest_data: :class:`lxml.etree._ElementTree`
         :return: path to the XSLT file.
         :rtype: :class:`~pathlib.Path`
+        :raise icat.exception.InvalidIngestFileError: if the root
+            element name could not be found in
+            :attr:`~icat.ingest.IngestReader.XSLT_Map`.
+
+        .. versionchanged:: 1.3.0
+            lookup the root element name in
+            :attr:`~icat.ingest.IngestReader.XSLT_Map` rather than
+            using a static file name.
         """
-        return self.SchemaDir / self.XSLT_name
+        root = ingest_data.getroot()
+        try:
+            xslt = self.XSLT_Map[root.tag]
+        except KeyError:
+            raise InvalidIngestFileError("unknown format")
+        return self.SchemaDir / xslt
+
+    def get_environment(self, client):
+        """Get the environment to be injected as an element into the input.
+
+        Subclasses may override this method to control the attributes
+        set in the environment.
+
+        :param client: the client object being used by this
+            IngestReader.
+        :type client: :class:`icat.client.Client`
+        :return: the environment.
+        :rtype: :class:`dict`
+
+        .. versionadded:: 1.3.0
+        """
+        return dict(icat_version=str(client.apiversion))
+
+    def add_environment(self, client, ingest_data):
+        """Inject environment information into input data.
+
+        The attributes set in the environment are determined by
+        calling :meth:`~icat.ingest.IngestReader.get_environment`.
+        Subclasses may override this method to fully control the
+        process of adding the environment element.
+
+        :param client: the client object being used by this
+            IngestReader.
+        :type client: :class:`icat.client.Client`
+        :param ingest_data: input data
+        :type ingest_data: :class:`lxml.etree._ElementTree`
+
+        .. versionadded:: 1.3.0
+        """
+        env = self.get_environment(client)
+        env_elem = etree.Element("_environment", **env)
+        ingest_data.getroot().insert(0, env_elem)
+
+    def getobjs_from_data(self, data, objindex):
+        typed_objindex = set()
+        for key, obj in super().getobjs_from_data(data, objindex):
+            if key in objindex:
+                raise InvalidIngestFileError("Duplicate id %s" % key)
+            objid = _ObjId(obj)
+            if objid in typed_objindex:
+                raise InvalidIngestFileError("Duplicate %s" % str(objid))
+            typed_objindex.add(objid)
+            yield key, obj
 
     def getobjs(self):
         """Iterate over the objects in the ingest file.
@@ -142,11 +254,16 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
         created in ICAT.  In this case, the `datasets` in the argument
         must already have been created in ICAT beforehand (e.g. the
         `id` attribute must be set).  If `dry_run` is :const:`True`,
-        the `datasets` don't need to be created beforehand.
+        the objects in the metadata will be checked for conformance,
+        but nothing will be committed to ICAT.  In this case, the
+        `datasets` don't need to be created beforehand.
 
         if `update_ds` is :const:`True`, the objects in the `datasets`
         argument will be updated: the attributes and the relations to
         other objects will be set to the values read from the input.
+        This is particularly useful in conjunction with `dry_run` in
+        order to update the `datasets` from the metadata prior to
+        creating them in ICAT.
 
         :param datasets: list of allowed datasets in the input.
         :type datasets: iterable of :class:`icat.entity.Entity`
@@ -155,8 +272,11 @@ class IngestReader(icat.dumpfile_xml.XMLDumpFileReader):
         :param update_ds: flag whether to update the `datasets` in the
             argument.
         :type update_ds: :class:`bool`
-        :raise icat.exception.InvalidIngestFileError: if any unallowed
-            object is read from the input.
+        :raise icat.exception.InvalidIngestFileError: if the input is
+            not valid, for instance if there is any unallowed object
+            or duplicate objects.
+        :raise icat.exception.SearchResultError: if any object
+            references in the input could not be resolved.
         """
         dataset_map = { ds.name: ds for ds in datasets }
         allowed_ds_related = {

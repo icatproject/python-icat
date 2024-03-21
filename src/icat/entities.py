@@ -17,8 +17,9 @@ ICAT server.  The classes are derived from the abstract base class
 """
 
 import itertools
-from icat.entity import Entity
-from icat.exception import InternalError
+
+from .entity import Entity
+from .exception import InternalError
 
 
 class GroupingMixin:
@@ -241,7 +242,6 @@ def getTypeMap(client):
         may be used as :attr:`icat.client.Client.typemap` for the
         client object.
     :rtype: :class:`dict`
-
     """
     def addType(typemap, cls):
         instanceName = cls.getInstanceName()

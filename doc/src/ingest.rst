@@ -11,7 +11,7 @@
    even in minor releases of python-icat.
 
 This module provides class :class:`icat.ingest.IngestReader` that
-reads metadata from an XML file to add them to ICAT.  It is designed
+reads :ref:`ICAT-ingest-files` to add them to ICAT.  It is designed
 for the use case of ingesting metadata for datasets created during
 experiments.
 
@@ -21,22 +21,14 @@ that base class in restricting the vocabular of the input file: only
 objects that need to be created during ingestion from the experiment
 may appear in the input.  This restriction is enforced by first
 validating the input against an XML Schema Definition (XSD).  In a
-second step, the input is transformed into generic XML :ref:`ICAT data
-file <ICAT-data-files>` format using an XSL Transformation (XSLT) and
-then fed into :class:`~icat.dumpfile_xml.XMLDumpFileReader`.  The
-format of the input files may be customized to some extent by providing
-custom versions of XSD and XSLT files, see :ref:`ingest-customize`
-below.
+second step, the input is transformed into generic :ref:`ICAT data XML
+file format <ICAT-data-xml-files>` using an XSL Transformation (XSLT)
+and then fed into :class:`~icat.dumpfile_xml.XMLDumpFileReader`.  The
+format of the input files may be customized to some extent by
+providing custom versions of XSD and XSLT files, see
+:ref:`ingest-customize` below.
 
-The input accepted by :class:`~icat.ingest.IngestReader` consists of
-one or more ``Dataset`` objects that all need to relate to the same
-``Investigation`` and any number of related ``DatasetTechnique``,
-``DatasetInstrument``, and ``DatasetParameter`` objects.  The
-``Investigation`` must exist beforehand in ICAT.  The relation from
-the ``Dataset`` objects to the ``Investigation`` will be set by
-:class:`~icat.ingest.IngestReader` accordingly.  (Actually, the XSLT
-will add that attribute to the datasets in the input.)  The
-``Dataset`` objects will not be created by
+The ``Dataset`` objects in the input will not be created by
 :class:`~icat.ingest.IngestReader`, because it is assumed that a
 separate workflow in the caller will copy the content of datafiles to
 the storage managed by IDS and create the corresponding ``Dataset``
@@ -47,17 +39,60 @@ of the datasets will be read from the input file and set in the
 ``DatasetTechnique``, ``DatasetInstrument`` and ``DatasetParameter``
 objects read from the input file in ICAT.
 
-Using ingest file format 1.1, ``Dataset`` objects may also include a
-reference to a ``Sample``.  That ``Sample`` objects needs to exist
-beforehand and needs to be related to the same ``Investigation`` as
-the ``Dataset``.
-
-.. versionchanged:: 1.2.0
-   add version 1.1 of the ingest file format, including references to samples
-
 .. autoclass:: icat.ingest.IngestReader
     :members:
     :show-inheritance:
+
+
+.. _ingest-process:
+
+Ingest process
+--------------
+
+The processing of the metadata during the instantiation of an
+:class:`~icat.ingest.IngestReader` object may be summarized by the
+following steps:
+
+1. Read the metadata and parse the :class:`lxml.etree._ElementTree`.
+
+2. Call :meth:`~icat.ingest.IngestReader.get_xsd` to get the
+   appropriate XSD file and validate the metadata against that schema.
+
+3. Inject an ``_environment`` element as first child of the root
+   element, see below.
+
+4. Call :meth:`~icat.ingest.IngestReader.get_xslt` to get the
+   appropriate XSLT file and transform the metadata into generic ICAT
+   data XML file format.
+
+5. Feed the result of the transformation into the parent class
+   :class:`~icat.dumpfile_xml.XMLDumpFileReader`.
+
+Once this initialization is done,
+:meth:`~icat.ingest.IngestReader.ingest` may be called to read the
+individual objects defined in the metadata.
+
+
+.. _ingest-environment:
+
+The environment element
+-----------------------
+
+During the processing of the metadata, an ``_environment`` element
+will be injected as the first child of the root element.  In the
+current version of python-icat, this ``_environment`` element has the
+following attributes:
+
+  `icat_version`
+    Version of the ICAT server this client connects to, e.g. the
+    :attr:`icat.client.Client.apiversion` attribute of the `client`
+    object being used by this :class:`~icat.ingest.IngestReader`.
+
+More attributes may be added in future versions.  This
+``_environment`` element may be used by the XSLT in order to adapt the
+result of the transformation to the environment, in particular to
+adapt the output to the ICAT schema version it is supposed to conform
+to.
 
 
 .. _ingest-example:
@@ -114,14 +149,14 @@ Customizing the input format
 
 The ingest input file format may be customized by providing custom XSD
 and XSLT files.  The easiest way to do that is to subclass
-:class:`~icat.ingest.IngestReader`, you'd only need to override some
-class attributes as follows::
+:class:`~icat.ingest.IngestReader`.  In most cases, you'd only need to
+override some class attributes as follows::
 
   from pathlib import Path
   import icat.ingest
 
   class MyFacilityIngestReader(icat.ingest.IngestReader):
-  
+
       # Override the directory to search for XSD and XSLT files:
       SchemaDir = Path("/usr/share/icat/my-facility")
 
@@ -132,18 +167,27 @@ class attributes as follows::
       }
 
       # Override the XSLT file to use:
-      XSLT_name = "myingest.xslt"
+      XSLT_Map = {
+          'legacyingest': "legacy-ingest.xslt",
+          'myingest': "my-ingest.xslt",
+      }
 
-:attr:`~icat.ingest.IngestReader.XSD_Map` is a mapping with pairs of
-root element name and version attribute as keys and XSD file names as
-values.  The method :meth:`~icat.ingest.IngestReader.get_xsd` inspects
-the input file and selects the file name from
-:attr:`~icat.ingest.IngestReader.XSD_Map` accordingly.  (Note that
-there is no such mapping for the XSLT file, because its is assumed
-that it is fairly easy to formulate adaptations to the input version
-directly in XSLT, so one single XSLT file would be sufficient to cover
-all versions.)  In the above example, `MyFacilityIngestReader` would
-recognize input files like
+:attr:`~icat.ingest.IngestReader.XSD_Map` and
+:attr:`~icat.ingest.IngestReader.XSLT_Map` are mappings with
+properties of the root element of the input data as keys and file
+names as values.  The methods
+:meth:`~icat.ingest.IngestReader.get_xsd` and
+:meth:`~icat.ingest.IngestReader.get_xslt` respectively inspect the
+input file and use these mappings to select the XSD and XSLT file
+accordingly.  Note that :attr:`~icat.ingest.IngestReader.XSD_Map`
+takes tuples of root element name and version attribute as keys, while
+:attr:`~icat.ingest.IngestReader.XSLT_Map` uses the name of the root
+element name alone.  It is is assumed that it is fairly easy to
+formulate adaptations to the input version directly in XSLT, so one
+single XSLT file would be sufficient to cover all versions.
+
+In the above example, `MyFacilityIngestReader` would recognize input
+files like
 
 .. code-block:: xml
 

@@ -1,11 +1,11 @@
+.. include:: _meta.rst
+
 Install instructions
 ====================
 
-Release packages of python-icat are published in the `Python Package
-Index (PyPI)`__.  See :ref:`install-using-pip` for the short version
-of the install instructions.
+See :ref:`install-using-pip` for the short version of the install
+instructions.
 
-.. __: `PyPI site`_
 
 
 System requirements
@@ -52,13 +52,13 @@ are not required to install python-icat and use its core features:
   tests will be skipped in that case, so the results will not be very
   meaningful.
 
-+ `setuptools_scm`_
++ `git-props`_
 
-  The version number is managed using this package.  All source
-  distributions add a static text file with the version number and
-  fall back using that if setuptools_scm is not available.  So this
-  package is only needed to build out of the plain development source
-  tree as cloned from GitHub.
+  This package is used to extract some metadata such as the version
+  number out of git, the version control system.  All releases embed
+  that metadata in the distribution.  So this package is only needed
+  to build out of the plain development source tree as cloned from
+  GitHub, but not to build a release distribution.
 
 + `pytest`_ >= 3.1.0
 
@@ -114,26 +114,56 @@ Installation
 Installation using pip
 ......................
 
-You can install python-icat from PyPI using pip::
+You can install python-icat from the
+`Python Package Index (PyPI) <PyPI site_>`_ using pip::
 
   $ pip install python-icat
+
+Note that while installing from PyPI is convenient, there is no way to
+verify the integrity of the source distribution, which may be
+considered a security risk.
 
 Installation from the source distribution
 .........................................
 
-Steps to manually build from the source distribution:
+Note that the manual build does not automatically check the
+dependencies.  So we assume that you have all the systems requirements
+installed.  Steps to manually build from the source distribution:
 
-1. Download the sources, unpack, and change into the source directory.
+1. Download the sources.
 
-2. Build::
+   From the `Release Page <GitHub latest release_>`_ you may download
+   the source distribution file |distribution_source|_ and the
+   detached signature file |distribution_signature|_
+
+2. Check the signature (optional).
+
+   You may verify the integrity of the source distribution by checking
+   the signature (showing the output for version 1.2.0 as an example)::
+
+     $ gpg --verify python-icat-1.2.0.tar.gz.asc
+     gpg: assuming signed data in 'python-icat-1.2.0.tar.gz'
+     gpg: Signature made Tue Oct 31 07:01:55 2023 CET
+     gpg:                using RSA key 760465DAF652737A61EC0C9D83F336432C7FCC91
+     gpg: Good signature from "Rolf Krahl <rolf.krahl@helmholtz-berlin.de>" [full]
+
+   The signature should be made by the key
+   :download:`0x760465DAF652737A61EC0C9D83F336432C7FCC91
+   <83F336432C7FCC91.pub>`.  The fingerprint of that key is::
+
+     7604 65DA F652 737A 61EC  0C9D 83F3 3643 2C7F CC91
+
+3. Unpack and change into the source directory.
+
+4. Build (optional)::
 
      $ python setup.py build
 
-3. Test (optional, see below)::
+5. Test (optional, see below)::
 
      $ python setup.py test
 
-4. Install::
+6. Install::
 
      $ python setup.py install
 
@@ -144,9 +174,9 @@ Building from development sources
 .................................
 
 For production use, it is always recommended to use the latest release
-version from PyPI, see above.  If you need some not yet released
-bleeding edge feature or if you want to participate in the
-development, you may also clone the `source repository from GitHub`__.
+version, see above.  If you need some not yet released bleeding edge
+feature or if you want to participate in the development, you may also
+clone the `source repository from GitHub`__.
 
 Note that some source files are dynamically created and thus missing
 in the development sources.  If you want to build from the development
@@ -175,11 +205,10 @@ authentication plugin must also have these users configured.
 from the test server and replace it with example content.  Do not
 configure the tests to access a production server!
 
-You can safely run the tests without configuring any test server.  You
-will just get many skipped tests then.
+You can safely run the tests without configuring any test server.  But
+most of the test will be skipped then.
 
 
-.. _PyPI site: https://pypi.org/project/python-icat/
 .. _setuptools: https://github.com/pypa/setuptools/
 .. _packaging: https://github.com/pypa/packaging/
 .. _suds-jurko: https://pypi.org/project/suds-jurko/
@@ -187,9 +216,11 @@ will just get many skipped tests then.
 .. _PyYAML: https://github.com/yaml/pyyaml/
 .. _lxml: https://lxml.de/
 .. _Requests: https://requests.readthedocs.io/
-.. _setuptools_scm: https://github.com/pypa/setuptools_scm/
+.. _git-props: https://github.com/RKrahl/git-props/
 .. _pytest: https://docs.pytest.org/en/latest/
 .. _pytest-dependency: https://pypi.org/project/pytest-dependency/
 .. _distutils-pytest: https://github.com/RKrahl/distutils-pytest/
+.. _PyPI site: https://pypi.org/project/python-icat/
+.. _GitHub latest release: https://github.com/icatproject/python-icat/releases/latest/
 .. _GitHub repository: https://github.com/icatproject/python-icat/
 .. _Issue #72: https://github.com/icatproject/python-icat/issues/72

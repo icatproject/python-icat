@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<icatdata>
+<head>
+  <date>2024-01-03T13:21:15+00:00</date>
+  <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
+  <apiversion>6.0.0</apiversion>
+  <generator>icatdump (python-icat 1.2.0)</generator>
+</head>
+<data>
+  <user id="User_name-db=2Fahau">
+    <affiliation>Goethe University Frankfurt, Faculty of Philosophy and History</affiliation>
+    <email>ahau@example.org</email>
+    <familyName>Hau</familyName>
+    <fullName>Arnold Hau</fullName>
+    <givenName>Arnold</givenName>
+    <name>db/ahau</name>
+    <orcidId>0000-0002-3263</orcidId>
+  </user>
+  <user id="User_name-db=2Fjbotu">
+    <affiliation>Universit&#233; Paul-Val&#233;ry Montpellier 3</affiliation>
+    <email>jbotu@example.org</email>
+    <familyName>Botul</familyName>
+    <fullName>Jean-Baptiste Botul</fullName>
+    <givenName>Jean-Baptiste</givenName>
+    <name>db/jbotu</name>
+    <orcidId>0000-0002-3264</orcidId>
+  </user>
+  <user id="User_name-db=2Fjdoe">
+    <email>jdoe@example.org</email>
+    <familyName>Doe</familyName>
+    <fullName>John Doe</fullName>
+    <givenName>John</givenName>
+    <name>db/jdoe</name>
+  </user>
+  <user id="User_name-db=2Fnbour">
+    <affiliation>University of Nancago</affiliation>
+    <email>nbour@example.org</email>
+    <familyName>Bourbaki</familyName>
+    <fullName>Nicolas Bourbaki</fullName>
+    <givenName>Nicolas</givenName>
+    <name>db/nbour</name>
+    <orcidId>0000-0002-3266</orcidId>
+  </user>
+  <grouping id="Grouping_name-investigation=5F10100601=2DST=5Fowner">
+    <name>investigation_10100601-ST_owner</name>
+    <userGroups>
+      <user ref="User_name-db=2Fahau"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-investigation=5F10100601=2DST=5Freader">
+    <name>investigation_10100601-ST_reader</name>
+    <userGroups>
+      <user ref="User_name-db=2Fjbotu"/>
+    </userGroups>
+    <userGroups>
+      <user ref="User_name-db=2Fjdoe"/>
+    </userGroups>
+    <userGroups>
+      <user ref="User_name-db=2Fnbour"/>
+    </userGroups>
+  </grouping>
+  <grouping id="Grouping_name-investigation=5F10100601=2DST=5Fwriter">
+    <name>investigation_10100601-ST_writer</name>
+    <userGroups>
+      <user ref="User_name-db=2Fahau"/>
+    </userGroups>
+  </grouping>
+</data>
+<data>
+  <investigation id="Investigation_facility-(name-ESNF)_name-10100601=2DST_visitId-1=2E1=2DN">
+    <doi>DOI:00.0815/inv-00601</doi>
+    <endDate>2010-10-12T15:00:00+00:00</endDate>
+    <fileCount>4</fileCount>
+    <fileSize>127125</fileSize>
+    <name>10100601-ST</name>
+    <startDate>2010-09-30T10:27:24+00:00</startDate>
+    <title>Ni-Mn-Ga flat cone</title>
+    <visitId>1.1-N</visitId>
+    <facility ref="Facility_name-ESNF"/>
+    <investigationGroups>
+      <role>owner</role>
+      <grouping ref="Grouping_name-investigation=5F10100601=2DST=5Fowner"/>
+    </investigationGroups>
+    <investigationGroups>
+      <role>reader</role>
+      <grouping ref="Grouping_name-investigation=5F10100601=2DST=5Freader"/>
+    </investigationGroups>
+    <investigationGroups>
+      <role>writer</role>
+      <grouping ref="Grouping_name-investigation=5F10100601=2DST=5Fwriter"/>
+    </investigationGroups>
+  </investigation>
+</data>
+</icatdata>
