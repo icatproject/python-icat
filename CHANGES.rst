@@ -2,6 +2,17 @@ Changelog
 =========
 
 
+dev (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~
+
+Bug fixes and minor changes
+---------------------------
+
++ `#152`_: Fix a documentation error
+
+.. _#152: https://github.com/icatproject/python-icat/pull/152
+
+
 .. _changes-1_3_0:
 
 1.3.0 (2024-03-21)
