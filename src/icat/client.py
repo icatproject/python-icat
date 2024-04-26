@@ -564,7 +564,7 @@ class Client(suds.client.Client):
                 # This version works!
                 query = Query(client, "Dataset", includes="1", order=["id"])
                 for ds in client.searchChunked(query):
-                    if not ds.complete:
+                    if ds.complete:
                         continue
                     ds.complete = True
                     ds.update()
