@@ -100,7 +100,7 @@ def test_valid_numeric_value(client, dataset):
     param.create()
     assert param.id is not None
 
-def test_valid_string_permissible_value(client, dataset):
+def test_valid_string_simple_value(client, dataset):
     """Create a simple STRING parameter.
     """
     client.typemap['parameter'].validate = validate_param
