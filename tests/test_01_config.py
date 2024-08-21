@@ -363,7 +363,6 @@ def test_config_args_empty(monkeypatch, fakeClient, tmpconfigfile):
     assert ex <= conf
 
 
-@pytest.mark.xfail(reason="Issue #155 not yet implemented")
 def test_config_args_disable(monkeypatch, fakeClient, tmpconfigfile,
                              patchArgParse):
     """Disable command line arguments by setting args to False.
