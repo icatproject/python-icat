@@ -490,7 +490,7 @@ class BaseConfig():
         :type subst: :class:`bool`
         :return: the new configuration variable object.
         :rtype: :class:`icat.config.ConfigVariable`
-        :raise RuntimeError: if this objects already has subcommands
+        :raise RuntimeError: if this config object already has subcommands
             defined with :meth:`icat.config.BaseConfig.add_subcommands`.
         :raise ValueError: if the name is not valid.
         :see: the documentation of the :mod:`argparse` standard
@@ -576,7 +576,7 @@ class BaseConfig():
         :type optional: :class:`bool`
         :return: the new subcommand object.
         :rtype: :class:`icat.config.ConfigSubCmd`
-        :raise RuntimeError: if this objects already has subcommands.
+        :raise RuntimeError: if this config object already has subcommands.
         :raise ValueError: if the name is not valid.
         :see: the documentation of the :mod:`argparse` standard
             library module for details on `arg_kws`.
@@ -618,12 +618,12 @@ class BaseConfig():
             if value is not None and var.subst:
                 value = value % config.as_dict()
             setattr(config, var.name, value)
+            if var.postprocess:
+                var.postprocess(self, config)
             if isinstance(var, ConfigSubCmds):
                 if value is not None:
                     value._getconfig(sources, config)
                 break
-            if var.postprocess:
-                var.postprocess(self, config)
         return config
 
 
@@ -843,7 +843,7 @@ class Config(BaseConfig):
         try:
             with _argparserDisableExit(self.argparser):
                 self.cmdargs.parse_args(self.args, partial=True)
-                config = self._getconfig(self.sources)
+            config = self._getconfig(self.sources)
         except ConfigError:
             return None, None
         client_kwargs = {}
