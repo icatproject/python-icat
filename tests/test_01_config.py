@@ -73,6 +73,13 @@ idsurl = https://icat.example.com/ids
 ldap_uri = ldap://ldap.example.com
 ldap_base = ou=People,dc=example,dc=com
 
+[example_pubreader]
+url = https://icat.example.com/ICATService/ICAT?wsdl
+auth = simple
+username = pubreader
+password = pwpubreader
+idsurl = https://icat.example.com/ids
+
 [example_jdoe]
 url = https://icat.example.com/ICATService/ICAT?wsdl
 auth = ldap
@@ -266,6 +273,75 @@ def test_config_minimal_defaultfile(monkeypatch, fakeClient, tmpconfigfile):
     ex = ExpectedConf(configFile=[tmpconfigfile.path], 
                       configSection="example_root", 
                       url=ex_icat)
+    assert ex <= conf
+
+
+def test_config_args_section(monkeypatch, fakeClient, tmpconfigfile):
+    """Override the command line arguments in the Config() call.
+
+    Same setting as test_config_minimal_defaultfile(), but override
+    the command line arguments using the `args` keyword arguments to
+    Config().
+    """
+
+    # Manipulate the default search path.
+    monkeypatch.setenv("HOME", str(tmpconfigfile.home))
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(str(tmpconfigfile.home))
+
+    # Set some bogus arguments in the command line, a mixture of
+    # formally valid and invalid ones, to verify that they will indeed
+    # be ignored.
+    cmdline = "cmd -w https://bogus.example.com/ -f foobar"
+    monkeypatch.setattr(sys, "argv", cmdline.split())
+    args = "-s example_root".split()
+    config = icat.config.Config(needlogin=False, ids=False, args=args)
+    _, conf = config.getconfig()
+
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_root",
+                      url=ex_icat)
+    assert ex <= conf
+
+
+def test_config_args_empty(monkeypatch, fakeClient, tmpconfigfile):
+    """Disable command line arguments by setting empty args.
+
+    Configuration is read from the config file, the config section is
+    set with `preset`.  Setting an empty list in `args` essentially
+    disables potentially interfering command line arguments.  This was
+    a common setting for service scripts with python-icat <= 1.3.0.
+    """
+
+    # Manipulate the default search path.
+    monkeypatch.setenv("HOME", str(tmpconfigfile.home))
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(str(tmpconfigfile.home))
+
+    # Set some bogus arguments in the command line, a mixture of
+    # formally valid and invalid ones, to verify that they will indeed
+    # be ignored.
+    cmdline = "cmd -w https://bogus.example.com/ -f foobar"
+    monkeypatch.setattr(sys, "argv", cmdline.split())
+    preset = dict(configSection="example_pubreader")
+    config = icat.config.Config(ids=False, preset=preset, args=())
+    _, conf = config.getconfig()
+
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_pubreader",
+                      url=ex_icat,
+                      auth="simple",
+                      username="pubreader",
+                      password="pwpubreader",
+                      promptPass=False,
+                      credentials={'username': 'pubreader',
+                                   'password': 'pwpubreader'})
     assert ex <= conf
 
 
