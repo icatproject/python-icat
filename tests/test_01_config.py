@@ -1,6 +1,7 @@
 """Test module icat.config
 """
 
+import argparse
 import getpass
 from pathlib import Path
 import sys
@@ -10,13 +11,6 @@ import icat.exception
 
 
 # ============================= helper =============================
-
-# The icat.config.Config constructor already creates and initializes
-# an ICAT client.  Prevent this, as we don't want to connect to a real
-# server in this test module.  Foist a fake client class on the
-# icat.config module.  Note that we must monkeypatch icat.config
-# rather than icat.client, as the former already imported the Client
-# class at this point.
 
 class Namespace():
     def __init__(self, **kwargs):
@@ -33,6 +27,13 @@ class ExpectedConf(Namespace):
                 return False
         else:
             return True
+
+# The icat.config.Config constructor already creates and initializes
+# an ICAT client.  Prevent this, as we don't want to connect to a real
+# server in this test module.  Foist a fake client class on the
+# icat.config module.  Note that we must monkeypatch icat.config
+# rather than icat.client, as the former already imported the Client
+# class at this point.
 
 class FakeClient():
     AuthInfo = None
@@ -54,6 +55,23 @@ class FakeClient():
 def fakeClient(monkeypatch):
     monkeypatch.setattr(icat.config, "Client", FakeClient)
 
+# Evil black magic: monkey patch ArgumentParser to raise an error if
+# either parse_args() or parse_known_args() is called.  This is needed
+# to verify that disabling the argparser is effective in
+# test_config_args_disable().
+
+class ArgumentParserErrorMixin:
+    def parse_args(self, *args, **kwargs):
+        assert False, "parse_args() should not get called"
+    def parse_known_args(self, *args, **kwargs):
+        assert False, "parse_known_args() should not get called"
+
+@pytest.fixture(scope="function")
+def patchArgParse(monkeypatch):
+    monkeypatch.setattr(argparse.ArgumentParser, "parse_args",
+                        ArgumentParserErrorMixin.parse_args)
+    monkeypatch.setattr(argparse.ArgumentParser, "parse_known_args",
+                        ArgumentParserErrorMixin.parse_known_args)
 
 # Deliberately not using the 'tmpdir' fixture provided by pytest,
 # because it seem to use a predictable directory name in /tmp wich is
@@ -331,6 +349,45 @@ def test_config_args_empty(monkeypatch, fakeClient, tmpconfigfile):
     monkeypatch.setattr(sys, "argv", cmdline.split())
     preset = dict(configSection="example_pubreader")
     config = icat.config.Config(ids=False, preset=preset, args=())
+    _, conf = config.getconfig()
+
+    ex = ExpectedConf(configFile=[tmpconfigfile.path],
+                      configSection="example_pubreader",
+                      url=ex_icat,
+                      auth="simple",
+                      username="pubreader",
+                      password="pwpubreader",
+                      promptPass=False,
+                      credentials={'username': 'pubreader',
+                                   'password': 'pwpubreader'})
+    assert ex <= conf
+
+
+@pytest.mark.xfail(reason="Issue #155 not yet implemented")
+def test_config_args_disable(monkeypatch, fakeClient, tmpconfigfile,
+                             patchArgParse):
+    """Disable command line arguments by setting args to False.
+
+    Same setting as in test_config_args_empty(), but fully disable
+    parsing of command line args instead of setting an empty args
+    list.  Ref. #155.
+    """
+
+    # Manipulate the default search path.
+    monkeypatch.setenv("HOME", str(tmpconfigfile.home))
+    cfgdirs = [ Path("~/.config/icat").expanduser(),
+                Path("~/.icat").expanduser(),
+                Path("."), ]
+    monkeypatch.setattr(icat.config, "cfgdirs", cfgdirs)
+    monkeypatch.chdir(str(tmpconfigfile.home))
+
+    # Set some bogus arguments in the command line, a mixture of
+    # formally valid and invalid ones, to verify that they will indeed
+    # be ignored.
+    cmdline = "cmd -w https://bogus.example.com/ -f foobar"
+    monkeypatch.setattr(sys, "argv", cmdline.split())
+    preset = dict(configSection="example_pubreader")
+    config = icat.config.Config(ids=False, preset=preset, args=False)
     _, conf = config.getconfig()
 
     ex = ExpectedConf(configFile=[tmpconfigfile.path],
