@@ -59,6 +59,78 @@ jpql_join_specs = frozenset([
 :meth:`icat.query.Query.setJoinSpecs` method.
 """
 
+# ========================= helper classes ===========================
+# Note: these helpers are needed in the internal data structures in
+# class Query.  There are intentionally not included in the
+# python-icat documentation and are not considered part of the API.
+# There is no commitement on compatibility between versions.
+
+class ItemBase:
+    """Abstract base class for OrderItem and ConditionItem.
+    """
+
+    db_func_re = re.compile(r"(?:([A-Za-z_]+)\()?([A-Za-z.]+)(?(1)\))")
+
+    def split_db_functs(self, attr):
+        m = self.db_func_re.fullmatch(attr)
+        if not m:
+            raise ValueError("Invalid attribute '%s'" % attr)
+        return m.group(2,1)
+
+
+class OrderItem(ItemBase):
+    """Represent an item in the ORDER BY clause.
+    """
+
+    def __init__(self, obj, cloneFrom=None):
+        if cloneFrom:
+            self.attr = obj or cloneFrom.attr
+            self.jpql_func = cloneFrom.jpql_func
+            self.direction = cloneFrom.direction
+        else:
+            if isinstance(obj, tuple):
+                obj, direction = obj
+                if direction not in ("ASC", "DESC"):
+                    raise ValueError("Invalid ordering direction '%s'"
+                                     % direction)
+            else:
+                direction = None
+            attr, jpql_func = self.split_db_functs(obj)
+            self.attr = attr
+            self.jpql_func = jpql_func
+            self.direction = direction
+
+    @property
+    def formatstr(self):
+        if self.jpql_func:
+            if self.direction:
+                return "%s(%%s) %s" % (self.jpql_func, self.direction)
+            else:
+                return "%s(%%s)" % self.jpql_func
+        else:
+            if self.direction:
+                return "%%s %s" % self.direction
+            else:
+                return "%s"
+
+
+class ConditionItem(ItemBase):
+    """Represent an item in the WHERE clause.
+    """
+    def __init__(self, obj, rhs):
+        attr, jpql_func = self.split_db_functs(obj)
+        self.attr = attr
+        self.jpql_func = jpql_func
+        self.rhs = rhs
+
+    @property
+    def formatstr(self):
+        rhs = self.rhs.replace('%', '%%')
+        if self.jpql_func:
+            return "%s(%%s) %s" % (self.jpql_func, rhs)
+        else:
+            return "%%s %s" % (rhs)
+
 # ========================== class Query =============================
 
 class Query():
@@ -105,8 +177,6 @@ class Query():
     .. versionchanged:: 0.19.0
         add the `join_specs` argument.
     """
-
-    _db_func_re = re.compile(r"(?:([A-Za-z_]+)\()?([A-Za-z.]+)(?(1)\))")
 
     def __init__(self, client, entity,
                  attributes=None, aggregate=None, order=None,
@@ -204,12 +274,6 @@ class Query():
         if addas and obj in subst:
             n += " AS %s" % (subst[obj])
         return n
-
-    def _split_db_functs(self, attr):
-        m = self._db_func_re.fullmatch(attr)
-        if not m:
-            raise ValueError("Invalid attribute '%s'" % attr)
-        return m.group(2,1)
 
     def _get_subst(self):
         if self._subst is None:
@@ -346,22 +410,16 @@ class Query():
         if order is True:
 
             for a in self.entity.getNaturalOrder(self.client):
-                self.order[a] = "%s"
+                item = OrderItem(a)
+                self.order[item.attr] = item
 
         elif order:
 
             for obj in order:
 
-                if isinstance(obj, tuple):
-                    obj, direction = obj
-                    if direction not in ("ASC", "DESC"):
-                        raise ValueError("Invalid ordering direction '%s'"
-                                         % direction)
-                else:
-                    direction = None
-                attr, jpql_func = self._split_db_functs(obj)
+                item = OrderItem(obj)
 
-                for (pattr, attrInfo, rclass) in self._attrpath(attr):
+                for (pattr, attrInfo, rclass) in self._attrpath(item.attr):
                     if attrInfo.relType == "ONE":
                         if (not attrInfo.notNullable and
                             pattr not in self.conditions and
@@ -375,33 +433,24 @@ class Query():
                             warn(QueryOneToManyOrderWarning(pattr),
                                  stacklevel=sl)
 
-                if jpql_func:
-                    if rclass is not None:
-                        raise ValueError("Cannot apply a JPQL function "
-                                         "to a related object: %s" % obj)
-                    if direction:
-                        vstr = "%s(%%s) %s" % (jpql_func, direction)
-                    else:
-                        vstr = "%s(%%s)" % jpql_func
-                else:
-                    if direction:
-                        vstr = "%%s %s" % direction
-                    else:
-                        vstr = "%s"
                 if rclass is None:
-                    # attr is an attribute, use it right away.
-                    if attr in self.order:
-                        raise ValueError("Cannot add %s more than once" % attr)
-                    self.order[attr] = vstr
+                    # the item is an attribute, use it right away.
+                    if item.attr in self.order:
+                        raise ValueError("Cannot add %s more than once" % item.attr)
+                    self.order[item.attr] = item
                 else:
                     # attr is a related object, use the natural order
                     # of its class.
+                    if item.jpql_func:
+                        raise ValueError("Cannot apply a JPQL function "
+                                         "to a related object: %s" % obj)
                     for ra in rclass.getNaturalOrder(self.client):
-                        rattr = "%s.%s" % (attr, ra)
+                        rattr = "%s.%s" % (item.attr, ra)
                         if rattr in self.order:
                             raise ValueError("Cannot add %s more than once"
                                              % rattr)
-                        self.order[rattr] = vstr
+                        ritem = OrderItem(rattr, cloneFrom=item)
+                        self.order[ritem.attr] = ritem
 
     def addConditions(self, conditions):
         """Add conditions to the constraints to build the WHERE clause from.
@@ -422,12 +471,6 @@ class Query():
         .. versionchanged:: 0.20.0
             allow a JPQL function in the attribute.
         """
-        def _cond_value(rhs, func):
-            rhs = rhs.replace('%', '%%')
-            if func:
-                return "%s(%%s) %s" % (func, rhs)
-            else:
-                return "%%s %s" % (rhs)
         if conditions:
             self._subst = None
             for k in conditions.keys():
@@ -435,14 +478,12 @@ class Query():
                     conds = [conditions[k]]
                 else:
                     conds = conditions[k]
-                a, jpql_func = self._split_db_functs(k)
-                for (pattr, attrInfo, rclass) in self._attrpath(a):
-                    pass
-                v = [ _cond_value(rhs, jpql_func) for rhs in conds ]
-                if a in self.conditions:
-                    self.conditions[a].extend(v)
-                else:
-                    self.conditions[a] = v
+                for rhs in conds:
+                    item = ConditionItem(k, rhs)
+                    for (pattr, attrInfo, rclass) in self._attrpath(item.attr):
+                        pass
+                    l = self.conditions.setdefault(item.attr, [])
+                    l.append(item)
 
     def addIncludes(self, includes):
         """Add related objects to build the INCLUDE clause from.
@@ -534,7 +575,7 @@ class Query():
             for a in sorted(self.conditions.keys()):
                 attr = self._dosubst(a, subst, False)
                 for c in self.conditions[a]:
-                    conds.append(c % attr)
+                    conds.append(c.formatstr % attr)
             return "WHERE " + " AND ".join(conds)
         else:
             return None
@@ -547,9 +588,8 @@ class Query():
         """
         if self.order:
             subst = self._get_subst()
-            orders = []
-            for a in self.order.keys():
-                orders.append(self.order[a] % self._dosubst(a, subst, False))
+            orders = [ self.order[a].formatstr % self._dosubst(a, subst, False)
+                       for a in self.order.keys() ]
             return "ORDER BY " + ", ".join(orders)
         else:
             return None
