@@ -60,9 +60,9 @@ jpql_join_specs = frozenset([
 
 # ========================= helper classes ===========================
 # Note: these helpers are needed in the internal data structures in
-# class Query.  There are intentionally not included in the
-# python-icat documentation and are not considered part of the API.
-# There is no commitement on compatibility between versions.
+# class Query.  They are intentionally not included in the python-icat
+# documentation and are not considered part of the API.  There is no
+# commitment on compatibility between versions.
 
 class ItemBase:
     """Abstract base class for OrderItem and ConditionItem.
