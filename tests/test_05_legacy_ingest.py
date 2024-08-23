@@ -11,7 +11,7 @@ versions of icatingest should be able to read legacy dump files
 created by older versions of icatdump.  This is verified by the test
 in this module.
 
-Note that ICAT 7.0.0 changed the schema in an incompatible so that
+Note that ICAT 7.0.0 changed the schema in an incompatible way so that
 legacy ICAT data files can not be read regardless of the python-icat
 version.
 """
