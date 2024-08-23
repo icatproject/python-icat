@@ -1,7 +1,6 @@
 """Provide the Query class.
 """
 
-from collections import OrderedDict
 import re
 from warnings import warn
 from collections.abc import Mapping
@@ -277,7 +276,7 @@ class Query():
 
     def _get_subst(self):
         if self._subst is None:
-            joinattrs = ( set(self.order.keys()) |
+            joinattrs = ( self._order_attrs |
                           set(self.conditions.keys()) |
                           set(self.attributes) )
             self._subst = self._makesubst(joinattrs)
@@ -403,15 +402,12 @@ class Query():
             allow a JPQL function in the attribute.
         """
         self._subst = None
-        # Note: with Python 3.7 and newer we could simplify this using
-        # a standard dict() rather than an OrderedDict().
-        self.order = OrderedDict()
+        self.order = []
 
         if order is True:
 
-            for a in self.entity.getNaturalOrder(self.client):
-                item = OrderItem(a)
-                self.order[item.attr] = item
+            self.order = [ OrderItem(a)
+                           for a in self.entity.getNaturalOrder(self.client) ]
 
         elif order:
 
@@ -435,9 +431,7 @@ class Query():
 
                 if rclass is None:
                     # the item is an attribute, use it right away.
-                    if item.attr in self.order:
-                        raise ValueError("Cannot add %s more than once" % item.attr)
-                    self.order[item.attr] = item
+                    self.order.append(item)
                 else:
                     # attr is a related object, use the natural order
                     # of its class.
@@ -446,11 +440,7 @@ class Query():
                                          "to a related object: %s" % obj)
                     for ra in rclass.getNaturalOrder(self.client):
                         rattr = "%s.%s" % (item.attr, ra)
-                        if rattr in self.order:
-                            raise ValueError("Cannot add %s more than once"
-                                             % rattr)
-                        ritem = OrderItem(rattr, cloneFrom=item)
-                        self.order[ritem.attr] = ritem
+                        self.order.append(OrderItem(rattr, cloneFrom=item))
 
     def addConditions(self, conditions):
         """Add conditions to the constraints to build the WHERE clause from.
@@ -518,6 +508,10 @@ class Query():
             self.limit = limit
         else:
             self.limit = None
+
+    @property
+    def _order_attrs(self):
+        return { item.attr for item in self.order }
 
     @property
     def select_clause(self):
@@ -588,8 +582,8 @@ class Query():
         """
         if self.order:
             subst = self._get_subst()
-            orders = [ self.order[a].formatstr % self._dosubst(a, subst, False)
-                       for a in self.order.keys() ]
+            orders = [ item.formatstr % self._dosubst(item.attr, subst, False)
+                       for item in self.order ]
             return "ORDER BY " + ", ".join(orders)
         else:
             return None
