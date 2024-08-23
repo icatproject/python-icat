@@ -67,7 +67,6 @@ jpql_join_specs = frozenset([
 class ItemBase:
     """Abstract base class for OrderItem and ConditionItem.
     """
-
     db_func_re = re.compile(r"(?:([A-Za-z_]+)\()?([A-Za-z.]+)(?(1)\))")
 
     def split_db_functs(self, attr):
@@ -76,6 +75,10 @@ class ItemBase:
             raise ValueError("Invalid attribute '%s'" % attr)
         return m.group(2,1)
 
+    def __init__(self, obj):
+        attr, jpql_func = self.split_db_functs(obj)
+        self.attr = attr
+        self.jpql_func = jpql_func
 
 class OrderItem(ItemBase):
     """Represent an item in the ORDER BY clause.
@@ -94,9 +97,7 @@ class OrderItem(ItemBase):
                                      % direction)
             else:
                 direction = None
-            attr, jpql_func = self.split_db_functs(obj)
-            self.attr = attr
-            self.jpql_func = jpql_func
+            super().__init__(obj)
             self.direction = direction
 
     @property
@@ -117,9 +118,7 @@ class ConditionItem(ItemBase):
     """Represent an item in the WHERE clause.
     """
     def __init__(self, obj, rhs):
-        attr, jpql_func = self.split_db_functs(obj)
-        self.attr = attr
-        self.jpql_func = jpql_func
+        super().__init__(obj)
         self.rhs = rhs
 
     @property
