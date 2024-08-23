@@ -200,7 +200,7 @@ class Query():
 
         self.setAttributes(attributes)
         self.setAggregate(aggregate)
-        self.conditions = dict()
+        self.conditions = []
         self.addConditions(conditions)
         self.includes = set()
         self.addIncludes(includes)
@@ -276,7 +276,7 @@ class Query():
     def _get_subst(self):
         if self._subst is None:
             joinattrs = ( self._order_attrs |
-                          set(self.conditions.keys()) |
+                          self._conditions_attrs |
                           set(self.attributes) )
             self._subst = self._makesubst(joinattrs)
         return self._subst
@@ -417,7 +417,7 @@ class Query():
                 for (pattr, attrInfo, rclass) in self._attrpath(item.attr):
                     if attrInfo.relType == "ONE":
                         if (not attrInfo.notNullable and
-                            pattr not in self.conditions and
+                            pattr not in self._conditions_attrs and
                             pattr not in self.join_specs):
                             sl = 3 if self._init else 2
                             warn(QueryNullableOrderWarning(pattr),
@@ -445,34 +445,45 @@ class Query():
         """Add conditions to the constraints to build the WHERE clause from.
 
         :param conditions: the conditions to restrict the search
-            result.  This must be a mapping of attribute names to
-            conditions on that attribute.  The latter may either be a
-            string with a single condition or a list of strings to add
-            more then one condition on a single attribute.  The
-            attribute name (the key of the condition) can be wrapped
-            with a JPQL function (such as "UPPER(title)").  If the
-            query already has a condition on a given attribute, the
-            previous condition(s) will be retained and the new
-            condition(s) added to that.
-        :type conditions: :class:`dict`
-        :raise ValueError: if any key in `conditions` is not valid.
+            result.  This must be a list of tuples with a pair of an
+            attribute name and a condition on that attribute
+            respectively.  The attribute name may be wrapped with a
+            JPQL function (such as "UPPER(title)").
+
+            For backward compatibility with previous versions, this
+            may alternatively be a mapping of attribute names to a
+            (lists of) conditions.
+        :type conditions: :class:`list` of :class:`tuple` or :class:`dict`
+        :raise ValueError: if any attribute in `conditions` is not valid.
 
         .. versionchanged:: 0.20.0
             allow a JPQL function in the attribute.
+
+        .. versionchanged:: 2.0.0
+            expect a :class:`list` of :class:`tuple` in the
+            `conditions` argument.
+        .. deprecated:: 2.0.0
+            accept a :class:`dict` in the `conditions` argument.
         """
         if conditions:
             self._subst = None
-            for k in conditions.keys():
-                if isinstance(conditions[k], str):
-                    conds = [conditions[k]]
-                else:
-                    conds = conditions[k]
-                for rhs in conds:
-                    item = ConditionItem(k, rhs)
-                    for (pattr, attrInfo, rclass) in self._attrpath(item.attr):
-                        pass
-                    l = self.conditions.setdefault(item.attr, [])
-                    l.append(item)
+
+            if isinstance(conditions, Mapping):
+                # Convert the conditions argument to a list of tuples.
+                conds = []
+                for obj,v in conditions.items():
+                    if isinstance(v, str):
+                        conds.append( (obj,v) )
+                    else:
+                        for rhs in v:
+                            conds.append( (obj,rhs) )
+                conditions = conds
+
+            for obj,rhs in conditions:
+                item = ConditionItem(obj, rhs)
+                for (pattr, attrInfo, rclass) in self._attrpath(item.attr):
+                    pass
+                self.conditions.append(item)
 
     def addIncludes(self, includes):
         """Add related objects to build the INCLUDE clause from.
@@ -511,6 +522,10 @@ class Query():
     @property
     def _order_attrs(self):
         return { item.attr for item in self.order }
+
+    @property
+    def _conditions_attrs(self):
+        return { item.attr for item in self.conditions }
 
     @property
     def select_clause(self):
@@ -564,11 +579,9 @@ class Query():
         """
         if self.conditions:
             subst = self._get_subst()
-            conds = []
-            for a in sorted(self.conditions.keys()):
-                attr = self._dosubst(a, subst, False)
-                for c in self.conditions[a]:
-                    conds.append(c.formatstr % attr)
+            sortkey = lambda item: item.attr
+            conds = [ item.formatstr % self._dosubst(item.attr, subst, False)
+                      for item in sorted(self.conditions, key=sortkey) ]
             return "WHERE " + " AND ".join(conds)
         else:
             return None
@@ -645,9 +658,7 @@ class Query():
         q.attributes = list(self.attributes)
         q.aggregate = self.aggregate
         q.order = self.order.copy()
-        q.conditions = dict()
-        for k, v in self.conditions.items():
-            q.conditions[k] = self.conditions[k].copy()
+        q.conditions = self.conditions.copy()
         q.includes = self.includes.copy()
         q.limit = self.limit
         q.join_specs = self.join_specs.copy()
