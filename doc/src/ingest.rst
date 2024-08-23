@@ -5,11 +5,6 @@
 
 .. versionadded:: 1.1.0
 
-.. note::
-   The status of this module in the current version is still
-   experimental.  There may be incompatible changes in the future
-   even in minor releases of python-icat.
-
 This module provides class :class:`icat.ingest.IngestReader` that
 reads :ref:`ICAT-ingest-files` to add them to ICAT.  It is designed
 for the use case of ingesting metadata for datasets created during
