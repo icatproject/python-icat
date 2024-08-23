@@ -528,8 +528,8 @@ class Query():
 
         .. versionadded:: 0.21.0
         """
-        subst = self._get_subst()
         if self.conditions:
+            subst = self._get_subst()
             conds = []
             for a in sorted(self.conditions.keys()):
                 attr = self._dosubst(a, subst, False)
@@ -545,8 +545,8 @@ class Query():
 
         .. versionadded:: 0.21.0
         """
-        subst = self._get_subst()
         if self.order:
+            subst = self._get_subst()
             orders = []
             for a in self.order.keys():
                 orders.append(self.order[a] % self._dosubst(a, subst, False))
