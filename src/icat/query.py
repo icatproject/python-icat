@@ -410,9 +410,7 @@ class Query():
             the latter being either "ASC" or "DESC" for ascending or
             descending order respectively.
         :type order: iterable or :class:`bool`
-        :raise ValueError: if any attribute in `order` is not valid or
-            if any attribute appears more than once in the resulting
-            ORDER BY clause.
+        :raise ValueError: if any attribute in `order` is not valid.
 
         .. versionchanged:: 0.19.0
             allow one to many relationships in `order`.  Emit a
@@ -466,14 +464,15 @@ class Query():
         """Add conditions to the constraints to build the WHERE clause from.
 
         :param conditions: the conditions to restrict the search
-            result.  This must be a list of tuples with a pair of an
-            attribute name and a condition on that attribute
+            result.  This must be a list of tuples, each being a pair
+            of an attribute name and a condition on that attribute
             respectively.  The attribute name may be wrapped with a
             JPQL function (such as "UPPER(title)").
 
             For backward compatibility with previous versions, this
             may alternatively be a mapping of attribute names to a
-            (lists of) conditions.
+            (lists of) conditions.  This legacy use is deprecated,
+            though.
         :type conditions: :class:`list` of :class:`tuple` or :class:`dict`
         :raise ValueError: if any attribute in `conditions` is not valid.
 
