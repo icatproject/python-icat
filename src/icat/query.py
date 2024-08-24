@@ -80,6 +80,16 @@ class ItemBase:
         self.attr = attr
         self.jpql_func = jpql_func
 
+    @property
+    def obj(self):
+        if self.jpql_func:
+            return "%s(%s)" % (self.jpql_func, self.attr)
+        else:
+            return self.attr
+
+    def __repr__(self):
+        return repr(self.obj)
+
 class OrderItem(ItemBase):
     """Represent an item in the ORDER BY clause.
     """
@@ -113,6 +123,13 @@ class OrderItem(ItemBase):
             else:
                 return "%s"
 
+    @property
+    def obj(self):
+        obj = super().obj
+        if self.direction:
+            obj = (obj, self.direction)
+        return obj
+
 
 class ConditionItem(ItemBase):
     """Represent an item in the WHERE clause.
@@ -128,6 +145,10 @@ class ConditionItem(ItemBase):
             return "%s(%%s) %s" % (self.jpql_func, rhs)
         else:
             return "%%s %s" % (rhs)
+
+    @property
+    def obj(self):
+        return (super().obj, self.rhs)
 
 # ========================== class Query =============================
 
@@ -629,14 +650,30 @@ class Query():
     def __repr__(self):
         """Return a formal representation of the query.
         """
-        return ("%s(%s, %s, attributes=%s, aggregate=%s, order=%s, "
-                "conditions=%s, includes=%s, limit=%s, join_specs=%s)"
-                % (self.__class__.__name__,
-                   repr(self.client), repr(self.entity.BeanName),
-                   repr(self.attributes), repr(self.aggregate),
-                   repr(self.order), repr(self.conditions),
-                   repr(self.includes), repr(self.limit),
-                   repr(self.join_specs)))
+        kwargs = []
+        if self.attributes:
+            kwargs.append("attributes=%s" % repr(self.attributes))
+        if self.aggregate:
+            kwargs.append("aggregate=%s" % repr(self.aggregate))
+        if self.order:
+            kwargs.append("order=%s" % repr(self.order))
+        if self.conditions:
+            kwargs.append("conditions=%s" % repr(self.conditions))
+        if self.includes:
+            kwargs.append("includes=%s" % repr(self.includes))
+        if self.limit:
+            kwargs.append("limit=%s" % repr(self.limit))
+        if self.join_specs:
+            kwargs.append("join_specs=%s" % repr(self.join_specs))
+        if kwargs:
+            return ("%s(%s, %s, %s)"
+                    % (self.__class__.__name__,
+                       repr(self.client), repr(self.entity.BeanName),
+                       ", ".join(kwargs)))
+        else:
+            return ("%s(%s, %s)"
+                    % (self.__class__.__name__,
+                       repr(self.client), repr(self.entity.BeanName)))
 
     def __str__(self):
         """Return a string representation of the query.
