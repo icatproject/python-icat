@@ -45,7 +45,9 @@ def test_query_simple(client):
     # The investigation is reused in other tests.
     global investigation
     name = "10100601-ST"
-    query = Query(client, "Investigation", conditions={"name":"= '%s'" % name})
+    query = Query(client, "Investigation", conditions=[
+        ("name", "= '%s'" % name)
+    ])
     print(str(query))
     assert "Investigation" in query.select_clause
     assert query.join_clause is None
@@ -67,11 +69,11 @@ def test_query_datafile(client):
         'dataset': "e208945",
         'investigation': "12100409-ST" 
     }
-    conditions = { 
-        "name": "= '%s'" % dfdata['name'],
-        "dataset.name": "= '%s'" % dfdata['dataset'],
-        "dataset.investigation.name": "= '%s'" % dfdata['investigation'],
-    }
+    conditions = [
+        ("name", "= '%s'" % dfdata['name']),
+        ("dataset.name", "= '%s'" % dfdata['dataset']),
+        ("dataset.investigation.name", "= '%s'" % dfdata['investigation']),
+    ]
     query = Query(client, "Datafile", conditions=conditions)
     print(str(query))
     assert "Datafile" in query.select_clause
@@ -88,11 +90,11 @@ def test_query_datafile(client):
     assert df.name == dfdata['name']
 
     # Same example, but use placeholders in the query string now.
-    conditions = { 
-        "name": "= '%(name)s'",
-        "dataset.name": "= '%(dataset)s'",
-        "dataset.investigation.name": "= '%(investigation)s'",
-    }
+    conditions = [
+        ("name", "= '%(name)s'"),
+        ("dataset.name", "= '%(dataset)s'"),
+        ("dataset.investigation.name", "= '%(investigation)s'"),
+    ]
     query = Query(client, "Datafile", conditions=conditions)
     print(str(query))
     print(str(query) % dfdata)
@@ -112,7 +114,7 @@ def test_query_investigation_includes(client):
                  "investigationGroups.grouping", "parameters",
                  "parameters.type.facility" }
     query = Query(client, "Investigation",
-                  conditions={"id": "= %d" % investigation.id},
+                  conditions=[("id", "= %d" % investigation.id)],
                   includes=includes)
     print(str(query))
     assert "Investigation" in query.select_clause
@@ -137,8 +139,8 @@ def test_query_instruments(client):
     """
     query = Query(client, "Instrument",
                   order=["name"],
-                  conditions={ "investigationInstruments.investigation.id":
-                               "= %d" % investigation.id },
+                  conditions=[ ("investigationInstruments.investigation.id",
+                                "= %d" % investigation.id) ],
                   includes={"facility", "instrumentScientists.user"})
     print(str(query))
     assert "Instrument" in query.select_clause
@@ -157,8 +159,8 @@ def test_query_datafile_by_investigation(client):
     """The datafiles related to a given investigation in natural order.
     """
     query = Query(client, "Datafile", order=True,
-                  conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id },
+                  conditions=[( "dataset.investigation.id",
+                                "= %d" % investigation.id )],
                   includes={"dataset", "datafileFormat.facility",
                             "parameters.type.facility"})
     print(str(query))
@@ -226,8 +228,8 @@ def test_query_order_direction(client):
     # Try without specifying the ordering direction first:
     query = Query(client, "Datafile",
                   order=["name"],
-                  conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id })
+                  conditions=[( "dataset.investigation.id",
+                                "= %d" % investigation.id )])
     print(str(query))
     assert "Datafile" in query.select_clause
     assert "investigation" in query.join_clause
@@ -238,23 +240,23 @@ def test_query_order_direction(client):
     # Ascending order is the default, so we should get the same result:
     query = Query(client, "Datafile",
                   order=[("name", "ASC")],
-                  conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id })
+                  conditions=[( "dataset.investigation.id",
+                                "= %d" % investigation.id )])
     print(str(query))
     assert client.search(query) == res
     # Descending order should give the reverse result:
     query = Query(client, "Datafile",
                   order=[("name", "DESC")],
-                  conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id })
+                  conditions=[( "dataset.investigation.id",
+                                "= %d" % investigation.id )])
     print(str(query))
     assert list(reversed(client.search(query))) == res
     # We may even combine different ordering directions on multiple
     # attributes of the same query:
     query = Query(client, "Datafile",
                   order=[("dataset.name", "DESC"), ("name", "ASC")],
-                  conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id })
+                  conditions=[( "dataset.investigation.id",
+                                "= %d" % investigation.id )])
     print(str(query))
     assert sorted(client.search(query), key=lambda df: df.name) == res
 
@@ -288,7 +290,7 @@ def test_query_order_direction_relation(client):
 def test_query_condition_greaterthen(client):
     """Other relations then equal may be used in the conditions too.
     """
-    condition = {"datafileCreateTime": ">= '2012-01-01'"}
+    condition = [("datafileCreateTime", ">= '2012-01-01'")]
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
     assert "Datafile" in query.select_clause
@@ -296,16 +298,19 @@ def test_query_condition_greaterthen(client):
     assert "datafileCreateTime" in query.where_clause
     res = client.search(query)
     assert len(res) == 4 + have_icat_5
-    condition = {"datafileCreateTime": "< '2012-01-01'"}
+    condition = [("datafileCreateTime", "< '2012-01-01'")]
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
     res = client.search(query)
     assert len(res) == 6
 
-def test_query_condition_list(client):
-    """We may also add a list of conditions on a single attribute.
+def test_query_multiple_conditions(client):
+    """We may also add multiple conditions on a single attribute.
     """
-    condition = {"datafileCreateTime": [">= '2012-01-01'", "< '2013-01-01'"]}
+    condition = [
+        ("datafileCreateTime", ">= '2012-01-01'"),
+        ("datafileCreateTime", "< '2013-01-01'"),
+    ]
     query = Query(client, "Datafile", conditions=condition)
     print(str(query))
     assert "Datafile" in query.select_clause
@@ -317,8 +322,8 @@ def test_query_condition_list(client):
 
     # The last example also works by adding the conditions separately.
     query = Query(client, "Datafile")
-    query.addConditions({"datafileCreateTime": ">= '2012-01-01'"})
-    query.addConditions({"datafileCreateTime": "< '2013-01-01'"})
+    query.addConditions([("datafileCreateTime", ">= '2012-01-01'")])
+    query.addConditions([("datafileCreateTime", "< '2013-01-01'")])
     print(str(query))
     assert str(query) == qstr
     res = client.search(query)
@@ -330,7 +335,7 @@ def test_query_in_operator(client):
     (This may be needed to work around ICAT Issue 128.)
     """
     query = Query(client, "Investigation",
-                  conditions={"id": "in (%d)" % investigation.id})
+                  conditions=[("id", "in (%d)" % investigation.id)])
     print(str(query))
     assert "Investigation" in query.select_clause
     assert query.join_clause is None
@@ -346,7 +351,7 @@ def test_query_condition_obj(client):
     """We may place conditions on related objects.
     This is in particular useful to test whether a relation is null.
     """
-    query = Query(client, "Rule", conditions={"grouping": "IS NULL"})
+    query = Query(client, "Rule", conditions=[("grouping", "IS NULL")])
     print(str(query))
     assert "Rule" in query.select_clause
     res = client.search(query)
@@ -357,10 +362,10 @@ def test_query_condition_jpql_function(client):
     This test also applies `UPPER()` on the data to mitigate instances
     of Oracle databases which are case sensitive.
     """
-    conditions = {
-        "UPPER(title)": "like UPPER('%Ni-Mn-Ga flat cone%')",
-        "UPPER(datasets.name)": "like UPPER('%e208341%')",
-    }
+    conditions = [
+        ("UPPER(title)", "like UPPER('%Ni-Mn-Ga flat cone%')"),
+        ("UPPER(datasets.name)", "like UPPER('%e208341%')"),
+    ]
     query = Query(client, "Investigation", conditions=conditions)
     print(str(query))
     assert "Investigation" in query.select_clause
@@ -375,8 +380,8 @@ def test_query_condition_jpql_function_namelen(client):
     of the JPQL function in the condition is easier to verify in the
     result.
     """
-    conditions = { "name": "LIKE 'db/%'",
-                   "LENGTH(fullName)": "> 11" }
+    conditions = [ ("name", "LIKE 'db/%'"),
+                   ("LENGTH(fullName)", "> 11") ]
     query = Query(client, "User", conditions=conditions)
     print(str(query))
     assert "User" in query.select_clause
@@ -390,8 +395,8 @@ def test_query_condition_jpql_function_mixed(client):
     This test case failed for an early implementation of JPQL
     functions, see discussion in #89.
     """
-    conditions = { "name": "LIKE 'db/%'",
-                   "LENGTH(fullName)": "> 11", "fullName": "> 'C'" }
+    conditions = [ ("name", "LIKE 'db/%'"),
+                   ("LENGTH(fullName)", "> 11"), ("fullName", "> 'C'") ]
     query = Query(client, "User", conditions=conditions)
     print(str(query))
     assert "User" in query.select_clause
@@ -407,7 +412,7 @@ def test_query_order_jpql_function(client):
     fullName.  (In the example data, the longest and second longest
     fullName is somewhat ambiguous due to character encoding issues.)
     """
-    query = Query(client, "User", conditions={ "name": "LIKE 'db/%'" },
+    query = Query(client, "User", conditions=[ ("name", "LIKE 'db/%'") ],
                   order=[("LENGTH(fullName)", "DESC")], limit=(2,1))
     print(str(query))
     assert "User" in query.select_clause
@@ -454,7 +459,7 @@ def test_query_rule_order_group_suppress_warn_cond(client, recwarn):
     """
     recwarn.clear()
     query = Query(client, "Rule", order=['grouping', 'what', 'id'],
-                  conditions={"grouping": "IS NOT NULL"})
+                  conditions=[("grouping", "IS NOT NULL")])
     assert len(recwarn.list) == 0
     print(str(query))
     assert "Rule" in query.select_clause
@@ -610,7 +615,7 @@ def test_query_limit(client):
     """Add a LIMIT clause to an earlier example.
     """
     query = Query(client, "Rule", order=['grouping', 'what', 'id'],
-                  conditions={"grouping":"IS NOT NULL"})
+                  conditions=[("grouping", "IS NOT NULL")])
     query.setLimit( (0,10) )
     print(str(query))
     assert "Rule" in query.select_clause
@@ -625,7 +630,7 @@ def test_query_limit_placeholder(client):
     """LIMIT clauses are particular useful with placeholders.
     """
     query = Query(client, "Rule", order=['grouping', 'what', 'id'],
-                  conditions={"grouping":"IS NOT NULL"})
+                  conditions=[("grouping", "IS NOT NULL")])
     query.setLimit( ("%d","%d") )
     chunksize = 45
     print(str(query))
@@ -651,7 +656,7 @@ def test_query_non_ascii(client):
     # by both Python 2 and Python 3.
     fullName = b'Rudolph Beck-D\xc3\xbclmen'.decode('utf8')
     query = Query(client, "User",
-                  conditions={ "fullName": "= '%s'" % fullName })
+                  conditions=[ ("fullName", "= '%s'" % fullName) ])
     print(str(query))
     assert "User" in query.select_clause
     assert query.join_clause is None
@@ -671,8 +676,8 @@ def test_query_str(client):
     effects at all.  It was fixed in changes 4688517 and 905dd8c.
     """
     query = Query(client, "Datafile", order=True,
-                  conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id },
+                  conditions=[ ("dataset.investigation.id",
+                                "= %d" % investigation.id) ],
                   includes={"dataset", "datafileFormat.facility",
                             "parameters.type.facility"})
     r = repr(query)
@@ -686,7 +691,7 @@ def test_query_str(client):
 def test_query_metaattr(client):
     """Test adding a condition on a meta attribute.  Issue #6
     """
-    query = Query(client, "Datafile", conditions={ "modId": "= 'jdoe'" })
+    query = Query(client, "Datafile", conditions=[ ("modId", "= 'jdoe'") ])
     print(str(query))
     assert "Datafile" in query.select_clause
     assert query.join_clause is None
@@ -719,8 +724,8 @@ def test_query_attribute_datafile_name(client):
     added in Issue #28.
     """
     query = Query(client, "Datafile", attributes="name", order=True,
-                  conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id })
+                  conditions=[ ("dataset.investigation.id",
+                                "= %d" % investigation.id) ])
     print(str(query))
     assert "name" in query.select_clause
     assert "investigation" in query.join_clause
@@ -739,8 +744,8 @@ def test_query_attribute_datafile_name_list(client):
     single element.
     """
     query = Query(client, "Datafile", attributes=["name"], order=True,
-                  conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id })
+                  conditions=[ ("dataset.investigation.id",
+                                "= %d" % investigation.id) ])
     print(str(query))
     assert "name" in query.select_clause
     assert "investigation" in query.join_clause
@@ -759,8 +764,8 @@ def test_query_related_obj_attribute(client):
     """
     require_icat_version("4.5.0", "SELECT related object's attribute")
     query = Query(client, "Datafile", attributes="datafileFormat.name",
-                  conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id })
+                  conditions=[ ("dataset.investigation.id",
+                                "= %d" % investigation.id) ])
     print(str(query))
     assert "name" in query.select_clause
     assert "datafileFormat" in query.join_clause
@@ -807,7 +812,7 @@ def test_query_mulitple_attributes_related_obj(client):
                ("10100601-ST", "e208342")]
     query = Query(client, "Dataset",
                   attributes=("investigation.name", "name"), order=True,
-                  conditions={"investigation.startDate":  "< '2011-01-01'"})
+                  conditions=[("investigation.startDate",  "< '2011-01-01'")])
     print(str(query))
     assert "name" in query.select_clause
     assert "investigation" in query.join_clause
@@ -841,12 +846,12 @@ def test_query_mulitple_attributes_distinct(client):
     # Try the query without DISTINCT first so that we can verify the effect.
     query = Query(client, "InvestigationUser",
                   attributes=("investigation.name", "role"),
-                  conditions={"investigation.name": "= '08100122-EF'"})
+                  conditions=[("investigation.name", "= '08100122-EF'")])
     print(str(query))
     res = client.search(query)
     query = Query(client, "InvestigationUser",
                   attributes=("investigation.name", "role"),
-                  conditions={"investigation.name": "= '08100122-EF'"},
+                  conditions=[("investigation.name", "= '08100122-EF'")],
                   aggregate="DISTINCT")
     print(str(query))
     assert "DISTINCT" in query.select_clause
@@ -869,8 +874,8 @@ def test_query_aggregate_distinct_attribute(client):
     require_icat_version("4.7.0", "SELECT DISTINCT in queries")
     query = Query(client, "Datafile",
                   attributes="datafileFormat.name",
-                  conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id })
+                  conditions=[ ("dataset.investigation.id",
+                                "= %d" % investigation.id) ])
     print(str(query))
     res = client.search(query)
     assert sorted(res) == ["NeXus", "NeXus", "other", "other"]
@@ -893,8 +898,8 @@ def test_query_aggregate_distinct_related_obj(client):
     require_icat_version("4.7.0", "SELECT DISTINCT in queries")
     query = Query(client, "Datafile",
                   attributes="datafileFormat",
-                  conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id })
+                  conditions=[ ("dataset.investigation.id",
+                                "= %d" % investigation.id) ])
     print(str(query))
     res = client.search(query)
     assert len(res) == 4
@@ -948,8 +953,8 @@ def test_query_aggregate_misc(client, attribute, aggregate, expected):
         require_icat_version("4.7.0", "SELECT DISTINCT in queries")
     query = Query(client, "Datafile",
                   attributes=attribute, aggregate=aggregate,
-                  conditions={ "dataset.investigation.id":
-                               "= %d" % investigation.id })
+                  conditions=[ ("dataset.investigation.id",
+                                "= %d" % investigation.id) ])
     print(str(query))
     if ':' not in aggregate:
         assert aggregate in query.select_clause
@@ -965,18 +970,18 @@ def test_query_aggregate_misc(client, attribute, aggregate, expected):
     ("Datafile", dict(attributes="name", order=True)),
     ("InvestigationUser",
      dict(attributes=("investigation.name", "role"),
-          conditions={"investigation.name": "= '08100122-EF'"},
+          conditions=[("investigation.name", "= '08100122-EF'")],
           aggregate="DISTINCT")),
     ("Datafile", dict(order=[("name", "ASC")])),
-    ("Datafile", dict(conditions={
-        "name": "= 'e208945.nxs'",
-        "dataset.name": "= 'e208945'",
-        "dataset.investigation.name": "= '12100409-ST'",
-    })),
+    ("Datafile", dict(conditions=[
+        ("name", "= 'e208945.nxs'"),
+        ("dataset.name", "= 'e208945'"),
+        ("dataset.investigation.name", "= '12100409-ST'"),
+    ])),
     ("Instrument", dict(order=["name"],
                         includes={"facility", "instrumentScientists.user"})),
     ("Rule", dict(order=['grouping', 'what', 'id'],
-                  conditions={"grouping":"IS NOT NULL"},
+                  conditions=[("grouping", "IS NOT NULL")],
                   limit=(0,10))),
     ("Rule", dict(order=['grouping', 'what', 'id'],
                   join_specs={"grouping": "LEFT OUTER JOIN"})),
