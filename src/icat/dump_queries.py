@@ -143,16 +143,16 @@ def getInvestigationQueries(client, invid):
 
     return [
         Query(client, "Investigation",
-              conditions={"id": "= %d" % invid}, includes=inv_includes),
+              conditions=[("id", "= %d" % invid)], includes=inv_includes),
         Query(client, "Sample", order=["name"],
-              conditions={"investigation.id": "= %d" % invid},
+              conditions=[("investigation.id", "= %d" % invid)],
               includes={"investigation", "type.facility",
                         "parameters", "parameters.type.facility"}),
         Query(client, "Dataset", order=["name"],
-              conditions={"investigation.id": "= %d" % invid},
+              conditions=[("investigation.id", "= %d" % invid)],
               includes=ds_includes),
         Query(client, "Datafile", order=["dataset.name", "name"],
-              conditions={"dataset.investigation.id": "= %d" % invid},
+              conditions=[("dataset.investigation.id", "= %d" % invid)],
               includes={"dataset", "datafileFormat.facility",
                         "parameters.type.facility"})
     ]
@@ -199,11 +199,11 @@ def getDataPublicationQueries(client, pubid):
         # ICAT >= 5.0.0
         return [
             Query(client, "DataPublication", order=True,
-                  conditions={"id": "= %d" % pubid},
+                  conditions=[("id", "= %d" % pubid)],
                   includes={"facility", "content", "type.facility", "dates",
                             "fundingReferences.funding", "relatedItems"}),
             Query(client, "DataPublicationUser", order=True,
-                  conditions={"publication.id": "= %d" % pubid},
+                  conditions=[("publication.id", "= %d" % pubid)],
                   includes={"publication", "user", "affiliations"}),
         ]
     else:

@@ -62,7 +62,7 @@ def deleteobjs(query):
 # Delete all datafiles having location not set directly from ICAT
 # first, because they would cause trouble when we try to delete the
 # remaining datafiles from IDS, see Issue icatproject/ids.server#63.
-deleteobjs(Query(client, "Datafile", conditions={"location": "IS NULL"}))
+deleteobjs(Query(client, "Datafile", conditions=[("location", "IS NULL")]))
 
 # To delete datafiles from IDS, we must restore the datasets first,
 # because IDS can only delete datafiles that are online.  But
@@ -79,7 +79,7 @@ deleteobjs(Query(client, "Datafile", conditions={"location": "IS NULL"}))
 # without considering IDS.
 if client.ids:
     dfquery = Query(client, "Datafile", 
-                    conditions={"location": "IS NOT NULL"}, limit=(0, 1))
+                    conditions=[("location", "IS NOT NULL")], limit=(0, 1))
     retriedDatasets = set()
     while True:
         deleteDatasets = []

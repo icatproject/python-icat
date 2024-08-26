@@ -20,6 +20,7 @@ import itertools
 
 from .entity import Entity
 from .exception import InternalError
+from .query import Query
 
 
 class GroupingMixin:
@@ -44,12 +45,11 @@ class GroupingMixin:
         corresponding attribute for all users in the group, otherwise
         return the users.
         """
+        query = Query(self.client, "User", conditions=[
+            ("userGroups.grouping.id", "= %d" % self.id)
+        ])
         if attribute is not None:
-            query = ("User.%s <-> UserGroup <-> %s [id=%d]" 
-                     % (attribute, self.BeanName, self.id))
-        else:
-            query = ("User <-> UserGroup <-> %s [id=%d]" 
-                     % (self.BeanName, self.id))
+            query.setAttributes(attribute)
         return self.client.search(query)
 
 
@@ -72,12 +72,11 @@ class InstrumentMixin:
         given, return the corresponding attribute for all users
         related to the instrument, otherwise return the users.
         """
+        query = Query(self.client, "User", conditions=[
+            ("instrumentScientists.instrument.id", "= %d" % self.id)
+        ])
         if attribute is not None:
-            query = ("User.%s <-> InstrumentScientist <-> Instrument [id=%d]" 
-                     % (attribute, self.id))
-        else:
-            query = ("User <-> InstrumentScientist <-> Instrument [id=%d]" 
-                     % (self.id))
+            query.setAttributes(attribute)
         return self.client.search(query)
 
 
