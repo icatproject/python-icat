@@ -490,6 +490,10 @@ class Query():
 
             if isinstance(conditions, Mapping):
                 # Convert the conditions argument to a list of tuples.
+                sl = 3 if self._init else 2
+                warn("Passing a mapping in the conditions argument is "
+                     "deprecated and will be removed in python-icat 3.0.",
+                     DeprecationWarning, stacklevel=sl)
                 conds = []
                 for obj,v in conditions.items():
                     if isinstance(v, str):
