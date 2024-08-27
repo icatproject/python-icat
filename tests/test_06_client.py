@@ -203,11 +203,11 @@ def test_assertedSearch_unique_mulitple_fields(client):
     ),
     pytest.param(lambda client: Query(client, "User"), id="query_user"),
     pytest.param(
-        lambda client: Query(client, "User", order=True, conditions={
-            "userGroups.grouping.investigationGroups.role": "= 'writer'",
-            "userGroups.grouping.investigationGroups.investigation.name":
-                "= '08100122-EF'"
-        }),
+        lambda client: Query(client, "User", order=True, conditions=[
+            ("userGroups.grouping.investigationGroups.role", "= 'writer'"),
+            ("userGroups.grouping.investigationGroups.investigation.name",
+             "= '08100122-EF'")
+        ]),
         id="query_writer"
     ),
 ])
@@ -272,9 +272,9 @@ def test_searchChunked_limit(client, skip, count, chunksize):
         id="jpql"
     ),
     pytest.param(
-        lambda client: Query(client, "User", order=True, conditions={
-            "name": "LIKE 'j%'",
-        }),
+        lambda client: Query(client, "User", order=True, conditions=[
+            ("name", "LIKE 'j%'"),
+        ]),
         id="query"
     ),
 ])
@@ -313,7 +313,7 @@ def test_searchChunked_id(client, query):
     (9901ec6).
     """
     refq = Query(client, "Investigation", attributes="id", limit=(0,1),
-                 conditions={"name": "= '08100122-EF'"})
+                 conditions=[("name", "= '08100122-EF'")])
     id = client.assertedSearch(refq)[0]
     # The search by id must return exactly one result.  The broken
     # version returns the same object over and over again in an
@@ -330,7 +330,7 @@ def test_searchChunked_limit_bug(client):
     repeatedly yield the same object in an endless loop.
     """
     facility = client.assertedSearch("Facility")[0]
-    query = Query(client, "Facility", conditions={"id": "= %d" % facility.id})
+    query = Query(client, "Facility", conditions=[("id", "= %d" % facility.id)])
     count = 0
     for f in client.searchChunked(query):
         count += 1
@@ -346,7 +346,7 @@ def test_searchChunked_limit_bug_chunksize(client):
     chunksize.  Ref. #57.
     """
     facility = client.assertedSearch("Facility")[0]
-    query = Query(client, "Facility", conditions={"id": "= %d" % facility.id})
+    query = Query(client, "Facility", conditions=[("id", "= %d" % facility.id)])
     count = 0
     for f in client.searchChunked(query, chunksize=1):
         count += 1
