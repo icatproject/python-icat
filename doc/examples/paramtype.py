@@ -104,17 +104,17 @@ add_config.add_variable('permstrings', ("--permissible-strings",),
 def ls_paramtypes(client, conf):
     query = Query(client, "ParameterType", includes=["permissibleStringValues"])
     if conf.name:
-        query.addConditions({"name": "LIKE '%s%%'" % conf.name})
+        query.addConditions([("name", "LIKE '%s%%'" % conf.name)])
     if conf.applicable == "Investigation":
-        query.addConditions({"applicableToInvestigation": "= 'True'"})
+        query.addConditions([("applicableToInvestigation", "= 'True'")])
     elif conf.applicable == "DataCollection":
-        query.addConditions({"applicableToDataCollection": "= 'True'"})
+        query.addConditions([("applicableToDataCollection", "= 'True'")])
     elif conf.applicable == "Sample":
-        query.addConditions({"applicableToSample": "= 'True'"})
+        query.addConditions([("applicableToSample", "= 'True'")])
     elif conf.applicable == "Dataset":
-        query.addConditions({"applicableToDataset": "= 'True'"})
+        query.addConditions([("applicableToDataset", "= 'True'")])
     elif conf.applicable == "Datafile":
-        query.addConditions({"applicableToDatafile": "= 'True'"})
+        query.addConditions([("applicableToDatafile", "= 'True'")])
     for pt in client.search(query):
         if pt.unitsFullName:
             units = "%s (%s)" % (pt.units, pt.unitsFullName)

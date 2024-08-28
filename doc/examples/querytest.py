@@ -40,7 +40,7 @@ inp = data['jobs']['job1']['input']
 
 print("\nA simple query for an investigation by name.")
 name = inp['datasets'][0]['investigation']
-q = Query(client, "Investigation", conditions={"name":"= '%s'" % name})
+q = Query(client, "Investigation", conditions=[("name", "= '%s'" % name)])
 print(str(q))
 res = client.search(q)
 print("%d result(s)" % len(res))
@@ -55,22 +55,22 @@ print("\nUse investigation id: %d" % invid)
 
 print("\nQuery a datafile by its name, dataset name, and investigation name:")
 df = inp['datafiles'][0]
-conditions = {
-    "name":"= '%s'" % df['name'],
-    "dataset.name":"= '%s'" % df['dataset'],
-    "dataset.investigation.name":"= '%s'" % df['investigation'],
-}
+conditions = [
+    ("name", "= '%s'" % df['name']),
+    ("dataset.name", "= '%s'" % df['dataset']),
+    ("dataset.investigation.name", "= '%s'" % df['investigation']),
+]
 q = Query(client, "Datafile", conditions=conditions)
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nSame example, but use placeholders in the query string now:")
 df = inp['datafiles'][0]
-conditions = {
-    "name":"= '%(name)s'",
-    "dataset.name":"= '%(dataset)s'",
-    "dataset.investigation.name":"= '%(investigation)s'",
-}
+conditions = [
+    ("name", "= '%(name)s'"),
+    ("dataset.name", "= '%(dataset)s'"),
+    ("dataset.investigation.name", "= '%(investigation)s'"),
+]
 q = Query(client, "Datafile", conditions=conditions)
 print(str(q))
 print(str(q) % df)
@@ -84,22 +84,22 @@ includes = { "facility", "type.facility", "investigationInstruments",
              "investigationGroups.grouping", "parameters",
              "parameters.type.facility" }
 q = Query(client, "Investigation",
-          conditions={"id":"= %d" % invid}, includes=includes)
+          conditions=[("id", "= %d" % invid)], includes=includes)
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nQuery the instruments related to a given investigation.")
 q = Query(client, "Instrument",
           order=["name"],
-          conditions={ "investigationInstruments.investigation.id":
-                       "= %d" % invid },
+          conditions=[ ("investigationInstruments.investigation.id",
+                        "= %d" % invid) ],
           includes={"facility", "instrumentScientists.user"})
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nThe datafiles related to a given investigation in natural order.")
 q = Query(client, "Datafile", order=True,
-          conditions={ "dataset.investigation.id":"= %d" % invid },
+          conditions=[ ("dataset.investigation.id", "= %d" % invid) ],
           includes={"dataset", "datafileFormat.facility",
                     "parameters.type.facility"})
 print(str(q))
@@ -107,7 +107,7 @@ print("%d result(s)" % len(client.search(q)))
 
 print("\nSame example, but skip the investigation in the order.")
 q = Query(client, "Datafile", order=['dataset.name', 'name'],
-          conditions={ "dataset.investigation.id":"= %d" % invid },
+          conditions=[ ("dataset.investigation.id", "= %d" % invid) ],
           includes={"dataset", "datafileFormat.facility",
                     "parameters.type.facility"})
 print(str(q))
@@ -131,27 +131,30 @@ print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nOther relations then equal may be used in the conditions too.")
-condition = {"datafileCreateTime":">= '2012-01-01'"}
+condition = [ ("datafileCreateTime", ">= '2012-01-01'") ]
 q = Query(client, "Datafile", conditions=condition)
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
-print("\nWe may also add a list of conditions on a single attribute.")
-condition = {"datafileCreateTime":[">= '2012-01-01'", "< '2013-01-01'"]}
+print("\nWe may also add multiple conditions on a single attribute.")
+condition = [
+    ("datafileCreateTime", ">= '2012-01-01'"),
+    ("datafileCreateTime", "< '2013-01-01'"),
+]
 q = Query(client, "Datafile", conditions=condition)
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nThe last example also works by adding the conditions separately.")
 q = Query(client, "Datafile")
-q.addConditions({"datafileCreateTime":">= '2012-01-01'"})
-q.addConditions({"datafileCreateTime":"< '2013-01-01'"})
+q.addConditions([("datafileCreateTime", ">= '2012-01-01'")])
+q.addConditions([("datafileCreateTime", "< '2013-01-01'")])
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
 print("\nUsing \"id in (i)\" rather than \"id = i\" also works.")
 print("(This may be needed to work around ICAT Issue 149.)")
-q = Query(client, "Investigation", conditions={"id":"in (%d)" % invid})
+q = Query(client, "Investigation", conditions=[("id", "in (%d)" % invid)])
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
