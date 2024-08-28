@@ -1067,3 +1067,147 @@ def test_query_copy(client, entity, kwargs):
     clone = query.copy()
     assert str(clone) == str(query)
     assert entity in clone.select_clause
+
+def test_query_legacy_conditions_simple(client):
+    """A simple query for an investigation by name.
+    Same as test_query_simple(), but pass the conditions as a mapping.
+    Deprecated, transitionally supported for backward compatibility.
+    """
+    # The investigation is reused in other tests.
+    global investigation
+    name = "10100601-ST"
+    with pytest.deprecated_call():
+        query = Query(client, "Investigation", conditions={
+            "name": "= '%s'" % name
+        })
+    print(str(query))
+    assert "Investigation" in query.select_clause
+    assert query.join_clause is None
+    assert "name" in query.where_clause
+    assert query.order_clause is None
+    assert query.include_clause is None
+    assert query.limit_clause is None
+    res = client.search(query)
+    assert len(res) == 1
+    investigation = res[0]
+    assert investigation.BeanName == "Investigation"
+    assert investigation.name == name
+
+def test_query_legacy_conditions_datafile(client):
+    """Query a datafile by its name, dataset name, and investigation name.
+    Same as test_query_datafile(), but pass the conditions as a
+    mapping.  Deprecated, transitionally supported for backward
+    compatibility.
+    """
+    dfdata = {
+        'name': "e208945.nxs",
+        'dataset': "e208945",
+        'investigation': "12100409-ST",
+    }
+    conditions = {
+        "name": "= '%s'" % dfdata['name'],
+        "dataset.name": "= '%s'" % dfdata['dataset'],
+        "dataset.investigation.name": "= '%s'" % dfdata['investigation'],
+    }
+    with pytest.deprecated_call():
+        query = Query(client, "Datafile", conditions=conditions)
+    print(str(query))
+    assert "Datafile" in query.select_clause
+    assert "investigation" in query.join_clause
+    assert dfdata['investigation'] in query.where_clause
+    assert query.order_clause is None
+    assert query.include_clause is None
+    assert query.limit_clause is None
+    qstr = str(query)
+    res = client.search(query)
+    assert len(res) == 1
+    df = res[0]
+    assert df.BeanName == "Datafile"
+    assert df.name == dfdata['name']
+
+    # Same example, but use placeholders in the query string now.
+    conditions = {
+        "name": "= '%(name)s'",
+        "dataset.name": "= '%(dataset)s'",
+        "dataset.investigation.name": "= '%(investigation)s'",
+    }
+    with pytest.deprecated_call():
+        query = Query(client, "Datafile", conditions=conditions)
+    print(str(query))
+    print(str(query) % dfdata)
+    assert str(query) % dfdata == qstr
+    res = client.search(str(query) % dfdata)
+    assert len(res) == 1
+    assert res[0] == df
+
+@pytest.mark.dependency(depends=['get_investigation'])
+def test_query_legacy_conditions_instruments(client):
+    """Query the instruments related to a given investigation.
+    Same as test_query_instruments(), but pass the conditions as a
+    mapping.  Deprecated, transitionally supported for backward
+    compatibility.
+    """
+    with pytest.deprecated_call():
+        query = Query(client, "Instrument",
+                      order=["name"],
+                      conditions={ "investigationInstruments.investigation.id":
+                                   "= %d" % investigation.id },
+                      includes={"facility", "instrumentScientists.user"})
+    print(str(query))
+    assert "Instrument" in query.select_clause
+    assert "investigation" in query.join_clause
+    assert "id" in query.where_clause
+    assert "name" in query.order_clause
+    assert "instrumentScientists" in query.include_clause
+    res = client.search(query)
+    assert len(res) == 1
+    instr = res[0]
+    assert instr.BeanName == "Instrument"
+    assert instr.facility.BeanName == "Facility"
+
+def test_query_legacy_conditions_list(client):
+    """We may also add a list of conditions on a single attribute.
+    Same as test_query_multiple_conditions(), but pass the conditions
+    as a mapping.  Deprecated, transitionally supported for backward
+    compatibility.
+    """
+    condition = {
+        "datafileCreateTime": [">= '2012-01-01'", "< '2013-01-01'" ]
+    }
+    with pytest.deprecated_call():
+        query = Query(client, "Datafile", conditions=condition)
+    print(str(query))
+    assert "Datafile" in query.select_clause
+    assert query.join_clause is None
+    assert "datafileCreateTime" in query.where_clause
+    qstr = str(query)
+    res = client.search(query)
+    assert len(res) == 3 + have_icat_5
+
+    # The last example also works by adding the conditions separately.
+    query = Query(client, "Datafile")
+    with pytest.deprecated_call():
+        query.addConditions({"datafileCreateTime": ">= '2012-01-01'"})
+    with pytest.deprecated_call():
+        query.addConditions({"datafileCreateTime": "< '2013-01-01'"})
+    print(str(query))
+    assert str(query) == qstr
+    res = client.search(query)
+    assert len(res) == 3 + have_icat_5
+
+def test_query_legacy_conditions_jpql_function_mixed(client):
+    """Mix conditions with and without JPQL function on the same attribute.
+    Same as test_query_condition_jpql_function_mixed(), but pass the
+    conditions as a mapping.  Deprecated, transitionally supported for
+    backward compatibility.
+    """
+    conditions = { "name": "LIKE 'db/%'",
+                   "LENGTH(fullName)": "> 11", "fullName": "> 'C'" }
+    with pytest.deprecated_call():
+        query = Query(client, "User", conditions=conditions)
+    print(str(query))
+    assert "User" in query.select_clause
+    assert query.join_clause is None
+    assert "LENGTH" in query.where_clause
+    res = client.search(query)
+    assert len(res) == 3
