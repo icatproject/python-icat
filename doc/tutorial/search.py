@@ -16,14 +16,14 @@ client.search(query)
 # --------------------
 
 query = Query(client, "Investigation",
-              conditions={"name": "= '10100601-ST'"})
+              conditions=[("name", "= '10100601-ST'")])
 print(query)
 client.search(query)
 
 # --------------------
 
 query = Query(client, "Investigation",
-              conditions={"name": "= '10100601-ST'"},
+              conditions=[("name", "= '10100601-ST'")],
               includes=["datasets"])
 print(query)
 client.search(query)
@@ -31,18 +31,18 @@ client.search(query)
 # --------------------
 
 query = Query(client, "Investigation",
-              conditions={"LENGTH(title)": "= 18"})
+              conditions=[("LENGTH(title)", "= 18")])
 print(query)
 client.search(query)
 
 # --------------------
 
-conditions = {
-    "investigation.name": "= '10100601-ST'",
-    "parameters.type.name": "= 'Magnetic field'",
-    "parameters.type.units": "= 'T'",
-    "parameters.numericValue": "> 5.0",
-}
+conditions = [
+    ("investigation.name", "= '10100601-ST'"),
+    ("parameters.type.name", "= 'Magnetic field'"),
+    ("parameters.type.units", "= 'T'"),
+    ("parameters.numericValue", "> 5.0"),
+]
 query = Query(client, "Dataset",
               conditions=conditions, includes=["parameters.type"])
 print(query)
@@ -52,9 +52,9 @@ client.search(query)
 
 def get_investigation(client, name, visitId=None):
     query = Query(client, "Investigation")
-    query.addConditions({"name": "= '%s'" % name})
+    query.addConditions([("name", "= '%s'" % name)])
     if visitId is not None:
-        query.addConditions({"visitId": "= '%s'" % visitId})
+        query.addConditions([("visitId", "= '%s'" % visitId)])
     print(query)
     return client.assertedSearch(query)[0]
 
@@ -63,9 +63,10 @@ get_investigation(client, "12100409-ST", "1.1-P")
 
 # --------------------
 
-conditions = {
-    "datafileCreateTime": [">= '2012-01-01'", "< '2013-01-01'"]
-}
+conditions = [
+    ("datafileCreateTime", ">= '2012-01-01'"),
+    ("datafileCreateTime", "< '2013-01-01'"),
+]
 query = Query(client, "Datafile", conditions=conditions)
 print(query)
 client.search(query)
@@ -73,8 +74,8 @@ client.search(query)
 # --------------------
 
 query = Query(client, "Datafile")
-query.addConditions({"datafileCreateTime": ">= '2012-01-01'"})
-query.addConditions({"datafileCreateTime": "< '2013-01-01'"})
+query.addConditions([("datafileCreateTime", ">= '2012-01-01'")])
+query.addConditions([("datafileCreateTime", "< '2013-01-01'")])
 print(query)
 
 # --------------------
@@ -99,11 +100,11 @@ client.search(query)
 
 # --------------------
 
-conditions = {
-    "dataset.investigation.name": "= '10100601-ST'",
-    "type.name": "= 'Magnetic field'",
-    "type.units": "= 'T'",
-}
+conditions = [
+    ("dataset.investigation.name", "= '10100601-ST'"),
+    ("type.name", "= 'Magnetic field'"),
+    ("type.units", "= 'T'"),
+]
 query = Query(client, "DatasetParameter",
               conditions=conditions, attributes="numericValue")
 print(query)
@@ -120,10 +121,10 @@ client.search(query)
 
 # --------------------
 
-conditions = {
-    "datasets.parameters.type.name": "= 'Magnetic field'",
-    "datasets.parameters.type.units": "= 'T'",
-}
+conditions = [
+    ("datasets.parameters.type.name", "= 'Magnetic field'"),
+    ("datasets.parameters.type.units", "= 'T'"),
+]
 query = Query(client, "Investigation", conditions=conditions)
 print(query)
 client.search(query)
@@ -136,10 +137,10 @@ client.search(query)
 
 # --------------------
 
-conditions = {
-    "datasets.parameters.type.name": "= 'Magnetic field'",
-    "datasets.parameters.type.units": "= 'T'",
-}
+conditions = [
+    ("datasets.parameters.type.name", "= 'Magnetic field'"),
+    ("datasets.parameters.type.units", "= 'T'"),
+]
 query = Query(client, "Investigation",
               conditions=conditions, aggregate="COUNT")
 print(query)
@@ -157,9 +158,9 @@ client.search(query)
 
 # --------------------
 
-query = Query(client, "User", conditions={
-    "fullName": "IS NOT NULL"
-}, order=[("LENGTH(fullName)", "DESC")])
+query = Query(client, "User", conditions=[
+    ("fullName", "IS NOT NULL"),
+], order=[("LENGTH(fullName)", "DESC")])
 print(query)
 for user in client.search(query):
     print("%d: %s" % (len(user.fullName), user.fullName))
@@ -196,13 +197,13 @@ def get_dataset(client, inv_name, ds_name, ds_type="raw"):
     """
     try:
         dataset = client.new("Dataset")
-        query = Query(client, "Investigation", conditions={
-            "name": "= '%s'" % inv_name
-        })
+        query = Query(client, "Investigation", conditions=[
+            ("name", "= '%s'" % inv_name),
+        ])
         dataset.investigation = client.assertedSearch(query)[0]
-        query = Query(client, "DatasetType", conditions={
-            "name": "= '%s'" % ds_type
-        })
+        query = Query(client, "DatasetType", conditions=[
+            ("name", "= '%s'" % ds_type),
+        ])
         dataset.type = client.assertedSearch(query)[0]
         dataset.complete = False
         dataset.name = ds_name
