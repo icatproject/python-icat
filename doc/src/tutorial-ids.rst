@@ -54,7 +54,9 @@ We need a dataset in ICAT that the uploaded files should be put into,
 so let's create one::
 
   >>> from icat.query import Query
-  >>> query = Query(client, "Investigation", conditions=[("name", "= '12100409-ST'")])
+  >>> query = Query(client, "Investigation", conditions=[
+  ...     ("name", "= '12100409-ST'")
+  ... ])
   >>> investigation = client.assertedSearch(query)[0]
   >>> dataset = client.new("Dataset")
   >>> dataset.investigation = investigation
@@ -67,7 +69,9 @@ so let's create one::
 For each of the files, we create a new datafile object and call the
 :meth:`~icat.client.Client.putData` method to upload it::
 
-  >>> query = Query(client, "DatafileFormat", conditions=[("name", "= 'Text'")])
+  >>> query = Query(client, "DatafileFormat", conditions=[
+  ...     ("name", "= 'Text'")
+  ... ])
   >>> df_format = client.assertedSearch(query)[0]
   >>> for fname in ("greet-jdoe.txt", "greet-nbour.txt", "greet-rbeck.txt"):
   ...     datafile = client.new("Datafile",
