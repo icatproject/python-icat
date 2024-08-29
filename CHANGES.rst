@@ -19,10 +19,16 @@ Bug fixes and minor changes
 + `#152`_: Fix a documentation error
 + `#154`_: Fix a duplicate test name
 
+Misc
+----
+
++ `#157`_: :mod:`icat.ingest` now considered stable.
+
 .. _#152: https://github.com/icatproject/python-icat/pull/152
 .. _#154: https://github.com/icatproject/python-icat/pull/154
 .. _#155: https://github.com/icatproject/python-icat/issues/155
 .. _#156: https://github.com/icatproject/python-icat/pull/156
+.. _#157: https://github.com/icatproject/python-icat/pull/157
 
 
 .. _changes-1_3_0:

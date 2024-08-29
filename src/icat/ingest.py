@@ -1,10 +1,5 @@
 """Ingest metadata into ICAT.
 
-.. note::
-   The status of this module in the current version is still
-   experimental.  There may be incompatible changes in the future
-   even in minor releases of python-icat.
-
 .. versionadded:: 1.1.0
 """
 
