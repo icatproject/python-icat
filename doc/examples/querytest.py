@@ -170,7 +170,7 @@ print("%d result(s)" % len(client.search(q)))
 
 print("\nThe warning can be suppressed by making the condition explicit.")
 q = Query(client, "Rule", order=['grouping', 'what', 'id'],
-          conditions={"grouping":"IS NOT NULL"})
+          conditions=[("grouping", "IS NOT NULL")])
 print(str(q))
 print("%d result(s)" % len(client.search(q)))
 
