@@ -13,11 +13,11 @@ for user, name in users:
 # --------------------
 
 from icat.query import Query
-query = Query(client, "Investigation", conditions={"name": "= '12100409-ST'"})
+query = Query(client, "Investigation", conditions=[("name", "= '12100409-ST'")])
 investigation = client.assertedSearch(query)[0]
 dataset = client.new("Dataset")
 dataset.investigation = investigation
-query = Query(client, "DatasetType", conditions={"name": "= 'other'"})
+query = Query(client, "DatasetType", conditions=[("name", "= 'other'")])
 dataset.type = client.assertedSearch(query)[0]
 dataset.name = "greetings"
 dataset.complete = False
@@ -25,7 +25,7 @@ dataset.create()
 
 # --------------------
 
-query = Query(client, "DatafileFormat", conditions={"name": "= 'Text'"})
+query = Query(client, "DatafileFormat", conditions=[("name", "= 'Text'")])
 df_format = client.assertedSearch(query)[0]
 for fname in ("greet-jdoe.txt", "greet-nbour.txt", "greet-rbeck.txt"):
     datafile = client.new("Datafile",
@@ -36,10 +36,10 @@ for fname in ("greet-jdoe.txt", "greet-nbour.txt", "greet-rbeck.txt"):
 
 # Download files
 
-query = Query(client, "Datafile", conditions={
-    "name": "= 'greet-jdoe.txt'",
-    "dataset.name": "= 'greetings'"
-})
+query = Query(client, "Datafile", conditions=[
+    ("name", "= 'greet-jdoe.txt'"),
+    ("dataset.name", "= 'greetings'"),
+])
 df = client.assertedSearch(query)[0]
 data = client.getData([df])
 type(data)
@@ -49,7 +49,7 @@ data.read().decode('utf8')
 
 from io import BytesIO
 from zipfile import ZipFile
-query = Query(client, "Dataset", conditions={"name": "= 'greetings'"})
+query = Query(client, "Dataset", conditions=[("name", "= 'greetings'")])
 ds = client.assertedSearch(query)[0]
 data = client.getData([ds])
 buffer = BytesIO(data.read())
