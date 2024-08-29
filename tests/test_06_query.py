@@ -463,6 +463,27 @@ def test_query_order_jpql_function(client):
     assert res[0].fullName == "Nicolas Bourbaki"
     verify_rebuild_query(client, query, res)
 
+def test_query_order_attribute_multiple(client):
+    """Add the same attribute more than once to the order.
+
+    The restriction that any attribute may only appear once to the
+    order has been removed in #158.
+    """
+    query = Query(client, 'User', order=[
+        ('LENGTH(fullName)', 'DESC'),
+        ('fullName', 'DESC'),
+    ])
+    print(str(query))
+    assert "User" in query.select_clause
+    assert query.join_clause is None
+    assert query.where_clause is None
+    assert query.order_clause.count("fullName") == 2
+    assert "LENGTH" in query.order_clause
+    res = client.search(query)
+    assert len(res) > 4
+    assert res[4].fullName == "Aelius Cordus"
+    verify_rebuild_query(client, query, res)
+
 def test_query_rule_order(client):
     """Rule does not have a constraint, id is included in the natural order.
     """
