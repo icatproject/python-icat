@@ -418,6 +418,10 @@ class Query():
             than raising a :exc:`ValueError` in this case.
         .. versionchanged:: 0.20.0
             allow a JPQL function in the attribute.
+        .. versionchanged:: 2.0.0
+            allow the same attribute to appear more than once in the
+            resulting ORDER BY clause, which actually may make sense
+            in combination with a JPQL function.
         """
         self._subst = None
         self.order = []
