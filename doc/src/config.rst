@@ -17,8 +17,6 @@ added.  The main class that client programs interact with is
 
 .. autodata:: icat.config.cfgfile
 
-.. autodata:: icat.config.defaultsection
-
 .. autofunction:: icat.config.boolean
 
 .. data:: icat.config.flag

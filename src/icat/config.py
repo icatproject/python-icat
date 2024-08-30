@@ -29,12 +29,6 @@ else:
 """Search path for the configuration file"""
 cfgfile = "icat.cfg"
 """Configuration file name"""
-defaultsection = None
-"""Default value for `configSection`
-
-.. deprecated:: 1.0.0
-   Use the `preset` keyword argument to :class:`icat.config.Config` instead.
-"""
 
 # Internal hack, intentionally not documented.
 _argparse_divert_syserr = True
@@ -711,11 +705,6 @@ class Config(BaseConfig):
             self.sources = [ self.cmdargs, self.environ, self.conffile,
                              self.interactive, self.defaults ]
         self.args = args
-        if defaultsection is not None:
-            warnings.warn("Deprecated setting of 'defaultsection' detected. "
-                          "Use the 'preset' keyword argument "
-                          "to class 'Config' instead.",
-                          DeprecationWarning, stacklevel=2)
         self._add_fundamental_variables()
         if defaultvars:
             self.needlogin = needlogin
@@ -776,8 +765,7 @@ class Config(BaseConfig):
         var = self.add_variable('configSection', ("-s", "--configsection"), 
                                 dict(help="section in the config file", 
                                      metavar='SECTION'), 
-                                envvar='ICAT_CFG_SECTION', optional=True, 
-                                default=defaultsection)
+                                envvar='ICAT_CFG_SECTION', optional=True)
         var.postprocess = _post_configSection
 
     def _add_basic_variables(self):

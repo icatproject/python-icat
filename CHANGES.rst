@@ -12,6 +12,8 @@ Incompatible changes and deprecations
 
 + `#159`_: Drop support for Python 3.4 and Python 3.5.
 
++ Drop :data:`icat.config.defaultsection`, deprecated in 1.0.0.
+
 .. _#159: https://github.com/icatproject/python-icat/pull/159
 
 
