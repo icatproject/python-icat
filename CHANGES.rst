@@ -7,6 +7,13 @@ Changelog
 2.0.0 (not yet released)
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
+Incompatible changes and deprecations
+-------------------------------------
+
++ `#159`_: Drop support for Python 3.4 and Python 3.5.
+
+.. _#159: https://github.com/icatproject/python-icat/pull/159
+
 
 .. _changes-1_4_0:
 
