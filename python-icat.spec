@@ -16,7 +16,7 @@ Summary:	$description
 License:	Apache-2.0
 Group:		Development/Libraries/Python
 Source:		https://github.com/icatproject/python-icat/releases/download/%{version}/python-icat-%{version}.tar.gz
-BuildRequires:	python%{pyversfx}-base >= 3.4
+BuildRequires:	python%{pyversfx}-base >= 3.6
 BuildRequires:	python%{pyversfx}-setuptools
 BuildRequires:	fdupes
 BuildRequires:	python-rpm-macros
