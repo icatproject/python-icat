@@ -75,20 +75,32 @@ invid = getinvestigation(conf.investigation)
 # instruments related to the investigations.  These are independent
 # searches, but the results are likely to overlap.  So we need to
 # search and merge results first.  Similar situation for ParameterType.
-usersearch = [("User <-> InvestigationUser <-> Investigation [id=%d]"),
-              ("User <-> UserGroup <-> Grouping <-> InvestigationGroup "
-               "<-> Investigation [id=%d]"),
-              ("User <-> InstrumentScientist <-> Instrument "
-               "<-> InvestigationInstrument <-> Investigation [id=%d]")]
-ptsearch = [("ParameterType INCLUDE Facility, PermissibleStringValue "
-             "<-> InvestigationParameter <-> Investigation [id=%d]"),
-            ("ParameterType INCLUDE Facility, PermissibleStringValue "
-             "<-> SampleParameter <-> Sample <-> Investigation [id=%d]"),
-            ("ParameterType INCLUDE Facility, PermissibleStringValue "
-             "<-> DatasetParameter <-> Dataset <-> Investigation [id=%d]"),
-            ("ParameterType INCLUDE Facility, PermissibleStringValue "
-             "<-> DatafileParameter <-> Datafile <-> Dataset "
-             "<-> Investigation [id=%d]"), ]
+usersearch = [
+    Query(client, "User", conditions=[
+        ("investigationUsers.investigation.id", "= %d")
+    ]),
+    Query(client, "User", conditions=[
+        ("userGroups.grouping.investigationGroups.investigation.id", "= %d")
+    ]),
+    Query(client, "User", conditions=[
+        ("instrumentScientists.instrument.investigationInstruments."
+         "investigation.id", "= %d")
+    ]),
+]
+ptsearch = [
+    Query(client, "ParameterType", conditions=[
+        ("investigationParameters.investigation.id", "= %d")
+    ], includes=["facility", "permissibleStringValues"]),
+    Query(client, "ParameterType", conditions=[
+        ("sampleParameters.sample.investigation.id", "= %d")
+    ], includes=["facility", "permissibleStringValues"]),
+    Query(client, "ParameterType", conditions=[
+        ("datasetParameters.dataset.investigation.id", "= %d")
+    ], includes=["facility", "permissibleStringValues"]),
+    Query(client, "ParameterType", conditions=[
+        ("datafileParameters.datafile.dataset.investigation.id", "= %d")
+    ], includes=["facility", "permissibleStringValues"]),
+]
 
 # The set of objects to be included in the Investigation.
 inv_includes = { "facility", "type.facility", "investigationInstruments",
@@ -103,42 +115,49 @@ inv_includes = { "facility", "type.facility", "investigationInstruments",
 # list: either queries expressed as Query objects, or queries
 # expressed as string expressions, or lists of objects.  In the first
 # two cases, the seacrh results will be written, in the last case, the
-# objects are written as provided.  We assume that there is only one
-# relevant facility, e.g. that all objects related to the
-# investigation are related to the same facility.  We may thus ommit
-# the facility from the ORDER BY clauses.
-authtypes =   [mergesearch([s % invid for s in usersearch]),
-               ("Grouping ORDER BY name INCLUDE UserGroup, User "
-                "<-> InvestigationGroup <-> Investigation [id=%d]" % invid)]
-statictypes = [("Facility ORDER BY name"),
-               ("Instrument ORDER BY name "
-                "INCLUDE Facility, InstrumentScientist, User "
-                "<-> InvestigationInstrument <-> Investigation [id=%d]"
-                % invid),
-               (mergesearch([s % invid for s in ptsearch])),
-               ("InvestigationType ORDER BY name INCLUDE Facility "
-                "<-> Investigation [id=%d]" % invid),
-               ("SampleType ORDER BY name, molecularFormula INCLUDE Facility "
-                "<-> Sample <-> Investigation [id=%d]" % invid),
-               ("DatasetType ORDER BY name INCLUDE Facility "
-                "<-> Dataset <-> Investigation [id=%d]" % invid),
-               ("DatafileFormat ORDER BY name, version INCLUDE Facility "
-                "<-> Datafile <-> Dataset <-> Investigation [id=%d]" % invid)]
-investtypes = [Query(client, "Investigation",
-                     conditions={"id":"in (%d)" % invid},
-                     includes=inv_includes),
-               Query(client, "Sample", order=["name"],
-                     conditions={"investigation.id":"= %d" % invid},
-                     includes={"investigation", "type.facility",
-                               "parameters", "parameters.type.facility"}),
-               Query(client, "Dataset", order=["name"],
-                     conditions={"investigation.id":"= %d" % invid},
-                     includes={"investigation", "type.facility", "sample",
-                               "parameters", "parameters.type.facility"}),
-               Query(client, "Datafile", order=["dataset.name", "name"],
-                     conditions={"dataset.investigation.id":"= %d" % invid},
-                     includes={"dataset", "datafileFormat.facility",
-                               "parameters", "parameters.type.facility"})]
+# objects are written as provided.
+authtypes = [
+    mergesearch([str(s) % invid for s in usersearch]),
+    Query(client, "Grouping", conditions=[
+        ("investigationGroups.investigation.id", "= %d" % invid)
+    ], order=["name"], includes=["userGroups.user"])
+]
+statictypes = [
+    Query(client, "Facility", order=True),
+    Query(client, "Instrument", conditions=[
+        ("investigationInstruments.investigation.id", "= %d" % invid)
+    ], order=True, includes=["facility", "instrumentScientists.user"]),
+    mergesearch([str(s) % invid for s in ptsearch]),
+    Query(client, "InvestigationType", conditions=[
+        ("investigations.id", "= %d" % invid)
+    ], order=True, includes=["facility"]),
+    Query(client, "SampleType", conditions=[
+        ("samples.investigation.id", "= %d" % invid)
+    ], order=True, includes=["facility"]),
+    Query(client, "DatasetType", conditions=[
+        ("datasets.investigation.id", "= %d" % invid)
+    ], order=True, includes=["facility"]),
+    Query(client, "DatafileFormat", conditions=[
+        ("datafiles.dataset.investigation.id", "= %d" % invid)
+    ], order=True, includes=["facility"]),
+]
+investtypes = [
+    Query(client, "Investigation",
+          conditions=[("id", "in (%d)" % invid)],
+          includes=inv_includes),
+    Query(client, "Sample", order=["name"],
+          conditions=[("investigation.id", "= %d" % invid)],
+          includes={"investigation", "type.facility",
+                    "parameters", "parameters.type.facility"}),
+    Query(client, "Dataset", order=["name"],
+          conditions=[("investigation.id", "= %d" % invid)],
+          includes={"investigation", "type.facility", "sample",
+                    "parameters", "parameters.type.facility"}),
+    Query(client, "Datafile", order=["dataset.name", "name"],
+          conditions=[("dataset.investigation.id", "= %d" % invid)],
+          includes={"dataset", "datafileFormat.facility",
+                    "parameters", "parameters.type.facility"})
+]
 
 with open_dumpfile(client, conf.file, conf.format, 'w') as dumpfile:
     dumpfile.writedata(authtypes)

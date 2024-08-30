@@ -56,13 +56,13 @@ if not df_path.is_file():
     raise RuntimeError("datafile %s not found" % df_path)
 
 query = Query(client, "DatasetType",
-              conditions={ "name": "= '%s'" % conf.dst_name })
+              conditions=[ ("name", "= '%s'" % conf.dst_name) ])
 dst = client.assertedSearch(query)[0]
 query = Query(client, "DatafileFormat",
-              conditions={ "name": "= '%s'" % conf.dff_name })
+              conditions=[ ("name", "= '%s'" % conf.dff_name) ])
 dff = client.assertedSearch(query)[0]
 query = Query(client, "Investigation",
-              conditions={ "name": "= '%s'" % conf.investigation })
+              conditions=[ ("name", "= '%s'" % conf.investigation) ])
 investigation = client.assertedSearch(query)[0]
 
 fstats = df_path.stat()

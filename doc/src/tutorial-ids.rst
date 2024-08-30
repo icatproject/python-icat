@@ -54,11 +54,13 @@ We need a dataset in ICAT that the uploaded files should be put into,
 so let's create one::
 
   >>> from icat.query import Query
-  >>> query = Query(client, "Investigation", conditions={"name": "= '12100409-ST'"})
+  >>> query = Query(client, "Investigation", conditions=[
+  ...     ("name", "= '12100409-ST'")
+  ... ])
   >>> investigation = client.assertedSearch(query)[0]
   >>> dataset = client.new("Dataset")
   >>> dataset.investigation = investigation
-  >>> query = Query(client, "DatasetType", conditions={"name": "= 'other'"})
+  >>> query = Query(client, "DatasetType", conditions=[("name", "= 'other'")])
   >>> dataset.type = client.assertedSearch(query)[0]
   >>> dataset.name = "greetings"
   >>> dataset.complete = False
@@ -67,7 +69,9 @@ so let's create one::
 For each of the files, we create a new datafile object and call the
 :meth:`~icat.client.Client.putData` method to upload it::
 
-  >>> query = Query(client, "DatafileFormat", conditions={"name": "= 'Text'"})
+  >>> query = Query(client, "DatafileFormat", conditions=[
+  ...     ("name", "= 'Text'")
+  ... ])
   >>> df_format = client.assertedSearch(query)[0]
   >>> for fname in ("greet-jdoe.txt", "greet-nbour.txt", "greet-rbeck.txt"):
   ...     datafile = client.new("Datafile",
@@ -131,10 +135,10 @@ Download files
 We can request a download of a set of data using the
 :meth:`~icat.client.Client.getData` method::
 
-  >>> query = Query(client, "Datafile", conditions={
-  ...     "name": "= 'greet-jdoe.txt'",
-  ...     "dataset.name": "= 'greetings'"
-  ... })
+  >>> query = Query(client, "Datafile", conditions=[
+  ...     ("name", "= 'greet-jdoe.txt'"),
+  ...     ("dataset.name", "= 'greetings'"),
+  ... ])
   >>> df = client.assertedSearch(query)[0]
   >>> data = client.getData([df])
   >>> type(data)
@@ -153,7 +157,7 @@ with the requested files::
 
   >>> from io import BytesIO
   >>> from zipfile import ZipFile
-  >>> query = Query(client, "Dataset", conditions={"name": "= 'greetings'"})
+  >>> query = Query(client, "Dataset", conditions=[("name", "= 'greetings'")])
   >>> ds = client.assertedSearch(query)[0]
   >>> data = client.getData([ds])
   >>> buffer = BytesIO(data.read())

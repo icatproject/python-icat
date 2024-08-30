@@ -107,8 +107,10 @@ if 'parameters' in investigationdata:
         ip = client.new("InvestigationParameter")
         initobj(ip, pdata)
         ptdata = data['parameter_types'][pdata['type']]
-        query = ("ParameterType [name='%s' AND units='%s']"
-                 % (ptdata['name'], ptdata['units']))
+        query = Query(client, "ParameterType", conditions=[
+            ("name", "= '%s'" % ptdata['name']),
+            ("units", "= '%s'" % ptdata['units']),
+        ])
         ip.type = client.assertedSearch(query)[0]
         investigation.parameters.append(ip)
 if 'shifts' in investigationdata:
@@ -123,10 +125,10 @@ if 'investigationFacilityCycles' in investigation.InstMRel:
     sd = investigation.startDate or investigation.endDate
     ed = investigation.endDate or investigation.startDate
     if sd and ed:
-        query = Query(client, "FacilityCycle", conditions={
-            "startDate": "<= '%s'" % parse_attr_string(ed, "Date"),
-            "endDate": "> '%s'" % parse_attr_string(sd, "Date"),
-        })
+        query = Query(client, "FacilityCycle", conditions=[
+            ("startDate", "<= '%s'" % parse_attr_string(ed, "Date")),
+            ("endDate", "> '%s'" % parse_attr_string(sd, "Date")),
+        ])
         for fc in client.search(query):
             ifc = client.new("InvestigationFacilityCycle", facilityCycle=fc)
             investigation.investigationFacilityCycles.append(ifc)

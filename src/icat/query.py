@@ -1,7 +1,6 @@
 """Provide the Query class.
 """
 
-from collections import OrderedDict
 import re
 from warnings import warn
 from collections.abc import Mapping
@@ -59,6 +58,98 @@ jpql_join_specs = frozenset([
 :meth:`icat.query.Query.setJoinSpecs` method.
 """
 
+# ========================= helper classes ===========================
+# Note: these helpers are needed in the internal data structures in
+# class Query.  They are intentionally not included in the python-icat
+# documentation and are not considered part of the API.  There is no
+# commitment on compatibility between versions.
+
+class ItemBase:
+    """Abstract base class for OrderItem and ConditionItem.
+    """
+    db_func_re = re.compile(r"(?:([A-Za-z_]+)\()?([A-Za-z.]+)(?(1)\))")
+
+    def split_db_functs(self, attr):
+        m = self.db_func_re.fullmatch(attr)
+        if not m:
+            raise ValueError("Invalid attribute '%s'" % attr)
+        return m.group(2,1)
+
+    def __init__(self, obj):
+        attr, jpql_func = self.split_db_functs(obj)
+        self.attr = attr
+        self.jpql_func = jpql_func
+
+    @property
+    def obj(self):
+        if self.jpql_func:
+            return "%s(%s)" % (self.jpql_func, self.attr)
+        else:
+            return self.attr
+
+    def __repr__(self):
+        return repr(self.obj)
+
+class OrderItem(ItemBase):
+    """Represent an item in the ORDER BY clause.
+    """
+
+    def __init__(self, obj, cloneFrom=None):
+        if cloneFrom:
+            self.attr = obj or cloneFrom.attr
+            self.jpql_func = cloneFrom.jpql_func
+            self.direction = cloneFrom.direction
+        else:
+            if isinstance(obj, tuple):
+                obj, direction = obj
+                if direction not in ("ASC", "DESC"):
+                    raise ValueError("Invalid ordering direction '%s'"
+                                     % direction)
+            else:
+                direction = None
+            super().__init__(obj)
+            self.direction = direction
+
+    @property
+    def formatstr(self):
+        if self.jpql_func:
+            if self.direction:
+                return "%s(%%s) %s" % (self.jpql_func, self.direction)
+            else:
+                return "%s(%%s)" % self.jpql_func
+        else:
+            if self.direction:
+                return "%%s %s" % self.direction
+            else:
+                return "%s"
+
+    @property
+    def obj(self):
+        obj = super().obj
+        if self.direction:
+            obj = (obj, self.direction)
+        return obj
+
+
+class ConditionItem(ItemBase):
+    """Represent an item in the WHERE clause.
+    """
+    def __init__(self, obj, rhs):
+        super().__init__(obj)
+        self.rhs = rhs
+
+    @property
+    def formatstr(self):
+        rhs = self.rhs.replace('%', '%%')
+        if self.jpql_func:
+            return "%s(%%s) %s" % (self.jpql_func, rhs)
+        else:
+            return "%%s %s" % (rhs)
+
+    @property
+    def obj(self):
+        return (super().obj, self.rhs)
+
 # ========================== class Query =============================
 
 class Query():
@@ -77,15 +168,15 @@ class Query():
     :param aggregate: the aggregate function to be applied in the
         SELECT clause, if any.  See the
         :meth:`~icat.query.Query.setAggregate` method for details.
-    :param order: the sorting attributes to build the ORDER BY clause
-        from.  See the :meth:`~icat.query.Query.setOrder` method for
-        details.
     :param conditions: the conditions to build the WHERE clause from.
         See the :meth:`~icat.query.Query.addConditions` method for
         details.
     :param includes: list of related objects to add to the INCLUDE
         clause.  See the :meth:`~icat.query.Query.addIncludes` method
         for details.
+    :param order: the sorting attributes to build the ORDER BY clause
+        from.  See the :meth:`~icat.query.Query.setOrder` method for
+        details.
     :param limit: a tuple (skip, count) to be used in the LIMIT
         clause.  See the :meth:`~icat.query.Query.setLimit` method for
         details.
@@ -106,12 +197,9 @@ class Query():
         add the `join_specs` argument.
     """
 
-    _db_func_re = re.compile(r"(?:([A-Za-z_]+)\()?([A-Za-z.]+)(?(1)\))")
-
     def __init__(self, client, entity,
-                 attributes=None, aggregate=None, order=None,
-                 conditions=None, includes=None, limit=None,
-                 join_specs=None):
+                 attributes=None, aggregate=None, conditions=None,
+                 includes=None, order=None, limit=None, join_specs=None):
         """Initialize the query.
         """
 
@@ -130,13 +218,13 @@ class Query():
         else:
             raise EntityTypeError("Invalid entity type '%s'." % type(entity))
 
+        self.conditions = []
+        self.includes = set()
         self.setAttributes(attributes)
         self.setAggregate(aggregate)
-        self.conditions = dict()
-        self.addConditions(conditions)
-        self.includes = set()
-        self.addIncludes(includes)
         self.setJoinSpecs(join_specs)
+        self.addConditions(conditions)
+        self.addIncludes(includes)
         self.setOrder(order)
         self.setLimit(limit)
         self._init = None
@@ -205,16 +293,10 @@ class Query():
             n += " AS %s" % (subst[obj])
         return n
 
-    def _split_db_functs(self, attr):
-        m = self._db_func_re.fullmatch(attr)
-        if not m:
-            raise ValueError("Invalid attribute '%s'" % attr)
-        return m.group(2,1)
-
     def _get_subst(self):
         if self._subst is None:
-            joinattrs = ( set(self.order.keys()) |
-                          set(self.conditions.keys()) |
+            joinattrs = ( self._order_attrs |
+                          self._conditions_attrs |
                           set(self.attributes) )
             self._subst = self._makesubst(joinattrs)
         return self._subst
@@ -281,6 +363,156 @@ class Query():
         else:
             self.aggregate = None
 
+    def addConditions(self, conditions):
+        """Add conditions to the constraints to build the WHERE clause from.
+
+        :param conditions: the conditions to restrict the search
+            result.  This must be a list of tuples, each being a pair
+            of an attribute name and a condition on that attribute
+            respectively.  The attribute name may be wrapped with a
+            JPQL function (such as "UPPER(title)").
+
+            For backward compatibility with previous versions, this
+            may alternatively be a mapping of attribute names to a
+            (lists of) conditions.  This legacy use is deprecated,
+            though.
+        :type conditions: :class:`list` of :class:`tuple` or :class:`dict`
+        :raise ValueError: if any attribute in `conditions` is not valid.
+
+        .. versionchanged:: 0.20.0
+            allow a JPQL function in the attribute.
+
+        .. versionchanged:: 2.0.0
+            expect a :class:`list` of :class:`tuple` in the
+            `conditions` argument.
+        .. deprecated:: 2.0.0
+            accept a :class:`dict` in the `conditions` argument.
+        """
+        if conditions:
+            self._subst = None
+
+            if isinstance(conditions, Mapping):
+                # Convert the conditions argument to a list of tuples.
+                sl = 3 if self._init else 2
+                warn("Passing a mapping in the conditions argument is "
+                     "deprecated and will be removed in python-icat 3.0.",
+                     DeprecationWarning, stacklevel=sl)
+                conds = []
+                for obj,v in conditions.items():
+                    if isinstance(v, str):
+                        conds.append( (obj,v) )
+                    else:
+                        for rhs in v:
+                            conds.append( (obj,rhs) )
+                conditions = conds
+
+            for obj,rhs in conditions:
+                item = ConditionItem(obj, rhs)
+                for (pattr, attrInfo, rclass) in self._attrpath(item.attr):
+                    pass
+                self.conditions.append(item)
+
+    def addIncludes(self, includes):
+        """Add related objects to build the INCLUDE clause from.
+
+        :param includes: list of related objects to add to the INCLUDE
+            clause.  A special value of "1" may be used to set (the
+            equivalent of) an "INCLUDE 1" clause.
+        :type includes: iterable of :class:`str`
+        :raise ValueError: if any item in `includes` is not a related object.
+        """
+        if includes == "1":
+            includes = list(self.entity.InstRel)
+        if includes:
+            for iobj in includes:
+                for (pattr, attrInfo, rclass) in self._attrpath(iobj):
+                    pass
+                if rclass is None:
+                    raise ValueError("%s.%s is not a related object."
+                                     % (self.entity.BeanName, iobj))
+            self.includes.update(includes)
+
+    def setOrder(self, order):
+        """Set the order to build the ORDER BY clause from.
+
+        :param order: the list of the attributes used for sorting.  A
+            special value of :const:`True` may be used to indicate the
+            natural order of the entity type.  Any false value means
+            no ORDER BY clause.  The attribute name can be wrapped
+            with a JPQL function (such as "LENGTH(title)").  Rather
+            than only an attribute name, any item in the list may also
+            be a tuple of an attribute name and an order direction,
+            the latter being either "ASC" or "DESC" for ascending or
+            descending order respectively.
+        :type order: iterable or :class:`bool`
+        :raise ValueError: if any attribute in `order` is not valid.
+
+        .. versionchanged:: 0.19.0
+            allow one to many relationships in `order`.  Emit a
+            :exc:`~icat.exception.QueryOneToManyOrderWarning` rather
+            than raising a :exc:`ValueError` in this case.
+        .. versionchanged:: 0.20.0
+            allow a JPQL function in the attribute.
+        .. versionchanged:: 2.0.0
+            allow the same attribute to appear more than once in the
+            resulting ORDER BY clause, which actually may make sense
+            in combination with a JPQL function.
+        """
+        self._subst = None
+        self.order = []
+
+        if order is True:
+
+            self.order = [ OrderItem(a)
+                           for a in self.entity.getNaturalOrder(self.client) ]
+
+        elif order:
+
+            for obj in order:
+
+                item = OrderItem(obj)
+
+                for (pattr, attrInfo, rclass) in self._attrpath(item.attr):
+                    if attrInfo.relType == "ONE":
+                        if (not attrInfo.notNullable and
+                            pattr not in self._conditions_attrs and
+                            pattr not in self.join_specs):
+                            sl = 3 if self._init else 2
+                            warn(QueryNullableOrderWarning(pattr),
+                                 stacklevel=sl)
+                    elif attrInfo.relType == "MANY":
+                        if (pattr not in self.join_specs):
+                            sl = 3 if self._init else 2
+                            warn(QueryOneToManyOrderWarning(pattr),
+                                 stacklevel=sl)
+
+                if rclass is None:
+                    # the item is an attribute, use it right away.
+                    self.order.append(item)
+                else:
+                    # attr is a related object, use the natural order
+                    # of its class.
+                    if item.jpql_func:
+                        raise ValueError("Cannot apply a JPQL function "
+                                         "to a related object: %s" % obj)
+                    for ra in rclass.getNaturalOrder(self.client):
+                        rattr = "%s.%s" % (item.attr, ra)
+                        self.order.append(OrderItem(rattr, cloneFrom=item))
+
+    def setLimit(self, limit):
+        """Set the limits to build the LIMIT clause from.
+
+        :param limit: a tuple (skip, count).
+        :type limit: :class:`tuple`
+        :raise TypeError: if `limit` is not a tuple of two elements.
+        """
+        if limit:
+            if not(isinstance(limit, tuple) and len(limit) == 2):
+                raise TypeError("limit must be a tuple of two elements.")
+            self.limit = limit
+        else:
+            self.limit = None
+
     def setJoinSpecs(self, join_specs):
         """Override the join specifications.
 
@@ -314,169 +546,13 @@ class Query():
         else:
             self.join_specs = dict()
 
-    def setOrder(self, order):
-        """Set the order to build the ORDER BY clause from.
+    @property
+    def _order_attrs(self):
+        return { item.attr for item in self.order }
 
-        :param order: the list of the attributes used for sorting.  A
-            special value of :const:`True` may be used to indicate the
-            natural order of the entity type.  Any false value means
-            no ORDER BY clause.  The attribute name can be wrapped
-            with a JPQL function (such as "LENGTH(title)").  Rather
-            than only an attribute name, any item in the list may also
-            be a tuple of an attribute name and an order direction,
-            the latter being either "ASC" or "DESC" for ascending or
-            descending order respectively.
-        :type order: iterable or :class:`bool`
-        :raise ValueError: if any attribute in `order` is not valid or
-            if any attribute appears more than once in the resulting
-            ORDER BY clause.
-
-        .. versionchanged:: 0.19.0
-            allow one to many relationships in `order`.  Emit a
-            :exc:`~icat.exception.QueryOneToManyOrderWarning` rather
-            than raising a :exc:`ValueError` in this case.
-        .. versionchanged:: 0.20.0
-            allow a JPQL function in the attribute.
-        """
-        self._subst = None
-        # Note: with Python 3.7 and newer we could simplify this using
-        # a standard dict() rather than an OrderedDict().
-        self.order = OrderedDict()
-
-        if order is True:
-
-            for a in self.entity.getNaturalOrder(self.client):
-                self.order[a] = "%s"
-
-        elif order:
-
-            for obj in order:
-
-                if isinstance(obj, tuple):
-                    obj, direction = obj
-                    if direction not in ("ASC", "DESC"):
-                        raise ValueError("Invalid ordering direction '%s'"
-                                         % direction)
-                else:
-                    direction = None
-                attr, jpql_func = self._split_db_functs(obj)
-
-                for (pattr, attrInfo, rclass) in self._attrpath(attr):
-                    if attrInfo.relType == "ONE":
-                        if (not attrInfo.notNullable and
-                            pattr not in self.conditions and
-                            pattr not in self.join_specs):
-                            sl = 3 if self._init else 2
-                            warn(QueryNullableOrderWarning(pattr),
-                                 stacklevel=sl)
-                    elif attrInfo.relType == "MANY":
-                        if (pattr not in self.join_specs):
-                            sl = 3 if self._init else 2
-                            warn(QueryOneToManyOrderWarning(pattr),
-                                 stacklevel=sl)
-
-                if jpql_func:
-                    if rclass is not None:
-                        raise ValueError("Cannot apply a JPQL function "
-                                         "to a related object: %s" % obj)
-                    if direction:
-                        vstr = "%s(%%s) %s" % (jpql_func, direction)
-                    else:
-                        vstr = "%s(%%s)" % jpql_func
-                else:
-                    if direction:
-                        vstr = "%%s %s" % direction
-                    else:
-                        vstr = "%s"
-                if rclass is None:
-                    # attr is an attribute, use it right away.
-                    if attr in self.order:
-                        raise ValueError("Cannot add %s more than once" % attr)
-                    self.order[attr] = vstr
-                else:
-                    # attr is a related object, use the natural order
-                    # of its class.
-                    for ra in rclass.getNaturalOrder(self.client):
-                        rattr = "%s.%s" % (attr, ra)
-                        if rattr in self.order:
-                            raise ValueError("Cannot add %s more than once"
-                                             % rattr)
-                        self.order[rattr] = vstr
-
-    def addConditions(self, conditions):
-        """Add conditions to the constraints to build the WHERE clause from.
-
-        :param conditions: the conditions to restrict the search
-            result.  This must be a mapping of attribute names to
-            conditions on that attribute.  The latter may either be a
-            string with a single condition or a list of strings to add
-            more then one condition on a single attribute.  The
-            attribute name (the key of the condition) can be wrapped
-            with a JPQL function (such as "UPPER(title)").  If the
-            query already has a condition on a given attribute, the
-            previous condition(s) will be retained and the new
-            condition(s) added to that.
-        :type conditions: :class:`dict`
-        :raise ValueError: if any key in `conditions` is not valid.
-
-        .. versionchanged:: 0.20.0
-            allow a JPQL function in the attribute.
-        """
-        def _cond_value(rhs, func):
-            rhs = rhs.replace('%', '%%')
-            if func:
-                return "%s(%%s) %s" % (func, rhs)
-            else:
-                return "%%s %s" % (rhs)
-        if conditions:
-            self._subst = None
-            for k in conditions.keys():
-                if isinstance(conditions[k], str):
-                    conds = [conditions[k]]
-                else:
-                    conds = conditions[k]
-                a, jpql_func = self._split_db_functs(k)
-                for (pattr, attrInfo, rclass) in self._attrpath(a):
-                    pass
-                v = [ _cond_value(rhs, jpql_func) for rhs in conds ]
-                if a in self.conditions:
-                    self.conditions[a].extend(v)
-                else:
-                    self.conditions[a] = v
-
-    def addIncludes(self, includes):
-        """Add related objects to build the INCLUDE clause from.
-
-        :param includes: list of related objects to add to the INCLUDE
-            clause.  A special value of "1" may be used to set (the
-            equivalent of) an "INCLUDE 1" clause.
-        :type includes: iterable of :class:`str`
-        :raise ValueError: if any item in `includes` is not a related object.
-        """
-        if includes == "1":
-            includes = list(self.entity.InstRel)
-        if includes:
-            for iobj in includes:
-                for (pattr, attrInfo, rclass) in self._attrpath(iobj):
-                    pass
-                if rclass is None:
-                    raise ValueError("%s.%s is not a related object."
-                                     % (self.entity.BeanName, iobj))
-            self.includes.update(includes)
-
-    def setLimit(self, limit):
-        """Set the limits to build the LIMIT clause from.
-
-        :param limit: a tuple (skip, count).
-        :type limit: :class:`tuple`
-        :raise TypeError: if `limit` is not a tuple of two elements.
-        """
-        if limit:
-            if not(isinstance(limit, tuple) and len(limit) == 2):
-                raise TypeError("limit must be a tuple of two elements.")
-            self.limit = limit
-        else:
-            self.limit = None
+    @property
+    def _conditions_attrs(self):
+        return { item.attr for item in self.conditions }
 
     @property
     def select_clause(self):
@@ -528,13 +604,11 @@ class Query():
 
         .. versionadded:: 0.21.0
         """
-        subst = self._get_subst()
         if self.conditions:
-            conds = []
-            for a in sorted(self.conditions.keys()):
-                attr = self._dosubst(a, subst, False)
-                for c in self.conditions[a]:
-                    conds.append(c % attr)
+            subst = self._get_subst()
+            sortkey = lambda item: item.attr
+            conds = [ item.formatstr % self._dosubst(item.attr, subst, False)
+                      for item in sorted(self.conditions, key=sortkey) ]
             return "WHERE " + " AND ".join(conds)
         else:
             return None
@@ -545,11 +619,10 @@ class Query():
 
         .. versionadded:: 0.21.0
         """
-        subst = self._get_subst()
         if self.order:
-            orders = []
-            for a in self.order.keys():
-                orders.append(self.order[a] % self._dosubst(a, subst, False))
+            subst = self._get_subst()
+            orders = [ item.formatstr % self._dosubst(item.attr, subst, False)
+                       for item in self.order ]
             return "ORDER BY " + ", ".join(orders)
         else:
             return None
@@ -583,14 +656,30 @@ class Query():
     def __repr__(self):
         """Return a formal representation of the query.
         """
-        return ("%s(%s, %s, attributes=%s, aggregate=%s, order=%s, "
-                "conditions=%s, includes=%s, limit=%s, join_specs=%s)"
-                % (self.__class__.__name__,
-                   repr(self.client), repr(self.entity.BeanName),
-                   repr(self.attributes), repr(self.aggregate),
-                   repr(self.order), repr(self.conditions),
-                   repr(self.includes), repr(self.limit),
-                   repr(self.join_specs)))
+        kwargs = []
+        if self.attributes:
+            kwargs.append("attributes=%s" % repr(self.attributes))
+        if self.aggregate:
+            kwargs.append("aggregate=%s" % repr(self.aggregate))
+        if self.conditions:
+            kwargs.append("conditions=%s" % repr(self.conditions))
+        if self.includes:
+            kwargs.append("includes=%s" % repr(self.includes))
+        if self.order:
+            kwargs.append("order=%s" % repr(self.order))
+        if self.limit:
+            kwargs.append("limit=%s" % repr(self.limit))
+        if self.join_specs:
+            kwargs.append("join_specs=%s" % repr(self.join_specs))
+        if kwargs:
+            return ("%s(%s, %s, %s)"
+                    % (self.__class__.__name__,
+                       repr(self.client), repr(self.entity.BeanName),
+                       ", ".join(kwargs)))
+        else:
+            return ("%s(%s, %s)"
+                    % (self.__class__.__name__,
+                       repr(self.client), repr(self.entity.BeanName)))
 
     def __str__(self):
         """Return a string representation of the query.
@@ -612,9 +701,7 @@ class Query():
         q.attributes = list(self.attributes)
         q.aggregate = self.aggregate
         q.order = self.order.copy()
-        q.conditions = dict()
-        for k, v in self.conditions.items():
-            q.conditions[k] = self.conditions[k].copy()
+        q.conditions = self.conditions.copy()
         q.includes = self.includes.copy()
         q.limit = self.limit
         q.join_specs = self.join_specs.copy()

@@ -549,9 +549,9 @@ class Client(suds.client.Client):
 
                 # Mark all datasets as complete
                 # This will *not* work as expected!
-                query = Query(client, "Dataset", conditions={
-                    "complete": "= False"
-                }, includes="1", order=["id"])
+                query = Query(client, "Dataset", conditions=[
+                    ("complete", "= False")
+                ], includes="1", order=["id"])
                 for ds in client.searchChunked(query):
                     ds.complete = True
                     ds.update()
@@ -643,11 +643,11 @@ class Client(suds.client.Client):
                 attr = f.name
                 if f.relType == "ATTRIBUTE":
                     cond = "= '%s'" % simpleqp_unquote(av[attr])
-                    query.addConditions({attr:cond})
+                    query.addConditions([(attr, cond)])
                 elif f.relType == "ONE":
                     rk = str("%s_%s" % (f.type, av[attr]))
                     ro = self.searchUniqueKey(rk, objindex)
-                    query.addConditions({"%s.id" % attr:"= %d" % ro.id})
+                    query.addConditions([("%s.id" % attr, "= %d" % ro.id)])
                 else:
                     raise ValueError("malformed '%s': invalid attribute '%s'" 
                                      % (key, attr))
@@ -689,11 +689,11 @@ class Client(suds.client.Client):
             if v is None:
                 raise ValueError("%s is not set" % a)
             if a in obj.InstAttr:
-                query.addConditions({a: "= '%s'" % v})
+                query.addConditions([(a, "= '%s'" % v)])
             elif a in obj.InstRel:
                 if v.id is None:
                     raise ValueError("%s.id is not set" % a)
-                query.addConditions({"%s.id" % a: "= %d" % v.id})
+                query.addConditions([("%s.id" % a, "= %d" % v.id)])
             else:
                 raise InternalError("Invalid constraint '%s' in %s."
                                     % (a, obj.BeanName))

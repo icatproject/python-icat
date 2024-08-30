@@ -67,24 +67,24 @@ def initobj(obj, attrs):
             setattr(obj, a, attrs[a])
 
 def get_datafile(client, df):
-    query = Query(client, "Datafile", conditions={
-        "name":"= '%s'" % df['name'], 
-        "dataset.name":"= '%s'" % df['dataset'], 
-        "dataset.investigation.name":"= '%s'" % df['investigation']
-    })
+    query = Query(client, "Datafile", conditions=[
+        ("name", "= '%s'" % df['name']),
+        ("dataset.name", "= '%s'" % df['dataset']),
+        ("dataset.investigation.name", "= '%s'" % df['investigation'])
+    ])
     return client.assertedSearch(query)[0]
 
 def create_datafile(client, data, df):
-    query = Query(client, "Dataset", conditions={
-        "name":"= '%s'" % df['dataset'], 
-        "investigation.name":"= '%s'" % df['investigation']
-    })
+    query = Query(client, "Dataset", conditions=[
+        ("name", "= '%s'" % df['dataset']),
+        ("investigation.name", "= '%s'" % df['investigation']),
+    ])
     dataset = client.assertedSearch(query)[0]
     dff = data['datafile_formats'][df['format']]
-    query = Query(client, "DatafileFormat", conditions={
-        "name":"= '%s'" % dff['name'], 
-        "version":"= '%s'" % dff['version'], 
-    })
+    query = Query(client, "DatafileFormat", conditions=[
+        ("name", "= '%s'" % dff['name']),
+        ("version", "= '%s'" % dff['version']),
+    ])
     datafile_format = client.assertedSearch(query)[0]
     datafile = client.new("Datafile")
     initobj(datafile, df)
@@ -95,8 +95,10 @@ def create_datafile(client, data, df):
             param = client.new("DatafileParameter")
             initobj(param, p)
             ptdata = data['parameter_types'][p['type']]
-            query = ("ParameterType [name='%s' AND units='%s']"
-                     % (ptdata['name'], ptdata['units']))
+            query = Query(client, "ParameterType", conditions=[
+                ("name", "= '%s'" % ptdata['name']),
+                ("units", "= '%s'" % ptdata['units']),
+            ])
             param.type = client.assertedSearch(query)[0]
             datafile.parameters.append(param)
     datafile.create()
@@ -109,26 +111,26 @@ def fix_file_size(inv_name):
         # to fix in Investigation and Dataset.  Nothing to do.
         return
     client.login(conf.auth, conf.credentials)
-    inv_query = Query(client, "Investigation", conditions={
-        "name":"= '%s'" % inv_name
-    }, includes="1")
+    inv_query = Query(client, "Investigation", conditions=[
+        ("name", "= '%s'" % inv_name),
+    ], includes="1")
     inv = client.assertedSearch(inv_query)[0]
     inv.fileCount = 0
     inv.fileSize = 0
-    ds_query = Query(client, "Dataset", conditions={
-        "investigation.id": "= %d" % inv.id
-    }, includes="1")
+    ds_query = Query(client, "Dataset", conditions=[
+        ("investigation.id", "= %d" % inv.id),
+    ], includes="1")
     for ds in client.search(ds_query):
-        fileCount_query = Query(client, "Datafile", conditions={
-            "dataset.id": "= %d" % ds.id
-        }, aggregate="COUNT")
+        fileCount_query = Query(client, "Datafile", conditions=[
+            ("dataset.id", "= %d" % ds.id),
+        ], aggregate="COUNT")
         ds.fileCount = int(client.assertedSearch(fileCount_query)[0])
         if not ds.fileCount:
             ds.fileSize = 0
         else:
-            fileSize_query = Query(client, "Datafile", conditions={
-                "dataset.id": "= %d" % ds.id
-            }, attributes="fileSize", aggregate="SUM")
+            fileSize_query = Query(client, "Datafile", conditions=[
+                ("dataset.id", "= %d" % ds.id),
+            ], attributes="fileSize", aggregate="SUM")
             ds.fileSize = int(client.assertedSearch(fileSize_query)[0])
         ds.update()
         inv.fileCount += ds.fileCount
@@ -231,10 +233,14 @@ def test_add_study(data, user, studyname):
     studydata = data['studies'][studyname]
     study = client.new("Study")
     initobj(study, studydata)
-    query = "User [name='%s']" % data['users'][studydata['user']]['name']
+    query = Query(client, "User", conditions=[
+        ("name", "= '%s'" % data['users'][studydata['user']]['name']),
+    ])
     study.user = client.assertedSearch(query)[0]
     for invname in studydata['investigations']:
-        query = "Investigation [name='%s']" % invname
+        query = Query(client, "Investigation", conditions=[
+            ("name", "= '%s'" % invname),
+        ])
         si = client.new("StudyInvestigation")
         si.investigation = client.assertedSearch(query)[0]
         study.studyInvestigations.append(si)
@@ -251,7 +257,9 @@ def test_add_publication(data, user, pubname):
     pubdata = data['publications'][pubname]
     publication = client.new("Publication")
     initobj(publication, pubdata)
-    query = "Investigation [name='%s']" % pubdata['investigation']
+    query = Query(client, "Investigation", conditions=[
+        ("name", "= '%s'" % pubdata['investigation']),
+    ])
     publication.investigation = client.assertedSearch(query)[0]
     publication.create()
 
@@ -269,13 +277,13 @@ def test_add_data_publication(data, pubname):
     client.login(conf.auth, conf.credentials)
     content = client.new("DataCollection")
     ds = pubdata['dataset']
-    query = Query(client, "Investigation", conditions={
-        "name":"= '%s'" % ds['investigation']
-    })
+    query = Query(client, "Investigation", conditions=[
+        ("name", "= '%s'" % ds['investigation']),
+    ])
     investigation = client.assertedSearch(query)[0]
-    query = Query(client, "DatasetType", conditions={
-        "name":"= '%s'" % data['dataset_types'][ds['type']]['name']
-    })
+    query = Query(client, "DatasetType", conditions=[
+        ("name", "= '%s'" % data['dataset_types'][ds['type']]['name']),
+    ])
     dataset_type = client.assertedSearch(query)[0]
     dataset = client.new("Dataset")
     initobj(dataset, ds)
@@ -283,10 +291,10 @@ def test_add_data_publication(data, pubname):
     dataset.type = dataset_type
     for df in ds['datafiles']:
         dff = data['datafile_formats'][df['format']]
-        query = Query(client, "DatafileFormat", conditions={
-            "name":"= '%s'" % dff['name'],
-            "version":"= '%s'" % dff['version'],
-        })
+        query = Query(client, "DatafileFormat", conditions=[
+            ("name", "= '%s'" % dff['name']),
+            ("version", "= '%s'" % dff['version']),
+        ])
         datafile_format = client.assertedSearch(query)[0]
         datafile = client.new("Datafile")
         initobj(datafile, df)
@@ -307,16 +315,16 @@ def test_add_data_publication(data, pubname):
     client.login(conf.auth, conf.credentials)
     data_publication = client.new("DataPublication")
     initobj(data_publication, pubdata)
-    query = Query(client, "Facility", conditions={
-        "name": "= '%s'" % data['facilities'][pubdata['facility']]['name']
-    })
+    query = Query(client, "Facility", conditions=[
+        ("name", "= '%s'" % data['facilities'][pubdata['facility']]['name']),
+    ])
     data_publication.facility = client.assertedSearch(query)[0]
     data_publication.content = content
     if pubdata['type']:
         t = data['data_publication_types'][pubdata['type']]
-        query = Query(client, "DataPublicationType", conditions={
-            "name": "= '%s'" % t['name']
-        })
+        query = Query(client, "DataPublicationType", conditions=[
+            ("name", "= '%s'" % t['name']),
+        ])
         data_publication.type = client.assertedSearch(query)[0]
     for d in pubdata['dates']:
         data_publication.dates.append(client.new("DataPublicationDate", **d))
@@ -325,9 +333,9 @@ def test_add_data_publication(data, pubname):
     for u in pubdata['users']:
         pub_user = client.new("DataPublicationUser")
         initobj(pub_user, u)
-        query = Query(client, "User", conditions={
-            "name": "= '%s'" % data['users'][u['user']]['name']
-        })
+        query = Query(client, "User", conditions=[
+            ("name", "= '%s'" % data['users'][u['user']]['name'])
+        ])
         pub_user.user = client.assertedSearch(query)[0]
         for a in u['affiliations']:
             pub_user.affiliations.append(client.new("Affiliation", **a))

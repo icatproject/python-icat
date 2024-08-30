@@ -83,9 +83,9 @@ config.add_variable('inputdir', ("inputdir",),
 client, conf = config.getconfig()
 client.login(conf.auth, conf.credentials)
 
-query = Query(client, "Investigation", conditions={
-    "name": "= '%s'" % conf.investigation
-})
+query = Query(client, "Investigation", conditions=[
+    ("name", "= '%s'" % conf.investigation),
+])
 investigation = client.assertedSearch(query)[0]
 
 

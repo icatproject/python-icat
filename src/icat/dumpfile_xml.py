@@ -68,15 +68,15 @@ class XMLDumpFileReader(DumpFileReader):
         else:
             # object is referenced by attributes.
             attrs = set(element.keys()) - {'id'}
-            conditions = dict()
+            conditions = []
             for attr in attrs:
                 if attr.endswith(".ref"):
                     ref = element.get(attr)
                     robj = self.client.searchUniqueKey(ref, objindex)
                     attr = "%s.id" % attr[:-4]
-                    conditions[attr] = "= %d" % robj.id
+                    conditions.append( (attr, "= %d" % robj.id) )
                 else:
-                    conditions[attr] = "= '%s'" % element.get(attr)
+                    conditions.append( (attr, "= '%s'" % element.get(attr)) )
             query = Query(self.client, objtype, conditions=conditions)
             return self.client.assertedSearch(query)[0]
 

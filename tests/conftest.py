@@ -282,8 +282,8 @@ def cleanup_objs(rootclient):
                 # uploaded (i.e. the location is not NULL), need to
                 # delete it from IDS first.
                 query = Query(rootclient, "Datafile",
-                              conditions={"dataset.id": "= %d" % obj.id,
-                                          "location": "IS NOT NULL"})
+                              conditions=[("dataset.id", "= %d" % obj.id),
+                                          ("location", "IS NOT NULL")])
                 rootclient.deleteData(rootclient.search(query))
             rootclient.delete(obj)
 

@@ -36,7 +36,7 @@ client.login(conf.auth, conf.credentials)
 
 groups = set()
 query = Query(client, "Rule",
-              conditions={"grouping": "IS NOT NULL"},
+              conditions=[("grouping", "IS NOT NULL")],
               includes={"grouping.userGroups.user"})
 for r in client.search(query):
     groups.add(r.grouping)
@@ -45,9 +45,9 @@ items = [
     sorted(groups, key=icat.entity.Entity.__sortkey__),
     Query(client, "PublicStep"),
     Query(client, "Rule", order=["what", "id"],
-          conditions={"grouping": "IS NULL"}),
+          conditions=[("grouping", "IS NULL")]),
     Query(client, "Rule", order=["grouping.name", "what", "id"],
-          conditions={"grouping": "IS NOT NULL"},
+          conditions=[("grouping", "IS NOT NULL")],
           includes={"grouping"}),
 ]
 
