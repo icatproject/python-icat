@@ -48,8 +48,6 @@ manages the interaction with an ICAT service as a client.
 
         The :class:`ssl.SSLContext` instance that has been used to
         establish the HTTPS conection to the ICAT and IDS server.
-        This is :const:`None` for old Python versions that do not have
-        the :class:`ssl.SSLContext` class.
 
     .. attribute:: typemap
 

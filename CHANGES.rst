@@ -2,8 +2,22 @@ Changelog
 =========
 
 
-dev (not yet released)
-~~~~~~~~~~~~~~~~~~~~~~
+.. _changes-2_0_0:
+
+2.0.0 (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. _changes-1_4_0:
+
+1.4.0 (2024-08-30)
+~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#155`_, `#156`_: Add an option to disable parsing of command line
+  arguments in :class:`icat.config.Config`.
 
 Bug fixes and minor changes
 ---------------------------
@@ -11,8 +25,16 @@ Bug fixes and minor changes
 + `#152`_: Fix a documentation error
 + `#154`_: Fix a duplicate test name
 
+Misc
+----
+
++ `#157`_: :mod:`icat.ingest` now considered stable.
+
 .. _#152: https://github.com/icatproject/python-icat/pull/152
 .. _#154: https://github.com/icatproject/python-icat/pull/154
+.. _#155: https://github.com/icatproject/python-icat/issues/155
+.. _#156: https://github.com/icatproject/python-icat/pull/156
+.. _#157: https://github.com/icatproject/python-icat/pull/157
 
 
 .. _changes-1_3_0:
