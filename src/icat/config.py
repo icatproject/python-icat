@@ -271,6 +271,16 @@ class ConfigSource():
         raise NotImplementedError
 
 
+class ConfigSourceDisabled():
+    """A disabled configuration source.
+
+    Do nothing and return :const:`None` for each variable to signal
+    that this variable is not set in this source.
+    """
+    def get(self, variable):
+        return None
+
+
 class ConfigSourceCmdArgs(ConfigSource):
     """Get configuration from command line arguments.
     """
@@ -490,7 +500,7 @@ class BaseConfig():
         :type subst: :class:`bool`
         :return: the new configuration variable object.
         :rtype: :class:`icat.config.ConfigVariable`
-        :raise RuntimeError: if this objects already has subcommands
+        :raise RuntimeError: if this config object already has subcommands
             defined with :meth:`icat.config.BaseConfig.add_subcommands`.
         :raise ValueError: if the name is not valid.
         :see: the documentation of the :mod:`argparse` standard
@@ -502,6 +512,16 @@ class BaseConfig():
             raise ValueError("Config variable name '%s' is reserved." % name)
         if name in self.confvariable:
             raise ValueError("Config variable '%s' is already defined." % name)
+        if self.argparser:
+            self._add_argparser_argument(name, arg_opts, arg_kws, default, type)
+        if type == flag:
+            type = boolean
+        var = ConfigVariable(name, envvar, optional, default, type, subst)
+        self.confvariable[name] = var
+        self.confvariables.append(var)
+        return var
+
+    def _add_argparser_argument(self, name, arg_opts, arg_kws, default, type):
         if arg_kws is None:
             arg_kws = dict()
         else:
@@ -529,7 +549,6 @@ class BaseConfig():
                 arg_kws['const'] = False
                 arg_kws['help'] = argparse.SUPPRESS
                 self.argparser.add_argument("--no-"+arg, **arg_kws)
-            type = boolean
         elif arg_opts:
             prefix = self.argparser.prefix_chars
             if len(arg_opts) == 1 and arg_opts[0][0] not in prefix:
@@ -542,10 +561,6 @@ class BaseConfig():
                 # optional argument
                 arg_kws['dest'] = name
             self.argparser.add_argument(*arg_opts, **arg_kws)
-        var = ConfigVariable(name, envvar, optional, default, type, subst)
-        self.confvariable[name] = var
-        self.confvariables.append(var)
-        return var
 
     def add_subcommands(self, name='subcmd', arg_kws=None, optional=False):
         """Defines a new configuration variable to select subcommands.
@@ -576,11 +591,16 @@ class BaseConfig():
         :type optional: :class:`bool`
         :return: the new subcommand object.
         :rtype: :class:`icat.config.ConfigSubCmd`
-        :raise RuntimeError: if this objects already has subcommands.
+        :raise RuntimeError: if parsing of command line arguments is
+            disabled in this config object or if it already has
+            subcommands.
         :raise ValueError: if the name is not valid.
         :see: the documentation of the :mod:`argparse` standard
             library module for details on `arg_kws`.
         """
+        if not self.argparser:
+            raise RuntimeError("Command line parsing is disabled "
+                               "in this config, cannot add subcommands.")
         if self._subcmds is not None:
             raise RuntimeError("This config already has subcommands.")
         if name in self.ReservedVariables or name[0] == '_':
@@ -618,12 +638,12 @@ class BaseConfig():
             if value is not None and var.subst:
                 value = value % config.as_dict()
             setattr(config, var.name, value)
+            if var.postprocess:
+                var.postprocess(self, config)
             if isinstance(var, ConfigSubCmds):
                 if value is not None:
                     value._getconfig(sources, config)
                 break
-            if var.postprocess:
-                var.postprocess(self, config)
         return config
 
 
@@ -662,21 +682,30 @@ class Config(BaseConfig):
         environment variables, and settings in the configuration files
         still take precedence over the preset values.
     :type preset: :class:`dict`
-    :param args: list of command line arguments or :const:`None`.  If
-        not set, the command line arguments will be taken from
-        :data:`sys.argv`.
-    :type args: :class:`list` of :class:`str`
+    :param args: list of command line arguments.  If set to the
+        special value :const:`False`, parsing of command line
+        arguments will be disabled.  The default, if :const:`None` is
+        to take the command line arguments from :data:`sys.argv`.
+    :type args: :class:`list` of :class:`str` or :class:`bool`
 
     .. versionchanged:: 1.0.0
         add the `preset` argument.
+
+    .. versionchanged:: 1.4.0
+        allow to disable parsing of command line arguments, setting
+        `args` to :const:`False`.
     """
 
     def __init__(self, defaultvars=True, needlogin=True, ids="optional", 
                  preset=None, args=None):
         """Initialize the object.
         """
-        super().__init__(argparse.ArgumentParser())
-        self.cmdargs = ConfigSourceCmdArgs(self.argparser)
+        if args is False:
+            super().__init__(None)
+            self.cmdargs = ConfigSourceDisabled()
+        else:
+            super().__init__(argparse.ArgumentParser())
+            self.cmdargs = ConfigSourceCmdArgs(self.argparser)
         self.environ = ConfigSourceEnvironment()
         defaultFiles = [str(d / cfgfile) for d in cfgdirs]
         self.conffile = ConfigSourceFile(defaultFiles)
@@ -731,7 +760,8 @@ class Config(BaseConfig):
             configuration file, if an invalid value is given to a
             variable, or if a mandatory variable is not defined.
         """
-        self.cmdargs.parse_args(self.args)
+        if self.argparser:
+            self.cmdargs.parse_args(self.args)
         config = self._getconfig(self.sources)
 
         if self.needlogin:
@@ -841,9 +871,10 @@ class Config(BaseConfig):
         """Initialize the client.
         """
         try:
-            with _argparserDisableExit(self.argparser):
-                self.cmdargs.parse_args(self.args, partial=True)
-                config = self._getconfig(self.sources)
+            if self.argparser:
+                with _argparserDisableExit(self.argparser):
+                    self.cmdargs.parse_args(self.args, partial=True)
+            config = self._getconfig(self.sources)
         except ConfigError:
             return None, None
         client_kwargs = {}

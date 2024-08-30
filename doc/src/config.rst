@@ -62,8 +62,8 @@ added.  The main class that client programs interact with is
     .. attribute:: client
 
         The :class:`icat.client.Client` object initialized according to
-	the configuration.  This is also the first element in the
-	return value from :meth:`getconfig`.
+        the configuration.  This is also the first element in the
+        return value from :meth:`getconfig`.
 
     .. attribute:: client_kwargs
 
@@ -138,40 +138,42 @@ A few derived variables are also set in
     (username and password if authenticator information is not
     available) suitable to be passed to :meth:`icat.client.Client.login`.
 
-The command line arguments, environment variables, and default values
-for the configuration variables are as follows:
+.. table:: Command line arguments, environment variables, and default values
+           for the configuration variables.
+    :name: tab-config-vars
 
-+-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| Name            | Command line                | Environment           | Default        | Mandatory | Notes        |
-+=================+=============================+=======================+================+===========+==============+
-| `configFile`    | ``-c``, ``--configfile``    | ``ICAT_CFG``          | depends        | no        | \(1)         |
-+-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `configSection` | ``-s``, ``--configsection`` | ``ICAT_CFG_SECTION``  | :const:`None`  | no        |              |
-+-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `url`           | ``-w``, ``--url``           | ``ICAT_SERVICE``      |                | yes       |              |
-+-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `idsurl`        | ``--idsurl``                | ``ICAT_DATA_SERVICE`` | :const:`None`  | depends   | \(2)         |
-+-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `checkCert`     | ``--check-certificate``,    |                       | :const:`True`  | no        |              |
-|                 | ``--no-check-certificate``  |                       |                |           |              |
-+-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `http_proxy`    | ``--http-proxy``            | ``http_proxy``        | :const:`None`  | no        |              |
-+-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `https_proxy`   | ``--https-proxy``           | ``https_proxy``       | :const:`None`  | no        |              |
-+-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `no_proxy`      | ``--no-proxy``              | ``no_proxy``          | :const:`None`  | no        |              |
-+-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `auth`          | ``-a``, ``--auth``          | ``ICAT_AUTH``         |                | yes       | \(3)         |
-+-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `username`      | ``-u``, ``--user``          | ``ICAT_USER``         |                | yes       | \(3),(4)     |
-+-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `password`      | ``-p``, ``--pass``          |                       | interactive    | yes       | \(3),(4),(5) |
-+-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
-| `promptPass`    | ``-P``, ``--prompt-pass``   |                       | :const:`False` | no        | \(3),(4),(5) |
-+-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
+    +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
+    | Name            | Command line                | Environment           | Default        | Mandatory | Notes        |
+    +=================+=============================+=======================+================+===========+==============+
+    | `configFile`    | ``-c``, ``--configfile``    | ``ICAT_CFG``          | depends        | no        | \(1)         |
+    +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
+    | `configSection` | ``-s``, ``--configsection`` | ``ICAT_CFG_SECTION``  | :const:`None`  | no        |              |
+    +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
+    | `url`           | ``-w``, ``--url``           | ``ICAT_SERVICE``      |                | yes       |              |
+    +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
+    | `idsurl`        | ``--idsurl``                | ``ICAT_DATA_SERVICE`` | :const:`None`  | depends   | \(2)         |
+    +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
+    | `checkCert`     | ``--check-certificate``,    |                       | :const:`True`  | no        |              |
+    |                 | ``--no-check-certificate``  |                       |                |           |              |
+    +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
+    | `http_proxy`    | ``--http-proxy``            | ``http_proxy``        | :const:`None`  | no        |              |
+    +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
+    | `https_proxy`   | ``--https-proxy``           | ``https_proxy``       | :const:`None`  | no        |              |
+    +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
+    | `no_proxy`      | ``--no-proxy``              | ``no_proxy``          | :const:`None`  | no        |              |
+    +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
+    | `auth`          | ``-a``, ``--auth``          | ``ICAT_AUTH``         |                | yes       | \(3)         |
+    +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
+    | `username`      | ``-u``, ``--user``          | ``ICAT_USER``         |                | yes       | \(3),(4)     |
+    +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
+    | `password`      | ``-p``, ``--pass``          |                       | interactive    | yes       | \(3),(4),(5) |
+    +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
+    | `promptPass`    | ``-P``, ``--prompt-pass``   |                       | :const:`False` | no        | \(3),(4),(5) |
+    +-----------------+-----------------------------+-----------------------+----------------+-----------+--------------+
 
-Mandatory means that an error will be raised in
-:meth:`icat.config.Config.getconfig` if no value is found for the
+See :numref:`tab-config-vars` for an overview of predefined
+configuration variables.  Mandatory means that an error will be raised
+in :meth:`icat.config.Config.getconfig` if no value is found for the
 configuration variable in question.
 
 Notes:

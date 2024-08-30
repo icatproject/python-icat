@@ -177,6 +177,7 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     project_urls = dict(
@@ -184,8 +185,8 @@ setup(
         Source="https://github.com/icatproject/python-icat/",
         Download=("https://github.com/icatproject/python-icat/releases/%s/"
                   % release),
-        Changes=("https://python-icat.readthedocs.io/en/%s/changelog.html"
-                 % release),
+        Changes=("https://python-icat.readthedocs.io/en/stable"
+                 "/changelog.html#changes-%s" % release.replace('.', '-')),
     ),
     packages = ["icat"],
     package_dir = {"": "src"},

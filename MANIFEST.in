@@ -10,6 +10,7 @@ include doc/examples/icatdump-*.xml
 include doc/examples/icatdump-*.yaml
 include doc/examples/ingest-*.xml
 include doc/examples/metadata-*.xml
+include doc/examples/metadata.xml
 include doc/icatdata*.xsd
 include doc/man/*
 include doc/tutorial/*.py

@@ -132,7 +132,8 @@ created together with the ``ParameterType`` object.
 
 We can verify this by searching for the newly created objects::
 
-  >>> query = "SELECT pt FROM ParameterType pt INCLUDE pt.facility, pt.permissibleStringValues"
+  >>> query = ("SELECT pt FROM ParameterType pt "
+  ...          "INCLUDE pt.facility, pt.permissibleStringValues")
   >>> client.search(query)
   [(parameterType){
      createId = "simple/root"

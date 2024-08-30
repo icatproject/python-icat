@@ -29,7 +29,7 @@ manages the interaction with an ICAT service as a client.
 
         Version of the ICAT server this client connects to.
 
-	.. versionchanged:: 1.0.0
+        .. versionchanged:: 1.0.0
             changed type to :class:`icat.helper.Version`
 
     .. attribute:: autoLogout
@@ -48,8 +48,6 @@ manages the interaction with an ICAT service as a client.
 
         The :class:`ssl.SSLContext` instance that has been used to
         establish the HTTPS conection to the ICAT and IDS server.
-        This is :const:`None` for old Python versions that do not have
-        the :class:`ssl.SSLContext` class.
 
     .. attribute:: typemap
 

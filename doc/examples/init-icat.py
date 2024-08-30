@@ -126,8 +126,8 @@ uogroup = client.createGroup("useroffice", [ useroffice ])
 client.createRules("CRUD", uotables, uogroup)
 
 # Setup permissions for the data ingester.  They need read permission
-# on Investigation and Shift and create and create permission on
-# Dataset, Datafile, and the respective Parameter.
+# on Investigation and Shift and create permission on Dataset,
+# Datafile, and the respective Parameter.
 ingest = client.createUser("simple/dataingest", fullName="Data Ingester")
 ingestgroup = client.createGroup("ingest", [ ingest ])
 client.createRules("R", [ "Investigation", "Shift" ], ingestgroup)

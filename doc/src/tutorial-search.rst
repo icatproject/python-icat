@@ -122,7 +122,8 @@ appropriate condition.  The `conditions` argument to
 :class:`~icat.query.Query` should be a mapping of attribute names to
 conditions on that attribute::
 
-  >>> query = Query(client, "Investigation", conditions={"name": "= '10100601-ST'"})
+  >>> query = Query(client, "Investigation",
+  ...               conditions={"name": "= '10100601-ST'"})
   >>> print(query)
   SELECT o FROM Investigation o WHERE o.name = '10100601-ST'
   >>> client.search(query)
@@ -144,7 +145,9 @@ conditions on that attribute::
 
 We may also include related objects in the search results::
 
-  >>> query = Query(client, "Investigation", conditions={"name": "= '10100601-ST'"}, includes=["datasets"])
+  >>> query = Query(client, "Investigation",
+  ...               conditions={"name": "= '10100601-ST'"},
+  ...               includes=["datasets"])
   >>> print(query)
   SELECT o FROM Investigation o WHERE o.name = '10100601-ST' INCLUDE o.datasets
   >>> client.search(query)
@@ -208,7 +211,8 @@ python-icat supports the use of some JPQL functions when specifying
 which attribute a condition should be applied to.  Consider the
 following query::
 
-  >>> query = Query(client, "Investigation", conditions={"LENGTH(title)": "= 18"})
+  >>> query = Query(client, "Investigation",
+  ...               conditions={"LENGTH(title)": "= 18"})
   >>> print(query)
   SELECT o FROM Investigation o WHERE LENGTH(o.title) = 18
   >>> client.search(query)
@@ -253,7 +257,8 @@ field larger then 5 Tesla and include its parameters in the result::
   ...     "parameters.type.units": "= 'T'",
   ...     "parameters.numericValue": "> 5.0",
   ... }
-  >>> query = Query(client, "Dataset", conditions=conditions, includes=["parameters.type"])
+  >>> query = Query(client, "Dataset",
+  ...               conditions=conditions, includes=["parameters.type"])
   >>> print(query)
   SELECT o FROM Dataset o JOIN o.investigation AS i JOIN o.parameters AS p JOIN p.type AS pt WHERE i.name = '10100601-ST' AND p.numericValue > 5.0 AND pt.name = 'Magnetic field' AND pt.units = 'T' INCLUDE o.parameters AS p, p.type
   >>> client.search(query)
@@ -456,7 +461,9 @@ multiple attributes at once.  The result will be a tuple of attribute
 values rather then a single value for each object found in the query.
 This requires an ICAT server version 4.11 or newer though::
 
-  >>> query = Query(client, "Dataset", attributes=["investigation.name", "name", "complete", "type.name"])
+  >>> query = Query(client, "Dataset", attributes=[
+  ...     "investigation.name", "name", "complete", "type.name"
+  ... ])
   >>> print(query)
   SELECT i.name, o.name, o.complete, t.name FROM Dataset o JOIN o.investigation AS i JOIN o.type AS t
   >>> client.search(query)
@@ -485,7 +492,8 @@ average magnetic field applied in the measurements::
   ...     "type.name": "= 'Magnetic field'",
   ...     "type.units": "= 'T'",
   ... }
-  >>> query = Query(client, "DatasetParameter", conditions=conditions, attributes="numericValue")
+  >>> query = Query(client, "DatasetParameter",
+  ...               conditions=conditions, attributes="numericValue")
   >>> print(query)
   SELECT o.numericValue FROM DatasetParameter o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN o.type AS t WHERE i.name = '10100601-ST' AND t.name = 'Magnetic field' AND t.units = 'T'
   >>> client.search(query)
@@ -578,7 +586,8 @@ make sure not to count the same object more then once::
   ...     "datasets.parameters.type.name": "= 'Magnetic field'",
   ...     "datasets.parameters.type.units": "= 'T'",
   ... }
-  >>> query = Query(client, "Investigation", conditions=conditions, aggregate="COUNT")
+  >>> query = Query(client, "Investigation",
+  ...               conditions=conditions, aggregate="COUNT")
   >>> print(query)
   SELECT COUNT(o) FROM Investigation o JOIN o.datasets AS s1 JOIN s1.parameters AS s2 JOIN s2.type AS s3 WHERE s3.name = 'Magnetic field' AND s3.units = 'T'
   >>> client.search(query)
@@ -761,7 +770,9 @@ in the `order` argument to :class:`~icat.query.Query`.  Let's search
 for user sorted by the length of their name, from longest to
 shortest::
 
-  >>> query = Query(client, "User", conditions={"fullName": "IS NOT NULL"}, order=[("LENGTH(fullName)", "DESC")])
+  >>> query = Query(client, "User", conditions={
+  ...     "fullName": "IS NOT NULL"
+  ... }, order=[("LENGTH(fullName)", "DESC")])
   >>> print(query)
   SELECT o FROM User o WHERE o.fullName IS NOT NULL ORDER BY LENGTH(o.fullName) DESC
   >>> for user in client.search(query):
@@ -782,7 +793,8 @@ shortest::
 We may limit the number of returned items.  Search for the third to
 last dataset to have been finished::
 
-  >>> query = Query(client, "Dataset", order=[("endDate", "DESC")], limit=(2, 1))
+  >>> query = Query(client, "Dataset",
+  ...               order=[("endDate", "DESC")], limit=(2, 1))
   >>> print(query)
   SELECT o FROM Dataset o ORDER BY o.endDate DESC LIMIT 2, 1
   >>> client.search(query)
