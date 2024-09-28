@@ -23,14 +23,14 @@
     <xsl:template match="/icatingest/data/dataset">
 	<dataset>
 	    <xsl:copy-of select="@id"/>
-	    <complete>false</complete>
+	    <complete><xsl:copy-of select="/icatingest/_environment/@dataset_complete"/></complete>
 	    <xsl:copy-of select="description"/>
 	    <xsl:copy-of select="endDate"/>
 	    <xsl:copy-of select="name"/>
 	    <xsl:copy-of select="startDate"/>
 	    <investigation ref="_Investigation"/>
 	    <xsl:apply-templates select="sample"/>
-	    <type name="raw"/>
+	    <xsl:apply-templates select="type"/>
 	    <xsl:copy-of select="datasetInstruments"/>
 	    <xsl:copy-of select="datasetTechniques"/>
 	    <xsl:copy-of select="parameters"/>
@@ -41,6 +41,12 @@
 	<xsl:copy>
 	    <xsl:attribute name="investigation.ref">_Investigation</xsl:attribute>
 	    <xsl:copy-of select="@*"/>
+	</xsl:copy>
+    </xsl:template>
+
+    <xsl:template match="/icatingest/data/dataset/type">
+	<xsl:copy>
+	    <xsl:attribute name="name"><xsl:copy-of select="/icatingest/_environment/@datasettype_name"/></xsl:attribute>
 	</xsl:copy>
     </xsl:template>
 
