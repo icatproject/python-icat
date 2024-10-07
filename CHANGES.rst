@@ -2,6 +2,22 @@ Changelog
 =========
 
 
+.. _changes-1_5_0:
+
+1.5.0 (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#160`_, `#161`_: Add class attributes to
+  :class:`icat.ingest.IngestReader` to make some prescribed values in
+  the transformation to ICAT data file format configurable.
+
+.. _#160: https://github.com/icatproject/python-icat/issues/160
+.. _#161: https://github.com/icatproject/python-icat/pull/161
+
+
 .. _changes-1_4_0:
 
 1.4.0 (2024-08-30)
