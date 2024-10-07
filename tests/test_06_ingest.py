@@ -17,6 +17,9 @@ from conftest import (getConfig, gettestdata, icat_version,
 
 logger = logging.getLogger(__name__)
 
+def print_xml(root):
+    print('\n', etree.tostring(root, pretty_print=True).decode(), sep='')
+
 def get_test_investigation(client):
     query = Query(client, "Investigation", conditions={
         "name": "= '12100409-ST'",
@@ -64,6 +67,15 @@ def investigation(client, cleanup_objs):
 @pytest.fixture(scope="function")
 def schemadir(monkeypatch):
     monkeypatch.setattr(IngestReader, "SchemaDir", testdatadir)
+
+
+class CapturingIngestReader(IngestReader):
+    """Modified version of Ingest reader that captures ingest_data in
+    add_environment().
+    """
+    def add_environment(self, client, ingest_data):
+        super().add_environment(client, ingest_data)
+        self._ingest_data = ingest_data
 
 
 class MyIngestReader(IngestReader):
@@ -354,7 +366,9 @@ def test_ingest_schema(client, investigation, schemadir, case):
     datasets = []
     for name in case.data:
         datasets.append(client.new("Dataset", name=name))
-    reader = IngestReader(client, case.metadata, investigation)
+    reader = CapturingIngestReader(client, case.metadata, investigation)
+    print_xml(reader._ingest_data)
+    print_xml(reader.infile)
     with get_icatdata_schema().open("rb") as f:
         schema = etree.XMLSchema(etree.parse(f))
     schema.assertValid(reader.infile)
