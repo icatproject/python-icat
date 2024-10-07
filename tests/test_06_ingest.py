@@ -67,7 +67,7 @@ def schemadir(monkeypatch):
 
 
 class MyIngestReader(IngestReader):
-    """Testting a customized IngestReader
+    """Testing a customized IngestReader
     """
     XSD_Map = {
         ('icatingest', '1.0'): "ingest-10.xsd",
