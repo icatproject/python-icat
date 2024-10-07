@@ -94,6 +94,16 @@ class IngestReader(XMLDumpFileReader):
 
     .. versionadded:: 1.3.0
     """
+    Dataset_complete = "false"
+    """Value to prescribe in the `complete` attribute of datasets.
+
+    .. versionadded:: 1.5.0
+    """
+    DatasetType_name = "raw"
+    """Name of the `DatasetType` to relate datasets to.
+
+    .. versionadded:: 1.5.0
+    """
 
     def __init__(self, client, metadata, investigation):
         self.investigation = investigation
@@ -196,7 +206,12 @@ class IngestReader(XMLDumpFileReader):
 
         .. versionadded:: 1.3.0
         """
-        return dict(icat_version=str(client.apiversion))
+        env = dict(
+            icat_version=str(client.apiversion),
+            dataset_complete=self.Dataset_complete,
+            datasettype_name=self.DatasetType_name,
+        )
+        return env
 
     def add_environment(self, client, ingest_data):
         """Inject environment information into input data.
