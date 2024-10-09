@@ -104,6 +104,10 @@ cases = [
         metadata = gettestdata("metadata-4.4-inl.xml"),
         checks = {
             "testingest_inl_1": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 2.7 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -120,6 +124,10 @@ cases = [
                  2.74103),
             ],
             "testingest_inl_2": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 5.1 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -143,6 +151,10 @@ cases = [
         metadata = gettestdata("metadata-5.0-inl.xml"),
         checks = {
             "testingest_inl5_1": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 2.7 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -167,6 +179,10 @@ cases = [
                  2.74103),
             ],
             "testingest_inl5_2": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 5.1 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -201,6 +217,10 @@ cases = [
         metadata = gettestdata("metadata-4.4-sep.xml"),
         checks = {
             "testingest_sep_1": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 2.7 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -217,6 +237,10 @@ cases = [
                  2.74103),
             ],
             "testingest_sep_2": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 5.1 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -240,6 +264,10 @@ cases = [
         metadata = gettestdata("metadata-5.0-sep.xml"),
         checks = {
             "testingest_sep5_1": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 2.7 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -264,6 +292,10 @@ cases = [
                  2.74103),
             ],
             "testingest_sep5_2": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 5.1 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -299,6 +331,10 @@ cases = [
         metadata = gettestdata("metadata-sample.xml"),
         checks = {
             "testingest_sample_1": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "ab3465 at 2.7 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -313,6 +349,10 @@ cases = [
                  "ab3465"),
             ],
             "testingest_sample_2": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "ab3465 at 5.1 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -327,6 +367,10 @@ cases = [
                  "ab3465"),
             ],
             "testingest_sample_3": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "ab3466 at 2.7 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -341,6 +385,10 @@ cases = [
                  "ab3466"),
             ],
             "testingest_sample_4": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "reference"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
