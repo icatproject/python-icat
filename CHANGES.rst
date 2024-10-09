@@ -14,8 +14,14 @@ New features
   :class:`icat.ingest.IngestReader` to make some prescribed values in
   the transformation to ICAT data file format configurable.
 
+Bug fixes and minor changes
+---------------------------
+
++ `#162`_: Minor updates in the tool chain
+
 .. _#160: https://github.com/icatproject/python-icat/issues/160
 .. _#161: https://github.com/icatproject/python-icat/pull/161
+.. _#162: https://github.com/icatproject/python-icat/pull/162
 
 
 .. _changes-1_4_0:
