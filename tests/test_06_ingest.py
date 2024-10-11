@@ -69,10 +69,17 @@ def schemadir(monkeypatch):
     monkeypatch.setattr(IngestReader, "SchemaDir", testdatadir)
 
 
-class CapturingIngestReader(IngestReader):
-    """Modified version of Ingest reader that captures ingest_data in
-    add_environment().
+class EnvironmentIngestReader(IngestReader):
+    """Modified version of IngestReader
+    - Allow custom environment settings to be included.
+    - Capture the ingest data after injection of the environment in an
+      attribute.
     """
+    _add_env = dict()
+    def get_environment(self, client):
+        env = super().get_environment(client)
+        env.update(self._add_env)
+        return env
     def add_environment(self, client, ingest_data):
         super().add_environment(client, ingest_data)
         self._ingest_data = ingest_data
@@ -414,7 +421,7 @@ def test_ingest_schema(client, investigation, schemadir, case):
     datasets = []
     for name in case.data:
         datasets.append(client.new("Dataset", name=name))
-    reader = CapturingIngestReader(client, case.metadata, investigation)
+    reader = EnvironmentIngestReader(client, case.metadata, investigation)
     print_xml(reader._ingest_data)
     print_xml(reader.infile)
     with get_icatdata_schema().open("rb") as f:
@@ -839,22 +846,30 @@ env_cases = [
 def test_ingest_env(monkeypatch, client, investigation, schemadir, case):
     """Test using the _environment element.
 
-    Applying a custom XSLT that extracts an attribute from the
-    _environment element that is injected by IngestReader into the
-    input data and puts that values into the head element of the
-    transformed input.  This is to test that adding the _environment
-    element works and it is in principle possible to make use of the
-    values in the XSLT.
+    Add a custom attribute to the _environment that is injected by
+    IngestReader into the input data.  Apply a custom XSLT that
+    extracts attributes from the _environment element and puts the
+    values into the head element of the transformed input.  This is to
+    test that adding the _environment element works and it is in
+    principle possible to make use of the values in the XSLT.
     """
-    monkeypatch.setattr(IngestReader,
+    generator = "test_ingest_env (python-icat %s)" % icat.__version__
+    monkeypatch.setattr(EnvironmentIngestReader,
+                        "_add_env", dict(generator=generator))
+    monkeypatch.setattr(EnvironmentIngestReader,
                         "XSLT_Map", dict(icatingest="ingest-env.xslt"))
     datasets = []
     for name in case.data:
         datasets.append(client.new("Dataset", name=name))
-    reader = IngestReader(client, case.metadata, investigation)
+    reader = EnvironmentIngestReader(client, case.metadata, investigation)
+    print_xml(reader._ingest_data)
+    print_xml(reader.infile)
     with get_icatdata_schema().open("rb") as f:
         schema = etree.XMLSchema(etree.parse(f))
     schema.assertValid(reader.infile)
     version_elem = reader.infile.xpath("/icatdata/head/apiversion")
     assert version_elem
     assert version_elem[0].text == str(client.apiversion)
+    generator_elem = reader.infile.xpath("/icatdata/head/generator")
+    assert generator_elem
+    assert generator_elem[0].text == generator
