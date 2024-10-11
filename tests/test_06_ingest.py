@@ -692,6 +692,63 @@ def test_ingest_error_searcherr(client, investigation, schemadir, case):
     logger.info("Raised %s: %s", exc.type.__name__, exc.value)
 
 
+classattr_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.1">
+  <head>
+    <date>2024-10-11T10:51:26+02:00</date>
+    <generator>metadata-writer 0.27a</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>testingest_classattr_1</name>
+      <description>Auxiliary data</description>
+      <startDate>2022-02-03T15:40:12+01:00</startDate>
+      <endDate>2022-02-03T17:04:22+01:00</endDate>
+    </dataset>
+  </data>
+</icatingest>
+""".encode("utf8"), "classattr_metadata")
+classattr_cases = [
+    Case(
+        data = ["testingest_classattr_1"],
+        metadata = classattr_metadata,
+        checks = {
+            "testingest_classattr_1": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 True),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "other"),
+            ],
+        },
+        marks = (),
+    ),
+]
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in classattr_cases
+])
+def test_ingest_classattr(monkeypatch, client, investigation, schemadir, case):
+    """Test overriding prescribed values set in IngestReader class attributes.
+    """
+    monkeypatch.setattr(IngestReader, "Dataset_complete", "true")
+    monkeypatch.setattr(IngestReader, "DatasetType_name", "other")
+    datasets = []
+    for name in case.data:
+        datasets.append(client.new("Dataset", name=name))
+    reader = IngestReader(client, case.metadata, investigation)
+    reader.ingest(datasets, dry_run=True, update_ds=True)
+    for ds in datasets:
+        ds.create()
+    reader.ingest(datasets)
+    for name in case.checks.keys():
+        query = Query(client, "Dataset", conditions={
+            "name": "= '%s'" % name,
+            "investigation.id": "= %d" % investigation.id,
+        })
+        ds = client.assertedSearch(query)[0]
+        for query, res in case.checks[name]:
+            assert client.assertedSearch(query % ds.id)[0] == res
+
+
 customcases = [
     Case(
         data = ["testingest_custom_icatingest_1"],
