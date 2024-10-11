@@ -18,7 +18,9 @@
 	    <apiversion>
 		<xsl:copy-of select="string(/icatingest/_environment/@icat_version)"/>
 	    </apiversion>
-	    <generator>ingest-env.xslt</generator>
+	    <generator>
+		<xsl:copy-of select="string(/icatingest/_environment/@generator)"/>
+	    </generator>
 	</head>
     </xsl:template>
 
