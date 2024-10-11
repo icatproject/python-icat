@@ -17,6 +17,10 @@ from conftest import (getConfig, gettestdata, icat_version,
 
 logger = logging.getLogger(__name__)
 
+# There seem to be a bug in older icat.server versions when searching
+# for a single boolean attribute in a query.
+skip_single_boolean = icat_version < "4.11.0"
+
 def print_xml(root):
     print('\n', etree.tostring(root, pretty_print=True).decode(), sep='')
 
@@ -459,6 +463,8 @@ def test_ingest(client, investigation, samples, schemadir, case):
         })
         ds = client.assertedSearch(query)[0]
         for query, res in case.checks[name]:
+            if skip_single_boolean and isinstance(res, bool):
+                continue
             assert client.assertedSearch(query % ds.id)[0] == res
 
 io_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
@@ -520,6 +526,8 @@ def test_ingest_fileobj(client, investigation, samples, schemadir, case):
         })
         ds = client.assertedSearch(query)[0]
         for query, res in case.checks[name]:
+            if skip_single_boolean and isinstance(res, bool):
+                continue
             assert client.assertedSearch(query % ds.id)[0] == res
 
 
@@ -746,6 +754,7 @@ classattr_cases = [
 @pytest.mark.parametrize("case", [
     pytest.param(c, id=c.metadata.name, marks=c.marks) for c in classattr_cases
 ])
+@pytest.mark.skipif(skip_single_boolean, reason="Bug in icat.server")
 def test_ingest_classattr(monkeypatch, client, investigation, schemadir, case):
     """Test overriding prescribed values set in IngestReader class attributes.
     """
@@ -842,6 +851,8 @@ def test_custom_ingest(client, investigation, samples, schemadir, case):
         })
         ds = client.assertedSearch(query)[0]
         for query, res in case.checks[name]:
+            if skip_single_boolean and isinstance(res, bool):
+                continue
             assert client.assertedSearch(query % ds.id)[0] == res
 
 
