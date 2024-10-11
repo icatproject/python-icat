@@ -18,11 +18,13 @@ Bug fixes and minor changes
 ---------------------------
 
 + `#162`_: Minor updates in the tool chain
++ `#164`_: Fix `dumpinvestigation.py` example script
 
 .. _#160: https://github.com/icatproject/python-icat/issues/160
 .. _#161: https://github.com/icatproject/python-icat/pull/161
 .. _#162: https://github.com/icatproject/python-icat/pull/162
 .. _#163: https://github.com/icatproject/python-icat/pull/163
+.. _#164: https://github.com/icatproject/python-icat/pull/164
 
 
 .. _changes-1_4_0:
