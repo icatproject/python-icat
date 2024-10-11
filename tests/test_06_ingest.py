@@ -113,7 +113,8 @@ cases = [
             "testingest_inl_1": [
                 ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
                  False),
-                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                (("SELECT t.name FROM DatasetType t JOIN t.datasets AS ds "
+                  "WHERE ds.id = %d"),
                  "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 2.7 K"),
@@ -133,7 +134,8 @@ cases = [
             "testingest_inl_2": [
                 ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
                  False),
-                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                (("SELECT t.name FROM DatasetType t JOIN t.datasets AS ds "
+                  "WHERE ds.id = %d"),
                  "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 5.1 K"),
@@ -160,7 +162,8 @@ cases = [
             "testingest_inl5_1": [
                 ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
                  False),
-                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                (("SELECT t.name FROM DatasetType t JOIN t.datasets AS ds "
+                  "WHERE ds.id = %d"),
                  "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 2.7 K"),
@@ -188,7 +191,8 @@ cases = [
             "testingest_inl5_2": [
                 ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
                  False),
-                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                (("SELECT t.name FROM DatasetType t JOIN t.datasets AS ds "
+                  "WHERE ds.id = %d"),
                  "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 5.1 K"),
@@ -226,7 +230,8 @@ cases = [
             "testingest_sep_1": [
                 ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
                  False),
-                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                (("SELECT t.name FROM DatasetType t JOIN t.datasets AS ds "
+                  "WHERE ds.id = %d"),
                  "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 2.7 K"),
@@ -246,7 +251,8 @@ cases = [
             "testingest_sep_2": [
                 ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
                  False),
-                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                (("SELECT t.name FROM DatasetType t JOIN t.datasets AS ds "
+                  "WHERE ds.id = %d"),
                  "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 5.1 K"),
@@ -273,7 +279,8 @@ cases = [
             "testingest_sep5_1": [
                 ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
                  False),
-                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                (("SELECT t.name FROM DatasetType t JOIN t.datasets AS ds "
+                  "WHERE ds.id = %d"),
                  "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 2.7 K"),
@@ -301,7 +308,8 @@ cases = [
             "testingest_sep5_2": [
                 ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
                  False),
-                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                (("SELECT t.name FROM DatasetType t JOIN t.datasets AS ds "
+                  "WHERE ds.id = %d"),
                  "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 5.1 K"),
@@ -340,7 +348,8 @@ cases = [
             "testingest_sample_1": [
                 ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
                  False),
-                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                (("SELECT t.name FROM DatasetType t JOIN t.datasets AS ds "
+                  "WHERE ds.id = %d"),
                  "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "ab3465 at 2.7 K"),
@@ -358,7 +367,8 @@ cases = [
             "testingest_sample_2": [
                 ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
                  False),
-                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                (("SELECT t.name FROM DatasetType t JOIN t.datasets AS ds "
+                  "WHERE ds.id = %d"),
                  "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "ab3465 at 5.1 K"),
@@ -376,7 +386,8 @@ cases = [
             "testingest_sample_3": [
                 ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
                  False),
-                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                (("SELECT t.name FROM DatasetType t JOIN t.datasets AS ds "
+                  "WHERE ds.id = %d"),
                  "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "ab3466 at 2.7 K"),
@@ -394,7 +405,8 @@ cases = [
             "testingest_sample_4": [
                 ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
                  False),
-                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                (("SELECT t.name FROM DatasetType t JOIN t.datasets AS ds "
+                  "WHERE ds.id = %d"),
                  "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "reference"),
@@ -723,7 +735,8 @@ classattr_cases = [
             "testingest_classattr_1": [
                 ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
                  True),
-                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                (("SELECT t.name FROM DatasetType t JOIN t.datasets AS ds "
+                  "WHERE ds.id = %d"),
                  "other"),
             ],
         },
