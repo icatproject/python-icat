@@ -23,6 +23,14 @@ format of the input files may be customized to some extent by
 providing custom versions of XSD and XSLT files, see
 :ref:`ingest-customize` below.
 
+Some attributes and relations of the ``Dataset`` objects are
+prescribed during the transformation into ICAT data file format,
+namely the ``complete`` attribute and the name of the ``DatasetType``
+to relate them to.  The prescribed values are set in class attributes
+:attr:`~icat.ingest.IngestReader.Dataset_complete` and
+:attr:`~icat.ingest.IngestReader.DatasetType_name` respectively.  They
+may be customized by overriding these class attributes.
+
 The ``Dataset`` objects in the input will not be created by
 :class:`~icat.ingest.IngestReader`, because it is assumed that a
 separate workflow in the caller will copy the content of datafiles to
