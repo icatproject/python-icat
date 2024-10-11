@@ -14,7 +14,7 @@ System requirements
 Python
 ......
 
-+ 3.4 and newer.
++ 3.6 and newer.
 
 Required library packages
 .........................
