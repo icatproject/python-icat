@@ -97,6 +97,11 @@ class IngestReader(XMLDumpFileReader):
     Dataset_complete = "false"
     """Value to prescribe in the `complete` attribute of datasets.
 
+    .. note::
+        The value for this class attribute is subject to change in
+        version 2.0.  You might want to override it in order to pin it
+        to a value that is suitable for you.
+
     .. versionadded:: 1.5.0
     """
     DatasetType_name = "raw"
@@ -197,6 +202,20 @@ class IngestReader(XMLDumpFileReader):
 
         Subclasses may override this method to control the attributes
         set in the environment.
+
+        .. note::
+            If you override this method, it is advisable to call the
+            inherited method from the parent class and augment the
+            result.  This avoids inadvertently dropping environment
+            settings added in future versions.  E.g. do something
+            like the following in your subclass:
+
+            .. code-block:: python
+
+                def get_environment(self, client):
+                    env = super().get_environment(client)
+                    env['mykey'] = 'value'
+                    return env
 
         :param client: the client object being used by this
             IngestReader.

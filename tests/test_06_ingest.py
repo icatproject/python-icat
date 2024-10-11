@@ -69,10 +69,17 @@ def schemadir(monkeypatch):
     monkeypatch.setattr(IngestReader, "SchemaDir", testdatadir)
 
 
-class CapturingIngestReader(IngestReader):
-    """Modified version of Ingest reader that captures ingest_data in
-    add_environment().
+class EnvironmentIngestReader(IngestReader):
+    """Modified version of IngestReader
+    - Allow custom environment settings to be included.
+    - Capture the ingest data after injection of the environment in an
+      attribute.
     """
+    _add_env = dict()
+    def get_environment(self, client):
+        env = super().get_environment(client)
+        env.update(self._add_env)
+        return env
     def add_environment(self, client, ingest_data):
         super().add_environment(client, ingest_data)
         self._ingest_data = ingest_data
@@ -104,6 +111,10 @@ cases = [
         metadata = gettestdata("metadata-4.4-inl.xml"),
         checks = {
             "testingest_inl_1": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 2.7 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -120,6 +131,10 @@ cases = [
                  2.74103),
             ],
             "testingest_inl_2": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 5.1 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -143,6 +158,10 @@ cases = [
         metadata = gettestdata("metadata-5.0-inl.xml"),
         checks = {
             "testingest_inl5_1": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 2.7 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -167,6 +186,10 @@ cases = [
                  2.74103),
             ],
             "testingest_inl5_2": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 5.1 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -201,6 +224,10 @@ cases = [
         metadata = gettestdata("metadata-4.4-sep.xml"),
         checks = {
             "testingest_sep_1": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 2.7 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -217,6 +244,10 @@ cases = [
                  2.74103),
             ],
             "testingest_sep_2": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 5.1 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -240,6 +271,10 @@ cases = [
         metadata = gettestdata("metadata-5.0-sep.xml"),
         checks = {
             "testingest_sep5_1": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 2.7 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -264,6 +299,10 @@ cases = [
                  2.74103),
             ],
             "testingest_sep5_2": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "Dy01Cp02 at 5.1 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -299,6 +338,10 @@ cases = [
         metadata = gettestdata("metadata-sample.xml"),
         checks = {
             "testingest_sample_1": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "ab3465 at 2.7 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -313,6 +356,10 @@ cases = [
                  "ab3465"),
             ],
             "testingest_sample_2": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "ab3465 at 5.1 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -327,6 +374,10 @@ cases = [
                  "ab3465"),
             ],
             "testingest_sample_3": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "ab3466 at 2.7 K"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -341,6 +392,10 @@ cases = [
                  "ab3466"),
             ],
             "testingest_sample_4": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 False),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "raw"),
                 ("SELECT ds.description FROM Dataset ds WHERE ds.id = %d",
                  "reference"),
                 ("SELECT ds.startDate FROM Dataset ds WHERE ds.id = %d",
@@ -366,7 +421,7 @@ def test_ingest_schema(client, investigation, schemadir, case):
     datasets = []
     for name in case.data:
         datasets.append(client.new("Dataset", name=name))
-    reader = CapturingIngestReader(client, case.metadata, investigation)
+    reader = EnvironmentIngestReader(client, case.metadata, investigation)
     print_xml(reader._ingest_data)
     print_xml(reader.infile)
     with get_icatdata_schema().open("rb") as f:
@@ -644,6 +699,63 @@ def test_ingest_error_searcherr(client, investigation, schemadir, case):
     logger.info("Raised %s: %s", exc.type.__name__, exc.value)
 
 
+classattr_metadata = NamedBytesIO("""<?xml version='1.0' encoding='UTF-8'?>
+<icatingest version="1.1">
+  <head>
+    <date>2024-10-11T10:51:26+02:00</date>
+    <generator>metadata-writer 0.27a</generator>
+  </head>
+  <data>
+    <dataset id="Dataset_1">
+      <name>testingest_classattr_1</name>
+      <description>Auxiliary data</description>
+      <startDate>2022-02-03T15:40:12+01:00</startDate>
+      <endDate>2022-02-03T17:04:22+01:00</endDate>
+    </dataset>
+  </data>
+</icatingest>
+""".encode("utf8"), "classattr_metadata")
+classattr_cases = [
+    Case(
+        data = ["testingest_classattr_1"],
+        metadata = classattr_metadata,
+        checks = {
+            "testingest_classattr_1": [
+                ("SELECT ds.complete FROM Dataset ds WHERE ds.id = %d",
+                 True),
+                ("SELECT ds.type.name FROM Dataset ds WHERE ds.id = %d",
+                 "other"),
+            ],
+        },
+        marks = (),
+    ),
+]
+@pytest.mark.parametrize("case", [
+    pytest.param(c, id=c.metadata.name, marks=c.marks) for c in classattr_cases
+])
+def test_ingest_classattr(monkeypatch, client, investigation, schemadir, case):
+    """Test overriding prescribed values set in IngestReader class attributes.
+    """
+    monkeypatch.setattr(IngestReader, "Dataset_complete", "true")
+    monkeypatch.setattr(IngestReader, "DatasetType_name", "other")
+    datasets = []
+    for name in case.data:
+        datasets.append(client.new("Dataset", name=name))
+    reader = IngestReader(client, case.metadata, investigation)
+    reader.ingest(datasets, dry_run=True, update_ds=True)
+    for ds in datasets:
+        ds.create()
+    reader.ingest(datasets)
+    for name in case.checks.keys():
+        query = Query(client, "Dataset", conditions={
+            "name": "= '%s'" % name,
+            "investigation.id": "= %d" % investigation.id,
+        })
+        ds = client.assertedSearch(query)[0]
+        for query, res in case.checks[name]:
+            assert client.assertedSearch(query % ds.id)[0] == res
+
+
 customcases = [
     Case(
         data = ["testingest_custom_icatingest_1"],
@@ -734,22 +846,30 @@ env_cases = [
 def test_ingest_env(monkeypatch, client, investigation, schemadir, case):
     """Test using the _environment element.
 
-    Applying a custom XSLT that extracts an attribute from the
-    _environment element that is injected by IngestReader into the
-    input data and puts that values into the head element of the
-    transformed input.  This is to test that adding the _environment
-    element works and it is in principle possible to make use of the
-    values in the XSLT.
+    Add a custom attribute to the _environment that is injected by
+    IngestReader into the input data.  Apply a custom XSLT that
+    extracts attributes from the _environment element and puts the
+    values into the head element of the transformed input.  This is to
+    test that adding the _environment element works and it is in
+    principle possible to make use of the values in the XSLT.
     """
-    monkeypatch.setattr(IngestReader,
+    generator = "test_ingest_env (python-icat %s)" % icat.__version__
+    monkeypatch.setattr(EnvironmentIngestReader,
+                        "_add_env", dict(generator=generator))
+    monkeypatch.setattr(EnvironmentIngestReader,
                         "XSLT_Map", dict(icatingest="ingest-env.xslt"))
     datasets = []
     for name in case.data:
         datasets.append(client.new("Dataset", name=name))
-    reader = IngestReader(client, case.metadata, investigation)
+    reader = EnvironmentIngestReader(client, case.metadata, investigation)
+    print_xml(reader._ingest_data)
+    print_xml(reader.infile)
     with get_icatdata_schema().open("rb") as f:
         schema = etree.XMLSchema(etree.parse(f))
     schema.assertValid(reader.infile)
     version_elem = reader.infile.xpath("/icatdata/head/apiversion")
     assert version_elem
     assert version_elem[0].text == str(client.apiversion)
+    generator_elem = reader.infile.xpath("/icatdata/head/generator")
+    assert generator_elem
+    assert generator_elem[0].text == generator
