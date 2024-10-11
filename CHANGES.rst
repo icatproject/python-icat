@@ -8,6 +8,31 @@ Changelog
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 
+.. _changes-1_5_0:
+
+1.5.0 (2024-10-11)
+~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#160`_, `#161`_, `#163`_: Add class attributes to
+  :class:`icat.ingest.IngestReader` to make some prescribed values in
+  the transformation to ICAT data file format configurable.
+
+Bug fixes and minor changes
+---------------------------
+
++ `#162`_: Minor updates in the tool chain
++ `#164`_: Fix `dumpinvestigation.py` example script
+
+.. _#160: https://github.com/icatproject/python-icat/issues/160
+.. _#161: https://github.com/icatproject/python-icat/pull/161
+.. _#162: https://github.com/icatproject/python-icat/pull/162
+.. _#163: https://github.com/icatproject/python-icat/pull/163
+.. _#164: https://github.com/icatproject/python-icat/pull/164
+
+
 .. _changes-1_4_0:
 
 1.4.0 (2024-08-30)
