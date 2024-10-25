@@ -2,6 +2,21 @@ Changelog
 =========
 
 
+.. _changes-1_5_1:
+
+1.5.1 (2024-10-25)
+~~~~~~~~~~~~~~~~~~
+
+Bug fixes and minor changes
+---------------------------
+
++ `#165`_: Fix missing documentation on the environment injected by
+  :class:`icat.ingest.IngestReader` into the input as changed in
+  1.5.0.
+
+.. _#165: https://github.com/icatproject/python-icat/pull/165
+
+
 .. _changes-1_5_0:
 
 1.5.0 (2024-10-11)

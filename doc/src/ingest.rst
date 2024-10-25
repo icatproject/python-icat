@@ -91,11 +91,20 @@ following attributes:
     :attr:`icat.client.Client.apiversion` attribute of the `client`
     object being used by this :class:`~icat.ingest.IngestReader`.
 
+  `dataset_complete`
+    The value of :attr:`~icat.ingest.IngestReader.Dataset_complete`.
+
+  `datasettype_name`
+    The value of :attr:`~icat.ingest.IngestReader.DatasetType_name`.
+
 More attributes may be added in future versions.  This
 ``_environment`` element may be used by the XSLT in order to adapt the
 result of the transformation to the environment, in particular to
 adapt the output to the ICAT schema version it is supposed to conform
 to.
+
+.. versionchanged:: 1.5.0
+   add attributes `dataset_complete` and `datasettype_name`.
 
 
 .. _ingest-example:
