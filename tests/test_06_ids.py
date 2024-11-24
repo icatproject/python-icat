@@ -412,6 +412,30 @@ def test_restore(client, case):
     print("Status of dataset %s is now %s" % (case['dsname'], status))
 
 @pytest.mark.parametrize(("case"), markeddatasets)
+def test_restoreData(client, case):
+    """Test the high level call restoreData().
+
+    This is essentially a no-op as the dataset in question will
+    already be ONLINE.  It only tests that the call does not throw an
+    error.
+    """
+    dataset = getDataset(client, case)
+    client.restoreData([dataset])
+    status = client.ids.getStatus(DataSelection([dataset]))
+    assert status == "ONLINE"
+
+@pytest.mark.parametrize(("case"), markeddatasets)
+def test_restoreDataSelection(client, case):
+    """Test the high level call restoreData().
+
+    Same as last test, but now pass a DataSelection as argument.
+    """
+    selection = DataSelection([getDataset(client, case)])
+    client.restoreData(selection)
+    status = client.ids.getStatus(selection)
+    assert status == "ONLINE"
+
+@pytest.mark.parametrize(("case"), markeddatasets)
 def test_reset(client, case):
     """Call reset() on a dataset.
 
