@@ -23,7 +23,7 @@ class LoggingIDSClient(IDSClient):
     """
     def getStatus(self, selection):
         status = super().getStatus(selection)
-        logger.debug("getStatus(%s): %s", selection, status)
+        logger.debug("getStatus(%s): %s", selection, status, stacklevel=2)
         return status
 
 @pytest.fixture(scope="module")
