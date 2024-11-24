@@ -3,22 +3,34 @@
 
 import datetime
 import filecmp
+import logging
 import time
 import zipfile
 import pytest
 import icat
+import icat.client
 import icat.config
-from icat.ids import DataSelection
+from icat.ids import IDSClient, DataSelection
 from icat.query import Query
 from conftest import DummyDatafile, UtcTimezone
 from conftest import getConfig, tmpSessionId, tmpClient
 
+logger = logging.getLogger(__name__)
+
+
+class LoggingIDSClient(IDSClient):
+    """Modified version of IDSClient that logs some calls.
+    """
+    def getStatus(self, selection):
+        status = super().getStatus(selection)
+        logger.debug("getStatus(%s): %s", selection, status)
+        return status
 
 @pytest.fixture(scope="module")
-def client(setupicat):
-    client, conf = getConfig(ids="mandatory")
+def cleanup(setupicat):
+    client, conf = getConfig(confSection="root", ids="mandatory")
     client.login(conf.auth, conf.credentials)
-    yield client
+    yield
     query = "SELECT df FROM Datafile df WHERE df.location IS NOT NULL"
     while True:
         try:
@@ -27,6 +39,13 @@ def client(setupicat):
             time.sleep(10)
         else:
             break
+
+@pytest.fixture(scope="function")
+def client(monkeypatch, cleanup):
+    monkeypatch.setattr(icat.client, "IDSClient", LoggingIDSClient)
+    client, conf = getConfig(ids="mandatory")
+    client.login(conf.auth, conf.credentials)
+    yield client
 
 
 # ============================ testdata ============================
