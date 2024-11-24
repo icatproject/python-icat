@@ -17,6 +17,7 @@ from conftest import getConfig, tmpSessionId, tmpClient
 
 logger = logging.getLogger(__name__)
 
+GiB = 1073741824
 
 class LoggingIDSClient(IDSClient):
     """Modified version of IDSClient that logs some calls.
@@ -26,12 +27,7 @@ class LoggingIDSClient(IDSClient):
         logger.debug("getStatus(%s): %s", selection, status, stacklevel=2)
         return status
 
-@pytest.fixture(scope="module")
-def cleanup(setupicat):
-    client, conf = getConfig(confSection="root", ids="mandatory")
-    client.login(conf.auth, conf.credentials)
-    yield
-    query = "SELECT df FROM Datafile df WHERE df.location IS NOT NULL"
+def _delete_datafiles(client, query):
     while True:
         try:
             client.deleteData(client.search(query))
@@ -40,12 +36,44 @@ def cleanup(setupicat):
         else:
             break
 
+@pytest.fixture(scope="module")
+def cleanup(setupicat):
+    client, conf = getConfig(confSection="root", ids="mandatory")
+    client.login(conf.auth, conf.credentials)
+    yield
+    query = "SELECT df FROM Datafile df WHERE df.location IS NOT NULL"
+    _delete_datafiles(client, query)
+
 @pytest.fixture(scope="function")
 def client(monkeypatch, cleanup):
     monkeypatch.setattr(icat.client, "IDSClient", LoggingIDSClient)
     client, conf = getConfig(ids="mandatory")
     client.login(conf.auth, conf.credentials)
     yield client
+
+@pytest.fixture(scope="function")
+def dataset(client, cleanup_objs):
+    """A dataset to be used in the test.
+
+    The dataset will be eventually be deleted after the test.
+    """
+    inv = client.assertedSearch(Query(client, "Investigation", conditions={
+        "name": "= '10100601-ST'",
+    }))[0]
+    dstype = client.assertedSearch(Query(client, "DatasetType", conditions={
+        "name": "= 'raw'",
+    }))[0]
+    dataset = client.new("Dataset",
+                         name="e208343", complete=False,
+                         investigation=inv, type=dstype)
+    dataset.create()
+    cleanup_objs.append(dataset)
+    yield dataset
+    query = Query(client, "Datafile", conditions={
+        "dataset.id": "= %d" % dataset.id,
+        "location": "IS NOT NULL",
+    })
+    _delete_datafiles(client, query)
 
 
 # ============================ testdata ============================
@@ -412,7 +440,7 @@ def test_restore(client, case):
     print("Status of dataset %s is now %s" % (case['dsname'], status))
 
 @pytest.mark.parametrize(("case"), markeddatasets)
-def test_restoreData(client, case):
+def test_restoreDataCall(client, case):
     """Test the high level call restoreData().
 
     This is essentially a no-op as the dataset in question will
@@ -425,7 +453,7 @@ def test_restoreData(client, case):
     assert status == "ONLINE"
 
 @pytest.mark.parametrize(("case"), markeddatasets)
-def test_restoreDataSelection(client, case):
+def test_restoreDataCallSelection(client, case):
     """Test the high level call restoreData().
 
     Same as last test, but now pass a DataSelection as argument.
@@ -433,6 +461,31 @@ def test_restoreDataSelection(client, case):
     selection = DataSelection([getDataset(client, case)])
     client.restoreData(selection)
     status = client.ids.getStatus(selection)
+    assert status == "ONLINE"
+
+@pytest.mark.slow
+def test_restoreData(tmpdirsec, client, dataset):
+    """Test restoring data with the high level call restoreData().
+
+    This test archives a dataset and calls restoreData() to restore it
+    again.  The size of the dataset is large enough so that restoring
+    takes some time, so that we actually can observe the call to wait
+    until the restoring is finished.  As a result, the test is rather
+    slow.  It is marked as such and thus disabled by default.
+    """
+    if not client.ids.isTwoLevel():
+        pytest.skip("This IDS does not use two levels of data storage")
+    f = DummyDatafile(tmpdirsec, "e208343.nxs", GiB)
+    query = Query(client, "DatafileFormat", conditions={
+        "name": "= 'NeXus'",
+    })
+    datafileformat = client.assertedSearch(query)[0]
+    datafile = client.new("Datafile", name=f.fname.name,
+                          dataset=dataset, datafileFormat=datafileformat)
+    client.putData(f.fname, datafile)
+    client.ids.archive(DataSelection([dataset]))
+    client.restoreData([dataset])
+    status = client.ids.getStatus(DataSelection([dataset]))
     assert status == "ONLINE"
 
 @pytest.mark.parametrize(("case"), markeddatasets)
