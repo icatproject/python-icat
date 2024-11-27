@@ -10,10 +10,10 @@ Changelog
 New features
 ------------
 
-+ `166`_: Add new custom IDS method
++ `#166`_: Add new custom IDS method
   :meth:`icat.client.Client.restoreData`.
 
-.. _166: https://github.com/icatproject/python-icat/pull/166
+.. _#166: https://github.com/icatproject/python-icat/pull/166
 
 
 .. _changes-1_5_1:
