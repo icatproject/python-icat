@@ -2,6 +2,20 @@ Changelog
 =========
 
 
+.. _changes-1_6_0:
+
+1.6.0 (2024-12-06)
+~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#166`_: Add new custom IDS method
+  :meth:`icat.client.Client.restoreData`.
+
+.. _#166: https://github.com/icatproject/python-icat/pull/166
+
+
 .. _changes-1_5_1:
 
 1.5.1 (2024-10-25)

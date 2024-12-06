@@ -48,8 +48,27 @@ logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.CRITICAL)
 logging.getLogger('suds').setLevel(logging.ERROR)
 
+_skip_slow = True
 testdir = Path(__file__).resolve().parent
 testdatadir = testdir / "data"
+
+def pytest_addoption(parser):
+    parser.addoption("--no-skip-slow", action="store_true", default=False,
+                     help="do not skip slow tests.")
+
+def pytest_configure(config):
+    global _skip_slow
+    _skip_slow = not config.getoption("--no-skip-slow")
+    config.addinivalue_line("markers", "slow: mark a test as slow, "
+                            "the test will be skipped unless --no-skip-slow "
+                            "is set on the command line")
+
+def pytest_runtest_setup(item):
+    """Skip slow tests by default.
+    """
+    marker = item.get_closest_marker("slow")
+    if marker is not None and _skip_slow:
+        pytest.skip("skip slow test")
 
 def _skip(reason):
     if Version(pytest.__version__) >= '3.3.0':
