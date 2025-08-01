@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Fri, 01 Aug 2025 13:08:51 +0000
+# Date: Fri, 01 Aug 2025 14:50:35 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
 # ICAT-API: 6.2.0a1
-# Generator: icatdump (python-icat 1.6.1.dev4)
+# Generator: icatdump (python-icat 1.6.1.dev7)
 ---
 grouping:
   Grouping_name-ingest:
@@ -1114,12 +1114,14 @@ instrument:
       bank.
 
       '
+    endDate: '2019-12-30T23:00:00+00:00'
     facility: Facility_name-ESNF
     fullName: E2 - Flat-Cone Diffractometer
     instrumentScientists:
     - user: User_name-db=2Facord
     name: E2
     pid: DOI:00.0815/inst-00001
+    startDate: '2006-12-31T23:00:00+00:00'
   Instrument_facility-(name-ESNF)_name-EDDI:
     description: 'The experimental station EDDI (Energy Dispersive Diffraction) is
       a fixed station at the 7T-MPW-EDDI beamline.  The beamline provides the direct
@@ -1322,6 +1324,8 @@ technique:
 ---
 fundingReference:
   FundingReference_funderName-American=20Mathematical=20Society_awardNumber-AIS3241330750:
+    acknowledgement: This work has partly been supported by American Mathematical
+      Society under grant number AIS3241330750 which is greatfully acknowledged
     awardNumber: AIS3241330750
     funderIdentifier: Crossref Funder ID:10.13039/100005376
     funderName: American Mathematical Society
@@ -1771,6 +1775,7 @@ dataPublication:
     facility: Facility_name-ESNF
     fundingReferences:
     - funding: FundingReference_funderName-American=20Mathematical=20Society_awardNumber-AIS3241330750
+    internalId: qwa2-gc-v9lp
     pid: DOI:00.0815/pub-00027
     publicationDate: '2022-10-30T23:00:00+00:00'
     relatedItems:
@@ -1781,6 +1786,14 @@ dataPublication:
       relationType: References
       title: The positive integers
     subject: integer sequence; OEIS; On-Line Encyclopedia of Integer Sequences
+    subjects:
+    - name: OEIS
+    - name: On-Line Encyclopedia of Integer Sequences
+    - classificationCode: 11B83
+      name: Special sequences and polynomials
+      schemeURI: https://zbmath.org/classification/
+      subjectScheme: "Mathematics Subject Classification \u2013 MSC2020"
+    - name: integer sequence
     title: Data from OEIS sequence A000027
     type: DataPublicationType_facility-(name-ESNF)_name-curated
 dataPublicationUser:
