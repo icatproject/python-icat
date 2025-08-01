@@ -197,11 +197,17 @@ def getDataPublicationQueries(client, pubid):
     # - ICAT 5.0.0 added DataPublication and related classes.
     if 'dataPublication' in client.typemap:
         # ICAT >= 5.0.0
+        datapub_includes = {
+            "facility", "content", "type.facility", "dates",
+            "fundingReferences.funding", "relatedItems"
+        }
+        if 'subject' in client.typemap:
+            # ICAT >= 6.2.0
+            datapub_includes |= { "subjects" }
         return [
             Query(client, "DataPublication", order=True,
                   conditions={"id": "= %d" % pubid},
-                  includes={"facility", "content", "type.facility", "dates",
-                            "fundingReferences.funding", "relatedItems"}),
+                  includes=datapub_includes),
             Query(client, "DataPublicationUser", order=True,
                   conditions={"publication.id": "= %d" % pubid},
                   includes={"publication", "user", "affiliations"}),
