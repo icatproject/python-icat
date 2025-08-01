@@ -1,8 +1,8 @@
 %YAML 1.1
-# Date: Mon, 16 Oct 2023 15:00:30 +0000
+# Date: Fri, 01 Aug 2025 13:08:51 +0000
 # Service: https://icat.example.com:8181/ICATService/ICAT?wsdl
-# ICAT-API: 5.0.1
-# Generator: icatdump (python-icat 1.0.0)
+# ICAT-API: 6.2.0a1
+# Generator: icatdump (python-icat 1.6.1.dev4)
 ---
 grouping:
   Grouping_name-ingest:
@@ -102,6 +102,9 @@ publicStep:
     origin: DataPublication
   PublicStep_origin-DataPublication_field-relatedItems:
     field: relatedItems
+    origin: DataPublication
+  PublicStep_origin-DataPublication_field-subjects:
+    field: subjects
     origin: DataPublication
   PublicStep_origin-DataPublication_field-users:
     field: users
@@ -593,272 +596,280 @@ rule:
     grouping: Grouping_name-publisher
     what: RelatedItem
   Rule_00000095:
+    crudFlags: CRUD
+    grouping: Grouping_name-publisher
+    what: Subject
+  Rule_00000096:
     crudFlags: R
     grouping: Grouping_name-pubreader
     what: SELECT o FROM DataPublication o
-  Rule_00000096:
+  Rule_00000097:
     crudFlags: R
     grouping: Grouping_name-pubreader
     what: SELECT o FROM Datafile o JOIN o.dataCollectionDatafiles AS s1 JOIN s1.dataCollection
       AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id IS NOT NULL
-  Rule_00000097:
+  Rule_00000098:
     crudFlags: R
     grouping: Grouping_name-pubreader
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.dataCollectionDatasets
       AS s1 JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id
       IS NOT NULL
-  Rule_00000098:
+  Rule_00000099:
     crudFlags: R
     grouping: Grouping_name-pubreader
     what: SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i
       JOIN i.dataCollectionInvestigations AS s1 JOIN s1.dataCollection AS s2 JOIN
       s2.dataPublications AS s3 WHERE s3.id IS NOT NULL
-  Rule_00000099:
+  Rule_00000100:
     crudFlags: R
     grouping: Grouping_name-pubreader
     what: SELECT o FROM Dataset o JOIN o.dataCollectionDatasets AS s1 JOIN s1.dataCollection
       AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id IS NOT NULL
-  Rule_00000100:
+  Rule_00000101:
     crudFlags: R
     grouping: Grouping_name-pubreader
     what: SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.dataCollectionInvestigations
       AS s1 JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id
       IS NOT NULL
-  Rule_00000101:
+  Rule_00000102:
     crudFlags: R
     grouping: Grouping_name-pubreader
     what: SELECT o FROM Investigation o JOIN o.dataCollectionInvestigations AS s1
       JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id IS NOT
       NULL
-  Rule_00000102:
-    crudFlags: R
-    grouping: Grouping_name-rall
-    what: Affiliation
   Rule_00000103:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataCollection
+    what: Affiliation
   Rule_00000104:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataCollectionDatafile
+    what: DataCollection
   Rule_00000105:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataCollectionDataset
+    what: DataCollectionDatafile
   Rule_00000106:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataCollectionInvestigation
+    what: DataCollectionDataset
   Rule_00000107:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataCollectionParameter
+    what: DataCollectionInvestigation
   Rule_00000108:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataPublication
+    what: DataCollectionParameter
   Rule_00000109:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataPublicationDate
+    what: DataPublication
   Rule_00000110:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataPublicationFunding
+    what: DataPublicationDate
   Rule_00000111:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DataPublicationUser
+    what: DataPublicationFunding
   Rule_00000112:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Datafile
+    what: DataPublicationUser
   Rule_00000113:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DatafileParameter
+    what: Datafile
   Rule_00000114:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Dataset
+    what: DatafileParameter
   Rule_00000115:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DatasetInstrument
+    what: Dataset
   Rule_00000116:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DatasetParameter
+    what: DatasetInstrument
   Rule_00000117:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: DatasetTechnique
+    what: DatasetParameter
   Rule_00000118:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: FundingReference
+    what: DatasetTechnique
   Rule_00000119:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Grouping
+    what: FundingReference
   Rule_00000120:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InstrumentScientist
+    what: Grouping
   Rule_00000121:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Investigation
+    what: InstrumentScientist
   Rule_00000122:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationFacilityCycle
+    what: Investigation
   Rule_00000123:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationFunding
+    what: InvestigationFacilityCycle
   Rule_00000124:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationGroup
+    what: InvestigationFunding
   Rule_00000125:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationInstrument
+    what: InvestigationGroup
   Rule_00000126:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationParameter
+    what: InvestigationInstrument
   Rule_00000127:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: InvestigationUser
+    what: InvestigationParameter
   Rule_00000128:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Job
+    what: InvestigationUser
   Rule_00000129:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Keyword
+    what: Job
   Rule_00000130:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: PublicStep
+    what: Keyword
   Rule_00000131:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Publication
+    what: PublicStep
   Rule_00000132:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: RelatedDatafile
+    what: Publication
   Rule_00000133:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: RelatedItem
+    what: RelatedDatafile
   Rule_00000134:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Rule
+    what: RelatedItem
   Rule_00000135:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Sample
+    what: Rule
   Rule_00000136:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: SampleParameter
+    what: Sample
   Rule_00000137:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Shift
+    what: SampleParameter
   Rule_00000138:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: Study
+    what: Shift
   Rule_00000139:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: StudyInvestigation
+    what: Study
   Rule_00000140:
     crudFlags: R
     grouping: Grouping_name-rall
-    what: UserGroup
+    what: StudyInvestigation
   Rule_00000141:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: Subject
+  Rule_00000142:
+    crudFlags: R
+    grouping: Grouping_name-rall
+    what: UserGroup
+  Rule_00000143:
     crudFlags: RU
     grouping: Grouping_name-scientific=5Fstaff
     what: Sample
-  Rule_00000142:
+  Rule_00000144:
     crudFlags: UD
     grouping: Grouping_name-scientific=5Fstaff
     what: SampleType
-  Rule_00000143:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: FacilityCycle
-  Rule_00000144:
-    crudFlags: CRUD
-    grouping: Grouping_name-useroffice
-    what: FundingReference
   Rule_00000145:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Grouping
+    what: FacilityCycle
   Rule_00000146:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InstrumentScientist
+    what: FundingReference
   Rule_00000147:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Investigation
+    what: Grouping
   Rule_00000148:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationFunding
+    what: InstrumentScientist
   Rule_00000149:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationGroup
+    what: Investigation
   Rule_00000150:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationInstrument
+    what: InvestigationFunding
   Rule_00000151:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationParameter
+    what: InvestigationGroup
   Rule_00000152:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: InvestigationUser
+    what: InvestigationInstrument
   Rule_00000153:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Keyword
+    what: InvestigationParameter
   Rule_00000154:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Publication
+    what: InvestigationUser
   Rule_00000155:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Shift
+    what: Keyword
   Rule_00000156:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: Study
+    what: Publication
   Rule_00000157:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: StudyInvestigation
+    what: Shift
   Rule_00000158:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
-    what: User
+    what: Study
   Rule_00000159:
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: StudyInvestigation
+  Rule_00000160:
+    crudFlags: CRUD
+    grouping: Grouping_name-useroffice
+    what: User
+  Rule_00000161:
     crudFlags: CRUD
     grouping: Grouping_name-useroffice
     what: UserGroup

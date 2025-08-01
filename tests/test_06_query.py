@@ -35,8 +35,9 @@ tzinfo = UtcTimezone() if UtcTimezone else None
 # The the actual number of rules in the test data differs with the
 # ICAT version.
 have_icat_5 = 0 if icat_version < "5.0" else 1
-all_rules = 111 + 48*have_icat_5
-grp_rules = 51 + 30*have_icat_5
+have_icat_6_2 = 0 if icat_version < "6.2a0" else 1
+all_rules = 111 + 48*have_icat_5 + 2*have_icat_6_2
+grp_rules = 51 + 30*have_icat_5 + 2*have_icat_6_2
 
 @pytest.mark.dependency(name='get_investigation')
 def test_query_simple(client):
