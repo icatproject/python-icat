@@ -1,0 +1,57 @@
+User: db/acord
+
+Entity                     count
+--------------------------------
+Affiliation              : 0
+Application              : 1
+DataCollection           : 0
+DataCollectionDatafile   : 0
+DataCollectionDataset    : 0
+DataCollectionInvestigation : 0
+DataCollectionParameter  : 0
+DataPublication          : 1
+DataPublicationDate      : 0
+DataPublicationFunding   : 0
+DataPublicationType      : 2
+DataPublicationUser      : 0
+Datafile                 : 11
+DatafileFormat           : 6
+DatafileParameter        : 10
+Dataset                  : 9
+DatasetInstrument        : 7
+DatasetParameter         : 6
+DatasetTechnique         : 5
+DatasetType              : 3
+Facility                 : 1
+FacilityCycle            : 20
+FundingReference         : 0
+Grouping                 : 1
+Instrument               : 3
+InstrumentScientist      : 0
+Investigation            : 3
+InvestigationFacilityCycle : 0
+InvestigationFunding     : 0
+InvestigationGroup       : 0
+InvestigationInstrument  : 0
+InvestigationParameter   : 3
+InvestigationType        : 5
+InvestigationUser        : 0
+Job                      : 0
+Keyword                  : 9
+ParameterType            : 9
+PermissibleStringValue   : 6
+PublicStep               : 0
+Publication              : 1
+RelatedDatafile          : 0
+RelatedItem              : 0
+Rule                     : 0
+Sample                   : 3
+SampleParameter          : 2
+SampleType               : 3
+Shift                    : 4
+Study                    : 0
+StudyInvestigation       : 0
+Technique                : 4
+User                     : 11
+UserGroup                : 0
+
