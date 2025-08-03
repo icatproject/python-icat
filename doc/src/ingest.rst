@@ -120,8 +120,8 @@ installed in the directory pointed to by the class attribute
 might then look like::
 
   from pathlib import Path
-  include icat
-  from icat.ingest include IngestReader
+  import icat
+  from icat.ingest import IngestReader
 
   # prerequisite: search the investigation object to ingest into from
   # ICAT and collect a list of dataset objects that should be ingested
