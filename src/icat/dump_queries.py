@@ -194,7 +194,7 @@ def getDataPublicationQueries(client, pubid):
         rather than raising :exc:`~icat.exception.EntityTypeError`.
 
     .. versionchanged:: 1.7.0
-        add include clauses for ``subjects`` into query for
+        add an include clause for ``subjects`` into query for
         ``DataPublication``, if applicable.
     """
     # Compatibility between ICAT versions:
