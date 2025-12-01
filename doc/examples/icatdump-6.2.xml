@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2025-08-01T14:50:40+00:00</date>
+  <date>2025-12-01T16:03:43+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
-  <apiversion>6.2.0a1</apiversion>
-  <generator>icatdump (python-icat 1.6.1.dev7)</generator>
+  <apiversion>6.2.0</apiversion>
+  <generator>icatdump (python-icat 1.7.0)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
