@@ -18,7 +18,7 @@ client.login(conf.auth, conf.credentials)
 print("User: %s" % client.getUserName())
 print()
 
-entitycolwidth = 24
+entitycolwidth = max(len(e) for e in client.typemap.keys())
 print("%-*s   %s" % (entitycolwidth, "Entity", "count"))
 print("-" * (entitycolwidth + 3 + 5))
 for entityname in client.getEntityNames():

@@ -2,6 +2,19 @@ Changelog
 =========
 
 
+.. _changes-1_7_0:
+
+1.7.0 (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#169`_: Add support for schema changes in icat.server 6.2.
+
+.. _#169: https://github.com/icatproject/python-icat/pull/169
+
+
 .. _changes-1_6_0:
 
 1.6.0 (2024-12-06)

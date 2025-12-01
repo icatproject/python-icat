@@ -105,7 +105,7 @@ class build_test(setuptools.Command):
                              "ingest-datafiles.xml", "ingest-ds-params.xml",
                              "ingest-sample-ds.xml") )
         files += ( examples / ("icatdump-%s.%s" % (ver, ext))
-                   for ver in ("4.4", "4.7", "4.10", "5.0")
+                   for ver in ("4.4", "4.7", "4.10", "5.0", "6.2")
                    for ext in ("xml", "yaml") )
         files += doc.glob("icatdata-*.xsd")
         files += examples.glob("metadata-*.xml")
