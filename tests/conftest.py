@@ -177,9 +177,6 @@ def require_dumpfile_backend(backend):
     if backend not in icat.dumpfile.Backends.keys():
         _skip("need %s backend for icat.dumpfile" % (backend))
 
-# FIXME: replace all references to icat_version "6.2a0" below by "6.2"
-# as soon as icat.server 6.2 has been released.
-
 def get_icatdata_schema():
     if icat_version < "4.4":
         fname = "icatdata-4.3.xsd"
@@ -189,7 +186,7 @@ def get_icatdata_schema():
         fname = "icatdata-4.7.xsd"
     elif icat_version < "5.0":
         fname = "icatdata-4.10.xsd"
-    elif icat_version < "6.2a0":
+    elif icat_version < "6.2":
         fname = "icatdata-5.0.xsd"
     else:
         fname = "icatdata-6.2.xsd"
@@ -204,7 +201,7 @@ def get_reference_dumpfile(ext = "yaml"):
         fname = "icatdump-4.7.%s" % ext
     elif icat_version < "5.0":
         fname = "icatdump-4.10.%s" % ext
-    elif icat_version < "6.2a0":
+    elif icat_version < "6.2":
         fname = "icatdump-5.0.%s" % ext
     else:
         fname = "icatdump-6.2.%s" % ext
@@ -214,7 +211,7 @@ def get_reference_dumpfile(ext = "yaml"):
 def get_reference_summary():
     if icat_version < "5.0":
         version_suffix = "4"
-    elif icat_version < "6.2a0":
+    elif icat_version < "6.2":
         version_suffix = "5"
     else:
         version_suffix = "6.2"
