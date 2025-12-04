@@ -159,6 +159,8 @@ if "dataPublication" in client.typemap:
                          "DataPublicationDate", "DataPublicationFunding",
                          "DataPublicationUser", "FundingReference",
                          "FundingReference", "RelatedItem" }
+    if "subject" in client.typemap:
+        publisher_tables.add("Subject")
     client.createRules("CRUD", publisher_tables, publisher_group)
 
     # read permissions: DataPublication should be publicly readable as
@@ -401,6 +403,8 @@ if "dataPublication" in client.typemap:
         ( "Investigation", "fundingReferences"),
         ( "InvestigationFunding", "funding"),
     ])
+    if "subject" in client.typemap:
+        pubsteps.extend([ ("DataPublication", "subjects") ])
     pubsteps.sort()
 objs = [ client.new("PublicStep", origin=origin, field=field)
          for (origin, field) in pubsteps ]
