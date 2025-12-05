@@ -192,16 +192,26 @@ def getDataPublicationQueries(client, pubid):
     .. versionchanged:: 1.1.0
         return an empty list if the ICAT server is older than 5.0
         rather than raising :exc:`~icat.exception.EntityTypeError`.
+
+    .. versionchanged:: 1.7.0
+        add an include clause for ``subjects`` into query for
+        ``DataPublication``, if applicable.
     """
     # Compatibility between ICAT versions:
     # - ICAT 5.0.0 added DataPublication and related classes.
     if 'dataPublication' in client.typemap:
         # ICAT >= 5.0.0
+        datapub_includes = {
+            "facility", "content", "type.facility", "dates",
+            "fundingReferences.funding", "relatedItems"
+        }
+        if 'subject' in client.typemap:
+            # ICAT >= 6.2.0
+            datapub_includes |= { "subjects" }
         return [
             Query(client, "DataPublication", order=True,
                   conditions=[("id", "= %d" % pubid)],
-                  includes={"facility", "content", "type.facility", "dates",
-                            "fundingReferences.funding", "relatedItems"}),
+                  includes=datapub_includes),
             Query(client, "DataPublicationUser", order=True,
                   conditions=[("publication.id", "= %d" % pubid)],
                   includes={"publication", "user", "affiliations"}),

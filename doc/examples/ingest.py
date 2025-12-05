@@ -24,7 +24,7 @@ e.g. something like::
 The script takes the name of an investigation as argument.  The
 investigation MUST exist in ICAT beforehand and all datasets in the
 input directory MUST belong to this investigation.  The script will
-create tha datasets in ICAT, e.g. they MUST NOT exist in ICAT
+create the datasets in ICAT, e.g. they MUST NOT exist in ICAT
 beforehand.  The metadata input file may contain attributes and
 related objects (datasetInstrument, datasetTechnique,
 datasetParameter) for the datasets provided in the input directory.

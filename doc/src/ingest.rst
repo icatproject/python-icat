@@ -23,6 +23,14 @@ format of the input files may be customized to some extent by
 providing custom versions of XSD and XSLT files, see
 :ref:`ingest-customize` below.
 
+Some attributes and relations of the ``Dataset`` objects are
+prescribed during the transformation into ICAT data file format,
+namely the ``complete`` attribute and the name of the ``DatasetType``
+to relate them to.  The prescribed values are set in class attributes
+:attr:`~icat.ingest.IngestReader.Dataset_complete` and
+:attr:`~icat.ingest.IngestReader.DatasetType_name` respectively.  They
+may be customized by overriding these class attributes.
+
 The ``Dataset`` objects in the input will not be created by
 :class:`~icat.ingest.IngestReader`, because it is assumed that a
 separate workflow in the caller will copy the content of datafiles to
@@ -83,11 +91,20 @@ following attributes:
     :attr:`icat.client.Client.apiversion` attribute of the `client`
     object being used by this :class:`~icat.ingest.IngestReader`.
 
+  `dataset_complete`
+    The value of :attr:`~icat.ingest.IngestReader.Dataset_complete`.
+
+  `datasettype_name`
+    The value of :attr:`~icat.ingest.IngestReader.DatasetType_name`.
+
 More attributes may be added in future versions.  This
 ``_environment`` element may be used by the XSLT in order to adapt the
 result of the transformation to the environment, in particular to
 adapt the output to the ICAT schema version it is supposed to conform
 to.
+
+.. versionchanged:: 1.5.0
+   add attributes `dataset_complete` and `datasettype_name`.
 
 
 .. _ingest-example:
@@ -103,8 +120,8 @@ installed in the directory pointed to by the class attribute
 might then look like::
 
   from pathlib import Path
-  include icat
-  from icat.ingest include IngestReader
+  import icat
+  from icat.ingest import IngestReader
 
   # prerequisite: search the investigation object to ingest into from
   # ICAT and collect a list of dataset objects that should be ingested

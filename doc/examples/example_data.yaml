@@ -40,6 +40,7 @@ data_publications:
     facility: example_facility
     fundingReferences:
     - fund1
+    internalId: qwa2-gc-v9lp
     pid: DOI:00.0815/pub-00027
     publicationDate: 2022-10-31
     relatedItems:
@@ -51,6 +52,14 @@ data_publications:
       relationType: References
       title: The positive integers
     subject: integer sequence; OEIS; On-Line Encyclopedia of Integer Sequences
+    subjects:
+    - name: Special sequences and polynomials
+      subjectScheme: "Mathematics Subject Classification \u2013 MSC2020"
+      schemeURI: https://zbmath.org/classification/
+      classificationCode: 11B83
+    - name: integer sequence
+    - name: OEIS
+    - name: On-Line Encyclopedia of Integer Sequences
     title: Data from OEIS sequence A000027
     type: curated
     users:
@@ -134,6 +143,10 @@ fundings:
     awardNumber: AIS3241330750
     funderIdentifier: Crossref Funder ID:10.13039/100005376
     funderName: American Mathematical Society
+    acknowledgement: >-
+      This work has partly been supported by American Mathematical
+      Society under grant number AIS3241330750 which is greatfully
+      acknowledged
 instruments:
   e2:
     description: >
@@ -146,6 +159,8 @@ instruments:
     instrumentscientist: acord
     name: E2
     pid: DOI:00.0815/inst-00001
+    startDate: 2007-01-01
+    endDate: 2019-12-31
     technique: ndiff
     type: null
   eddi:

@@ -11,6 +11,7 @@ import setuptools
 from setuptools import setup
 import setuptools.command.build_py
 import distutils.command.sdist
+import distutils.dist
 from distutils import log
 from pathlib import Path
 import string
@@ -31,6 +32,15 @@ except (ImportError, LookupError):
         release = version = "UNKNOWN"
 
 docstring = __doc__
+
+
+# Enforcing of PEP 625 has been added in setuptools 69.3.0.  We don't
+# want this, we want to keep control on the name of the sdist
+# ourselves.  Disable it.
+def _fixed_get_fullname(self):
+    return "%s-%s" % (self.get_name(), self.get_version())
+
+distutils.dist.DistributionMetadata.get_fullname = _fixed_get_fullname
 
 
 class meta(setuptools.Command):
@@ -95,7 +105,7 @@ class build_test(setuptools.Command):
                              "ingest-datafiles.xml", "ingest-ds-params.xml",
                              "ingest-sample-ds.xml") )
         files += ( examples / ("icatdump-%s.%s" % (ver, ext))
-                   for ver in ("4.4", "4.7", "4.10", "5.0")
+                   for ver in ("4.4", "4.7", "4.10", "5.0", "6.2")
                    for ext in ("xml", "yaml") )
         files += doc.glob("icatdata-*.xsd")
         files += examples.glob("metadata-*.xml")
@@ -176,6 +186,7 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     project_urls = dict(

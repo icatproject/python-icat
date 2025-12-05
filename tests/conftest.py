@@ -48,8 +48,27 @@ logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.CRITICAL)
 logging.getLogger('suds').setLevel(logging.ERROR)
 
+_skip_slow = True
 testdir = Path(__file__).resolve().parent
 testdatadir = testdir / "data"
+
+def pytest_addoption(parser):
+    parser.addoption("--no-skip-slow", action="store_true", default=False,
+                     help="do not skip slow tests.")
+
+def pytest_configure(config):
+    global _skip_slow
+    _skip_slow = not config.getoption("--no-skip-slow")
+    config.addinivalue_line("markers", "slow: mark a test as slow, "
+                            "the test will be skipped unless --no-skip-slow "
+                            "is set on the command line")
+
+def pytest_runtest_setup(item):
+    """Skip slow tests by default.
+    """
+    marker = item.get_closest_marker("slow")
+    if marker is not None and _skip_slow:
+        pytest.skip("skip slow test")
 
 def _skip(reason):
     if Version(pytest.__version__) >= '3.3.0':
@@ -158,7 +177,6 @@ def require_dumpfile_backend(backend):
     if backend not in icat.dumpfile.Backends.keys():
         _skip("need %s backend for icat.dumpfile" % (backend))
 
-
 def get_icatdata_schema():
     if icat_version < "4.4":
         fname = "icatdata-4.3.xsd"
@@ -168,8 +186,10 @@ def get_icatdata_schema():
         fname = "icatdata-4.7.xsd"
     elif icat_version < "5.0":
         fname = "icatdata-4.10.xsd"
-    else:
+    elif icat_version < "6.2":
         fname = "icatdata-5.0.xsd"
+    else:
+        fname = "icatdata-6.2.xsd"
     return gettestdata(fname)
 
 
@@ -181,16 +201,20 @@ def get_reference_dumpfile(ext = "yaml"):
         fname = "icatdump-4.7.%s" % ext
     elif icat_version < "5.0":
         fname = "icatdump-4.10.%s" % ext
-    else:
+    elif icat_version < "6.2":
         fname = "icatdump-5.0.%s" % ext
+    else:
+        fname = "icatdump-6.2.%s" % ext
     return gettestdata(fname)
 
 
 def get_reference_summary():
     if icat_version < "5.0":
         version_suffix = "4"
-    else:
+    elif icat_version < "6.2":
         version_suffix = "5"
+    else:
+        version_suffix = "6.2"
     users = [ "acord", "ahau", "jbotu", "jdoe", "nbour", "rbeck" ]
     refsummary = { "root": gettestdata("summary-%s" % version_suffix) }
     for u in users:

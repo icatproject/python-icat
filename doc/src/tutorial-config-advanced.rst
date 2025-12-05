@@ -27,7 +27,7 @@ on the list of available command line options::
                           [--no-proxy NO_PROXY] [-a AUTH] [-u USERNAME] [-P]
                           [-p PASSWORD] [-o OUTFILE]
 
-  optional arguments:
+  options:
     -h, --help            show this help message and exit
     -c CONFIGFILE, --configfile CONFIGFILE
                           config file
@@ -155,7 +155,7 @@ sub-commands should be listed::
                                 [-P] [-p PASSWORD] [-e {User,Study}]
                                 {list,create,delete} ...
 
-  optional arguments:
+  options:
     -h, --help            show this help message and exit
     -c CONFIGFILE, --configfile CONFIGFILE
                           config file
@@ -194,10 +194,10 @@ config file (``-s SECTION``) as well as the `entity` variable (``-e
   listing existing User objects...
   [(user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 1
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      affiliation = "University of Ravenna, Institute of Modern History"
      email = "acord@example.org"
      familyName = "Cordus"
@@ -207,10 +207,10 @@ config file (``-s SECTION``) as well as the `entity` variable (``-e
      orcidId = "0000-0002-3262"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      affiliation = "Goethe University Frankfurt, Faculty of Philosophy and History"
      email = "ahau@example.org"
      familyName = "Hau"
@@ -220,10 +220,10 @@ config file (``-s SECTION``) as well as the `entity` variable (``-e
      orcidId = "0000-0002-3263"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 3
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      affiliation = "Université Paul-Valéry Montpellier 3"
      email = "jbotu@example.org"
      familyName = "Botul"
@@ -233,10 +233,10 @@ config file (``-s SECTION``) as well as the `entity` variable (``-e
      orcidId = "0000-0002-3264"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 4
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      email = "jdoe@example.org"
      familyName = "Doe"
      fullName = "John Doe"
@@ -244,10 +244,10 @@ config file (``-s SECTION``) as well as the `entity` variable (``-e
      name = "db/jdoe"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 5
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      affiliation = "University of Nancago"
      email = "nbour@example.org"
      familyName = "Bourbaki"
@@ -257,10 +257,10 @@ config file (``-s SECTION``) as well as the `entity` variable (``-e
      orcidId = "0000-0002-3266"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 6
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      affiliation = "Kaiser-Wilhelms-Akademie für das militärärztliche Bildungswesen"
      email = "rbeck@example.org"
      familyName = "Beck-Dülmen"
@@ -270,42 +270,42 @@ config file (``-s SECTION``) as well as the `entity` variable (``-e
      orcidId = "0000-0002-3267"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 7
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      fullName = "Data Ingester"
      name = "simple/dataingest"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 8
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      fullName = "IDS reader"
      name = "simple/idsreader"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 9
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      fullName = "Pub reader"
      name = "simple/pubreader"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 10
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      fullName = "Root"
      name = "simple/root"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 11
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      fullName = "User Office"
      name = "simple/useroffice"
    }]
@@ -320,7 +320,7 @@ sub-command.  We can check this by calling::
   $ python config-sub-commands.py create -h
   usage: config-sub-commands.py create [-h] [-n NAME]
 
-  optional arguments:
+  options:
     -h, --help            show this help message and exit
     -n NAME, --name NAME  name for the new ICAT object
 
@@ -340,10 +340,10 @@ with name "db/alice"::
   listing existing User objects...
   [(user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 1
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      affiliation = "University of Ravenna, Institute of Modern History"
      email = "acord@example.org"
      familyName = "Cordus"
@@ -353,10 +353,10 @@ with name "db/alice"::
      orcidId = "0000-0002-3262"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      affiliation = "Goethe University Frankfurt, Faculty of Philosophy and History"
      email = "ahau@example.org"
      familyName = "Hau"
@@ -366,10 +366,10 @@ with name "db/alice"::
      orcidId = "0000-0002-3263"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 3
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      affiliation = "Université Paul-Valéry Montpellier 3"
      email = "jbotu@example.org"
      familyName = "Botul"
@@ -379,10 +379,10 @@ with name "db/alice"::
      orcidId = "0000-0002-3264"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 4
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      email = "jdoe@example.org"
      familyName = "Doe"
      fullName = "John Doe"
@@ -390,10 +390,10 @@ with name "db/alice"::
      name = "db/jdoe"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 5
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      affiliation = "University of Nancago"
      email = "nbour@example.org"
      familyName = "Bourbaki"
@@ -403,10 +403,10 @@ with name "db/alice"::
      orcidId = "0000-0002-3266"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 6
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      affiliation = "Kaiser-Wilhelms-Akademie für das militärärztliche Bildungswesen"
      email = "rbeck@example.org"
      familyName = "Beck-Dülmen"
@@ -416,50 +416,50 @@ with name "db/alice"::
      orcidId = "0000-0002-3267"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 7
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      fullName = "Data Ingester"
      name = "simple/dataingest"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 8
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      fullName = "IDS reader"
      name = "simple/idsreader"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 9
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      fullName = "Pub reader"
      name = "simple/pubreader"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 10
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      fullName = "Root"
      name = "simple/root"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:34+02:00
+     createTime = 2025-12-01 15:32:07+01:00
      id = 11
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:34+02:00
+     modTime = 2025-12-01 15:32:07+01:00
      fullName = "User Office"
      name = "simple/useroffice"
    }, (user){
      createId = "simple/root"
-     createTime = 2023-06-28 15:06:06+02:00
+     createTime = 2025-12-01 16:35:16+01:00
      id = 12
      modId = "simple/root"
-     modTime = 2023-06-28 15:06:06+02:00
+     modTime = 2025-12-01 16:35:16+01:00
      name = "db/alice"
    }]
   done
