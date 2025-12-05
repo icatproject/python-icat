@@ -15,6 +15,48 @@ Incompatible changes and deprecations
 .. _#159: https://github.com/icatproject/python-icat/pull/159
 
 
+.. _changes-1_7_0:
+
+1.7.0 (2025-12-04)
+~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#169`_: Add support for schema changes in icat.server 6.2.
+
+.. _#169: https://github.com/icatproject/python-icat/pull/169
+
+
+.. _changes-1_6_0:
+
+1.6.0 (2024-12-06)
+~~~~~~~~~~~~~~~~~~
+
+New features
+------------
+
++ `#166`_: Add new custom IDS method
+  :meth:`icat.client.Client.restoreData`.
+
+.. _#166: https://github.com/icatproject/python-icat/pull/166
+
+
+.. _changes-1_5_1:
+
+1.5.1 (2024-10-25)
+~~~~~~~~~~~~~~~~~~
+
+Bug fixes and minor changes
+---------------------------
+
++ `#165`_: Fix missing documentation on the environment injected by
+  :class:`icat.ingest.IngestReader` into the input as changed in
+  1.5.0.
+
+.. _#165: https://github.com/icatproject/python-icat/pull/165
+
+
 .. _changes-1_5_0:
 
 1.5.0 (2024-10-11)

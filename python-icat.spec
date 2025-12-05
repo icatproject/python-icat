@@ -1,11 +1,13 @@
-%if 0%{?sle_version} >= 150500
+%if 0%{?suse_version} >= 1600
+%global pyversfx 313
+%global pythons python313
+%else
+%if 0%{?sle_version} >= 150500 && 0%{?is_opensuse}
 %global pyversfx 311
-%global python %__python311
-%global python_sitelib %python311_sitelib
+%global __python3 %__python311
 %else
 %global pyversfx 3
-%global python %__python3
-%global python_sitelib %python3_sitelib
+%endif
 %endif
 
 Name:		python-icat
@@ -17,7 +19,9 @@ License:	Apache-2.0
 Group:		Development/Libraries/Python
 Source:		https://github.com/icatproject/python-icat/releases/download/%{version}/python-icat-%{version}.tar.gz
 BuildRequires:	python%{pyversfx}-base >= 3.6
+BuildRequires:	python%{pyversfx}-pip
 BuildRequires:	python%{pyversfx}-setuptools
+BuildRequires:	python%{pyversfx}-wheel
 BuildRequires:	fdupes
 BuildRequires:	python-rpm-macros
 BuildArch:	noarch
@@ -63,15 +67,15 @@ $long_description
 
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q
 
 
 %build
-%{python} setup.py build
+%pyproject_wheel
 
 
 %install
-%{python} setup.py install --optimize=1 --prefix=%{_prefix} --root=%{buildroot}
+%pyproject_install
 for f in `ls %{buildroot}%{_bindir}`
 do
     mv %{buildroot}%{_bindir}/$$f %{buildroot}%{_bindir}/$${f%%.py}
@@ -83,7 +87,7 @@ done
 %__install -d -m 755 %{buildroot}%{_docdir}/%{name}
 %__cp -pr README.rst CHANGES.rst doc/* %{buildroot}%{_docdir}/%{name}
 %__chmod -f a-x %{buildroot}%{_docdir}/%{name}/examples/*.py
-%fdupes %{buildroot}%{python_sitelib}
+%fdupes %{buildroot}%{python3_sitelib}
 
 
 %files
@@ -107,7 +111,7 @@ done
 
 %files -n python%{pyversfx}-icat
 %defattr(-,root,root)
-%{python_sitelib}/*
+%{python3_sitelib}/*
 %{_bindir}/*
 
 

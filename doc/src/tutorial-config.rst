@@ -29,7 +29,7 @@ program now accepts::
                    [--no-check-certificate] [--http-proxy HTTP_PROXY]
                    [--https-proxy HTTPS_PROXY] [--no-proxy NO_PROXY]
 
-  optional arguments:
+  options:
     -h, --help            show this help message and exit
     -c CONFIGFILE, --configfile CONFIGFILE
                           config file
@@ -48,7 +48,7 @@ So there is a command line option ``-w URL``.  Let's try::
 
   $ python config.py -w 'https://icat.example.com:8181'
   Connect to https://icat.example.com:8181
-  ICAT version 5.0.1
+  ICAT version 6.2.0
 
 (Again, you may need to add the ``--no-check-certificate`` flag to the
 command line if your ICAT server does not have a trusted SSL
@@ -67,7 +67,7 @@ Now you can do the following::
 
   $ python config.py -s myicat
   Connect to https://icat.example.com:8181
-  ICAT version 5.0.1
+  ICAT version 6.2.0
 
 The command line option ``-s SECTION`` selects a section in the
 configuration file to read options from.
@@ -82,7 +82,7 @@ If you run this in the same way as above, you'll get::
 
   $ python config-with-ids.py -s myicat
   Connect to https://icat.example.com:8181
-  ICAT version 5.0.1
+  ICAT version 6.2.0
   No IDS configured
 
 But if you indicate the URL to IDS with the command line option
@@ -98,7 +98,7 @@ You'll get something like::
 
   $ python config-with-ids.py -s myicat
   Connect to https://icat.example.com:8181
-  ICAT version 5.0.1
+  ICAT version 6.2.0
   Connect to https://icat.example.com:8181
-  IDS version 1.12.0
+  IDS version 2.1.1
 

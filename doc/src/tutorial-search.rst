@@ -11,10 +11,10 @@ and pass them to the :meth:`~icat.client.Client.search` method::
   >>> client.search("SELECT f FROM Facility f INCLUDE f.parameterTypes LIMIT 1,1")
   [(facility){
      createId = "simple/root"
-     createTime = 2023-06-28 10:41:08+02:00
+     createTime = 2025-12-01 15:05:00+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2023-06-28 11:26:31+02:00
+     modTime = 2025-12-01 15:21:23+01:00
      daysUntilRelease = 1826
      fullName = "Fac2 Facility"
      name = "Fac2"
@@ -30,7 +30,7 @@ some well defined and rich content to search for.  Run the following
 commands at the command line::
 
   $ wipeicat -s myicat_root
-  $ icatingest -s myicat_root -i icatdump-5.0.yaml
+  $ icatingest -s myicat_root -i icatdump-6.2.yaml
 
 :ref:`wipeicat` and :ref:`icatingest` are two scripts that get
 installed with python-icat.  Depending on the situation, these scripts
@@ -42,12 +42,12 @@ command reads the `icatdump-5.0.yaml` file and creates all objects
 listed therein in the ICAT server.
 
 .. note::
-   As the name suggests, the content in `icatdump-5.0.yaml` requires
-   an ICAT server version 5.0 or newer.  If you are using an older
-   ICAT, you may just as well use the `icatdump-4.10.yaml`,
-   `icatdump-4.7.yaml`, or `icatdump-4.4.yaml` file instead, matching
-   the respective older versions.  For the sake of this tutorial, the
-   difference does not matter.
+   As the name suggests, the content in `icatdump-6.2.yaml` requires
+   an ICAT server version 6.2 or newer.  If you are using an older
+   ICAT, you may just as well use the `icatdump-5.0.yaml`,
+   `icatdump-4.10.yaml`, `icatdump-4.7.yaml`, or `icatdump-4.4.yaml`
+   file instead, matching the respective older versions.  For the sake
+   of this tutorial, the difference does not matter.
 
 .. note::
    The search results in the following examples may depend on the user
@@ -76,10 +76,10 @@ that lists all investigations::
   >>> client.search(query)
   [(investigation){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:40+02:00
+     createTime = 2025-12-01 15:32:13+01:00
      id = 1
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:40+02:00
+     modTime = 2025-12-01 15:32:13+01:00
      doi = "DOI:00.0815/inv-00122"
      fileCount = 1
      fileSize = 368369
@@ -89,10 +89,10 @@ that lists all investigations::
      visitId = "1.1-P"
    }, (investigation){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:40+02:00
+     createTime = 2025-12-01 15:32:14+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:40+02:00
+     modTime = 2025-12-01 15:32:14+01:00
      doi = "DOI:00.0815/inv-00601"
      endDate = 2010-10-12 17:00:00+02:00
      fileCount = 4
@@ -103,10 +103,10 @@ that lists all investigations::
      visitId = "1.1-N"
    }, (investigation){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:42+02:00
+     createTime = 2025-12-01 15:32:15+01:00
      id = 3
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:42+02:00
+     modTime = 2025-12-01 15:32:15+01:00
      doi = "DOI:00.0815/inv-00409"
      endDate = 2012-08-06 03:10:08+02:00
      fileCount = 6
@@ -129,10 +129,10 @@ conditions on that attribute::
   >>> client.search(query)
   [(investigation){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:40+02:00
+     createTime = 2025-12-01 15:32:14+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:40+02:00
+     modTime = 2025-12-01 15:32:14+01:00
      doi = "DOI:00.0815/inv-00601"
      endDate = 2010-10-12 17:00:00+02:00
      fileCount = 4
@@ -153,17 +153,17 @@ We may also include related objects in the search results::
   >>> client.search(query)
   [(investigation){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:40+02:00
+     createTime = 2025-12-01 15:32:14+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:40+02:00
+     modTime = 2025-12-01 15:32:14+01:00
      datasets[] =
         (dataset){
            createId = "simple/root"
-           createTime = 2023-06-28 12:22:41+02:00
+           createTime = 2025-12-01 15:32:14+01:00
            id = 3
            modId = "simple/root"
-           modTime = 2023-06-28 12:22:41+02:00
+           modTime = 2025-12-01 15:32:14+01:00
            complete = False
            endDate = 2010-10-01 08:17:48+02:00
            fileCount = 2
@@ -173,10 +173,10 @@ We may also include related objects in the search results::
         },
         (dataset){
            createId = "simple/root"
-           createTime = 2023-06-28 12:22:41+02:00
+           createTime = 2025-12-01 15:32:14+01:00
            id = 4
            modId = "simple/root"
-           modTime = 2023-06-28 12:22:41+02:00
+           modTime = 2025-12-01 15:32:14+01:00
            complete = False
            endDate = 2010-10-05 10:32:21+02:00
            fileCount = 2
@@ -186,10 +186,10 @@ We may also include related objects in the search results::
         },
         (dataset){
            createId = "simple/root"
-           createTime = 2023-06-28 12:22:41+02:00
+           createTime = 2025-12-01 15:32:14+01:00
            id = 5
            modId = "simple/root"
-           modTime = 2023-06-28 12:22:41+02:00
+           modTime = 2025-12-01 15:32:14+01:00
            complete = False
            endDate = 2010-10-12 17:00:00+02:00
            fileCount = 0
@@ -218,10 +218,10 @@ following query::
   >>> client.search(query)
   [(investigation){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:40+02:00
+     createTime = 2025-12-01 15:32:14+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:40+02:00
+     modTime = 2025-12-01 15:32:14+01:00
      doi = "DOI:00.0815/inv-00601"
      endDate = 2010-10-12 17:00:00+02:00
      fileCount = 4
@@ -232,10 +232,10 @@ following query::
      visitId = "1.1-N"
    }, (investigation){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:42+02:00
+     createTime = 2025-12-01 15:32:15+01:00
      id = 3
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:42+02:00
+     modTime = 2025-12-01 15:32:15+01:00
      doi = "DOI:00.0815/inv-00409"
      endDate = 2012-08-06 03:10:08+02:00
      fileCount = 6
@@ -264,10 +264,10 @@ field larger then 5 Tesla and include its parameters in the result::
   >>> client.search(query)
   [(dataset){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:41+02:00
+     createTime = 2025-12-01 15:32:14+01:00
      id = 3
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:41+02:00
+     modTime = 2025-12-01 15:32:14+01:00
      complete = False
      endDate = 2010-10-01 08:17:48+02:00
      fileCount = 2
@@ -276,18 +276,18 @@ field larger then 5 Tesla and include its parameters in the result::
      parameters[] =
         (datasetParameter){
            createId = "simple/root"
-           createTime = 2023-06-28 12:22:41+02:00
+           createTime = 2025-12-01 15:32:14+01:00
            id = 2
            modId = "simple/root"
-           modTime = 2023-06-28 12:22:41+02:00
+           modTime = 2025-12-01 15:32:14+01:00
            numericValue = 7.3
            type =
               (parameterType){
                  createId = "simple/root"
-                 createTime = 2023-06-28 12:22:39+02:00
+                 createTime = 2025-12-01 15:32:12+01:00
                  id = 5
                  modId = "simple/root"
-                 modTime = 2023-06-28 12:22:39+02:00
+                 modTime = 2025-12-01 15:32:12+01:00
                  applicableToDataCollection = False
                  applicableToDatafile = False
                  applicableToDataset = True
@@ -303,18 +303,18 @@ field larger then 5 Tesla and include its parameters in the result::
         },
         (datasetParameter){
            createId = "simple/root"
-           createTime = 2023-06-28 12:22:41+02:00
+           createTime = 2025-12-01 15:32:14+01:00
            id = 1
            modId = "simple/root"
-           modTime = 2023-06-28 12:22:41+02:00
+           modTime = 2025-12-01 15:32:14+01:00
            numericValue = 5.0
            type =
               (parameterType){
                  createId = "simple/root"
-                 createTime = 2023-06-28 12:22:39+02:00
+                 createTime = 2025-12-01 15:32:12+01:00
                  id = 7
                  modId = "simple/root"
-                 modTime = 2023-06-28 12:22:39+02:00
+                 modTime = 2025-12-01 15:32:12+01:00
                  applicableToDataCollection = False
                  applicableToDatafile = False
                  applicableToDataset = True
@@ -347,10 +347,10 @@ of your Python program.  Consider::
   SELECT o FROM Investigation o WHERE o.name = '08100122-EF'
   (investigation){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:40+02:00
+     createTime = 2025-12-01 15:32:13+01:00
      id = 1
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:40+02:00
+     modTime = 2025-12-01 15:32:13+01:00
      doi = "DOI:00.0815/inv-00122"
      fileCount = 1
      fileSize = 368369
@@ -363,10 +363,10 @@ of your Python program.  Consider::
   SELECT o FROM Investigation o WHERE o.name = '12100409-ST' AND o.visitId = '1.1-P'
   (investigation){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:42+02:00
+     createTime = 2025-12-01 15:32:15+01:00
      id = 3
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:42+02:00
+     modTime = 2025-12-01 15:32:15+01:00
      doi = "DOI:00.0815/inv-00409"
      endDate = 2012-08-06 03:10:08+02:00
      fileCount = 6
@@ -395,20 +395,20 @@ on that attribute.  Search for all datafiles created in 2012::
   >>> client.search(query)
   [(datafile){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:42+02:00
+     createTime = 2025-12-01 15:32:15+01:00
      id = 7
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:42+02:00
+     modTime = 2025-12-01 15:32:15+01:00
      datafileCreateTime = 2012-07-16 16:30:17+02:00
      datafileModTime = 2012-07-16 16:30:17+02:00
      fileSize = 28937
      name = "e208945-2.nxs"
    }, (datafile){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:42+02:00
+     createTime = 2025-12-01 15:32:15+01:00
      id = 8
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:42+02:00
+     modTime = 2025-12-01 15:32:15+01:00
      checksum = "bd55affa"
      datafileCreateTime = 2012-07-30 03:10:08+02:00
      datafileModTime = 2012-07-30 03:10:08+02:00
@@ -416,20 +416,20 @@ on that attribute.  Search for all datafiles created in 2012::
      name = "e208945.dat"
    }, (datafile){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:42+02:00
+     createTime = 2025-12-01 15:32:15+01:00
      id = 10
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:42+02:00
+     modTime = 2025-12-01 15:32:15+01:00
      datafileCreateTime = 2012-07-16 16:30:17+02:00
      datafileModTime = 2012-07-16 16:30:17+02:00
      fileSize = 14965
      name = "e208947.nxs"
    }, (datafile){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:42+02:00
+     createTime = 2025-12-01 15:32:15+01:00
      id = 11
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:42+02:00
+     modTime = 2025-12-01 15:32:15+01:00
      datafileCreateTime = 2012-08-01 00:52:23+02:00
      datafileModTime = 2012-08-01 00:52:23+02:00
      fileSize = 264188
@@ -455,7 +455,6 @@ values of the matching objects.  Listing the names of all datasets::
   >>> client.search(query)
   [e201215, e201216, e208339, e208341, e208342, e208945, e208946, e208947, pub-00027]
 
-
 As the name of that keyword argument suggests, we may also search for
 multiple attributes at once.  The result will be a tuple of attribute
 values rather then a single value for each object found in the query.
@@ -468,7 +467,6 @@ This requires an ICAT server version 4.11 or newer though::
   SELECT i.name, o.name, o.complete, t.name FROM Dataset o JOIN o.investigation AS i JOIN o.type AS t
   >>> client.search(query)
   [(08100122-EF, e201215, False, raw), (08100122-EF, e201216, False, raw), (10100601-ST, e208339, False, raw), (10100601-ST, e208341, False, raw), (10100601-ST, e208342, False, raw), (12100409-ST, e208945, False, raw), (12100409-ST, e208946, False, raw), (12100409-ST, e208947, True, analyzed), (12100409-ST, pub-00027, True, other)]
-
 
 There are also some aggregate functions that may be applied to search
 results.  Let's count all datasets::
@@ -527,10 +525,10 @@ dataset with a magnetic field parameter set::
   >>> client.search(query)
   [(investigation){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:40+02:00
+     createTime = 2025-12-01 15:32:14+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:40+02:00
+     modTime = 2025-12-01 15:32:14+01:00
      doi = "DOI:00.0815/inv-00601"
      endDate = 2010-10-12 17:00:00+02:00
      fileCount = 4
@@ -541,10 +539,10 @@ dataset with a magnetic field parameter set::
      visitId = "1.1-N"
    }, (investigation){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:40+02:00
+     createTime = 2025-12-01 15:32:14+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:40+02:00
+     modTime = 2025-12-01 15:32:14+01:00
      doi = "DOI:00.0815/inv-00601"
      endDate = 2010-10-12 17:00:00+02:00
      fileCount = 4
@@ -565,10 +563,10 @@ respectively.  We may fix that by applying `DISTINCT`::
   >>> client.search(query)
   [(investigation){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:40+02:00
+     createTime = 2025-12-01 15:32:14+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:40+02:00
+     modTime = 2025-12-01 15:32:14+01:00
      doi = "DOI:00.0815/inv-00601"
      endDate = 2010-10-12 17:00:00+02:00
      fileCount = 4
@@ -609,18 +607,18 @@ dataset parameter, ordered by parameter type name (ascending), units
   >>> client.search(query)
   [(datasetParameter){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:41+02:00
+     createTime = 2025-12-01 15:32:14+01:00
      id = 2
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:41+02:00
+     modTime = 2025-12-01 15:32:14+01:00
      numericValue = 7.3
      type =
         (parameterType){
            createId = "simple/root"
-           createTime = 2023-06-28 12:22:39+02:00
+           createTime = 2025-12-01 15:32:12+01:00
            id = 5
            modId = "simple/root"
-           modTime = 2023-06-28 12:22:39+02:00
+           modTime = 2025-12-01 15:32:12+01:00
            applicableToDataCollection = False
            applicableToDatafile = False
            applicableToDataset = True
@@ -635,18 +633,18 @@ dataset parameter, ordered by parameter type name (ascending), units
         }
    }, (datasetParameter){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:41+02:00
+     createTime = 2025-12-01 15:32:14+01:00
      id = 4
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:41+02:00
+     modTime = 2025-12-01 15:32:14+01:00
      numericValue = 2.7
      type =
         (parameterType){
            createId = "simple/root"
-           createTime = 2023-06-28 12:22:39+02:00
+           createTime = 2025-12-01 15:32:12+01:00
            id = 5
            modId = "simple/root"
-           modTime = 2023-06-28 12:22:39+02:00
+           modTime = 2025-12-01 15:32:12+01:00
            applicableToDataCollection = False
            applicableToDatafile = False
            applicableToDataset = True
@@ -661,44 +659,18 @@ dataset parameter, ordered by parameter type name (ascending), units
         }
    }, (datasetParameter){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:41+02:00
-     id = 1
-     modId = "simple/root"
-     modTime = 2023-06-28 12:22:41+02:00
-     numericValue = 5.0
-     type =
-        (parameterType){
-           createId = "simple/root"
-           createTime = 2023-06-28 12:22:39+02:00
-           id = 7
-           modId = "simple/root"
-           modTime = 2023-06-28 12:22:39+02:00
-           applicableToDataCollection = False
-           applicableToDatafile = False
-           applicableToDataset = True
-           applicableToInvestigation = False
-           applicableToSample = False
-           enforced = False
-           name = "Reactor power"
-           units = "MW"
-           unitsFullName = "Megawatt"
-           valueType = "NUMERIC"
-           verified = False
-        }
-   }, (datasetParameter){
-     createId = "simple/root"
-     createTime = 2023-06-28 12:22:41+02:00
+     createTime = 2025-12-01 15:32:14+01:00
      id = 3
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:41+02:00
+     modTime = 2025-12-01 15:32:14+01:00
      numericValue = 5.0
      type =
         (parameterType){
            createId = "simple/root"
-           createTime = 2023-06-28 12:22:39+02:00
+           createTime = 2025-12-01 15:32:12+01:00
            id = 7
            modId = "simple/root"
-           modTime = 2023-06-28 12:22:39+02:00
+           modTime = 2025-12-01 15:32:12+01:00
            applicableToDataCollection = False
            applicableToDatafile = False
            applicableToDataset = True
@@ -713,18 +685,44 @@ dataset parameter, ordered by parameter type name (ascending), units
         }
    }, (datasetParameter){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:42+02:00
-     id = 5
+     createTime = 2025-12-01 15:32:14+01:00
+     id = 1
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:42+02:00
+     modTime = 2025-12-01 15:32:14+01:00
+     numericValue = 5.0
+     type =
+        (parameterType){
+           createId = "simple/root"
+           createTime = 2025-12-01 15:32:12+01:00
+           id = 7
+           modId = "simple/root"
+           modTime = 2025-12-01 15:32:12+01:00
+           applicableToDataCollection = False
+           applicableToDatafile = False
+           applicableToDataset = True
+           applicableToInvestigation = False
+           applicableToSample = False
+           enforced = False
+           name = "Reactor power"
+           units = "MW"
+           unitsFullName = "Megawatt"
+           valueType = "NUMERIC"
+           verified = False
+        }
+   }, (datasetParameter){
+     createId = "simple/root"
+     createTime = 2025-12-01 15:32:15+01:00
+     id = 6
+     modId = "simple/root"
+     modTime = 2025-12-01 15:32:15+01:00
      numericValue = 3.92
      type =
         (parameterType){
            createId = "simple/root"
-           createTime = 2023-06-28 12:22:39+02:00
+           createTime = 2025-12-01 15:32:12+01:00
            id = 9
            modId = "simple/root"
-           modTime = 2023-06-28 12:22:39+02:00
+           modTime = 2025-12-01 15:32:12+01:00
            applicableToDataCollection = False
            applicableToDatafile = False
            applicableToDataset = True
@@ -739,18 +737,18 @@ dataset parameter, ordered by parameter type name (ascending), units
         }
    }, (datasetParameter){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:42+02:00
-     id = 6
+     createTime = 2025-12-01 15:32:15+01:00
+     id = 5
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:42+02:00
+     modTime = 2025-12-01 15:32:15+01:00
      numericValue = 277.07
      type =
         (parameterType){
            createId = "simple/root"
-           createTime = 2023-06-28 12:22:39+02:00
+           createTime = 2025-12-01 15:32:12+01:00
            id = 10
            modId = "simple/root"
-           modTime = 2023-06-28 12:22:39+02:00
+           modTime = 2025-12-01 15:32:12+01:00
            applicableToDataCollection = False
            applicableToDatafile = False
            applicableToDataset = True
@@ -800,10 +798,10 @@ last dataset to have been finished::
   >>> client.search(query)
   [(dataset){
      createId = "simple/root"
-     createTime = 2023-06-28 12:22:42+02:00
+     createTime = 2025-12-01 15:32:15+01:00
      id = 6
      modId = "simple/root"
-     modTime = 2023-06-28 12:22:42+02:00
+     modTime = 2025-12-01 15:32:15+01:00
      complete = False
      endDate = 2012-07-30 03:10:08+02:00
      fileCount = 4
