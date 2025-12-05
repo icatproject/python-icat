@@ -166,17 +166,17 @@ markeddatasets = [
 # ============================= helper =============================
 
 def getDataset(client, case):
-    query = Query(client, "Dataset", conditions={
-        "investigation.name": "= '%s'" % case['invname'],
-        "name": "= '%s'" % case['dsname'],
-    })
+    query = Query(client, "Dataset", conditions=[
+        ("investigation.name", "= '%s'" % case['invname']),
+        ("name", "= '%s'" % case['dsname']),
+    ])
     return (client.assertedSearch(query)[0])
 
 def getDatafileFormat(client, case):
     l = case['dfformat'].split(':')
-    query = Query(client, "DatafileFormat", conditions={
-        "name": "= '%s'" % l[0],
-    })
+    query = Query(client, "DatafileFormat", conditions=[
+        ("name", "= '%s'" % l[0]),
+    ])
     if len(l) > 1:
         query.addConditions({"version": "= '%s'" % l[1]})
     return (client.assertedSearch(query)[0])
@@ -184,11 +184,11 @@ def getDatafileFormat(client, case):
 def getDatafile(client, case, dfname=None):
     if dfname is None:
         dfname = case['dfname']
-    query = Query(client, "Datafile", conditions={
-        "name": "= '%s'" % dfname,
-        "dataset.name": "= '%s'" % case['dsname'],
-        "dataset.investigation.name": "= '%s'" % case['invname'],
-    })
+    query = Query(client, "Datafile", conditions=[
+        ("name", "= '%s'" % dfname),
+        ("dataset.name", "= '%s'" % case['dsname']),
+        ("dataset.investigation.name", "= '%s'" % case['invname']),
+    ])
     return (client.assertedSearch(query)[0])
 
 def copyfile(infile, outfile, chunksize=8192):
@@ -234,7 +234,9 @@ def test_download(tmpdirsec, client, case, method):
             zfname = tmpdirsec / ("%s.zip" % case['dsname'])
             print("\nDownload %s to file %s" % (case['dsname'], zfname))
             dataset = getDataset(tclient, case)
-            query = "Datafile <-> Dataset [id=%d]" % dataset.id
+            query = Query(client, "Datafile", conditions=[
+                ("dataset.id", "= %d" % dataset.id)
+            ])
             datafiles = tclient.search(query)
             if method == 'getData':
                 response = tclient.getData(datafiles)
@@ -262,7 +264,9 @@ def test_download(tmpdirsec, client, case, method):
             dfname = tmpdirsec / ("dl_%s" % df['dfname'])
             print("\nDownload %s to file %s" % (case['dsname'], dfname))
             dataset = getDataset(tclient, case)
-            query = "Datafile <-> Dataset [id=%d]" % dataset.id
+            query = Query(client, "Datafile", conditions=[
+                ("dataset.id", "= %d" % dataset.id)
+            ])
             datafiles = tclient.search(query)
             if method == 'getData':
                 response = tclient.getData(datafiles)
@@ -339,7 +343,9 @@ def test_getDatafileIds(client, case):
     selection = DataSelection([ds])
     dfids = client.ids.getDatafileIds(selection)
     print("Datafile ids of dataset %s: %s" % (case['dsname'], str(dfids)))
-    query = "Datafile.id <-> Dataset [id=%d]" % ds.id
+    query = Query(client, "Datafile", attributes=["id"], conditions=[
+        ("dataset.id", "= %d" % ds.id)
+    ])
     assert set(dfids) == set(client.search(query))
 
 def test_putData_datafileCreateTime(tmpdirsec, client):

@@ -61,7 +61,7 @@ testdatafiles = [
 
 def verify_dataset_params(client, dataset, params):
     query = Query(client, "DatasetParameter", 
-                  conditions={"dataset.id": "= %d" % dataset.id}, 
+                  conditions=[("dataset.id", "= %d" % dataset.id)],
                   includes={"type"})
     ps = client.search(query)
     assert len(ps) == len(params)
@@ -297,10 +297,10 @@ def test_ingest_datafiles(tmpdirsec, client, dataset, cmdargs):
     # Verify that the datafiles have been created but not uploaded.
     dataset = client.searchMatching(dataset)
     for fname in dummyfiles:
-        query = Query(client, "Datafile", conditions={
-            "name": "= '%s'" % fname,
-            "dataset.id": "= %d" % dataset.id,
-        })
+        query = Query(client, "Datafile", conditions=[
+            ("name", "= '%s'" % fname),
+            ("dataset.id", "= %d" % dataset.id),
+        ])
         df = client.assertedSearch(query)[0]
         assert df.location is None
 
@@ -322,10 +322,10 @@ def test_ingest_datafiles_upload(tmpdirsec, client, dataset, cmdargs):
     # Verify that the datafiles have been uploaded.
     dataset = client.searchMatching(dataset)
     for f in dummyfiles:
-        query = Query(client, "Datafile", conditions={
-            "name": "= '%s'" % f.name,
-            "dataset.id": "= %d" % dataset.id,
-        })
+        query = Query(client, "Datafile", conditions=[
+            ("name", "= '%s'" % f.name),
+            ("dataset.id", "= %d" % dataset.id),
+        ])
         df = client.assertedSearch(query)[0]
         assert df.location is not None
         assert df.fileSize == f.size
@@ -344,7 +344,7 @@ def test_ingest_dataset_samples(client, cleanup_objs, cmdargs):
         "e209004": None,
     }
     inv = client.assertedSearch("Investigation [name='10100601-ST']")[0]
-    query = Query(client, "SampleType", conditions={"name": "= 'NiMnGa'"})
+    query = Query(client, "SampleType", conditions=[("name", "= 'NiMnGa'")])
     sample_type = client.assertedSearch(query)[0]
     ds_type = client.assertedSearch("DatasetType [name='raw']")[0]
     for name in ds_sample_map.keys():
@@ -363,10 +363,10 @@ def test_ingest_dataset_samples(client, cleanup_objs, cmdargs):
     args = cmdargs + ["-i", sample_ds]
     callscript("icatingest.py", args)
     for ds_name, sample_name in ds_sample_map.items():
-        query = Query(client, "Dataset", conditions={
-            "investigation.id": "= %d" % inv.id,
-            "name": "= '%s'" % ds_name,
-        }, includes=["sample"])
+        query = Query(client, "Dataset", conditions=[
+            ("investigation.id", "= %d" % inv.id),
+            ("name", "= '%s'" % ds_name),
+        ], includes=["sample"])
         ds = client.assertedSearch(query)[0]
         if sample_name:
             assert ds.sample

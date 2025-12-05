@@ -2,6 +2,46 @@ Changelog
 =========
 
 
+.. _changes-2_0_0:
+
+2.0.0 (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Modified features
+-----------------
+
++ `#158`_: Review the internal data structures in class
+  :class:`icat.query.Query`.  As a consequence, change the format of
+  the `conditions` argument to :class:`icat.query.Query` and
+  :meth:`icat.query.Query.addConditions` from a mapping to a list of
+  tuples.  The legacy format is still supported, but deprecated.
+  Furthermore drop the restriction that any attribute may only appear
+  once in the `order` argument to :class:`icat.query.Query` and
+  :meth:`icat.query.Query.setOrder`.
+
+Incompatible changes and deprecations
+-------------------------------------
+
++ `#158`_: Deprecate passing a mapping in the `conditions` argument to
+  :class:`icat.query.Query` and :meth:`icat.query.Query.addConditions`.
+  In calling code, change::
+
+    query = Query(client, "Datafile", conditions={
+        "dataset.name": "= 'e208945'",
+        "datafileCreateTime": [">= '2012-01-01'", "< '2013-01-01'" ],
+    })
+
+  to::
+
+    query = Query(client, "Datafile", conditions=[
+        ("dataset.name", "= 'e208945'"),
+        ("datafileCreateTime", ">= '2012-01-01'"),
+        ("datafileCreateTime", "< '2013-01-01'" ),
+    ])
+
+.. _#158: https://github.com/icatproject/python-icat/pull/158
+
+
 .. _changes-1_7_0:
 
 1.7.0 (2025-12-04)

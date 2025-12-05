@@ -42,8 +42,10 @@ def makeparam(t, pdata):
     param = client.new(t)
     initobj(param, pdata)
     ptdata = data['parameter_types'][pdata['type']]
-    query = ("ParameterType [name='%s' AND units='%s']"
-             % (ptdata['name'], ptdata['units']))
+    query = Query(client, "ParameterType", conditions=[
+        ("name", "= '%s'" % ptdata['name']),
+        ("units", "= '%s'" % ptdata['units']),
+    ])
     param.type = client.assertedSearch(query)[0]
     return param
 
@@ -78,20 +80,20 @@ inputcollection = client.new("DataCollection")
 initobj(inputcollection, jobdata['input'])
 
 for ds in jobdata['input']['datasets']:
-    query = Query(client, "Dataset", conditions={
-        "name":"= '%s'" % ds['name'],
-        "investigation.name":"= '%s'" % ds['investigation']
-    })
+    query = Query(client, "Dataset", conditions=[
+        ("name", "= '%s'" % ds['name']),
+        ("investigation.name", "= '%s'" % ds['investigation']),
+    ])
     dataset = client.assertedSearch(query)[0]
     dcs = client.new("DataCollectionDataset", dataset=dataset)
     inputcollection.dataCollectionDatasets.append(dcs)
 
 for df in jobdata['input']['datafiles']:
-    query = Query(client, "Datafile", conditions={
-        "name":"= '%s'" % df['name'],
-        "dataset.name":"= '%s'" % df['dataset'],
-        "dataset.investigation.name":"= '%s'" % df['investigation']
-    })
+    query = Query(client, "Datafile", conditions=[
+        ("name", "= '%s'" % df['name']),
+        ("dataset.name", "= '%s'" % df['dataset']),
+        ("dataset.investigation.name", "= '%s'" % df['investigation']),
+    ])
     datafile = client.assertedSearch(query)[0]
     dcf = client.new("DataCollectionDatafile", datafile=datafile)
     inputcollection.dataCollectionDatafiles.append(dcf)
@@ -112,13 +114,13 @@ outputcollection = client.new("DataCollection")
 initobj(outputcollection, jobdata['output'])
 
 for ds in jobdata['output']['datasets']:
-    query = Query(client, "Investigation", conditions={
-        "name":"= '%s'" % ds['investigation']
-    })
+    query = Query(client, "Investigation", conditions=[
+        ("name", "= '%s'" % ds['investigation']),
+    ])
     investigation = client.assertedSearch(query)[0]
-    query = Query(client, "DatasetType", conditions={
-        "name":"= '%s'" % data['dataset_types'][ds['type']]['name']
-    })
+    query = Query(client, "DatasetType", conditions=[
+        ("name", "= '%s'" % data['dataset_types'][ds['type']]['name'])
+    ])
     dataset_type = client.assertedSearch(query)[0]
     print("Dataset: creating '%s' ..." % ds['name'])
     dataset = client.new("Dataset")
@@ -131,10 +133,10 @@ for ds in jobdata['output']['datasets']:
 
     for df in ds['datafiles']:
         dff = data['datafile_formats'][df['format']]
-        query = Query(client, "DatafileFormat", conditions={
-            "name":"= '%s'" % dff['name'],
-            "version":"= '%s'" % dff['version'],
-        })
+        query = Query(client, "DatafileFormat", conditions=[
+            ("name", "= '%s'" % dff['name']),
+            ("version", "= '%s'" % dff['version']),
+        ])
         datafile_format = client.assertedSearch(query)[0]
         print("Datafile: creating '%s' ..." % df['name'])
         datafile = client.new("Datafile")
@@ -157,16 +159,16 @@ for ds in jobdata['output']['datasets']:
     outputcollection.dataCollectionDatasets.append(dcs)
 
 for df in jobdata['output']['datafiles']:
-    query = Query(client, "Dataset", conditions={
-        "name":"= '%s'" % df['dataset'],
-        "investigation.name":"= '%s'" % df['investigation']
-    })
+    query = Query(client, "Dataset", conditions=[
+        ("name", "= '%s'" % df['dataset']),
+        ("investigation.name", "= '%s'" % df['investigation']),
+    ])
     dataset = client.assertedSearch(query)[0]
     dff = data['datafile_formats'][df['format']]
-    query = Query(client, "DatafileFormat", conditions={
-        "name":"= '%s'" % dff['name'],
-        "version":"= '%s'" % dff['version'],
-    })
+    query = Query(client, "DatafileFormat", conditions=[
+        ("name", "= '%s'" % dff['name']),
+        ("version", "= '%s'" % dff['version']),
+    ])
     datafile_format = client.assertedSearch(query)[0]
     print("Datafile: creating '%s' ..." % df['name'])
     datafile = client.new("Datafile")

@@ -119,11 +119,11 @@ that lists all investigations::
 
 In order to search for a particular investigation, we may add an
 appropriate condition.  The `conditions` argument to
-:class:`~icat.query.Query` should be a mapping of attribute names to
-conditions on that attribute::
+:class:`~icat.query.Query` should be a list of tuples, each of them
+being a pair of an attribute name and a conditions on that attribute::
 
   >>> query = Query(client, "Investigation",
-  ...               conditions={"name": "= '10100601-ST'"})
+  ...               conditions=[("name", "= '10100601-ST'")])
   >>> print(query)
   SELECT o FROM Investigation o WHERE o.name = '10100601-ST'
   >>> client.search(query)
@@ -146,7 +146,7 @@ conditions on that attribute::
 We may also include related objects in the search results::
 
   >>> query = Query(client, "Investigation",
-  ...               conditions={"name": "= '10100601-ST'"},
+  ...               conditions=[("name", "= '10100601-ST'")],
   ...               includes=["datasets"])
   >>> print(query)
   SELECT o FROM Investigation o WHERE o.name = '10100601-ST' INCLUDE o.datasets
@@ -212,7 +212,7 @@ which attribute a condition should be applied to.  Consider the
 following query::
 
   >>> query = Query(client, "Investigation",
-  ...               conditions={"LENGTH(title)": "= 18"})
+  ...               conditions=[("LENGTH(title)", "= 18")])
   >>> print(query)
   SELECT o FROM Investigation o WHERE LENGTH(o.title) = 18
   >>> client.search(query)
@@ -251,12 +251,12 @@ objects.  This allows rather complex queries.  Let us search for the
 datasets in this investigation that have been measured in a magnetic
 field larger then 5 Tesla and include its parameters in the result::
 
-  >>> conditions = {
-  ...     "investigation.name": "= '10100601-ST'",
-  ...     "parameters.type.name": "= 'Magnetic field'",
-  ...     "parameters.type.units": "= 'T'",
-  ...     "parameters.numericValue": "> 5.0",
-  ... }
+  >>> conditions = [
+  ...     ("investigation.name", "= '10100601-ST'"),
+  ...     ("parameters.type.name", "= 'Magnetic field'"),
+  ...     ("parameters.type.units", "= 'T'"),
+  ...     ("parameters.numericValue", "> 5.0"),
+  ... ]
   >>> query = Query(client, "Dataset",
   ...               conditions=conditions, includes=["parameters.type"])
   >>> print(query)
@@ -337,9 +337,9 @@ of your Python program.  Consider::
 
   >>> def get_investigation(client, name, visitId=None):
   ...     query = Query(client, "Investigation")
-  ...     query.addConditions({"name": "= '%s'" % name})
+  ...     query.addConditions([("name", "= '%s'" % name)])
   ...     if visitId is not None:
-  ...         query.addConditions({"visitId": "= '%s'" % visitId})
+  ...         query.addConditions([("visitId", "= '%s'" % visitId)])
   ...     print(query)
   ...     return client.assertedSearch(query)[0]
   ...
@@ -382,13 +382,12 @@ either by `name` alone or by `name` and `visitId`, depending on the
 arguments.
 
 It is also possible to put more then one conditions on a single
-attribute: setting the corresponding value in the `conditions`
-argument to a list of strings will result in combining the conditions
-on that attribute.  Search for all datafiles created in 2012::
+attribute.  Search for all datafiles created in 2012::
 
-  >>> conditions = {
-  ...     "datafileCreateTime": [">= '2012-01-01'", "< '2013-01-01'"]
-  ... }
+  >>> conditions = [
+  ...     ("datafileCreateTime", ">= '2012-01-01'"),
+  ...     ("datafileCreateTime", "< '2013-01-01'"),
+  ... ]
   >>> query = Query(client, "Datafile", conditions=conditions)
   >>> print(query)
   SELECT o FROM Datafile o WHERE o.datafileCreateTime >= '2012-01-01' AND o.datafileCreateTime < '2013-01-01'
@@ -440,8 +439,8 @@ Of course, that last example also works when adding the conditions
 incrementally::
 
   >>> query = Query(client, "Datafile")
-  >>> query.addConditions({"datafileCreateTime": ">= '2012-01-01'"})
-  >>> query.addConditions({"datafileCreateTime": "< '2013-01-01'"})
+  >>> query.addConditions([("datafileCreateTime", ">= '2012-01-01'")])
+  >>> query.addConditions([("datafileCreateTime", "< '2013-01-01'")])
   >>> print(query)
   SELECT o FROM Datafile o WHERE o.datafileCreateTime >= '2012-01-01' AND o.datafileCreateTime < '2013-01-01'
 
@@ -485,11 +484,11 @@ transferring them to the client, and counting them at client side.
 Let's check for a given investigation, the minimum, maximum, and
 average magnetic field applied in the measurements::
 
-  >>> conditions = {
-  ...     "dataset.investigation.name": "= '10100601-ST'",
-  ...     "type.name": "= 'Magnetic field'",
-  ...     "type.units": "= 'T'",
-  ... }
+  >>> conditions = [
+  ...     ("dataset.investigation.name", "= '10100601-ST'"),
+  ...     ("type.name", "= 'Magnetic field'"),
+  ...     ("type.units", "= 'T'"),
+  ... ]
   >>> query = Query(client, "DatasetParameter",
   ...               conditions=conditions, attributes="numericValue")
   >>> print(query)
@@ -515,10 +514,10 @@ average magnetic field applied in the measurements::
 For another example, let's search for all investigations, having any
 dataset with a magnetic field parameter set::
 
-  >>> conditions = {
-  ...     "datasets.parameters.type.name": "= 'Magnetic field'",
-  ...     "datasets.parameters.type.units": "= 'T'",
-  ... }
+  >>> conditions = [
+  ...     ("datasets.parameters.type.name", "= 'Magnetic field'"),
+  ...     ("datasets.parameters.type.units", "= 'T'"),
+  ... ]
   >>> query = Query(client, "Investigation", conditions=conditions)
   >>> print(query)
   SELECT o FROM Investigation o JOIN o.datasets AS s1 JOIN s1.parameters AS s2 JOIN s2.type AS s3 WHERE s3.name = 'Magnetic field' AND s3.units = 'T'
@@ -580,10 +579,10 @@ respectively.  We may fix that by applying `DISTINCT`::
 `DISTINCT` may be combined with `COUNT`, `AVG`, and `SUM` in order to
 make sure not to count the same object more then once::
 
-  >>> conditions = {
-  ...     "datasets.parameters.type.name": "= 'Magnetic field'",
-  ...     "datasets.parameters.type.units": "= 'T'",
-  ... }
+  >>> conditions = [
+  ...     ("datasets.parameters.type.name", "= 'Magnetic field'"),
+  ...     ("datasets.parameters.type.units", "= 'T'"),
+  ... ]
   >>> query = Query(client, "Investigation",
   ...               conditions=conditions, aggregate="COUNT")
   >>> print(query)
@@ -768,9 +767,9 @@ in the `order` argument to :class:`~icat.query.Query`.  Let's search
 for user sorted by the length of their name, from longest to
 shortest::
 
-  >>> query = Query(client, "User", conditions={
-  ...     "fullName": "IS NOT NULL"
-  ... }, order=[("LENGTH(fullName)", "DESC")])
+  >>> query = Query(client, "User", conditions=[
+  ...     ("fullName", "IS NOT NULL"),
+  ... ], order=[("LENGTH(fullName)", "DESC")])
   >>> print(query)
   SELECT o FROM User o WHERE o.fullName IS NOT NULL ORDER BY LENGTH(o.fullName) DESC
   >>> for user in client.search(query):
@@ -878,13 +877,13 @@ first glance, it has a particular use case::
       """
       try:
           dataset = client.new("Dataset")
-          query = Query(client, "Investigation", conditions={
-              "name": "= '%s'" % inv_name
-          })
+          query = Query(client, "Investigation", conditions=[
+              ("name", "= '%s'" % inv_name),
+          ])
           dataset.investigation = client.assertedSearch(query)[0]
-          query = Query(client, "DatasetType", conditions={
-              "name": "= '%s'" % ds_type
-          })
+          query = Query(client, "DatasetType", conditions=[
+              ("name", "= '%s'" % ds_type),
+          ])
           dataset.type = client.assertedSearch(query)[0]
           dataset.complete = False
           dataset.name = ds_name

@@ -25,9 +25,9 @@ def print_xml(root):
     print('\n', etree.tostring(root, pretty_print=True).decode(), sep='')
 
 def get_test_investigation(client):
-    query = Query(client, "Investigation", conditions={
-        "name": "= '12100409-ST'",
-    })
+    query = Query(client, "Investigation", conditions=[
+        ("name", "= '12100409-ST'"),
+    ])
     return client.assertedSearch(query)[0]
 
 class NamedBytesIO(io.BytesIO):
@@ -45,9 +45,9 @@ def client(setupicat):
 def samples(rootclient):
     """Create some samples that are referenced in some of the ingest files.
     """
-    query = Query(rootclient, "SampleType", conditions={
-        "name": "= 'Nickel(II) oxide SC'"
-    })
+    query = Query(rootclient, "SampleType", conditions=[
+        ("name", "= 'Nickel(II) oxide SC'")
+    ])
     st = rootclient.assertedSearch(query)[0]
     inv = get_test_investigation(rootclient)
     samples = []
@@ -62,10 +62,10 @@ def samples(rootclient):
 def investigation(client, cleanup_objs):
     inv = get_test_investigation(client)
     yield inv
-    query = Query(client, "Dataset", conditions={
-        "investigation.id": "= %d" % inv.id,
-        "name": "LIKE 'testingest_%'",
-    })
+    query = Query(client, "Dataset", conditions=[
+        ("investigation.id", "= %d" % inv.id),
+        ("name", "LIKE 'testingest_%'"),
+    ])
     cleanup_objs.extend(client.search(query))
 
 @pytest.fixture(scope="function")
@@ -457,10 +457,10 @@ def test_ingest(client, investigation, samples, schemadir, case):
         ds.create()
     reader.ingest(datasets)
     for name in case.checks.keys():
-        query = Query(client, "Dataset", conditions={
-            "name": "= '%s'" % name,
-            "investigation.id": "= %d" % investigation.id,
-        })
+        query = Query(client, "Dataset", conditions=[
+            ("name", "= '%s'" % name),
+            ("investigation.id", "= %d" % investigation.id),
+        ])
         ds = client.assertedSearch(query)[0]
         for query, res in case.checks[name]:
             if skip_single_boolean and isinstance(res, bool):
@@ -520,10 +520,10 @@ def test_ingest_fileobj(client, investigation, samples, schemadir, case):
         ds.create()
     reader.ingest(datasets)
     for name in case.checks.keys():
-        query = Query(client, "Dataset", conditions={
-            "name": "= '%s'" % name,
-            "investigation.id": "= %d" % investigation.id,
-        })
+        query = Query(client, "Dataset", conditions=[
+            ("name", "= '%s'" % name),
+            ("investigation.id", "= %d" % investigation.id),
+        ])
         ds = client.assertedSearch(query)[0]
         for query, res in case.checks[name]:
             if skip_single_boolean and isinstance(res, bool):
@@ -769,10 +769,10 @@ def test_ingest_classattr(monkeypatch, client, investigation, schemadir, case):
         ds.create()
     reader.ingest(datasets)
     for name in case.checks.keys():
-        query = Query(client, "Dataset", conditions={
-            "name": "= '%s'" % name,
-            "investigation.id": "= %d" % investigation.id,
-        })
+        query = Query(client, "Dataset", conditions=[
+            ("name", "= '%s'" % name),
+            ("investigation.id", "= %d" % investigation.id),
+        ])
         ds = client.assertedSearch(query)[0]
         for query, res in case.checks[name]:
             assert client.assertedSearch(query % ds.id)[0] == res
@@ -845,10 +845,10 @@ def test_custom_ingest(client, investigation, samples, schemadir, case):
         ds.create()
     reader.ingest(datasets)
     for name in case.checks.keys():
-        query = Query(client, "Dataset", conditions={
-            "name": "= '%s'" % name,
-            "investigation.id": "= %d" % investigation.id,
-        })
+        query = Query(client, "Dataset", conditions=[
+            ("name", "= '%s'" % name),
+            ("investigation.id", "= %d" % investigation.id),
+        ])
         ds = client.assertedSearch(query)[0]
         for query, res in case.checks[name]:
             if skip_single_boolean and isinstance(res, bool):

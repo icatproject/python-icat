@@ -188,10 +188,12 @@ if "dataPublication" in client.typemap:
     for name, a in dpitems:
         query = Query(client, name)
         if a:
-            query.addConditions({("%s.id" % a): "IS NOT NULL"})
+            query.addConditions([(("%s.id" % a), "IS NOT NULL")])
         pr_items.append(query)
         pd_attr = "%s.publicationDate" % a if a else "publicationDate"
-        query = Query(client, name, conditions={pd_attr: "< CURRENT_TIMESTAMP"})
+        query = Query(client, name, conditions=[
+            (pd_attr, "< CURRENT_TIMESTAMP")
+        ])
         all_items.append(query)
     client.createRules("R", all_items)
     client.createRules("R", pr_items, pubreader_group)
@@ -235,7 +237,7 @@ dcitems = [
 ]
 if "dataCollectionInvestigation" in client.typemap:
     dcitems.insert(3, ( "DataCollectionInvestigation", "dataCollection." ))
-items = [ Query(client, name, conditions={ (a + "createId"): "= :user" })
+items = [ Query(client, name, conditions=[ ((a + "createId"), "= :user") ])
           for name, a in dcitems ]
 client.createRules("CRUD", items)
 
@@ -278,21 +280,21 @@ if "datasetTechnique" in client.typemap:
 items = []
 for name, a, complete in invitems:
     # ... for writer group.
-    conditions={
-        a + "investigationGroups.role":"= 'writer'",
-        a + "investigationGroups.grouping.userGroups.user.name":"= :user",
-    }
+    query = Query(client, name, conditions=[
+        (a + "investigationGroups.role", "= 'writer'"),
+        (a + "investigationGroups.grouping.userGroups.user.name", "= :user"),
+    ])
     if complete:
-        conditions[complete] = "= False"
-    items.append(Query(client, name, conditions=conditions))
+        query.addConditions([(complete, "= False")])
+    items.append(query)
     # ... for instrument scientists.
-    conditions={
-        a + "investigationInstruments.instrument.instrumentScientists"
-        ".user.name":"= :user",
-    }
+    query = Query(client, name, conditions=[
+        (a + "investigationInstruments.instrument.instrumentScientists"
+         ".user.name", "= :user"),
+    ])
     if complete:
-        conditions[complete] = "= False"
-    items.append(Query(client, name, conditions=conditions))
+        query.addConditions([(complete, "= False")])
+    items.append(query)
 client.createRules("CUD", items)
 
 # Set permissions for the reader group.  Actually, we give read
@@ -305,31 +307,31 @@ invitems.extend([ ( "Investigation", "", "" ),
                   ( "Publication", "investigation.", "" ) ])
 items = []
 for name, a, c in invitems:
-    conditions={
-        a + "investigationGroups.grouping.userGroups.user.name":"= :user",
-    }
+    conditions=[
+        (a + "investigationGroups.grouping.userGroups.user.name", "= :user"),
+    ]
     items.append(Query(client, name, conditions=conditions))
-    conditions={
-        a + "investigationInstruments.instrument.instrumentScientists"
-        ".user.name":"= :user",
-    }
+    conditions=[
+        (a + "investigationInstruments.instrument.instrumentScientists"
+         ".user.name", "= :user"),
+    ]
     items.append(Query(client, name, conditions=conditions))
 client.createRules("R", items)
 
 # set permission to grant and to revoke permissions for the owner.
 tig = "grouping.investigationGroups"
 uig = "grouping.investigationGroups.investigation.investigationGroups"
-item = Query(client, "UserGroup", conditions={
-    uig + ".grouping.userGroups.user.name":"= :user",
-    uig + ".role":"= 'owner'",
-    tig + ".role":"in ('reader', 'writer')"
-})
+item = Query(client, "UserGroup", conditions=[
+    (uig + ".grouping.userGroups.user.name", "= :user"),
+    (uig + ".role", "= 'owner'"),
+    (tig + ".role", "in ('reader', 'writer')"),
+])
 client.createRules("CRUD", [ item ])
 uig = "investigationGroups.investigation.investigationGroups"
-item = Query(client, "Grouping", conditions={
-    uig + ".grouping.userGroups.user.name":"= :user",
-    uig + ".role":"= 'owner'"
-})
+item = Query(client, "Grouping", conditions=[
+    (uig + ".grouping.userGroups.user.name", "= :user"),
+    (uig + ".role", "= 'owner'"),
+])
 client.createRules("R", [ item ])
 
 
@@ -346,12 +348,12 @@ invitems = [ ( "Investigation", "", "" ),
 
 items = []
 for name, a, dstype_name in invitems:
-    conditions={
-        a + "releaseDate":"< CURRENT_TIMESTAMP",
-    }
+    query = Query(client, name, conditions=[
+        (a + "releaseDate", "< CURRENT_TIMESTAMP"),
+    ])
     if dstype_name:
-        conditions[dstype_name] = "= 'raw'"
-    items.append(Query(client, name, conditions=conditions))
+        query.addConditions([(dstype_name, "= 'raw'")])
+    items.append(query)
 client.createRules("R", items)
 
 
