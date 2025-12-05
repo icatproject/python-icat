@@ -29,7 +29,7 @@ def get_investigation_id(client, invid):
     if len(l) == 2:
         # one colon, invid == name:visitId
         query.addConditions({"visitId": "= '%s'" % l[1]})
-    else:
+    elif len(l) > 2:
         # too many colons
         raise RuntimeError("Invalid investigation identifier '%s'" % invid)
     return client.assertedSearch(query)[0]
