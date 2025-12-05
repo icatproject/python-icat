@@ -16,22 +16,13 @@ import ssl
 import sys
 from urllib.error import HTTPError
 from urllib.parse import urlencode
-from urllib.request import HTTPDefaultErrorHandler, ProxyHandler, Request
-from urllib.request import build_opener
+from urllib.request import HTTPHandler, HTTPSHandler, HTTPDefaultErrorHandler
+from urllib.request import ProxyHandler, Request, build_opener
 import zlib
 
 from .entity import Entity
 from .exception import *
 from .helper import Version
-
-# For Python versions older then 3.6.0b1, the standard library does
-# not support sending the body using chunked transfer encoding.  Need
-# to replace the HTTPHandler with our modified versions from
-# icat.chunkedhttp in this case.
-if sys.version_info < (3, 6, 0, 'beta'):
-    from .chunkedhttp import HTTPHandler, HTTPSHandler
-else:
-    from urllib.request import HTTPHandler, HTTPSHandler
 
 __all__ = ['DataSelection', 'IDSClient']
 
