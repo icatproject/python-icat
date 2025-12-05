@@ -2,6 +2,17 @@ Changelog
 =========
 
 
+dev (not yet released)
+~~~~~~~~~~~~~~~~~~~~~~
+
+Bug fixes and minor changes
+---------------------------
+
++ `#171`_: Fix `dumpinvestigation.py` example script
+
+.. _#171: https://github.com/icatproject/python-icat/pull/171
+
+
 .. _changes-1_7_0:
 
 1.7.0 (2025-12-04)
