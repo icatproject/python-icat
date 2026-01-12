@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <icatdata>
 <head>
-  <date>2024-01-29T16:49:17.503958+00:00</date>
+  <date>2026-01-12T20:02:00+00:00</date>
   <service>https://icat.example.com:8181/ICATService/ICAT?wsdl</service>
   <apiversion>7.0.0a1</apiversion>
-  <generator>icatdump (python-icat 1.2.1.dev48+g0855294)</generator>
+  <generator>icatdump (python-icat 1.7.1.dev20+g4aacb12)</generator>
 </head>
 <data>
   <user id="User_name-db=2Facord">
@@ -595,331 +595,341 @@
     <grouping ref="Grouping_name-publisher"/>
   </rule>
   <rule id="Rule_00000100">
+    <crudFlags>CRUD</crudFlags>
+    <what>Subject</what>
+    <grouping ref="Grouping_name-publisher"/>
+  </rule>
+  <rule id="Rule_00000101">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM DataPublication o</what>
     <grouping ref="Grouping_name-pubreader"/>
   </rule>
-  <rule id="Rule_00000101">
+  <rule id="Rule_00000102">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Datafile o JOIN o.dataCollectionDatafiles AS s1 JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id IS NOT NULL</what>
     <grouping ref="Grouping_name-pubreader"/>
   </rule>
-  <rule id="Rule_00000102">
+  <rule id="Rule_00000103">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.dataCollectionDatasets AS s1 JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id IS NOT NULL</what>
     <grouping ref="Grouping_name-pubreader"/>
   </rule>
-  <rule id="Rule_00000103">
+  <rule id="Rule_00000104">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Datafile o JOIN o.dataset AS ds JOIN ds.investigation AS i JOIN i.dataCollectionInvestigations AS s1 JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id IS NOT NULL</what>
     <grouping ref="Grouping_name-pubreader"/>
   </rule>
-  <rule id="Rule_00000104">
+  <rule id="Rule_00000105">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Dataset o JOIN o.dataCollectionDatasets AS s1 JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id IS NOT NULL</what>
     <grouping ref="Grouping_name-pubreader"/>
   </rule>
-  <rule id="Rule_00000105">
+  <rule id="Rule_00000106">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Dataset o JOIN o.investigation AS i JOIN i.dataCollectionInvestigations AS s1 JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id IS NOT NULL</what>
     <grouping ref="Grouping_name-pubreader"/>
   </rule>
-  <rule id="Rule_00000106">
+  <rule id="Rule_00000107">
     <crudFlags>R</crudFlags>
     <what>SELECT o FROM Investigation o JOIN o.dataCollectionInvestigations AS s1 JOIN s1.dataCollection AS s2 JOIN s2.dataPublications AS s3 WHERE s3.id IS NOT NULL</what>
     <grouping ref="Grouping_name-pubreader"/>
   </rule>
-  <rule id="Rule_00000107">
+  <rule id="Rule_00000108">
     <crudFlags>R</crudFlags>
     <what>Affiliation</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000108">
+  <rule id="Rule_00000109">
     <crudFlags>R</crudFlags>
     <what>DataCollection</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000109">
+  <rule id="Rule_00000110">
     <crudFlags>R</crudFlags>
     <what>DataCollectionDatafile</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000110">
+  <rule id="Rule_00000111">
     <crudFlags>R</crudFlags>
     <what>DataCollectionDataset</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000111">
+  <rule id="Rule_00000112">
     <crudFlags>R</crudFlags>
     <what>DataCollectionInvestigation</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000112">
+  <rule id="Rule_00000113">
     <crudFlags>R</crudFlags>
     <what>DataCollectionParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000113">
+  <rule id="Rule_00000114">
     <crudFlags>R</crudFlags>
     <what>DataPublication</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000114">
+  <rule id="Rule_00000115">
     <crudFlags>R</crudFlags>
     <what>DataPublicationDate</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000115">
+  <rule id="Rule_00000116">
     <crudFlags>R</crudFlags>
     <what>DataPublicationFunding</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000116">
+  <rule id="Rule_00000117">
     <crudFlags>R</crudFlags>
     <what>DataPublicationUser</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000117">
+  <rule id="Rule_00000118">
     <crudFlags>R</crudFlags>
     <what>Datafile</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000118">
+  <rule id="Rule_00000119">
     <crudFlags>R</crudFlags>
     <what>DatafileParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000119">
+  <rule id="Rule_00000120">
     <crudFlags>R</crudFlags>
     <what>Dataset</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000120">
+  <rule id="Rule_00000121">
     <crudFlags>R</crudFlags>
     <what>DatasetInstrument</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000121">
+  <rule id="Rule_00000122">
     <crudFlags>R</crudFlags>
     <what>DatasetParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000122">
+  <rule id="Rule_00000123">
     <crudFlags>R</crudFlags>
     <what>DatasetTechnique</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
-  <rule id="Rule_00000123">
-    <crudFlags>R</crudFlags>
-    <what>FundingReference</what>
-    <grouping ref="Grouping_name-rall"/>
-  </rule>
   <rule id="Rule_00000124">
     <crudFlags>R</crudFlags>
-    <what>Grouping</what>
+    <what>FundingReference</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000125">
     <crudFlags>R</crudFlags>
-    <what>InstrumentScientist</what>
+    <what>Grouping</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000126">
     <crudFlags>R</crudFlags>
-    <what>Investigation</what>
+    <what>InstrumentScientist</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000127">
     <crudFlags>R</crudFlags>
-    <what>InvestigationFacilityCycle</what>
+    <what>Investigation</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000128">
     <crudFlags>R</crudFlags>
-    <what>InvestigationFunding</what>
+    <what>InvestigationFacilityCycle</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000129">
     <crudFlags>R</crudFlags>
-    <what>InvestigationGroup</what>
+    <what>InvestigationFunding</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000130">
     <crudFlags>R</crudFlags>
-    <what>InvestigationInstrument</what>
+    <what>InvestigationGroup</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000131">
     <crudFlags>R</crudFlags>
-    <what>InvestigationParameter</what>
+    <what>InvestigationInstrument</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000132">
     <crudFlags>R</crudFlags>
-    <what>InvestigationSample</what>
+    <what>InvestigationParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000133">
     <crudFlags>R</crudFlags>
-    <what>InvestigationUser</what>
+    <what>InvestigationSample</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000134">
     <crudFlags>R</crudFlags>
-    <what>Job</what>
+    <what>InvestigationUser</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000135">
     <crudFlags>R</crudFlags>
-    <what>Keyword</what>
+    <what>Job</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000136">
     <crudFlags>R</crudFlags>
-    <what>PublicStep</what>
+    <what>Keyword</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000137">
     <crudFlags>R</crudFlags>
-    <what>Publication</what>
+    <what>PublicStep</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000138">
     <crudFlags>R</crudFlags>
-    <what>RelatedDatafile</what>
+    <what>Publication</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000139">
     <crudFlags>R</crudFlags>
-    <what>RelatedItem</what>
+    <what>RelatedDatafile</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000140">
     <crudFlags>R</crudFlags>
-    <what>Rule</what>
+    <what>RelatedItem</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000141">
     <crudFlags>R</crudFlags>
-    <what>Sample</what>
+    <what>Rule</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000142">
     <crudFlags>R</crudFlags>
-    <what>SampleParameter</what>
+    <what>Sample</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000143">
     <crudFlags>R</crudFlags>
-    <what>Shift</what>
+    <what>SampleParameter</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000144">
     <crudFlags>R</crudFlags>
-    <what>Study</what>
+    <what>Shift</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000145">
     <crudFlags>R</crudFlags>
-    <what>StudyInvestigation</what>
+    <what>Study</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000146">
     <crudFlags>R</crudFlags>
-    <what>UserGroup</what>
+    <what>StudyInvestigation</what>
     <grouping ref="Grouping_name-rall"/>
   </rule>
   <rule id="Rule_00000147">
+    <crudFlags>R</crudFlags>
+    <what>Subject</what>
+    <grouping ref="Grouping_name-rall"/>
+  </rule>
+  <rule id="Rule_00000148">
+    <crudFlags>R</crudFlags>
+    <what>UserGroup</what>
+    <grouping ref="Grouping_name-rall"/>
+  </rule>
+  <rule id="Rule_00000149">
     <crudFlags>RU</crudFlags>
     <what>Sample</what>
     <grouping ref="Grouping_name-scientific=5Fstaff"/>
   </rule>
-  <rule id="Rule_00000148">
+  <rule id="Rule_00000150">
     <crudFlags>UD</crudFlags>
     <what>SampleType</what>
     <grouping ref="Grouping_name-scientific=5Fstaff"/>
   </rule>
-  <rule id="Rule_00000149">
+  <rule id="Rule_00000151">
     <crudFlags>CRUD</crudFlags>
     <what>FacilityCycle</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000150">
+  <rule id="Rule_00000152">
     <crudFlags>CRUD</crudFlags>
     <what>FundingReference</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000151">
+  <rule id="Rule_00000153">
     <crudFlags>CRUD</crudFlags>
     <what>Grouping</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000152">
+  <rule id="Rule_00000154">
     <crudFlags>CRUD</crudFlags>
     <what>InstrumentScientist</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000153">
+  <rule id="Rule_00000155">
     <crudFlags>CRUD</crudFlags>
     <what>Investigation</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000154">
+  <rule id="Rule_00000156">
     <crudFlags>CRUD</crudFlags>
     <what>InvestigationFunding</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000155">
+  <rule id="Rule_00000157">
     <crudFlags>CRUD</crudFlags>
     <what>InvestigationGroup</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000156">
+  <rule id="Rule_00000158">
     <crudFlags>CRUD</crudFlags>
     <what>InvestigationInstrument</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000157">
+  <rule id="Rule_00000159">
     <crudFlags>CRUD</crudFlags>
     <what>InvestigationParameter</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000158">
+  <rule id="Rule_00000160">
     <crudFlags>CRUD</crudFlags>
     <what>InvestigationUser</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000159">
+  <rule id="Rule_00000161">
     <crudFlags>CRUD</crudFlags>
     <what>Keyword</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000160">
+  <rule id="Rule_00000162">
     <crudFlags>CRUD</crudFlags>
     <what>Publication</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000161">
+  <rule id="Rule_00000163">
     <crudFlags>CRUD</crudFlags>
     <what>Shift</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000162">
+  <rule id="Rule_00000164">
     <crudFlags>CRUD</crudFlags>
     <what>Study</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000163">
+  <rule id="Rule_00000165">
     <crudFlags>CRUD</crudFlags>
     <what>StudyInvestigation</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000164">
+  <rule id="Rule_00000166">
     <crudFlags>CRUD</crudFlags>
     <what>User</what>
     <grouping ref="Grouping_name-useroffice"/>
   </rule>
-  <rule id="Rule_00000165">
+  <rule id="Rule_00000167">
     <crudFlags>CRUD</crudFlags>
     <what>UserGroup</what>
     <grouping ref="Grouping_name-useroffice"/>
@@ -954,6 +964,10 @@
   </publicStep>
   <publicStep id="PublicStep_origin-DataPublication_field-relatedItems">
     <field>relatedItems</field>
+    <origin>DataPublication</origin>
+  </publicStep>
+  <publicStep id="PublicStep_origin-DataPublication_field-subjects">
+    <field>subjects</field>
     <origin>DataPublication</origin>
   </publicStep>
   <publicStep id="PublicStep_origin-DataPublication_field-users">
@@ -1107,9 +1121,11 @@
   <instrument id="Instrument_facility-(name-ESNF)_name-E2">
     <description>A 3-dimensional part of the reciprocal space can be scanned in less then five steps by combining the "off-plane Bragg-scattering" and the flat-cone layer concept while using a new computer-controlled tilting axis of the detector bank.
 </description>
+    <endDate>2019-12-30T23:00:00+00:00</endDate>
     <fullName>E2 - Flat-Cone Diffractometer</fullName>
     <name>E2</name>
     <pid>DOI:00.0815/inst-00001</pid>
+    <startDate>2006-12-31T23:00:00+00:00</startDate>
     <facility ref="Facility_name-ESNF"/>
     <instrumentScientists>
       <user ref="User_name-db=2Facord"/>
@@ -1306,20 +1322,20 @@
     <name>Simulation</name>
     <facility ref="Facility_name-ESNF"/>
   </investigationType>
-  <sampleType id="SampleType_facility-(name-ESNF)_name-Durol=20SC_molecularFormula-C10H14">
+  <sampleType id="SampleType_pid-st=3A0001">
     <molecularFormula>C10H14</molecularFormula>
     <name>Durol SC</name>
-    <facility ref="Facility_name-ESNF"/>
+    <pid>st:0001</pid>
   </sampleType>
-  <sampleType id="SampleType_facility-(name-ESNF)_name-NiMnGa_molecularFormula-NiMnGa">
+  <sampleType id="SampleType_pid-st=3A0002">
     <molecularFormula>NiMnGa</molecularFormula>
     <name>NiMnGa</name>
-    <facility ref="Facility_name-ESNF"/>
+    <pid>st:0002</pid>
   </sampleType>
-  <sampleType id="SampleType_facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO">
+  <sampleType id="SampleType_pid-st=3A0003">
     <molecularFormula>NiO</molecularFormula>
     <name>Nickel(II) oxide SC</name>
-    <facility ref="Facility_name-ESNF"/>
+    <pid>st:0003</pid>
   </sampleType>
   <datasetType id="DatasetType_facility-(name-ESNF)_name-analyzed">
     <description>data arising from the analysis of other data</description>
@@ -1507,12 +1523,12 @@
   <sample id="Sample_pid-IGSN=3AESNFHNS8AYEZ">
     <name>Durol SC</name>
     <pid>IGSN:ESNFHNS8AYEZ</pid>
-    <type ref="SampleType_facility-(name-ESNF)_name-Durol=20SC_molecularFormula-C10H14"/>
+    <type ref="SampleType_pid-st=3A0001"/>
   </sample>
   <sample id="Sample_pid-IGSN=3AESNFX8C7B53W">
     <name>Nickel(II) oxide SC</name>
     <pid>IGSN:ESNFX8C7B53W</pid>
-    <type ref="SampleType_facility-(name-ESNF)_name-Nickel=28II=29=20oxide=20SC_molecularFormula-NiO"/>
+    <type ref="SampleType_pid-st=3A0003"/>
     <parameters>
       <stringValue>c1b0a101-03aa-4d02-a1a2-e2826ba7871b</stringValue>
       <type ref="ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA"/>
@@ -1521,7 +1537,7 @@
   <sample id="Sample_pid-IGSN=3AESNFZDVHICBD">
     <name>NiMnGa 991027</name>
     <pid>IGSN:ESNFZDVHICBD</pid>
-    <type ref="SampleType_facility-(name-ESNF)_name-NiMnGa_molecularFormula-NiMnGa"/>
+    <type ref="SampleType_pid-st=3A0002"/>
     <parameters>
       <stringValue>2046c9a7-ab07-4594-84a2-101617073a79</stringValue>
       <type ref="ParameterType_facility-(name-ESNF)_name-Sample=20reference_units-N=2FA"/>
@@ -1530,6 +1546,7 @@
 </data>
 <data>
   <fundingReference id="FundingReference_funderName-American=20Mathematical=20Society_awardNumber-AIS3241330750">
+    <acknowledgement>This work has partly been supported by American Mathematical Society under grant number AIS3241330750 which is greatfully acknowledged</acknowledgement>
     <awardNumber>AIS3241330750</awardNumber>
     <funderIdentifier>Crossref Funder ID:10.13039/100005376</funderIdentifier>
     <funderName>American Mathematical Society</funderName>
@@ -2073,6 +2090,7 @@
 <data>
   <dataPublication id="DataPublication_facility-(name-ESNF)_pid-DOI=3A00=2E0815=2Fpub=2D00027">
     <description>We provide the first 65535 integers from sequence A000027 of the On-Line Encyclopedia of Integer Sequences. The data consists of an HDF5 file, having one single entry: a one dimensional integer array.</description>
+    <internalId>qwa2-gc-v9lp</internalId>
     <pid>DOI:00.0815/pub-00027</pid>
     <publicationDate>2022-10-30T23:00:00+00:00</publicationDate>
     <subject>integer sequence; OEIS; On-Line Encyclopedia of Integer Sequences</subject>
@@ -2098,6 +2116,21 @@
       <relationType>References</relationType>
       <title>The positive integers</title>
     </relatedItems>
+    <subjects>
+      <name>OEIS</name>
+    </subjects>
+    <subjects>
+      <name>On-Line Encyclopedia of Integer Sequences</name>
+    </subjects>
+    <subjects>
+      <classificationCode>11B83</classificationCode>
+      <name>Special sequences and polynomials</name>
+      <schemeURI>https://zbmath.org/classification/</schemeURI>
+      <subjectScheme>Mathematics Subject Classification &#8211; MSC2020</subjectScheme>
+    </subjects>
+    <subjects>
+      <name>integer sequence</name>
+    </subjects>
   </dataPublication>
   <dataPublicationUser id="DataPublicationUser_publication-(facility-(name-ESNF)_pid-DOI=3A00=2E0815=2Fpub=2D00027)_user-(name-db=2Fnbour)_contributorType-Creator">
     <contributorType>Creator</contributorType>
