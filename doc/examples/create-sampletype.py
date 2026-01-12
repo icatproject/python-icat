@@ -62,9 +62,14 @@ else:
 
 print("SampleType: creating '%s' ..." % sampletypedata['name'])
 sampletype = client.new("SampleType")
+if 'pid' in sampletype.InstAttr:
+    # ICAT schema >= 7.0
+    sampletype.pid = sampletypedata['pid']
 sampletype.name = sampletypedata['name']
 sampletype.molecularFormula = sampletypedata['molecularFormula']
-sampletype.facility = facility
+if 'facility' in sampletype.InstRel:
+    # ICAT schema < 7.0
+    sampletype.facility = facility
 sampletype.create()
 
 

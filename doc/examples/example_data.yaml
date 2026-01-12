@@ -590,14 +590,17 @@ related_datafiles:
       name: e208341.nxs
 sample_types:
   durol:
+    pid: st:0001
     facility: example_facility
     molecularFormula: C10H14
     name: Durol SC
   nimnga:
+    pid: st:0002
     facility: example_facility
     molecularFormula: NiMnGa
     name: NiMnGa
   nio:
+    pid: st:0003
     facility: example_facility
     molecularFormula: NiO
     name: Nickel(II) oxide SC
