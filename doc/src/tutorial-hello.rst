@@ -12,7 +12,7 @@ output::
 
   $ python hello.py
   Connect to https://icat.example.com:8181
-  ICAT version 5.0.1
+  ICAT version 6.2.0
 
 The constructor of :class:`icat.client.Client` takes the URL of the
 ICAT service as argument.  It contacts the ICAT server, queries the
@@ -27,7 +27,7 @@ get an error instead::
   $ python hello.py
   Traceback (most recent call last):
     ...
-  urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:852)>
+  urllib.error.URLError: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate (_ssl.c:1006)>
 
 In this case, you may either install a trusted certificate in your
 server now or modify your hello program and add a flag

@@ -107,7 +107,7 @@ class build_test(setuptools.Command):
                              "ingest-sample-ds.xml",
                              "ingest-sample-ds-7.0.xml") )
         files += ( examples / ("icatdump-%s.%s" % (ver, ext))
-                   for ver in ("4.4", "4.7", "4.10", "5.0", "7.0")
+                   for ver in ("4.4", "4.7", "4.10", "5.0", "6.2", "7.0")
                    for ext in ("xml", "yaml") )
         files += doc.glob("icatdata-*.xsd")
         files += examples.glob("metadata-*.xml")
@@ -188,6 +188,7 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     project_urls = dict(

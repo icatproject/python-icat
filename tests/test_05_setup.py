@@ -318,6 +318,9 @@ def test_add_data_publication(data, pubname):
             "name": "= '%s'" % t['name']
         })
         data_publication.type = client.assertedSearch(query)[0]
+    if "subject" in client.typemap:
+        for d in pubdata['subjects']:
+            data_publication.subjects.append(client.new("Subject", **d))
     for d in pubdata['dates']:
         data_publication.dates.append(client.new("DataPublicationDate", **d))
     for ri in pubdata['relatedItems']:

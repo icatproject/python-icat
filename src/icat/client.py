@@ -1000,5 +1000,40 @@ class Client(suds.client.Client):
             objs = DataSelection(objs)
         self.ids.delete(objs)
 
+    def restoreData(self, objs):
+        """Request IDS to restore data.
+
+        Check the status of the data, request a restore if needed and
+        wait for the restore to complete.
+
+        :param objs: either a dict having some of the keys
+            `investigationIds`, `datasetIds`, and `datafileIds`
+            with a list of object ids as value respectively, or a list
+            of entity objects, or a data selection.
+        :type objs: :class:`dict`, :class:`list` of
+            :class:`icat.entity.Entity`, or
+            :class:`icat.ids.DataSelection`
+
+        .. versionadded:: 1.6.0
+        """
+        if not self.ids:
+            raise RuntimeError("no IDS.")
+        if not isinstance(objs, DataSelection):
+            objs = DataSelection(objs)
+        while True:
+            self.autoRefresh()
+            status = self.ids.getStatus(objs)
+            if status == "ONLINE":
+                break
+            elif status == "RESTORING":
+                pass
+            elif status == "ARCHIVED":
+                self.ids.restore(objs)
+            else:
+                # Should never happen
+                raise IDSResponseError("unexpected response from "
+                                       "IDS getStatus() call: %s" % status)
+            time.sleep(30)
+
 
 atexit.register(Client.cleanupall)

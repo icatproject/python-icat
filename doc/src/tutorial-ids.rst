@@ -31,11 +31,11 @@ previous section.  This content can be set up with the following
 commands at the command line::
 
   $ wipeicat -s myicat_root
-  $ icatingest -s myicat_root -i icatdump-5.0.yaml
+  $ icatingest -s myicat_root -i icatdump-6.2.yaml
 
 If you already did that for the previous section, you don't need to
 repeat it.  Take notice of the hint on the content of the
-`icatdump-5.0.yaml` file and ICAT server versions from the previous
+`icatdump-6.2.yaml` file and ICAT server versions from the previous
 section.
 
 Upload files
@@ -78,41 +78,41 @@ For each of the files, we create a new datafile object and call the
   ...
   (datafile){
      createId = "db/nbour"
-     createTime = 2023-06-28 14:14:26+02:00
+     createTime = 2025-12-01 16:15:46+01:00
      id = 12
      modId = "db/nbour"
-     modTime = 2023-06-28 14:14:26+02:00
+     modTime = 2025-12-01 16:15:46+01:00
      checksum = "bef32c73"
-     datafileCreateTime = 2023-06-28 14:11:52+02:00
-     datafileModTime = 2023-06-28 14:11:52+02:00
+     datafileCreateTime = 2025-12-01 16:14:58+01:00
+     datafileModTime = 2025-12-01 16:14:58+01:00
      fileSize = 12
-     location = "3/10/7f7800f4-c6cb-4a2c-889f-a6d88389f11e"
+     location = "3/10/811120a0-2d11-4628-b0b4-3d630871d4a7"
      name = "greet-jdoe.txt"
    }
   (datafile){
      createId = "db/nbour"
-     createTime = 2023-06-28 14:14:26+02:00
+     createTime = 2025-12-01 16:15:46+01:00
      id = 13
      modId = "db/nbour"
-     modTime = 2023-06-28 14:14:26+02:00
+     modTime = 2025-12-01 16:15:46+01:00
      checksum = "9012de77"
-     datafileCreateTime = 2023-06-28 14:11:52+02:00
-     datafileModTime = 2023-06-28 14:11:52+02:00
+     datafileCreateTime = 2025-12-01 16:14:58+01:00
+     datafileModTime = 2025-12-01 16:14:58+01:00
      fileSize = 15
-     location = "3/10/2a76ca1c-9139-4842-a141-d4550d980d1a"
+     location = "3/10/7ea664ec-ddae-48d5-b73b-631082f9107a"
      name = "greet-nbour.txt"
    }
   (datafile){
      createId = "db/nbour"
-     createTime = 2023-06-28 14:14:26+02:00
+     createTime = 2025-12-01 16:15:46+01:00
      id = 14
      modId = "db/nbour"
-     modTime = 2023-06-28 14:14:26+02:00
+     modTime = 2025-12-01 16:15:46+01:00
      checksum = "cc830993"
-     datafileCreateTime = 2023-06-28 14:11:52+02:00
-     datafileModTime = 2023-06-28 14:11:52+02:00
+     datafileCreateTime = 2025-12-01 16:14:58+01:00
+     datafileModTime = 2025-12-01 16:14:58+01:00
      fileSize = 15
-     location = "3/10/3481e96c-0842-446f-bb60-1796003d51d7"
+     location = "3/10/5a48d180-723d-4d71-bb74-b11607284578"
      name = "greet-rbeck.txt"
    }
 

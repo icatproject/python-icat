@@ -21,7 +21,7 @@ import icat._meta
 # -- Project information -----------------------------------------------------
 
 project = 'python-icat'
-copyright = ('2013–2024, '
+copyright = ('2013–2025, '
              'Helmholtz-Zentrum Berlin für Materialien und Energie GmbH')
 author = 'Rolf Krahl'
 

@@ -18,7 +18,7 @@ Let's check the available command line options now::
                   [--https-proxy HTTPS_PROXY] [--no-proxy NO_PROXY] [-a AUTH]
                   [-u USERNAME] [-P] [-p PASSWORD]
 
-  optional arguments:
+  options:
     -h, --help            show this help message and exit
     -c CONFIGFILE, --configfile CONFIGFILE
                           config file
