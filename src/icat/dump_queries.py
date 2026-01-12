@@ -63,6 +63,13 @@ def getStaticQueries(client):
     """
     # Compatibility between ICAT versions:
     # - ICAT 5.0.0 added DataPublicationType and Technique.
+    # - ICAT 7.0.0 dropped facility from SampleType.
+    if 'facility' in client.typemap['sampleType'].InstRel:
+        # ICAT < 7.0.0
+        st_include = {"facility"}
+    else:
+        # ICAT >= 7.0.0
+        st_include = None
     queries = [
         Query(client, "Facility", order=True),
         Query(client, "Instrument", order=True,
@@ -72,7 +79,7 @@ def getStaticQueries(client):
         Query(client, "InvestigationType", order=True,
               includes={"facility"}),
         Query(client, "SampleType", order=True,
-              includes={"facility"}),
+              includes=st_include),
         Query(client, "DatasetType", order=True,
               includes={"facility"}),
         Query(client, "DatafileFormat", order=True,
@@ -99,12 +106,14 @@ def getSampleQueries(client):
     """
     # Compatibility between ICAT versions:
     # - ICAT 7.0.0 added InvestigationSample and thus changed the
-    #   relation from Sample to Investigation to be many-to-many.
+    #   relation from Sample to Investigation to be many-to-many.  We
+    #   assume at the same time that the relation from SampleType to
+    #   Facility has been dropped.
     if 'investigationSample' in client.typemap:
+        assert 'facility' not in client.typemap['sampleType'].InstRel
         return [
             Query(client, "Sample", order=True,
-              includes={"type.facility",
-                        "parameters", "parameters.type.facility"}),
+              includes={"type", "parameters", "parameters.type.facility"}),
         ]
     else:
         return []
