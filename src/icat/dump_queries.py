@@ -14,7 +14,7 @@ following:
    can add investigations.
 3. Only if the relation between Sample and Investigation is
    many-to-many: all Samples.  If the relation is many-to-one, the
-   samples will be included in the imvestigation data.
+   samples will be included in the investigation data.
 4. FundingReferences.
 5. The investigation data.  All content related to individual
    investigations.  Each investigation with all its data in one single
